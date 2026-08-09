@@ -1,0 +1,5 @@
+[
+  {"type":"apply-faction-delta","commandId":"command-faction","eventId":"event-faction","scheduledMinute":2,"priority":0,"factionId":"velvet_tide","delta":10,"scale":"ordinary","reason":"Shared a useful lead"},
+  {"type":"advance-clock","commandId":"command-clock","eventId":"event-clock","scheduledMinute":3,"priority":0,"realMilliseconds":2500},
+  {"type":"apply-relationship-delta","commandId":"command-relationship","eventId":"event-relationship","scheduledMinute":2,"priority":0,"npcId":"linda","delta":{"familiarity":3,"trust":2,"attraction":1},"source":"conversation","reason":"Listened carefully"}
+]
