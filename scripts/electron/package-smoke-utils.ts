@@ -1,0 +1,127 @@
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { basename, join } from 'node:path';
+
+import { RendererReadySchema, type RendererReadyReport } from '../../electron/ipc/contracts';
+import { isTrustedAppUrl } from '../../electron/main/security';
+import { APP_URL } from '../../electron/protocol/app-protocol';
+
+const RESULT_PREFIX = 'SI_WORLD_SMOKE_RESULT ';
+
+function filesUnder(path: string): string[] {
+  return readdirSync(path).flatMap((entry) => {
+    const entryPath = join(path, entry);
+    return statSync(entryPath).isDirectory() ? filesUnder(entryPath) : [entryPath];
+  });
+}
+
+export function findPackagedExecutable(outputRoot: string, platform = process.platform): string {
+  const candidates = filesUnder(outputRoot).filter((filePath) => {
+    const name = basename(filePath).toLowerCase();
+    if (platform === 'darwin') {
+      return filePath.includes('.app/Contents/MacOS/') && name === 'si-world';
+    }
+    if (platform === 'win32') {
+      return name === 'si-world.exe';
+    }
+    return name === 'si-world' && filePath.includes('-linux-');
+  });
+  if (candidates.length !== 1) {
+    throw new Error(`Expected one packaged executable, found ${candidates.length}.`);
+  }
+  const executable = candidates[0];
+  if (!executable) {
+    throw new Error('Packaged executable was not found.');
+  }
+  return executable;
+}
+
+export function findPackageArchive(outputRoot: string): string {
+  const candidates = filesUnder(outputRoot).filter((filePath) => basename(filePath) === 'app.asar');
+  if (candidates.length !== 1 || !candidates[0]) {
+    throw new Error(`Expected one app.asar archive, found ${candidates.length}.`);
+  }
+  return candidates[0];
+}
+
+export function validatePackageListing(listing: string): void {
+  const entries = new Set(listing.split(/\r?\n/u).filter(Boolean));
+  const required = [
+    '/build/electron/main/index.js',
+    '/build/electron/preload/index.js',
+    '/dist/canvaskit.wasm',
+    '/dist/index.html',
+    '/node_modules/zod/package.json',
+  ];
+  for (const requiredEntry of required) {
+    if (!entries.has(requiredEntry)) {
+      throw new Error(`Packaged archive is missing ${requiredEntry}.`);
+    }
+  }
+
+  const requiredResourcePatterns = [
+    /^\/dist\/assets\/assets\/proof\/phase2-atlas\.[a-f0-9]+\.png$/u,
+    /^\/dist\/assets\/assets\/proof\/phase2-tone\.[a-f0-9]+\.wav$/u,
+    /^\/dist\/assets\/node_modules\/@expo-google-fonts\/silkscreen\/400Regular\/Silkscreen_400Regular\.[a-f0-9]+\.ttf$/u,
+  ];
+  for (const pattern of requiredResourcePatterns) {
+    if (![...entries].some((entry) => pattern.test(entry))) {
+      throw new Error(`Packaged archive is missing required resource matching ${String(pattern)}.`);
+    }
+  }
+
+  const forbiddenPrefixes = [
+    '/artifacts/',
+    '/audits/',
+    '/docs/',
+    '/electron/',
+    '/scripts/',
+    '/src/',
+    '/tests/',
+    '/node_modules/expo/',
+    '/node_modules/react-native/',
+  ];
+  const leakedEntry = [...entries].find((entry) =>
+    forbiddenPrefixes.some((prefix) => entry.startsWith(prefix)),
+  );
+  if (leakedEntry) {
+    throw new Error(`Packaged archive contains excluded source or dependency: ${leakedEntry}.`);
+  }
+}
+
+export function parseSmokeResult(stdout: string): RendererReadyReport {
+  const line = stdout
+    .split(/\r?\n/u)
+    .find((candidate) => candidate.startsWith(RESULT_PREFIX));
+  if (!line) {
+    throw new Error('Packaged app did not emit a renderer readiness result.');
+  }
+  const report = RendererReadySchema.parse(JSON.parse(line.slice(RESULT_PREFIX.length)));
+  if (!isTrustedAppUrl(report.appUrl) || report.appUrl !== APP_URL) {
+    throw new Error('Packaged app reported an untrusted renderer URL.');
+  }
+  return report;
+}
+
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const MIN_SCREENSHOT_BYTES = 4_096;
+
+function assertScreenshot(buffer: Buffer, label: string): void {
+  if (buffer.byteLength < MIN_SCREENSHOT_BYTES) {
+    throw new Error(`${label} screenshot is missing or too small.`);
+  }
+  if (!buffer.subarray(0, PNG_SIGNATURE.byteLength).equals(PNG_SIGNATURE)) {
+    throw new Error(`${label} screenshot is not a PNG.`);
+  }
+}
+
+export function validateScreenshotBuffers(loading: Buffer, ready: Buffer): void {
+  assertScreenshot(loading, 'Loading');
+  assertScreenshot(ready, 'Ready');
+  if (loading.equals(ready)) {
+    throw new Error('Loading and ready screenshots are identical.');
+  }
+}
+
+export function validateScreenshotEvidence(loadingPath: string, readyPath: string): void {
+  validateScreenshotBuffers(readFileSync(loadingPath), readFileSync(readyPath));
+}

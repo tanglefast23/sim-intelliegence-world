@@ -7,6 +7,9 @@
     "node": ">=22.13.0"
   },
   "packageManager": "npm@10.9.8",
+  "overrides": {
+    "tar": "7.5.22"
+  },
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
@@ -15,17 +18,27 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
+    "proof:assets": "tsx scripts/electron/build-proof-assets.ts",
+    "proof:check": "npm run proof:assets && npm run setup:skia-web && git diff --exit-code -- assets/proof public/canvaskit.wasm",
+    "setup:skia-web": "setup-skia-web public",
     "art:atlas": "tsx scripts/verification/assert-deferred-phase.ts art",
     "art:check": "npm run art:atlas",
-    "export:web": "expo export --platform web",
-    "test:electron": "tsx scripts/verification/assert-deferred-phase.ts electron",
-    "verify": "npm run validate:content && npm run art:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron"
+    "export:web": "npm run proof:assets && npm run setup:skia-web && expo export --platform web",
+    "build:electron": "tsc -p electron/tsconfig.json",
+    "package:electron": "npm run export:web && npm run build:electron && electron-forge package",
+    "test:electron:unit": "jest --runInBand --runTestsByPath tests/electron/security.test.ts tests/electron/package-smoke.test.ts",
+    "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
+    "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron",
+    "verify": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.8",
+    "@expo-google-fonts/silkscreen": "0.4.2",
     "@shopify/react-native-skia": "2.6.2",
     "expo": "57.0.11",
+    "expo-asset": "57.0.9",
     "expo-audio": "57.0.3",
+    "expo-font": "57.0.1",
     "expo-status-bar": "57.0.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -37,11 +50,17 @@
     "zustand": "5.0.14"
   },
   "devDependencies": {
+    "@electron-forge/cli": "7.11.2",
+    "@electron-forge/maker-zip": "7.11.2",
+    "@electron-forge/shared-types": "7.11.2",
     "@types/jest": "29.5.14",
     "@types/node": "22.20.1",
+    "@types/pngjs": "6.0.5",
     "@types/react": "19.2.17",
+    "electron": "43.3.0",
     "jest": "29.7.0",
     "jest-expo": "57.0.3",
+    "pngjs": "7.0.0",
     "tsx": "4.23.1",
     "typescript": "6.0.3"
   }

@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "noEmit": false,
+    "outDir": "../build/electron",
+    "rootDir": ".",
+    "target": "ES2023",
+    "types": ["node", "electron"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["../node_modules", "../build"]
+}

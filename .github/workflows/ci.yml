@@ -36,5 +36,5 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Verify foundation
-        run: npm run verify
+      - name: Verify current phase
+        run: xvfb-run -a npm run verify
