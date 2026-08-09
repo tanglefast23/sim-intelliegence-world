@@ -1,0 +1,328 @@
+import { randomBytes } from 'node:crypto';
+import {
+  copyFile,
+  lstat,
+  mkdir,
+  open,
+  readFile,
+  readdir,
+  rename,
+  unlink,
+} from 'node:fs/promises';
+import { basename, join } from 'node:path';
+
+import {
+  LoadResultSchema,
+  MigrationRequestSchema,
+  MigrationResultSchema,
+  SaveRequestSchema,
+  SaveSlotIdSchema,
+  SaveResultSchema,
+  type LoadResult,
+  type MigrationRequest,
+  type MigrationResult,
+  type SaveRequest,
+  type SaveResult,
+  type SaveSlotId,
+} from '../../src/application/effects/PersistencePort';
+import { migrateStateCopy } from '../../src/domain/state/migrations';
+import { parseSaveEnvelope, serializeSaveEnvelope, createSaveEnvelope, manifestForEnvelope, SaveManifestSchema } from './save-format';
+import { inspectSaveCandidate, recoverSlot } from './recovery';
+import { SerializedWriteQueue } from './write-queue';
+
+export type SaveFaultStage =
+  | 'before-write'
+  | 'after-write'
+  | 'after-flush'
+  | 'after-validation'
+  | 'after-backup'
+  | 'after-replacement'
+  | 'before-autosave-maintenance'
+  | 'before-manifest-maintenance';
+
+export type SaveFaultInjector = (stage: SaveFaultStage) => void | Promise<void>;
+
+const AUTOSAVE_TRIGGERS = new Set(['sleep', 'travel', 'major_quest']);
+
+function compareAscii(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function uniqueSuffix(): string {
+  return randomBytes(12).toString('hex');
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await lstat(path);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
+async function writeFlushedFile(path: string, data: string): Promise<void> {
+  const handle = await open(path, 'wx', 0o600);
+  try {
+    await handle.writeFile(data, 'utf8');
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+async function writeDerivedManifest(slotPath: string, serialized: string): Promise<void> {
+  const target = join(slotPath, 'manifest.json');
+  const temporary = join(slotPath, `manifest.json.tmp-${uniqueSuffix()}`);
+  await writeFlushedFile(temporary, serialized);
+  SaveManifestSchema.parse(JSON.parse(await readFile(temporary, 'utf8')) as unknown);
+  await rename(temporary, target);
+}
+
+async function archiveInvalidCandidate(slotPath: string, candidatePath: string, label: string): Promise<void> {
+  const recoveryPath = join(slotPath, 'recovery');
+  await mkdir(recoveryPath, { recursive: true, mode: 0o700 });
+  await rename(candidatePath, join(recoveryPath, `corrupt-${label}-${uniqueSuffix()}.json`));
+}
+
+function blockingSaveTokens(request: SaveRequest): string[] {
+  return request.state.clock.pauseTokens.filter((token) => (
+    token.startsWith('pause:conversation:') || token.startsWith('pause:transition:')
+  )).sort(compareAscii);
+}
+
+export function saveRootForUserData(userDataPath: string): string {
+  return join(userDataPath, 'si-world');
+}
+
+export class SaveRepository {
+  readonly #queue = new SerializedWriteQueue();
+
+  constructor(
+    private readonly rootPath: string,
+    private readonly faultInjector?: SaveFaultInjector,
+  ) {}
+
+  async load(slotCandidate: SaveSlotId): Promise<LoadResult> {
+    const slotId = SaveSlotIdSchema.parse(slotCandidate);
+    return this.#queue.enqueue(() => this.loadSlot(slotId));
+  }
+
+  private async loadSlot(slotId: SaveSlotId): Promise<LoadResult> {
+    const recovery = await recoverSlot(this.slotPath(slotId), slotId);
+    if (!recovery.selected) {
+      return recovery.invalidCandidates.length === 0
+        ? LoadResultSchema.parse({ status: 'empty', slotId })
+        : LoadResultSchema.parse({
+          status: 'unrecoverable',
+          slotId,
+          invalidCandidateCount: recovery.invalidCandidates.length,
+        });
+    }
+    return LoadResultSchema.parse({
+      status: 'loaded',
+      slotId,
+      saveGeneration: recovery.selected.envelope.saveGeneration,
+      checksum: recovery.selected.envelope.payloadChecksum,
+      source: recovery.selected.source,
+      state: recovery.selected.envelope.state,
+      invalidCandidateCount: recovery.invalidCandidates.length,
+    });
+  }
+
+  save(candidate: SaveRequest): Promise<SaveResult> {
+    const request = SaveRequestSchema.parse(candidate);
+    const blockers = blockingSaveTokens(request);
+    if (blockers.length > 0) {
+      return Promise.resolve(SaveResultSchema.parse({
+        status: 'deferred',
+        slotId: request.slotId,
+        blockingPauseTokens: blockers,
+      }));
+    }
+    return this.#queue.enqueue(() => this.writeSave(request));
+  }
+
+  migrate(candidate: MigrationRequest): Promise<MigrationResult> {
+    const request = MigrationRequestSchema.parse(candidate);
+    return this.#queue.enqueue(() => this.migrateSlot(request));
+  }
+
+  private slotPath(slotId: SaveSlotId): string {
+    return join(this.rootPath, 'save-slots', slotId);
+  }
+
+  private async inject(stage: SaveFaultStage): Promise<void> {
+    await this.faultInjector?.(stage);
+  }
+
+  private async migrateSlot(request: MigrationRequest): Promise<MigrationResult> {
+    const sourcePath = join(this.slotPath(request.sourceSlotId), 'state.json');
+    const stats = await lstat(sourcePath);
+    if (stats.isSymbolicLink() || !stats.isFile() || stats.size > 8 * 1_024 * 1_024) {
+      throw new Error('Migration source must be a regular bounded state file.');
+    }
+    const sourceBytes = await readFile(sourcePath, 'utf8');
+    const sourceCandidate = JSON.parse(sourceBytes) as unknown;
+    if (
+      typeof sourceCandidate === 'object' &&
+      sourceCandidate !== null &&
+      'formatVersion' in sourceCandidate
+    ) {
+      throw new Error('No registered envelope migration supports this source format.');
+    }
+    const migratedState = migrateStateCopy(sourceCandidate, request.nextGenerationId);
+    const targetRecovery = await recoverSlot(this.slotPath(request.targetSlotId), request.targetSlotId);
+    if (targetRecovery.selected || targetRecovery.invalidCandidates.length > 0) {
+      throw new Error('Migration target slot is not empty.');
+    }
+    if (await readFile(sourcePath, 'utf8') !== sourceBytes) {
+      throw new Error('Migration source changed during copy.');
+    }
+    const saved = await this.writeSave(SaveRequestSchema.parse({
+      slotId: request.targetSlotId,
+      expectedSaveGeneration: null,
+      trigger: 'manual',
+      state: migratedState,
+    }));
+    if (saved.status !== 'saved') throw new Error('Migration target save was deferred.');
+    return MigrationResultSchema.parse({
+      status: 'migrated',
+      sourceSlotId: request.sourceSlotId,
+      targetSlotId: request.targetSlotId,
+      saveGeneration: saved.saveGeneration,
+      checksum: saved.checksum,
+      stateSchemaVersion: migratedState.schemaVersion,
+      maintenanceWarnings: saved.maintenanceWarnings,
+    });
+  }
+
+  private async writeSave(request: SaveRequest): Promise<SaveResult> {
+    const slotPath = this.slotPath(request.slotId);
+    const autosavePath = join(slotPath, 'autosaves');
+    await mkdir(autosavePath, { recursive: true, mode: 0o700 });
+    const recovery = await recoverSlot(slotPath, request.slotId);
+    if (!recovery.selected && recovery.invalidCandidates.length > 0) {
+      throw new Error('No valid save candidate exists; corrupt candidates were preserved.');
+    }
+    const currentGeneration = recovery.selected?.envelope.saveGeneration ?? null;
+    if (request.expectedSaveGeneration !== currentGeneration) {
+      throw new Error(`Stale save writer: expected ${String(request.expectedSaveGeneration)}, current ${String(currentGeneration)}.`);
+    }
+    if (recovery.selected) {
+      if (recovery.selected.envelope.state.generationId !== request.state.generationId) {
+        throw new Error('Stale save lineage: state generation ID does not match the slot.');
+      }
+      if (request.state.revision < recovery.selected.envelope.state.revision) {
+        throw new Error('Stale save state revision.');
+      }
+    }
+
+    const saveGeneration = (currentGeneration ?? 0) + 1;
+    const envelope = createSaveEnvelope(request.slotId, saveGeneration, request.trigger, request.state);
+    const serialized = serializeSaveEnvelope(envelope);
+    if (Buffer.byteLength(serialized, 'utf8') > 8 * 1_024 * 1_024) {
+      throw new Error('Serialized save exceeds the save size limit.');
+    }
+    const mainPath = join(slotPath, 'state.json');
+    const temporaryPath = join(slotPath, `state.json.tmp-${String(saveGeneration).padStart(12, '0')}-${uniqueSuffix()}`);
+
+    await this.inject('before-write');
+    const handle = await open(temporaryPath, 'wx', 0o600);
+    try {
+      await handle.writeFile(serialized, 'utf8');
+      await this.inject('after-write');
+      await handle.sync();
+      await this.inject('after-flush');
+    } finally {
+      await handle.close();
+    }
+    parseSaveEnvelope(JSON.parse(await readFile(temporaryPath, 'utf8')) as unknown);
+    await this.inject('after-validation');
+
+    const backupPath = join(slotPath, 'state.json.bak');
+    if (recovery.selected) {
+      if (await pathExists(backupPath)) {
+        const backup = await inspectSaveCandidate(backupPath, 'backup', request.slotId);
+        if (backup && !('envelope' in backup)) {
+          await archiveInvalidCandidate(slotPath, backupPath, 'backup');
+        }
+      }
+      const backupTemporary = join(slotPath, `state.json.bak.tmp-${uniqueSuffix()}`);
+      await copyFile(recovery.selected.path, backupTemporary);
+      const backupHandle = await open(backupTemporary, 'r+');
+      try {
+        await backupHandle.sync();
+      } finally {
+        await backupHandle.close();
+      }
+      parseSaveEnvelope(JSON.parse(await readFile(backupTemporary, 'utf8')) as unknown);
+      await rename(backupTemporary, backupPath);
+    }
+    if (await pathExists(mainPath)) {
+      const main = await inspectSaveCandidate(mainPath, 'main', request.slotId);
+      if (main && !('envelope' in main)) await archiveInvalidCandidate(slotPath, mainPath, 'main');
+    }
+    await this.inject('after-backup');
+    await rename(temporaryPath, mainPath);
+    const maintenanceWarnings: Array<
+      | 'post_commit_observer_failed'
+      | 'autosave_maintenance_failed'
+      | 'manifest_maintenance_failed'
+    > = [];
+    try {
+      await this.inject('after-replacement');
+    } catch {
+      maintenanceWarnings.push('post_commit_observer_failed');
+    }
+    if (AUTOSAVE_TRIGGERS.has(request.trigger)) {
+      try {
+        await this.inject('before-autosave-maintenance');
+        await this.writeAutosave(autosavePath, envelope, serialized);
+      } catch {
+        maintenanceWarnings.push('autosave_maintenance_failed');
+      }
+    }
+    try {
+      await this.inject('before-manifest-maintenance');
+      await writeDerivedManifest(
+        slotPath,
+        `${JSON.stringify(manifestForEnvelope(envelope))}\n`,
+      );
+    } catch {
+      maintenanceWarnings.push('manifest_maintenance_failed');
+    }
+    return SaveResultSchema.parse({
+      status: 'saved',
+      slotId: request.slotId,
+      saveGeneration,
+      checksum: envelope.payloadChecksum,
+      maintenanceWarnings,
+    });
+  }
+
+  private async writeAutosave(
+    autosavePath: string,
+    envelope: ReturnType<typeof createSaveEnvelope>,
+    serialized: string,
+  ): Promise<void> {
+    const fileName = `autosave-${String(envelope.saveGeneration).padStart(12, '0')}.json`;
+    const target = join(autosavePath, fileName);
+    const temporary = join(autosavePath, `${fileName}.tmp-${uniqueSuffix()}`);
+    await writeFlushedFile(temporary, serialized);
+    parseSaveEnvelope(JSON.parse(await readFile(temporary, 'utf8')) as unknown);
+    await rename(temporary, target);
+
+    const names = (await readdir(autosavePath)).filter((name) => /^autosave-[0-9]{12}\.json$/u.test(name));
+    const valid: Array<Readonly<{ name: string; generation: number }>> = [];
+    for (const name of names) {
+      const candidate = await inspectSaveCandidate(join(autosavePath, name), 'autosave', envelope.slotId);
+      if (candidate && 'envelope' in candidate) {
+        valid.push({ name, generation: candidate.envelope.saveGeneration });
+      }
+    }
+    valid.sort((left, right) => right.generation - left.generation || compareAscii(left.name, right.name));
+    await Promise.all(valid.slice(3).map(({ name }) => unlink(join(autosavePath, basename(name)))));
+  }
+}

@@ -21,7 +21,13 @@ export const RendererReadySchema = z
   .object({
     appUrl: z.string().max(512),
     assetsLoaded: z.literal(true),
-    bridgeKeys: z.array(z.enum(['getRuntimeInfo', 'reportRendererReady'])).length(2),
+    bridgeKeys: z.tuple([
+      z.literal('getRuntimeInfo'),
+      z.literal('loadSave'),
+      z.literal('migrateSave'),
+      z.literal('reportRendererReady'),
+      z.literal('requestSave'),
+    ]),
     canvasKitReady: z.literal(true),
     nodeAccessBlocked: z.literal(true),
   })
@@ -49,7 +55,7 @@ export class IpcRateLimiter {
   }
 }
 
-function assertTrustedEvent(event: IpcMainInvokeEvent, limiter: IpcRateLimiter): void {
+export function assertTrustedEvent(event: IpcMainInvokeEvent, limiter: IpcRateLimiter): void {
   const senderUrl = event.senderFrame?.url;
   if (!senderUrl || !isTrustedAppUrl(senderUrl) || event.senderFrame !== event.sender.mainFrame) {
     throw new Error('IPC sender is not the trusted main frame.');

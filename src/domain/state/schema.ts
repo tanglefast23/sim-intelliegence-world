@@ -20,7 +20,7 @@ import {
   TransferStateSchema,
 } from './models';
 
-export const STATE_SCHEMA_VERSION = 1 as const;
+export const STATE_SCHEMA_VERSION = 2 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
@@ -30,12 +30,19 @@ const PrngStateSchema = z.object({
   cursor: z.number().int().min(0).max(0xffff_ffff),
 }).strict();
 
-export const WorldStateSchema = z.object({
+export const ModelPinSchema = z.object({
+  id: z.enum(['qwen3.5-9b', 'qwen3.5-4b']),
+  sourceRevision: z.string().regex(/^[a-f0-9]{40}$/u),
+  artifactSha256: z.string().regex(/^[a-f0-9]{64}$/u),
+}).strict();
+
+export const WorldStateBaseSchema = z.object({
   schemaVersion: z.literal(STATE_SCHEMA_VERSION),
   engineVersion: z.literal(ENGINE_VERSION),
   contentVersion: z.literal(CONTENT_VERSION),
   promptVersion: z.literal(PROMPT_VERSION),
   modelContractVersion: z.literal(MODEL_CONTRACT_VERSION),
+  modelPin: ModelPinSchema,
   generationId: z.string().regex(/^generation-[a-z0-9-]+$/u),
   revision: z.number().int().nonnegative(),
   prng: PrngStateSchema,
@@ -55,7 +62,9 @@ export const WorldStateSchema = z.object({
   policeAttention: PoliceAttentionSchema,
   eventReceipts: z.array(EventIdSchema),
   eventLedger: z.array(DomainEventSchema),
-}).strict().superRefine((state, context) => {
+}).strict();
+
+export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context) => {
   if (new Set(state.eventReceipts).size !== state.eventReceipts.length) {
     context.addIssue({ code: 'custom', path: ['eventReceipts'], message: 'Event receipts must be unique.' });
   }
