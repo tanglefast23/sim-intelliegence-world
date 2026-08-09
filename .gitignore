@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.expo/
+coverage/
+
+# Platform output
+out/
+release/
+*.dmg
+*.exe
+*.AppImage
+
+# Local model runtime and generated secrets
+models/
+*.gguf
+*.api-key
+*.pid
+*.log
+
+# Saves and temporary persistence files
+saves/
+*.tmp
+*.bak
+
+# Local environment and editor state
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
