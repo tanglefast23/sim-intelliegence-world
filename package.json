@@ -20,6 +20,12 @@
     "test:watch": "jest --watch",
     "proof:assets": "tsx scripts/electron/build-proof-assets.ts",
     "proof:check": "npm run proof:assets && npm run setup:skia-web && git diff --exit-code -- assets/proof public/canvaskit.wasm",
+    "model:build": "tsx scripts/model/build-llama.ts",
+    "model:manifest": "tsx scripts/model/hash-manifest.ts",
+    "model:prepare": "tsx scripts/model/prepare-model.ts",
+    "model:parent-kill-smoke": "tsx scripts/model/run-package-parent-kill-smoke.ts",
+    "model:real-spike": "tsx scripts/model/run-real-spike.ts",
+    "model:smoke": "tsx scripts/model/run-package-model-smoke.ts",
     "setup:skia-web": "setup-skia-web public",
     "art:atlas": "tsx scripts/verification/assert-deferred-phase.ts art",
     "art:check": "npm run art:atlas",
@@ -27,10 +33,11 @@
     "build:electron": "tsc -p electron/tsconfig.json",
     "package:electron": "npm run export:web && npm run build:electron && electron-forge package",
     "test:electron:unit": "jest --runInBand --runTestsByPath tests/electron/security.test.ts tests/electron/package-smoke.test.ts",
+    "test:model": "jest --runInBand --runTestsByPath src/ai/__tests__/spike-response.test.ts tests/electron/model-lifecycle.test.ts",
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
     "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron",
-    "verify:ci-build": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run package:electron",
-    "verify": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron"
+    "verify:ci-build": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron",
+    "verify": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.8",

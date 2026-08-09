@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-09T21:36:19.664Z",
+  "llamaCpp": {
+    "revision": "74ce15741b420b8d6f12e720398458b576c51c2c",
+    "buildNumber": 10335,
+    "sourceUrl": "https://github.com/ggml-org/llama.cpp/tree/74ce15741b420b8d6f12e720398458b576c51c2c",
+    "license": "MIT",
+    "licenseUrl": "https://github.com/ggml-org/llama.cpp/blob/master/LICENSE",
+    "licenseArtifact": {
+      "fileName": "LLAMA-LICENSE",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "sizeBytes": 1078
+    },
+    "supportCommits": [
+      "fc0fe4004985d6749a7a05e250d161f9dbe41d65",
+      "0d049d6a9245ccffc6073743ff8b6bb24ac6a47b",
+      "42532afff43910e619a650c1704525b3acbbec5a"
+    ],
+    "buildFlags": [
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DBUILD_SHARED_LIBS=OFF",
+      "-DGGML_NATIVE=OFF",
+      "-DLLAMA_CURL=OFF",
+      "-DLLAMA_OPENSSL=OFF",
+      "-DLLAMA_BUILD_UI=OFF",
+      "-DLLAMA_USE_PREBUILT_UI=OFF",
+      "-DLLAMA_BUILD_SERVER=ON",
+      "-DLLAMA_BUILD_TESTS=OFF",
+      "-DLLAMA_BUILD_EXAMPLES=OFF",
+      "-DGGML_METAL=ON"
+    ],
+    "artifacts": [
+      {
+        "fileName": "llama-server",
+        "platform": "darwin-arm64",
+        "sha256": "30cf458e1627892f30e874fbe1ecb66412db1fbea0fb4054857245234c379076",
+        "sizeBytes": 13376240
+      }
+    ],
+    "parentGuards": [
+      {
+        "fileName": "llama-parent-guard",
+        "platform": "darwin-arm64",
+        "sha256": "014d571fc3a8e2cf7a638793ed49b65e8b46f3657bde9ad53a6ebde8700bb688",
+        "sizeBytes": 34048
+      }
+    ]
+  },
+  "models": [
+    {
+      "id": "qwen3.5-9b",
+      "role": "primary",
+      "repository": "Qwen/Qwen3.5-9B",
+      "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "sourceUrl": "https://huggingface.co/Qwen/Qwen3.5-9B/tree/c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+      "licenseArtifact": {
+        "fileName": "qwen3.5-9b-LICENSE",
+        "sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+        "sizeBytes": 11544
+      },
+      "format": "GGUF",
+      "quantization": "Q4_K_M",
+      "contextSize": 8192,
+      "conversionScriptRevision": "74ce15741b420b8d6f12e720398458b576c51c2c",
+      "artifact": {
+        "fileName": "qwen3.5-9b-q4_k_m.gguf",
+        "sha256": "8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341",
+        "sizeBytes": 5780090624
+      }
+    },
+    {
+      "id": "qwen3.5-4b",
+      "role": "fallback",
+      "repository": "Qwen/Qwen3.5-4B",
+      "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "sourceUrl": "https://huggingface.co/Qwen/Qwen3.5-4B/tree/851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+      "licenseArtifact": {
+        "fileName": "qwen3.5-4b-LICENSE",
+        "sha256": "bbedc3fda3305820b977265f01b8619d87570a6739de3a5582c3464840f1e57a",
+        "sizeBytes": 11544
+      },
+      "format": "GGUF",
+      "quantization": "Q4_K_M",
+      "contextSize": 8192,
+      "conversionScriptRevision": "74ce15741b420b8d6f12e720398458b576c51c2c",
+      "artifact": {
+        "fileName": "qwen3.5-4b-q4_k_m.gguf",
+        "sha256": "32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14",
+        "sizeBytes": 2783446752
+      }
+    }
+  ]
+}
