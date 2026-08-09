@@ -213,10 +213,14 @@ describe('secure Electron boundary', () => {
   test('Linux CI keeps the Chromium sandbox enabled for packaged smoke', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
     const forgeConfig = readFileSync(resolve('forge.config.ts'), 'utf8');
+    const mainProcess = readFileSync(resolve('electron/main/index.ts'), 'utf8');
     expect(workflow).toContain("sandbox_path='out/si-world-linux-x64/chrome-sandbox'");
     expect(workflow).toContain("sudo chown root:root \"$sandbox_path\"");
     expect(workflow).toContain("sudo chmod 4755 \"$sandbox_path\"");
     expect(workflow).not.toContain('--no-sandbox');
+    expect(workflow).toContain("SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'");
     expect(forgeConfig).toContain("process.platform === 'linux' ? 'si-world' : 'SI World'");
+    expect(mainProcess).toContain("smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1'");
+    expect(mainProcess).toContain('app.disableHardwareAcceleration()');
   });
 });

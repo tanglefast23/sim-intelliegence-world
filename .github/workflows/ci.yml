@@ -48,4 +48,6 @@ jobs:
           test "$(stat -c '%u:%g:%a' "$sandbox_path")" = '0:0:4755'
 
       - name: Verify packaged Linux shell
+        env:
+          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
         run: xvfb-run -a npm run smoke:electron

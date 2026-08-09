@@ -16,6 +16,10 @@ registerAppSchemePrivileges(protocol);
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
 let smokeFinished = false;
 
+if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
+  app.disableHardwareAcceleration();
+}
+
 async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: string): Promise<void> {
   const image = await window.webContents.capturePage();
   await writeFile(screenshotPath, image.toPNG(), { flush: true });
