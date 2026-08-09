@@ -1,10 +1,10 @@
 # Sim Intelliegence World — Game Specification
 
-**Short name:** SI World  
-**Status:** Early design / pre-production  
-**Last updated:** 2026-08-10  
-**Working directory:** `~/Documents/Vibecode/Sim Intelliegence World`  
-**Target platforms:** macOS desktop and Windows PC desktop  
+**Short name:** SI World
+**Status:** Early design / pre-production
+**Last updated:** 2026-08-10
+**Working directory:** `~/Documents/Vibecode/Sim Intelliegence World`
+**Target platforms:** macOS desktop and Windows PC desktop
 **Distribution:** Paid commercial game on Steam
 
 ## 1. Product Summary
@@ -102,9 +102,9 @@ The following decisions are currently locked:
 - Full-AI NPCs receive free-text local-model conversations, dedicated authored context, and persistent conversational memory.
 - Ambient residents use deterministic schedules, movement, and authored short dialogue. They do not invoke the local model or maintain persistent conversational memory.
 - Each NPC has four to six daily schedule blocks. Inactive-neighborhood residents advance directly between deterministic schedule milestones.
-- The target local foundation model is **Qwen3.5-9B** at `Q4_K_M`, subject to the locked hardware and performance gate. If it fails that gate, the game must use a smaller bundled model rather than ship unacceptable performance.
+- The target local foundation model is **Qwen3.5-9B** at `Q4_K_M`, subject to the locked hardware, capability, and performance gates. If it fails, **Qwen3.5-4B** at `Q4_K_M` is the named fallback candidate and must pass the same gates.
 - The desktop shell is Electron. Its main process supervises one bundled loopback-only `llama-server` child process.
-- The performance gate targets a `16 GB` RAM machine, no more than `3` seconds to first visible text, at least `8` generated tokens per second, and `60 FPS` rendering during generation on named baseline hardware.
+- The performance gate targets named `16 GB` RAM macOS and Windows machines, no more than `3` seconds to the model's first token, at least `8` generated tokens per second, no more than `12` seconds to a validated visible ordinary reply at the 95th percentile, and `60 FPS` rendering during generation.
 - The selected local model remains loaded for the entire gameplay session. It is not unloaded while the player is playing.
 - The game is self-contained; players do not need Ollama or another separately installed local-LLM manager.
 - Every important NPC has a dedicated directory.
@@ -199,6 +199,8 @@ Violence is resolved through contextual actions rather than twitch combat. A pla
 
 Criminal actions create evidence and may be witnessed. Police attention progresses through `noticed`, `questioned`, `wanted`, and `arrest-on-sight`. Defeat does not permanently kill the protagonist. It may cause injury, arrest, lost time, lost money or items, and reputation damage. NPC death is permitted when an authored or validated outcome supports it.
 
+A protagonist defeat outcome is structured authored data and must apply at least one non-zero cost from Health, time, money, items, police state, or reputation. Health reaching `0` triggers defeat resolution; the resolved protagonist returns with at least `1` Health. The vertical-slice test fixture `injured_escape` applies `-25` Health after the survival floor and advances the authoritative clock by four game hours. Other exact defeat packages remain content and balance work, but no outcome may silently erase the cost or permanently end the save.
+
 ### 3.5 Time flow
 
 The world advances continuously during ordinary exploration. The player can pause the simulation or run it at `1×` or `2×` speed. At `1×`, one real second advances the authoritative clock by one game minute, so a complete twenty-four-hour day takes `24` real minutes. At `2×`, a complete day takes `12` real minutes. Movement, NPC schedules, quest timers, weather, and other deterministic simulation systems use that clock.
@@ -270,11 +272,17 @@ SI World copies the established Life Sim software stack:
 | Content validation | Zod schemas for authored structured data |
 | Styling | React Native `StyleSheet` |
 | Audio | `expo-audio` |
-| Persistence boundary | Adapter-based persistence with versioned saves; the final desktop storage driver remains open |
+| Persistence boundary | Electron-main filesystem adapter with versioned JSON saves |
 
 This decision copies the technical foundation, not Life Sim's game design. SI World retains direct world exploration, AI NPC conversations, its own art direction, and its own simulation rules.
 
-Life Sim exports its React Native Web application for browser hosting. SI World uses **Electron** as its macOS and Windows desktop shell. The Electron main process owns native desktop integration, versioned save-file access, application lifecycle, and supervision of the bundled model process. The Expo web build runs in the Electron renderer.
+Life Sim exports its React Native Web application for browser hosting. SI World uses **Electron Forge** as its macOS and Windows desktop shell and packaging system. The implementation baseline is the latest compatible patch of Electron `43.3.x`, pinned in the lockfile; later major upgrades require a separate breaking-change check. The Electron main process owns native desktop integration, versioned save-file access, application lifecycle, and supervision of the bundled model process. The Expo web build runs in the Electron renderer.
+
+Packaged content loads through a standard secure custom `app://game/` protocol mapped to the exported `dist/` directory with traversal rejection. It does not rely on `file://` or a production HTTP server. The renderer explicitly uses `nodeIntegration: false`, `contextIsolation: true`, `sandbox: true`, `webviewTag: false`, and `webSecurity: true`. A restrictive Content Security Policy permits only the minimum resources required by the app and CanvasKit.
+
+The preload exposes narrow typed asynchronous methods. It never exposes raw `ipcRenderer`, file paths, API keys, child-process handles, or arbitrary channels. Every main-process handler validates the sender frame, request rate, payload size, and Zod schema. Navigation, new windows, external links, and session permissions are denied by default and use exact allowlists where the product needs them.
+
+Prototype desktop qualification uses non-distribution test signing: macOS artifacts receive an ad-hoc code signature, and Windows artifacts receive a temporary local self-signed test certificate. Tests verify both signatures and record public fingerprints without storing private keys in the repository. These artifacts prove package integrity and runtime behavior only. They do not claim platform trust, notarization, store readiness, or public-release signing.
 
 ### 4.0.1 World presentation
 
@@ -304,14 +312,15 @@ Full left/right profile sprites are intentionally excluded from the initial syst
 
 ### 4.1 Foundation model
 
-- **Target model:** Qwen3.5-9B
+- **Primary target model:** `Qwen/Qwen3.5-9B`
+- **Fallback candidate:** `Qwen/Qwen3.5-4B`
 - **Licence:** Apache License 2.0
 - **Commercial use:** Permitted subject to the model's licence, attribution, notice, and redistribution requirements
 - **Deployment format:** Quantized GGUF
 - **Target quantization:** `Q4_K_M`
 - **Runtime:** Bundled `llama-server` from `llama.cpp`
 
-Qwen3.5-9B at `Q4_K_M` is a performance-gated target, not an unconditional ship decision. The initial minimum-memory target is a machine with `16 GB` of system RAM. On the named baseline hardware, conversation generation must reach time to first visible text of no more than `3` seconds, sustained generation of at least `8` tokens per second, and a stable `60 FPS` world renderer while generation is active. If the 9B target fails any gate after focused runtime tuning, the game ships a smaller pinned bundled model that passes all gates. The exact GGUF artifacts and hashes remain release decisions.
+Qwen3.5-9B at `Q4_K_M` is a performance-gated target, not an unconditional ship decision. If it fails any performance or capability gate after focused runtime tuning, Qwen3.5-4B at `Q4_K_M` is tested as the named fallback. The selected model must pass every state-safety and content gate; speed never permits a weaker validation contract. Exact source revisions, conversion procedure, GGUF artifacts, llama.cpp revision, and SHA-256 hashes are pinned by the model-spike phase before either candidate can become a ship artifact.
 
 ### 4.2 Model lifecycle
 
@@ -326,6 +335,12 @@ Launch game
 ```
 
 There must never be one model instance per NPC. All NPCs share the loaded model and submit conversation requests through a managed inference queue. Electron starts, health-checks, restarts after a verified crash, and cleanly stops the child process. The server binds to a loopback address only. The player does not install or manage Ollama or a separate server.
+
+The packaged `llama-server` executable and selected GGUF live as Forge extra resources outside ASAR and are resolved from `process.resourcesPath`. Development paths are explicit configuration, never guessed from the working directory. Electron main spawns the absolute executable with an argument array, `shell: false`, `detached: false`, a minimal environment, a fixed working directory, and hidden Windows console.
+
+Each run uses `127.0.0.1`, one dynamically selected high port, and a random per-run API key stored in a private temporary key file. The server runs offline with no UI, one parallel request, an `8,192`-token context, reasoning disabled, and no multimodal projector. The renderer never receives the server URL or key and never calls it directly.
+
+The main process treats `/health` status `503` as loading and `200` as ready. Startup has a `120`-second deadline. An unexpected exit permits at most two restarts inside five minutes with bounded backoff; further failure opens a circuit breaker and returns authored non-AI fallback until the next application launch. Shutdown first requests a clean stop, then uses a bounded forced stop. Logs are size-bounded and cannot include player dialogue, API keys, or model prompt contents.
 
 ### 4.3 NPC conversation-context lifecycle
 
@@ -361,12 +376,14 @@ content/
     linda/
       personality.md
       biography.md
+      rules.json
       portrait.png              # future/optional
       voice.json                # future/optional
 
     sarah/
       personality.md
       biography.md
+      rules.json
 
     main-character/
       personality.md
@@ -462,7 +479,37 @@ Linda knows the bakery, its customers, and the riverside district.
 Linda does not initially know that the protagonist owns a cat.
 ```
 
-### 5.4 `interaction.md`
+### 5.4 `rules.json` and global registries
+
+Natural-language personality and biography files provide writing context. They are not a deterministic rules database. Each named NPC also has a required Zod-validated `rules.json` that provides machine-readable references for:
+
+- Stable interest IDs
+- Starting-known fact IDs
+- Permitted action and unlock IDs
+- Hard social and romantic boundaries
+- Romantic compatibility and eligibility
+- Starting Familiarity, Trust, Attraction, and relationship stage
+- Stage requirements that are stricter than the engine defaults or mark a stage unavailable
+- Changeable rejection circumstances and permanent rejection reasons
+
+Global Zod-validated registries define every fact, interest, action, memory subject, unlock, quest, location, and faction ID that authored NPC rules may reference:
+
+```text
+content/
+  registries/
+    facts.json
+    interests.json
+    actions.json
+    memory-subjects.json
+    unlocks.json
+    quests.json
+    locations.json
+    factions.json
+```
+
+The build fails if an authored file is invalid, contains a duplicate ID, or references a missing ID. Runtime registry construction reads only validated structured files. Prose can explain a rule to the model, but prose cannot create, weaken, or override a deterministic boundary.
+
+### 5.5 `interaction.md`
 
 `interaction.md` is the generated, save-specific prompt view that contains the major ways the protagonist's interactions have affected the NPC, along with what that NPC knows or believes about him. Versioned JSON remains authoritative.
 
@@ -478,10 +525,15 @@ relationship:
   familiarity: 4
   trust: 5
   attraction: 2
-known_player_facts:
+knowledge:
   - fact_id: protagonist-has-cat
-    value: true
-    learned_during: conversation-0042
+    asserted_value: true
+    epistemic_state: believed
+    truth_status: verified
+    source:
+      type: player_message
+      source_id: player-turn-0042
+      evidence_text: I have a cat.
 common_interests:
   - interest_id: cats
     unlocked: true
@@ -496,7 +548,7 @@ common_interests:
 - He previously helped her with a bakery delivery.
 ```
 
-The structured frontmatter is authoritative for game logic. The prose gives Qwen concise natural-language context.
+The frontmatter and prose are disposable projections of authoritative values in versioned `state.json`. They give the local model concise context, but game logic never reads persistent state back from Markdown.
 
 ## 6. Knowledge Projection
 
@@ -531,6 +583,14 @@ This separation reduces prompt size and allows information asymmetry, secrets, g
 
 NPCs may eventually hold beliefs that are incorrect. Beliefs must be represented separately from authoritative world truth.
 
+Each knowledge record distinguishes:
+
+- **Observed fact:** a fact confirmed by an authoritative scene observation or authored event.
+- **Held belief:** what this NPC currently accepts as true, which may be verified, contradicted, or unknown relative to world truth.
+- **Source:** one validated player message, scene observation, NPC report, or authored event that explains how the NPC received the claim.
+
+A false belief changes only that NPC's knowledge projection. It never changes authoritative world truth. Correcting a belief requires another validated source and a deterministic belief-update rule.
+
 ## 7. Unlocks and Persistent Conversation Effects
 
 Conversations can propose persistent changes such as:
@@ -539,7 +599,6 @@ Conversations can propose persistent changes such as:
 - Discovering a common interest
 - Remembering a major event
 - Proposing bounded Familiarity, Trust, or Attraction signals for deterministic validation
-- Changing trust, familiarity, or attraction
 - Unlocking a conversation topic
 - Unlocking a location, invitation, activity, quest, or social opportunity
 - Causing the NPC to continue or end an interaction
@@ -573,10 +632,14 @@ The model returns schema-constrained JSON that uses closed enums and IDs. For ex
   },
   "knowledge_candidates": [
     {
+      "candidate_type": "held_belief",
       "fact_id": "protagonist-has-cat",
-      "value": true,
-      "source_message_id": "player-turn-0042",
-      "evidence_text": "I have a cat."
+      "asserted_value": true,
+      "source": {
+        "type": "player_message",
+        "source_id": "player-turn-0042",
+        "evidence_text": "I have a cat."
+      }
     }
   ],
   "unlock_candidates": [
@@ -595,14 +658,23 @@ The model returns schema-constrained JSON that uses closed enums and IDs. For ex
 The deterministic game layer checks that:
 
 - Every returned ID was in the registry supplied for this scene.
-- The cited source message exists and the evidence text is an exact substring of it.
+- A `player_message` source exists in the current conversation and its evidence text is an exact substring of that message.
+- A `scene_observation`, `npc_report`, or `authored_event` source ID exists in the engine-supplied source registry for this scene.
 - The NPC can understand or perceive it.
-- The NPC's biography supports the claimed common interest.
+- The NPC's validated `rules.json` supports the claimed common interest, action, relationship signal, or boundary decision.
 - The unlock has not already occurred.
 - The proposed state change is permitted and within defined bounds.
-- The candidate does not contradict authoritative world state or a permanent authored boundary.
+- An observed-world-fact candidate matches authoritative world state.
+- A held-belief candidate may contradict world truth, but it changes only the NPC's belief record and stores its source and current truth status.
+- No candidate contradicts a permanent authored boundary.
+
+An exact evidence substring proves provenance only; deterministic code does not pretend that it proves the semantic meaning of arbitrary free text. A free-text statement may create a sourced low-authority held belief, conversation memory, or common-interest candidate. It cannot directly grant money or items, change world truth, complete a quest, reveal an exact map marker, apply faction standing, give consent, or change a relationship stage. Those high-impact changes require a structured player action, authoritative scene observation, or authored quest event with a permitted ID. The free-text message remains visible to the NPC, so a character may still react naturally or misunderstand it.
 
 If output fails schema parsing or validation, the game retries generation once with a compact correction message. If the retry also fails, the game displays safe fallback dialogue and applies no persistent proposal. Qwen is never permitted to write directly to the save slot.
+
+Validated turn proposals remain in a staged conversation transaction. They can affect later prompts in that same conversation, but they do not change authoritative save state until the player ends the conversation cleanly. Conversation close revalidates the aggregate event IDs and applies the transaction atomically before world time resumes. A crash, forced quit, timeout, or renderer loss during the conversation discards the staged transaction and preserves the last stable save. The complete transcript is not saved as authoritative state.
+
+Version one invokes the local model only during an active player-to-NPC conversation. Schedules, invitations, gossip transfer, off-screen decisions, and quest outcomes remain deterministic and do not create a second model-to-state pathway.
 
 ### 7.3 Relationship state and romantic permission
 
@@ -613,6 +685,21 @@ Each important NPC stores three separate deterministic values for the protagonis
 - **Attraction:** the NPC's current romantic or sexual interest in him.
 
 These values may rise or fall independently. Familiarity does not guarantee trust. Trust does not guarantee attraction. Attraction does not grant romantic access.
+
+All three values are integers from `0` to `100` and are clamped at those bounds. One completed ordinary conversation may apply at most one aggregated delta from `-3` to `+3` to each value. An authored quest outcome may apply one delta from `-15` to `+15` to each value. Every applied delta stores a unique event ID and reason so reloads or repeated model text cannot apply it twice.
+
+The engine supplies these minimum stage floors:
+
+| Next stage | Familiarity | Trust | Attraction | Additional permission |
+|---|---:|---:|---:|---|
+| Acquaintance | 10 | 0 | 0 | Validated mutual social interaction |
+| Friend | 30 | 20 | 0 | Authored compatibility and acceptance |
+| Dating | 40 | 35 | 30 | Romantic eligibility, no blocking circumstance, direct consent |
+| Partner | 55 | 50 | 45 | Authored compatibility and direct consent |
+| Engaged | 70 | 65 | 55 | Authored engagement event and direct consent |
+| Married | 80 | 75 | 60 | Authored marriage event and direct consent |
+
+An NPC's `rules.json` may raise a floor, require extra quest or circumstance flags, or mark a stage unavailable. It may not lower an engine floor or bypass compatibility, boundaries, or consent. Meeting a floor never changes the stage automatically; it only makes a validated stage-transition action eligible.
 
 Any romantic action must also pass authored checks for compatibility, personal boundaries, current circumstances, and direct consent. An NPC may reject the protagonist despite high values, and deterministic validation must block any generated action that contradicts an authored hard boundary or lacks consent. Qwen may propose relationship signals and dialogue; only game code applies bounded value changes or stage transitions.
 
@@ -625,6 +712,8 @@ Stranger → Acquaintance → Friend → Dating → Partner → Engaged → Marr
 No stage transition occurs from numbers alone. The required Familiarity, Trust, and Attraction values must be met, and the NPC's authored compatibility, boundaries, current circumstances, and direct consent must permit the transition.
 
 Rejection stores a reason. A reason tied to a changeable circumstance may be reconsidered only after that circumstance genuinely changes. An authored hard boundary is permanent and cannot be worn down through repeated attempts, gifts, high values, or generated dialogue.
+
+Each rejection record contains a stable `reason_id`, a `kind` of `permanent_boundary` or `changeable_circumstance`, the source action, and an optional circumstance flag. Only deterministic code may mark that circumstance resolved.
 
 ## 8. Qwen Responsibilities
 
@@ -736,6 +825,8 @@ Pause local movement
 
 Only the active neighborhood is rendered and receives frame-by-frame movement simulation. Inactive neighborhoods retain authoritative state and advance NPCs through lightweight deterministic schedule milestones and event updates. They do not render characters or run continuous pathfinding while inactive.
 
+NPC routes may cross only connected cardinal neighborhood edges. A cross-neighborhood route stores its origin, destination, edge portal, departure time, arrival time, and destination entrance tile. When an NPC leaves the active neighborhood, he or she pathfinds to the exit and is removed only after crossing it. When an NPC is due to enter the active neighborhood, the engine places the NPC at the matching entrance tile and resumes frame-by-frame pathfinding. Transfers between two inactive neighborhoods update only at deterministic milestones. Loading a neighborhood reconstructs each transferring NPC from the authoritative clock and route state. Accepted invitations reserve enough travel time and use this same transfer system; they never teleport an NPC to the villa.
+
 The protagonist starts in the northwest residential and relaxation neighborhood. The first prototype fully authors that neighborhood. The downtown entertainment, commercial, and docks/government neighborhoods may use simple placeholder ground, boundaries, and entrances, but all valid crossings and return crossings must work. This proves the four-map architecture without requiring four complete content areas immediately.
 
 ### 10.4 Buildings and roof occlusion
@@ -751,6 +842,28 @@ Building interiors are authored directly inside their neighborhood map. Each wal
 When the protagonist enters through a valid door, the building's roof group hides or fades while its walls, floor, furniture, characters, and interaction points remain visible. When the protagonist leaves, the roof returns. NPCs use the same interior pathfinding and doors. The first prototype may use one roof group per building; later room-by-room roof groups remain optional.
 
 The first prototype's required walkable interior is the protagonist's private villa. Its bedroom, bathroom, kitchen, storage, and social area may be compact, but each area must be visually readable and its required interaction point must be reachable through normal pathfinding.
+
+### 10.5 Factions and standing
+
+Version one begins with two stable faction IDs:
+
+- `island_administration`: the public governing and civic organization.
+- `velvet_tide`: a concealed nightlife and criminal network that supplies the first underworld route. “Velvet Tide” is its working display name; the stable ID does not change if display copy changes.
+
+Standing is an authoritative integer from `-100` to `100`, starting at `0` unless authored content states otherwise. The common tiers are:
+
+| Standing | Tier |
+|---:|---|
+| `-100` to `-50` | Hostile |
+| `-49` to `-10` | Unfriendly |
+| `-9` to `9` | Neutral |
+| `10` to `49` | Favorable |
+| `50` to `79` | Trusted |
+| `80` to `100` | Allied |
+
+An ordinary authored outcome may change standing by `-10` to `+10`; a major outcome may change it by `-25` to `+25`. The engine clamps the result and stores a unique event ID, faction ID, delta, and reason. Only deterministic quest outcomes, witnessed actions, transactions, or authored world events may apply a change. Generated dialogue may react to standing or propose a permitted action, but it cannot apply standing.
+
+Faction access uses structured gates containing a faction ID, minimum standing, and optional required quest flags. A concealed faction and its standing remain hidden in the interface until a validated discovery flag reveals them. The Linda prototype quest links her boyfriend to a `velvet_tide` lead; at least one tested terminal branch applies a small authored `velvet_tide` standing change and records why.
 
 ## 11. Main-Character Architecture
 
@@ -789,7 +902,7 @@ An NPC does not automatically receive this state. The NPC only receives player f
 
 ## 12. Save-Slot Architecture
 
-Mutable files must be stored on the player's computer in the platform-appropriate application-data/save location, not under the Steam installation directory.
+Mutable files are stored under `path.join(app.getPath('userData'), 'si-world')`, not in the Steam installation directory or browser storage. Save access exists only in Electron main and is serialized through one write queue.
 
 The player may manually save from any stable gameplay state. Manual saving is unavailable while an NPC conversation is active or while a neighborhood transition is in progress, because those states have not reached a complete deterministic snapshot boundary.
 
@@ -800,6 +913,8 @@ The game also maintains three rotating autosaves. It creates the next autosave a
 - A major quest outcome and all validated consequences finish applying
 
 Saving snapshots authoritative deterministic state only. Qwen never writes the save and an unfinished generated response is never treated as committed state.
+
+Each write creates a unique temporary file in the destination directory, writes and flushes the complete versioned JSON, closes it, reads it back, validates its schema, generation ID, and checksum, retains the last valid generation as a recovery candidate, and then performs a same-volume replacement. The game does not claim that one rename is universally crash-proof. Startup examines main, temporary, backup, and rotating-autosave candidates and loads the highest complete valid generation rather than trusting modification time. Corrupt or unknown-version files are preserved for recovery and never overwritten automatically.
 
 The authoritative save is versioned JSON. A logical layout is:
 
@@ -833,6 +948,9 @@ Required save-system properties:
 - Exactly three autosave generations retained per save lineage
 - Pinned model, prompt, content, and engine versions
 - Explicit compatible migrations with no silent change to established NPC behavior
+- One serialized main-process write queue and stale-writer rejection
+- Fault-injection coverage for interruption after write, flush, validation, backup, and replacement, plus disk-full and permission failures
+- Startup selection of the newest complete valid generation with corrupt-source preservation
 
 ## 13. Large-Cast Runtime Rules
 
@@ -840,7 +958,7 @@ Required save-system properties:
   - **Full-AI named NPCs:** `8–12` important characters with dedicated authored context, free-text Qwen conversations, and persistent interaction state.
   - **Ambient residents:** `20–40` supporting residents with deterministic schedules, pathfinding, authored short dialogue, and no local-model conversation or persistent conversational memory.
 - Important full-AI NPCs receive full AI conversations and persistent interaction state.
-- Qwen runs only for active conversations or explicitly scheduled high-level decisions.
+- The selected local model runs only during an active player-to-NPC conversation in version one.
 - Routine walking, schedules, and background simulation do not require continuous LLM inference.
 - Each resident has four to six authored daily schedule blocks, such as home, work, meal, leisure, nightlife, and sleep. The exact block set may differ by character and day type.
 - Active-neighborhood residents pathfind continuously toward their current schedule target. Inactive-neighborhood residents advance only at deterministic departure, arrival, and event milestones; they do not run hidden frame-by-frame movement.
@@ -858,11 +976,17 @@ Required save-system properties:
 - NPCs cannot grant unauthorized rewards or progression.
 - The LLM cannot directly access or modify save files.
 - All structured model output is schema-constrained, parsed, and validated against closed scene-specific registries.
+- The complete generated JSON object is buffered before any generated dialogue appears. Raw model tokens and unparsed partial JSON are never shown to the player.
+- After parsing, the dialogue field passes the content filter and every persistent candidate passes deterministic validation before the dialogue is revealed.
 - Invalid output receives one correction retry. A second failure produces safe authored fallback dialogue and no persistent change.
+- Content-filter failure uses an authored in-character refusal or fade-to-black response and applies no persistent candidate from the rejected generation.
 - Generated dialogue may discuss fictional adult relationships, consensual adult prostitution, crime, drugs, addiction, and violence when relevant to the character and scene.
 - Explicit sexual detail, sexual violence, sexual content involving minors, and sexual content involving real people are not generated. The game refuses the request in character when practical or uses an authored fade to black.
 - All romance and sexual context involves fictional adults. Consent and authored boundaries cannot be bypassed by a prompt, relationship score, gift, quest, or generated dialogue.
 - The bundled local server binds only to loopback and is not exposed to the network.
+- The renderer is sandboxed and has no Node.js, filesystem, child-process, model-server, or arbitrary IPC access.
+- The custom application protocol rejects path traversal. Navigation, new windows, external URL opening, and Electron session permissions are denied unless an exact product allowlist permits them.
+- The server uses a random per-run API key known only to Electron main, offline mode, no UI, and no optional tool, media, metrics, MCP, or model-routing endpoints.
 - Model and runtime licenses must be distributed with required notices.
 - Community fine-tunes or third-party GGUFs require separate provenance and licence review.
 - Runtime-generated NPC dialogue must be disclosed to Steam as live-generated AI content.
@@ -873,15 +997,19 @@ Required save-system properties:
 - The selected performance-gated local model loads once when gameplay begins.
 - The model remains loaded until gameplay ends.
 - NPC-specific context is loaded or assembled on demand.
-- NPC responses stream as they are generated.
+- While generation runs, the game uses non-text feedback such as eye contact, a thinking animation, or a conversational pause. After the full response passes parsing, content filtering, and validation, its dialogue may use a fast type-on reveal effect. This effect is not raw model streaming.
 - Ordinary dialogue uses non-thinking/direct-response mode unless a future mechanic explicitly needs deeper reasoning.
 - NPC responses should generally be concise and conversational.
-- The game provides immediate feedback while generation begins, such as eye contact, a thinking animation, or a conversational pause.
+- The assembled prompt is limited to `4,096` model tokens and the generated structured response is limited to `256` model tokens. Deterministic priority and summarization rules remove older low-priority context before either limit is exceeded.
 - LLM activity must not block the render/gameplay loop.
-- The initial hardware target is a machine with `16 GB` of system RAM.
-- On the named baseline hardware, time to first visible generated text must be no more than `3` seconds, sustained generation must be at least `8` tokens per second, and the world renderer must hold `60 FPS` during generation.
-- The exact baseline CPU and GPU still require selection and representative testing before final minimum specifications are published.
-- If Qwen3.5-9B at `Q4_K_M` fails a gate after focused runtime tuning, a smaller pinned bundled model must replace it.
+- The macOS baseline is a 2020 Apple M1 MacBook Air with `16 GB` unified memory and its integrated 8-core GPU.
+- The Windows baseline is Windows 11 on an AMD Ryzen 5 5600, NVIDIA GeForce GTX 1660 Super with `6 GB` VRAM, and `16 GB` system RAM.
+- GPU offload is permitted on both baselines. The renderer and model must run together during measurement.
+- Model-server time to first token must be no more than `3` seconds. A complete ordinary response must begin its validated player-visible reveal within `12` seconds at the 95th percentile. Sustained generation must be at least `8` tokens per second, and the world renderer must hold `60 FPS` during generation.
+- The UI must show non-text response feedback within `100 ms`; this is measured separately and does not count as generated dialogue.
+- Each performance run uses the locked `4,096`-token prompt limit, `256`-token maximum response, a documented ordinary-response corpus, and at least `100` warm requests after one cold-load measurement.
+- The model capability suite contains at least `100` conversation fixtures covering schema output, source citation, duplicate unlocks, false beliefs, boundaries, consent, invitations, quests, and prohibited-content attempts. At least `95%` must validate on the first generation, every failed generation must produce a valid corrected response or safe no-change fallback, and zero fixture may create unauthorized persistent state or show rejected content.
+- If Qwen3.5-9B at `Q4_K_M` fails a gate after focused runtime tuning, Qwen3.5-4B at `Q4_K_M` is evaluated against the same gates. If neither candidate passes, the local-model phase remains failed and the game does not weaken a gate to ship.
 - macOS and Windows builds require separately verified runtime backends and packaging.
 - Dialogue is text-first. Short authored laughs, sighs, greetings, and similar vocal sounds may support it; version one does not generate full spoken dialogue.
 - Version one is mouse-and-keyboard desktop software. It does not promise Steam Deck support, but controls and UI architecture must not prevent a later controller and Steam Deck pass.
@@ -889,7 +1017,7 @@ Required save-system properties:
 ## 16. Steam and Commercial Requirements
 
 - Target storefront: Steam
-- Target commercial model: Qwen3.5-9B under Apache License 2.0, subject to the locked performance gate and smaller-model fallback
+- Candidate commercial models: Qwen3.5-9B primary and Qwen3.5-4B fallback, both under Apache License 2.0 and subject to the same locked gates
 - Required model/runtime licence and attribution files must ship with the game.
 - The exact model artifact must be pinned and hashed before release.
 - The Steam AI Content Survey must disclose live-generated NPC dialogue.
@@ -899,56 +1027,85 @@ Required save-system properties:
 - Version one is strictly single-player and has no multiplayer, cooperative, competitive, or shared-world state.
 - Save compatibility pins the model artifact, prompt version, content version, and engine version. A release may change old behavior only through an explicit compatible migration.
 
-## 17. Prototype Acceptance Criteria
+## 17. Milestone Acceptance Gates
 
-The first meaningful prototype should demonstrate:
+Each gate belongs to the earliest milestone that must prove it. Later milestones inherit all earlier gates. A milestone is complete only when its named automated checks and practical runtime checks have recorded evidence.
 
-1. A controllable protagonist who can walk to Linda and initiate a conversation.
-2. The performance-gated selected local model loading once and remaining loaded during gameplay.
-3. No Ollama or separate user-installed AI runtime.
-4. Linda loading `personality.md`, `biography.md`, and save-specific interaction context.
-5. Free-text player conversation with streamed NPC responses.
-6. Structured Qwen output containing dialogue, emotion, intent, proposed action, and optional memory/unlock candidates.
-7. Deterministic validation of all proposed changes.
-8. A conversation discovering a shared interest in cats.
-9. A unique `cats` common-interest unlock saved only once.
-10. Linda remembering in a later conversation that the protagonist owns a cat.
-11. Linda not knowing unrelated facts that were never told to her.
-12. Save and reload preserving Linda's relationship state, knowledge, and major interaction notes.
-13. Ending the conversation releasing Linda's context without unloading the selected local model.
-14. The prototype running inside Electron on both macOS and Windows before Steam release work begins.
-15. A `32×32`-tile environment containing the protagonist, Linda, and one generic resident, each rendered in a `24×30` world cell.
-16. Eight generated walking atlas cells for each of those three characters: two front, two rear, two left, and two right.
-17. One outfit and one HFM-style conversation portrait for each prototype character, plus approximately `8–12` environment tiles.
-18. Front-facing horizontal movement remaining readable at the native `1×` neighborhood view through lateral legs, lean, shadow shift, and bounce. If it fails, test the three-quarter head/hair fallback before authoring full side bodies.
-19. No sitting, combat, romance, or job animations in the first prototype.
-20. Linda asking the protagonist to check on her abusive boyfriend at Linda's villa, with the resolved outcome changing at least one NPC relationship and one faction standing before unlocking a follow-up conversation or underworld lead.
-21. At least one serious prototype choice producing a practical consequence, such as money or item loss, police attention, or an injury state, without requiring a new activity animation.
-22. Pause, `1×`, and `2×` simulation controls, with NPC movement or schedules visibly changing speed and every conversation automatically pausing world time until it ends.
-23. A weekly allowance that covers prototype basic costs, one risky-quest money reward, and at least one optional spending choice that affects a relationship, faction route, or practical advantage.
-24. Visible energy and health values, with one quest or travel event changing a value and food, sleep, time, treatment, or an item restoring it without a new activity animation.
-25. Linda using the full-AI tier while the generic resident follows a deterministic schedule and uses authored short dialogue without invoking Qwen or creating persistent conversational memory.
-26. Four connected `64×48` neighborhood maps in a `2×2` layout, with the northwest residential and relaxation starting neighborhood fully authored, the other three neighborhoods represented by functional placeholders, short fade transitions, correct opposite-edge arrival positions, and working return crossings.
-27. At least one walkable same-map building interior with a pathfindable door, exterior roof visibility, automatic roof hiding or fading after entry, readable interior walls and props, and roof restoration after exit.
-28. The protagonist starting inside or immediately outside his private villa, with a readable bedroom, bathroom, kitchen, storage, and social area and working interaction points for sleep, food, storage, and future guest invitations.
-29. Manual saving from stable exploration, manual-save blocking during a conversation and neighborhood transition, rotating autosaves after sleep, travel, and a major quest outcome, and reload of each save without partial dialogue or partially applied consequences.
-30. An authoritative clock where `1×` advances one game minute per real second, `2×` advances twice as fast, pause stops all deterministic time progression, conversations consume no game time, and sleeping skips the remaining night.
-31. A villa bed that permits a two-hour nap at any time and overnight sleep until `8:00 AM` after `8:00 PM`, with both actions advancing off-screen schedules and overnight sleep triggering the locked sleep autosave.
-32. A conversation adding a validated lead and vague location to the journal without a map marker, followed by a later validated discovery of the exact location that adds the marker and survives save/reload.
-33. Familiarity, Trust, and Attraction changing independently during test interactions, with an authored incompatibility or boundary preventing a romantic action even when numeric values are high.
-34. The relationship-stage path `Stranger → Acquaintance → Friend → Dating → Partner → Engaged → Married`, with a recorded rejection reason and no repeated attempt bypassing a hard boundary.
-35. Contextual violence resolving from deterministic position, equipment, health, preparation, witness, and quest state without twitch combat; defeat leaves the protagonist alive and applies a defined cost.
-36. A witnessed criminal action creating evidence and advancing police attention through at least two of `noticed`, `questioned`, `wanted`, and `arrest-on-sight`.
-37. A scene-specific closed candidate registry rejecting an unknown fact or unlock ID, verifying cited evidence against the source player message, retrying invalid model output once, and then using safe fallback dialogue without a persistent change.
-38. Electron starting, health-checking, and stopping a bundled loopback-only `llama-server` child process without a user-installed runtime.
-39. The target model being measured on named `16 GB` baseline hardware against no more than `3` seconds to first visible text, at least `8` tokens per second, and `60 FPS` rendering; a smaller pinned model replaces it if any gate fails after focused tuning.
-40. Generated dialogue discussing permitted fictional-adult crime or vice while explicit sexual detail, sexual violence, sexual content involving minors, and sexual content involving real people receive refusal or an authored fade to black.
-41. At least one active-neighborhood resident following four to six daily schedule blocks, then advancing by deterministic milestones while its neighborhood is inactive.
-42. A versioned JSON save producing disposable Markdown prompt views, retaining exactly three rotating autosaves, pinning model/prompt/content/engine versions, and rejecting a load that requires an unavailable migration.
-43. Middle-mouse camera drag, optional edge pan, wheel-selected `1×`/`2×`/`3×` zoom, `F` centering, and click-to-move working together without pixel smoothing.
-44. Linda accepting, rejecting, or counter-scheduling a home invitation according to her state; an accepted visit becomes a scheduled event and uses normal travel rather than teleportation.
-45. A visible but unusable ferry in the southeast docks, with no boarding, ticket, or departure interaction in version one.
-46. Player name entry changing the display name while the stable internal protagonist ID remains unchanged through save and reload.
+### 17.1 Desktop integration spike
+
+- **SHELL-01:** A packaged Electron build starts without a development server or internet and loads Expo chunks, fonts, audio, atlas images, and `canvaskit.wasm` through `app://game/`.
+- **SHELL-02:** Automated checks prove the locked renderer security settings, traversal rejection, restrictive CSP, denied unexpected navigation/windows/permissions, and sender validation.
+- **SHELL-03:** The sandboxed renderer can call only the narrow typed preload contract and cannot access Node.js, files, arbitrary IPC, server credentials, or child processes.
+- **SHELL-04:** On current development hardware, Electron starts the packaged `llama-server` from resources, observes loading and ready health states, completes one constrained response, applies bounded crash restart and circuit-breaker behavior, and exits without a known child process or port leak.
+- **SHELL-05:** The application shell gives immediate authored loading or failure feedback before CanvasKit or the model is ready. Packaged behavior, not browser export alone, is the acceptance evidence.
+
+### 17.2 Art and movement spike
+
+- **ART-01:** A test scene uses `32×32`-pixel tiles and renders the protagonist, Linda, and one generic resident in `24×30` world cells.
+- **ART-02:** Each of those three characters has eight generated walking atlas cells: two front, two rear, two left, and two right.
+- **ART-03:** Each character has one outfit and one HFM-style conversation portrait; the scene uses approximately `8–12` original environment tiles.
+- **ART-04:** Front-facing horizontal movement remains readable at native `1×` through lateral legs, lean, shadow shift, and bounce. If it fails, the mirrored three-quarter head/hair fallback is tested before any full side body.
+- **ART-05:** Walking uses `130–160 ms` frame timing and nearest-neighbor `1×`, `2×`, and `3×` scaling without pixel smoothing.
+- **ART-06:** The spike adds no sitting, combat, romance, or job animation.
+
+### 17.3 Deterministic world vertical slice
+
+- **WORLD-01:** The northwest authored `64×48` neighborhood and three `64×48` functional placeholders form the locked `2×2` layout with correct fade transitions, opposite-edge arrivals, and return crossings.
+- **WORLD-02:** Click-to-move, collision, interruption, middle-mouse camera drag, optional edge pan, wheel zoom, and `F` centering work together.
+- **WORLD-03:** The protagonist starts inside or immediately outside the villa; bedroom, bathroom, kitchen, storage, and social area are readable and reachable.
+- **WORLD-04:** The villa uses a pathfindable same-map door and roof group that hides or fades on entry and returns on exit.
+- **WORLD-05:** Pause, `1×`, and `2×` control the authoritative clock and visibly affect movement and schedules; `1×` advances one game minute per real second.
+- **WORLD-06:** A two-hour nap works at any time. Overnight sleep works after `8:00 PM`, wakes at `8:00 AM`, advances off-screen schedules, and triggers the sleep autosave.
+- **WORLD-07:** Visible `0–100` Energy and Health change only through their locked rules; a nap restores about `25` Energy and overnight sleep restores about `80` before final tuning.
+- **WORLD-08:** One named and one ambient resident follow four to six schedule blocks. Active movement uses pathfinding; inactive movement uses departure, arrival, and event milestones.
+- **WORLD-09:** A resident crosses a neighborhood boundary through the transfer record, appears at the matching entrance when the destination is active, and reconstructs correctly after save/reload.
+- **WORLD-10:** The weekly allowance covers seven days of prototype basic costs plus a small buffer; one ordinary and one dangerous quest reward obey the locked ratios.
+- **WORLD-11:** Manual saving works only at stable boundaries. Three rotating autosaves occur after sleep, travel, and a major quest outcome without partial state.
+- **WORLD-12:** Versioned `state.json` is the only authoritative save; generated Markdown prompt views can be deleted and rebuilt without changing game state.
+- **WORLD-13:** Player name entry changes the display name while the stable internal protagonist ID survives save/reload.
+- **WORLD-14:** The southeast placeholder shows a ferry, but no boarding, ticket, or departure action exists.
+
+### 17.4 Local-AI conversation vertical slice
+
+- **AI-01:** Electron starts, health-checks, restarts after a tested crash, and stops one bundled loopback-only `llama-server` child process without Ollama or another user-installed runtime.
+- **AI-02:** The selected candidate model loads once, remains loaded through multiple conversations, and releases Linda's active context after a conversation.
+- **AI-03:** Linda loads `personality.md`, `biography.md`, Zod-validated `rules.json`, authoritative save state, and only her permitted knowledge projection.
+- **AI-04:** Free-text player input produces buffered schema-constrained JSON containing dialogue, emotion, intent, proposed action, and optional persistent candidates.
+- **AI-05:** No raw token appears. Non-text feedback appears while generating, and dialogue starts its type-on reveal only after the full object passes parse, registry, source, boundary, and content checks.
+- **AI-06:** An unknown ID or invalid source is rejected. Invalid output retries once; a second failure shows safe authored fallback dialogue and applies no persistent change.
+- **AI-07:** A player statement about owning a cat can create the `protagonist-has-cat` held belief and one unique `cats` common-interest unlock, but repeating it cannot duplicate the unlock.
+- **AI-07A:** A free-text claim with valid quoted evidence cannot directly grant an item, quest completion, exact map marker, faction change, consent, or stage transition; the matching structured action or authored event is required.
+- **AI-08:** Linda remembers the validated cat claim later while another NPC who never received it does not know it.
+- **AI-09:** A player lie creates a sourced held belief that contradicts world truth, survives save/reload, and does not modify authoritative truth.
+- **AI-10:** Save/reload preserves Linda's relationship values, stage, knowledge, beliefs, rejection records, and major memory subjects.
+- **AI-10A:** Ending a conversation commits its staged validated proposals atomically. Crashing or closing the renderer before conversation end discards them and restores the previous stable state.
+- **AI-11:** A generated attempt to cross a hard boundary or apply unauthorized state is rejected even when dialogue sounds persuasive.
+- **AI-12:** Permitted fictional-adult crime or vice can be discussed. Every seeded prohibited-content fixture produces a filtered refusal or fade to black before display.
+- **AI-13:** Conversation automatically pauses world time until it ends.
+- **AI-14:** The generic resident uses deterministic authored short dialogue and never invokes the local model or gains persistent conversational memory.
+
+### 17.5 Quest, relationship, and consequence vertical slice
+
+- **QUEST-01:** Linda asks the protagonist to check on her abusive boyfriend at Linda's villa. The playable quest has at least three authored terminal approaches: protect Linda, betray her for personal advantage, or withdraw.
+- **QUEST-02:** Every terminal approach records a clear reason and changes Linda's relationship state or future availability. At least one tested branch reveals the `velvet_tide` lead and applies an idempotent authored faction-standing delta.
+- **QUEST-03:** The journal first records a vague location without a marker; a later validated exact discovery adds the marker and survives reload.
+- **QUEST-04:** Familiarity, Trust, and Attraction change independently within the locked bounds and per-event delta limits.
+- **QUEST-05:** The slice proves one eligible `Stranger → Acquaintance` transition and one rejected romantic action. The rejection stores a reason, and repeated attempts cannot bypass a permanent boundary. The full path through Married is a later content milestone, not a vertical-slice gate.
+- **QUEST-06:** One faction gate uses a stable faction ID, standing threshold, and quest flag; generated dialogue cannot open it directly.
+- **QUEST-07:** One optional purchase changes a relationship, faction route, or practical quest advantage through deterministic code.
+- **QUEST-08:** Contextual violence uses position, equipment, Health, preparation, witnesses, and quest state without twitch combat or a new combat animation.
+- **QUEST-09:** The `injured_escape` defeat fixture leaves the protagonist alive, applies the locked Health and time costs exactly once, and survives reload.
+- **QUEST-10:** A witnessed criminal action creates evidence and advances police attention through at least two locked states.
+- **QUEST-11:** Linda accepts, rejects, or counter-schedules a home invitation from validated state. An accepted visit uses normal same- or cross-neighborhood travel and never teleports.
+
+### 17.6 Desktop and model qualification
+
+- **SHIP-01:** Ad-hoc-signed macOS and local-self-signed Windows non-distribution Electron test builds run with the correct bundled runtime and no separate AI installation. Release trust and notarization are not implied.
+- **SHIP-02:** Qwen3.5-9B and, if required, Qwen3.5-4B are measured on both named baseline machines using the locked prompt, response, corpus, and sample rules.
+- **SHIP-03:** The selected model passes the latency, throughput, renderer, schema, state-safety, and prohibited-content gates without weakening any threshold.
+- **SHIP-04:** The selected model source revision, conversion procedure, GGUF, llama.cpp revision, licences, notices, and SHA-256 hashes are pinned and reproducible.
+- **SHIP-05:** A versioned save pins model, prompt, content, and engine versions; a compatible migration succeeds and an unavailable migration fails safely without changing the source save.
+- **SHIP-06:** Dialogue remains text-first with short authored vocal sounds and no generated full speech.
 
 ## 18. Resolved Council Questions 17–42
 
@@ -963,7 +1120,7 @@ The first meaningful prototype should demonstrate:
 25. Require closed schema-constrained JSON, retry invalid output once, then use a safe no-change fallback.
 26. Use Electron for the desktop shell.
 27. Use one supervised bundled loopback `llama-server` child process.
-28. Target `16 GB` RAM, no more than `3` seconds to first visible text, at least `8` tokens per second, and `60 FPS`; use a smaller model if Qwen3.5-9B fails.
+28. Target named `16 GB` baselines, no more than `3` seconds to the model's first token, at least `8` tokens per second, no more than `12` seconds to validated visible dialogue at p95, and `60 FPS`; test Qwen3.5-4B if Qwen3.5-9B fails. The council safety correction separates raw first-token latency from player-visible validated text.
 29. Permit relevant fictional-adult crime, drugs, prostitution, violence, and relationships; refuse or fade out the locked prohibited sexual-content categories.
 30. Make version one strictly single-player.
 31. Make the allowance cover seven ordinary days plus a small buffer; ordinary quests pay up to one allowance and dangerous quests pay one to three.
@@ -983,25 +1140,25 @@ The first meaningful prototype should demonstrate:
 
 The following details have not yet been agreed:
 
-- Exact Electron packaging, code-signing, updater, and desktop storage-driver choices
+- Exact public-release macOS signing/notarization identity, trusted Windows signing certificate, and post-version-one updater policy; non-distribution test signing, Electron Forge, the custom protocol, and the filesystem storage boundary are locked
 - Default state and sensitivity for optional edge panning, plus any later camera controls beyond the locked inputs
 - Exact post-prototype non-walking activity-pose and expression bill; sitting, combat, romance, and job animations are excluded from the first prototype
 - Exact roof artwork, fade duration, and any room-by-room roof grouping beyond the locked one-group-per-building prototype
 - Exact villa floor plan, furniture set, storage capacity, food-preparation depth, and the activities and duration of a scheduled home visit
 - Exact district names, streets, building counts, landmarks, and outside-world transport presentation beyond the locked visible unusable ferry
 - Protagonist biography and character-creation choices beyond the player-entered display name and stable internal ID
-- Exact branches, objectives, approaches, and outcomes for Linda's abusive-boyfriend quest
+- Exact objectives, intermediate steps, dialogue, and consequences inside the three locked terminal approaches for Linda's abusive-boyfriend quest
 - Exact journal interface, sorting, filtering, pinning, completed-entry history, and treatment of expired leads
 - Final Energy drain, low-Energy penalties, Health damage, recovery rates, treatment costs, and focused tuning of the approximate nap and sleep recovery values
 - Exact currency values, prices, rewards within the locked allowance ratios, and discretionary money sinks
 - Post-version-one cast expansion and any authored process for promoting an ambient resident into a future full-AI named character
-- Exact Familiarity, Trust, and Attraction ranges, bounded delta formulas, visibility, and thresholds for the locked stages
-- Exact authored compatibility fields, dating activities, engagement, wedding, marriage, breakup, and divorce content within the locked consent and rejection rules
+- Exact player-facing visibility of relationship values and NPC-specific stricter thresholds beyond the locked engine floors
+- Exact dating activities, engagement, wedding, marriage, breakup, and divorce content within the locked structured compatibility, consent, and rejection rules
 - Exact injury, arrest, recovery, item-loss, money-loss, time-loss, and reputation costs after protagonist defeat
-- Exact simulation depth for weather, events, businesses, factions, gossip, and inactive neighborhoods beyond the locked schedule milestones
+- Exact simulation depth for weather, events, businesses, additional factions, gossip spread, and inactive neighborhoods beyond the locked schedules, transfers, and two prototype factions
 - Exact manual-save slot count, names, thumbnails, storage limits, corruption-recovery UI, and Steam Cloud conflict UI
-- Exact Qwen3.5-9B GGUF artifact and hash, smaller fallback model artifact and hash, and required licence files
-- CPU/GPU backend-selection policy and the named baseline CPU/GPU used with the locked `16 GB` RAM target
+- Exact pinned source revisions, conversion procedure, Qwen3.5-9B and Qwen3.5-4B GGUF artifacts, hashes, llama.cpp revision, and licence bundle selected by the model spike
+- CPU/GPU backend-selection and offload policy beyond the two named baseline machines
 - Base-depot versus automatically granted model-depot packaging
 - Exact authored vocal-sound set, performers or asset source, and playback rules
 - Final content-filter implementation, player reporting UI, logging policy, and Steam survey wording
@@ -1010,6 +1167,8 @@ The following details have not yet been agreed:
 
 - Qwen3.5-9B model: https://huggingface.co/Qwen/Qwen3.5-9B
 - Qwen3.5-9B Apache 2.0 license: https://huggingface.co/Qwen/Qwen3.5-9B/blob/main/LICENSE
+- Qwen3.5-4B model: https://huggingface.co/Qwen/Qwen3.5-4B
+- Qwen3.5-4B Apache 2.0 license: https://huggingface.co/Qwen/Qwen3.5-4B/blob/main/LICENSE
 - llama.cpp: https://github.com/ggml-org/llama.cpp
 - Steamworks AI Content Survey: https://partner.steamgames.com/doc/gettingstarted/contentsurvey
 
