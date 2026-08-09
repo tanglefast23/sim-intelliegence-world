@@ -1,0 +1,110 @@
+import { createPrng } from '../prng';
+import { ENGINE_VERSION } from '../version';
+import { PROTOTYPE_ECONOMY_POLICY } from '../economy/economy';
+import {
+  CONTENT_VERSION,
+  MODEL_CONTRACT_VERSION,
+  PROMPT_VERSION,
+  STATE_SCHEMA_VERSION,
+  parseWorldState,
+  type WorldState,
+} from './schema';
+
+export function createInitialState(displayName = 'Player'): WorldState {
+  const prng = createPrng(0x51_57_01);
+  return parseWorldState({
+    schemaVersion: STATE_SCHEMA_VERSION,
+    engineVersion: ENGINE_VERSION,
+    contentVersion: CONTENT_VERSION,
+    promptVersion: PROMPT_VERSION,
+    modelContractVersion: MODEL_CONTRACT_VERSION,
+    generationId: 'generation-prototype-001',
+    revision: 0,
+    prng: prng.snapshot(),
+    clock: {
+      absoluteMinute: 8 * 60,
+      subMinuteMilliseconds: 0,
+      selectedSpeed: 1,
+      pauseTokens: [],
+    },
+    protagonist: {
+      id: 'protagonist',
+      displayName,
+      energy: 100,
+      health: 100,
+      confidence: 50,
+      locationId: 'protagonist_villa',
+    },
+    npcs: {
+      linda: {
+        id: 'linda',
+        tier: 'full_ai',
+        presence: { kind: 'active_local', locationId: 'linda_villa' },
+        knowledge: [],
+        unlockedInterestIds: ['cats'],
+        memories: [],
+      },
+      generic_resident: {
+        id: 'generic_resident',
+        tier: 'ambient',
+        presence: { kind: 'active_local', locationId: 'northwest_residential' },
+        knowledge: [],
+        unlockedInterestIds: [],
+        memories: [],
+      },
+    },
+    relationships: {
+      linda: {
+        npcId: 'linda',
+        values: { familiarity: 5, trust: 0, attraction: 0 },
+        stage: 'stranger',
+        rejections: [],
+        compatibility: { social: true, romantic: true },
+      },
+      generic_resident: {
+        npcId: 'generic_resident',
+        values: { familiarity: 0, trust: 0, attraction: 0 },
+        stage: 'stranger',
+        rejections: [],
+        compatibility: { social: true, romantic: false },
+      },
+    },
+    inventory: { money: PROTOTYPE_ECONOMY_POLICY.weeklyAllowance, items: {}, homeStorageItems: {} },
+    economy: {
+      weeklyAllowance: PROTOTYPE_ECONOMY_POLICY.weeklyAllowance,
+      basicDailyCost: PROTOTYPE_ECONOMY_POLICY.basicDailyCost,
+      nextAllowanceMinute: 7 * 1_440,
+    },
+    factions: {
+      island_administration: { id: 'island_administration', standing: 0, revealed: true },
+      velvet_tide: { id: 'velvet_tide', standing: 0, revealed: false },
+    },
+    quests: {
+      linda_boyfriend_check: { id: 'linda_boyfriend_check', status: 'locked', flagIds: [] },
+    },
+    journal: {},
+    maps: {
+      northwest_residential: { id: 'northwest_residential', active: true, unlocked: true, discoveredEntranceIds: ['protagonist_villa'] },
+      northeast_downtown: { id: 'northeast_downtown', active: false, unlocked: true, discoveredEntranceIds: [] },
+      southwest_commercial: { id: 'southwest_commercial', active: false, unlocked: true, discoveredEntranceIds: [] },
+      southeast_docks: { id: 'southeast_docks', active: false, unlocked: true, discoveredEntranceIds: ['ferry_terminal'] },
+    },
+    schedules: {
+      linda_daily: {
+        id: 'linda_daily',
+        npcId: 'linda',
+        blocks: [
+          { startMinuteOfDay: 0, locationId: 'linda_villa', activityId: 'sleep' },
+          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'relax' },
+          { startMinuteOfDay: 720, locationId: 'southwest_commercial', activityId: 'shop' },
+          { startMinuteOfDay: 1_080, locationId: 'linda_villa', activityId: 'home' },
+        ],
+      },
+    },
+    transfers: {},
+    evidence: {},
+    policeAttention: 'none',
+    eventReceipts: [],
+    eventLedger: [],
+  });
+}

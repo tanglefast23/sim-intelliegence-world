@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "npcId": "generic_resident",
+  "factIds": [],
+  "interestIds": ["island_gossip"],
+  "actionIds": ["greet", "ask_follow_up", "end_conversation"],
+  "memorySubjectIds": [],
+  "unlockIds": [],
+  "questIds": [],
+  "locationIds": ["northwest_residential"],
+  "factionIds": ["island_administration"],
+  "compatibility": {
+    "social": true,
+    "romantic": false,
+    "romanticEligibleAtStart": false
+  },
+  "startingRelationship": {
+    "values": {"familiarity": 0, "trust": 0, "attraction": 0},
+    "stage": "stranger"
+  },
+  "hardBoundaries": [],
+  "stageRules": [
+    {"stage": "dating", "unavailable": true, "requiredFlagIds": []}
+  ],
+  "rejections": [
+    {"reasonId": "not_romantically_compatible", "kind": "permanent_boundary", "sourceActionId": "invite_home", "resolved": false}
+  ]
+}

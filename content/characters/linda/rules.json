@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "npcId": "linda",
+  "factIds": ["protagonist_has_cat"],
+  "interestIds": ["cats", "island_gossip"],
+  "actionIds": ["greet", "ask_follow_up", "end_conversation", "invite_home", "aggressive_flirt"],
+  "memorySubjectIds": ["protagonist_cat", "linda_boyfriend"],
+  "unlockIds": ["cats_common_interest", "linda_relationship_resolved", "velvet_tide_lead"],
+  "questIds": ["linda_boyfriend_check"],
+  "locationIds": ["linda_villa", "northwest_residential"],
+  "factionIds": ["velvet_tide"],
+  "compatibility": {
+    "social": true,
+    "romantic": true,
+    "romanticEligibleAtStart": false
+  },
+  "startingRelationship": {
+    "values": {"familiarity": 5, "trust": 0, "attraction": 0},
+    "stage": "stranger"
+  },
+  "hardBoundaries": [
+    {"id": "no_aggressive_flirting", "scope": "romantic", "blockedActionIds": ["aggressive_flirt"]}
+  ],
+  "stageRules": [
+    {"stage": "dating", "unavailable": false, "requiredFlagIds": ["cats_common_interest"]}
+  ],
+  "rejections": [
+    {"reasonId": "current_relationship", "kind": "changeable_circumstance", "sourceActionId": "invite_home", "circumstanceFlagId": "linda_relationship_resolved", "resolved": false}
+  ]
+}
