@@ -61,6 +61,7 @@ export function validatePackageListing(listing: string): void {
   const requiredResourcePatterns = [
     /^\/dist\/assets\/assets\/proof\/phase2-atlas\.[a-f0-9]+\.png$/u,
     /^\/dist\/assets\/assets\/proof\/phase2-tone\.[a-f0-9]+\.wav$/u,
+    /^\/dist\/assets\/assets\/generated\/world-atlas\.[a-f0-9]+\.png$/u,
     /^\/dist\/assets\/node_modules\/@expo-google-fonts\/silkscreen\/400Regular\/Silkscreen_400Regular\.[a-f0-9]+\.ttf$/u,
   ];
   for (const pattern of requiredResourcePatterns) {

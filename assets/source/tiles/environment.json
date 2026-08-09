@@ -1,0 +1,130 @@
+{
+  "tiles": [
+    {
+      "id": "warm-sand",
+      "palette": { "B": "#d8b579", "L": "#e4c58b", "D": "#b98f5e", "P": "#8f6b4d" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "L", "points": [[3,5],[4,5],[15,3],[24,7],[25,7],[9,18],[21,23],[28,27]] },
+        { "kind": "pixels", "token": "D", "points": [[6,10],[7,10],[18,14],[19,14],[26,19],[12,27]] },
+        { "kind": "pixels", "token": "P", "points": [[7,11],[20,15],[13,28]] }
+      ]
+    },
+    {
+      "id": "dune-grass",
+      "palette": { "B": "#d1ad72", "L": "#dfbf82", "G": "#6f8d45", "g": "#486536", "D": "#a68055" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "L", "points": [[4,4],[15,7],[24,3],[28,16],[7,25]] },
+        { "kind": "pixels", "token": "G", "points": [[5,18],[6,17],[7,18],[8,16],[9,18],[21,10],[22,9],[23,11],[24,8],[25,10],[26,9]] },
+        { "kind": "pixels", "token": "g", "points": [[6,19],[8,19],[22,12],[24,12],[26,11]] },
+        { "kind": "pixels", "token": "D", "points": [[14,24],[15,24],[27,28]] }
+      ]
+    },
+    {
+      "id": "villa-floor",
+      "palette": { "B": "#a9744b", "L": "#c18c5c", "D": "#754b36", "K": "#51352d" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 7, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 15, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 23, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 10, "y": 0, "width": 1, "height": 8 },
+        { "kind": "rect", "token": "K", "x": 22, "y": 8, "width": 1, "height": 8 },
+        { "kind": "rect", "token": "K", "x": 7, "y": 16, "width": 1, "height": 8 },
+        { "kind": "rect", "token": "K", "x": 19, "y": 24, "width": 1, "height": 8 },
+        { "kind": "pixels", "token": "L", "points": [[3,3],[16,11],[27,19],[11,27]] }
+      ]
+    },
+    {
+      "id": "spa-stone",
+      "palette": { "B": "#8a9a8f", "L": "#a9b8aa", "D": "#66766f", "K": "#4b5954" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 10, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 21, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 15, "y": 0, "width": 1, "height": 10 },
+        { "kind": "rect", "token": "K", "x": 7, "y": 11, "width": 1, "height": 10 },
+        { "kind": "rect", "token": "K", "x": 23, "y": 22, "width": 1, "height": 10 },
+        { "kind": "pixels", "token": "L", "points": [[4,4],[20,6],[11,15],[27,17],[5,27],[17,25]] }
+      ]
+    },
+    {
+      "id": "plaza-paver",
+      "palette": { "B": "#b98f72", "L": "#d1ab8b", "D": "#8f6d5d", "K": "#6e5349" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 7, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 15, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 23, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 8, "y": 0, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 24, "y": 0, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 16, "y": 8, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 8, "y": 16, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 24, "y": 16, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 16, "y": 24, "width": 1, "height": 8 },
+        { "kind": "pixels", "token": "L", "points": [[3,3],[12,11],[27,19],[5,27]] }
+      ]
+    },
+    {
+      "id": "boardwalk",
+      "palette": { "B": "#9b6846", "L": "#bd8456", "D": "#684432", "K": "#49302a" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 7, "y": 0, "width": 1, "height": 32 },
+        { "kind": "rect", "token": "K", "x": 15, "y": 0, "width": 1, "height": 32 },
+        { "kind": "rect", "token": "K", "x": 23, "y": 0, "width": 1, "height": 32 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 12, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 27, "width": 32, "height": 1 },
+        { "kind": "pixels", "token": "L", "points": [[3,5],[11,20],[19,7],[27,23]] }
+      ]
+    },
+    {
+      "id": "shallow-water",
+      "palette": { "B": "#4b91a2", "L": "#75b7bc", "W": "#b7ded3", "D": "#326b80" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "L", "x": 2, "y": 5, "width": 10, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 5, "y": 4, "width": 8, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 18, "y": 10, "width": 11, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 8, "y": 18, "width": 15, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 11, "y": 17, "width": 10, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 1, "y": 27, "width": 9, "height": 2 }
+      ]
+    },
+    {
+      "id": "garden-soil",
+      "palette": { "B": "#6c5141", "L": "#8b6950", "D": "#4a3933", "G": "#738d4a", "g": "#4e6338" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "L", "points": [[4,5],[5,5],[14,9],[24,4],[27,17],[9,25],[20,28]] },
+        { "kind": "pixels", "token": "D", "points": [[8,12],[18,6],[23,20],[3,29]] },
+        { "kind": "pixels", "token": "G", "points": [[13,18],[14,17],[15,18],[16,16],[17,18]] },
+        { "kind": "pixels", "token": "g", "points": [[14,19],[16,19]] }
+      ]
+    },
+    {
+      "id": "pale-concrete",
+      "palette": { "B": "#b8b7a9", "L": "#d1d0be", "D": "#929388", "K": "#75766f" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 15, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 15, "y": 0, "width": 1, "height": 15 },
+        { "kind": "rect", "token": "K", "x": 7, "y": 16, "width": 1, "height": 16 },
+        { "kind": "rect", "token": "K", "x": 23, "y": 16, "width": 1, "height": 16 },
+        { "kind": "pixels", "token": "L", "points": [[4,4],[22,7],[12,23],[27,27]] }
+      ]
+    },
+    {
+      "id": "dark-asphalt",
+      "palette": { "B": "#4a4c50", "L": "#62656a", "D": "#35373b", "Y": "#d6b452" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "L", "points": [[4,4],[11,8],[27,5],[7,22],[18,26],[29,19]] },
+        { "kind": "pixels", "token": "D", "points": [[8,13],[21,10],[13,29],[25,24]] },
+        { "kind": "rect", "token": "Y", "x": 15, "y": 3, "width": 2, "height": 8 },
+        { "kind": "rect", "token": "Y", "x": 15, "y": 21, "width": 2, "height": 8 }
+      ]
+    }
+  ]
+}

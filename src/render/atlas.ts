@@ -1,0 +1,185 @@
+import atlasIndexJson from '../../assets/generated/atlas-index.json';
+
+export const CHARACTER_IDS = ['generic-resident', 'linda', 'protagonist'] as const;
+export type CharacterId = typeof CHARACTER_IDS[number];
+export const MOVEMENT_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
+export type MovementDirection = typeof MOVEMENT_DIRECTIONS[number];
+export const ZOOM_LEVELS = [1, 2, 3] as const;
+export type ZoomLevel = typeof ZOOM_LEVELS[number];
+export const WALK_FRAME_MILLISECONDS = 145;
+
+export type AtlasRectangle = Readonly<{
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  kind: 'world-character' | 'portrait' | 'tile';
+  sourceId: string;
+}>;
+
+export type RuntimeAtlasIndex = Readonly<{
+  version: 1;
+  image: Readonly<{ width: number; height: number; colorType: 'rgba'; gutter: 1 }>;
+  tileSize: 32;
+  worldCell: Readonly<{ width: 24; height: 30 }>;
+  walkFrameMilliseconds: 145;
+  zoomLevels: readonly [1, 2, 3];
+  sprites: Readonly<Record<string, AtlasRectangle>>;
+  characters: Readonly<Record<CharacterId, Readonly<{
+    displayName: string;
+    portrait: string;
+    frames: Readonly<Record<string, string>>;
+    sourceLayers: readonly string[];
+  }>>>;
+  tiles: readonly string[];
+}>;
+
+export const ATLAS_INDEX = atlasIndexJson as unknown as RuntimeAtlasIndex;
+
+if (
+  ATLAS_INDEX.image.colorType !== 'rgba' ||
+  ATLAS_INDEX.image.gutter !== 1 ||
+  ATLAS_INDEX.walkFrameMilliseconds !== WALK_FRAME_MILLISECONDS ||
+  ATLAS_INDEX.worldCell.width !== 24 ||
+  ATLAS_INDEX.worldCell.height !== 30
+) {
+  throw new Error('Generated atlas does not satisfy the Phase 4 runtime contract.');
+}
+
+export function atlasRectangle(name: string): AtlasRectangle {
+  const rectangle = ATLAS_INDEX.sprites[name];
+  if (!rectangle) {
+    throw new Error(`Unknown atlas cell: ${name}`);
+  }
+  return rectangle;
+}
+
+export function characterFrameName(
+  characterId: CharacterId,
+  direction: MovementDirection,
+  frame: 0 | 1,
+): string {
+  const facing = direction === 'up' ? 'rear' : direction === 'down' ? 'front' : direction;
+  return `character.${characterId}.${facing}-${frame + 1}`;
+}
+
+export type MovementPresentation = Readonly<{
+  sprite: string;
+  leanX: -1 | 0 | 1;
+  bounceY: -1 | 0;
+  shadowX: -1 | 0 | 1;
+}>;
+
+export function movementPresentation(
+  characterId: CharacterId,
+  direction: MovementDirection,
+  frame: 0 | 1,
+): MovementPresentation {
+  const horizontal = direction === 'left' ? -1 : direction === 'right' ? 1 : 0;
+  return {
+    sprite: characterFrameName(characterId, direction, frame),
+    leanX: horizontal,
+    bounceY: frame === 1 ? -1 : 0,
+    shadowX: frame === 1 ? horizontal : 0,
+  };
+}
+
+export function talkingBob(frame: 0 | 1): 0 | -1 {
+  return frame === 1 ? -1 : 0;
+}
+
+export function assertZoomLevel(candidate: number): ZoomLevel {
+  if (candidate !== 1 && candidate !== 2 && candidate !== 3) {
+    throw new Error('Prototype zoom must be exactly 1x, 2x, or 3x.');
+  }
+  return candidate;
+}
+
+export const ATLAS_PROOF_BILL = [
+  ...ATLAS_INDEX.tiles,
+  ...CHARACTER_IDS.flatMap((characterId) => [
+    ...['front', 'rear', 'left', 'right'].flatMap((direction) => [
+      `character.${characterId}.${direction}-1`,
+      `character.${characterId}.${direction}-2`,
+    ]),
+    `portrait.${characterId}`,
+  ]),
+] as const;
+
+export type AtlasProofPlacement = Readonly<{
+  sprite: string;
+  x: number;
+  y: number;
+  scale: ZoomLevel;
+}>;
+
+export type AtlasProofShadow = Readonly<{
+  x: number;
+  y: number;
+  width: number;
+  scale: ZoomLevel;
+}>;
+
+const PROOF_PANELS: readonly Readonly<{
+  x: number;
+  y: number;
+  scale: ZoomLevel;
+  columns: number;
+  rows: number;
+}>[] = [
+  { x: 18, y: 18, scale: 1, columns: 8, rows: 5 },
+  { x: 310, y: 18, scale: 2, columns: 5, rows: 3 },
+  { x: 680, y: 18, scale: 3, columns: 3, rows: 2 },
+];
+
+export function buildAtlasProofScene(frame: 0 | 1): Readonly<{
+  sprites: readonly AtlasProofPlacement[];
+  shadows: readonly AtlasProofShadow[];
+}> {
+  const sprites: AtlasProofPlacement[] = [];
+  const shadows: AtlasProofShadow[] = [];
+  const proofTiles = ATLAS_PROOF_BILL.filter((name) => atlasRectangle(name).kind === 'tile');
+  const proofCast = ATLAS_PROOF_BILL.filter((name) => atlasRectangle(name).kind !== 'tile');
+  const directions: readonly MovementDirection[] = ['right', 'left', 'up'];
+  for (const panel of PROOF_PANELS) {
+    for (let row = 0; row < panel.rows; row += 1) {
+      for (let column = 0; column < panel.columns; column += 1) {
+        sprites.push({
+          sprite: proofTiles[(row * panel.columns + column) % proofTiles.length] as string,
+          x: panel.x + column * 32 * panel.scale,
+          y: panel.y + row * 32 * panel.scale,
+          scale: panel.scale,
+        });
+      }
+    }
+    CHARACTER_IDS.forEach((characterId, characterIndex) => {
+      const direction = directions[characterIndex] as MovementDirection;
+      const movement = movementPresentation(characterId, direction, frame);
+      const tileX = Math.min(characterIndex + 1, panel.columns - 1);
+      const tileY = Math.min(characterIndex % panel.rows, panel.rows - 1);
+      const baseX = panel.x + tileX * 32 * panel.scale + 4 * panel.scale;
+      const baseY = panel.y + tileY * 32 * panel.scale + 2 * panel.scale;
+      shadows.push({
+        x: baseX + (4 + movement.shadowX) * panel.scale,
+        y: baseY + 27 * panel.scale,
+        width: 16 * panel.scale,
+        scale: panel.scale,
+      });
+      sprites.push({
+        sprite: movement.sprite,
+        x: baseX + movement.leanX * panel.scale,
+        y: baseY + movement.bounceY * panel.scale,
+        scale: panel.scale,
+      });
+    });
+  }
+  proofCast.forEach((sprite, index) => {
+    sprites.push({
+      sprite,
+      x: 24 + (index % 9) * 62,
+      y: 235 + Math.floor(index / 9) * 86,
+      scale: 2,
+    });
+  });
+  return { sprites, shadows };
+}

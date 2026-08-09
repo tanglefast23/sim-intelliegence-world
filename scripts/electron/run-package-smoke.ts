@@ -1,6 +1,6 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import process from 'node:process';
 
 import {
@@ -20,7 +20,9 @@ const listing = execFileSync(process.execPath, [asarCli, 'list', archive], {
   maxBuffer: 10_000_000,
 });
 validatePackageListing(listing);
-const screenshotDirectory = join(process.cwd(), 'artifacts/phase-02');
+const screenshotDirectory = process.argv[2]
+  ? resolve(process.cwd(), process.argv[2])
+  : join(process.cwd(), 'artifacts/phase-02');
 const screenshotPath = join(screenshotDirectory, 'packaged-electron.png');
 const loadingScreenshotPath = join(screenshotDirectory, 'packaged-loading.png');
 mkdirSync(screenshotDirectory, { recursive: true });
