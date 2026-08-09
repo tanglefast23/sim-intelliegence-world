@@ -1,0 +1,398 @@
+{
+  "version": 1,
+  "image": {
+    "width": 512,
+    "height": 126,
+    "colorType": "rgba",
+    "gutter": 1
+  },
+  "tileSize": 32,
+  "worldCell": {
+    "width": 24,
+    "height": 30
+  },
+  "walkFrameMilliseconds": 145,
+  "zoomLevels": [
+    1,
+    2,
+    3
+  ],
+  "sprites": {
+    "tile.warm-sand": {
+      "x": 1,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "warm-sand"
+    },
+    "tile.dune-grass": {
+      "x": 35,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "dune-grass"
+    },
+    "tile.villa-floor": {
+      "x": 69,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "villa-floor"
+    },
+    "tile.spa-stone": {
+      "x": 103,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "spa-stone"
+    },
+    "tile.plaza-paver": {
+      "x": 137,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "plaza-paver"
+    },
+    "tile.boardwalk": {
+      "x": 171,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "boardwalk"
+    },
+    "tile.shallow-water": {
+      "x": 205,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "shallow-water"
+    },
+    "tile.garden-soil": {
+      "x": 239,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "garden-soil"
+    },
+    "tile.pale-concrete": {
+      "x": 273,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "pale-concrete"
+    },
+    "tile.dark-asphalt": {
+      "x": 307,
+      "y": 1,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "sourceId": "dark-asphalt"
+    },
+    "character.generic-resident.front-1": {
+      "x": 341,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.front-2": {
+      "x": 367,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.rear-1": {
+      "x": 393,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.rear-2": {
+      "x": 419,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.left-1": {
+      "x": 445,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.left-2": {
+      "x": 471,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.right-1": {
+      "x": 1,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.generic-resident.right-2": {
+      "x": 27,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "generic-resident"
+    },
+    "character.linda.front-1": {
+      "x": 53,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.front-2": {
+      "x": 79,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.rear-1": {
+      "x": 105,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.rear-2": {
+      "x": 131,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.left-1": {
+      "x": 157,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.left-2": {
+      "x": 183,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.right-1": {
+      "x": 209,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.linda.right-2": {
+      "x": 235,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "linda"
+    },
+    "character.protagonist.front-1": {
+      "x": 261,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.front-2": {
+      "x": 287,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.rear-1": {
+      "x": 313,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.rear-2": {
+      "x": 339,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.left-1": {
+      "x": 365,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.left-2": {
+      "x": 391,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.right-1": {
+      "x": 417,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "character.protagonist.right-2": {
+      "x": 443,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "protagonist"
+    },
+    "portrait.generic-resident": {
+      "x": 469,
+      "y": 35,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "generic-resident"
+    },
+    "portrait.linda": {
+      "x": 1,
+      "y": 81,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "linda"
+    },
+    "portrait.protagonist": {
+      "x": 43,
+      "y": 81,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "protagonist"
+    }
+  },
+  "characters": {
+    "generic-resident": {
+      "displayName": "Resident",
+      "portrait": "portrait.generic-resident",
+      "frames": {
+        "front-1": "character.generic-resident.front-1",
+        "front-2": "character.generic-resident.front-2",
+        "rear-1": "character.generic-resident.rear-1",
+        "rear-2": "character.generic-resident.rear-2",
+        "left-1": "character.generic-resident.left-1",
+        "left-2": "character.generic-resident.left-2",
+        "right-1": "character.generic-resident.right-1",
+        "right-2": "character.generic-resident.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "linda": {
+      "displayName": "Linda",
+      "portrait": "portrait.linda",
+      "frames": {
+        "front-1": "character.linda.front-1",
+        "front-2": "character.linda.front-2",
+        "rear-1": "character.linda.rear-1",
+        "rear-2": "character.linda.rear-2",
+        "left-1": "character.linda.left-1",
+        "left-2": "character.linda.left-2",
+        "right-1": "character.linda.right-1",
+        "right-2": "character.linda.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "protagonist": {
+      "displayName": "Protagonist",
+      "portrait": "portrait.protagonist",
+      "frames": {
+        "front-1": "character.protagonist.front-1",
+        "front-2": "character.protagonist.front-2",
+        "rear-1": "character.protagonist.rear-1",
+        "rear-2": "character.protagonist.rear-2",
+        "left-1": "character.protagonist.left-1",
+        "left-2": "character.protagonist.left-2",
+        "right-1": "character.protagonist.right-1",
+        "right-2": "character.protagonist.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    }
+  },
+  "tiles": [
+    "tile.warm-sand",
+    "tile.dune-grass",
+    "tile.villa-floor",
+    "tile.spa-stone",
+    "tile.plaza-paver",
+    "tile.boardwalk",
+    "tile.shallow-water",
+    "tile.garden-soil",
+    "tile.pale-concrete",
+    "tile.dark-asphalt"
+  ]
+}

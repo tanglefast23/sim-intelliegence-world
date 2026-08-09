@@ -264,7 +264,7 @@ The required Fable 5 `xhigh`, Opus 5 `xhigh`, and Grok 4.5 `high` review complet
 - [x] Phase 1 — Repository foundation
 - [x] Phase 2 — Secure Electron and CanvasKit spike
 - [x] Phase 3 — Local-model risk spike
-- [ ] Phase 4 — Character and atlas spike
+- [x] Phase 4 — Character and atlas spike
 - [ ] Phase 5 — Deterministic domain contracts
 - [ ] Phase 6 — Save, recovery, and migration safety
 - [ ] Phase 7 — World renderer and local movement
@@ -394,11 +394,13 @@ Process leaks, secret exposure, command injection, restart storms, unbounded log
 
 - `scripts/art/character-source.ts`, `scripts/art/build-world-atlas.ts`
 - `scripts/art/build-portrait-atlas.ts`, `scripts/art/build-review-sheet.ts`
-- `scripts/art/rear-frame.ts`, `scripts/art/lateral-legs.ts`
+- `scripts/art/rear-frame.ts`, `scripts/art/lateral-legs.ts`, `scripts/art/png.ts`
 - `assets/source/characters/*.json`, `assets/source/tiles/*.json`
 - `assets/generated/world-atlas.png`, `assets/generated/atlas-index.json`
-- `src/render/AtlasProof.tsx`, `src/render/atlas.ts`
+- `App.tsx`, `src/render/SkiaProof.tsx`, `src/render/AtlasProof.tsx`, `src/render/atlas.ts`
 - `scripts/art/__tests__/*.test.ts`, `src/render/__tests__/atlas-bill.test.ts`
+- `scripts/electron/package-smoke-utils.ts`, `tests/electron/package-smoke.test.ts`
+- `artifacts/phase-04/*`
 
 ### Work
 

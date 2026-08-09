@@ -1,11 +1,9 @@
-import { Canvas, Circle, Group, Rect } from '@shopify/react-native-skia';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererReadyReport } from '../application/RendererReadiness';
-
-const proofAtlas = require('../../assets/proof/phase2-atlas.png') as number;
+import { AtlasProof } from './AtlasProof';
 
 function hasNoNodeAccess(): boolean {
   const candidate = globalThis as typeof globalThis & {
@@ -35,8 +33,13 @@ async function afterTwoPaints(): Promise<void> {
 
 export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   const [runtime, setRuntime] = useState('Browser proof');
+  const [atlasReady, setAtlasReady] = useState(false);
+  const markAtlasReady = useCallback(() => setAtlasReady(true), []);
 
   useEffect(() => {
+    if (!atlasReady) {
+      return;
+    }
     const bridge = getDesktopBridge();
     if (!bridge) {
       return;
@@ -60,43 +63,25 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
       .catch(() => {
         setRuntime('Desktop bridge rejected the readiness proof');
       });
-  }, [assetsLoaded]);
+  }, [assetsLoaded, atlasReady]);
 
   return (
     <View style={styles.screen}>
       <View style={styles.card}>
-        <Canvas style={styles.canvas}>
-          <Rect color="#314b3b" height={160} width={320} x={0} y={0} />
-          <Group>
-            <Circle color="#f5dd9d" cx={82} cy={80} r={38} />
-            <Circle color="#cf6f4b" cx={160} cy={80} r={38} />
-            <Circle color="#82a66c" cx={238} cy={80} r={38} />
-          </Group>
-        </Canvas>
-        <Image accessibilityLabel="Phase 2 atlas proof" source={proofAtlas} style={styles.atlas} />
+        <AtlasProof onReady={markAtlasReady} />
       </View>
       <Text accessibilityRole="header" style={styles.title}>
         SI World desktop shell
       </Text>
-      <Text style={styles.status}>CanvasKit, font, image, and audio resources loaded.</Text>
+      <Text style={styles.status}>Generated atlas, CanvasKit, font, and audio resources loaded.</Text>
       <Text style={styles.runtime}>{runtime}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  atlas: {
-    height: 96,
-    marginLeft: 18,
-    width: 96,
-  },
-  canvas: {
-    height: 160,
-    width: 320,
-  },
   card: {
     alignItems: 'center',
-    flexDirection: 'row',
   },
   runtime: {
     color: '#7f9784',
@@ -119,7 +104,7 @@ const styles = StyleSheet.create({
   title: {
     color: '#f5dd9d',
     fontFamily: 'Silkscreen',
-    fontSize: 24,
-    marginTop: 22,
+    fontSize: 22,
+    marginTop: 12,
   },
 });

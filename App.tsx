@@ -10,6 +10,7 @@ import { type ResourceState, settleResourceGate } from './src/application/Resour
 
 const proofAtlas = require('./assets/proof/phase2-atlas.png') as number;
 const proofAudio = require('./assets/proof/phase2-tone.wav') as number;
+const worldAtlas = require('./assets/generated/world-atlas.png') as number;
 
 export default function App() {
   const [resources, setResources] = useState<ResourceState>({ status: 'loading' });
@@ -20,7 +21,7 @@ export default function App() {
     void settleResourceGate(async () => {
       const [, loadedAssets] = await Promise.all([
         Font.loadAsync({ Silkscreen: Silkscreen_400Regular }),
-        Asset.loadAsync([proofAtlas, proofAudio]),
+        Asset.loadAsync([proofAtlas, proofAudio, worldAtlas]),
       ]);
       const imageAsset = loadedAssets.find((asset) => asset.name.includes('phase2-atlas'));
       if (!imageAsset) {
@@ -30,15 +31,23 @@ export default function App() {
       if (!audioAsset) {
         throw new Error('Packaged audio proof was not resolved.');
       }
-      const [imageResponse, audioResponse] = await Promise.all([
+      const worldImageAsset = loadedAssets.find((asset) => asset.name.includes('world-atlas'));
+      if (!worldImageAsset) {
+        throw new Error('Generated world atlas was not resolved.');
+      }
+      const [imageResponse, audioResponse, worldImageResponse] = await Promise.all([
         fetch(imageAsset.localUri ?? imageAsset.uri),
         fetch(audioAsset.localUri ?? audioAsset.uri),
+        fetch(worldImageAsset.localUri ?? worldImageAsset.uri),
       ]);
       if (!imageResponse.ok || (await imageResponse.arrayBuffer()).byteLength === 0) {
         throw new Error('Packaged image proof could not be loaded.');
       }
       if (!audioResponse.ok || (await audioResponse.arrayBuffer()).byteLength === 0) {
         throw new Error('Packaged audio proof could not be loaded.');
+      }
+      if (!worldImageResponse.ok || (await worldImageResponse.arrayBuffer()).byteLength === 0) {
+        throw new Error('Generated world atlas could not be loaded.');
       }
       const remainingLoadingTime = Math.max(0, 500 - (performance.now() - startedAt));
       await new Promise((resolveDelay) => setTimeout(resolveDelay, remainingLoadingTime));
