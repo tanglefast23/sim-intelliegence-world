@@ -14,9 +14,18 @@ release/
 # Local model runtime and generated secrets
 models/
 *.gguf
+*.gguf.partial
 *.api-key
 *.pid
 *.log
+model-runtime/
+runtime-manifest.json
+llama-server
+llama-server.exe
+llama-quantize
+llama-quantize.exe
+llama-parent-guard
+llama-parent-guard.exe
 
 # Saves and temporary persistence files
 saves/

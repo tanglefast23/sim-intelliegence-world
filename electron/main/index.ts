@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
+import { runPackagedModelSmoke } from '../model/model-smoke';
 import {
   APP_URL,
   createAppProtocolHandler,
@@ -14,6 +15,7 @@ import { lockWebContents, lockedWebPreferences } from './security';
 registerAppSchemePrivileges(protocol);
 
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
+const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 let smokeFinished = false;
 
 if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
@@ -106,10 +108,21 @@ async function createMainWindow(): Promise<void> {
 
 app.on('web-contents-created', (_event, contents) => lockWebContents(contents));
 
-app.whenReady().then(createMainWindow).catch((error: unknown) => {
-  process.stderr.write(`SI_WORLD_BOOT_FAILURE ${String(error)}\n`);
-  app.exit(1);
-});
+app
+  .whenReady()
+  .then(async () => {
+    if (modelSmokeMode) {
+      const report = await runPackagedModelSmoke(app, process.resourcesPath);
+      process.stdout.write(`SI_WORLD_MODEL_SMOKE_RESULT ${JSON.stringify(report)}\n`);
+      app.quit();
+      return;
+    }
+    await createMainWindow();
+  })
+  .catch((error: unknown) => {
+    process.stderr.write(`SI_WORLD_BOOT_FAILURE ${String(error)}\n`);
+    app.exit(1);
+  });
 
 app.on('window-all-closed', () => app.quit());
 
