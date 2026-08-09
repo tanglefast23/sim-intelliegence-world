@@ -41,7 +41,7 @@ jobs:
 
       - name: Configure packaged Chromium sandbox
         run: |
-          sandbox_path='out/SI World-linux-x64/chrome-sandbox'
+          sandbox_path='out/si-world-linux-x64/chrome-sandbox'
           test -f "$sandbox_path"
           sudo chown root:root "$sandbox_path"
           sudo chmod 4755 "$sandbox_path"

@@ -4,12 +4,14 @@ import { join } from 'node:path';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 
+const packagedApplicationName = process.platform === 'linux' ? 'si-world' : 'SI World';
+
 const config: ForgeConfig = {
   packagerConfig: {
     appBundleId: 'com.tanglefast.si-world',
     asar: true,
     executableName: 'si-world',
-    name: 'SI World',
+    name: packagedApplicationName,
     overwrite: true,
     ignore: [
       /^\/(?!build(?:\/|$)|dist(?:\/|$)|node_modules(?:\/|$)|package\.json$).+/u,
