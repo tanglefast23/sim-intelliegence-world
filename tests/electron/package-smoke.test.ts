@@ -11,7 +11,7 @@ describe('packaged Electron smoke evidence', () => {
       `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
         appUrl: 'app://game/',
         assetsLoaded: true,
-        bridgeKeys: ['getRuntimeInfo', 'reportRendererReady'],
+        bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
         canvasKitReady: true,
         nodeAccessBlocked: true,
       })}`,
@@ -33,7 +33,7 @@ describe('packaged Electron smoke evidence', () => {
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'app://game/',
           assetsLoaded: true,
-          bridgeKeys: ['getRuntimeInfo', 'reportRendererReady'],
+          bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
           canvasKitReady: false,
           nodeAccessBlocked: true,
         })}`,
@@ -44,7 +44,7 @@ describe('packaged Electron smoke evidence', () => {
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'https://example.com/',
           assetsLoaded: true,
-          bridgeKeys: ['getRuntimeInfo', 'reportRendererReady'],
+          bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
           canvasKitReady: true,
           nodeAccessBlocked: true,
         })}`,
@@ -56,6 +56,8 @@ describe('packaged Electron smoke evidence', () => {
     const requiredListing = [
       '/build/electron/main/index.js',
       '/build/electron/preload/index.js',
+      '/build/electron/persistence/save-repository.js',
+      '/build/src/domain/state/schema.js',
       '/dist/canvaskit.wasm',
       '/dist/index.html',
       '/dist/assets/assets/proof/phase2-atlas.abc123.png',

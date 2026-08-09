@@ -1,0 +1,7 @@
+[
+  {"trigger":"sleep","blockingPauseTokens":[]},
+  {"trigger":"travel","blockingPauseTokens":[]},
+  {"trigger":"major_quest","blockingPauseTokens":[]},
+  {"trigger":"manual","blockingPauseTokens":["pause:conversation:linda"]},
+  {"trigger":"manual","blockingPauseTokens":["pause:transition:docks"]}
+]

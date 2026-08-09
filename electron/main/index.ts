@@ -5,6 +5,8 @@ import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
 import { runPackagedModelSmoke } from '../model/model-smoke';
+import { registerPersistenceIpc } from '../persistence/ipc';
+import { SaveRepository, saveRootForUserData } from '../persistence/save-repository';
 import {
   APP_URL,
   createAppProtocolHandler,
@@ -84,6 +86,12 @@ async function createMainWindow(): Promise<void> {
       });
     },
   );
+  const saveRepository = new SaveRepository(saveRootForUserData(app.getPath('userData')));
+  registerPersistenceIpc(ipcMain, {
+    loadSave: (slotId) => saveRepository.load(slotId),
+    migrateSave: (request) => saveRepository.migrate(request),
+    requestSave: (request) => saveRepository.save(request),
+  });
   window.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
     if (smokeMode && !smokeFinished) {
       smokeFinished = true;

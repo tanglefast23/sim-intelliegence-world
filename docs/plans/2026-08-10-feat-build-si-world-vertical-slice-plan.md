@@ -266,7 +266,7 @@ The required Fable 5 `xhigh`, Opus 5 `xhigh`, and Grok 4.5 `high` review complet
 - [x] Phase 3 — Local-model risk spike
 - [x] Phase 4 — Character and atlas spike
 - [x] Phase 5 — Deterministic domain contracts
-- [ ] Phase 6 — Save, recovery, and migration safety
+- [x] Phase 6 — Save, recovery, and migration safety
 - [ ] Phase 7 — World renderer and local movement
 - [ ] Phase 8 — Time, maps, schedules, needs, and economy
 - [ ] Phase 9 — Validated conversation system

@@ -29,6 +29,8 @@ llama-parent-guard.exe
 
 # Saves and temporary persistence files
 saves/
+!tests/fixtures/saves/
+!tests/fixtures/saves/*.json
 *.tmp
 *.bak
 

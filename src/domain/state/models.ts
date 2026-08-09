@@ -5,6 +5,10 @@ import { EventIdSchema, StableIdSchema } from './ids';
 
 export const BoundedConditionSchema = z.number().int().min(0).max(100);
 
+function uniqueStableIds(message: string) {
+  return z.array(StableIdSchema).refine((ids) => new Set(ids).size === ids.length, { message });
+}
+
 export const ProtagonistStateSchema = z.object({
   id: z.literal('protagonist'),
   displayName: z.string().trim().min(1).max(32),
@@ -46,7 +50,8 @@ export const NpcStateSchema = z.object({
   tier: z.enum(['full_ai', 'ambient']),
   presence: NpcPresenceSchema,
   knowledge: z.array(KnowledgeRecordSchema),
-  unlockedInterestIds: z.array(StableIdSchema),
+  unlockedInterestIds: uniqueStableIds('Unlocked interest IDs must be unique.'),
+  unlockedIds: uniqueStableIds('Unlock IDs must be unique.'),
   memories: z.array(MemoryRecordSchema),
 }).strict();
 
@@ -71,7 +76,7 @@ export const FactionStateSchema = z.object({
 export const QuestStateSchema = z.object({
   id: StableIdSchema,
   status: z.enum(['locked', 'available', 'active', 'resolved', 'failed', 'withdrawn']),
-  flagIds: z.array(StableIdSchema),
+  flagIds: uniqueStableIds('Quest flag IDs must be unique.'),
 }).strict();
 
 export const JournalEntrySchema = z.object({
@@ -92,7 +97,7 @@ export const MapStateSchema = z.object({
   id: StableIdSchema,
   active: z.boolean(),
   unlocked: z.boolean(),
-  discoveredEntranceIds: z.array(StableIdSchema),
+  discoveredEntranceIds: uniqueStableIds('Discovered entrance IDs must be unique.'),
 }).strict();
 
 export const ScheduleBlockSchema = z.object({
@@ -130,7 +135,7 @@ export const EvidenceStateSchema = z.object({
   id: StableIdSchema,
   actionId: StableIdSchema,
   locationId: StableIdSchema,
-  witnessNpcIds: z.array(StableIdSchema),
+  witnessNpcIds: uniqueStableIds('Evidence witness IDs must be unique.'),
   createdAtMinute: z.number().int().nonnegative(),
   status: z.enum(['unnoticed', 'noticed', 'linked', 'resolved']),
 }).strict();

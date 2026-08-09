@@ -18,6 +18,11 @@ export function createInitialState(displayName = 'Player'): WorldState {
     contentVersion: CONTENT_VERSION,
     promptVersion: PROMPT_VERSION,
     modelContractVersion: MODEL_CONTRACT_VERSION,
+    modelPin: {
+      id: 'qwen3.5-9b',
+      sourceRevision: 'c202236235762e1c871ad0ccb60c8ee5ba337b9a',
+      artifactSha256: '8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341',
+    },
     generationId: 'generation-prototype-001',
     revision: 0,
     prng: prng.snapshot(),
@@ -42,6 +47,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
         presence: { kind: 'active_local', locationId: 'linda_villa' },
         knowledge: [],
         unlockedInterestIds: ['cats'],
+        unlockedIds: [],
         memories: [],
       },
       generic_resident: {
@@ -50,6 +56,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
         presence: { kind: 'active_local', locationId: 'northwest_residential' },
         knowledge: [],
         unlockedInterestIds: [],
+        unlockedIds: [],
         memories: [],
       },
     },

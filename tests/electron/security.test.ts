@@ -16,6 +16,8 @@ import {
 } from '../../electron/ipc/contracts';
 import { isTrustedAppUrl, lockedWebPreferences, lockWebContents } from '../../electron/main/security';
 import type { IpcMain, IpcMainInvokeEvent, WebContents } from 'electron';
+import { PERSISTENCE_IPC_CHANNELS, registerPersistenceIpc } from '../../electron/persistence/ipc';
+import { createInitialState } from '../../src/domain/state/initial-state';
 
 describe('secure Electron boundary', () => {
   test('locked renderer preferences are explicit', () => {
@@ -155,7 +157,7 @@ describe('secure Electron boundary', () => {
       RendererReadySchema.parse({
         appUrl: 'app://game/',
         assetsLoaded: true,
-        bridgeKeys: ['getRuntimeInfo', 'reportRendererReady'],
+        bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
         canvasKitReady: true,
         nodeAccessBlocked: false,
       }),
@@ -204,10 +206,74 @@ describe('secure Electron boundary', () => {
     expect(preload).toContain("contextBridge.exposeInMainWorld('siWorldDesktop', desktopBridge)");
     expect(preload).toContain("getRuntimeInfo: 'si-world:get-runtime-info'");
     expect(preload).toContain("reportRendererReady: 'si-world:report-renderer-ready'");
+    expect(preload).toContain("loadSave: 'si-world:load-save'");
+    expect(preload).toContain("requestSave: 'si-world:request-save'");
+    expect(preload).toContain("migrateSave: 'si-world:migrate-save'");
     expect(preload).toMatch(/import type \{ RendererReadyReport, RuntimeInfo \}/u);
     expect(preload).not.toMatch(/import \{[^}]*IPC_CHANNELS/u);
     expect(preload).not.toMatch(/exposeInMainWorld\([^)]*ipcRenderer/u);
     expect(preload).not.toContain('invoke: ipcRenderer.invoke');
+  });
+
+  test('persistence IPC is main-frame-only, typed, size-bounded, and path-closed', async () => {
+    const handlers = new Map<string, (...args: unknown[]) => unknown>();
+    const ipcMain = {
+      handle: jest.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
+        handlers.set(channel, handler);
+      }),
+    } as unknown as IpcMain;
+    const requestSave = jest.fn(async () => ({
+      status: 'saved' as const,
+      slotId: 'slot-001' as const,
+      saveGeneration: 1,
+      checksum: 'a'.repeat(64),
+      maintenanceWarnings: [],
+    }));
+    const loadSave = jest.fn(async () => ({ status: 'empty' as const, slotId: 'slot-001' as const }));
+    const migrateSave = jest.fn(async () => ({
+      status: 'migrated' as const,
+      sourceSlotId: 'slot-001' as const,
+      targetSlotId: 'slot-002' as const,
+      saveGeneration: 1,
+      checksum: 'b'.repeat(64),
+      stateSchemaVersion: 2,
+      maintenanceWarnings: [],
+    }));
+    registerPersistenceIpc(ipcMain, { requestSave, loadSave, migrateSave });
+
+    const mainFrame = { url: 'app://game/' };
+    const trustedEvent = {
+      sender: { id: 41, mainFrame },
+      senderFrame: mainFrame,
+    } as unknown as IpcMainInvokeEvent;
+    const savePayload = {
+      slotId: 'slot-001',
+      expectedSaveGeneration: null,
+      trigger: 'manual',
+      state: createInitialState(),
+    };
+    await expect(handlers.get(PERSISTENCE_IPC_CHANNELS.requestSave)?.(trustedEvent, savePayload)).resolves.toEqual(
+      expect.objectContaining({ status: 'saved', saveGeneration: 1 }),
+    );
+    expect(requestSave).toHaveBeenCalledTimes(1);
+    await expect(handlers.get(PERSISTENCE_IPC_CHANNELS.loadSave)?.(trustedEvent, '../escape')).rejects.toThrow();
+    await expect(
+      handlers.get(PERSISTENCE_IPC_CHANNELS.requestSave)?.(trustedEvent, 'x'.repeat(2 * 1_024 * 1_024)),
+    ).rejects.toThrow('size limit');
+    await expect(handlers.get(PERSISTENCE_IPC_CHANNELS.migrateSave)?.(trustedEvent, {
+      sourceSlotId: 'slot-001',
+      targetSlotId: 'slot-001',
+      nextGenerationId: 'generation-migrated-001',
+    })).rejects.toThrow('must differ');
+
+    const childFrame = { url: 'app://game/' };
+    const childEvent = {
+      sender: { id: 42, mainFrame },
+      senderFrame: childFrame,
+    } as unknown as IpcMainInvokeEvent;
+    await expect(handlers.get(PERSISTENCE_IPC_CHANNELS.loadSave)?.(childEvent, 'slot-001')).rejects.toThrow(
+      'trusted main frame',
+    );
   });
 
   test('Linux CI keeps the Chromium sandbox enabled for packaged smoke', () => {
