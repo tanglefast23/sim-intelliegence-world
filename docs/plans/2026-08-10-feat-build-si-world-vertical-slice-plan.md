@@ -261,7 +261,7 @@ The required Fable 5 `xhigh`, Opus 5 `xhigh`, and Grok 4.5 `high` review complet
 ## Execution status
 
 - [x] Preflight — planning commit, private remote, and default-branch controls
-- [ ] Phase 1 — Repository foundation
+- [x] Phase 1 — Repository foundation
 - [ ] Phase 2 — Secure Electron and CanvasKit spike
 - [ ] Phase 3 — Local-model risk spike
 - [ ] Phase 4 — Character and atlas spike
