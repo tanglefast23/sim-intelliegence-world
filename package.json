@@ -29,6 +29,7 @@
     "test:electron:unit": "jest --runInBand --runTestsByPath tests/electron/security.test.ts tests/electron/package-smoke.test.ts",
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
     "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron",
+    "verify:ci-build": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run package:electron",
     "verify": "npm run validate:content && npm run art:check && npm run proof:check && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron"
   },
   "dependencies": {

@@ -12,7 +12,7 @@
 - `npx expo install --check` — dependencies are compatible
 - `npm ci` — clean locked install succeeds
 - `npm run verify` — succeeds
-- Jest — 6 suites and 43 tests pass
+- Jest — 6 suites and 44 tests pass
 - Electron TypeScript compilation — succeeds
 - Forge package — succeeds for macOS ARM64
 - Live packaged smoke — succeeds and exits without a remaining app process
@@ -40,6 +40,7 @@ The packaged renderer reported this closed proof object:
 - Source, tests, audits, screenshots, scripts, Expo, and React Native dependencies are rejected by the package-list smoke check.
 - The smoke runner deletes stale target screenshots and requires two distinct, non-trivial PNG captures.
 - The local development package has an ad-hoc linker signature only. Release signing is not claimed by Phase 2.
+- Hosted Linux smoke configures the packaged Chromium helper as root mode `4755` before launch; sandboxing remains enabled and `--no-sandbox` is forbidden by a test.
 
 ## Evidence files
 
@@ -58,3 +59,5 @@ The remaining npm result is 4 low, 7 moderate, and 16 high transitive advisories
 ## Grok audit disposition
 
 Grok 4.5 completed the required high-effort, read-only Phase 2 audit. All five findings were independently confirmed and fixed. The detailed disposition is in `audits/phase-02-grok-audit.md`.
+
+The first hosted Linux run reached the packaged smoke and then failed because Chromium requires its Linux `chrome-sandbox` helper to be root-owned with mode `4755`. The CI workflow now configures that exact generated helper in the ephemeral runner and tests that `--no-sandbox` is absent. Local macOS verification remained green.

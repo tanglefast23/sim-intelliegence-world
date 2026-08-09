@@ -36,5 +36,16 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Verify current phase
-        run: xvfb-run -a npm run verify
+      - name: Verify current phase build
+        run: npm run verify:ci-build
+
+      - name: Configure packaged Chromium sandbox
+        run: |
+          sandbox_path='out/SI World-linux-x64/chrome-sandbox'
+          test -f "$sandbox_path"
+          sudo chown root:root "$sandbox_path"
+          sudo chmod 4755 "$sandbox_path"
+          test "$(stat -c '%u:%g:%a' "$sandbox_path")" = '0:0:4755'
+
+      - name: Verify packaged Linux shell
+        run: xvfb-run -a npm run smoke:electron

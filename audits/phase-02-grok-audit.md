@@ -28,6 +28,7 @@ The first audit process did not return a retrievable result after its process ha
 - Both screenshots passed size, PNG-signature, and distinct-content checks.
 - Visual inspection confirmed the authored loading shell and the final Skia proof.
 - Process inspection found no packaged SI World process after the smoke exited.
+- A later hosted Linux failure was traced to the generated Chromium helper ownership. CI now assigns root mode `4755` to that exact ephemeral package file and still forbids `--no-sandbox`.
 
 ## Coverage
 

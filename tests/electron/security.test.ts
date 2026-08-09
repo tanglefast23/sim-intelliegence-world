@@ -209,4 +209,11 @@ describe('secure Electron boundary', () => {
     expect(preload).not.toMatch(/exposeInMainWorld\([^)]*ipcRenderer/u);
     expect(preload).not.toContain('invoke: ipcRenderer.invoke');
   });
+
+  test('Linux CI keeps the Chromium sandbox enabled for packaged smoke', () => {
+    const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
+    expect(workflow).toContain("sudo chown root:root \"$sandbox_path\"");
+    expect(workflow).toContain("sudo chmod 4755 \"$sandbox_path\"");
+    expect(workflow).not.toContain('--no-sandbox');
+  });
 });
