@@ -5,6 +5,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/{src,scripts}/**/__tests__/**/*.test.ts',
     '<rootDir>/{src,scripts}/**/__tests__/**/*.test.tsx',
+    '<rootDir>/tests/**/*.test.ts',
   ],
   clearMocks: true,
 };

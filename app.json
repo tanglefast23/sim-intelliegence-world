@@ -4,6 +4,7 @@
     "slug": "sim-intelliegence-world",
     "version": "0.1.0",
     "orientation": "landscape",
+    "plugins": ["expo-audio", "expo-font"],
     "userInterfaceStyle": "dark",
     "web": {
       "bundler": "metro",
