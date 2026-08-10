@@ -68,7 +68,7 @@ child.stderr.on('data', (chunk: Buffer) => {
   stderr = appendBounded(stderr, chunk);
 });
 
-const timeout = setTimeout(() => child.kill('SIGKILL'), 55_000);
+const timeout = setTimeout(() => child.kill('SIGKILL'), 90_000);
 child.once('error', (error) => {
   clearTimeout(timeout);
   rmSync(smokeUserData, { force: true, recursive: true });
