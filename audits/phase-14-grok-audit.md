@@ -56,3 +56,11 @@ Grok confirmed the recorded 4B and 9B scores, the open capability scoring, teste
    - Fix: record that `halcyra_001` proposed the allowed `request_authored_action` bridge. The other misses proposed no persistent action, and none proposed an unauthorized state change.
 
 The post-fix Grok 4.5 re-audit returned `NO_CONFIRMED_FINDINGS`. It confirmed the real two-attempt fallback probe, the 98% and 88% capability scores, the corrected `halcyra_001` description, false ship eligibility, and the declared exact-baseline blocker.
+
+## PR CI repair audit
+
+The first PR run passed the complete Linux verification job. The Intel macOS shell completed the full game route, but the hosted display measured 19.99 FPS and failed the qualification-only 60 FPS gate. The Windows shell packaged successfully, but its test signer could not find the installed Windows SDK SignTool because GitHub did not put it on `PATH`.
+
+The repair adds an explicit `platform-shell` profile for hosted Linux, Intel macOS, and Windows route checks. It still requires a positive finite FPS measurement and records the result. It does not apply the baseline 60 FPS threshold. The default and integrated `qualification` profile still requires 60 FPS, and a platform-shell run cannot write a qualification report. The Windows signer now resolves the x64 SignTool from the installed SDK, temporarily trusts only the public test certificate, verifies the signed executable, and removes both certificate-store entries and the temporary public certificate in `finally`.
+
+Grok 4.5 reviewed the seven changed CI, smoke, signing, test, and status files at high effort. It returned `NO_CONFIRMED_FINDINGS`. It confirmed that the repair does not weaken qualification, that FPS remains validated and recorded, and that the Windows SDK discovery and temporary trust-store cleanup are consistent with GitHub `windows-2025` PowerShell.

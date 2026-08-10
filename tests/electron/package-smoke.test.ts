@@ -1,4 +1,5 @@
 import {
+  evaluateRendererFps,
   parseSmokeResult,
   validatePackageListing,
   validateScreenshotBuffers,
@@ -6,6 +7,18 @@ import {
 } from '../../scripts/electron/package-smoke-utils';
 
 describe('packaged Electron smoke evidence', () => {
+  test('keeps renderer FPS qualification strict while recording hosted shell measurements', () => {
+    expect(evaluateRendererFps(60)).toEqual(expect.objectContaining({
+      profile: 'qualification', thresholdPassed: true, thresholdRequired: true,
+    }));
+    expect(() => evaluateRendererFps(19.99)).toThrow('rounded 60 FPS');
+    expect(evaluateRendererFps(19.99, 'platform-shell')).toEqual(expect.objectContaining({
+      measuredFps: 19.99, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
+    }));
+    expect(() => evaluateRendererFps('unknown', 'platform-shell')).toThrow('measurement is invalid');
+    expect(() => evaluateRendererFps(60, 'weakened')).toThrow('Unknown package smoke profile');
+  });
+
   test('accepts one complete renderer readiness report', () => {
     const stdout = [
       'startup',

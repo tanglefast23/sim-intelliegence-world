@@ -7,6 +7,37 @@ import { APP_URL } from '../../electron/protocol/app-protocol';
 
 const RESULT_PREFIX = 'SI_WORLD_SMOKE_RESULT ';
 
+export type PackageSmokeProfile = 'qualification' | 'platform-shell';
+
+export interface RendererFpsEvidence {
+  measuredFps: number;
+  profile: PackageSmokeProfile;
+  thresholdFps: number;
+  thresholdPassed: boolean;
+  thresholdRequired: boolean;
+}
+
+export function evaluateRendererFps(
+  value: unknown,
+  requestedProfile?: string,
+): RendererFpsEvidence {
+  const profile = requestedProfile ?? 'qualification';
+  if (profile !== 'qualification' && profile !== 'platform-shell') {
+    throw new Error(`Unknown package smoke profile: ${profile}.`);
+  }
+  const measuredFps = Number(value);
+  if (!Number.isFinite(measuredFps) || measuredFps <= 0) {
+    throw new Error(`Packaged renderer FPS measurement is invalid: ${String(value)}`);
+  }
+  const thresholdFps = 60;
+  const thresholdPassed = Math.round(measuredFps) >= thresholdFps;
+  const thresholdRequired = profile === 'qualification';
+  if (thresholdRequired && !thresholdPassed) {
+    throw new Error(`Packaged renderer did not hold a rounded 60 FPS during generation: ${String(value)}`);
+  }
+  return { measuredFps, profile, thresholdFps, thresholdPassed, thresholdRequired };
+}
+
 function filesUnder(path: string): string[] {
   return readdirSync(path).flatMap((entry) => {
     const entryPath = join(path, entry);

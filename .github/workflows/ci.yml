@@ -50,6 +50,7 @@ jobs:
       - name: Verify packaged Linux shell
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
+          SI_WORLD_SMOKE_PROFILE: platform-shell
         run: xvfb-run -a npm run smoke:electron
 
   package-macos-intel:
@@ -84,6 +85,8 @@ jobs:
         run: npm run sign:test:mac
 
       - name: Smoke Intel macOS shell without model qualification claims
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- artifacts/phase-14/macos-x64/current
 
   package-windows-x64:
@@ -119,4 +122,6 @@ jobs:
         run: ./scripts/qualification/sign-windows-test.ps1
 
       - name: Smoke Windows x64 shell without model qualification claims
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- artifacts/phase-14/windows-x64/current

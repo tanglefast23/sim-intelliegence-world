@@ -9,6 +9,7 @@ import { parseSaveEnvelope } from '../../electron/persistence/save-format';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 
 import {
+  evaluateRendererFps,
   findPackageArchive,
   findPackagedExecutable,
   parseSmokeResult,
@@ -153,9 +154,11 @@ child.once('close', (code) => {
   if (!Number.isFinite(feedbackMilliseconds) || feedbackMilliseconds > 100) {
     throw new Error(`Packaged non-text feedback exceeded 100 ms: ${String(worldResult.conversationFeedbackMilliseconds)}`);
   }
-  if (!Number.isFinite(rendererFps) || Math.round(rendererFps) < 60) {
-    throw new Error(`Packaged renderer did not hold a rounded 60 FPS during generation: ${String(worldResult.rendererFpsDuringGeneration)}`);
-  }
+  const rendererFpsEvidence = evaluateRendererFps(
+    worldResult.rendererFpsDuringGeneration,
+    process.env.SI_WORLD_SMOKE_PROFILE,
+  );
+  worldResult.rendererFpsEvidence = rendererFpsEvidence;
   if (readFileSync(worldZoomPaths[0]!).equals(readFileSync(worldZoomPaths[2]!))) {
     throw new Error('Packaged 1x and 3x world evidence is identical.');
   }
@@ -170,6 +173,9 @@ child.once('close', (code) => {
   validateScreenshotBuffers(readFileSync(questOutcomeScreenshotPath), readFileSync(policeScreenshotPath));
   const qualificationReportPath = process.env.SI_WORLD_QUALIFICATION_REPORT;
   if (qualificationReportPath) {
+    if (!rendererFpsEvidence.thresholdRequired) {
+      throw new Error('A qualification report requires the qualification package smoke profile.');
+    }
     const readyLine = stdout.split(/\r?\n/u).find((line) => line.startsWith('SI_WORLD_RENDERER_READY '));
     if (!readyLine) throw new Error('Packaged app did not emit renderer-ready timing.');
     const ready = JSON.parse(readyLine.slice('SI_WORLD_RENDERER_READY '.length)) as { milliseconds?: unknown };
@@ -190,7 +196,11 @@ child.once('close', (code) => {
       },
       package: { executableName: basename(executable), bundledModelRuntime: process.env.SI_WORLD_MODEL_RESOURCE_DIR ? true : false },
       measurements: { rendererReadyMilliseconds, nonTextFeedbackMilliseconds: feedbackMilliseconds, rendererFpsDuringGeneration: rendererFps },
-      thresholds: { nonTextFeedback: feedbackMilliseconds <= 100, rendererFps: Math.round(rendererFps) >= 60 },
+      thresholds: {
+        nonTextFeedback: feedbackMilliseconds <= 100,
+        rendererFps: rendererFpsEvidence.thresholdPassed,
+        rendererFpsRequired: rendererFpsEvidence.thresholdRequired,
+      },
       limitations: process.env.SI_WORLD_MODEL_RESOURCE_DIR
         ? []
         : ['The renderer used the authored no-model fallback. Run the same package smoke with SI_WORLD_MODEL_RESOURCE_DIR for integrated model evidence.'],

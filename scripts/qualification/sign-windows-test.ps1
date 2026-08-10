@@ -16,6 +16,8 @@ if ($executables.Count -ne 1) {
 }
 
 $certificate = $null
+$trustedCertificate = $null
+$temporaryCertificatePath = Join-Path ([IO.Path]::GetTempPath()) "si-world-phase-14-$([guid]::NewGuid().ToString('N')).cer"
 try {
   $certificate = New-SelfSignedCertificate `
     -Type CodeSigningCert `
@@ -24,7 +26,20 @@ try {
     -HashAlgorithm SHA256 `
     -KeyExportPolicy NonExportable `
     -NotAfter (Get-Date).AddDays(2)
-  $signTool = (Get-Command signtool.exe -ErrorAction Stop).Source
+  $sdkBinRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\bin'
+  $signTools = @(
+    Get-ChildItem -Path $sdkBinRoot -Filter 'signtool.exe' -File -Recurse -ErrorAction Stop |
+      Where-Object { $_.Directory.Name -eq 'x64' } |
+      Sort-Object -Property FullName -Descending
+  )
+  if ($signTools.Count -eq 0) {
+    throw "Could not find the x64 Windows SDK SignTool under $sdkBinRoot."
+  }
+  $signTool = $signTools[0].FullName
+  Export-Certificate -Cert $certificate -FilePath $temporaryCertificatePath -Force | Out-Null
+  $trustedCertificate = Import-Certificate `
+    -FilePath $temporaryCertificatePath `
+    -CertStoreLocation 'Cert:\CurrentUser\TrustedPeople'
   & $signTool sign /sha1 $certificate.Thumbprint /s My /fd SHA256 $executables[0].FullName
   if ($LASTEXITCODE -ne 0) { throw 'SignTool failed to sign the Windows test artifact.' }
   & $signTool verify /pa /v $executables[0].FullName
@@ -48,7 +63,11 @@ try {
   Write-Output "Windows local test signature verified: $($executables[0].Name)"
 }
 finally {
+  if ($null -ne $trustedCertificate) {
+    Remove-Item -Path "Cert:\CurrentUser\TrustedPeople\$($trustedCertificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
+  }
   if ($null -ne $certificate) {
     Remove-Item -Path "Cert:\CurrentUser\My\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
   }
+  Remove-Item -Path $temporaryCertificatePath -Force -ErrorAction SilentlyContinue
 }

@@ -45,4 +45,4 @@ The signed macOS ARM64 4B package at commit `cc1c6368be945bc5a7e76349c47f718a256
 4. Run the signed integrated package on both named baselines.
 5. Select one model only after all locked performance, capability, state-safety, consent, and content gates pass.
 
-The local translated x64 smoke on Apple silicon completed its route but failed timing-sensitive interaction checks. It is not native Intel evidence. The native `macos-15-intel` CI job must pass without weaker thresholds.
+The local translated x64 smoke on Apple silicon completed its route but failed timing-sensitive interaction checks. It is not native Intel evidence. GitHub-hosted Linux, Intel macOS, and Windows jobs are platform-shell checks: they must pass the complete route, security, packaging, signing, state, screenshot, and response-feedback checks. They record renderer FPS, but do not apply the qualification-only 60 FPS gate because hosted display refresh is not baseline renderer evidence. The default and integrated qualification profile still requires 60 FPS. Exact named 16 GB hardware is still required for baseline qualification.

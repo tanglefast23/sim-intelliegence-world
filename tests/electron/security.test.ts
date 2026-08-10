@@ -308,5 +308,9 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
     expect(workflow).toContain('artifacts/phase-14/windows-x64/current');
     expect(workflow).toContain('without model qualification claims');
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(3);
+    const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
+    expect(windowsSigner).toContain("Windows Kits\\10\\bin");
+    expect(windowsSigner).toContain("Cert:\\CurrentUser\\TrustedPeople");
   });
 });
