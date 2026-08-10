@@ -53,7 +53,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
           tileX: 28, tileY: 30, scheduledMinute: 480,
         },
         knowledge: [],
-        unlockedInterestIds: ['cats'],
+        unlockedInterestIds: [],
         unlockedIds: [],
         memories: [],
       },

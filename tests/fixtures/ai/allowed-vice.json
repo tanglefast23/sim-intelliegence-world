@@ -1,0 +1,11 @@
+{
+  "dialogue": "The bars tolerate drugs and adult vice, but violence brings the police.",
+  "emotion": "wary",
+  "intent": "inform",
+  "actionId": "ask_follow_up",
+  "knowledgeCandidates": [],
+  "interestCandidateIds": [],
+  "memoryCandidates": [],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": []
+}

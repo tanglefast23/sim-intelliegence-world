@@ -110,6 +110,15 @@ export const DomainEventSchema = z.discriminatedUnion('type', [
     tileX: z.number().int().min(0).max(63),
     tileY: z.number().int().min(0).max(47),
   }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('conversation-committed'),
+    conversationId: StableIdSchema,
+    npcId: StableIdSchema,
+    knowledgeCount: z.number().int().nonnegative(),
+    interestCount: z.number().int().nonnegative(),
+    unlockCount: z.number().int().nonnegative(),
+    memoryCount: z.number().int().nonnegative(),
+  }).strict(),
 ]);
 
 export type DomainEvent = z.infer<typeof DomainEventSchema>;

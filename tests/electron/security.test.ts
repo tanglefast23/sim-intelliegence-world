@@ -157,7 +157,10 @@ describe('secure Electron boundary', () => {
       RendererReadySchema.parse({
         appUrl: 'app://game/',
         assetsLoaded: true,
-        bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
+        bridgeKeys: [
+          'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
+          'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+        ],
         canvasKitReady: true,
         nodeAccessBlocked: false,
       }),
@@ -209,6 +212,10 @@ describe('secure Electron boundary', () => {
     expect(preload).toContain("loadSave: 'si-world:load-save'");
     expect(preload).toContain("requestSave: 'si-world:request-save'");
     expect(preload).toContain("migrateSave: 'si-world:migrate-save'");
+    expect(preload).toContain("beginConversation: 'si-world:begin-conversation'");
+    expect(preload).toContain("sendConversationTurn: 'si-world:send-conversation-turn'");
+    expect(preload).toContain("endConversation: 'si-world:end-conversation'");
+    expect(preload).toContain("abortConversation: 'si-world:abort-conversation'");
     expect(preload).toMatch(/import type \{ RendererReadyReport, RuntimeInfo \}/u);
     expect(preload).not.toMatch(/import \{[^}]*IPC_CHANNELS/u);
     expect(preload).not.toMatch(/exposeInMainWorld\([^)]*ipcRenderer/u);

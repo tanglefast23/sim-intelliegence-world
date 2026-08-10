@@ -3,7 +3,10 @@ import { createRendererReadyReport } from '../RendererReadiness';
 const completeMeasurements = {
   appUrl: 'app://game/',
   assetsLoaded: true,
-  bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
+  bridgeKeys: [
+    'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
+    'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+  ],
   canvasHeight: 160,
   canvasWidth: 320,
   nodeAccessBlocked: true,
@@ -14,7 +17,10 @@ describe('renderer readiness measurements', () => {
     expect(createRendererReadyReport(completeMeasurements)).toEqual({
       appUrl: 'app://game/',
       assetsLoaded: true,
-      bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
+      bridgeKeys: [
+        'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
+        'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+      ],
       canvasKitReady: true,
       nodeAccessBlocked: true,
     });

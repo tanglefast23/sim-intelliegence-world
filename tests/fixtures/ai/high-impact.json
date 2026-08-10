@@ -1,0 +1,16 @@
+{
+  "dialogue": "Your claim finished the quest.",
+  "emotion": "warm",
+  "intent": "inform",
+  "actionId": "ask_follow_up",
+  "knowledgeCandidates": [],
+  "interestCandidateIds": [],
+  "memoryCandidates": [],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": [{
+    "type": "quest",
+    "id": "linda_boyfriend_check",
+    "sourceType": "player_message",
+    "sourceId": "turn-linda-1"
+  }]
+}

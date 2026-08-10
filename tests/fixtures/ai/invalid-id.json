@@ -1,0 +1,18 @@
+{
+  "dialogue": "I know your secret.",
+  "emotion": "wary",
+  "intent": "inform",
+  "actionId": "ask_follow_up",
+  "knowledgeCandidates": [{
+    "candidateType": "held_belief",
+    "factId": "invented_secret",
+    "assertedValue": true,
+    "sourceType": "player_message",
+    "sourceId": "turn-linda-1",
+    "evidenceText": "I have a cat"
+  }],
+  "interestCandidateIds": [],
+  "memoryCandidates": [],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": []
+}

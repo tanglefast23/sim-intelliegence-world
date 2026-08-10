@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import { buildContentCatalog, type ContentBundleInput } from '../../src/content/registries/catalog';
+import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { REGISTRY_NAMES, type RegistryName } from '../../src/content/schemas/registry';
 import { EconomyPolicySchema } from '../../src/domain/economy/economy';
 import { PROTOTYPE_ECONOMY_POLICY } from '../../src/domain/economy/economy';
@@ -62,6 +63,8 @@ export async function loadContentBundle(rootPath: string): Promise<ContentBundle
 export async function validateContent(rootPath = process.cwd()): Promise<void> {
   const bundle = await loadContentBundle(rootPath);
   const catalog = buildContentCatalog(bundle);
+  const writingStore = new FileCharacterWritingStore(resolve(rootPath, 'content'));
+  await Promise.all(catalog.rules.map(({ npcId }) => writingStore.get(npcId)));
   const mapFiles: Readonly<Record<MapId, string>> = {
     northwest_residential: 'northwest.json',
     northeast_downtown: 'northeast.json',

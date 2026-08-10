@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { RelationshipDeltaSchema } from '../relationships/relationship';
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
 import { SimulationSpeedSchema } from '../clock/clock';
+import { KnowledgeRecordSchema } from '../state/models';
 
 const CommandBaseSchema = z.object({
   commandId: CommandIdSchema,
@@ -87,6 +88,19 @@ export const DomainCommandSchema = z.discriminatedUnion('type', [
     destinationEntranceId: StableIdSchema,
     tileX: z.number().int().min(0).max(63),
     tileY: z.number().int().min(0).max(47),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('commit-conversation'),
+    conversationId: StableIdSchema,
+    npcId: StableIdSchema,
+    knowledge: z.array(KnowledgeRecordSchema).max(16),
+    unlockedInterestIds: z.array(StableIdSchema).max(16),
+    unlockedIds: z.array(StableIdSchema).max(16),
+    memories: z.array(z.object({
+      subjectId: StableIdSchema,
+      summary: z.string().trim().min(1).max(240),
+      importancePermille: z.number().int().min(0).max(1_000),
+    }).strict()).max(8),
   }).strict(),
 ]);
 

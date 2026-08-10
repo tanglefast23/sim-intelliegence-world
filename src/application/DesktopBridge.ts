@@ -10,8 +10,9 @@ import type {
   SaveResult,
   SaveSlotId,
 } from './effects/PersistencePort';
+import type { ConversationPort } from './effects/ConversationPort';
 
-export type DesktopBridge = Readonly<{
+export type DesktopBridge = ConversationPort & Readonly<{
   getRuntimeInfo: () => Promise<RuntimeInfo>;
   loadSave: (slotId: SaveSlotId) => Promise<LoadResult>;
   migrateSave: (request: MigrationRequest) => Promise<MigrationResult>;

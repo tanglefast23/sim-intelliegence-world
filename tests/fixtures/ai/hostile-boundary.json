@@ -1,0 +1,11 @@
+{
+  "dialogue": "That pressure worked.",
+  "emotion": "afraid",
+  "intent": "continue_conversation",
+  "actionId": "aggressive_flirt",
+  "knowledgeCandidates": [],
+  "interestCandidateIds": [],
+  "memoryCandidates": [],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": []
+}

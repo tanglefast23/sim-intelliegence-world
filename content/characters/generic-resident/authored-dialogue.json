@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Resident",
+  "greeting": "Nice weather for pretending nothing strange happens here.",
+  "fallbacks": ["I only know the public version of island business."]
+}

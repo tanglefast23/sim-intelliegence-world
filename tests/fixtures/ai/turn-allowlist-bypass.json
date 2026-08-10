@@ -1,0 +1,16 @@
+{
+  "dialogue": "I will remember unrelated private details.",
+  "emotion": "neutral",
+  "intent": "inform",
+  "actionId": "ask_follow_up",
+  "knowledgeCandidates": [],
+  "interestCandidateIds": ["island_gossip"],
+  "memoryCandidates": [{
+    "subjectId": "linda_boyfriend",
+    "summary": "An unrelated free-text greeting changed Linda's private relationship memory.",
+    "importancePermille": 900,
+    "sourceId": "turn-bypass-1"
+  }],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": []
+}
