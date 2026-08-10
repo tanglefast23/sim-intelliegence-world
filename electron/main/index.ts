@@ -165,6 +165,39 @@ async function waitForWorldTile(
   throw new Error(`Timed out waiting for tile ${tile.x},${tile.y}. Last state: ${lastLabel}`);
 }
 
+async function waitForWorldLocation(
+  window: BrowserWindow,
+  mapName: string,
+  tile: Readonly<{ x: number; y: number }>,
+  timeoutMilliseconds = 15_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastLabel = '';
+  while (Date.now() < deadline) {
+    lastLabel = await worldStateLabel(window);
+    const state = parseWorldStateLabel(lastLabel);
+    if (state.mapName === mapName && state.x === tile.x && state.y === tile.y) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for ${mapName} tile ${tile.x},${tile.y}. Last state: ${lastLabel}`);
+}
+
+async function waitForRendererText(
+  window: BrowserWindow,
+  selector: string,
+  expectedText: string,
+  timeoutMilliseconds = 6_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastText = '';
+  while (Date.now() < deadline) {
+    lastText = await rendererText(window, selector);
+    if (lastText.includes(expectedText)) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for ${selector} to include ${expectedText}. Last text: ${lastText}`);
+}
+
 function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
@@ -333,18 +366,20 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 400));
   const afterOvernight = parseWorldStateLabel(await worldStateLabel(window));
   const overnightSleep = afterOvernight.minute > beforeOvernight.minute && afterOvernight.minute % 1_440 === 8 * 60;
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
   const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 1');
 
-  await clickAriaButton(window, 'Set 2x time');
+  await clickAriaButton(window, 'Set 1x time');
   await clickWorldTile(window, { x: 16, y: 25 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_000));
+  await waitForWorldTile(window, { x: 16, y: 25 });
   await clickZoomButton(window, 1);
   await panWorld(window, -500, 0);
   await panWorld(window, -500, 0);
   await dispatchWorldTileClick(window, { x: 63, y: 24 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 6_500));
+  await waitForWorldLocation(window, 'Neon Crescent', { x: 0, y: 24 });
   const afterTravel = parseWorldStateLabel(await worldStateLabel(window));
   const travel = afterTravel.mapName === 'Neon Crescent' && afterTravel.x === 0 && afterTravel.y === 24;
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 2');
   const travelAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-downtown.png'), [previousWorldBuffer],
@@ -352,7 +387,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   await panWorld(window, 0, -500);
   await dispatchWorldTileClick(window, { x: 32, y: 47 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
+  await waitForWorldLocation(window, 'Harbor Authority', { x: 32, y: 0 });
   const docks = parseWorldStateLabel(await worldStateLabel(window));
   await panWorld(window, 0, -500);
   const closedFerry = docks.mapName === 'Harbor Authority' &&
@@ -363,15 +398,16 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   await panWorld(window, 500, 0);
   await dispatchWorldTileClick(window, { x: 0, y: 24 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
+  await waitForWorldLocation(window, 'Palm Exchange', { x: 63, y: 24 });
   const commercial = parseWorldStateLabel(await worldStateLabel(window));
 
   await panWorld(window, 500, 500);
   await dispatchWorldTileClick(window, { x: 32, y: 0 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
+  await waitForWorldLocation(window, 'Sunward Villas', { x: 32, y: 47 });
   const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
   const allNeighborhoods = commercial.mapName === 'Palm Exchange' &&
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 5');
   const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 5');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-loop-complete.png'), [previousWorldBuffer],
@@ -436,7 +472,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     window, join(directory, 'world-conversation.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'End conversation');
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 350));
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 6');
   const conversationCommitSave = !(await window.webContents.executeJavaScript(
     `Boolean(document.querySelector('#world-ui-conversation-panel'))`, true,
   )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 6');
@@ -453,7 +489,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
   const journalInvitation = (await rendererText(window, '#world-ui-journal-panel')).includes('LINDA · REJECTED');
   await clickAriaButton(window, 'Buy villa security report');
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 350));
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
   const socialPurchase = (await rendererText(window, '#world-ui-journal-panel')).includes('SECURITY REPORT PURCHASED') &&
     (await rendererText(window, '#world-save-status')).includes('SAVED GEN 7');
   await captureDistinctSmokeScreenshot(
