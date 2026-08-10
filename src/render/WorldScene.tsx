@@ -23,11 +23,15 @@ import { setWorldSpeed, sleepWorld, tickWorld } from '../application/runtime/tic
 import { transitionNeighborhood } from '../application/runtime/transitions';
 import { advanceWorldMovement } from '../application/runtime/world-runtime';
 import { effectiveSpeed } from '../domain/clock/clock';
+import { reduceCommand } from '../domain/commands/reducer';
+import { DomainCommandSchema } from '../domain/commands/types';
 import { createInitialState } from '../domain/state/initial-state';
 import type { WorldState } from '../domain/state/schema';
 import { BedActions } from '../ui/BedActions';
 import { ConversationPanel } from '../ui/ConversationPanel';
 import { Hud } from '../ui/Hud';
+import { JournalPanel } from '../ui/JournalPanel';
+import { RelationshipPanel } from '../ui/RelationshipPanel';
 import { WorldInput } from '../ui/WorldInput';
 import { resolveClickTarget, type ClickCandidate } from '../world/maps/hit-testing';
 import { groundSpriteAt, pointsInRect, tileKey, type CompiledMap, type TilePoint } from '../world/maps/schema';
@@ -171,6 +175,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string>();
   const [conversationNpcId, setConversationNpcId] = useState<string>();
+  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
   const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
   const saveGeneration = useRef<number | null>(null);
   const handledSleepEventId = useRef<string | undefined>(undefined);
@@ -354,7 +359,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   }, []);
 
   const handlePrimary = useCallback((point: Readonly<{ x: number; y: number }>) => {
-    if (conversationNpcId) return;
+    if (conversationNpcId || openPanel) return;
     const tile = screenToTile(camera, point);
     if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
     const candidates: ClickCandidate[] = [{ id: `floor-${tileKey(tile)}`, kind: 'floor', tile }];
@@ -382,28 +387,32 @@ export function WorldScene({ onReady }: WorldSceneProps) {
       return;
     }
     if (resolved.tile) requestTile(resolved.tile);
-  }, [camera, conversationNpcId, map, npcTiles, requestTile]);
+  }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
-    if (conversationNpcId) return;
+    if (conversationNpcId || openPanel) return;
     setCamera((current) => panCamera(current, delta, VIEWPORT, MAP_PIXELS));
-  }, [conversationNpcId]);
+  }, [conversationNpcId, openPanel]);
   const handleZoom = useCallback((direction: -1 | 1, anchor: Readonly<{ x: number; y: number }>) => {
-    if (conversationNpcId) return;
+    if (conversationNpcId || openPanel) return;
     setCamera((current) => {
       const index = ZOOM_LEVELS.indexOf(current.zoom);
       const nextIndex = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, index + direction));
       return zoomCameraAt(current, ZOOM_LEVELS[nextIndex] as ZoomLevel, anchor, VIEWPORT, MAP_PIXELS);
     });
-  }, [conversationNpcId]);
+  }, [conversationNpcId, openPanel]);
   const center = useCallback(() => {
-    if (conversationNpcId) return;
+    if (conversationNpcId || openPanel) return;
     setCamera((current) => centerCameraOnTile(runtime.movement.player, current.zoom, VIEWPORT, MAP_PIXELS));
-  }, [conversationNpcId, runtime.movement.player]);
+  }, [conversationNpcId, openPanel, runtime.movement.player]);
   const cancel = useCallback(() => {
+    if (openPanel) {
+      setOpenPanel(undefined);
+      return;
+    }
     if (conversationNpcId) return;
     setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
-  }, [conversationNpcId]);
+  }, [conversationNpcId, openPanel]);
   const changeSpeed = useCallback((nextSpeed: 0 | 1 | 2) => {
     setRuntime((current) => ({ ...current, worldState: setWorldSpeed(current.worldState, nextSpeed) }));
   }, []);
@@ -433,6 +442,26 @@ export function WorldScene({ onReady }: WorldSceneProps) {
     setWorldFeedback(committed ? 'CONVERSATION SAVED' : 'CONVERSATION CANCELLED');
     if (committed) void requestAutosave(state, 'manual');
   }, [requestAutosave]);
+  const purchaseSecurityReport = useCallback(() => {
+    if (conversationNpcId) return;
+    try {
+      const result = reduceCommand(runtime.worldState, DomainCommandSchema.parse({
+        type: 'purchase-social-option',
+        commandId: `command-security-report-r${runtime.worldState.revision}`,
+        eventId: `event-security-report-r${runtime.worldState.revision}`,
+        scheduledMinute: runtime.worldState.clock.absoluteMinute,
+        priority: 50,
+        offerId: 'security_report',
+      }));
+      setRuntime((current) => ({ ...current, worldState: result.state }));
+      setWorldFeedback(result.event?.type === 'social-option-purchased' && result.event.changed
+        ? 'SECURITY REPORT PURCHASED · QUEST ADVANTAGE READY'
+        : 'SECURITY REPORT ALREADY OWNED');
+      void requestAutosave(result.state, 'manual');
+    } catch {
+      setWorldFeedback('SECURITY REPORT PURCHASE FAILED');
+    }
+  }, [conversationNpcId, requestAutosave, runtime.worldState]);
 
   useEffect(() => {
     const event = runtime.worldState.eventLedger.at(-1);
@@ -608,6 +637,16 @@ export function WorldScene({ onReady }: WorldSceneProps) {
             </Pressable>
           ))}
         </View>
+        {!conversationNpcId && !openPanel ? (
+          <View nativeID="world-ui-social-nav" style={styles.socialNav}>
+            <Pressable accessibilityLabel="Open journal" onPress={() => setOpenPanel('journal')} style={styles.socialButton}>
+              <Text style={styles.socialText}>JOURNAL</Text>
+            </Pressable>
+            <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={styles.socialButton}>
+              <Text style={styles.socialText}>SOCIAL</Text>
+            </Pressable>
+          </View>
+        ) : null}
         {inBedroom ? (
           <BedActions
             disabled={transitioning || runtime.worldState.clock.pauseTokens.length > 0}
@@ -615,7 +654,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
             onSleep={sleep}
           />
         ) : null}
-        {stateNpcId(selected) && !conversationNpcId ? (
+        {stateNpcId(selected) && !conversationNpcId && !openPanel ? (
           <View nativeID="world-ui-talk" style={styles.talkPlate}>
             <Text style={styles.talkLabel}>{selected === 'linda' ? 'LINDA' : 'RESIDENT'} SELECTED</Text>
             <Pressable
@@ -642,6 +681,20 @@ export function WorldScene({ onReady }: WorldSceneProps) {
             state={runtime.worldState}
           />
         ) : null}
+        {openPanel === 'journal' ? (
+          <JournalPanel
+            onDismiss={() => setOpenPanel(undefined)}
+            onPurchaseSecurityReport={purchaseSecurityReport}
+            state={runtime.worldState}
+          />
+        ) : null}
+        {openPanel === 'relationships' ? (
+          <RelationshipPanel
+            npcId={stateNpcId(selected) ?? 'linda'}
+            onDismiss={() => setOpenPanel(undefined)}
+            state={runtime.worldState}
+          />
+        ) : null}
       </View>
     </WorldInput>
   );
@@ -664,6 +717,9 @@ const styles = StyleSheet.create({
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },
   status: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 9 },
   statusStrong: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
+  socialButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center', minHeight: 29, paddingHorizontal: 9 },
+  socialNav: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 52 },
+  socialText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
   transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0 },
   transitionText: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 16 },
   talkButton: { alignItems: 'center', backgroundColor: '#f1c65b', justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 8 },

@@ -6,8 +6,9 @@ import {
   ScheduleBlockSchema,
 } from '../models';
 import { StableIdSchema } from '../ids';
-import { WorldStateBaseSchema, WorldStateSchema, type WorldState } from '../schema';
+import { WorldStateBaseSchema } from '../schema';
 import { routeBetween } from '../../../world/transfers/routes';
+import { LegacyStateV4Schema } from './v4-to-v5';
 
 const LegacyNpcPresenceV3Schema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('active_local'), locationId: StableIdSchema }).strict(),
@@ -44,8 +45,15 @@ const LegacyTransferV3Schema = z.object({
   message: 'Transfer arrival must be after departure.',
 });
 
-export const LegacyStateV3Schema = WorldStateBaseSchema.extend({
+export const LegacyStateV3Schema = WorldStateBaseSchema.omit({
+  schemaVersion: true,
+  relationships: true,
+  journal: true,
+  invitations: true,
+}).extend({
   schemaVersion: z.literal(3),
+  relationships: LegacyStateV4Schema.shape.relationships,
+  journal: LegacyStateV4Schema.shape.journal,
   npcs: z.record(StableIdSchema, LegacyNpcV3Schema),
   economy: LegacyEconomyV3Schema,
   schedules: z.record(StableIdSchema, LegacyScheduleV3Schema),
@@ -84,7 +92,7 @@ function scheduleBlockDefault(locationId: string, activityId: string) {
   return value;
 }
 
-export function migrateV3ToV4(candidate: unknown, nextGenerationId: string): WorldState {
+export function migrateV3ToV4(candidate: unknown, nextGenerationId: string): z.infer<typeof LegacyStateV4Schema> {
   const generationId = StableIdSchema.refine((value) => value.startsWith('generation-'), {
     message: 'Migration generation ID must start with generation-.',
   }).parse(nextGenerationId);
@@ -126,7 +134,7 @@ export function migrateV3ToV4(candidate: unknown, nextGenerationId: string): Wor
       destinationGoalTileY: route.destinationEntranceTile.y,
     }];
   }));
-  return WorldStateSchema.parse({
+  return LegacyStateV4Schema.parse({
     ...source,
     schemaVersion: 4,
     generationId,

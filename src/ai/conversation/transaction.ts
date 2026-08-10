@@ -1,18 +1,24 @@
 import { reduceCommand } from '../../domain/commands/reducer';
-import { DomainCommandSchema } from '../../domain/commands/types';
+import { DomainCommandSchema, type DomainCommand } from '../../domain/commands/types';
+import type { DomainEvent } from '../../domain/events/types';
 import type { KnowledgeRecordSchema } from '../../domain/state/models';
 import { parseWorldState, type WorldState } from '../../domain/state/schema';
+import type { StructuredConversationAction } from '../../application/effects/ConversationPort';
+import { ENGINE_STAGE_FLOORS, nextRelationshipStage } from '../../domain/relationships/relationship';
 import type { z } from 'zod';
 import type { ApprovedTurn } from '../validation/validate-turn';
 
 type KnowledgeRecord = z.infer<typeof KnowledgeRecordSchema>;
 type MemoryDraft = Readonly<{ subjectId: string; summary: string; importancePermille: number }>;
-
-export type ConversationStagedState = Readonly<{
+type ConversationPersistenceDraft = Readonly<{
   knowledge: readonly KnowledgeRecord[];
   unlockedInterestIds: readonly string[];
   unlockedIds: readonly string[];
   memories: readonly MemoryDraft[];
+}>;
+
+export type ConversationStagedState = ConversationPersistenceDraft & Readonly<{
+  socialChangeCount: number;
 }>;
 
 function encodedIdPart(source: string): string {
@@ -40,6 +46,10 @@ export class ConversationTransaction {
   readonly #unlockedInterestIds = new Set<string>();
   readonly #unlockedIds = new Set<string>();
   readonly #memories: MemoryDraft[] = [];
+  readonly #socialCommands: DomainCommand[] = [];
+  #previewState: WorldState;
+  #mutualInteractionStaged = false;
+  #structuredActionStaged = false;
   #closed = false;
 
   constructor(baseState: WorldState, conversationId: string, npcId: string) {
@@ -52,6 +62,7 @@ export class ConversationTransaction {
     if (npc.tier !== 'full_ai') throw new Error('Conversation persistence requires a full-AI NPC.');
     this.#conversationId = conversationId;
     this.#npcId = npcId;
+    this.#previewState = this.#baseState;
     const part = encodedIdPart(conversationId);
     this.#pausedState = reduceCommand(this.#baseState, DomainCommandSchema.parse({
       type: 'add-pause-token',
@@ -72,21 +83,109 @@ export class ConversationTransaction {
     return this.#baseState;
   }
 
+  get previewState(): WorldState {
+    this.#assertOpen();
+    return this.#previewState;
+  }
+
   staged(): ConversationStagedState {
     return Object.freeze({
       knowledge: [...this.#knowledge],
       unlockedInterestIds: [...this.#unlockedInterestIds].sort(),
       unlockedIds: [...this.#unlockedIds].sort(),
       memories: [...this.#memories],
+      socialChangeCount: this.#socialCommands.length,
     });
   }
 
   stage(turn: ApprovedTurn): void {
     this.#assertOpen();
+    if (this.#structuredActionStaged) throw new Error('End the conversation after a structured social action.');
     this.#knowledge.push(...turn.knowledge);
     turn.unlockedInterestIds.forEach((id) => this.#unlockedInterestIds.add(id));
     turn.unlockedIds.forEach((id) => this.#unlockedIds.add(id));
     this.#memories.push(...turn.memories);
+    this.#rebuildPreviewState();
+  }
+
+  stageMutualInteraction(options: Readonly<{ advanceRelationshipStage?: boolean }> = {}): boolean {
+    this.#assertOpen();
+    if (this.#mutualInteractionStaged) return false;
+    const index = this.#socialCommands.length;
+    const relationshipBefore = this.#previewState.relationships[this.#npcId];
+    if (!relationshipBefore) throw new Error('Conversation relationship is missing.');
+    this.#stageCommand(DomainCommandSchema.parse({
+      type: 'apply-relationship-delta',
+      ...this.#socialEventIdentity(index),
+      scheduledMinute: this.#baseState.clock.absoluteMinute,
+      priority: 100 - index,
+      npcId: this.#npcId,
+      delta: {
+        familiarity: 1,
+        trust: 1,
+        attraction: relationshipBefore.compatibility.romantic ? 1 : 0,
+      },
+      source: 'conversation',
+      reason: 'Validated mutual conversation',
+    }));
+    const relationship = this.#previewState.relationships[this.#npcId];
+    const nextStage = relationship ? nextRelationshipStage(relationship.stage) : undefined;
+    if (options.advanceRelationshipStage !== false && relationship && (nextStage === 'acquaintance' || nextStage === 'friend')) {
+      const floor = ENGINE_STAGE_FLOORS[nextStage];
+      if (
+        relationship.values.familiarity >= floor.familiarity &&
+        relationship.values.trust >= floor.trust &&
+        relationship.values.attraction >= floor.attraction
+      ) {
+        const stageIndex = this.#socialCommands.length;
+        this.#stageCommand(DomainCommandSchema.parse({
+          type: 'request-relationship-stage',
+          ...this.#socialEventIdentity(stageIndex),
+          scheduledMinute: this.#baseState.clock.absoluteMinute,
+          priority: 100 - stageIndex,
+          npcId: this.#npcId,
+          targetStage: nextStage,
+          actionId: nextStage === 'acquaintance' ? 'greet' : 'ask_follow_up',
+          authoredEvent: false,
+        }));
+      }
+    }
+    this.#mutualInteractionStaged = true;
+    return true;
+  }
+
+  stageStructuredAction(action: StructuredConversationAction): DomainEvent {
+    this.#assertOpen();
+    if (this.#structuredActionStaged) throw new Error('Only one structured social action is allowed per conversation.');
+    const index = this.#socialCommands.length;
+    const identity = this.#socialEventIdentity(index);
+    const command = action.kind === 'home_invitation'
+      ? DomainCommandSchema.parse({
+        type: 'respond-home-invitation',
+        ...identity,
+        scheduledMinute: this.#baseState.clock.absoluteMinute,
+        priority: 100 - index,
+        request: {
+          invitationId: `invitation_${encodedIdPart(this.#conversationId)}_${index}`,
+          npcId: this.#npcId,
+          sourceConversationId: this.#conversationId,
+          proposedMinute: action.proposedMinute,
+          durationMinutes: 120,
+        },
+      })
+      : DomainCommandSchema.parse({
+        type: 'request-relationship-stage',
+        ...identity,
+        scheduledMinute: this.#baseState.clock.absoluteMinute,
+        priority: 100 - index,
+        npcId: this.#npcId,
+        targetStage: action.targetStage,
+        actionId: action.actionId,
+        authoredEvent: false,
+      });
+    const event = this.#stageCommand(command);
+    this.#structuredActionStaged = true;
+    return event;
   }
 
   commit(): WorldState {
@@ -103,8 +202,14 @@ export class ConversationTransaction {
       ...this.stagedUnsafe(),
     }));
     if (result.duplicate) throw new Error('Conversation commit event ID collided with an existing receipt.');
+    let committedState = result.state;
+    for (const command of this.#socialCommands) {
+      const socialResult = reduceCommand(committedState, command);
+      if (socialResult.duplicate) throw new Error('Conversation social event ID collided with an existing receipt.');
+      committedState = socialResult.state;
+    }
     this.#closed = true;
-    return result.state;
+    return committedState;
   }
 
   discard(): WorldState {
@@ -113,13 +218,45 @@ export class ConversationTransaction {
     return this.#baseState;
   }
 
-  private stagedUnsafe(): ConversationStagedState {
+  private stagedUnsafe(): ConversationPersistenceDraft {
     return {
       knowledge: [...this.#knowledge],
       unlockedInterestIds: [...this.#unlockedInterestIds].sort(),
       unlockedIds: [...this.#unlockedIds].sort(),
       memories: [...this.#memories],
     };
+  }
+
+  #socialEventIdentity(index: number): Readonly<{ commandId: string; eventId: string }> {
+    const part = encodedIdPart(this.#conversationId);
+    return {
+      commandId: `command-conversation-social-r${this.#baseState.revision}-${part}-${index}`,
+      eventId: `event-conversation-social-r${this.#baseState.revision}-${part}-${index}`,
+    };
+  }
+
+  #stageCommand(command: DomainCommand): DomainEvent {
+    const result = reduceCommand(this.#previewState, command);
+    if (result.duplicate || !result.event) throw new Error('Conversation social action was not staged uniquely.');
+    this.#previewState = result.state;
+    this.#socialCommands.push(command);
+    return result.event;
+  }
+
+  #rebuildPreviewState(): void {
+    const part = encodedIdPart(this.#conversationId);
+    let preview = reduceCommand(this.#baseState, DomainCommandSchema.parse({
+      type: 'commit-conversation',
+      commandId: `command-conversation-r${this.#baseState.revision}-${part}`,
+      eventId: conversationCommitEventId(this.#conversationId, this.#baseState.revision),
+      scheduledMinute: this.#baseState.clock.absoluteMinute,
+      priority: 100,
+      conversationId: this.#conversationId,
+      npcId: this.#npcId,
+      ...this.stagedUnsafe(),
+    })).state;
+    for (const command of this.#socialCommands) preview = reduceCommand(preview, command).state;
+    this.#previewState = preview;
   }
 
   #assertOpen(): void {

@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-import { RelationshipDeltaSchema } from '../relationships/relationship';
+import { HomeInvitationRequestSchema } from '../invitations/schema';
+import { JournalEntrySchema } from '../quests/journal';
+import { RelationshipDeltaSchema, RelationshipStageSchema } from '../relationships/relationship';
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
 import { SimulationSpeedSchema } from '../clock/clock';
 import { KnowledgeRecordSchema } from '../state/models';
@@ -38,6 +40,37 @@ export const DomainCommandSchema = z.discriminatedUnion('type', [
     delta: z.number().int(),
     scale: z.enum(['ordinary', 'major']),
     reason: z.string().trim().min(1).max(160),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('request-relationship-stage'),
+    npcId: StableIdSchema,
+    targetStage: RelationshipStageSchema.exclude(['stranger']),
+    actionId: StableIdSchema,
+    authoredEvent: z.boolean(),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('respond-home-invitation'),
+    request: HomeInvitationRequestSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('cancel-home-invitation'),
+    invitationId: StableIdSchema,
+    reasonId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('reveal-faction'),
+    factionId: StableIdSchema,
+    discoveryFlagId: StableIdSchema,
+    sourceType: z.enum(['scene_observation', 'authored_event']),
+    sourceId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('upsert-journal-entry'),
+    entry: JournalEntrySchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('purchase-social-option'),
+    offerId: StableIdSchema,
   }).strict(),
   CommandBaseSchema.extend({
     type: z.literal('move-protagonist'),

@@ -9,6 +9,7 @@ import {
   EvidenceStateSchema,
   FactionStateSchema,
   InventoryStateSchema,
+  InvitationStateSchema,
   JournalEntrySchema,
   MapStateSchema,
   NpcStateSchema,
@@ -20,7 +21,7 @@ import {
   TransferStateSchema,
 } from './models';
 
-export const STATE_SCHEMA_VERSION = 4 as const;
+export const STATE_SCHEMA_VERSION = 5 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
@@ -55,6 +56,7 @@ export const WorldStateBaseSchema = z.object({
   factions: z.record(StableIdSchema, FactionStateSchema),
   quests: z.record(StableIdSchema, QuestStateSchema),
   journal: z.record(StableIdSchema, JournalEntrySchema),
+  invitations: z.record(StableIdSchema, InvitationStateSchema),
   maps: z.record(StableIdSchema, MapStateSchema),
   schedules: z.record(StableIdSchema, ScheduleStateSchema),
   transfers: z.record(StableIdSchema, TransferStateSchema),
@@ -102,6 +104,16 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
       context.addIssue({ code: 'custom', path: ['journal', id], message: 'Journal entry must match its key and reference an existing quest.' });
     }
   }
+  for (const [id, invitation] of Object.entries(state.invitations)) {
+    const npc = state.npcs[invitation.npcId];
+    const reservedTransfer = invitation.transferId ? state.transfers[invitation.transferId] : undefined;
+    if (
+      invitation.id !== id || !npc ||
+      (invitation.transferId !== undefined && reservedTransfer?.npcId !== invitation.npcId)
+    ) {
+      context.addIssue({ code: 'custom', path: ['invitations', id], message: 'Invitation must match its key, NPC, and reserved transfer.' });
+    }
+  }
   for (const [id, map] of Object.entries(state.maps)) {
     if (map.id !== id) context.addIssue({ code: 'custom', path: ['maps', id], message: 'Map record key must match its ID.' });
   }
@@ -125,7 +137,7 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
       !npc ||
       (transfer.status === 'in_transit'
         ? npc.presence.kind !== 'in_transit' || npc.presence.transferId !== id
-        : npc.presence.kind !== 'active_local' || npc.presence.mapId !== transfer.originMapId) ||
+        : npc.presence.kind === 'in_transit' || npc.presence.mapId !== transfer.originMapId) ||
       !state.maps[transfer.originMapId] ||
       !state.maps[transfer.destinationMapId]
     ) {
@@ -144,6 +156,12 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
     }
     if (npc.scheduleGoal && !state.maps[npc.scheduleGoal.mapId]) {
       context.addIssue({ code: 'custom', path: ['npcs', id, 'scheduleGoal'], message: 'NPC goal must reference an existing map.' });
+    }
+    if (npc.scheduleGoal?.sourceInvitationId) {
+      const invitation = state.invitations[npc.scheduleGoal.sourceInvitationId];
+      if (!invitation || invitation.npcId !== id || invitation.status !== 'accepted') {
+        context.addIssue({ code: 'custom', path: ['npcs', id, 'scheduleGoal'], message: 'An invitation goal must reference its accepted invitation.' });
+      }
     }
   }
   const activeMapIds = Object.values(state.maps).filter(({ active }) => active).map(({ id }) => id);

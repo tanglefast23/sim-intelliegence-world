@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { InvitationStateSchema } from '../invitations/schema';
+import { JournalEntrySchema } from '../quests/journal';
 import { RelationshipStateSchema } from '../relationships/relationship';
 import { EventIdSchema, StableIdSchema } from './ids';
 
@@ -69,6 +71,7 @@ export const NpcScheduleGoalSchema = z.object({
   tileX: z.number().int().min(0).max(63),
   tileY: z.number().int().min(0).max(47),
   scheduledMinute: z.number().int().nonnegative(),
+  sourceInvitationId: StableIdSchema.optional(),
 }).strict();
 
 export const NpcStateSchema = z.object({
@@ -106,20 +109,6 @@ export const QuestStateSchema = z.object({
   status: z.enum(['locked', 'available', 'active', 'resolved', 'failed', 'withdrawn']),
   flagIds: uniqueStableIds('Quest flag IDs must be unique.'),
 }).strict();
-
-export const JournalEntrySchema = z.object({
-  id: StableIdSchema,
-  questId: StableIdSchema,
-  summary: z.string().min(1).max(500),
-  locationPrecision: z.enum(['none', 'vague', 'exact']),
-  locationId: StableIdSchema.optional(),
-  markerVisible: z.boolean(),
-  resolutionState: z.enum(['open', 'resolved', 'expired']),
-}).strict().superRefine((entry, context) => {
-  if (entry.markerVisible && (entry.locationPrecision !== 'exact' || !entry.locationId)) {
-    context.addIssue({ code: 'custom', message: 'A map marker requires an exact known location.' });
-  }
-});
 
 export const MapStateSchema = z.object({
   id: StableIdSchema,
@@ -186,4 +175,4 @@ export const PoliceAttentionSchema = z.enum([
   'arrest-on-sight',
 ]);
 
-export { RelationshipStateSchema };
+export { InvitationStateSchema, JournalEntrySchema, RelationshipStateSchema };

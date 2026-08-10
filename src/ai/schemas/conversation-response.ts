@@ -11,7 +11,7 @@ const SourceTypeSchema = z.enum(['player_message', 'scene_observation', 'npc_rep
 export const ConversationResponseSchema = z.object({
   dialogue: z.string().trim().min(1).max(420),
   emotion: z.enum(['neutral', 'warm', 'wary', 'angry', 'afraid', 'sad', 'amused']),
-  intent: z.enum(['continue_conversation', 'ask_question', 'inform', 'refuse', 'end_conversation']),
+  intent: z.enum(['continue_conversation', 'ask_question', 'inform', 'unknown_topic', 'refuse', 'end_conversation']),
   actionId: StableIdSchema.nullable(),
   knowledgeCandidates: z.array(z.object({
     candidateType: z.enum(['observed_fact', 'held_belief']),
@@ -66,7 +66,7 @@ export function conversationResponseJsonSchemaForScene(
   playerMessageIds: readonly string[],
 ): Readonly<Record<string, unknown>> {
   const schema = structuredClone(conversationResponseJsonSchema) as JsonSchemaNode;
-  property(schema, 'actionId').enum = [...registry.actionIds, null];
+  property(schema, 'actionId').enum = [...turnCandidates.actionIds, null];
   delete property(schema, 'actionId').anyOf;
 
   const knowledge = property(schema, 'knowledgeCandidates');

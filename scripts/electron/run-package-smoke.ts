@@ -34,6 +34,8 @@ const downtownScreenshotPath = join(screenshotDirectory, 'world-downtown.png');
 const ferryScreenshotPath = join(screenshotDirectory, 'world-ferry.png');
 const loopScreenshotPath = join(screenshotDirectory, 'world-loop-complete.png');
 const conversationScreenshotPath = join(screenshotDirectory, 'world-conversation.png');
+const socialScreenshotPath = join(screenshotDirectory, 'world-social.png');
+const journalScreenshotPath = join(screenshotDirectory, 'world-journal.png');
 mkdirSync(screenshotDirectory, { recursive: true });
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-smoke-'));
 rmSync(loadingScreenshotPath, { force: true });
@@ -44,6 +46,8 @@ rmSync(downtownScreenshotPath, { force: true });
 rmSync(ferryScreenshotPath, { force: true });
 rmSync(loopScreenshotPath, { force: true });
 rmSync(conversationScreenshotPath, { force: true });
+rmSync(socialScreenshotPath, { force: true });
+rmSync(journalScreenshotPath, { force: true });
 const child = spawn(executable, [], {
   detached: false,
   env: {
@@ -94,7 +98,8 @@ child.once('close', (code) => {
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',
-    'conversationPause', 'conversationInputLocked', 'conversationBuffered', 'conversationFallback', 'conversationCommitSave',
+    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'conversationCommitSave',
+    'structuredInvitation', 'relationshipPanel', 'hiddenFaction', 'journalInvitation', 'socialPurchase',
   ]) {
     if (worldResult[key] !== true) {
       throw new Error(`Packaged world input check failed: ${key}. ${JSON.stringify(worldResult)}`);
@@ -107,6 +112,8 @@ child.once('close', (code) => {
   validateScreenshotBuffers(readFileSync(downtownScreenshotPath), readFileSync(ferryScreenshotPath));
   validateScreenshotBuffers(readFileSync(ferryScreenshotPath), readFileSync(loopScreenshotPath));
   validateScreenshotBuffers(readFileSync(loopScreenshotPath), readFileSync(conversationScreenshotPath));
+  validateScreenshotBuffers(readFileSync(conversationScreenshotPath), readFileSync(socialScreenshotPath));
+  validateScreenshotBuffers(readFileSync(socialScreenshotPath), readFileSync(journalScreenshotPath));
   process.stdout.write(
     `Packaged Electron smoke: ${JSON.stringify(report)} world=${JSON.stringify(worldResult)} loading=${loadingScreenshotPath} ready=${screenshotPath}\n`,
   );

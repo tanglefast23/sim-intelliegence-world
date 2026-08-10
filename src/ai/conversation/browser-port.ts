@@ -4,6 +4,62 @@ import { NpcRulesSchema } from '../../content/schemas/registry';
 import type { ConversationPort } from '../../application/effects/ConversationPort';
 import type { InferenceCompletionRequest, InferencePort } from '../../application/effects/InferencePort';
 import { ConversationService, type CharacterWritingStore } from './service';
+import { parseCharacterKnowledgeMarkdown } from '../knowledge/character-knowledge';
+
+const lindaBrowserKnowledgeProfile = parseCharacterKnowledgeMarkdown(`# Knowledge Profile
+
+## Reasoning style
+Poorly educated but socially clever. Reads motives, tone, lies, and danger quickly.
+
+## Education and experience
+Little formal education. Strong practical knowledge from work, relationships, and island life.
+
+## Real-world baseline
+Basic stable public facts from ordinary conversation, television, and the internet.
+
+## Halcyra section knowledge
+- overview: knows_well
+- residential-and-relaxation: knows_well
+- downtown-and-nightlife: knows_roughly
+- shopping-clothes-and-food: knows_roughly
+
+## Knows well
+- Daily island life, social motives, gossip, and unwritten rules
+
+## Knows roughly
+- Famous countries, cities, and public facts
+
+## Does not know
+- Academic, specialist, technical, or current information
+
+## Uncertainty behavior
+Uses plain language, admits uncertainty without acting foolish, and does not invent details.`);
+
+const residentBrowserKnowledgeProfile = parseCharacterKnowledgeMarkdown(`# Knowledge Profile
+
+## Reasoning style
+An ordinary practical adult.
+
+## Education and experience
+Ordinary secondary education and island life experience.
+
+## Real-world baseline
+Common stable public facts only.
+
+## Halcyra section knowledge
+- overview: knows_roughly
+
+## Knows well
+- Daily island life
+
+## Knows roughly
+- Major countries and cities
+
+## Does not know
+- Specialist or current information
+
+## Uncertainty behavior
+Admits uncertainty briefly and does not invent details.`);
 
 const writing: CharacterWritingStore = {
   get: async (npcId) => {
@@ -12,6 +68,7 @@ const writing: CharacterWritingStore = {
       displayName: 'Linda',
       personality: 'Linda is observant, dryly funny, guarded, and kind when she feels safe.',
       biography: 'Linda is a fictional adult resident of the northwest neighborhood.',
+      knowledgeProfile: lindaBrowserKnowledgeProfile,
       rules: NpcRulesSchema.parse(lindaRulesSource),
       authoredGreeting: "Hey. You are the island's new famous mistake, right?",
       authoredFallbacks: ['I lost the thread. Say that again more simply.'],
@@ -21,6 +78,7 @@ const writing: CharacterWritingStore = {
       displayName: 'Resident',
       personality: 'A polite and brief fictional adult resident.',
       biography: 'This resident uses authored dialogue only.',
+      knowledgeProfile: residentBrowserKnowledgeProfile,
       rules: NpcRulesSchema.parse(genericRulesSource),
       authoredGreeting: 'Nice weather for pretending nothing strange happens here.',
       authoredFallbacks: ['I only know the public version of island business.'],

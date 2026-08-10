@@ -618,8 +618,14 @@ Prompt injection, schema bypass, semantic overclaim, policy false negatives, par
 
 - `src/domain/relationships/*`, `src/domain/quests/journal.ts`
 - `src/domain/factions/*`, `src/domain/invitations/*`
+- `src/domain/state/{models,schema,initial-state}.ts`, `src/domain/state/migrations/*`
+- `src/domain/commands/{types,reducer}.ts`, `src/domain/events/types.ts`
+- `src/application/effects/ConversationPort.ts`, `src/ai/conversation/{service,transaction}.ts`
 - `src/ui/JournalPanel.tsx`, `src/ui/RelationshipPanel.tsx`
-- `content/registries/factions.json`, social fixtures and tests
+- `src/ui/ConversationPanel.tsx`, `src/render/WorldScene.tsx`
+- `src/content/schemas/*`, `scripts/content/validate-content.ts`
+- `content/registries/{actions,factions}.json`, `content/characters/*/rules.json`, `content/social/prototype.json`
+- social, migration, renderer, conversation, and packaged-runtime fixtures and tests
 
 ### Work
 
@@ -628,7 +634,12 @@ Prompt injection, schema bypass, semantic overclaim, policy false negatives, par
 - Implement two prototype factions, standing tiers, hidden discovery, idempotent deltas, and access gates.
 - Implement vague leads, exact-location markers, deadlines, states, and outcome receipts.
 - Implement invitation accept/reject/counter-schedule, conflict validation, travel reservation, cancellation, and replan feedback.
-- Connect structured social actions to the conversation transaction without model-owned state.
+- Keep named-NPC conversation free text. Detect clear typed social intent, let the local model phrase the response, and keep consent, relationship, schedule, travel, and persistence outcomes deterministic.
+- Add an always-loaded contemporary real-world/Halcyra frame, deterministic question-scope routing, and required per-NPC `knowledge.md` profiles. Explicit external places win; otherwise practical destination questions default to Halcyra while the player is on-island.
+- Limit each NPC by authored reasoning, education, experience, topic, and island-section familiarity. Unsupported or concealed questions produce natural uncertainty instead of invented expertise.
+- Show contextual prompt-idea pills only when a branch is viable. A pill fills an editable text field; it never sends or commits an action by itself, and it disappears after the branch succeeds.
+- Advance acquaintance and friend through validated mutual interaction at their authored floors so dating can become reachable without a dialogue tree.
+- Activate accepted visits from the NPC's authoritative location at departure time. Use local pathfinding on the destination map and normal transfers across maps.
 
 ### Gates
 
@@ -637,6 +648,9 @@ Prompt injection, schema bypass, semantic overclaim, policy false negatives, par
 - High values cannot bypass compatibility, hard boundaries, unresolved circumstances, or consent.
 - Repeated dialogue cannot duplicate relationship, faction, journal, or invitation effects.
 - A cross-map accepted invitation uses the transfer system and never teleports.
+- Main NPCs accept player-authored text; contextual prompt ideas are optional and editable.
+- Real-world, local Halcyra, personal, and concealed question fixtures select the correct knowledge scope. Every full-AI character profile validates, and malformed profile/world Markdown fails content validation.
+- A same-map accepted invitation reaches a local visit goal and completes. A future routine schedule cannot silently cancel an accepted visit before its travel window.
 
 ### Grok audit focus
 

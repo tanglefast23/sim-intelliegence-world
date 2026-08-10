@@ -78,15 +78,39 @@ export function createInitialState(displayName = 'Player'): WorldState {
         npcId: 'linda',
         values: { familiarity: 5, trust: 0, attraction: 0 },
         stage: 'stranger',
-        rejections: [],
+        rejections: [
+          {
+            reasonId: 'current_relationship', kind: 'changeable_circumstance', sourceActionId: 'ask_date',
+            circumstanceFlagId: 'linda_relationship_resolved', resolved: false,
+          },
+          {
+            reasonId: 'home_visit_not_safe', kind: 'changeable_circumstance', sourceActionId: 'invite_home',
+            circumstanceFlagId: 'linda_relationship_resolved', resolved: false,
+          },
+        ],
         compatibility: { social: true, romantic: true },
+        policy: {
+          romanticEligibleAtStart: false,
+          hardBoundaries: [
+            { id: 'no_aggressive_flirting', scope: 'romantic', blockedActionIds: ['aggressive_flirt'] },
+          ],
+          stageRules: [
+            { stage: 'dating', unavailable: false, requiredFlagIds: ['cats_common_interest'] },
+          ],
+        },
       },
       generic_resident: {
         npcId: 'generic_resident',
         values: { familiarity: 0, trust: 0, attraction: 0 },
         stage: 'stranger',
-        rejections: [],
+        rejections: [
+          {
+            reasonId: 'not_romantically_compatible', kind: 'permanent_boundary',
+            sourceActionId: 'ask_date', resolved: false,
+          },
+        ],
         compatibility: { social: true, romantic: false },
+        policy: { romanticEligibleAtStart: false, hardBoundaries: [], stageRules: [] },
       },
     },
     inventory: { money: PROTOTYPE_ECONOMY_POLICY.weeklyAllowance, items: {}, homeStorageItems: {} },
@@ -104,6 +128,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
       linda_boyfriend_check: { id: 'linda_boyfriend_check', status: 'locked', flagIds: [] },
     },
     journal: {},
+    invitations: {},
     maps: {
       northwest_residential: { id: 'northwest_residential', active: true, unlocked: true, discoveredEntranceIds: ['protagonist_villa'] },
       northeast_downtown: { id: 'northeast_downtown', active: false, unlocked: true, discoveredEntranceIds: [] },

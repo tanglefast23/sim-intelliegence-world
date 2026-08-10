@@ -1,12 +1,16 @@
 import type { NpcRules } from '../../content/schemas/registry';
 import type { WorldState } from '../../domain/state/schema';
+import type { CharacterKnowledgeProfile } from '../knowledge/character-knowledge';
+import type { WorldKnowledgeDocument } from '../knowledge/world-knowledge';
 
 export type CharacterWriting = Readonly<{
   npcId: string;
   displayName: string;
   personality: string;
   biography: string;
+  knowledgeProfile: CharacterKnowledgeProfile;
   rules: NpcRules;
+  worldKnowledge?: WorldKnowledgeDocument;
   authoredGreeting: string;
   authoredFallbacks: readonly string[];
 }>;

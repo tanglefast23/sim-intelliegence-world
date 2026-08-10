@@ -1,10 +1,18 @@
 import { advanceClock } from '../clock/clock';
 import { addPauseToken, removePauseToken } from '../clock/pause';
 import { sleepEnergyRestore, sleepTargetMinute } from '../clock/sleep';
-import { applyFactionDelta } from '../economy/faction';
+import { applyFactionDelta } from '../factions/faction';
 import { PROTOTYPE_ECONOMY_POLICY, validateQuestReward } from '../economy/economy';
 import type { DomainEvent } from '../events/types';
-import { applyRelationshipDelta } from '../relationships/relationship';
+import {
+  cancelInvitation,
+  completeLocalInvitation,
+  planHomeInvitation,
+  replanInvitationForTransfer,
+} from '../invitations/planner';
+import { socialPurchase } from '../quests/purchases';
+import { upsertJournalEntry } from '../quests/journal';
+import { applyRelationshipDelta, requestRelationshipStage, resolveChangeableRejections } from '../relationships/relationship';
 import { parseWorldState, type WorldState } from '../state/schema';
 import { DomainCommandSchema, type DomainCommand } from './types';
 import { simulateWorldInterval } from '../../world/schedules/simulation';
@@ -16,9 +24,21 @@ export type CommandResult = Readonly<{
 }>;
 
 function commitEvent(state: WorldState, event: DomainEvent, patch: Partial<WorldState>): CommandResult {
+  const candidate: WorldState = { ...state, ...patch };
+  const questFlagIds = allQuestFlagIds(candidate);
+  const relationships = Object.fromEntries(Object.entries(candidate.relationships).map(([npcId, relationship]) => [
+    npcId,
+    {
+      ...relationship,
+      rejections: resolveChangeableRejections(
+        relationship.rejections,
+        new Set([...questFlagIds, ...(candidate.npcs[npcId]?.unlockedIds ?? [])]),
+      ),
+    },
+  ]));
   const nextState = parseWorldState({
-    ...state,
-    ...patch,
+    ...candidate,
+    relationships,
     revision: state.revision + 1,
     eventReceipts: [...state.eventReceipts, event.eventId],
     eventLedger: [...state.eventLedger, event],
@@ -33,6 +53,14 @@ function eventBase(state: WorldState, command: DomainCommand, absoluteMinute: nu
     sequence: state.eventLedger.length,
     absoluteMinute,
   } as const;
+}
+
+function allQuestFlagIds(state: WorldState): Set<string> {
+  return new Set(Object.values(state.quests).flatMap(({ flagIds }) => flagIds));
+}
+
+function socialFlagIds(state: WorldState, npcId: string): Set<string> {
+  return new Set([...allQuestFlagIds(state), ...(state.npcs[npcId]?.unlockedIds ?? [])]);
 }
 
 export function reduceCommand(state: WorldState, candidate: DomainCommand): CommandResult {
@@ -108,6 +136,131 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         factions: {
           ...state.factions,
           [command.factionId]: { ...faction, standing: result.standing },
+        },
+      });
+    }
+    case 'request-relationship-stage': {
+      const relationship = state.relationships[command.npcId];
+      if (!relationship) throw new Error(`Unknown relationship NPC: ${command.npcId}`);
+      const decision = requestRelationshipStage(
+        relationship,
+        command.targetStage,
+        command.actionId,
+        socialFlagIds(state, command.npcId),
+        command.authoredEvent,
+      );
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'relationship-stage-requested',
+        npcId: command.npcId,
+        fromStage: relationship.stage,
+        targetStage: command.targetStage,
+        accepted: decision.accepted,
+        reasonId: decision.reasonId,
+      };
+      return commitEvent(state, event, {
+        relationships: { ...state.relationships, [command.npcId]: decision.relationship },
+      });
+    }
+    case 'respond-home-invitation': {
+      const plan = planHomeInvitation(state, command.request);
+      const transfers = { ...state.transfers };
+      if (plan.transfer) transfers[plan.transfer.id] = plan.transfer;
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'home-invitation-responded',
+        invitationId: plan.invitation.id,
+        npcId: plan.invitation.npcId,
+        outcome: plan.invitation.status as 'accepted' | 'rejected' | 'countered' | 'replan_required',
+        reasonId: plan.invitation.responseReasonId,
+        changed: plan.changed,
+        ...(plan.invitation.transferId ? { transferId: plan.invitation.transferId } : {}),
+      };
+      return commitEvent(state, event, {
+        invitations: { ...state.invitations, [plan.invitation.id]: plan.invitation },
+        relationships: { ...state.relationships, [plan.relationship.npcId]: plan.relationship },
+        npcs: { ...state.npcs, [plan.npc.id]: plan.npc },
+        transfers,
+      });
+    }
+    case 'cancel-home-invitation': {
+      const current = state.invitations[command.invitationId];
+      if (!current) throw new Error(`Unknown invitation: ${command.invitationId}`);
+      if (current.status === 'cancelled') {
+        const event: DomainEvent = {
+          ...eventBase(state, command, state.clock.absoluteMinute),
+          type: 'home-invitation-cancelled', invitationId: current.id, reasonId: command.reasonId, changed: false,
+        };
+        return commitEvent(state, event, {});
+      }
+      const cancelled = cancelInvitation(current, command.reasonId);
+      const transfers = { ...state.transfers };
+      const reservedTransfer = current.transferId ? transfers[current.transferId] : undefined;
+      if (reservedTransfer?.status === 'in_transit') {
+        throw new Error('An invitation cannot be cancelled after its visitor has departed.');
+      }
+      if (current.transferId) delete transfers[current.transferId];
+      const npc = state.npcs[current.npcId];
+      const nextNpc = npc?.scheduleGoal?.sourceInvitationId === current.id ||
+        (reservedTransfer?.status === 'approaching_exit' && npc?.scheduleGoal?.activityId === 'travel')
+        ? { ...npc, scheduleGoal: undefined }
+        : npc;
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'home-invitation-cancelled', invitationId: current.id, reasonId: command.reasonId, changed: true,
+      };
+      return commitEvent(state, event, {
+        invitations: { ...state.invitations, [current.id]: cancelled },
+        transfers,
+        ...(nextNpc ? { npcs: { ...state.npcs, [nextNpc.id]: nextNpc } } : {}),
+      });
+    }
+    case 'reveal-faction': {
+      const faction = state.factions[command.factionId];
+      if (!faction) throw new Error(`Unknown faction: ${command.factionId}`);
+      if (!allQuestFlagIds(state).has(command.discoveryFlagId)) {
+        throw new Error('Faction discovery requires its authoritative quest flag.');
+      }
+      const changed = !faction.revealed;
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'faction-revealed', factionId: faction.id, discoveryFlagId: command.discoveryFlagId,
+        sourceType: command.sourceType, sourceId: command.sourceId, changed,
+      };
+      return commitEvent(state, event, {
+        factions: { ...state.factions, [faction.id]: { ...faction, revealed: true } },
+      });
+    }
+    case 'upsert-journal-entry': {
+      const quest = state.quests[command.entry.questId];
+      if (!quest) throw new Error(`Unknown journal quest: ${command.entry.questId}`);
+      const current = state.journal[command.entry.id];
+      const entry = upsertJournalEntry(current, command.entry);
+      const changed = JSON.stringify(current) !== JSON.stringify(entry);
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'journal-entry-upserted', entryId: entry.id, questId: entry.questId,
+        locationPrecision: entry.locationPrecision, markerVisible: entry.markerVisible, changed,
+      };
+      return commitEvent(state, event, { journal: { ...state.journal, [entry.id]: entry } });
+    }
+    case 'purchase-social-option': {
+      const offer = socialPurchase(command.offerId);
+      const quest = state.quests[offer.questId];
+      if (!quest) throw new Error(`Unknown purchase quest: ${offer.questId}`);
+      const alreadyPurchased = quest.flagIds.includes(offer.grantedQuestFlagId);
+      if (!alreadyPurchased && state.inventory.money < offer.cost) throw new Error('Not enough money for this social option.');
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'social-option-purchased', offerId: offer.id, questId: offer.questId,
+        grantedQuestFlagId: offer.grantedQuestFlagId, amount: alreadyPurchased ? 0 : offer.cost,
+        changed: !alreadyPurchased,
+      };
+      return commitEvent(state, event, alreadyPurchased ? {} : {
+        inventory: { ...state.inventory, money: state.inventory.money - offer.cost },
+        quests: {
+          ...state.quests,
+          [quest.id]: { ...quest, flagIds: [...quest.flagIds, offer.grantedQuestFlagId].sort() },
         },
       });
     }
@@ -253,20 +406,43 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
       const transfers = Object.fromEntries(Object.entries(state.transfers).filter(([, transfer]) => (
         transfer.npcId !== npc.id || transfer.status !== 'approaching_exit'
       )));
-      return commitEvent(state, event, { npcs: { ...state.npcs, [npc.id]: nextNpc }, transfers });
+      const removedTransfer = Object.values(state.transfers).find((transfer) => (
+        transfer.npcId === npc.id && transfer.status === 'approaching_exit'
+      ));
+      const invitationOwnedTransfer = removedTransfer && goal.sourceInvitationId
+        ? state.invitations[goal.sourceInvitationId]?.transferId === removedTransfer.id
+        : false;
+      if (goal.activityId === 'travel' && invitationOwnedTransfer) {
+        throw new Error('Invitation travel must complete through depart-npc-transfer.');
+      }
+      let invitations = removedTransfer
+        ? replanInvitationForTransfer(
+          state.invitations,
+          removedTransfer.id,
+          'travel_goal_replaced',
+          'The visitor could not reach the reserved exit. Choose another time.',
+        )
+        : state.invitations;
+      if (goal.sourceInvitationId) {
+        invitations = completeLocalInvitation(invitations, goal.sourceInvitationId);
+      }
+      return commitEvent(state, event, { npcs: { ...state.npcs, [npc.id]: nextNpc }, transfers, invitations });
     }
     case 'depart-npc-transfer': {
       const npc = state.npcs[command.npcId];
       const transfer = state.transfers[command.transferId];
       if (
         !npc || !transfer || transfer.npcId !== npc.id || transfer.status !== 'approaching_exit' ||
-        npc.presence.kind !== 'active_local' || !npc.scheduleGoal ||
+        npc.presence.kind !== 'active_local' || !npc.scheduleGoal || npc.scheduleGoal.activityId !== 'travel' ||
         npc.presence.tileX !== npc.scheduleGoal.tileX || npc.presence.tileY !== npc.scheduleGoal.tileY
       ) {
         throw new Error('NPC transfer departure requires its approaching NPC at the exit.');
       }
       const departureMinute = state.clock.absoluteMinute;
-      const arrivalMinute = departureMinute + PROTOTYPE_ECONOMY_POLICY.npcTravelMinutes;
+      const invitation = Object.values(state.invitations).find(({ transferId }) => transferId === transfer.id);
+      const arrivalMinute = invitation && transfer.arrivalMinute > departureMinute
+        ? transfer.arrivalMinute
+        : departureMinute + PROTOTYPE_ECONOMY_POLICY.npcTravelMinutes;
       const event: DomainEvent = {
         ...eventBase(state, command, departureMinute),
         type: 'npc-transfer-departed',
@@ -301,7 +477,10 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
           if (!npc) throw new Error(`Transition lost approaching NPC ${transfer.npcId}.`);
           transfer.status = 'in_transit';
           transfer.departureMinute = state.clock.absoluteMinute;
-          transfer.arrivalMinute = state.clock.absoluteMinute + PROTOTYPE_ECONOMY_POLICY.npcTravelMinutes;
+          const invitation = Object.values(state.invitations).find(({ transferId }) => transferId === transfer.id);
+          if (!invitation || transfer.arrivalMinute <= state.clock.absoluteMinute) {
+            transfer.arrivalMinute = state.clock.absoluteMinute + PROTOTYPE_ECONOMY_POLICY.npcTravelMinutes;
+          }
           npc.presence = { kind: 'in_transit', transferId: transfer.id };
         }
       }

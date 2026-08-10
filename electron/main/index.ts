@@ -34,13 +34,35 @@ if (smokeMode && smokeUserData) {
   app.setPath('userData', smokeUserData);
 }
 
+if (smokeMode) {
+  app.commandLine.appendSwitch('disable-background-timer-throttling');
+  app.commandLine.appendSwitch('disable-renderer-backgrounding');
+}
+
 if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
   app.disableHardwareAcceleration();
 }
 
-async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: string): Promise<void> {
+async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: string): Promise<Buffer> {
   const image = await window.webContents.capturePage();
-  await writeFile(screenshotPath, image.toPNG(), { flush: true });
+  const buffer = image.toPNG();
+  await writeFile(screenshotPath, buffer, { flush: true });
+  return buffer;
+}
+
+async function captureDistinctSmokeScreenshot(
+  window: BrowserWindow,
+  screenshotPath: string,
+  previousBuffers: readonly Buffer[],
+  timeoutMilliseconds = 2_000,
+): Promise<Buffer> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  do {
+    const buffer = await captureSmokeScreenshot(window, screenshotPath);
+    if (previousBuffers.every((previous) => !buffer.equals(previous))) return buffer;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 80));
+  } while (Date.now() < deadline);
+  throw new Error(`Screenshot did not change before timeout: ${screenshotPath}`);
 }
 
 type SurfaceBounds = Readonly<{ x: number; y: number; width: number; height: number }>;
@@ -127,6 +149,22 @@ async function clickAriaButton(window: BrowserWindow, label: string): Promise<vo
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 120));
 }
 
+async function waitForWorldTile(
+  window: BrowserWindow,
+  tile: Readonly<{ x: number; y: number }>,
+  timeoutMilliseconds = 6_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastLabel = '';
+  while (Date.now() < deadline) {
+    lastLabel = await worldStateLabel(window);
+    const state = parseWorldStateLabel(lastLabel);
+    if (state.x === tile.x && state.y === tile.y) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for tile ${tile.x},${tile.y}. Last state: ${lastLabel}`);
+}
+
 function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
@@ -174,10 +212,15 @@ async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): 
 
 async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean>> {
   const zoomLabels: string[] = [];
+  const zoomBuffers: Buffer[] = [];
   for (const zoom of [1, 2, 3] as const) {
     await clickZoomButton(window, zoom);
     zoomLabels.push(await cameraLabel(window));
-    await captureSmokeScreenshot(window, join(directory, `world-${zoom}x.png`));
+    zoomBuffers.push(await captureDistinctSmokeScreenshot(
+      window,
+      join(directory, `world-${zoom}x.png`),
+      zoomBuffers,
+    ));
   }
   const zoomButtons = zoomLabels.every((label, index) => label.endsWith(`at ${index + 1}x`));
 
@@ -194,6 +237,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 32), y: Math.round(center.y), button: 'middle' });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle' });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle', clickCount: 1 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
   const afterPan = await cameraLabel(window);
@@ -246,7 +290,11 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_300));
   const outsideText = await rendererText(window, '#world-ui-location');
   const roofRestore = outsideText.includes('TILE 15,25') && await roofLabel(window) === 'Villa roof restored';
-  await captureSmokeScreenshot(window, join(directory, 'world-roof-restored.png'));
+  let previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window,
+    join(directory, 'world-roof-restored.png'),
+    [zoomBuffers[0]!],
+  );
 
   sendMouseClick(window, bounds.x + 560 - 6 * 32, bounds.y + 310 + 5 * 32);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
@@ -264,8 +312,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const afterFast = parseWorldStateLabel(await worldStateLabel(window));
   const doubleSpeedClock = afterFast.speed === 2 && afterFast.minute - afterPause.minute >= 2 && afterFast.minute - afterPause.minute <= 4;
 
-  await clickWorldTile(window, { x: 14, y: 13 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_300));
+  await dispatchWorldTileClick(window, { x: 14, y: 13 });
+  await waitForWorldTile(window, { x: 14, y: 13 });
   const bedroomReached = (await rendererText(window, '#world-ui-location')).includes('TILE 14,13');
   await clickAriaButton(window, 'Pause time');
   const beforeNap = parseWorldStateLabel(await worldStateLabel(window));
@@ -293,35 +341,41 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickZoomButton(window, 1);
   await panWorld(window, -500, 0);
   await panWorld(window, -500, 0);
-  await clickWorldTile(window, { x: 63, y: 24 });
+  await dispatchWorldTileClick(window, { x: 63, y: 24 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 6_500));
   const afterTravel = parseWorldStateLabel(await worldStateLabel(window));
   const travel = afterTravel.mapName === 'Neon Crescent' && afterTravel.x === 0 && afterTravel.y === 24;
   const travelAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
-  await captureSmokeScreenshot(window, join(directory, 'world-downtown.png'));
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-downtown.png'), [previousWorldBuffer],
+  );
 
   await panWorld(window, 0, -500);
-  await clickWorldTile(window, { x: 32, y: 47 });
+  await dispatchWorldTileClick(window, { x: 32, y: 47 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
   const docks = parseWorldStateLabel(await worldStateLabel(window));
   await panWorld(window, 0, -500);
   const closedFerry = docks.mapName === 'Harbor Authority' &&
     (await rendererText(window, 'body')).includes('FERRY TERMINAL · CLOSED');
-  await captureSmokeScreenshot(window, join(directory, 'world-ferry.png'));
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-ferry.png'), [previousWorldBuffer],
+  );
 
   await panWorld(window, 500, 0);
-  await clickWorldTile(window, { x: 0, y: 24 });
+  await dispatchWorldTileClick(window, { x: 0, y: 24 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
   const commercial = parseWorldStateLabel(await worldStateLabel(window));
 
   await panWorld(window, 500, 500);
-  await clickWorldTile(window, { x: 32, y: 0 });
+  await dispatchWorldTileClick(window, { x: 32, y: 0 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
   const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
   const allNeighborhoods = commercial.mapName === 'Palm Exchange' &&
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
   const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 5');
-  await captureSmokeScreenshot(window, join(directory, 'world-loop-complete.png'));
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-loop-complete.png'), [previousWorldBuffer],
+  );
 
   await clickZoomButton(window, 1);
   await panWorld(window, 0, 500);
@@ -350,6 +404,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 200));
   const conversationInputLocked = cameraBeforeConversationInput === await cameraLabel(window) &&
     locationBeforeConversationInput === await rendererText(window, '#world-ui-location');
+  const conversationSocialNavLocked = !(await window.webContents.executeJavaScript(
+    `Boolean(document.querySelector('#world-ui-social-nav'))`, true,
+  ));
+  const promptIdeasContextual = (await rendererText(window, '#conversation-prompt-suggestions')).trim().length === 0;
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -364,17 +422,49 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_000));
   const transcript = await rendererText(window, '#conversation-transcript');
   const conversationFallback = transcript.includes('I lost the thread') && !transcript.includes('jsonSchema');
-  await captureSmokeScreenshot(window, join(directory, 'world-conversation.png'));
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[aria-label="Conversation message"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, 'Would you like to visit my villa?');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`, true);
+  await clickAriaButton(window, 'Send conversation message');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 900));
+  const structuredInvitation = (await rendererText(window, '#conversation-transcript')).includes('current situation');
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-conversation.png'), [previousWorldBuffer],
+  );
   await clickAriaButton(window, 'End conversation');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 350));
   const conversationCommitSave = !(await window.webContents.executeJavaScript(
     `Boolean(document.querySelector('#world-ui-conversation-panel'))`, true,
   )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 6');
+  await clickAriaButton(window, 'Open relationships');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
+  const relationshipText = await rendererText(window, '#world-ui-relationship-panel');
+  const relationshipPanel = relationshipText.includes('FAMILIARITY') && relationshipText.includes('STAGE');
+  const hiddenFaction = relationshipText.includes('OTHER NETWORKS REMAIN HIDDEN') && !relationshipText.includes('VELVET TIDE');
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-social.png'), [previousWorldBuffer],
+  );
+  await clickAriaButton(window, 'Close relationships');
+  await clickAriaButton(window, 'Open journal');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
+  const journalInvitation = (await rendererText(window, '#world-ui-journal-panel')).includes('LINDA · REJECTED');
+  await clickAriaButton(window, 'Buy villa security report');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 350));
+  const socialPurchase = (await rendererText(window, '#world-ui-journal-panel')).includes('SECURITY REPORT PURCHASED') &&
+    (await rendererText(window, '#world-save-status')).includes('SAVED GEN 7');
+  await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-journal.png'), [previousWorldBuffer],
+  );
   return {
     zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
-    conversationPause, conversationInputLocked, conversationBuffered, conversationFallback, conversationCommitSave,
+    conversationPause, conversationInputLocked, conversationSocialNavLocked, promptIdeasContextual, conversationBuffered, conversationFallback, conversationCommitSave,
+    structuredInvitation, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
   };
 }
 
