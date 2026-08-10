@@ -1,10 +1,12 @@
 import { Canvas, Rect } from '@shopify/react-native-skia';
-import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
 import { GameScreen } from '../application/GameScreen';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererReadyReport } from '../application/RendererReadiness';
+import { coalescedResizeDelay, OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
+import type { ViewportSize } from './camera';
 
 function hasNoNodeAccess(): boolean {
   const candidate = globalThis as typeof globalThis & {
@@ -33,6 +35,12 @@ async function afterTwoPaints(): Promise<void> {
 }
 
 export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
+  const windowDimensions = useWindowDimensions();
+  const expectedSurface = useMemo(
+    () => responsiveSurface(windowDimensions.width, windowDimensions.height).surface,
+    [windowDimensions.height, windowDimensions.width],
+  );
+  const [surface, setSurface] = useState<ViewportSize>(expectedSurface);
   const [runtime, setRuntime] = useState('Browser proof');
   const [gameReady, setGameReady] = useState(false);
   const markGameReady = useCallback(() => setGameReady(true), []);
@@ -47,7 +55,19 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
     }
     void afterTwoPaints()
       .then(async () => {
-        const canvas = document.querySelector('canvas');
+        const canvasHost = document.querySelector('#world-canvas') ?? document.querySelector('#active-surface-canvas');
+        const identifiedCanvas = canvasHost instanceof HTMLCanvasElement
+          ? canvasHost
+          : canvasHost?.querySelector<HTMLCanvasElement>('canvas');
+        const canvas = identifiedCanvas ?? [...document.querySelectorAll<HTMLCanvasElement>('canvas')]
+          .filter((candidate) => {
+            const bounds = candidate.getBoundingClientRect();
+            return bounds.width > 0 && bounds.height > 0;
+          })
+          .sort((left, right) => (
+            right.getBoundingClientRect().width * right.getBoundingClientRect().height -
+            left.getBoundingClientRect().width * left.getBoundingClientRect().height
+          ))[0];
         const report = createRendererReadyReport({
           appUrl: window.location.href,
           assetsLoaded,
@@ -61,55 +81,65 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
       .then(([info]) => {
         setRuntime(`Electron ${info.electronVersion} · sandboxed`);
       })
-      .catch(() => {
-        setRuntime('Desktop bridge rejected the readiness proof');
+      .catch((error: unknown) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        setRuntime(`Desktop bridge rejected the readiness proof: ${detail}`);
+        console.error(`SI_WORLD_RENDERER_READY_FAILURE ${detail}`);
       });
   }, [assetsLoaded, gameReady]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setSurface(expectedSurface), coalescedResizeDelay());
+    return () => clearTimeout(timer);
+  }, [expectedSurface]);
+
+  const measureSurface = useCallback((event: LayoutChangeEvent) => {
+    const width = Math.max(1, Math.floor(event.nativeEvent.layout.width));
+    const height = Math.max(1, Math.floor(event.nativeEvent.layout.height));
+    setSurface((current) => current.width === width && current.height === height ? current : { width, height });
+  }, []);
+
   return (
     <View style={styles.screen}>
-      <Canvas style={styles.readinessCanvas}>
-        <Rect color="#17201b" height={2} width={2} x={0} y={0} />
+      <Canvas nativeID="active-surface-canvas" style={StyleSheet.flatten([styles.surfaceCanvas, surface])}>
+        <Rect color="#17201b" height={surface.height} width={surface.width} x={0} y={0} />
       </Canvas>
-      <View style={styles.card}>
-        <GameScreen onReady={markGameReady} />
+      <View style={styles.surfaceFrame}>
+        <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
+          <GameScreen onReady={markGameReady} surface={surface} />
+        </View>
       </View>
-      <Text accessibilityRole="header" style={styles.title}>
-        SI WORLD / THE ISLAND
-      </Text>
-      <Text style={styles.status}>Click-to-move prototype · four deterministic 64×48 neighborhoods</Text>
-      <Text style={styles.runtime}>{runtime}</Text>
+      {__DEV__ ? <Text nativeID="development-runtime" style={styles.runtime}>{runtime}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    alignItems: 'center',
-  },
   runtime: {
     color: '#7f9784',
     fontFamily: 'Silkscreen',
     fontSize: 12,
-    marginTop: 8,
+    bottom: 4,
+    position: 'absolute',
+    right: 12,
   },
-  readinessCanvas: { height: 2, left: 0, opacity: 0, position: 'absolute', top: 0, width: 2 },
+  surfaceCanvas: {
+    left: OUTER_MARGIN + SURFACE_BORDER,
+    position: 'absolute',
+    top: OUTER_MARGIN + SURFACE_BORDER,
+  },
   screen: {
     alignItems: 'center',
     backgroundColor: '#17201b',
     flex: 1,
-    justifyContent: 'center',
+    padding: OUTER_MARGIN,
   },
-  status: {
-    color: '#b8c9b7',
-    fontFamily: 'Silkscreen',
-    fontSize: 14,
-    marginTop: 8,
-  },
-  title: {
-    color: '#f5dd9d',
-    fontFamily: 'Silkscreen',
-    fontSize: 22,
-    marginTop: 12,
+  surface: { flex: 1, minHeight: 1, minWidth: 1, width: '100%' },
+  surfaceFrame: {
+    borderColor: '#0f1412',
+    borderWidth: SURFACE_BORDER,
+    flex: 1,
+    overflow: 'hidden',
+    width: '100%',
   },
 });

@@ -7,6 +7,12 @@ import { getDesktopBridge } from './DesktopBridge';
 import { LoadingShell } from './LoadingShell';
 import { NewGameFlow } from './NewGameFlow';
 import { shouldReportGameReady } from './game-readiness';
+import {
+  DEFAULT_PRESENTATION_PREFERENCES,
+  type PresentationPreferences,
+  type RendererPresentationPatch,
+} from './presentation/preferences';
+import type { ViewportSize } from '../render/camera';
 
 type GameSession = Readonly<{
   key: string;
@@ -14,27 +20,29 @@ type GameSession = Readonly<{
   saveStatus: string;
   state: WorldState;
   worldFeedback: string;
+  preferences: PresentationPreferences;
+  newGame: boolean;
 }>;
 
 type BootState =
   | Readonly<{ status: 'loading' }>
-  | Readonly<{ status: 'new'; busy: boolean; error?: string }>
+  | Readonly<{ status: 'new'; busy: boolean; preferences: PresentationPreferences; error?: string }>
   | Readonly<{ status: 'active'; session: GameSession }>
   | Readonly<{ status: 'failed'; detail: string }>;
 
-type GameScreenProps = Readonly<{ onReady: () => void }>;
+type GameScreenProps = Readonly<{ onReady: () => void; surface: ViewportSize }>;
 
-export function GameScreen({ onReady }: GameScreenProps) {
+export function GameScreen({ onReady, surface }: GameScreenProps) {
   const [boot, setBoot] = useState<BootState>({ status: 'loading' });
 
   useEffect(() => {
     const bridge = getDesktopBridge();
     if (!bridge) {
-      setBoot({ status: 'new', busy: false });
+      setBoot({ status: 'new', busy: false, preferences: DEFAULT_PRESENTATION_PREFERENCES });
       return;
     }
     let active = true;
-    void bridge.loadSave('slot-001').then((result) => {
+    void Promise.all([bridge.loadSave('slot-001'), bridge.loadPresentationPreferences()]).then(([result, preferences]) => {
       if (!active) return;
       if (result.status === 'unchanged' || result.status === 'migrated') {
         setBoot({
@@ -45,10 +53,12 @@ export function GameScreen({ onReady }: GameScreenProps) {
             saveStatus: `${result.status === 'migrated' ? 'MIGRATED' : 'LOADED'} GEN ${result.saveGeneration}`,
             state: result.state,
             worldFeedback: `WELCOME BACK, ${result.state.protagonist.displayName.toUpperCase()}.`,
+            preferences,
+            newGame: false,
           },
         });
       } else if (result.status === 'empty') {
-        setBoot({ status: 'new', busy: false });
+        setBoot({ status: 'new', busy: false, preferences });
       } else if (result.status === 'incompatible') {
         setBoot({
           status: 'failed',
@@ -80,7 +90,8 @@ export function GameScreen({ onReady }: GameScreenProps) {
   const startNewGame = useCallback((displayName: string) => {
     const state = createInitialState(displayName);
     const bridge = getDesktopBridge();
-    setBoot({ status: 'new', busy: true });
+    const preferences = boot.status === 'new' ? boot.preferences : DEFAULT_PRESENTATION_PREFERENCES;
+    setBoot({ status: 'new', busy: true, preferences });
     if (!bridge) {
       setBoot({
         status: 'active',
@@ -90,6 +101,8 @@ export function GameScreen({ onReady }: GameScreenProps) {
           saveStatus: 'BROWSER · NO DISK SAVE',
           state,
           worldFeedback: 'WELCOME TO HALCYRA · $800 WEEKLY ALLOWANCE RECEIVED.',
+          preferences,
+          newGame: true,
         },
       });
       return;
@@ -98,7 +111,7 @@ export function GameScreen({ onReady }: GameScreenProps) {
       slotId: 'slot-001', expectedSaveGeneration: null, trigger: 'manual', state,
     }).then((result) => {
       if (result.status !== 'saved') {
-        setBoot({ status: 'new', busy: false, error: 'The island could not create a stable save. Try again.' });
+        setBoot({ status: 'new', busy: false, error: 'The island could not create a stable save. Try again.', preferences });
         return;
       }
       setBoot({
@@ -109,17 +122,24 @@ export function GameScreen({ onReady }: GameScreenProps) {
           saveStatus: `SAVED GEN ${result.saveGeneration}`,
           state,
           worldFeedback: 'WELCOME TO HALCYRA · $800 WEEKLY ALLOWANCE RECEIVED.',
+          preferences,
+          newGame: true,
         },
       });
     }).catch(() => {
-      setBoot({ status: 'new', busy: false, error: 'The save write failed. No new game was started.' });
+      setBoot({ status: 'new', busy: false, error: 'The save write failed. No new game was started.', preferences });
     });
+  }, [boot]);
+
+  const savePresentationPreferences = useCallback((patch: RendererPresentationPatch) => {
+    const bridge = getDesktopBridge();
+    if (bridge) void bridge.savePresentationPreferences(patch);
   }, []);
 
-  if (boot.status === 'loading') return <LoadingShell detail="Checking your Halcyra save…" />;
-  if (boot.status === 'failed') return <LoadingShell detail={boot.detail} failed />;
+  if (boot.status === 'loading') return <LoadingShell detail="Checking your Halcyra save…" surface={surface} />;
+  if (boot.status === 'failed') return <LoadingShell detail={boot.detail} failed surface={surface} />;
   if (boot.status === 'new') {
-    return <NewGameFlow busy={boot.busy} error={boot.error} onStart={startNewGame} />;
+    return <NewGameFlow busy={boot.busy} error={boot.error} onStart={startNewGame} surface={surface} />;
   }
   return (
     <WorldScene
@@ -127,6 +147,10 @@ export function GameScreen({ onReady }: GameScreenProps) {
       initialSaveGeneration={boot.session.saveGeneration}
       initialSaveStatus={boot.session.saveStatus}
       initialState={boot.session.state}
+      initialPresentationPreferences={boot.session.preferences}
+      newGame={boot.session.newGame}
+      onPresentationPreferencesChange={savePresentationPreferences}
+      surface={surface}
       key={boot.session.key}
     />
   );

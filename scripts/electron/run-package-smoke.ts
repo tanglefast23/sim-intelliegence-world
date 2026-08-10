@@ -136,11 +136,12 @@ child.once('close', (code) => {
   worldResult.questAutosave = worldResult.questAutosave === true && majorQuestAutosave;
   for (const key of [
     'newGameFlow', 'stableProtagonist', 'allowanceReceipt', 'newGameSave', 'accessibilityPolicy',
+    'responsiveSurface', 'resizeCamera', 'uiScaleControls',
     'zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'centerKey', 'cancelKey', 'uiClickThrough',
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',
-    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'modelFailureFeedback', 'audioCaptions', 'conversationCommitSave',
+    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'conversationResponsiveState', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'modelFailureFeedback', 'audioCaptions', 'conversationCommitSave',
     'structuredInvitation', 'relationshipPanel', 'hiddenFaction', 'journalInvitation', 'socialPurchase',
     'questStarted', 'questChoicePreview', 'questOutcome', 'questAutosave', 'consequenceCaption', 'policeHooks', 'saveReload',
   ]) {

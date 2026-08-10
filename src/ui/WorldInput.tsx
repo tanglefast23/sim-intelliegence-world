@@ -10,6 +10,7 @@ type WorldInputProps = PropsWithChildren<Readonly<{
   onPan: (delta: ScreenPoint) => void;
   onPrimary: (point: ScreenPoint) => void;
   onZoom: (direction: -1 | 1, anchor: ScreenPoint) => void;
+  isPointInteractive: (point: ScreenPoint) => boolean;
 }>>;
 
 function eventPoint(event: PointerEvent | WheelEvent, element: HTMLElement): ScreenPoint {
@@ -19,10 +20,10 @@ function eventPoint(event: PointerEvent | WheelEvent, element: HTMLElement): Scr
   return { x: Math.floor(event.clientX - bounds.left), y: Math.floor(event.clientY - bounds.top) };
 }
 
-export function WorldInput({ children, onCancel, onCenter, onPan, onPrimary, onZoom }: WorldInputProps) {
+export function WorldInput({ children, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onZoom }: WorldInputProps) {
   const rootRef = useRef<View>(null);
-  const handlersRef = useRef({ onCancel, onCenter, onPan, onPrimary, onZoom });
-  handlersRef.current = { onCancel, onCenter, onPan, onPrimary, onZoom };
+  const handlersRef = useRef({ isPointInteractive, onCancel, onCenter, onPan, onPrimary, onZoom });
+  handlersRef.current = { isPointInteractive, onCancel, onCenter, onPan, onPrimary, onZoom };
 
   useEffect(() => {
     const element = rootRef.current as unknown as HTMLElement | null;
@@ -45,13 +46,15 @@ export function WorldInput({ children, onCancel, onCenter, onPan, onPrimary, onZ
       target instanceof Element && Boolean(target.closest('[id^="world-ui-"]'));
     const handlePointerDown = (event: PointerEvent) => {
       if (isUiTarget(event.target)) return;
+      const point = eventPoint(event, element);
+      if (!handlersRef.current.isPointInteractive(point)) return;
       if (event.button === 1) {
         event.preventDefault();
         middlePointerId = event.pointerId;
-        lastMiddlePoint = eventPoint(event, element);
+        lastMiddlePoint = point;
         element.setPointerCapture?.(event.pointerId);
       } else if (event.button === 0) {
-        handlersRef.current.onPrimary(eventPoint(event, element));
+        handlersRef.current.onPrimary(point);
       }
     };
     const handlePointerMove = (event: PointerEvent) => {
@@ -68,8 +71,10 @@ export function WorldInput({ children, onCancel, onCenter, onPan, onPrimary, onZ
     };
     const handleWheel = (event: WheelEvent) => {
       if (isUiTarget(event.target)) return;
+      const point = eventPoint(event, element);
+      if (!handlersRef.current.isPointInteractive(point)) return;
       event.preventDefault();
-      handlersRef.current.onZoom(event.deltaY < 0 ? 1 : -1, eventPoint(event, element));
+      handlersRef.current.onZoom(event.deltaY < 0 ? 1 : -1, point);
     };
     const handleKey = (event: KeyboardEvent) => {
       const target = event.target;

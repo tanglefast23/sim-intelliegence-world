@@ -11,15 +11,21 @@ import type {
   SaveSlotId,
 } from './effects/PersistencePort';
 import type { ConversationPort } from './effects/ConversationPort';
+import type {
+  PresentationPreferences,
+  RendererPresentationPatch,
+} from './presentation/preferences';
 
 export type DesktopBridge = ConversationPort & Readonly<{
   getRuntimeInfo: () => Promise<RuntimeInfo>;
+  loadPresentationPreferences: () => Promise<PresentationPreferences>;
   loadSave: (slotId: SaveSlotId) => Promise<LoadResult>;
   migrateSave: (request: MigrationRequest) => Promise<MigrationResult>;
   reportRendererReady: (
     report: RendererReadyReport,
   ) => Promise<Readonly<{ accepted: true }>>;
   requestSave: (request: SaveRequest) => Promise<SaveResult>;
+  savePresentationPreferences: (patch: RendererPresentationPatch) => Promise<PresentationPreferences>;
 }>;
 
 declare global {

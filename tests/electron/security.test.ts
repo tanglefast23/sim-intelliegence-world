@@ -158,8 +158,9 @@ describe('secure Electron boundary', () => {
         appUrl: 'app://game/',
         assetsLoaded: true,
         bridgeKeys: [
-          'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
-          'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+          'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo',
+          'loadPresentationPreferences', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave',
+          'savePresentationPreferences', 'sendConversationTurn',
         ],
         canvasKitReady: true,
         nodeAccessBlocked: false,
@@ -208,9 +209,11 @@ describe('secure Electron boundary', () => {
     const preload = readFileSync(resolve('electron/preload/index.ts'), 'utf8');
     expect(preload).toContain("contextBridge.exposeInMainWorld('siWorldDesktop', desktopBridge)");
     expect(preload).toContain("getRuntimeInfo: 'si-world:get-runtime-info'");
+    expect(preload).toContain("loadPresentationPreferences: 'si-world:load-presentation-preferences'");
     expect(preload).toContain("reportRendererReady: 'si-world:report-renderer-ready'");
     expect(preload).toContain("loadSave: 'si-world:load-save'");
     expect(preload).toContain("requestSave: 'si-world:request-save'");
+    expect(preload).toContain("savePresentationPreferences: 'si-world:save-presentation-preferences'");
     expect(preload).toContain("migrateSave: 'si-world:migrate-save'");
     expect(preload).toContain("beginConversation: 'si-world:begin-conversation'");
     expect(preload).toContain("sendConversationTurn: 'si-world:send-conversation-turn'");
