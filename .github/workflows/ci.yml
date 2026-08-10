@@ -53,6 +53,22 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: xvfb-run -a npm run smoke:electron
 
+      - name: Verify Linux responsive matrix
+        env:
+          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: xvfb-run -a -s "-screen 0 3200x1800x24" npm run smoke:responsive -- artifacts/phase-22/linux-x64/responsive
+
+      - name: Verify Linux presentation restart
+        env:
+          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
+        run: xvfb-run -a npm run smoke:presentation-restart
+
+      - name: Verify Linux v5 save migration and reload
+        env:
+          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
+        run: xvfb-run -a npm run smoke:save-migration
+
   package-macos-intel:
     name: package-macos-intel
     runs-on: macos-15-intel
@@ -88,6 +104,17 @@ jobs:
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- artifacts/phase-14/macos-x64/current
+
+      - name: Verify Intel macOS responsive matrix
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:responsive -- artifacts/phase-22/macos-x64/responsive
+
+      - name: Verify Intel macOS presentation restart
+        run: npm run smoke:presentation-restart -- artifacts/phase-22/macos-x64/presentation-restart
+
+      - name: Verify Intel macOS v5 save migration and reload
+        run: npm run smoke:save-migration -- artifacts/phase-22/macos-x64/save-migration
 
   package-windows-x64:
     name: package-windows-x64
@@ -126,3 +153,14 @@ jobs:
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- artifacts/phase-14/windows-x64/current
+
+      - name: Verify Windows x64 responsive matrix
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:responsive -- artifacts/phase-22/windows-x64/responsive
+
+      - name: Verify Windows x64 presentation restart
+        run: npm run smoke:presentation-restart -- artifacts/phase-22/windows-x64/presentation-restart
+
+      - name: Verify Windows x64 v5 save migration and reload
+        run: npm run smoke:save-migration -- artifacts/phase-22/windows-x64/save-migration

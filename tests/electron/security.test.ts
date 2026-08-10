@@ -298,9 +298,12 @@ describe('secure Electron boundary', () => {
     expect(forgeConfig).toContain("process.platform === 'linux' ? 'si-world' : 'SI World'");
     expect(mainProcess).toContain("smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1'");
     expect(mainProcess).toContain('app.disableHardwareAcceleration()');
+    expect(mainProcess).toContain("additionalArguments: smokeMode ? ['--si-world-smoke-mode=1'] : []");
+    const preload = readFileSync(resolve('electron/preload/index.ts'), 'utf8');
+    expect(preload).toContain("process.argv.includes('--si-world-smoke-mode=1')");
   });
 
-  test('Phase 14 CI packages and test-signs Intel macOS and Windows x64 shells', () => {
+  test('Phase 14 and Phase 22 CI package and verify platform shells', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
     expect(workflow).toContain('runs-on: macos-15-intel');
     expect(workflow).toContain('npm run package:mac:x64');
@@ -311,7 +314,7 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
     expect(workflow).toContain('artifacts/phase-14/windows-x64/current');
     expect(workflow).toContain('without model qualification claims');
-    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(3);
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(6);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
     expect(windowsSigner).toContain('Get-AuthenticodeSignature');

@@ -31,6 +31,12 @@ registerAppSchemePrivileges(protocol);
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
+const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
+const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
+const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
+const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
+const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
+const saveReloadSmokeMode = process.env.SI_WORLD_SAVE_RELOAD_SMOKE === '1';
 const processStartedAt = performance.now();
 let smokeFinished = false;
 let activeMainWindow: BrowserWindow | undefined;
@@ -48,6 +54,10 @@ if (smokeMode && smokeUserData) {
 if (smokeMode) {
   app.commandLine.appendSwitch('disable-background-timer-throttling');
   app.commandLine.appendSwitch('disable-renderer-backgrounding');
+}
+
+if (responsiveHighDpiMode) {
+  app.commandLine.appendSwitch('force-device-scale-factor', '2');
 }
 
 if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
@@ -195,10 +205,38 @@ async function waitForSelector(window: BrowserWindow, selector: string, timeoutM
   throw new Error(`Timed out waiting for renderer selector: ${selector}`);
 }
 
+async function waitForSelectorMissing(window: BrowserWindow, selector: string, timeoutMilliseconds = 6_000): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  while (Date.now() < deadline) {
+    const found = await window.webContents.executeJavaScript(
+      `Boolean(document.querySelector(${JSON.stringify(selector)}))`,
+      true,
+    ) as boolean;
+    if (!found) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for renderer selector to close: ${selector}`);
+}
+
 function parseWorldStateLabel(label: string): Readonly<{ mapName: string; x: number; y: number; minute: number; speed: number }> {
   const match = /^(.*); tile (\d+),(\d+); minute (\d+); speed (\d+)(?:;.*)?$/u.exec(label);
   if (!match) throw new Error(`Invalid world-state label: ${label}`);
   return { mapName: match[1]!, x: Number(match[2]), y: Number(match[3]), minute: Number(match[4]), speed: Number(match[5]) };
+}
+
+async function waitForWorldState(
+  window: BrowserWindow,
+  predicate: (state: ReturnType<typeof parseWorldStateLabel>) => boolean,
+  timeoutMilliseconds = 6_000,
+): Promise<ReturnType<typeof parseWorldStateLabel>> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastState = parseWorldStateLabel(await worldStateLabel(window));
+  while (Date.now() < deadline) {
+    lastState = parseWorldStateLabel(await worldStateLabel(window));
+    if (predicate(lastState)) return lastState;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for world state. Last state: ${JSON.stringify(lastState)}`);
 }
 
 function parseLindaTile(label: string): Readonly<{ x: number; y: number }> {
@@ -242,6 +280,43 @@ async function responsiveEvidence(window: BrowserWindow): Promise<Record<string,
   ) as string;
   if (!label) throw new Error('Responsive evidence is missing.');
   return JSON.parse(label) as Record<string, unknown>;
+}
+
+async function geometryEvidence(window: BrowserWindow): Promise<Readonly<{
+  mapId: string;
+  start: Readonly<{
+    protagonist: Readonly<{ x: number; y: number }>;
+    movementTarget: Readonly<{ x: number; y: number }>;
+  }>;
+  roof: Readonly<{ exteriorTile: Readonly<{ x: number; y: number }> }>;
+}>> {
+  const label = await window.webContents.executeJavaScript(
+    `document.querySelector('#world-geometry-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as string;
+  if (!label) throw new Error('Stable smoke geometry evidence is missing.');
+  const candidate = JSON.parse(label) as Record<string, unknown>;
+  const start = candidate.start as Record<string, unknown> | undefined;
+  const protagonist = start?.protagonist as Record<string, unknown> | undefined;
+  const movementTarget = start?.movementTarget as Record<string, unknown> | undefined;
+  const roof = candidate.roof as Record<string, unknown> | undefined;
+  const exteriorTile = roof?.exteriorTile as Record<string, unknown> | undefined;
+  if (
+    candidate.mapId !== 'northwest_residential' ||
+    !Number.isInteger(protagonist?.x) || !Number.isInteger(protagonist?.y) ||
+    !Number.isInteger(movementTarget?.x) || !Number.isInteger(movementTarget?.y) ||
+    !Number.isInteger(exteriorTile?.x) || !Number.isInteger(exteriorTile?.y)
+  ) {
+    throw new Error('Stable smoke geometry evidence is invalid.');
+  }
+  return candidate as unknown as Readonly<{
+    mapId: string;
+    start: Readonly<{
+      protagonist: Readonly<{ x: number; y: number }>;
+      movementTarget: Readonly<{ x: number; y: number }>;
+    }>;
+    roof: Readonly<{ exteriorTile: Readonly<{ x: number; y: number }> }>;
+  }>;
 }
 
 async function waitForResponsiveEvidence(
@@ -477,7 +552,256 @@ async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): 
   await waitForRendererPaint(window);
 }
 
-async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number>> {
+type ResponsiveSmokeTarget = Readonly<{ width: number; height: number }>;
+
+const RESPONSIVE_SMOKE_TARGETS: readonly ResponsiveSmokeTarget[] = [
+  { width: 1_280, height: 720 },
+  { width: 1_440, height: 900 },
+  { width: 1_920, height: 1_080 },
+  { width: 2_560, height: 1_440 },
+  { width: 1_600, height: 720 },
+];
+
+function cameraCenter(camera: Readonly<{ x: number; y: number; zoom: number }>, bounds: SurfaceBounds) {
+  return {
+    x: Math.round((camera.x + bounds.width / camera.zoom / 2) * 100) / 100,
+    y: Math.round((camera.y + bounds.height / camera.zoom / 2) * 100) / 100,
+  };
+}
+
+async function measureRendererFps(window: BrowserWindow, durationMilliseconds = 2_000): Promise<Readonly<{
+  rendererFps: number;
+  displayRafFps: number;
+  sampledFrames: number;
+  cameraChangeFrames: number;
+}>> {
+  return await window.webContents.executeJavaScript(`new Promise((resolve, reject) => {
+      const surface = document.querySelector('#world-input-surface');
+      if (!surface) {
+        reject(new Error('World input surface is missing for active-render measurement.'));
+        return;
+      }
+      const startedAt = performance.now();
+      const frames = [];
+      let cameraChangeFrames = 0;
+      let lastCamera = document.querySelector('#world-camera-state')?.getAttribute('aria-label') ?? '';
+      let panDirection = 6;
+      const frame = (now) => {
+        frames.push(now);
+        const camera = document.querySelector('#world-camera-state')?.getAttribute('aria-label') ?? '';
+        if (camera !== lastCamera) {
+          cameraChangeFrames += 1;
+          lastCamera = camera;
+        }
+        if (now - startedAt >= ${durationMilliseconds}) {
+          const duration = frames.length > 1 ? frames[frames.length - 1] - frames[0] : 0;
+          const displayRafFps = duration > 0 ? (frames.length - 1) * 1000 / duration : 0;
+          const rendererFps = duration > 0 ? cameraChangeFrames * 1000 / duration : 0;
+          resolve({
+            rendererFps: Math.round(rendererFps * 100) / 100,
+            displayRafFps: Math.round(displayRafFps * 100) / 100,
+            sampledFrames: frames.length,
+            cameraChangeFrames,
+          });
+          return;
+        }
+        surface.dispatchEvent(new CustomEvent('si-world-active-pan-proof', {
+          detail: { x: 0, y: panDirection },
+        }));
+        panDirection = -panDirection;
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    })`, true) as Readonly<{
+      rendererFps: number;
+      displayRafFps: number;
+      sampledFrames: number;
+      cameraChangeFrames: number;
+    }>;
+}
+
+async function startResponsiveSmokeGame(window: BrowserWindow): Promise<void> {
+  await waitForSelector(window, '#new-game-flow');
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[aria-label="Player name"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error('Player name input is missing.');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, 'MATRIX');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+  })()`, true);
+  sendKey(window, 'Enter');
+  await waitForSelector(window, '#world-state', 20_000);
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
+  await clickAriaButton(window, 'Pause time');
+}
+
+async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): Promise<Record<string, unknown>> {
+  const lindaTile = parseLindaTile(await npcStateLabel(window));
+  await dispatchWorldTileClick(window, lindaTile);
+  await clickAriaButton(window, 'Talk to Linda');
+  await waitForRendererText(window, '#world-ui-conversation-panel', 'TIME PAUSED');
+  return waitForResponsiveEvidence(window, (evidence) => {
+    const panel = evidence.activePanel as { id?: unknown; rect?: { width?: unknown; height?: unknown } } | null;
+    const input = evidence.conversationInput as { width?: unknown; height?: unknown } | null;
+    return panel?.id === 'world-ui-conversation-panel' && Number(panel.rect?.width) > 0 &&
+      Number(panel.rect?.height) > 0 && Number(input?.width) > 0 && Number(input?.height) > 0;
+  });
+}
+
+async function captureResponsiveSmoke(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await startResponsiveSmokeGame(window);
+  const geometry = await geometryEvidence(window);
+  const targets = responsiveHighDpiMode ? [RESPONSIVE_SMOKE_TARGETS[3]!] : RESPONSIVE_SMOKE_TARGETS;
+  const targetReports: Record<string, unknown>[] = [];
+  let clickAlternate = false;
+
+  for (const target of targets) {
+    const label = `${target.width}x${target.height}`;
+    process.stdout.write(`SI_WORLD_RESPONSIVE_PROGRESS ${label}\n`);
+    const beforeBounds = await surfaceBounds(window);
+    const beforeCamera = parseCameraLabel(await cameraLabel(window));
+    const centerBefore = cameraCenter(beforeCamera, beforeBounds);
+    const bounds = await resizeContentAndWait(window, target.width, target.height, 10_000);
+    const afterResizeEvidence = await waitForResponsiveEvidence(window, (evidence) => {
+      const content = evidence.content as { width?: unknown; height?: unknown } | undefined;
+      return content?.width === target.width && content.height === target.height;
+    }, 10_000);
+    const afterCamera = parseCameraLabel(await cameraLabel(window));
+    const centerAfter = cameraCenter(afterCamera, bounds);
+
+    const zoomScreenshots: string[] = [];
+    const zoomBuffers: Buffer[] = [];
+    for (const zoom of [1, 2, 3] as const) {
+      await clickZoomButton(window, zoom);
+      await waitForResponsiveEvidence(window, (evidence) => evidence.selectedWorldZoom === zoom);
+      const screenshotPath = join(directory, `${label}-${zoom}x.png`);
+      zoomBuffers.push(await captureDistinctSmokeScreenshot(window, screenshotPath, zoomBuffers, 4_000));
+      zoomScreenshots.push(`${label}-${zoom}x.png`);
+    }
+    await clickZoomButton(window, 1);
+    const clickedTile = clickAlternate ? geometry.start.protagonist : geometry.start.movementTarget;
+    clickAlternate = !clickAlternate;
+    await clickAriaButton(window, 'Set 1x time');
+    await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+    await dispatchWorldTileClick(window, clickedTile);
+    await waitForWorldTile(window, clickedTile, 10_000);
+    await clickAriaButton(window, 'Pause time');
+    await waitForWorldState(window, (state) => state.speed === 0, 10_000);
+
+    const conversationEvidence = await openLindaConversationForResponsiveSmoke(window);
+    const conversationScreenshot = join(directory, `${label}-conversation.png`);
+    await captureDistinctSmokeScreenshot(window, conversationScreenshot, zoomBuffers, 4_000);
+    await clickAriaButton(window, 'Cancel conversation');
+    await waitForSelectorMissing(window, '#world-ui-conversation-panel');
+
+    targetReports.push({
+      requested: target,
+      measuredSurface: bounds,
+      centerBefore,
+      centerAfter,
+      clickedTile,
+      afterResizeEvidence,
+      conversationEvidence,
+      screenshots: { zoom: zoomScreenshots, conversation: `${label}-conversation.png` },
+    });
+  }
+
+  let maximumLoad: Record<string, unknown> | null = null;
+  if (responsiveHighDpiMode) {
+    await clickZoomButton(window, 1);
+    await clickAriaButton(window, 'Set 1x time');
+    await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+    await dispatchWorldTileClick(window, geometry.roof.exteriorTile);
+    await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
+    await clickAriaButton(window, 'Pause time');
+    await waitForWorldState(window, (state) => state.speed === 0, 10_000);
+    await waitForRoofLabel(window, 'Villa roof restored', 10_000);
+    const evidence = await waitForResponsiveEvidence(window, (candidate) =>
+      candidate.selectedWorldZoom === 1 && candidate.roofState === 'restored');
+    const drawCounts = evidence.drawCounts as Record<string, number> | undefined;
+    const ordinaryLayers = ['floor', 'prop', 'shadow', 'character', 'effect', 'wall', 'roof'];
+    const allOrdinaryLayersEnabled = ordinaryLayers.every((layer) => Number(drawCounts?.[layer]) > 0);
+    const rendererMeasurement = await measureRendererFps(window);
+    const roundedFps = Math.round(rendererMeasurement.rendererFps);
+    const qualificationRequired = process.env.SI_WORLD_SMOKE_PROFILE === 'qualification';
+    if (Number(evidence.devicePixelRatio) < 2) throw new Error('High-DPI smoke did not reach device pixel ratio 2.');
+    if (!allOrdinaryLayersEnabled) {
+      throw new Error(`Maximum-load smoke did not include every ordinary world layer: ${JSON.stringify(drawCounts)}`);
+    }
+    if (qualificationRequired && roundedFps < 60) {
+      throw new Error(`Maximum-load active-render rounded FPS is below 60: ${roundedFps}.`);
+    }
+    const screenshotName = 'maximum-load.png';
+    await captureSmokeScreenshot(window, join(directory, screenshotName));
+    maximumLoad = {
+      evidence,
+      ...rendererMeasurement,
+      roundedFps,
+      qualificationRequired,
+      allOrdinaryLayersEnabled,
+      screenshot: screenshotName,
+    };
+  } else {
+    await clickZoomButton(window, 3);
+    await clickUiScaleButton(window, 125);
+    await waitForResponsiveEvidence(window, (evidence) => evidence.selectedWorldZoom === 3 && evidence.uiScale === 1.25);
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 400));
+  }
+
+  return {
+    schemaVersion: 1,
+    highDpi: responsiveHighDpiMode,
+    geometry,
+    targets: targetReports,
+    maximumLoad,
+  };
+}
+
+async function capturePresentationPreferenceSmoke(
+  window: BrowserWindow,
+  mode: 'seed' | 'restart',
+): Promise<Record<string, unknown>> {
+  if (mode === 'seed') {
+    await startResponsiveSmokeGame(window);
+    await clickZoomButton(window, 3);
+    await clickUiScaleButton(window, 125);
+  } else {
+    await waitForSelector(window, '#world-state', 20_000);
+  }
+  const evidence = await waitForResponsiveEvidence(
+    window,
+    (candidate) => candidate.selectedWorldZoom === 3 && candidate.uiScale === 1.25,
+    20_000,
+  );
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 700));
+  return { mode, evidence };
+}
+
+async function captureSaveMigrationSmoke(
+  window: BrowserWindow,
+  mode: 'migration' | 'reload',
+): Promise<Record<string, unknown>> {
+  await waitForSelector(window, '#world-state', 20_000);
+  const expectedSaveStatus = mode === 'migration' ? 'MIGRATED GEN 8' : 'LOADED GEN 8';
+  await waitForRendererText(window, '#world-save-status', expectedSaveStatus, 20_000);
+  const loaded = await window.webContents.executeJavaScript(
+    `window.siWorldDesktop?.loadSave('slot-001')`,
+    true,
+  ) as Record<string, unknown>;
+  return {
+    mode,
+    expectedSaveStatus,
+    visibleSaveStatus: await rendererText(window, '#world-save-status'),
+    loaded,
+    worldStateLabel: await worldStateLabel(window),
+  };
+}
+
+async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number | string>> {
   const progress = (stage: string): void => {
     process.stdout.write(`SI_WORLD_SMOKE_PROGRESS ${stage}\n`);
   };
@@ -845,6 +1169,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const modelFailureFeedback = smokeExpectsModel
     ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
     : modelStatus.includes('FALLBACK USED');
+  const firstFreeTextTurnSource = smokeExpectsModel ? 'model' : 'authored-fallback';
   const transcriptChildrenBeforeInvitation = await conversationTranscriptMeasure(window);
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
@@ -856,9 +1181,16 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickAriaButton(window, 'Send conversation message');
   await waitForConversationTurnComplete(window, transcriptChildrenBeforeInvitation);
   await waitForAriaButtonEnabled(window, 'End conversation');
-  const structuredInvitation = smokeExpectsModel
-    ? (await rendererText(window, '#conversation-model-status')).includes('LOCAL MODEL REPLIED')
-    : (await rendererText(window, '#conversation-transcript')).includes('current situation');
+  const invitationStatus = await rendererText(window, '#conversation-model-status');
+  const invitationTranscript = await rendererText(window, '#conversation-transcript');
+  const structuredInvitation = invitationTranscript.includes('current situation') && (
+    !smokeExpectsModel ||
+    (invitationStatus.includes('LOCAL MODEL REPLIED') || invitationStatus.includes('AUTHORED RESPONSE USED')) &&
+      !invitationStatus.includes('FALLBACK')
+  );
+  const structuredInvitationSource = invitationStatus.includes('LOCAL MODEL REPLIED')
+    ? 'model'
+    : 'authored-structured';
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-conversation.png'), [previousWorldBuffer],
   );
@@ -956,8 +1288,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     closedFerry, allNeighborhoods, allTravelAutosaves,
     conversationPause, conversationInputLocked, conversationSocialNavLocked, conversationResponsiveState, promptIdeasContextual, conversationBuffered,
     conversationFeedbackMilliseconds, rendererFpsDuringGeneration,
-    conversationFallback, modelFailureFeedback, audioCaptions, conversationCommitSave,
-    structuredInvitation, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
+    conversationFallback, firstFreeTextTurnSource, modelFailureFeedback, audioCaptions, conversationCommitSave,
+    structuredInvitation, structuredInvitationSource, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
     questStarted, questChoicePreview, questOutcome, questAutosave, consequenceCaption, policeHooks, saveReload,
   };
 }
@@ -970,10 +1302,37 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
   process.stdout.write(`SI_WORLD_RENDERER_READY ${JSON.stringify({
     milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
   })}\n`);
-  const worldScreenshotDirectory = process.env.SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR;
-  if (worldScreenshotDirectory) {
-    const worldResult = await captureWorldSmoke(window, worldScreenshotDirectory);
-    process.stdout.write(`SI_WORLD_WORLD_SMOKE_RESULT ${JSON.stringify(worldResult)}\n`);
+  if (saveMigrationSmokeMode || saveReloadSmokeMode) {
+    const mode = saveMigrationSmokeMode ? 'migration' : 'reload';
+    const migrationResult = await captureSaveMigrationSmoke(window, mode);
+    const migrationScreenshot = process.env.SI_WORLD_SAVE_MIGRATION_SCREENSHOT;
+    if (!migrationScreenshot || !isAbsolute(migrationScreenshot)) {
+      throw new Error('Save-migration smoke screenshot path must be absolute.');
+    }
+    await captureSmokeScreenshot(window, migrationScreenshot);
+    process.stdout.write(`SI_WORLD_SAVE_MIGRATION_SMOKE_RESULT ${JSON.stringify(migrationResult)}\n`);
+  } else if (presentationSeedSmokeMode || presentationRestartSmokeMode) {
+    const mode = presentationSeedSmokeMode ? 'seed' : 'restart';
+    const presentationResult = await capturePresentationPreferenceSmoke(window, mode);
+    const presentationScreenshot = process.env.SI_WORLD_PRESENTATION_SCREENSHOT;
+    if (!presentationScreenshot || !isAbsolute(presentationScreenshot)) {
+      throw new Error('Presentation smoke screenshot path must be absolute.');
+    }
+    await captureSmokeScreenshot(window, presentationScreenshot);
+    process.stdout.write(`SI_WORLD_PRESENTATION_SMOKE_RESULT ${JSON.stringify(presentationResult)}\n`);
+  } else if (responsiveSmokeMode) {
+    const responsiveDirectory = process.env.SI_WORLD_RESPONSIVE_SCREENSHOT_DIR;
+    if (!responsiveDirectory || !isAbsolute(responsiveDirectory)) {
+      throw new Error('Responsive smoke screenshot directory must be absolute.');
+    }
+    const responsiveResult = await captureResponsiveSmoke(window, responsiveDirectory);
+    process.stdout.write(`SI_WORLD_RESPONSIVE_SMOKE_RESULT ${JSON.stringify(responsiveResult)}\n`);
+  } else {
+    const worldScreenshotDirectory = process.env.SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR;
+    if (worldScreenshotDirectory) {
+      const worldResult = await captureWorldSmoke(window, worldScreenshotDirectory);
+      process.stdout.write(`SI_WORLD_WORLD_SMOKE_RESULT ${JSON.stringify(worldResult)}\n`);
+    }
   }
   const screenshotPath = process.env.SI_WORLD_SMOKE_SCREENSHOT;
   if (screenshotPath) {
@@ -1009,13 +1368,17 @@ async function createMainWindow(): Promise<void> {
   const initialPresentation = await presentationPreferences.load();
   const window = new BrowserWindow({
     backgroundColor: '#17201b',
+    enableLargerThanScreen: smokeMode,
     height: initialPresentation.windowSize?.height ?? 720,
     minHeight: 640,
     minWidth: 960,
     show: true,
     title: 'SI World',
     useContentSize: true,
-    webPreferences: lockedWebPreferences(preloadPath),
+    webPreferences: {
+      ...lockedWebPreferences(preloadPath),
+      additionalArguments: smokeMode ? ['--si-world-smoke-mode=1'] : [],
+    },
     width: initialPresentation.windowSize?.width ?? 1280,
   });
   activeMainWindow = window;

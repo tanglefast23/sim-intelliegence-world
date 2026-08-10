@@ -1,5 +1,11 @@
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import {
   evaluateRendererFps,
+  findPackageArchive,
+  findPackagedExecutable,
   parseSmokeResult,
   validatePackageListing,
   validateScreenshotBuffers,
@@ -23,6 +29,26 @@ function screenshot(width: number, height: number, fill: number): Buffer {
 }
 
 describe('packaged Electron smoke evidence', () => {
+  test('selects the current platform and architecture from a multi-target output root', () => {
+    const root = mkdtempSync(join(tmpdir(), 'si-world-package-targets-'));
+    try {
+      const armExecutable = join(root, 'SI World-darwin-arm64', 'SI World.app', 'Contents', 'MacOS', 'si-world');
+      const x64Executable = join(root, 'SI World-darwin-x64', 'SI World.app', 'Contents', 'MacOS', 'si-world');
+      const armArchive = join(root, 'SI World-darwin-arm64', 'SI World.app', 'Contents', 'Resources', 'app.asar');
+      const x64Archive = join(root, 'SI World-darwin-x64', 'SI World.app', 'Contents', 'Resources', 'app.asar');
+      for (const file of [armExecutable, x64Executable, armArchive, x64Archive]) {
+        mkdirSync(join(file, '..'), { recursive: true });
+        writeFileSync(file, 'fixture');
+      }
+      expect(findPackagedExecutable(root, 'darwin', 'arm64')).toBe(armExecutable);
+      expect(findPackagedExecutable(root, 'darwin', 'x64')).toBe(x64Executable);
+      expect(findPackageArchive(root, 'darwin', 'arm64')).toBe(armArchive);
+      expect(findPackageArchive(root, 'darwin', 'x64')).toBe(x64Archive);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
   test('retries transient screenshot failures but keeps a bounded failure', async () => {
     let attempts = 0;
     const waits: number[] = [];

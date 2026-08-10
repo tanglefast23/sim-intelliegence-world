@@ -7,6 +7,7 @@ import process from 'node:process';
 
 import { parseSaveEnvelope } from '../../electron/persistence/save-format';
 import { resolveTestedCommit } from '../qualification/tested-commit';
+import { resolveEvidenceSource } from '../qualification/evidence-source';
 
 import {
   evaluateRendererFps,
@@ -199,6 +200,14 @@ child.once('close', (code) => {
     writeFileSync(qualificationReportPath, `${JSON.stringify({
       schemaVersion: 1,
       generatedAt: new Date().toISOString(),
+      evidenceSource: resolveEvidenceSource([
+        'electron/main/index.ts',
+        'scripts/electron/package-smoke-utils.ts',
+        'scripts/electron/run-package-smoke.ts',
+        'src/ai/conversation/service.ts',
+        'src/render/WorldScene.tsx',
+        'src/ui/ConversationPanel.tsx',
+      ]),
       testedCommit,
       qualificationProfile: process.env.SI_WORLD_QUALIFICATION_PROFILE ?? 'development-high-end',
       hardware: {
@@ -208,6 +217,7 @@ child.once('close', (code) => {
       },
       package: { executableName: basename(executable), bundledModelRuntime: process.env.SI_WORLD_MODEL_RESOURCE_DIR ? true : false },
       measurements: { rendererReadyMilliseconds, nonTextFeedbackMilliseconds: feedbackMilliseconds, rendererFpsDuringGeneration: rendererFps },
+      worldChecks: worldResult,
       thresholds: {
         nonTextFeedback: feedbackMilliseconds <= 100,
         rendererFps: rendererFpsEvidence.thresholdPassed,

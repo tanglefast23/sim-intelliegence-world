@@ -46,9 +46,18 @@ function filesUnder(path: string): string[] {
   });
 }
 
-export function findPackagedExecutable(outputRoot: string, platform = process.platform): string {
+function belongsToPackageTarget(filePath: string, platform: string, architecture: string): boolean {
+  return filePath.replaceAll('\\', '/').includes(`-${platform}-${architecture}/`);
+}
+
+export function findPackagedExecutable(
+  outputRoot: string,
+  platform = process.platform,
+  architecture = process.arch,
+): string {
   const candidates = filesUnder(outputRoot).filter((filePath) => {
     const name = basename(filePath).toLowerCase();
+    if (!belongsToPackageTarget(filePath, platform, architecture)) return false;
     if (platform === 'darwin') {
       return filePath.includes('.app/Contents/MacOS/') && name === 'si-world';
     }
@@ -67,8 +76,13 @@ export function findPackagedExecutable(outputRoot: string, platform = process.pl
   return executable;
 }
 
-export function findPackageArchive(outputRoot: string): string {
-  const candidates = filesUnder(outputRoot).filter((filePath) => basename(filePath) === 'app.asar');
+export function findPackageArchive(
+  outputRoot: string,
+  platform = process.platform,
+  architecture = process.arch,
+): string {
+  const candidates = filesUnder(outputRoot).filter((filePath) =>
+    basename(filePath) === 'app.asar' && belongsToPackageTarget(filePath, platform, architecture));
   if (candidates.length !== 1 || !candidates[0]) {
     throw new Error(`Expected one app.asar archive, found ${candidates.length}.`);
   }

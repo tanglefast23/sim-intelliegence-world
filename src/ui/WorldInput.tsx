@@ -85,6 +85,12 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     const preventMiddleClick = (event: MouseEvent) => {
       if (event.button === 1) event.preventDefault();
     };
+    const handleActivePanProof = (event: Event) => {
+      if (!(event instanceof CustomEvent)) return;
+      const detail = event.detail as Partial<ScreenPoint> | undefined;
+      if (!detail || !Number.isFinite(detail.x) || !Number.isFinite(detail.y)) return;
+      handlersRef.current.onPan({ x: Number(detail.x), y: Number(detail.y) });
+    };
 
     element.addEventListener('pointerdown', handlePointerDown);
     element.addEventListener('pointermove', handlePointerMove);
@@ -92,6 +98,9 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     element.addEventListener('pointercancel', releasePointer);
     element.addEventListener('wheel', handleWheel, { passive: false });
     element.addEventListener('auxclick', preventMiddleClick);
+    if (window.siWorldSmokeMode === true) {
+      element.addEventListener('si-world-active-pan-proof', handleActivePanProof);
+    }
     window.addEventListener('keydown', handleKey);
     return () => {
       if (panFrame !== 0) cancelAnimationFrame(panFrame);
@@ -101,6 +110,9 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
       element.removeEventListener('pointercancel', releasePointer);
       element.removeEventListener('wheel', handleWheel);
       element.removeEventListener('auxclick', preventMiddleClick);
+      if (window.siWorldSmokeMode === true) {
+        element.removeEventListener('si-world-active-pan-proof', handleActivePanProof);
+      }
       window.removeEventListener('keydown', handleKey);
     };
   }, []);

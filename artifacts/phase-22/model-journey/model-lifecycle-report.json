@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "evidenceSource": {
+    "baseCommit": "4209ce759d8837ea0a40cd03bc2ba85c369c078f",
+    "sourceSha256": "a6b0efe98dbc175bb87e4b9857de3b41234b95d21b7b11111fd03861cfbc38f7",
+    "sourcePaths": [
+      "electron/model/conversation-inference.ts",
+      "electron/model/model-smoke.ts",
+      "electron/model/model-supervisor.ts",
+      "scripts/model/run-package-model-smoke.ts"
+    ]
+  },
+  "testedCommit": "4209ce759d8837ea0a40cd03bc2ba85c369c078f",
+  "modelId": "qwen3.5-4b",
+  "source": "model",
+  "attempts": 1,
+  "loadingHealthObserved": true,
+  "responseValidated": true,
+  "restartCount": 2,
+  "circuitOpened": true,
+  "fallbackAfterCircuit": true,
+  "restartAfterStopRejected": true,
+  "stoppedCleanly": true,
+  "leakedProcess": false
+}
