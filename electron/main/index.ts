@@ -54,7 +54,10 @@ async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: str
 
 async function waitForRendererPaint(window: BrowserWindow): Promise<void> {
   await window.webContents.executeJavaScript(
-    'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))',
+    `Promise.race([
+      new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)))),
+      new Promise((resolve) => setTimeout(() => resolve(false), 250)),
+    ])`,
     true,
   );
 }
