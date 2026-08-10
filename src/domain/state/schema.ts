@@ -20,7 +20,7 @@ import {
   TransferStateSchema,
 } from './models';
 
-export const STATE_SCHEMA_VERSION = 3 as const;
+export const STATE_SCHEMA_VERSION = 4 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
@@ -106,17 +106,26 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
     if (map.id !== id) context.addIssue({ code: 'custom', path: ['maps', id], message: 'Map record key must match its ID.' });
   }
   for (const [id, schedule] of Object.entries(state.schedules)) {
-    if (schedule.id !== id || !state.npcs[schedule.npcId]) {
+    if (
+      schedule.id !== id ||
+      !state.npcs[schedule.npcId] ||
+      schedule.blocks.some(({ mapId }) => !state.maps[mapId])
+    ) {
       context.addIssue({ code: 'custom', path: ['schedules', id], message: 'Schedule must reference an existing NPC.' });
     }
+  }
+  const transferNpcIds = Object.values(state.transfers).map(({ npcId }) => npcId);
+  if (new Set(transferNpcIds).size !== transferNpcIds.length) {
+    context.addIssue({ code: 'custom', path: ['transfers'], message: 'An NPC can own only one transfer.' });
   }
   for (const [id, transfer] of Object.entries(state.transfers)) {
     const npc = state.npcs[transfer.npcId];
     if (
       transfer.id !== id ||
       !npc ||
-      npc.presence.kind !== 'in_transit' ||
-      npc.presence.transferId !== id ||
+      (transfer.status === 'in_transit'
+        ? npc.presence.kind !== 'in_transit' || npc.presence.transferId !== id
+        : npc.presence.kind !== 'active_local' || npc.presence.mapId !== transfer.originMapId) ||
       !state.maps[transfer.originMapId] ||
       !state.maps[transfer.destinationMapId]
     ) {
@@ -124,9 +133,22 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
     }
   }
   for (const [id, npc] of Object.entries(state.npcs)) {
-    if (npc.presence.kind === 'in_transit' && !state.transfers[npc.presence.transferId]) {
+    if (
+      npc.presence.kind === 'in_transit' &&
+      (!state.transfers[npc.presence.transferId] || state.transfers[npc.presence.transferId]?.status !== 'in_transit')
+    ) {
       context.addIssue({ code: 'custom', path: ['npcs', id, 'presence'], message: 'An in-transit NPC must reference an existing transfer.' });
     }
+    if (npc.presence.kind !== 'in_transit' && !state.maps[npc.presence.mapId]) {
+      context.addIssue({ code: 'custom', path: ['npcs', id, 'presence'], message: 'NPC presence must reference an existing map.' });
+    }
+    if (npc.scheduleGoal && !state.maps[npc.scheduleGoal.mapId]) {
+      context.addIssue({ code: 'custom', path: ['npcs', id, 'scheduleGoal'], message: 'NPC goal must reference an existing map.' });
+    }
+  }
+  const activeMapIds = Object.values(state.maps).filter(({ active }) => active).map(({ id }) => id);
+  if (activeMapIds.length !== 1 || activeMapIds[0] !== state.protagonist.worldPosition.mapId) {
+    context.addIssue({ code: 'custom', path: ['maps'], message: 'Exactly the protagonist map must be active.' });
   }
   for (const [id, evidence] of Object.entries(state.evidence)) {
     if (evidence.id !== id || evidence.witnessNpcIds.some((npcId) => !state.npcs[npcId])) {

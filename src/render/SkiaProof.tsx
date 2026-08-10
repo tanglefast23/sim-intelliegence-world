@@ -71,9 +71,9 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
         <WorldScene onReady={markWorldReady} />
       </View>
       <Text accessibilityRole="header" style={styles.title}>
-        SI WORLD / SUNWARD VILLAS
+        SI WORLD / THE ISLAND
       </Text>
-      <Text style={styles.status}>Click-to-move island prototype · deterministic 64×48 world</Text>
+      <Text style={styles.status}>Click-to-move prototype · four deterministic 64×48 neighborhoods</Text>
       <Text style={styles.runtime}>{runtime}</Text>
     </View>
   );

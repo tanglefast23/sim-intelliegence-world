@@ -26,7 +26,7 @@ export function generatePromptView(state: WorldState): string {
       ? npc.presence.locationId
       : npc.presence.kind === 'in_transit'
         ? `in transit (${npc.presence.transferId})`
-        : `inactive at ${npc.presence.destinationLocationId}`;
+        : `inactive at ${npc.presence.locationId}`;
     lines.push(
       relationship
         ? `- ${npcId}: ${npc.tier}, ${presence}; familiarity ${relationship.values.familiarity}, trust ${relationship.values.trust}, attraction ${relationship.values.attraction}, stage ${relationship.stage}`

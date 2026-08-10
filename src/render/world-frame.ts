@@ -34,10 +34,7 @@ export type WorldFrameState = Readonly<{
   signature: string;
 }>;
 
-export type WorldActorTiles = Readonly<{
-  linda: TilePoint;
-  'generic-resident': TilePoint;
-}>;
+export type WorldActorTiles = Readonly<Partial<Record<'linda' | 'generic-resident', TilePoint>>>;
 
 export function compareWorldLayerTiles(
   layer: number,
@@ -62,15 +59,15 @@ export function buildWorldFrameState(
     throw new Error(`World frame map ${map.source.id} does not own the protagonist.`);
   }
   const playerTile = { x: playerPosition.tileX, y: playerPosition.tileY };
-  const characterInputs: readonly Readonly<{
+  const characterInputs: Readonly<{
     id: CharacterId;
     tile: TilePoint;
     direction: MovementDirection;
-  }>[] = [
-    { id: 'protagonist', tile: playerTile, direction },
-    { id: 'linda', tile: actorTiles.linda, direction: 'down' },
-    { id: 'generic-resident', tile: actorTiles['generic-resident'], direction: 'left' },
-  ];
+  }>[] = [{ id: 'protagonist', tile: playerTile, direction }];
+  if (actorTiles.linda) characterInputs.push({ id: 'linda', tile: actorTiles.linda, direction: 'down' });
+  if (actorTiles['generic-resident']) {
+    characterInputs.push({ id: 'generic-resident', tile: actorTiles['generic-resident'], direction: 'left' });
+  }
   const characters = characterInputs.map(({ id, tile, direction: actorDirection }) => {
     const presentation = movementPresentation(id, actorDirection, frame);
     return {

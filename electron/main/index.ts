@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 
 import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 
@@ -19,6 +19,12 @@ registerAppSchemePrivileges(protocol);
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 let smokeFinished = false;
+
+const smokeUserData = process.env.SI_WORLD_SMOKE_USER_DATA;
+if (smokeMode && smokeUserData) {
+  if (!isAbsolute(smokeUserData)) throw new Error('Smoke user-data path must be absolute.');
+  app.setPath('userData', smokeUserData);
+}
 
 if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
   app.disableHardwareAcceleration();
@@ -52,6 +58,19 @@ async function roofLabel(window: BrowserWindow): Promise<string> {
   ) as Promise<string>;
 }
 
+async function worldStateLabel(window: BrowserWindow): Promise<string> {
+  return window.webContents.executeJavaScript(
+    `document.querySelector('#world-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as Promise<string>;
+}
+
+function parseWorldStateLabel(label: string): Readonly<{ mapName: string; x: number; y: number; minute: number; speed: number }> {
+  const match = /^(.*); tile (\d+),(\d+); minute (\d+); speed (\d+)$/u.exec(label);
+  if (!match) throw new Error(`Invalid world-state label: ${label}`);
+  return { mapName: match[1]!, x: Number(match[2]), y: Number(match[3]), minute: Number(match[4]), speed: Number(match[5]) };
+}
+
 async function surfaceBounds(window: BrowserWindow): Promise<SurfaceBounds> {
   return window.webContents.executeJavaScript(`(() => {
     const element = document.querySelector('#world-input-viewport');
@@ -76,6 +95,17 @@ async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
+async function clickAriaButton(window: BrowserWindow, label: string): Promise<void> {
+  const clicked = await window.webContents.executeJavaScript(`(() => {
+    const button = document.querySelector('[aria-label=${JSON.stringify(label)}]');
+    if (!(button instanceof HTMLElement)) return false;
+    button.click();
+    return true;
+  })()`, true) as boolean;
+  if (!clicked) throw new Error(`Button is missing: ${label}`);
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 120));
+}
+
 function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
@@ -84,6 +114,27 @@ function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
 function sendKey(window: BrowserWindow, keyCode: 'F' | 'Escape'): void {
   window.webContents.sendInputEvent({ type: 'keyDown', keyCode });
   window.webContents.sendInputEvent({ type: 'keyUp', keyCode });
+}
+
+
+async function clickWorldTile(window: BrowserWindow, tile: Readonly<{ x: number; y: number }>): Promise<void> {
+  const bounds = await surfaceBounds(window);
+  const camera = parseCameraLabel(await cameraLabel(window));
+  const x = bounds.x + (tile.x * 32 + 16 - camera.x) * camera.zoom;
+  const y = bounds.y + (tile.y * 32 + 16 - camera.y) * camera.zoom;
+  if (x < bounds.x || y < bounds.y || x >= bounds.x + bounds.width || y >= bounds.y + bounds.height) {
+    throw new Error(`Tile ${tile.x},${tile.y} is outside the visible camera.`);
+  }
+  sendMouseClick(window, x, y);
+}
+
+async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): Promise<void> {
+  const bounds = await surfaceBounds(window);
+  const start = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+  window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(start.x), y: Math.round(start.y), button: 'middle', clickCount: 1 });
+  window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(start.x + deltaX), y: Math.round(start.y + deltaY), button: 'middle' });
+  window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(start.x + deltaX), y: Math.round(start.y + deltaY), button: 'middle', clickCount: 1 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
 async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean>> {
@@ -166,7 +217,81 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
   const roofEntry = (await rendererText(window, '#world-ui-location')).includes('TILE 15,23') &&
     await roofLabel(window) === 'Villa roof hidden';
-  return { zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry };
+
+  const beforePause = parseWorldStateLabel(await worldStateLabel(window));
+  await clickAriaButton(window, 'Pause time');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));
+  const afterPause = parseWorldStateLabel(await worldStateLabel(window));
+  const pausedClock = afterPause.minute === beforePause.minute && afterPause.speed === 0;
+
+  await clickAriaButton(window, 'Set 2x time');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));
+  const afterFast = parseWorldStateLabel(await worldStateLabel(window));
+  const doubleSpeedClock = afterFast.speed === 2 && afterFast.minute - afterPause.minute >= 2 && afterFast.minute - afterPause.minute <= 4;
+
+  await clickWorldTile(window, { x: 14, y: 13 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_300));
+  const bedroomReached = (await rendererText(window, '#world-ui-location')).includes('TILE 14,13');
+  await clickAriaButton(window, 'Pause time');
+  const beforeNap = parseWorldStateLabel(await worldStateLabel(window));
+  await clickAriaButton(window, 'Nap for two hours');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 250));
+  const afterNap = parseWorldStateLabel(await worldStateLabel(window));
+  const nap = bedroomReached && afterNap.minute === beforeNap.minute + 120 && (await rendererText(window, '#world-ui-help')).includes('NAP COMPLETE');
+
+  let napCount = 0;
+  let beforeOvernight = afterNap;
+  while (beforeOvernight.minute % 1_440 < 20 * 60 && napCount < 6) {
+    await clickAriaButton(window, 'Nap for two hours');
+    beforeOvernight = parseWorldStateLabel(await worldStateLabel(window));
+    napCount += 1;
+  }
+  await clickAriaButton(window, 'Sleep until 8 AM');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 400));
+  const afterOvernight = parseWorldStateLabel(await worldStateLabel(window));
+  const overnightSleep = afterOvernight.minute > beforeOvernight.minute && afterOvernight.minute % 1_440 === 8 * 60;
+  const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 1');
+
+  await clickAriaButton(window, 'Set 2x time');
+  await clickWorldTile(window, { x: 16, y: 25 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_000));
+  await clickZoomButton(window, 1);
+  await panWorld(window, -500, 0);
+  await panWorld(window, -500, 0);
+  await clickWorldTile(window, { x: 63, y: 24 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 6_500));
+  const afterTravel = parseWorldStateLabel(await worldStateLabel(window));
+  const travel = afterTravel.mapName === 'Neon Crescent' && afterTravel.x === 0 && afterTravel.y === 24;
+  const travelAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
+  await captureSmokeScreenshot(window, join(directory, 'world-downtown.png'));
+
+  await panWorld(window, 0, -500);
+  await clickWorldTile(window, { x: 32, y: 47 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
+  const docks = parseWorldStateLabel(await worldStateLabel(window));
+  await panWorld(window, 0, -500);
+  const closedFerry = docks.mapName === 'Harbor Authority' &&
+    (await rendererText(window, 'body')).includes('FERRY TERMINAL · CLOSED');
+  await captureSmokeScreenshot(window, join(directory, 'world-ferry.png'));
+
+  await panWorld(window, 500, 0);
+  await clickWorldTile(window, { x: 0, y: 24 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
+  const commercial = parseWorldStateLabel(await worldStateLabel(window));
+
+  await panWorld(window, 500, 500);
+  await clickWorldTile(window, { x: 32, y: 0 });
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 5_200));
+  const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
+  const allNeighborhoods = commercial.mapName === 'Palm Exchange' &&
+    loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
+  const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 5');
+  await captureSmokeScreenshot(window, join(directory, 'world-loop-complete.png'));
+  return {
+    zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
+    pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
+    closedFerry, allNeighborhoods, allTravelAutosaves,
+  };
 }
 
 async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindow): Promise<void> {

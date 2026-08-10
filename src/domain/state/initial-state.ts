@@ -45,7 +45,13 @@ export function createInitialState(displayName = 'Player'): WorldState {
       linda: {
         id: 'linda',
         tier: 'full_ai',
-        presence: { kind: 'active_local', locationId: 'linda_villa' },
+        presence: {
+          kind: 'active_local', mapId: 'northwest_residential', locationId: 'linda_villa', tileX: 23, tileY: 28,
+        },
+        scheduleGoal: {
+          mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'relax',
+          tileX: 28, tileY: 30, scheduledMinute: 480,
+        },
         knowledge: [],
         unlockedInterestIds: ['cats'],
         unlockedIds: [],
@@ -54,7 +60,13 @@ export function createInitialState(displayName = 'Player'): WorldState {
       generic_resident: {
         id: 'generic_resident',
         tier: 'ambient',
-        presence: { kind: 'active_local', locationId: 'northwest_residential' },
+        presence: {
+          kind: 'active_local', mapId: 'northwest_residential', locationId: 'northwest_residential', tileX: 29, tileY: 33,
+        },
+        scheduleGoal: {
+          mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'work',
+          tileX: 36, tileY: 30, scheduledMinute: 480,
+        },
         knowledge: [],
         unlockedInterestIds: [],
         unlockedIds: [],
@@ -82,6 +94,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
       weeklyAllowance: PROTOTYPE_ECONOMY_POLICY.weeklyAllowance,
       basicDailyCost: PROTOTYPE_ECONOMY_POLICY.basicDailyCost,
       nextAllowanceMinute: 7 * 1_440,
+      nextBasicCostMinute: 1_440,
     },
     factions: {
       island_administration: { id: 'island_administration', standing: 0, revealed: true },
@@ -102,10 +115,20 @@ export function createInitialState(displayName = 'Player'): WorldState {
         id: 'linda_daily',
         npcId: 'linda',
         blocks: [
-          { startMinuteOfDay: 0, locationId: 'linda_villa', activityId: 'sleep' },
-          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'relax' },
-          { startMinuteOfDay: 720, locationId: 'southwest_commercial', activityId: 'shop' },
-          { startMinuteOfDay: 1_080, locationId: 'linda_villa', activityId: 'home' },
+          { startMinuteOfDay: 0, locationId: 'linda_villa', activityId: 'sleep', mapId: 'northwest_residential', tileX: 23, tileY: 28 },
+          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'relax', mapId: 'northwest_residential', tileX: 28, tileY: 30 },
+          { startMinuteOfDay: 720, locationId: 'southwest_commercial', activityId: 'shop', mapId: 'southwest_commercial', tileX: 15, tileY: 16 },
+          { startMinuteOfDay: 1_080, locationId: 'linda_villa', activityId: 'home', mapId: 'northwest_residential', tileX: 23, tileY: 28 },
+        ],
+      },
+      generic_daily: {
+        id: 'generic_daily',
+        npcId: 'generic_resident',
+        blocks: [
+          { startMinuteOfDay: 0, locationId: 'northwest_residential', activityId: 'sleep', mapId: 'northwest_residential', tileX: 29, tileY: 33 },
+          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'work', mapId: 'northwest_residential', tileX: 36, tileY: 30 },
+          { startMinuteOfDay: 720, locationId: 'northeast_downtown', activityId: 'meal', mapId: 'northeast_downtown', tileX: 44, tileY: 34 },
+          { startMinuteOfDay: 1_080, locationId: 'northeast_downtown', activityId: 'nightlife', mapId: 'northeast_downtown', tileX: 18, tileY: 13 },
         ],
       },
     },

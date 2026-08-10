@@ -1,0 +1,12 @@
+{
+  "weeklyAllowance": 800,
+  "basicDailyCost": 100,
+  "ordinaryQuestMaximum": 800,
+  "dangerousQuestMinimum": 800,
+  "dangerousQuestMaximum": 2400,
+  "energyDrainMinutesPerPoint": 60,
+  "napMinutes": 120,
+  "napEnergyRestore": 25,
+  "overnightEnergyRestore": 80,
+  "npcTravelMinutes": 30
+}

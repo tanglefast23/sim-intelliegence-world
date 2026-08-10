@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
+import { SimulationSpeedSchema } from '../clock/clock';
 
 const EventBaseSchema = z.object({
   eventId: EventIdSchema,
@@ -48,6 +49,66 @@ export const DomainEventSchema = z.discriminatedUnion('type', [
     fromTileY: z.number().int().min(0).max(47),
     toTileX: z.number().int().min(0).max(63),
     toTileY: z.number().int().min(0).max(47),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('simulation-speed-changed'),
+    fromSpeed: SimulationSpeedSchema,
+    toSpeed: SimulationSpeedSchema,
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('simulation-advanced'),
+    fromMinute: z.number().int().nonnegative(),
+    toMinute: z.number().int().nonnegative(),
+    consumedRealMilliseconds: z.number().int().nonnegative(),
+    milestoneIds: z.array(z.string().min(1).max(160)),
+    energyDelta: z.number().int(),
+    moneyDelta: z.number().int(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('sleep-completed'),
+    mode: z.enum(['nap', 'overnight']),
+    fromMinute: z.number().int().nonnegative(),
+    toMinute: z.number().int().nonnegative(),
+    energyDelta: z.number().int(),
+    milestoneIds: z.array(z.string().min(1).max(160)),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('quest-reward-applied'),
+    rewardKind: z.enum(['ordinary', 'dangerous']),
+    amount: z.number().int().nonnegative(),
+    questId: StableIdSchema,
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('npc-moved'),
+    npcId: StableIdSchema,
+    mapId: StableIdSchema,
+    fromTileX: z.number().int().min(0).max(63),
+    fromTileY: z.number().int().min(0).max(47),
+    toTileX: z.number().int().min(0).max(63),
+    toTileY: z.number().int().min(0).max(47),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('npc-goal-completed'),
+    npcId: StableIdSchema,
+    activityId: StableIdSchema,
+    locationId: StableIdSchema,
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('npc-transfer-departed'),
+    npcId: StableIdSchema,
+    transferId: StableIdSchema,
+    originMapId: StableIdSchema,
+    destinationMapId: StableIdSchema,
+    arrivalMinute: z.number().int().nonnegative(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('protagonist-transitioned'),
+    originMapId: StableIdSchema,
+    destinationMapId: StableIdSchema,
+    sourcePortalId: StableIdSchema,
+    destinationEntranceId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
   }).strict(),
 ]);
 

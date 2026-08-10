@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "southeast_docks",
+  "displayName": "Harbor Authority",
+  "width": 64,
+  "height": 48,
+  "tileSize": 32,
+  "ground": {
+    "defaultSprite": "tile.pale-concrete",
+    "regions": [
+      {"id":"north-road","x":30,"y":0,"width":5,"height":48,"sprite":"tile.plaza-paver"},
+      {"id":"west-road","x":0,"y":22,"width":35,"height":5,"sprite":"tile.plaza-paver"},
+      {"id":"harbor-water","x":44,"y":0,"width":20,"height":48,"sprite":"tile.shallow-water"},
+      {"id":"government-yard","x":7,"y":8,"width":17,"height":12,"sprite":"tile.spa-stone"},
+      {"id":"ferry-pier","x":34,"y":29,"width":18,"height":4,"sprite":"tile.boardwalk"}
+    ]
+  },
+  "collision": {"rectangles":[{"id":"deep-harbor","x":52,"y":0,"width":12,"height":48}],"walkableOverrides":[]},
+  "walls": {"regions":[],"openings":[]},
+  "props": [
+    {"id":"police-station","sprite":"tile.villa-floor","tile":{"x":12,"y":13},"blocksMovement":true},
+    {"id":"ferry-terminal","sprite":"tile.boardwalk","tile":{"x":39,"y":28},"blocksMovement":true},
+    {"id":"ferry-bow","sprite":"tile.boardwalk","tile":{"x":47,"y":30},"blocksMovement":true},
+    {"id":"ferry-stern","sprite":"tile.boardwalk","tile":{"x":48,"y":30},"blocksMovement":true}
+  ],
+  "effects": [{"id":"harbor-light","kind":"sparkle","tile":{"x":42,"y":29}}],
+  "interactions": [],
+  "doors": [],
+  "roofGroups": [],
+  "areas": [
+    {"id":"government-yard","bounds":{"x":7,"y":8,"width":17,"height":12}},
+    {"id":"ferry-terminal","bounds":{"x":34,"y":27,"width":18,"height":7}}
+  ],
+  "portals": [
+    {"id":"from-downtown","edge":"north","tile":{"x":32,"y":0},"destinationMapId":"northeast_downtown","destinationEntranceId":"to-docks"},
+    {"id":"from-commercial","edge":"west","tile":{"x":0,"y":24},"destinationMapId":"southwest_commercial","destinationEntranceId":"to-docks"}
+  ],
+  "stagingTiles": [{"x":32,"y":1},{"x":1,"y":24}],
+  "spawns": {"linda":{"x":12,"y":14},"generic-resident":{"x":39,"y":27}}
+}

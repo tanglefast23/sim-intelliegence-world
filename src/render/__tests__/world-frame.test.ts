@@ -1,7 +1,7 @@
 import northwestMapJson from '../../../content/maps/northwest.json';
 import { createInitialState } from '../../domain/state/initial-state';
 import { WorldStateSchema } from '../../domain/state/schema';
-import { compileWorldMap } from '../../world/maps/schema';
+import { compileWorldMap, spawnAt } from '../../world/maps/schema';
 import { createMovementState, requestMovement } from '../../world/pathfinding/movement';
 import { advanceWorldMovement } from '../../application/runtime/world-runtime';
 import { ATLAS_INDEX } from '../atlas';
@@ -10,8 +10,8 @@ import { buildWorldFrameState, WORLD_LAYER_ORDER } from '../world-frame';
 
 const MAP = compileWorldMap(northwestMapJson, new Set(ATLAS_INDEX.tiles));
 const ACTORS = {
-  linda: MAP.source.spawns.linda,
-  'generic-resident': MAP.source.spawns.genericResident,
+  linda: spawnAt(MAP, 'linda'),
+  'generic-resident': spawnAt(MAP, 'generic-resident'),
 } as const;
 
 function walkTo(target: { x: number; y: number }, initialState = createInitialState()) {
