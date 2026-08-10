@@ -39,7 +39,7 @@ try {
   Export-Certificate -Cert $certificate -FilePath $temporaryCertificatePath -Force | Out-Null
   $trustedCertificate = Import-Certificate `
     -FilePath $temporaryCertificatePath `
-    -CertStoreLocation 'Cert:\CurrentUser\TrustedPeople'
+    -CertStoreLocation 'Cert:\CurrentUser\Root'
   & $signTool sign /sha1 $certificate.Thumbprint /s My /fd SHA256 $executables[0].FullName
   if ($LASTEXITCODE -ne 0) { throw 'SignTool failed to sign the Windows test artifact.' }
   & $signTool verify /pa /v $executables[0].FullName
@@ -64,7 +64,7 @@ try {
 }
 finally {
   if ($null -ne $trustedCertificate) {
-    Remove-Item -Path "Cert:\CurrentUser\TrustedPeople\$($trustedCertificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "Cert:\CurrentUser\Root\$($trustedCertificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
   }
   if ($null -ne $certificate) {
     Remove-Item -Path "Cert:\CurrentUser\My\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
