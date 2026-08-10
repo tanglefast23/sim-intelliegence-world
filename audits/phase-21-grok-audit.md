@@ -44,3 +44,7 @@ A final bounded Grok 4.5 `high`-effort audit reviewed only this exception and re
 The next Windows run proved that its loading shell can decode at `1008x681` before the requested `1280x720` game content size settles. The loading-versus-new-game comparison now permits this platform transition. It still requires valid, decodable, minimum-size, non-identical PNG files. New-game-versus-world-1x, the 1x/2x/3x set, and all later journey pairs retain strict equal dimensions.
 
 A second bounded Grok 4.5 `high`-effort audit reviewed this exact additional exception and returned `NO_CONFIRMED_FINDINGS`. Grok confirmed that the stable post-content-size evidence remains strict.
+
+The same Windows run then identified the remaining intentional resize boundary: `world-1x.png` is captured before the responsive resize journey, while `world-roof-restored.png` is captured after the harness settles at `1280x720`. Their transition comparison now permits different dimensions. The complete 1x/2x/3x pre-resize group and every post-resize journey pair remain strict.
+
+The final bounded Grok 4.5 `high`-effort size-epoch audit returned `NO_CONFIRMED_FINDINGS`. It confirmed the three cross-epoch exceptions, the strict checks within each size epoch, and the unconditional PNG decode, minimum-size, and non-identity requirements.
