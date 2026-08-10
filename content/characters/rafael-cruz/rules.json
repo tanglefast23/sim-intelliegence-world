@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "npcId": "rafael_cruz",
+  "factIds": [],
+  "interestIds": [
+    "cooking",
+    "island_gossip"
+  ],
+  "actionIds": [
+    "greet",
+    "ask_follow_up",
+    "end_conversation",
+    "invite_home",
+    "ask_date",
+    "aggressive_flirt"
+  ],
+  "memorySubjectIds": [
+    "protagonist_food"
+  ],
+  "unlockIds": [],
+  "questIds": [],
+  "locationIds": [
+    "rafael_cafe",
+    "southwest_commercial"
+  ],
+  "factionIds": [],
+  "compatibility": {
+    "social": true,
+    "romantic": false,
+    "romanticEligibleAtStart": false
+  },
+  "startingRelationship": {
+    "values": {
+      "familiarity": 0,
+      "trust": 0,
+      "attraction": 0
+    },
+    "stage": "stranger"
+  },
+  "hardBoundaries": [
+    {
+      "id": "no_aggressive_flirting",
+      "scope": "romantic",
+      "blockedActionIds": [
+        "aggressive_flirt"
+      ]
+    }
+  ],
+  "stageRules": [
+    {
+      "stage": "dating",
+      "unavailable": true,
+      "requiredFlagIds": []
+    }
+  ],
+  "rejections": [
+    {
+      "reasonId": "not_romantically_compatible",
+      "kind": "permanent_boundary",
+      "sourceActionId": "ask_date",
+      "resolved": false
+    }
+  ]
+}

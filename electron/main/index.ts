@@ -50,6 +50,13 @@ async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: str
   return buffer;
 }
 
+async function waitForRendererPaint(window: BrowserWindow): Promise<void> {
+  await window.webContents.executeJavaScript(
+    'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))',
+    true,
+  );
+}
+
 async function captureDistinctSmokeScreenshot(
   window: BrowserWindow,
   screenshotPath: string,
@@ -58,6 +65,7 @@ async function captureDistinctSmokeScreenshot(
 ): Promise<Buffer> {
   const deadline = Date.now() + timeoutMilliseconds;
   do {
+    await waitForRendererPaint(window);
     const buffer = await captureSmokeScreenshot(window, screenshotPath);
     if (previousBuffers.every((previous) => !buffer.equals(previous))) return buffer;
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 80));
@@ -259,7 +267,9 @@ async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x:
   await window.webContents.executeJavaScript(`(() => {
     const element = document.querySelector('#world-input-surface');
     if (!(element instanceof HTMLElement)) throw new Error('World input surface is missing.');
-    const bounds = element.getBoundingClientRect();
+    const viewport = element.querySelector('#world-input-viewport');
+    if (!(viewport instanceof HTMLElement)) throw new Error('World input viewport is missing.');
+    const bounds = viewport.getBoundingClientRect();
     const clientX = bounds.left + (${tile.x} * 32 + 16 - ${camera.x}) * ${camera.zoom};
     const clientY = bounds.top + (${tile.y} * 32 + 16 - ${camera.y}) * ${camera.zoom};
     element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX, clientY, pointerId: 91 }));
@@ -275,6 +285,7 @@ async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): 
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(start.x + deltaX), y: Math.round(start.y + deltaY), button: 'middle' });
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(start.x + deltaX), y: Math.round(start.y + deltaY), button: 'middle', clickCount: 1 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  await waitForRendererPaint(window);
 }
 
 async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean>> {
@@ -477,6 +488,13 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await panWorld(window, 0, 500);
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   await dispatchWorldTileClick(window, lindaTile);
+  const talkLabels = await window.webContents.executeJavaScript(
+    `Array.from(document.querySelectorAll('#world-ui-talk [aria-label]')).map((element) => element.getAttribute('aria-label'))`,
+    true,
+  ) as readonly (string | null)[];
+  if (!talkLabels.includes('Talk to Linda')) {
+    throw new Error(`Linda selection failed: talk ${JSON.stringify(talkLabels)}; NPC ${await npcStateLabel(window)}; world ${await worldStateLabel(window)}`);
+  }
   await clickAriaButton(window, 'Talk to Linda');
   const conversationBefore = parseWorldStateLabel(await worldStateLabel(window));
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));
@@ -586,7 +604,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     questLabel.includes('police noticed') && questLabel.includes('evidence 1') &&
     (await rendererText(window, '#world-ui-help')).includes('LINDA PROTECTED');
   const questAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 11');
-  await captureDistinctSmokeScreenshot(
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-linda-outcome.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'Open journal');
@@ -598,7 +616,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 14');
   const policeHooks = (await questStateLabel(window)).includes('police arrest-on-sight') &&
     (await rendererText(window, '#world-ui-journal-panel')).includes('POLICE · ARREST-ON-SIGHT');
-  await captureDistinctSmokeScreenshot(
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-police.png'), [previousWorldBuffer],
   );
   const loaded = await window.webContents.executeJavaScript(

@@ -1,22 +1,1256 @@
 [
   {
-    "id":"linda_daily",
-    "npcId":"linda",
-    "blocks":[
-      {"startMinuteOfDay":0,"locationId":"linda_villa","activityId":"sleep","mapId":"northwest_residential","tileX":23,"tileY":28},
-      {"startMinuteOfDay":480,"locationId":"northwest_residential","activityId":"relax","mapId":"northwest_residential","tileX":28,"tileY":30},
-      {"startMinuteOfDay":720,"locationId":"southwest_commercial","activityId":"shop","mapId":"southwest_commercial","tileX":15,"tileY":16},
-      {"startMinuteOfDay":1080,"locationId":"linda_villa","activityId":"home","mapId":"northwest_residential","tileX":23,"tileY":28}
+    "id": "linda_daily",
+    "npcId": "linda",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "linda_villa",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 23,
+        "tileY": 28
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "relax",
+        "mapId": "northwest_residential",
+        "tileX": 28,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "southwest_commercial",
+        "activityId": "shop",
+        "mapId": "southwest_commercial",
+        "tileX": 15,
+        "tileY": 16
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "linda_villa",
+        "activityId": "home",
+        "mapId": "northwest_residential",
+        "tileX": 23,
+        "tileY": 28
+      }
     ]
   },
   {
-    "id":"generic_daily",
-    "npcId":"generic_resident",
-    "blocks":[
-      {"startMinuteOfDay":0,"locationId":"northwest_residential","activityId":"sleep","mapId":"northwest_residential","tileX":29,"tileY":33},
-      {"startMinuteOfDay":480,"locationId":"northwest_residential","activityId":"work","mapId":"northwest_residential","tileX":27,"tileY":28},
-      {"startMinuteOfDay":720,"locationId":"northeast_downtown","activityId":"meal","mapId":"northeast_downtown","tileX":44,"tileY":34},
-      {"startMinuteOfDay":1080,"locationId":"northeast_downtown","activityId":"nightlife","mapId":"northeast_downtown","tileX":18,"tileY":13}
+    "id": "generic_daily",
+    "npcId": "generic_resident",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 29,
+        "tileY": 33
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "work",
+        "mapId": "northwest_residential",
+        "tileX": 27,
+        "tileY": 28
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northeast_downtown",
+        "activityId": "meal",
+        "mapId": "northeast_downtown",
+        "tileX": 44,
+        "tileY": 34
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northeast_downtown",
+        "activityId": "nightlife",
+        "mapId": "northeast_downtown",
+        "tileX": 18,
+        "tileY": 13
+      }
+    ]
+  },
+  {
+    "id": "mina_park_daily",
+    "npcId": "mina_park",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 12
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 12
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 12
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 12
+      }
+    ]
+  },
+  {
+    "id": "rafael_cruz_daily",
+    "npcId": "rafael_cruz",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 39,
+        "tileY": 15
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 39,
+        "tileY": 15
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 39,
+        "tileY": 15
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 39,
+        "tileY": 15
+      }
+    ]
+  },
+  {
+    "id": "sora_tan_daily",
+    "npcId": "sora_tan",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 45,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 45,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 45,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 45,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "devon_price_daily",
+    "npcId": "devon_price",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 50,
+        "tileY": 14
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 50,
+        "tileY": 14
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 50,
+        "tileY": 14
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 50,
+        "tileY": 14
+      }
+    ]
+  },
+  {
+    "id": "priya_nair_daily",
+    "npcId": "priya_nair",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 32,
+        "tileY": 26
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 32,
+        "tileY": 26
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 32,
+        "tileY": 26
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 32,
+        "tileY": 26
+      }
+    ]
+  },
+  {
+    "id": "tomas_reed_daily",
+    "npcId": "tomas_reed",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 43,
+        "tileY": 31
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 43,
+        "tileY": 31
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 43,
+        "tileY": 31
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 43,
+        "tileY": 31
+      }
+    ]
+  },
+  {
+    "id": "elise_moreau_daily",
+    "npcId": "elise_moreau",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "morning",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "meet_visitors",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "evening",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_01_daily",
+    "npcId": "resident_01",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 5
+      }
+    ]
+  },
+  {
+    "id": "resident_02_daily",
+    "npcId": "resident_02",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 5
+      }
+    ]
+  },
+  {
+    "id": "resident_03_daily",
+    "npcId": "resident_03",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 5
+      }
+    ]
+  },
+  {
+    "id": "resident_04_daily",
+    "npcId": "resident_04",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 5
+      }
+    ]
+  },
+  {
+    "id": "resident_05_daily",
+    "npcId": "resident_05",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 5
+      }
+    ]
+  },
+  {
+    "id": "resident_06_daily",
+    "npcId": "resident_06",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 5
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 5
+      }
+    ]
+  },
+  {
+    "id": "resident_07_daily",
+    "npcId": "resident_07",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "resident_08_daily",
+    "npcId": "resident_08",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "resident_09_daily",
+    "npcId": "resident_09",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "resident_10_daily",
+    "npcId": "resident_10",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "resident_11_daily",
+    "npcId": "resident_11",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "resident_12_daily",
+    "npcId": "resident_12",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 20
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 20
+      }
+    ]
+  },
+  {
+    "id": "resident_13_daily",
+    "npcId": "resident_13",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 30,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_14_daily",
+    "npcId": "resident_14",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 36,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_15_daily",
+    "npcId": "resident_15",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 42,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_16_daily",
+    "npcId": "resident_16",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 48,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_17_daily",
+    "npcId": "resident_17",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 54,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_18_daily",
+    "npcId": "resident_18",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 30
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 60,
+        "tileY": 30
+      }
+    ]
+  },
+  {
+    "id": "resident_19_daily",
+    "npcId": "resident_19",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 28,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 28,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 28,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 28,
+        "tileY": 40
+      }
+    ]
+  },
+  {
+    "id": "resident_20_daily",
+    "npcId": "resident_20",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 34,
+        "tileY": 40
+      }
+    ]
+  },
+  {
+    "id": "resident_21_daily",
+    "npcId": "resident_21",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 40,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 40,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 40,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 40,
+        "tileY": 40
+      }
+    ]
+  },
+  {
+    "id": "resident_22_daily",
+    "npcId": "resident_22",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 46,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 46,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 46,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 46,
+        "tileY": 40
+      }
+    ]
+  },
+  {
+    "id": "resident_23_daily",
+    "npcId": "resident_23",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 52,
+        "tileY": 40
+      }
+    ]
+  },
+  {
+    "id": "resident_24_daily",
+    "npcId": "resident_24",
+    "blocks": [
+      {
+        "startMinuteOfDay": 0,
+        "locationId": "northwest_residential",
+        "activityId": "sleep",
+        "mapId": "northwest_residential",
+        "tileX": 58,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 480,
+        "locationId": "northwest_residential",
+        "activityId": "stroll",
+        "mapId": "northwest_residential",
+        "tileX": 58,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 720,
+        "locationId": "northwest_residential",
+        "activityId": "errands",
+        "mapId": "northwest_residential",
+        "tileX": 58,
+        "tileY": 40
+      },
+      {
+        "startMinuteOfDay": 1080,
+        "locationId": "northwest_residential",
+        "activityId": "socialize",
+        "mapId": "northwest_residential",
+        "tileX": 58,
+        "tileY": 40
+      }
     ]
   }
 ]

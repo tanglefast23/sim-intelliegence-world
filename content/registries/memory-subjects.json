@@ -1,1 +1,41 @@
-{"schemaVersion":1,"items":[{"id":"linda_boyfriend","displayName":"Linda's boyfriend"},{"id":"protagonist_cat","displayName":"The protagonist's cat"}]}
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "linda_boyfriend",
+      "displayName": "Linda's boyfriend"
+    },
+    {
+      "id": "protagonist_boating",
+      "displayName": "protagonist boating"
+    },
+    {
+      "id": "protagonist_cat",
+      "displayName": "The protagonist's cat"
+    },
+    {
+      "id": "protagonist_food",
+      "displayName": "protagonist food"
+    },
+    {
+      "id": "protagonist_health",
+      "displayName": "protagonist health"
+    },
+    {
+      "id": "protagonist_nightlife",
+      "displayName": "protagonist nightlife"
+    },
+    {
+      "id": "protagonist_story",
+      "displayName": "protagonist story"
+    },
+    {
+      "id": "protagonist_style",
+      "displayName": "protagonist style"
+    },
+    {
+      "id": "protagonist_wellness",
+      "displayName": "protagonist wellness"
+    }
+  ]
+}

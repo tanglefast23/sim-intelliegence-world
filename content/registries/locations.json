@@ -1,1 +1,61 @@
-{"schemaVersion":1,"items":[{"id":"ferry_terminal","displayName":"Ferry Terminal"},{"id":"linda_villa","displayName":"Linda's Villa"},{"id":"northeast_downtown","displayName":"Downtown Entertainment"},{"id":"northwest_residential","displayName":"Residential and Beach"},{"id":"protagonist_villa","displayName":"Protagonist's Villa"},{"id":"southeast_docks","displayName":"Docks and Government"},{"id":"southwest_commercial","displayName":"Commercial District"}]}
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "devon_bar",
+      "displayName": "Low Lantern Bar"
+    },
+    {
+      "id": "elise_studio",
+      "displayName": "Elise Moreau Studio"
+    },
+    {
+      "id": "ferry_terminal",
+      "displayName": "Ferry Terminal"
+    },
+    {
+      "id": "linda_villa",
+      "displayName": "Linda's Villa"
+    },
+    {
+      "id": "mina_spa",
+      "displayName": "Shoreglass Spa"
+    },
+    {
+      "id": "northeast_downtown",
+      "displayName": "Downtown Entertainment"
+    },
+    {
+      "id": "northwest_residential",
+      "displayName": "Residential and Beach"
+    },
+    {
+      "id": "priya_clinic",
+      "displayName": "Halcyra Clinic"
+    },
+    {
+      "id": "protagonist_villa",
+      "displayName": "Protagonist's Villa"
+    },
+    {
+      "id": "rafael_cafe",
+      "displayName": "Rafael's Cafe"
+    },
+    {
+      "id": "sora_boutique",
+      "displayName": "Sora's Boutique"
+    },
+    {
+      "id": "southeast_docks",
+      "displayName": "Docks and Government"
+    },
+    {
+      "id": "southwest_commercial",
+      "displayName": "Commercial District"
+    },
+    {
+      "id": "tomas_marina",
+      "displayName": "Public Marina Office"
+    }
+  ]
+}

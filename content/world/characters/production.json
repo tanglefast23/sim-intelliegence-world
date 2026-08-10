@@ -1,0 +1,258 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "mina_park",
+    "displayName": "Mina Park",
+    "tier": "full_ai",
+    "homeLocationId": "mina_spa",
+    "factionIds": [
+      "island_administration"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "rafael_cruz",
+    "displayName": "Rafael Cruz",
+    "tier": "full_ai",
+    "homeLocationId": "rafael_cafe",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "sora_tan",
+    "displayName": "Sora Tan",
+    "tier": "full_ai",
+    "homeLocationId": "sora_boutique",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "devon_price",
+    "displayName": "Devon Price",
+    "tier": "full_ai",
+    "homeLocationId": "devon_bar",
+    "factionIds": [
+      "velvet_tide"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "priya_nair",
+    "displayName": "Priya Nair",
+    "tier": "full_ai",
+    "homeLocationId": "priya_clinic",
+    "factionIds": [
+      "island_administration"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "tomas_reed",
+    "displayName": "Tomas Reed",
+    "tier": "full_ai",
+    "homeLocationId": "tomas_marina",
+    "factionIds": [
+      "island_administration"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "elise_moreau",
+    "displayName": "Elise Moreau",
+    "tier": "full_ai",
+    "homeLocationId": "elise_studio",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_01",
+    "displayName": "Resident 01",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_02",
+    "displayName": "Resident 02",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_03",
+    "displayName": "Resident 03",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_04",
+    "displayName": "Resident 04",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_05",
+    "displayName": "Resident 05",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_06",
+    "displayName": "Resident 06",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_07",
+    "displayName": "Resident 07",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_08",
+    "displayName": "Resident 08",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_09",
+    "displayName": "Resident 09",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_10",
+    "displayName": "Resident 10",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_11",
+    "displayName": "Resident 11",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_12",
+    "displayName": "Resident 12",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_13",
+    "displayName": "Resident 13",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_14",
+    "displayName": "Resident 14",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_15",
+    "displayName": "Resident 15",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_16",
+    "displayName": "Resident 16",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_17",
+    "displayName": "Resident 17",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_18",
+    "displayName": "Resident 18",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_19",
+    "displayName": "Resident 19",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_20",
+    "displayName": "Resident 20",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_21",
+    "displayName": "Resident 21",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_22",
+    "displayName": "Resident 22",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_23",
+    "displayName": "Resident 23",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  },
+  {
+    "schemaVersion": 1,
+    "id": "resident_24",
+    "displayName": "Resident 24",
+    "tier": "ambient",
+    "homeLocationId": "northwest_residential",
+    "factionIds": []
+  }
+]

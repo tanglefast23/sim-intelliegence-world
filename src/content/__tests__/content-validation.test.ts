@@ -16,9 +16,13 @@ describe('content validation', () => {
 
   test('the locked content layout and minimum fixtures validate', () => {
     const catalog = buildContentCatalog(validBundle);
-    expect(catalog.characters.map(({ id }) => id)).toEqual(['protagonist', 'linda', 'generic_resident', 'linda_boyfriend']);
-    expect(catalog.locations).toHaveLength(7);
+    expect(catalog.characters).toHaveLength(35);
+    expect(catalog.characters.filter(({ tier }) => tier === 'full_ai')).toHaveLength(8);
+    expect(catalog.characters.filter(({ tier }) => tier === 'ambient')).toHaveLength(26);
+    expect(catalog.locations).toHaveLength(14);
     expect(catalog.factions).toHaveLength(2);
+    expect(catalog.rules).toHaveLength(10);
+    expect(catalog.rules.some(({ npcId }) => npcId === 'resident_01')).toBe(false);
     expect(catalog.rules.find(({ npcId }) => npcId === 'linda')).toEqual(expect.objectContaining({
       compatibility: { social: true, romantic: true, romanticEligibleAtStart: false },
       startingRelationship: {
@@ -46,7 +50,7 @@ describe('content validation', () => {
     }));
   });
 
-  test('every non-protagonist world character requires a rules file', () => {
+  test('every full-AI world character requires a rules file', () => {
     const bundle = copyBundle(validBundle);
     const withoutLinda = { ...bundle, rules: bundle.rules.filter((rule) => (rule as NpcRules).npcId !== 'linda') };
     expect(() => buildContentCatalog(withoutLinda)).toThrow('Unknown required NPC rules reference: linda');
@@ -73,7 +77,8 @@ describe('content validation', () => {
 
   test('a cross-file reference to an unknown ID fails validation', () => {
     const bundle = copyBundle(validBundle);
-    (bundle.rules[0] as NpcRules).questIds = ['missing_quest'];
+    const resident = bundle.rules.find((rule) => (rule as NpcRules).npcId === 'generic_resident') as NpcRules;
+    resident.questIds = ['missing_quest'];
     expect(() => buildContentCatalog(bundle)).toThrow('Unknown generic_resident quest reference: missing_quest');
   });
 

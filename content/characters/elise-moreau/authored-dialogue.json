@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Elise Moreau",
+  "greeting": "The island picked a meme and got a person. That is already a better story.",
+  "fallbacks": [
+    "I did not follow that. Try it another way.",
+    "I can answer what I know. I will not make up the rest."
+  ]
+}

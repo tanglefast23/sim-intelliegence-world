@@ -10,8 +10,8 @@ import { buildWorldFrameState, WORLD_LAYER_ORDER } from '../world-frame';
 
 const MAP = compileWorldMap(northwestMapJson, new Set(ATLAS_INDEX.tiles));
 const ACTORS = {
-  linda: spawnAt(MAP, 'linda'),
-  'generic-resident': spawnAt(MAP, 'generic-resident'),
+  linda: { tile: spawnAt(MAP, 'linda'), visualId: 'linda' },
+  generic_resident: { tile: spawnAt(MAP, 'generic-resident'), visualId: 'generic-resident' },
 } as const;
 
 function walkTo(target: { x: number; y: number }, initialState = createInitialState()) {
@@ -38,11 +38,11 @@ describe('authoritative world frame', () => {
 
   test('sorts same-layer characters by tile row and stable ID before drawing', () => {
     const frame = buildWorldFrameState(MAP, createInitialState(), {
-      linda: { x: 23, y: 30 },
-      'generic-resident': { x: 29, y: 5 },
+      linda: { tile: { x: 23, y: 30 }, visualId: 'linda' },
+      generic_resident: { tile: { x: 29, y: 5 }, visualId: 'generic-resident' },
     }, 'down', 0);
     expect(frame.characters.map(({ id }) => id)).toEqual([
-      'generic-resident', 'protagonist', 'linda',
+      'generic_resident', 'protagonist', 'linda',
     ]);
   });
 

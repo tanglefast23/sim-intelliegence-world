@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "npcId": "elise_moreau",
+  "factIds": [],
+  "interestIds": [
+    "journalism",
+    "island_gossip"
+  ],
+  "actionIds": [
+    "greet",
+    "ask_follow_up",
+    "end_conversation",
+    "invite_home",
+    "ask_date",
+    "aggressive_flirt"
+  ],
+  "memorySubjectIds": [
+    "protagonist_story"
+  ],
+  "unlockIds": [],
+  "questIds": [],
+  "locationIds": [
+    "elise_studio",
+    "northeast_downtown"
+  ],
+  "factionIds": [],
+  "compatibility": {
+    "social": true,
+    "romantic": true,
+    "romanticEligibleAtStart": false
+  },
+  "startingRelationship": {
+    "values": {
+      "familiarity": 0,
+      "trust": 0,
+      "attraction": 0
+    },
+    "stage": "stranger"
+  },
+  "hardBoundaries": [
+    {
+      "id": "no_aggressive_flirting",
+      "scope": "romantic",
+      "blockedActionIds": [
+        "aggressive_flirt"
+      ]
+    }
+  ],
+  "stageRules": [
+    {
+      "stage": "dating",
+      "unavailable": false,
+      "requiredFlagIds": []
+    }
+  ],
+  "rejections": []
+}

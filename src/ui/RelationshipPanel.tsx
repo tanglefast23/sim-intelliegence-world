@@ -14,7 +14,7 @@ function label(id: string): string {
 }
 
 export function RelationshipPanel({ state, npcId, onDismiss }: RelationshipPanelProps) {
-  const relationship = state.relationships[npcId] ?? state.relationships.linda;
+  const relationship = state.relationships[npcId];
   if (!relationship) return null;
   const visibleFactions = Object.values(state.factions).filter(({ revealed }) => revealed);
   return (

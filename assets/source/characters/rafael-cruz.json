@@ -1,0 +1,651 @@
+{
+  "id": "rafael-cruz",
+  "displayName": "Rafael Cruz",
+  "cell": {
+    "width": 24,
+    "height": 30
+  },
+  "portraitCell": {
+    "width": 40,
+    "height": 44
+  },
+  "palette": {
+    "K": "#22202a",
+    "S": "#b9794f",
+    "s": "#805039",
+    "H": "#34251f",
+    "h": "#70513e",
+    "C": "#bd5c3e",
+    "c": "#7b392c",
+    "A": "#efb458",
+    "P": "#69587e",
+    "p": "#443953",
+    "W": "#e8e3d4",
+    "D": "#3b3541",
+    "X": "#bcdaeb",
+    "E": "#fff5dd"
+  },
+  "identityTokens": {
+    "hair": "H",
+    "clothing": "C",
+    "skin": "S"
+  },
+  "rearStyle": {
+    "head": "H",
+    "lower": "S",
+    "clothing": "C",
+    "torsoDetailTokens": [
+      "A",
+      "S",
+      "s",
+      "X"
+    ]
+  },
+  "sourceLayers": {
+    "legs": {
+      "frontFrames": [
+        [
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 7,
+            "y": 21,
+            "width": 5,
+            "height": 8
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 8,
+            "y": 22,
+            "width": 3,
+            "height": 5
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 7,
+            "y": 27,
+            "width": 5,
+            "height": 2
+          },
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 13,
+            "y": 22,
+            "width": 4,
+            "height": 7
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 14,
+            "y": 23,
+            "width": 2,
+            "height": 4
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 13,
+            "y": 27,
+            "width": 4,
+            "height": 2
+          }
+        ],
+        [
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 8,
+            "y": 22,
+            "width": 4,
+            "height": 7
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 9,
+            "y": 23,
+            "width": 2,
+            "height": 4
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 8,
+            "y": 27,
+            "width": 4,
+            "height": 2
+          },
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 12,
+            "y": 21,
+            "width": 5,
+            "height": 8
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 13,
+            "y": 22,
+            "width": 3,
+            "height": 5
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 12,
+            "y": 27,
+            "width": 5,
+            "height": 2
+          }
+        ]
+      ],
+      "lateralFrames": [
+        [
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 8,
+            "y": 22,
+            "width": 4,
+            "height": 7
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 9,
+            "y": 23,
+            "width": 2,
+            "height": 4
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 5,
+            "y": 27,
+            "width": 7,
+            "height": 2
+          },
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 12,
+            "y": 21,
+            "width": 5,
+            "height": 8
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 13,
+            "y": 22,
+            "width": 3,
+            "height": 5
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 10,
+            "y": 27,
+            "width": 7,
+            "height": 2
+          }
+        ],
+        [
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 7,
+            "y": 21,
+            "width": 5,
+            "height": 8
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 8,
+            "y": 22,
+            "width": 3,
+            "height": 5
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 4,
+            "y": 27,
+            "width": 8,
+            "height": 2
+          },
+          {
+            "kind": "rect",
+            "token": "K",
+            "x": 12,
+            "y": 23,
+            "width": 4,
+            "height": 6
+          },
+          {
+            "kind": "rect",
+            "token": "P",
+            "x": 13,
+            "y": 24,
+            "width": 2,
+            "height": 3
+          },
+          {
+            "kind": "rect",
+            "token": "W",
+            "x": 9,
+            "y": 27,
+            "width": 7,
+            "height": 2
+          }
+        ]
+      ]
+    },
+    "torsoAndClothing": {
+      "commands": [
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 5,
+          "y": 14,
+          "width": 14,
+          "height": 9
+        },
+        {
+          "kind": "rect",
+          "token": "C",
+          "x": 6,
+          "y": 15,
+          "width": 12,
+          "height": 7
+        },
+        {
+          "kind": "rect",
+          "token": "c",
+          "x": 6,
+          "y": 20,
+          "width": 12,
+          "height": 2
+        },
+        {
+          "kind": "pixels",
+          "token": "S",
+          "points": [
+            [
+              10,
+              15
+            ],
+            [
+              11,
+              16
+            ],
+            [
+              12,
+              16
+            ],
+            [
+              13,
+              15
+            ]
+          ]
+        },
+        {
+          "kind": "rect",
+          "token": "A",
+          "x": 10,
+          "y": 18,
+          "width": 4,
+          "height": 2
+        }
+      ]
+    },
+    "headAndFace": {
+      "commands": [
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 5,
+          "y": 4,
+          "width": 14,
+          "height": 11
+        },
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 4,
+          "y": 8,
+          "width": 16,
+          "height": 4
+        },
+        {
+          "kind": "rect",
+          "token": "S",
+          "x": 6,
+          "y": 5,
+          "width": 12,
+          "height": 9
+        },
+        {
+          "kind": "rect",
+          "token": "S",
+          "x": 5,
+          "y": 9,
+          "width": 14,
+          "height": 2
+        },
+        {
+          "kind": "pixels",
+          "token": "E",
+          "points": [
+            [
+              8,
+              9
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              14,
+              9
+            ],
+            [
+              15,
+              9
+            ]
+          ]
+        },
+        {
+          "kind": "pixels",
+          "token": "K",
+          "points": [
+            [
+              9,
+              9
+            ],
+            [
+              14,
+              9
+            ],
+            [
+              11,
+              12
+            ],
+            [
+              12,
+              12
+            ],
+            [
+              13,
+              12
+            ]
+          ]
+        },
+        {
+          "kind": "pixels",
+          "token": "s",
+          "points": [
+            [
+              16,
+              11
+            ],
+            [
+              9,
+              13
+            ]
+          ]
+        }
+      ]
+    },
+    "hair": {
+      "commands": [
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 6,
+          "y": 3,
+          "width": 12,
+          "height": 4
+        },
+        {
+          "kind": "rect",
+          "token": "H",
+          "x": 7,
+          "y": 4,
+          "width": 10,
+          "height": 3
+        },
+        {
+          "kind": "pixels",
+          "token": "h",
+          "points": [
+            [
+              8,
+              3
+            ],
+            [
+              10,
+              3
+            ],
+            [
+              12,
+              3
+            ],
+            [
+              14,
+              3
+            ],
+            [
+              16,
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    "accessory": {
+      "commands": []
+    },
+    "heldItem": {
+      "commands": []
+    }
+  },
+  "portraitLayers": {
+    "legs": {
+      "commands": []
+    },
+    "torsoAndClothing": {
+      "commands": [
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 5,
+          "y": 31,
+          "width": 30,
+          "height": 13
+        },
+        {
+          "kind": "rect",
+          "token": "C",
+          "x": 7,
+          "y": 33,
+          "width": 26,
+          "height": 11
+        },
+        {
+          "kind": "rect",
+          "token": "c",
+          "x": 7,
+          "y": 40,
+          "width": 26,
+          "height": 4
+        },
+        {
+          "kind": "pixels",
+          "token": "S",
+          "points": [
+            [
+              17,
+              32
+            ],
+            [
+              18,
+              33
+            ],
+            [
+              19,
+              34
+            ],
+            [
+              20,
+              34
+            ],
+            [
+              21,
+              33
+            ],
+            [
+              22,
+              32
+            ]
+          ]
+        },
+        {
+          "kind": "rect",
+          "token": "A",
+          "x": 16,
+          "y": 37,
+          "width": 8,
+          "height": 3
+        }
+      ]
+    },
+    "headAndFace": {
+      "commands": [
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 7,
+          "y": 7,
+          "width": 26,
+          "height": 25
+        },
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 5,
+          "y": 15,
+          "width": 30,
+          "height": 9
+        },
+        {
+          "kind": "rect",
+          "token": "S",
+          "x": 8,
+          "y": 8,
+          "width": 24,
+          "height": 23
+        },
+        {
+          "kind": "rect",
+          "token": "S",
+          "x": 6,
+          "y": 17,
+          "width": 28,
+          "height": 5
+        },
+        {
+          "kind": "rect",
+          "token": "E",
+          "x": 11,
+          "y": 18,
+          "width": 6,
+          "height": 4
+        },
+        {
+          "kind": "rect",
+          "token": "E",
+          "x": 23,
+          "y": 18,
+          "width": 6,
+          "height": 4
+        },
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 14,
+          "y": 19,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 24,
+          "y": 19,
+          "width": 2,
+          "height": 3
+        },
+        {
+          "kind": "pixels",
+          "token": "s",
+          "points": [
+            [
+              28,
+              24
+            ],
+            [
+              20,
+              26
+            ],
+            [
+              18,
+              28
+            ]
+          ]
+        },
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 17,
+          "y": 28,
+          "width": 6,
+          "height": 2
+        }
+      ]
+    },
+    "hair": {
+      "commands": [
+        {
+          "kind": "rect",
+          "token": "K",
+          "x": 8,
+          "y": 5,
+          "width": 24,
+          "height": 8
+        },
+        {
+          "kind": "rect",
+          "token": "H",
+          "x": 10,
+          "y": 7,
+          "width": 20,
+          "height": 6
+        }
+      ]
+    },
+    "accessory": {
+      "commands": []
+    },
+    "heldItem": {
+      "commands": []
+    }
+  }
+}

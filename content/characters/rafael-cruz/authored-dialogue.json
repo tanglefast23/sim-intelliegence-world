@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Rafael Cruz",
+  "greeting": "If you are here for breakfast, good. If you are here for gossip, order first.",
+  "fallbacks": [
+    "I did not follow that. Try it another way.",
+    "I can answer what I know. I will not make up the rest."
+  ]
+}

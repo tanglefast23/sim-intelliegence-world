@@ -9,6 +9,11 @@ import {
   parseWorldState,
   type WorldState,
 } from './schema';
+import {
+  createProductionNpcs,
+  createProductionRelationships,
+  createProductionSchedules,
+} from './production-cast';
 
 export function createInitialState(displayName = 'Player'): WorldState {
   const prng = createPrng(0x51_57_01);
@@ -84,6 +89,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
         unlockedIds: [],
         memories: [],
       },
+      ...createProductionNpcs(),
     },
     relationships: {
       linda: {
@@ -136,6 +142,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
           stageRules: [{ stage: 'dating', unavailable: true, requiredFlagIds: [] }],
         },
       },
+      ...createProductionRelationships(),
     },
     inventory: { money: PROTOTYPE_ECONOMY_POLICY.weeklyAllowance, items: {}, homeStorageItems: {} },
     economy: {
@@ -180,6 +187,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
           { startMinuteOfDay: 1_080, locationId: 'northeast_downtown', activityId: 'nightlife', mapId: 'northeast_downtown', tileX: 18, tileY: 13 },
         ],
       },
+      ...createProductionSchedules(),
     },
     transfers: {},
     evidence: {},

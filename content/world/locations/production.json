@@ -1,0 +1,72 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "mina_spa",
+    "displayName": "Shoreglass Spa",
+    "neighborhoodId": "northwest_residential",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "northwest_residential"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "rafael_cafe",
+    "displayName": "Rafael's Cafe",
+    "neighborhoodId": "southwest_commercial",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "southwest_commercial"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "sora_boutique",
+    "displayName": "Sora's Boutique",
+    "neighborhoodId": "southwest_commercial",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "southwest_commercial"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "devon_bar",
+    "displayName": "Low Lantern Bar",
+    "neighborhoodId": "northeast_downtown",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "northeast_downtown"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "priya_clinic",
+    "displayName": "Halcyra Clinic",
+    "neighborhoodId": "southeast_docks",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "southeast_docks"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "tomas_marina",
+    "displayName": "Public Marina Office",
+    "neighborhoodId": "southeast_docks",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "southeast_docks"
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "id": "elise_studio",
+    "displayName": "Elise Moreau Studio",
+    "neighborhoodId": "northeast_downtown",
+    "kind": "business",
+    "adjacentLocationIds": [
+      "northeast_downtown"
+    ]
+  }
+]
