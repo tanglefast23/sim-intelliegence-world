@@ -42,18 +42,44 @@ export const SaveResultSchema = z.discriminatedUnion('status', [
 export const LoadResultSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal('empty'), slotId: SaveSlotIdSchema }).strict(),
   z.object({
-    status: z.literal('unrecoverable'),
+    status: z.literal('incompatible'),
     slotId: SaveSlotIdSchema,
-    invalidCandidateCount: z.number().int().positive(),
+    incompatibleCandidateCount: z.number().int().positive(),
+    corruptCandidateCount: z.number().int().nonnegative(),
   }).strict(),
   z.object({
-    status: z.literal('loaded'),
+    status: z.literal('corrupt'),
+    slotId: SaveSlotIdSchema,
+    corruptCandidateCount: z.number().int().positive(),
+  }).strict(),
+  z.object({
+    status: z.literal('unrecoverable'),
+    slotId: SaveSlotIdSchema,
+    reason: z.literal('layout_migration_failed'),
+    incompatibleCandidateCount: z.number().int().nonnegative(),
+    corruptCandidateCount: z.number().int().nonnegative(),
+  }).strict(),
+  z.object({
+    status: z.literal('unchanged'),
     slotId: SaveSlotIdSchema,
     saveGeneration: z.number().int().positive(),
     checksum: z.string().regex(/^[a-f0-9]{64}$/u),
     source: z.enum(['main', 'temporary', 'backup', 'autosave']),
     state: WorldStateSchema,
-    invalidCandidateCount: z.number().int().nonnegative(),
+    incompatibleCandidateCount: z.number().int().nonnegative(),
+    corruptCandidateCount: z.number().int().nonnegative(),
+  }).strict(),
+  z.object({
+    status: z.literal('migrated'),
+    slotId: SaveSlotIdSchema,
+    saveGeneration: z.number().int().positive(),
+    checksum: z.string().regex(/^[a-f0-9]{64}$/u),
+    source: z.enum(['main', 'temporary', 'backup', 'autosave']),
+    state: WorldStateSchema,
+    incompatibleCandidateCount: z.number().int().nonnegative(),
+    corruptCandidateCount: z.number().int().nonnegative(),
+    migratedFromSchemaVersion: z.union([z.literal(5), z.literal(6)]),
+    migratedMapIds: z.array(z.string().min(1)),
   }).strict(),
 ]);
 

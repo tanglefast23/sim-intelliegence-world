@@ -1,5 +1,6 @@
 import { buildWorldMapV2Catalog } from '../maps/catalog';
-import { compileWorldMapV2, selectInteractionApproach } from '../maps/compiler';
+import { compileWorldMapV2, selectInteractionApproach, selectOwnerInteractionApproach } from '../maps/compiler';
+import { resolveClickTarget, worldClickCandidates } from '../maps/hit-testing';
 import { findMaximalEmptyRectangles } from '../maps/density';
 import { tileKey, type TileOffset, type TilePoint, type WorldMapV2 } from '../maps/schema';
 import { selectAutomaticWorldZoom, validateStartComposition } from '../maps/start-composition';
@@ -230,6 +231,34 @@ describe('map v2 compiler authority', () => {
     expect(selectInteractionApproach(map, 'test-use', { x: 12, y: 14 }, new Set(['11,12'])))
       .toEqual({ x: 13, y: 12 });
   });
+
+  test('selects the nearest interaction when one object owns more than one', () => {
+    const source = baseMap();
+    source.objects[0]!.interactions.push({
+      id: 'test-use-east', kind: 'social', approachOffsets: [{ x: 1, y: 0 }],
+    });
+    const map = compile(source);
+    expect(selectOwnerInteractionApproach(map, 'test-object', { x: 14, y: 12 })).toEqual({
+      interactionId: 'test-use-east', tile: { x: 13, y: 12 },
+    });
+    expect(selectOwnerInteractionApproach(map, 'test-object', { x: 12, y: 14 })).toEqual({
+      interactionId: 'test-use', tile: { x: 11, y: 12 },
+    });
+  });
+
+  test('uses one click authority for NPCs, multipart objects, open doors, and floor', () => {
+    const map = compile(baseMap());
+    expect(resolveClickTarget(worldClickCandidates(map, {
+      z_actor: { x: 12, y: 12 },
+      a_actor: { x: 12, y: 12 },
+    }, { x: 12, y: 12 }))).toEqual({ id: 'a_actor', kind: 'npc', tile: { x: 12, y: 12 } });
+    expect(resolveClickTarget(worldClickCandidates(map, {}, { x: 12, y: 12 })))
+      .toEqual({ id: 'test-object', kind: 'object', tile: { x: 12, y: 12 } });
+    expect(resolveClickTarget(worldClickCandidates(map, {}, { x: 15, y: 10 })))
+      .toEqual({ id: 'test-door', kind: 'object', tile: { x: 15, y: 10 } });
+    expect(resolveClickTarget(worldClickCandidates(map, {}, { x: 5, y: 5 })))
+      .toEqual({ id: 'floor-5,5', kind: 'floor', tile: { x: 5, y: 5 } });
+  });
 });
 
 describe('map v2 building and roof validation', () => {
@@ -281,6 +310,12 @@ describe('map v2 building and roof validation', () => {
     const map = compile(buildingMap());
     expect(map.roofGroupById.get('villa-roof')?.cellKeys.has('19,14')).toBe(true);
     expect(map.roofGroupById.get('villa-roof')?.cellKeys.has('19,18')).toBe(false);
+  });
+
+  test('does not treat a closed entrance door as a reachable building route', () => {
+    const source = buildingMap();
+    source.doors[0]!.initialState = 'closed-locked';
+    expect(() => compile(source)).toThrow('no reachable entrance');
   });
 
   test('rejects an unowned outer-wall gap', () => {

@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "layoutRevision": 1,
   "id": "northwest_residential",
   "displayName": "Sunward Villas",
   "width": 64,
@@ -9,417 +10,1845 @@
     "defaultSprite": "tile.warm-sand",
     "regions": [
       {
-        "id": "sea",
-        "x": 0,
-        "y": 42,
-        "width": 64,
-        "height": 6,
-        "sprite": "tile.shallow-water"
-      },
-      {
-        "id": "boardwalk-east-west",
-        "x": 0,
-        "y": 35,
-        "width": 64,
-        "height": 3,
-        "sprite": "tile.boardwalk"
-      },
-      {
-        "id": "boardwalk-south",
-        "x": 31,
-        "y": 35,
-        "width": 3,
-        "height": 13,
-        "sprite": "tile.boardwalk"
-      },
-      {
-        "id": "villa-shell",
-        "x": 8,
-        "y": 7,
-        "width": 18,
-        "height": 18,
+        "id": "villa-floor",
+        "x": 9,
+        "y": 8,
+        "width": 16,
+        "height": 16,
         "sprite": "tile.villa-floor"
       },
       {
-        "id": "bath-floor",
-        "x": 16,
+        "id": "promenade-ground",
+        "x": 37,
         "y": 8,
-        "width": 3,
-        "height": 6,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "storage-floor",
-        "x": 20,
-        "y": 8,
-        "width": 5,
-        "height": 6,
-        "sprite": "tile.boardwalk"
-      },
-      {
-        "id": "kitchen-floor",
-        "x": 9,
-        "y": 15,
-        "width": 6,
-        "height": 9,
-        "sprite": "tile.pale-concrete"
-      },
-      {
-        "id": "social-floor",
-        "x": 16,
-        "y": 15,
-        "width": 9,
-        "height": 9,
+        "width": 20,
+        "height": 14,
         "sprite": "tile.plaza-paver"
       },
       {
-        "id": "villa-path",
-        "x": 14,
-        "y": 24,
-        "width": 3,
-        "height": 12,
+        "id": "market-ground",
+        "x": 37,
+        "y": 25,
+        "width": 20,
+        "height": 10,
         "sprite": "tile.boardwalk"
       },
       {
-        "id": "garden-one",
-        "x": 28,
-        "y": 12,
-        "width": 6,
-        "height": 5,
-        "sprite": "tile.dune-grass"
-      },
-      {
-        "id": "garden-two",
-        "x": 37,
-        "y": 25,
-        "width": 8,
+        "id": "beach-ground",
+        "x": 35,
+        "y": 38,
+        "width": 24,
         "height": 6,
-        "sprite": "tile.dune-grass"
-      },
-      {
-        "id": "spa-patio",
-        "x": 4,
-        "y": 28,
-        "width": 8,
-        "height": 6,
-        "sprite": "tile.spa-stone"
+        "sprite": "tile.warm-sand"
       }
     ]
   },
-  "collision": {
-    "rectangles": [
+  "terrainSolids": [],
+  "walls": {
+    "runs": [
       {
         "id": "villa-north",
-        "x": 8,
-        "y": 7,
-        "width": 18,
-        "height": 1
+        "material": "villa",
+        "bounds": {
+          "x": 8,
+          "y": 7,
+          "width": 18,
+          "height": 1
+        },
+        "openings": []
       },
       {
         "id": "villa-south",
-        "x": 8,
-        "y": 24,
-        "width": 18,
-        "height": 1
+        "material": "villa",
+        "bounds": {
+          "x": 8,
+          "y": 24,
+          "width": 18,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "villa-front-opening",
+            "tile": {
+              "x": 15,
+              "y": 24
+            }
+          }
+        ]
       },
       {
         "id": "villa-west",
-        "x": 8,
-        "y": 7,
-        "width": 1,
-        "height": 18
+        "material": "villa",
+        "bounds": {
+          "x": 8,
+          "y": 8,
+          "width": 1,
+          "height": 16
+        },
+        "openings": []
       },
       {
         "id": "villa-east",
-        "x": 25,
-        "y": 7,
-        "width": 1,
-        "height": 18
+        "material": "villa",
+        "bounds": {
+          "x": 25,
+          "y": 8,
+          "width": 1,
+          "height": 16
+        },
+        "openings": []
       },
       {
-        "id": "upper-divider",
-        "x": 9,
-        "y": 14,
-        "width": 16,
-        "height": 1
+        "id": "villa-upper-divider",
+        "material": "villa",
+        "bounds": {
+          "x": 9,
+          "y": 14,
+          "width": 16,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "bedroom-opening",
+            "tile": {
+              "x": 17,
+              "y": 14
+            }
+          },
+          {
+            "id": "bathroom-hall-opening",
+            "tile": {
+              "x": 18,
+              "y": 14
+            }
+          }
+        ]
       },
       {
-        "id": "upper-left-divider",
-        "x": 15,
-        "y": 8,
-        "width": 1,
-        "height": 6
+        "id": "villa-bed-bath-divider",
+        "material": "villa",
+        "bounds": {
+          "x": 15,
+          "y": 8,
+          "width": 1,
+          "height": 6
+        },
+        "openings": [
+          {
+            "id": "bathroom-left-opening",
+            "tile": {
+              "x": 15,
+              "y": 11
+            }
+          }
+        ]
       },
       {
-        "id": "upper-right-divider",
-        "x": 19,
-        "y": 8,
-        "width": 1,
-        "height": 6
+        "id": "villa-bath-storage-divider",
+        "material": "villa",
+        "bounds": {
+          "x": 19,
+          "y": 8,
+          "width": 1,
+          "height": 6
+        },
+        "openings": [
+          {
+            "id": "bathroom-right-opening",
+            "tile": {
+              "x": 19,
+              "y": 11
+            }
+          }
+        ]
       },
       {
-        "id": "lower-divider",
-        "x": 15,
-        "y": 15,
-        "width": 1,
-        "height": 9
-      }
-    ],
-    "walkableOverrides": [
-      {
-        "x": 15,
-        "y": 24
+        "id": "villa-lower-divider",
+        "material": "villa",
+        "bounds": {
+          "x": 15,
+          "y": 15,
+          "width": 1,
+          "height": 9
+        },
+        "openings": [
+          {
+            "id": "social-opening",
+            "tile": {
+              "x": 15,
+              "y": 19
+            }
+          },
+          {
+            "id": "villa-entry-hall-opening",
+            "tile": {
+              "x": 15,
+              "y": 23
+            }
+          }
+        ]
       },
       {
-        "x": 15,
-        "y": 23
+        "id": "shoreglass-spa-north",
+        "material": "villa",
+        "bounds": {
+          "x": 28,
+          "y": 8,
+          "width": 8,
+          "height": 1
+        },
+        "openings": []
       },
       {
-        "x": 17,
-        "y": 14
+        "id": "shoreglass-spa-south",
+        "material": "villa",
+        "bounds": {
+          "x": 28,
+          "y": 17,
+          "width": 8,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "shoreglass-spa-entrance",
+            "tile": {
+              "x": 32,
+              "y": 17
+            }
+          }
+        ]
       },
       {
-        "x": 18,
-        "y": 14
+        "id": "shoreglass-spa-west",
+        "material": "villa",
+        "bounds": {
+          "x": 28,
+          "y": 9,
+          "width": 1,
+          "height": 8
+        },
+        "openings": []
       },
       {
-        "x": 15,
-        "y": 11
-      },
-      {
-        "x": 19,
-        "y": 11
-      },
-      {
-        "x": 15,
-        "y": 19
-      }
-    ]
-  },
-  "walls": {
-    "regions": [
-      {
-        "id": "villa-north-wall",
-        "x": 8,
-        "y": 7,
-        "width": 18,
-        "height": 1,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "villa-south-wall",
-        "x": 8,
-        "y": 24,
-        "width": 18,
-        "height": 1,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "villa-west-wall",
-        "x": 8,
-        "y": 7,
-        "width": 1,
-        "height": 18,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "villa-east-wall",
-        "x": 25,
-        "y": 7,
-        "width": 1,
-        "height": 18,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "upper-room-wall",
-        "x": 9,
-        "y": 14,
-        "width": 16,
-        "height": 1,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "bed-bath-wall",
-        "x": 15,
-        "y": 8,
-        "width": 1,
-        "height": 6,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "bath-storage-wall",
-        "x": 19,
-        "y": 8,
-        "width": 1,
-        "height": 6,
-        "sprite": "tile.spa-stone"
-      },
-      {
-        "id": "kitchen-social-wall",
-        "x": 15,
-        "y": 15,
-        "width": 1,
-        "height": 9,
-        "sprite": "tile.spa-stone"
-      }
-    ],
-    "openings": [
-      {
-        "x": 15,
-        "y": 24
-      },
-      {
-        "x": 15,
-        "y": 23
-      },
-      {
-        "x": 17,
-        "y": 14
-      },
-      {
-        "x": 18,
-        "y": 14
-      },
-      {
-        "x": 15,
-        "y": 11
-      },
-      {
-        "x": 19,
-        "y": 11
-      },
-      {
-        "x": 15,
-        "y": 19
+        "id": "shoreglass-spa-east",
+        "material": "villa",
+        "bounds": {
+          "x": 35,
+          "y": 9,
+          "width": 1,
+          "height": 8
+        },
+        "openings": []
       }
     ]
   },
-  "props": [
+  "doors": [
     {
-      "id": "bed",
-      "sprite": "tile.garden-soil",
-      "tile": {
-        "x": 11,
-        "y": 10
-      },
-      "blocksMovement": true
+      "id": "villa-front-door",
+      "openingId": "villa-front-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof",
+      "interaction": {
+        "id": "villa-front-door-use",
+        "areaId": "social",
+        "approachTiles": [
+          {
+            "x": 16,
+            "y": 23
+          },
+          {
+            "x": 16,
+            "y": 25
+          }
+        ]
+      }
     },
     {
-      "id": "bath",
-      "sprite": "tile.shallow-water",
-      "tile": {
-        "x": 17,
-        "y": 10
-      },
-      "blocksMovement": true
+      "id": "bedroom-door",
+      "openingId": "bedroom-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof"
     },
     {
-      "id": "storage-crate",
-      "sprite": "tile.boardwalk",
-      "tile": {
-        "x": 22,
-        "y": 10
-      },
-      "blocksMovement": true
+      "id": "bathroom-hall-door",
+      "openingId": "bathroom-hall-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof"
     },
     {
-      "id": "kitchen-counter-one",
-      "sprite": "tile.pale-concrete",
-      "tile": {
-        "x": 11,
-        "y": 17
-      },
-      "blocksMovement": true
+      "id": "bathroom-left-door",
+      "openingId": "bathroom-left-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof"
     },
     {
-      "id": "kitchen-counter-two",
-      "sprite": "tile.pale-concrete",
-      "tile": {
-        "x": 12,
-        "y": 17
+      "id": "bathroom-right-door",
+      "openingId": "bathroom-right-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof"
+    },
+    {
+      "id": "social-door",
+      "openingId": "social-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof"
+    },
+    {
+      "id": "entry-hall-door",
+      "openingId": "villa-entry-hall-opening",
+      "initialState": "open",
+      "sprite": "tile.open-door",
+      "roofGroupId": "protagonist-villa-roof"
+    }
+  ],
+  "objects": [
+    {
+      "id": "villa-bed",
+      "kind": "bed",
+      "areaId": "bedroom",
+      "anchor": {
+        "x": 10,
+        "y": 9
       },
-      "blocksMovement": true
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "villa-bed-part-01",
+          "sprite": "tile.bed-head",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "villa-bed-part-02",
+          "sprite": "tile.bed-foot",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "villa-bed-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "villa-bed-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": [
+        {
+          "id": "sleep-bed",
+          "kind": "bed",
+          "approachOffsets": [
+            {
+              "x": 0,
+              "y": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bedroom-storage",
+      "kind": "storage",
+      "areaId": "bedroom",
+      "anchor": {
+        "x": 13,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "bedroom-storage-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "bedroom-storage-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "bedroom-details",
+      "kind": "fixture",
+      "areaId": "bedroom",
+      "anchor": {
+        "x": 10,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 3,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "bedroom-details-part-01",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "bedroom-details-part-02",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "bath-fixture",
+      "kind": "bath",
+      "areaId": "bathroom",
+      "anchor": {
+        "x": 16,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "bath-fixture-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "bath-fixture-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "bath-fixture-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "bath-fixture-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "bathroom-lamp",
+      "kind": "fixture",
+      "areaId": "bathroom",
+      "anchor": {
+        "x": 18,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "bathroom-lamp-part-01",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "villa-storage",
+      "kind": "storage",
+      "areaId": "storage",
+      "anchor": {
+        "x": 21,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "villa-storage-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "villa-storage-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "villa-storage-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "villa-storage-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "villa-storage-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "villa-storage-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": [
+        {
+          "id": "home-storage",
+          "kind": "storage",
+          "approachOffsets": [
+            {
+              "x": 1,
+              "y": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "storage-details",
+      "kind": "fixture",
+      "areaId": "storage",
+      "anchor": {
+        "x": 21,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "storage-details-part-01",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "storage-details-part-02",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "kitchen-counter",
+      "kind": "counter",
+      "areaId": "kitchen",
+      "anchor": {
+        "x": 10,
+        "y": 16
+      },
+      "depthAnchorOffset": {
+        "x": 3,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "kitchen-counter-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "kitchen-counter-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "kitchen-counter-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "kitchen-counter-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "kitchen-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "kitchen-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "kitchen-counter-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "kitchen-counter-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "kitchen-table",
+      "kind": "table",
+      "areaId": "kitchen",
+      "anchor": {
+        "x": 10,
+        "y": 20
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "kitchen-table-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "kitchen-table-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "kitchen-table-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "kitchen-table-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "kitchen-details",
+      "kind": "fixture",
+      "areaId": "kitchen",
+      "anchor": {
+        "x": 13,
+        "y": 20
+      },
+      "depthAnchorOffset": {
+        "x": -1,
+        "y": 2
+      },
+      "renderParts": [
+        {
+          "id": "kitchen-details-part-01",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "kitchen-details-part-02",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": -1,
+            "y": 2
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
     },
     {
       "id": "social-sofa",
-      "sprite": "tile.garden-soil",
-      "tile": {
+      "kind": "sofa",
+      "areaId": "social",
+      "anchor": {
         "x": 20,
-        "y": 19
-      },
-      "blocksMovement": true
-    },
-    {
-      "id": "spa-pool",
-      "sprite": "tile.shallow-water",
-      "tile": {
-        "x": 7,
-        "y": 30
-      },
-      "blocksMovement": true
-    },
-    {
-      "id": "production-spa-sign",
-      "sprite": "tile.spa-stone",
-      "tile": {
-        "x": 35,
-        "y": 10
-      },
-      "blocksMovement": false
-    },
-    {
-      "id": "production-cafe-cart",
-      "sprite": "tile.boardwalk",
-      "tile": {
-        "x": 40,
-        "y": 17
-      },
-      "blocksMovement": false
-    },
-    {
-      "id": "production-boutique-sign",
-      "sprite": "tile.plaza-paver",
-      "tile": {
-        "x": 46,
         "y": 18
       },
-      "blocksMovement": false
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "social-sofa-part-01",
+          "sprite": "tile.sofa-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "social-sofa-part-02",
+          "sprite": "tile.sofa-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "social-sofa-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "social-sofa-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": [
+        {
+          "id": "social-seat",
+          "kind": "social",
+          "approachOffsets": [
+            {
+              "x": -1,
+              "y": 0
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "production-club-poster",
-      "sprite": "tile.garden-soil",
-      "tile": {
-        "x": 51,
-        "y": 12
+      "id": "social-tables",
+      "kind": "table",
+      "areaId": "social",
+      "anchor": {
+        "x": 18,
+        "y": 21
       },
-      "blocksMovement": false
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "social-tables-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "social-tables-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "social-tables-part-03",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "social-tables-part-04",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "social-tables-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "social-tables-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "social-tables-solid-03",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "social-tables-solid-04",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
     },
     {
-      "id": "production-clinic-sign",
-      "sprite": "tile.pale-concrete",
-      "tile": {
-        "x": 33,
-        "y": 25
+      "id": "social-counter",
+      "kind": "counter",
+      "areaId": "social",
+      "anchor": {
+        "x": 17,
+        "y": 16
       },
-      "blocksMovement": false
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "social-counter-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "social-counter-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "social-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "social-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
     },
     {
-      "id": "production-marina-board",
-      "sprite": "tile.boardwalk",
-      "tile": {
-        "x": 44,
-        "y": 33
+      "id": "social-details",
+      "kind": "fixture",
+      "areaId": "social",
+      "anchor": {
+        "x": 22,
+        "y": 16
       },
-      "blocksMovement": false
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 6
+      },
+      "renderParts": [
+        {
+          "id": "social-details-part-01",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "social-details-part-02",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": -5,
+            "y": 6
+          }
+        },
+        {
+          "id": "social-details-part-03",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 6
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
     },
     {
-      "id": "production-news-board",
-      "sprite": "tile.plaza-paver",
-      "tile": {
-        "x": 53,
-        "y": 32
+      "id": "shoreglass-spa-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "shoreglass-spa",
+      "anchor": {
+        "x": 30,
+        "y": 10
       },
-      "blocksMovement": false
+      "depthAnchorOffset": {
+        "x": 3,
+        "y": 4
+      },
+      "renderParts": [
+        {
+          "id": "shoreglass-spa-fixtures-part-01",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-02",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-05",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 4
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 4
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-part-08",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 4
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "shoreglass-spa-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-solid-05",
+          "bounds": {
+            "x": 0,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shoreglass-spa-fixtures-solid-06",
+          "bounds": {
+            "x": 1,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "sunward-patio-furniture",
+      "kind": "patio-furniture",
+      "areaId": "sunward-patio",
+      "anchor": {
+        "x": 21,
+        "y": 26
+      },
+      "depthAnchorOffset": {
+        "x": 12,
+        "y": 5
+      },
+      "renderParts": [
+        {
+          "id": "sunward-patio-furniture-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-03",
+          "sprite": "tile.sofa-left",
+          "offset": {
+            "x": 10,
+            "y": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-04",
+          "sprite": "tile.sofa-right",
+          "offset": {
+            "x": 11,
+            "y": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-05",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-06",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 3,
+            "y": 5
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-07",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 6,
+            "y": 5
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-08",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 9,
+            "y": 5
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-09",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 12,
+            "y": 5
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "sunward-patio-furniture-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-03",
+          "bounds": {
+            "x": 10,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-04",
+          "bounds": {
+            "x": 11,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "promenade-details",
+      "kind": "street-furniture",
+      "areaId": "villa-promenade",
+      "anchor": {
+        "x": 38,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 10
+      },
+      "renderParts": [
+        {
+          "id": "promenade-details-part-01",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "promenade-details-part-02",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "promenade-details-part-03",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "promenade-details-part-04",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "promenade-details-part-05",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "promenade-details-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "id": "promenade-details-part-07",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 2,
+            "y": 1
+          }
+        },
+        {
+          "id": "promenade-details-part-08",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 3,
+            "y": 1
+          }
+        },
+        {
+          "id": "promenade-details-part-09",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "id": "promenade-details-part-10",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "id": "promenade-details-part-11",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "id": "promenade-details-part-12",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "id": "promenade-details-part-13",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 13,
+            "y": 8
+          }
+        },
+        {
+          "id": "promenade-details-part-14",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 14,
+            "y": 8
+          }
+        },
+        {
+          "id": "promenade-details-part-15",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 15,
+            "y": 8
+          }
+        },
+        {
+          "id": "promenade-details-part-16",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 16,
+            "y": 8
+          }
+        },
+        {
+          "id": "promenade-details-part-17",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 13,
+            "y": 9
+          }
+        },
+        {
+          "id": "promenade-details-part-18",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 14,
+            "y": 9
+          }
+        },
+        {
+          "id": "promenade-details-part-19",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 15,
+            "y": 9
+          }
+        },
+        {
+          "id": "promenade-details-part-20",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 16,
+            "y": 9
+          }
+        },
+        {
+          "id": "promenade-details-part-21",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 13,
+            "y": 10
+          }
+        },
+        {
+          "id": "promenade-details-part-22",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 14,
+            "y": 10
+          }
+        },
+        {
+          "id": "promenade-details-part-23",
+          "sprite": "tile.sign-spa",
+          "offset": {
+            "x": 15,
+            "y": 10
+          }
+        },
+        {
+          "id": "promenade-details-part-24",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 16,
+            "y": 10
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "promenade-details-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "promenade-details-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "promenade-details-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "promenade-details-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "promenade-details-solid-05",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "promenade-details-solid-06",
+          "bounds": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "beach-market-details",
+      "kind": "market-stalls",
+      "areaId": "beach-market",
+      "anchor": {
+        "x": 38,
+        "y": 26
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 6
+      },
+      "renderParts": [
+        {
+          "id": "beach-market-details-part-01",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "beach-market-details-part-02",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "beach-market-details-part-03",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "beach-market-details-part-04",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "beach-market-details-part-05",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "beach-market-details-part-06",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "id": "beach-market-details-part-07",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 2,
+            "y": 1
+          }
+        },
+        {
+          "id": "beach-market-details-part-08",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 3,
+            "y": 1
+          }
+        },
+        {
+          "id": "beach-market-details-part-09",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 13,
+            "y": 5
+          }
+        },
+        {
+          "id": "beach-market-details-part-10",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 14,
+            "y": 5
+          }
+        },
+        {
+          "id": "beach-market-details-part-11",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 15,
+            "y": 5
+          }
+        },
+        {
+          "id": "beach-market-details-part-12",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 16,
+            "y": 5
+          }
+        },
+        {
+          "id": "beach-market-details-part-13",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 13,
+            "y": 6
+          }
+        },
+        {
+          "id": "beach-market-details-part-14",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 14,
+            "y": 6
+          }
+        },
+        {
+          "id": "beach-market-details-part-15",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 15,
+            "y": 6
+          }
+        },
+        {
+          "id": "beach-market-details-part-16",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 16,
+            "y": 6
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "beach-market-details-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "beach-market-details-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "beach-market-details-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "beach-market-details-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "public-beach-details",
+      "kind": "beach-furniture",
+      "areaId": "public-beach",
+      "anchor": {
+        "x": 36,
+        "y": 39
+      },
+      "depthAnchorOffset": {
+        "x": 19,
+        "y": 2
+      },
+      "renderParts": [
+        {
+          "id": "public-beach-details-part-01",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "public-beach-details-part-02",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "public-beach-details-part-03",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "public-beach-details-part-04",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "public-beach-details-part-05",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 16,
+            "y": 2
+          }
+        },
+        {
+          "id": "public-beach-details-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 17,
+            "y": 2
+          }
+        },
+        {
+          "id": "public-beach-details-part-07",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 18,
+            "y": 2
+          }
+        },
+        {
+          "id": "public-beach-details-part-08",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 19,
+            "y": 2
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "public-beach-details-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "public-beach-details-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
     }
   ],
   "effects": [
@@ -428,141 +1857,37 @@
       "kind": "fire",
       "tile": {
         "x": 27,
-        "y": 31
+        "y": 32
       }
     },
     {
       "id": "beach-sparkle",
       "kind": "sparkle",
       "tile": {
-        "x": 42,
+        "x": 50,
         "y": 40
       }
-    },
-    {
-      "id": "production-spa-sparkle",
-      "kind": "sparkle",
-      "tile": {
-        "x": 35,
-        "y": 11
-      }
-    },
-    {
-      "id": "production-beach-fire",
-      "kind": "fire",
-      "tile": {
-        "x": 50,
-        "y": 39
-      }
-    }
-  ],
-  "interactions": [
-    {
-      "id": "sleep-bed",
-      "kind": "bed",
-      "hitTile": {
-        "x": 11,
-        "y": 10
-      },
-      "targetTile": {
-        "x": 11,
-        "y": 11
-      }
-    },
-    {
-      "id": "home-storage",
-      "kind": "storage",
-      "hitTile": {
-        "x": 22,
-        "y": 10
-      },
-      "targetTile": {
-        "x": 21,
-        "y": 10
-      }
-    },
-    {
-      "id": "villa-front-door",
-      "kind": "door",
-      "hitTile": {
-        "x": 15,
-        "y": 24
-      },
-      "targetTile": {
-        "x": 16,
-        "y": 23
-      }
-    },
-    {
-      "id": "social-seat",
-      "kind": "social",
-      "hitTile": {
-        "x": 20,
-        "y": 19
-      },
-      "targetTile": {
-        "x": 19,
-        "y": 19
-      }
-    }
-  ],
-  "doors": [
-    {
-      "id": "villa-front-door",
-      "tile": {
-        "x": 15,
-        "y": 24
-      },
-      "roofGroupId": "protagonist-villa-roof"
-    },
-    {
-      "id": "bedroom-door",
-      "tile": {
-        "x": 17,
-        "y": 14
-      },
-      "roofGroupId": "protagonist-villa-roof"
-    },
-    {
-      "id": "bathroom-left-door",
-      "tile": {
-        "x": 15,
-        "y": 11
-      },
-      "roofGroupId": "protagonist-villa-roof"
-    },
-    {
-      "id": "bathroom-right-door",
-      "tile": {
-        "x": 19,
-        "y": 11
-      },
-      "roofGroupId": "protagonist-villa-roof"
-    },
-    {
-      "id": "social-door",
-      "tile": {
-        "x": 15,
-        "y": 19
-      },
-      "roofGroupId": "protagonist-villa-roof"
     }
   ],
   "roofGroups": [
     {
       "id": "protagonist-villa-roof",
-      "bounds": {
-        "x": 8,
-        "y": 7,
-        "width": 18,
-        "height": 18
-      },
-      "interior": {
-        "x": 9,
-        "y": 8,
-        "width": 16,
-        "height": 16
-      }
+      "cells": [
+        {
+          "x": 8,
+          "y": 7,
+          "width": 18,
+          "height": 18
+        }
+      ],
+      "interiorCells": [
+        {
+          "x": 9,
+          "y": 8,
+          "width": 16,
+          "height": 16
+        }
+      ]
     }
   ],
   "areas": [
@@ -571,81 +1896,255 @@
       "bounds": {
         "x": 9,
         "y": 8,
-        "width": 6,
+        "width": 7,
         "height": 6
-      }
+      },
+      "densityProfile": "furnished-interior",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 14,
+          "y": 12
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
     },
     {
       "id": "bathroom",
       "bounds": {
-        "x": 16,
+        "x": 15,
         "y": 8,
-        "width": 3,
+        "width": 5,
         "height": 6
-      }
+      },
+      "densityProfile": "furnished-interior",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 16,
+          "y": 11
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
     },
     {
       "id": "storage",
       "bounds": {
-        "x": 20,
+        "x": 19,
         "y": 8,
-        "width": 5,
+        "width": 6,
         "height": 6
-      }
+      },
+      "densityProfile": "furnished-interior",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 20,
+          "y": 11
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
     },
     {
       "id": "kitchen",
       "bounds": {
         "x": 9,
-        "y": 15,
-        "width": 6,
-        "height": 9
-      }
+        "y": 14,
+        "width": 7,
+        "height": 10
+      },
+      "densityProfile": "furnished-interior",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 14,
+          "y": 19
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
     },
     {
       "id": "social",
       "bounds": {
-        "x": 16,
-        "y": 15,
-        "width": 9,
-        "height": 9
-      }
+        "x": 15,
+        "y": 14,
+        "width": 10,
+        "height": 10
+      },
+      "densityProfile": "furnished-interior",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 16,
+          "y": 19
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
     },
     {
-      "id": "production-shoreglass-spa",
+      "id": "shoreglass-spa",
       "bounds": {
         "x": 28,
         "y": 8,
         "width": 8,
-        "height": 8
-      }
+        "height": 10
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 32,
+          "y": 16
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
     },
     {
-      "id": "production-villa-promenade",
+      "id": "sunward-patio",
+      "bounds": {
+        "x": 20,
+        "y": 25,
+        "width": 16,
+        "height": 10
+      },
+      "densityProfile": "relaxation-natural",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 23,
+          "y": 28
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    },
+    {
+      "id": "villa-promenade",
       "bounds": {
         "x": 37,
         "y": 8,
         "width": 20,
         "height": 14
-      }
+      },
+      "densityProfile": "active-public",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 46,
+          "y": 20
+        }
+      ],
+      "primaryRoutes": [
+        {
+          "x": 46,
+          "y": 8,
+          "width": 2,
+          "height": 14
+        }
+      ],
+      "requiredPortalIds": []
     },
     {
-      "id": "production-beach-market",
+      "id": "beach-market",
       "bounds": {
         "x": 37,
         "y": 25,
         "width": 20,
         "height": 10
-      }
+      },
+      "densityProfile": "active-public",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 46,
+          "y": 34
+        }
+      ],
+      "primaryRoutes": [
+        {
+          "x": 46,
+          "y": 25,
+          "width": 2,
+          "height": 10
+        }
+      ],
+      "requiredPortalIds": []
     },
     {
-      "id": "production-public-beach",
+      "id": "public-beach",
       "bounds": {
         "x": 35,
         "y": 38,
         "width": 24,
-        "height": 4
-      }
+        "height": 6
+      },
+      "densityProfile": "relaxation-natural",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 46,
+          "y": 38
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    }
+  ],
+  "buildings": [
+    {
+      "id": "protagonist-villa",
+      "areaIds": [
+        "bedroom",
+        "bathroom",
+        "storage",
+        "kitchen",
+        "social"
+      ],
+      "outerWallRunIds": [
+        "villa-north",
+        "villa-south",
+        "villa-west",
+        "villa-east"
+      ],
+      "entranceOpeningIds": [
+        "villa-front-opening"
+      ],
+      "roofGroupId": "protagonist-villa-roof"
+    }
+  ],
+  "locationBindings": [
+    {
+      "locationId": "protagonist_villa",
+      "areaIds": [
+        "bedroom",
+        "bathroom",
+        "storage",
+        "kitchen",
+        "social"
+      ],
+      "preferredInteractionIds": [
+        "social-seat"
+      ]
+    },
+    {
+      "locationId": "linda_villa",
+      "areaIds": [
+        "sunward-patio"
+      ],
+      "preferredInteractionIds": []
+    },
+    {
+      "locationId": "mina_spa",
+      "areaIds": [
+        "shoreglass-spa"
+      ],
+      "preferredInteractionIds": []
     }
   ],
   "portals": [
@@ -693,80 +2192,104 @@
       "x": 23,
       "y": 28
     },
-    "generic-resident": {
+    "generic_resident": {
       "x": 29,
       "y": 33
     },
+    "linda_boyfriend": {
+      "x": 25,
+      "y": 28
+    },
     "mina_park": {
       "x": 34,
-      "y": 12
-    },
-    "rafael_cruz": {
-      "x": 39,
       "y": 15
     },
+    "rafael_cruz": {
+      "x": 27,
+      "y": 5
+    },
     "sora_tan": {
-      "x": 45,
+      "x": 27,
       "y": 20
     },
     "devon_price": {
-      "x": 50,
-      "y": 14
+      "x": 37,
+      "y": 23
     },
     "priya_nair": {
-      "x": 32,
-      "y": 26
+      "x": 33,
+      "y": 36
     },
     "tomas_reed": {
       "x": 43,
-      "y": 31
+      "y": 36
     },
     "elise_moreau": {
-      "x": 52,
+      "x": 53,
+      "y": 36
+    },
+    "linda-home": {
+      "x": 23,
+      "y": 28
+    },
+    "linda-relax": {
+      "x": 28,
       "y": 30
     },
+    "generic-home": {
+      "x": 29,
+      "y": 33
+    },
+    "generic-work": {
+      "x": 27,
+      "y": 28
+    },
+    "home-visit": {
+      "x": 19,
+      "y": 18
+    },
     "resident_01": {
-      "x": 30,
+      "x": 2,
       "y": 5
     },
     "resident_02": {
-      "x": 36,
+      "x": 4,
       "y": 5
     },
     "resident_03": {
-      "x": 42,
+      "x": 6,
       "y": 5
     },
     "resident_04": {
-      "x": 48,
-      "y": 5
-    },
-    "resident_05": {
-      "x": 54,
-      "y": 5
-    },
-    "resident_06": {
       "x": 60,
       "y": 5
     },
+    "resident_05": {
+      "x": 2,
+      "y": 12
+    },
+    "resident_06": {
+      "x": 4,
+      "y": 12
+    },
     "resident_07": {
-      "x": 30,
-      "y": 20
+      "x": 6,
+      "y": 12
     },
     "resident_08": {
-      "x": 36,
-      "y": 20
+      "x": 60,
+      "y": 12
     },
     "resident_09": {
-      "x": 42,
+      "x": 2,
       "y": 20
     },
     "resident_10": {
-      "x": 48,
+      "x": 4,
       "y": 20
     },
     "resident_11": {
-      "x": 54,
+      "x": 6,
       "y": 20
     },
     "resident_12": {
@@ -774,52 +2297,81 @@
       "y": 20
     },
     "resident_13": {
-      "x": 30,
+      "x": 2,
       "y": 30
     },
     "resident_14": {
-      "x": 36,
+      "x": 4,
       "y": 30
     },
     "resident_15": {
-      "x": 42,
+      "x": 6,
       "y": 30
     },
     "resident_16": {
-      "x": 48,
-      "y": 30
-    },
-    "resident_17": {
-      "x": 54,
-      "y": 30
-    },
-    "resident_18": {
       "x": 60,
       "y": 30
     },
+    "resident_17": {
+      "x": 2,
+      "y": 38
+    },
+    "resident_18": {
+      "x": 4,
+      "y": 38
+    },
     "resident_19": {
-      "x": 28,
-      "y": 40
+      "x": 6,
+      "y": 38
     },
     "resident_20": {
-      "x": 34,
-      "y": 40
+      "x": 60,
+      "y": 38
     },
     "resident_21": {
-      "x": 40,
-      "y": 40
+      "x": 2,
+      "y": 44
     },
     "resident_22": {
-      "x": 46,
-      "y": 40
+      "x": 4,
+      "y": 44
     },
     "resident_23": {
-      "x": 52,
-      "y": 40
+      "x": 6,
+      "y": 44
     },
     "resident_24": {
-      "x": 58,
-      "y": 40
+      "x": 60,
+      "y": 44
     }
+  },
+  "startComposition": {
+    "cameraAnchor": {
+      "x": 23,
+      "y": 26
+    },
+    "requiredActorIds": [
+      "protagonist",
+      "linda",
+      "generic_resident"
+    ],
+    "requiredDetailPartIds": [
+      "social-sofa-part-01",
+      "social-sofa-part-02",
+      "social-tables-part-01",
+      "social-tables-part-02",
+      "social-tables-part-03",
+      "social-tables-part-04",
+      "social-details-part-01",
+      "social-details-part-02",
+      "sunward-patio-furniture-part-01",
+      "sunward-patio-furniture-part-02",
+      "sunward-patio-furniture-part-05",
+      "sunward-patio-furniture-part-06"
+    ],
+    "landmarkAreaIds": [
+      "social",
+      "sunward-patio"
+    ]
   }
 }

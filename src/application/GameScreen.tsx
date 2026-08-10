@@ -36,23 +36,33 @@ export function GameScreen({ onReady }: GameScreenProps) {
     let active = true;
     void bridge.loadSave('slot-001').then((result) => {
       if (!active) return;
-      if (result.status === 'loaded') {
+      if (result.status === 'unchanged' || result.status === 'migrated') {
         setBoot({
           status: 'active',
           session: {
             key: `save-${result.saveGeneration}`,
             saveGeneration: result.saveGeneration,
-            saveStatus: `LOADED GEN ${result.saveGeneration}`,
+            saveStatus: `${result.status === 'migrated' ? 'MIGRATED' : 'LOADED'} GEN ${result.saveGeneration}`,
             state: result.state,
             worldFeedback: `WELCOME BACK, ${result.state.protagonist.displayName.toUpperCase()}.`,
           },
         });
       } else if (result.status === 'empty') {
         setBoot({ status: 'new', busy: false });
+      } else if (result.status === 'incompatible') {
+        setBoot({
+          status: 'failed',
+          detail: `This save uses an incompatible game or content version. ${result.incompatibleCandidateCount} file${result.incompatibleCandidateCount === 1 ? '' : 's'} were preserved.`,
+        });
+      } else if (result.status === 'corrupt') {
+        setBoot({
+          status: 'failed',
+          detail: `Save recovery found ${result.corruptCandidateCount} damaged file${result.corruptCandidateCount === 1 ? '' : 's'}. The files were preserved.`,
+        });
       } else {
         setBoot({
           status: 'failed',
-          detail: `Save recovery failed. ${result.invalidCandidateCount} damaged save candidate${result.invalidCandidateCount === 1 ? '' : 's'} were preserved.`,
+          detail: 'The save layout could not migrate to this island build. Every source file was preserved.',
         });
       }
     }).catch(() => {

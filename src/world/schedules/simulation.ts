@@ -8,6 +8,7 @@ import {
 } from '../../domain/invitations/planner';
 import type { WorldState } from '../../domain/state/schema';
 import { WorldStateSchema } from '../../domain/state/schema';
+import { GENERATED_LAYOUT } from '../../domain/state/generated-layout';
 import { routeBetween } from '../transfers/routes';
 import { scheduleMilestonesBetween, type ScheduleMilestone } from './schedule';
 
@@ -372,8 +373,8 @@ export function simulateWorldInterval(input: Readonly<{
           destinationEntranceTileY: route.destinationEntranceTile.y,
           destinationLocationId: invitation.destinationLocationId,
           destinationActivityId: 'home_visit',
-          destinationGoalTileX: 18,
-          destinationGoalTileY: 18,
+          destinationGoalTileX: GENERATED_LAYOUT.homeVisitTile.x,
+          destinationGoalTileY: GENERATED_LAYOUT.homeVisitTile.y,
         };
         invitations[invitation.id] = { ...invitation, transferId };
         if (approaching) {
@@ -421,8 +422,8 @@ export function simulateWorldInterval(input: Readonly<{
             mapId: invitation.destinationMapId,
             locationId: invitation.destinationLocationId,
             activityId: 'home_visit',
-            tileX: 18,
-            tileY: 18,
+            tileX: GENERATED_LAYOUT.homeVisitTile.x,
+            tileY: GENERATED_LAYOUT.homeVisitTile.y,
             scheduledMinute: invitation.scheduledMinute!,
             sourceInvitationId: invitation.id,
           };
@@ -431,8 +432,8 @@ export function simulateWorldInterval(input: Readonly<{
             kind: 'inactive',
             mapId: invitation.destinationMapId,
             locationId: invitation.destinationLocationId,
-            tileX: 18,
-            tileY: 18,
+            tileX: GENERATED_LAYOUT.homeVisitTile.x,
+            tileY: GENERATED_LAYOUT.homeVisitTile.y,
           };
           delete npc.scheduleGoal;
           invitations = completeLocalInvitation(invitations, invitation.id);

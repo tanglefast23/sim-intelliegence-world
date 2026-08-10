@@ -1,8 +1,7 @@
 import { reduceCommand } from '../../domain/commands/reducer';
 import { DomainCommandSchema } from '../../domain/commands/types';
 import type { WorldState } from '../../domain/state/schema';
-import type { CompiledMap } from '../../world/maps/schema';
-import { roofGroupAt } from '../../world/maps/schema';
+import { roofGroupAtV2, type CompiledMapV2 } from '../../world/maps/compiled-v2';
 import { stepMovement, type MovementState } from '../../world/pathfinding/movement';
 
 function idPart(value: string): string {
@@ -15,7 +14,7 @@ export type RuntimeStepResult = Readonly<{
 }>;
 
 export function advanceWorldMovement(
-  map: CompiledMap,
+  map: CompiledMapV2,
   movement: MovementState,
   worldState: WorldState,
   dynamicBlockers: ReadonlySet<string> = new Set(),
@@ -30,7 +29,7 @@ export function advanceWorldMovement(
   const sequence = worldState.revision + 1;
   const mapId = map.source.id;
   const suffix = `${sequence}-${idPart(mapId)}-${nextMovement.player.x}-${nextMovement.player.y}`;
-  const locationId = roofGroupAt(map, nextMovement.player) ? 'protagonist_villa' : mapId;
+  const locationId = roofGroupAtV2(map, nextMovement.player) ? 'protagonist_villa' : mapId;
   const result = reduceCommand(worldState, DomainCommandSchema.parse({
     type: 'move-protagonist',
     commandId: `command-move-${suffix}`,

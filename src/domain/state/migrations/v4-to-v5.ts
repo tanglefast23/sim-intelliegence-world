@@ -7,7 +7,8 @@ import {
   resolveChangeableRejections,
 } from '../../relationships/relationship';
 import { StableIdSchema } from '../ids';
-import { WorldStateBaseSchema, WorldStateSchema, type WorldState } from '../schema';
+import { WorldStateBaseSchema } from '../schema';
+import { LegacyStateV5Schema, type LegacyStateV5 } from './v5-to-v6';
 
 const LegacyRelationshipV4Schema = z.object({
   npcId: StableIdSchema,
@@ -32,6 +33,8 @@ export const LegacyStateV4Schema = WorldStateBaseSchema.omit({
   relationships: true,
   journal: true,
   invitations: true,
+  layoutRevisions: true,
+  layoutMigrationEvidence: true,
 }).extend({
   schemaVersion: z.literal(4),
   relationships: z.record(StableIdSchema, LegacyRelationshipV4Schema),
@@ -55,7 +58,7 @@ const GENERIC_REJECTIONS = [
   },
 ];
 
-export function migrateV4ToV5(candidate: unknown, nextGenerationId: string): WorldState {
+export function migrateV4ToV5(candidate: unknown, nextGenerationId: string): LegacyStateV5 {
   const generationId = StableIdSchema.refine((value) => value.startsWith('generation-'), {
     message: 'Migration generation ID must start with generation-.',
   }).parse(nextGenerationId);
@@ -89,7 +92,7 @@ export function migrateV4ToV5(candidate: unknown, nextGenerationId: string): Wor
     source: { type: 'authored_event' as const, sourceId: 'migration_v4' },
     outcomeReceipts: [],
   }]));
-  return WorldStateSchema.parse({
+  return LegacyStateV5Schema.parse({
     ...source,
     schemaVersion: 5,
     generationId,

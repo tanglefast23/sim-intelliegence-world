@@ -6,6 +6,8 @@ import {
   PRODUCTION_FULL_AI_CAST,
 } from '../../src/domain/state/production-cast';
 import { createInitialState } from '../../src/domain/state/initial-state';
+import { buildProductionMaps } from './build-map-v2';
+import { buildSaveCutoverFixtures } from './build-save-cutover-fixtures';
 
 const root = process.cwd();
 
@@ -275,47 +277,13 @@ async function buildRegistries(): Promise<void> {
   })));
 }
 
-async function buildNorthwestPopulation(): Promise<void> {
-  const path = resolve(root, 'content', 'maps', 'northwest.json');
-  const map = JSON.parse(await readFile(path, 'utf8')) as {
-    props: { id: string; sprite: string; tile: { x: number; y: number }; blocksMovement: boolean }[];
-    effects: { id: string; kind: string; tile: { x: number; y: number } }[];
-    areas: { id: string; bounds: { x: number; y: number; width: number; height: number } }[];
-    spawns: Record<string, { x: number; y: number }>;
-  };
-  map.props = [
-    ...map.props.filter(({ id }) => !id.startsWith('production-')),
-    { id: 'production-spa-sign', sprite: 'tile.spa-stone', tile: { x: 35, y: 10 }, blocksMovement: false },
-    { id: 'production-cafe-cart', sprite: 'tile.boardwalk', tile: { x: 40, y: 17 }, blocksMovement: false },
-    { id: 'production-boutique-sign', sprite: 'tile.plaza-paver', tile: { x: 46, y: 18 }, blocksMovement: false },
-    { id: 'production-club-poster', sprite: 'tile.garden-soil', tile: { x: 51, y: 12 }, blocksMovement: false },
-    { id: 'production-clinic-sign', sprite: 'tile.pale-concrete', tile: { x: 33, y: 25 }, blocksMovement: false },
-    { id: 'production-marina-board', sprite: 'tile.boardwalk', tile: { x: 44, y: 33 }, blocksMovement: false },
-    { id: 'production-news-board', sprite: 'tile.plaza-paver', tile: { x: 53, y: 32 }, blocksMovement: false },
-  ];
-  map.effects = [
-    ...map.effects.filter(({ id }) => !id.startsWith('production-')),
-    { id: 'production-spa-sparkle', kind: 'sparkle', tile: { x: 35, y: 11 } },
-    { id: 'production-beach-fire', kind: 'fire', tile: { x: 50, y: 39 } },
-  ];
-  map.areas = [
-    ...map.areas.filter(({ id }) => !id.startsWith('production-')),
-    { id: 'production-shoreglass-spa', bounds: { x: 28, y: 8, width: 8, height: 8 } },
-    { id: 'production-villa-promenade', bounds: { x: 37, y: 8, width: 20, height: 14 } },
-    { id: 'production-beach-market', bounds: { x: 37, y: 25, width: 20, height: 10 } },
-    { id: 'production-public-beach', bounds: { x: 35, y: 38, width: 24, height: 4 } },
-  ];
-  for (const character of PRODUCTION_FULL_AI_CAST) map.spawns[character.id] = character.position;
-  for (const resident of PRODUCTION_AMBIENT_RESIDENTS) map.spawns[resident.id] = resident.position;
-  await writeJson(path, map);
-}
-
 async function main(): Promise<void> {
   await buildCharacters();
   await buildBrowserWritingModule();
-  await buildWorldCatalog();
   await buildRegistries();
-  await buildNorthwestPopulation();
+  await buildProductionMaps(root);
+  await buildWorldCatalog();
+  await buildSaveCutoverFixtures(root);
   process.stdout.write(`Built ${PRODUCTION_FULL_AI_CAST.length} named character files and ${PRODUCTION_AMBIENT_RESIDENTS.length} ambient residents.\n`);
 }
 

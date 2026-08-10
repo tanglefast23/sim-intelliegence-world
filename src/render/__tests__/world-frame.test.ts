@@ -1,17 +1,15 @@
-import northwestMapJson from '../../../content/maps/northwest.json';
+import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
 import { createInitialState } from '../../domain/state/initial-state';
 import { WorldStateSchema } from '../../domain/state/schema';
-import { compileWorldMap, spawnAt } from '../../world/maps/schema';
 import { createMovementState, requestMovement } from '../../world/pathfinding/movement';
 import { advanceWorldMovement } from '../../application/runtime/world-runtime';
-import { ATLAS_INDEX } from '../atlas';
 import { WORLD_DEPTH } from '../depth';
 import { buildWorldFrameState, WORLD_LAYER_ORDER } from '../world-frame';
 
-const MAP = compileWorldMap(northwestMapJson, new Set(ATLAS_INDEX.tiles));
+const MAP = WORLD_MAP_CATALOG.northwest_residential;
 const ACTORS = {
-  linda: { tile: spawnAt(MAP, 'linda'), visualId: 'linda' },
-  generic_resident: { tile: spawnAt(MAP, 'generic-resident'), visualId: 'generic-resident' },
+  linda: { tile: MAP.source.spawns.linda!, visualId: 'linda' },
+  generic_resident: { tile: MAP.source.spawns.generic_resident!, visualId: 'generic-resident' },
 } as const;
 
 function walkTo(target: { x: number; y: number }, initialState = createInitialState()) {
@@ -68,9 +66,9 @@ describe('authoritative world frame', () => {
   });
 
   test('every committed movement event is one cardinal tile and state-owned', () => {
-    const result = walkTo({ x: 21, y: 18 });
+    const result = walkTo({ x: 19, y: 20 });
     expect(result.worldState.protagonist.worldPosition).toEqual({
-      mapId: 'northwest_residential', tileX: 21, tileY: 18,
+      mapId: 'northwest_residential', tileX: 19, tileY: 20,
     });
     expect(result.worldState.eventLedger).toHaveLength(3);
     for (const event of result.worldState.eventLedger) {

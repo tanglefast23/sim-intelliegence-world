@@ -1,7 +1,7 @@
 import { createInitialState } from '../../../domain/state/initial-state';
 import { parseWorldState } from '../../../domain/state/schema';
 import { WORLD_MAP_CATALOG } from '../map-catalog';
-import { transitionNeighborhood } from '../transitions';
+import { canStartPortalTransition, transitionNeighborhood } from '../transitions';
 import { autosaveStableState } from '../autosave';
 import type { MapId } from '../../../world/maps/catalog';
 
@@ -31,6 +31,20 @@ function atPortal(mapId: MapId, portalId: string) {
 const loadMap = async (mapId: MapId) => WORLD_MAP_CATALOG[mapId];
 
 describe('atomic neighborhood transitions', () => {
+  test('does not auto-start travel under dialogue, panels, movement, transition, or arrival lock', () => {
+    const clear = {
+      arrivalLocked: false, transitioning: false, movementStatus: 'idle',
+      conversationOpen: false, panelOpen: false,
+    };
+    expect(canStartPortalTransition(clear)).toBe(true);
+    for (const blocked of [
+      { arrivalLocked: true }, { transitioning: true }, { movementStatus: 'moving' },
+      { conversationOpen: true }, { panelOpen: true },
+    ]) {
+      expect(canStartPortalTransition({ ...clear, ...blocked })).toBe(false);
+    }
+  });
+
   test.each([
     ['northwest_residential', 'to-downtown', 'northeast_downtown'],
     ['northeast_downtown', 'to-docks', 'southeast_docks'],

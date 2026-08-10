@@ -47,6 +47,14 @@ describe('Phase 13 production content bill', () => {
     expect(new Set(bill.fullAiNpcIds)).toEqual(new Set(Object.values(state.npcs).filter(({ tier }) => tier === 'full_ai').map(({ id }) => id)));
     expect(new Set(bill.ambientNpcIds)).toEqual(new Set(Object.values(state.npcs).filter(({ tier }) => tier === 'ambient').map(({ id }) => id)));
     expect(new Set(bill.scheduleIds)).toEqual(new Set(Object.keys(state.schedules)));
+    for (const character of PRODUCTION_FULL_AI_CAST) {
+      expect(state.npcs[character.id]?.presence).toEqual(expect.objectContaining({
+        mapId: character.position.mapId,
+        locationId: character.position.locationId,
+        tileX: character.position.x,
+        tileY: character.position.y,
+      }));
+    }
     for (const relationship of Object.values(state.relationships).filter(({ npcId }) => state.npcs[npcId]?.tier === 'full_ai')) {
       expect(relationship.policy.hardBoundaries).toContainEqual(expect.objectContaining({
         id: 'no_aggressive_flirting', blockedActionIds: ['aggressive_flirt'],

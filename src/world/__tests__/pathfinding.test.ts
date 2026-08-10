@@ -1,7 +1,6 @@
-import northwestMapJson from '../../../content/maps/northwest.json';
-import { ATLAS_INDEX } from '../../render/atlas';
+import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
 import { resolveClickTarget } from '../maps/hit-testing';
-import { compileWorldMap, tileKey, type TilePoint } from '../maps/schema';
+import { tileKey, type TilePoint } from '../maps/schema';
 import { findCardinalPath } from '../pathfinding/astar';
 import { createMovementState, requestMovement, stepMovement } from '../pathfinding/movement';
 
@@ -49,20 +48,20 @@ describe('deterministic cardinal movement', () => {
   });
 
   test('a new click interrupts the old route and a moving blocker causes a replan', () => {
-    const map = compileWorldMap(northwestMapJson, new Set(ATLAS_INDEX.tiles));
+    const map = WORLD_MAP_CATALOG.northwest_residential;
     const start = createMovementState({ x: 18, y: 18 });
-    const first = requestMovement(map, start, { x: 18, y: 21 });
+    const first = requestMovement(map, start, { x: 18, y: 20 });
     expect(first.path[0]).toEqual({ x: 18, y: 19 });
-    const interrupted = requestMovement(map, first, { x: 20, y: 18 });
-    expect(interrupted.target).toEqual({ x: 20, y: 18 });
-    expect(interrupted.path.at(-1)).toEqual({ x: 20, y: 18 });
+    const interrupted = requestMovement(map, first, { x: 19, y: 18 });
+    expect(interrupted.target).toEqual({ x: 19, y: 18 });
+    expect(interrupted.path.at(-1)).toEqual({ x: 19, y: 18 });
 
     const blockedNext = new Set([tileKey({ x: 18, y: 19 })]);
     const replanned = stepMovement(map, first, blockedNext);
     expect(replanned.status).toBe('moving');
     expect(replanned.player).toEqual(start.player);
     expect(replanned.path[0]).not.toEqual({ x: 18, y: 19 });
-    expect(replanned.path.at(-1)).toEqual({ x: 18, y: 21 });
+    expect(replanned.path.at(-1)).toEqual({ x: 18, y: 20 });
   });
 
   test('click priority is UI, NPC, object, interaction, then floor with stable ID ties', () => {

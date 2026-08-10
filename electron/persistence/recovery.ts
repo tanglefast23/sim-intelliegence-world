@@ -2,17 +2,24 @@ import { lstat, readFile, readdir } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 
 import type { SaveSlotId } from '../../src/application/effects/PersistencePort';
-import { parseSaveEnvelope, type SaveEnvelope } from './save-format';
+import {
+  CONTENT_VERSION,
+  MODEL_CONTRACT_VERSION,
+  PROMPT_VERSION,
+} from '../../src/domain/state/schema';
+import { ENGINE_VERSION } from '../../src/domain/version';
+import { parseSupportedSaveEnvelope, type SupportedSaveEnvelope } from './save-format';
 
 export type SaveCandidateSource = 'main' | 'temporary' | 'backup' | 'autosave';
 
 export type ValidSaveCandidate = Readonly<{
   path: string;
   source: SaveCandidateSource;
-  envelope: SaveEnvelope;
+  envelope: SupportedSaveEnvelope;
 }>;
 
 export type InvalidSaveCandidate = Readonly<{
+  classification: 'corrupt' | 'incompatible';
   path: string;
   reason: string;
 }>;
@@ -51,19 +58,35 @@ export async function inspectSaveCandidate(
   try {
     const stats = await lstat(path);
     if (stats.isSymbolicLink() || !stats.isFile()) {
-      return { path, reason: 'Candidate is not a regular file.' };
+      return { classification: 'corrupt', path, reason: 'Candidate is not a regular file.' };
     }
     if (stats.size > 8 * 1_024 * 1_024) {
-      return { path, reason: 'Candidate exceeds the save size limit.' };
+      return { classification: 'corrupt', path, reason: 'Candidate exceeds the save size limit.' };
     }
-    const envelope = parseSaveEnvelope(JSON.parse(await readFile(path, 'utf8')) as unknown);
+    const parsed = JSON.parse(await readFile(path, 'utf8')) as unknown;
+    if (typeof parsed === 'object' && parsed !== null && 'formatVersion' in parsed && parsed.formatVersion !== 1) {
+      return { classification: 'incompatible', path, reason: 'Candidate uses an incompatible envelope format.' };
+    }
+    if (typeof parsed === 'object' && parsed !== null && 'state' in parsed &&
+      typeof parsed.state === 'object' && parsed.state !== null) {
+      const state = parsed.state as Readonly<Record<string, unknown>>;
+      const incompatible = ![5, 6].includes(state.schemaVersion as number) ||
+        state.engineVersion !== ENGINE_VERSION ||
+        state.contentVersion !== CONTENT_VERSION ||
+        state.promptVersion !== PROMPT_VERSION ||
+        state.modelContractVersion !== MODEL_CONTRACT_VERSION;
+      if (incompatible) {
+        return { classification: 'incompatible', path, reason: 'Candidate uses an incompatible state or content version.' };
+      }
+    }
+    const envelope = parseSupportedSaveEnvelope(parsed);
     if (envelope.slotId !== expectedSlotId) {
-      return { path, reason: 'Candidate slot ID does not match its directory.' };
+      return { classification: 'corrupt', path, reason: 'Candidate slot ID does not match its directory.' };
     }
     return { path, source, envelope };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
-    return { path, reason: error instanceof Error ? error.message : String(error) };
+    return { classification: 'corrupt', path, reason: error instanceof Error ? error.message : String(error) };
   }
 }
 

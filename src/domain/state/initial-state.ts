@@ -14,6 +14,10 @@ import {
   createProductionRelationships,
   createProductionSchedules,
 } from './production-cast';
+import { GENERATED_LAYOUT } from './generated-layout';
+
+const ACTORS = GENERATED_LAYOUT.actorTiles;
+const SCHEDULE_TILES = GENERATED_LAYOUT.scheduleTiles;
 
 export function createInitialState(displayName = 'Player'): WorldState {
   const prng = createPrng(0x51_57_01);
@@ -30,6 +34,8 @@ export function createInitialState(displayName = 'Player'): WorldState {
     },
     generationId: 'generation-prototype-001',
     revision: 0,
+    layoutRevisions: GENERATED_LAYOUT.layoutRevisions,
+    layoutMigrationEvidence: [],
     prng: prng.snapshot(),
     clock: {
       absoluteMinute: 8 * 60,
@@ -44,18 +50,24 @@ export function createInitialState(displayName = 'Player'): WorldState {
       health: 100,
       confidence: 50,
       locationId: 'protagonist_villa',
-      worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
+      worldPosition: {
+        mapId: ACTORS.protagonist.mapId,
+        tileX: ACTORS.protagonist.x,
+        tileY: ACTORS.protagonist.y,
+      },
     },
     npcs: {
       linda: {
         id: 'linda',
         tier: 'full_ai',
         presence: {
-          kind: 'active_local', mapId: 'northwest_residential', locationId: 'linda_villa', tileX: 23, tileY: 28,
+          kind: 'active_local', mapId: ACTORS.linda.mapId, locationId: 'linda_villa',
+          tileX: ACTORS.linda.x, tileY: ACTORS.linda.y,
         },
         scheduleGoal: {
-          mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'relax',
-          tileX: 28, tileY: 30, scheduledMinute: 480,
+          mapId: SCHEDULE_TILES.linda_relax.mapId, locationId: SCHEDULE_TILES.linda_relax.locationId,
+          activityId: 'relax', tileX: SCHEDULE_TILES.linda_relax.x,
+          tileY: SCHEDULE_TILES.linda_relax.y, scheduledMinute: 480,
         },
         knowledge: [],
         unlockedInterestIds: [],
@@ -66,11 +78,13 @@ export function createInitialState(displayName = 'Player'): WorldState {
         id: 'generic_resident',
         tier: 'ambient',
         presence: {
-          kind: 'active_local', mapId: 'northwest_residential', locationId: 'northwest_residential', tileX: 29, tileY: 33,
+          kind: 'active_local', mapId: ACTORS.generic_resident.mapId, locationId: 'northwest_residential',
+          tileX: ACTORS.generic_resident.x, tileY: ACTORS.generic_resident.y,
         },
         scheduleGoal: {
-          mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'work',
-          tileX: 27, tileY: 28, scheduledMinute: 480,
+          mapId: SCHEDULE_TILES.generic_work.mapId, locationId: SCHEDULE_TILES.generic_work.locationId,
+          activityId: 'work', tileX: SCHEDULE_TILES.generic_work.x,
+          tileY: SCHEDULE_TILES.generic_work.y, scheduledMinute: 480,
         },
         knowledge: [],
         unlockedInterestIds: [],
@@ -82,7 +96,8 @@ export function createInitialState(displayName = 'Player'): WorldState {
         tier: 'ambient',
         condition: 'alive',
         presence: {
-          kind: 'inactive', mapId: 'northwest_residential', locationId: 'linda_villa', tileX: 25, tileY: 28,
+          kind: 'inactive', mapId: ACTORS.linda_boyfriend.mapId, locationId: 'linda_villa',
+          tileX: ACTORS.linda_boyfriend.x, tileY: ACTORS.linda_boyfriend.y,
         },
         knowledge: [],
         unlockedInterestIds: [],
@@ -171,20 +186,20 @@ export function createInitialState(displayName = 'Player'): WorldState {
         id: 'linda_daily',
         npcId: 'linda',
         blocks: [
-          { startMinuteOfDay: 0, locationId: 'linda_villa', activityId: 'sleep', mapId: 'northwest_residential', tileX: 23, tileY: 28 },
-          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'relax', mapId: 'northwest_residential', tileX: 28, tileY: 30 },
-          { startMinuteOfDay: 720, locationId: 'southwest_commercial', activityId: 'shop', mapId: 'southwest_commercial', tileX: 15, tileY: 16 },
-          { startMinuteOfDay: 1_080, locationId: 'linda_villa', activityId: 'home', mapId: 'northwest_residential', tileX: 23, tileY: 28 },
+          { startMinuteOfDay: 0, locationId: SCHEDULE_TILES.linda_home.locationId, activityId: 'sleep', mapId: SCHEDULE_TILES.linda_home.mapId, tileX: SCHEDULE_TILES.linda_home.x, tileY: SCHEDULE_TILES.linda_home.y },
+          { startMinuteOfDay: 480, locationId: SCHEDULE_TILES.linda_relax.locationId, activityId: 'relax', mapId: SCHEDULE_TILES.linda_relax.mapId, tileX: SCHEDULE_TILES.linda_relax.x, tileY: SCHEDULE_TILES.linda_relax.y },
+          { startMinuteOfDay: 720, locationId: SCHEDULE_TILES.linda_shop.locationId, activityId: 'shop', mapId: SCHEDULE_TILES.linda_shop.mapId, tileX: SCHEDULE_TILES.linda_shop.x, tileY: SCHEDULE_TILES.linda_shop.y },
+          { startMinuteOfDay: 1_080, locationId: SCHEDULE_TILES.linda_home.locationId, activityId: 'home', mapId: SCHEDULE_TILES.linda_home.mapId, tileX: SCHEDULE_TILES.linda_home.x, tileY: SCHEDULE_TILES.linda_home.y },
         ],
       },
       generic_daily: {
         id: 'generic_daily',
         npcId: 'generic_resident',
         blocks: [
-          { startMinuteOfDay: 0, locationId: 'northwest_residential', activityId: 'sleep', mapId: 'northwest_residential', tileX: 29, tileY: 33 },
-          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'work', mapId: 'northwest_residential', tileX: 27, tileY: 28 },
-          { startMinuteOfDay: 720, locationId: 'northeast_downtown', activityId: 'meal', mapId: 'northeast_downtown', tileX: 44, tileY: 34 },
-          { startMinuteOfDay: 1_080, locationId: 'northeast_downtown', activityId: 'nightlife', mapId: 'northeast_downtown', tileX: 18, tileY: 13 },
+          { startMinuteOfDay: 0, locationId: SCHEDULE_TILES.generic_home.locationId, activityId: 'sleep', mapId: SCHEDULE_TILES.generic_home.mapId, tileX: SCHEDULE_TILES.generic_home.x, tileY: SCHEDULE_TILES.generic_home.y },
+          { startMinuteOfDay: 480, locationId: SCHEDULE_TILES.generic_work.locationId, activityId: 'work', mapId: SCHEDULE_TILES.generic_work.mapId, tileX: SCHEDULE_TILES.generic_work.x, tileY: SCHEDULE_TILES.generic_work.y },
+          { startMinuteOfDay: 720, locationId: SCHEDULE_TILES.generic_meal.locationId, activityId: 'meal', mapId: SCHEDULE_TILES.generic_meal.mapId, tileX: SCHEDULE_TILES.generic_meal.x, tileY: SCHEDULE_TILES.generic_meal.y },
+          { startMinuteOfDay: 1_080, locationId: SCHEDULE_TILES.generic_nightlife.locationId, activityId: 'nightlife', mapId: SCHEDULE_TILES.generic_nightlife.mapId, tileX: SCHEDULE_TILES.generic_nightlife.x, tileY: SCHEDULE_TILES.generic_nightlife.y },
         ],
       },
       ...createProductionSchedules(),

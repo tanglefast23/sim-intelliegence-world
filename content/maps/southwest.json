@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "layoutRevision": 1,
   "id": "southwest_commercial",
   "displayName": "Palm Exchange",
   "width": 64,
@@ -8,30 +9,544 @@
   "ground": {
     "defaultSprite": "tile.warm-sand",
     "regions": [
-      {"id":"north-road","x":30,"y":0,"width":5,"height":48,"sprite":"tile.pale-concrete"},
-      {"id":"east-road","x":30,"y":22,"width":34,"height":5,"sprite":"tile.pale-concrete"},
-      {"id":"mall","x":7,"y":9,"width":18,"height":14,"sprite":"tile.villa-floor"},
-      {"id":"restaurant-row","x":38,"y":31,"width":18,"height":8,"sprite":"tile.boardwalk"}
+      {
+        "id": "north-road",
+        "x": 30,
+        "y": 0,
+        "width": 5,
+        "height": 48,
+        "sprite": "tile.pale-concrete"
+      },
+      {
+        "id": "east-road",
+        "x": 30,
+        "y": 22,
+        "width": 34,
+        "height": 5,
+        "sprite": "tile.pale-concrete"
+      },
+      {
+        "id": "mall-floor",
+        "x": 7,
+        "y": 9,
+        "width": 20,
+        "height": 15,
+        "sprite": "tile.villa-floor"
+      },
+      {
+        "id": "restaurant-floor",
+        "x": 38,
+        "y": 31,
+        "width": 20,
+        "height": 10,
+        "sprite": "tile.boardwalk"
+      }
     ]
   },
-  "collision": {"rectangles":[],"walkableOverrides":[]},
-  "walls": {"regions":[],"openings":[]},
-  "props": [
-    {"id":"mall-kiosk","sprite":"tile.garden-soil","tile":{"x":16,"y":16},"blocksMovement":true},
-    {"id":"restaurant-table","sprite":"tile.plaza-paver","tile":{"x":46,"y":35},"blocksMovement":true}
-  ],
-  "effects": [{"id":"mall-sparkle","kind":"sparkle","tile":{"x":17,"y":16}}],
-  "interactions": [],
+  "terrainSolids": [],
+  "walls": {
+    "runs": [
+      {
+        "id": "shopping-mall-north",
+        "material": "commercial",
+        "bounds": {
+          "x": 7,
+          "y": 9,
+          "width": 20,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "shopping-mall-south",
+        "material": "commercial",
+        "bounds": {
+          "x": 7,
+          "y": 23,
+          "width": 20,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "shopping-mall-entrance",
+            "tile": {
+              "x": 17,
+              "y": 23
+            }
+          }
+        ]
+      },
+      {
+        "id": "shopping-mall-west",
+        "material": "commercial",
+        "bounds": {
+          "x": 7,
+          "y": 10,
+          "width": 1,
+          "height": 13
+        },
+        "openings": []
+      },
+      {
+        "id": "shopping-mall-east",
+        "material": "commercial",
+        "bounds": {
+          "x": 26,
+          "y": 10,
+          "width": 1,
+          "height": 13
+        },
+        "openings": []
+      },
+      {
+        "id": "restaurant-row-north",
+        "material": "commercial",
+        "bounds": {
+          "x": 38,
+          "y": 31,
+          "width": 20,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "restaurant-row-south",
+        "material": "commercial",
+        "bounds": {
+          "x": 38,
+          "y": 40,
+          "width": 20,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "restaurant-row-entrance",
+            "tile": {
+              "x": 48,
+              "y": 40
+            }
+          }
+        ]
+      },
+      {
+        "id": "restaurant-row-west",
+        "material": "commercial",
+        "bounds": {
+          "x": 38,
+          "y": 32,
+          "width": 1,
+          "height": 8
+        },
+        "openings": []
+      },
+      {
+        "id": "restaurant-row-east",
+        "material": "commercial",
+        "bounds": {
+          "x": 57,
+          "y": 32,
+          "width": 1,
+          "height": 8
+        },
+        "openings": []
+      }
+    ]
+  },
   "doors": [],
+  "objects": [
+    {
+      "id": "shopping-mall-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "shopping-mall",
+      "anchor": {
+        "x": 9,
+        "y": 11
+      },
+      "depthAnchorOffset": {
+        "x": 15,
+        "y": 9
+      },
+      "renderParts": [
+        {
+          "id": "shopping-mall-fixtures-part-01",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-02",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-05",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 12,
+            "y": 9
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 13,
+            "y": 9
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 14,
+            "y": 9
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-part-08",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 15,
+            "y": 9
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "shopping-mall-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-solid-05",
+          "bounds": {
+            "x": 12,
+            "y": 9,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "shopping-mall-fixtures-solid-06",
+          "bounds": {
+            "x": 13,
+            "y": 9,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-row-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 40,
+        "y": 33
+      },
+      "depthAnchorOffset": {
+        "x": 15,
+        "y": 4
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-row-fixtures-part-01",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-02",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-05",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 12,
+            "y": 4
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 13,
+            "y": 4
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 14,
+            "y": 4
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-part-08",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 15,
+            "y": 4
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-row-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-solid-05",
+          "bounds": {
+            "x": 12,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-row-fixtures-solid-06",
+          "bounds": {
+            "x": 13,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    }
+  ],
+  "effects": [
+    {
+      "id": "mall-sparkle",
+      "kind": "sparkle",
+      "tile": {
+        "x": 17,
+        "y": 16
+      }
+    }
+  ],
   "roofGroups": [],
   "areas": [
-    {"id":"shopping-mall","bounds":{"x":7,"y":9,"width":18,"height":14}},
-    {"id":"restaurant-row","bounds":{"x":38,"y":31,"width":18,"height":8}}
+    {
+      "id": "shopping-mall",
+      "bounds": {
+        "x": 7,
+        "y": 9,
+        "width": 20,
+        "height": 15
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 17,
+          "y": 22
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    },
+    {
+      "id": "restaurant-row",
+      "bounds": {
+        "x": 38,
+        "y": 31,
+        "width": 20,
+        "height": 10
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 48,
+          "y": 39
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    }
+  ],
+  "buildings": [],
+  "locationBindings": [
+    {
+      "locationId": "sora_boutique",
+      "areaIds": [
+        "shopping-mall"
+      ],
+      "preferredInteractionIds": []
+    },
+    {
+      "locationId": "rafael_cafe",
+      "areaIds": [
+        "restaurant-row"
+      ],
+      "preferredInteractionIds": []
+    }
   ],
   "portals": [
-    {"id":"from-residential","edge":"north","tile":{"x":32,"y":0},"destinationMapId":"northwest_residential","destinationEntranceId":"to-commercial"},
-    {"id":"to-docks","edge":"east","tile":{"x":63,"y":24},"destinationMapId":"southeast_docks","destinationEntranceId":"from-commercial"}
+    {
+      "id": "from-residential",
+      "edge": "north",
+      "tile": {
+        "x": 32,
+        "y": 0
+      },
+      "destinationMapId": "northwest_residential",
+      "destinationEntranceId": "to-commercial"
+    },
+    {
+      "id": "to-docks",
+      "edge": "east",
+      "tile": {
+        "x": 63,
+        "y": 24
+      },
+      "destinationMapId": "southeast_docks",
+      "destinationEntranceId": "from-commercial"
+    }
   ],
-  "stagingTiles": [{"x":32,"y":1},{"x":62,"y":24}],
-  "spawns": {"linda":{"x":15,"y":16},"generic-resident":{"x":45,"y":35}}
+  "stagingTiles": [
+    {
+      "x": 32,
+      "y": 1
+    },
+    {
+      "x": 62,
+      "y": 24
+    }
+  ],
+  "spawns": {
+    "linda": {
+      "x": 15,
+      "y": 16
+    },
+    "generic_resident": {
+      "x": 45,
+      "y": 35
+    },
+    "sora_tan": {
+      "x": 20,
+      "y": 16
+    },
+    "rafael_cruz": {
+      "x": 46,
+      "y": 36
+    },
+    "linda-shop": {
+      "x": 15,
+      "y": 16
+    }
+  }
 }

@@ -1,5 +1,6 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "layoutRevision": 1,
   "id": "southeast_docks",
   "displayName": "Harbor Authority",
   "width": 64,
@@ -8,33 +9,599 @@
   "ground": {
     "defaultSprite": "tile.pale-concrete",
     "regions": [
-      {"id":"north-road","x":30,"y":0,"width":5,"height":48,"sprite":"tile.plaza-paver"},
-      {"id":"west-road","x":0,"y":22,"width":35,"height":5,"sprite":"tile.plaza-paver"},
-      {"id":"harbor-water","x":44,"y":0,"width":20,"height":48,"sprite":"tile.shallow-water"},
-      {"id":"government-yard","x":7,"y":8,"width":17,"height":12,"sprite":"tile.spa-stone"},
-      {"id":"ferry-pier","x":34,"y":29,"width":18,"height":4,"sprite":"tile.boardwalk"}
+      {
+        "id": "north-road",
+        "x": 30,
+        "y": 0,
+        "width": 5,
+        "height": 48,
+        "sprite": "tile.plaza-paver"
+      },
+      {
+        "id": "west-road",
+        "x": 0,
+        "y": 22,
+        "width": 35,
+        "height": 5,
+        "sprite": "tile.plaza-paver"
+      },
+      {
+        "id": "harbor-water",
+        "x": 52,
+        "y": 0,
+        "width": 12,
+        "height": 48,
+        "sprite": "tile.shallow-water"
+      },
+      {
+        "id": "government-ground",
+        "x": 7,
+        "y": 8,
+        "width": 20,
+        "height": 14,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "ferry-pier",
+        "x": 34,
+        "y": 27,
+        "width": 18,
+        "height": 10,
+        "sprite": "tile.boardwalk"
+      }
     ]
   },
-  "collision": {"rectangles":[{"id":"deep-harbor","x":52,"y":0,"width":12,"height":48}],"walkableOverrides":[]},
-  "walls": {"regions":[],"openings":[]},
-  "props": [
-    {"id":"police-station","sprite":"tile.villa-floor","tile":{"x":12,"y":13},"blocksMovement":true},
-    {"id":"ferry-terminal","sprite":"tile.boardwalk","tile":{"x":39,"y":28},"blocksMovement":true},
-    {"id":"ferry-bow","sprite":"tile.boardwalk","tile":{"x":47,"y":30},"blocksMovement":true},
-    {"id":"ferry-stern","sprite":"tile.boardwalk","tile":{"x":48,"y":30},"blocksMovement":true}
+  "terrainSolids": [
+    {
+      "id": "deep-harbor",
+      "kind": "water",
+      "bounds": {
+        "x": 52,
+        "y": 0,
+        "width": 12,
+        "height": 48
+      }
+    }
   ],
-  "effects": [{"id":"harbor-light","kind":"sparkle","tile":{"x":42,"y":29}}],
-  "interactions": [],
+  "walls": {
+    "runs": [
+      {
+        "id": "government-yard-north",
+        "material": "civic",
+        "bounds": {
+          "x": 7,
+          "y": 8,
+          "width": 20,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "government-yard-south",
+        "material": "civic",
+        "bounds": {
+          "x": 7,
+          "y": 21,
+          "width": 20,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "government-yard-entrance",
+            "tile": {
+              "x": 17,
+              "y": 21
+            }
+          }
+        ]
+      },
+      {
+        "id": "government-yard-west",
+        "material": "civic",
+        "bounds": {
+          "x": 7,
+          "y": 9,
+          "width": 1,
+          "height": 12
+        },
+        "openings": []
+      },
+      {
+        "id": "government-yard-east",
+        "material": "civic",
+        "bounds": {
+          "x": 26,
+          "y": 9,
+          "width": 1,
+          "height": 12
+        },
+        "openings": []
+      },
+      {
+        "id": "ferry-terminal-north",
+        "material": "civic",
+        "bounds": {
+          "x": 34,
+          "y": 27,
+          "width": 18,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "ferry-terminal-south",
+        "material": "civic",
+        "bounds": {
+          "x": 34,
+          "y": 36,
+          "width": 18,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "ferry-terminal-entrance",
+            "tile": {
+              "x": 43,
+              "y": 36
+            }
+          }
+        ]
+      },
+      {
+        "id": "ferry-terminal-west",
+        "material": "civic",
+        "bounds": {
+          "x": 34,
+          "y": 28,
+          "width": 1,
+          "height": 8
+        },
+        "openings": []
+      },
+      {
+        "id": "ferry-terminal-east",
+        "material": "civic",
+        "bounds": {
+          "x": 51,
+          "y": 28,
+          "width": 1,
+          "height": 8
+        },
+        "openings": []
+      }
+    ]
+  },
   "doors": [],
+  "objects": [
+    {
+      "id": "government-yard-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 9,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 15,
+        "y": 8
+      },
+      "renderParts": [
+        {
+          "id": "government-yard-fixtures-part-01",
+          "sprite": "tile.sign-civic",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-02",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-05",
+          "sprite": "tile.sign-civic",
+          "offset": {
+            "x": 12,
+            "y": 8
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 13,
+            "y": 8
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 14,
+            "y": 8
+          }
+        },
+        {
+          "id": "government-yard-fixtures-part-08",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 15,
+            "y": 8
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-yard-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-yard-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-yard-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-yard-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-yard-fixtures-solid-05",
+          "bounds": {
+            "x": 12,
+            "y": 8,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-yard-fixtures-solid-06",
+          "bounds": {
+            "x": 13,
+            "y": 8,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-terminal-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 36,
+        "y": 29
+      },
+      "depthAnchorOffset": {
+        "x": 13,
+        "y": 4
+      },
+      "renderParts": [
+        {
+          "id": "ferry-terminal-fixtures-part-01",
+          "sprite": "tile.sign-civic",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-02",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-05",
+          "sprite": "tile.sign-civic",
+          "offset": {
+            "x": 10,
+            "y": 4
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-06",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 11,
+            "y": 4
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 12,
+            "y": 4
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-part-08",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 13,
+            "y": 4
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-terminal-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-solid-05",
+          "bounds": {
+            "x": 10,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-terminal-fixtures-solid-06",
+          "bounds": {
+            "x": 11,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-landmark",
+      "kind": "ferry",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 47,
+        "y": 34
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "ferry-landmark-part-01",
+          "sprite": "tile.landmark-ferry-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-landmark-part-02",
+          "sprite": "tile.landmark-ferry-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    }
+  ],
+  "effects": [
+    {
+      "id": "harbor-light",
+      "kind": "sparkle",
+      "tile": {
+        "x": 42,
+        "y": 29
+      }
+    }
+  ],
   "roofGroups": [],
   "areas": [
-    {"id":"government-yard","bounds":{"x":7,"y":8,"width":17,"height":12}},
-    {"id":"ferry-terminal","bounds":{"x":34,"y":27,"width":18,"height":7}}
+    {
+      "id": "government-yard",
+      "bounds": {
+        "x": 7,
+        "y": 8,
+        "width": 20,
+        "height": 14
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 17,
+          "y": 20
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    },
+    {
+      "id": "ferry-terminal",
+      "bounds": {
+        "x": 34,
+        "y": 27,
+        "width": 18,
+        "height": 10
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 43,
+          "y": 35
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    }
+  ],
+  "buildings": [],
+  "locationBindings": [
+    {
+      "locationId": "priya_clinic",
+      "areaIds": [
+        "government-yard"
+      ],
+      "preferredInteractionIds": []
+    },
+    {
+      "locationId": "tomas_marina",
+      "areaIds": [
+        "government-yard"
+      ],
+      "preferredInteractionIds": []
+    },
+    {
+      "locationId": "ferry_terminal",
+      "areaIds": [
+        "ferry-terminal"
+      ],
+      "preferredInteractionIds": []
+    }
   ],
   "portals": [
-    {"id":"from-downtown","edge":"north","tile":{"x":32,"y":0},"destinationMapId":"northeast_downtown","destinationEntranceId":"to-docks"},
-    {"id":"from-commercial","edge":"west","tile":{"x":0,"y":24},"destinationMapId":"southwest_commercial","destinationEntranceId":"to-docks"}
+    {
+      "id": "from-downtown",
+      "edge": "north",
+      "tile": {
+        "x": 32,
+        "y": 0
+      },
+      "destinationMapId": "northeast_downtown",
+      "destinationEntranceId": "to-docks"
+    },
+    {
+      "id": "from-commercial",
+      "edge": "west",
+      "tile": {
+        "x": 0,
+        "y": 24
+      },
+      "destinationMapId": "southwest_commercial",
+      "destinationEntranceId": "to-docks"
+    }
   ],
-  "stagingTiles": [{"x":32,"y":1},{"x":1,"y":24}],
-  "spawns": {"linda":{"x":12,"y":14},"generic-resident":{"x":39,"y":27}}
+  "stagingTiles": [
+    {
+      "x": 32,
+      "y": 1
+    },
+    {
+      "x": 1,
+      "y": 24
+    }
+  ],
+  "spawns": {
+    "linda": {
+      "x": 12,
+      "y": 14
+    },
+    "generic_resident": {
+      "x": 39,
+      "y": 34
+    },
+    "priya_nair": {
+      "x": 18,
+      "y": 15
+    },
+    "tomas_reed": {
+      "x": 42,
+      "y": 33
+    }
+  }
 }

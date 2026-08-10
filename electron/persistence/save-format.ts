@@ -6,8 +6,15 @@ import {
   type SaveSlotId,
   type SaveTrigger,
 } from '../../src/application/effects/PersistencePort';
+import { LegacyStateV5Schema } from '../../src/domain/state/migrations/v5-to-v6';
 import { WorldStateSchema, type WorldState } from '../../src/domain/state/schema';
-import { canonicalStateJson, checksumState, checksumUtf8 } from './checksum';
+import {
+  canonicalLegacyStateV5Json,
+  canonicalStateJson,
+  checksumLegacyStateV5,
+  checksumState,
+  checksumUtf8,
+} from './checksum';
 
 const Sha256Schema = z.string().regex(/^[a-f0-9]{64}$/u);
 
@@ -22,6 +29,19 @@ export const SaveEnvelopeSchema = z.object({
 }).strict();
 
 export type SaveEnvelope = z.infer<typeof SaveEnvelopeSchema>;
+
+export const LegacySaveEnvelopeV5Schema = z.object({
+  formatVersion: z.literal(1),
+  slotId: SaveSlotIdSchema,
+  saveGeneration: z.number().int().positive(),
+  trigger: SaveTriggerSchema,
+  stateChecksum: Sha256Schema,
+  payloadChecksum: Sha256Schema,
+  state: LegacyStateV5Schema,
+}).strict();
+
+export type LegacySaveEnvelopeV5 = z.infer<typeof LegacySaveEnvelopeV5Schema>;
+export type SupportedSaveEnvelope = SaveEnvelope | LegacySaveEnvelopeV5;
 
 export const SaveManifestSchema = z.object({
   formatVersion: z.literal(1),
@@ -80,6 +100,46 @@ export function parseSaveEnvelope(candidate: unknown): SaveEnvelope {
     trigger: envelope.trigger,
     stateChecksum: envelope.stateChecksum,
     state: JSON.parse(canonicalStateJson(envelope.state)) as unknown,
+  }));
+  if (expectedPayloadChecksum !== envelope.payloadChecksum) {
+    throw new Error('Save payload checksum does not match.');
+  }
+  return envelope;
+}
+
+function parseSupportedEnvelopeShape(candidate: unknown): SupportedSaveEnvelope {
+  const schemaVersion = typeof candidate === 'object' && candidate !== null && 'state' in candidate &&
+    typeof candidate.state === 'object' && candidate.state !== null && 'schemaVersion' in candidate.state
+    ? candidate.state.schemaVersion
+    : undefined;
+  if (schemaVersion === 5) return LegacySaveEnvelopeV5Schema.parse(candidate);
+  if (schemaVersion === 6) return SaveEnvelopeSchema.parse(candidate);
+  throw new Error(`No compatible save envelope state schema ${String(schemaVersion)}.`);
+}
+
+export function parseSupportedSaveEnvelope(candidate: unknown): SupportedSaveEnvelope {
+  const envelope = parseSupportedEnvelopeShape(candidate);
+  let canonicalState: string;
+  let stateChecksum: string;
+  if (envelope.state.schemaVersion === 5) {
+    const state = LegacyStateV5Schema.parse(envelope.state);
+    canonicalState = canonicalLegacyStateV5Json(state);
+    stateChecksum = checksumLegacyStateV5(state);
+  } else {
+    const state = WorldStateSchema.parse(envelope.state);
+    canonicalState = canonicalStateJson(state);
+    stateChecksum = checksumState(state);
+  }
+  if (stateChecksum !== envelope.stateChecksum) {
+    throw new Error('Save state checksum does not match.');
+  }
+  const expectedPayloadChecksum = checksumUtf8(JSON.stringify({
+    formatVersion: envelope.formatVersion,
+    slotId: envelope.slotId,
+    saveGeneration: envelope.saveGeneration,
+    trigger: envelope.trigger,
+    stateChecksum: envelope.stateChecksum,
+    state: JSON.parse(canonicalState) as unknown,
   }));
   if (expectedPayloadChecksum !== envelope.payloadChecksum) {
     throw new Error('Save payload checksum does not match.');

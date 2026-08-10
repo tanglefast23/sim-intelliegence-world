@@ -3,9 +3,6 @@
   "id": "linda_boyfriend_check",
   "requestNpcId": "linda",
   "targetNpcId": "linda_boyfriend",
-  "targetMapId": "northwest_residential",
-  "targetLocationId": "linda_villa",
-  "targetTile": {"x": 23, "y": 28},
   "maximumActionDistance": 3,
   "npcDeathPermitted": false,
   "start": {

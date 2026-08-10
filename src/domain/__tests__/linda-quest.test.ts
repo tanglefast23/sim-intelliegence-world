@@ -155,7 +155,7 @@ describe('Phase 11 Linda quest and consequences', () => {
       relationships: Object.fromEntries(Object.entries(current.relationships).filter(([id]) => id !== 'linda_boyfriend')),
     });
     const started = startedState(legacy);
-    expect(started.schemaVersion).toBe(5);
+    expect(started.schemaVersion).toBe(6);
     expect(started.npcs.linda_boyfriend).toEqual(expect.objectContaining({ condition: 'alive', tier: 'ambient' }));
     expect(started.relationships.linda_boyfriend).toEqual(expect.objectContaining({
       compatibility: { social: false, romantic: false }, stage: 'stranger',

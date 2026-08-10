@@ -25,8 +25,19 @@ import {
   type SaveResult,
   type SaveSlotId,
 } from '../../src/application/effects/PersistencePort';
+import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
-import { parseSaveEnvelope, serializeSaveEnvelope, createSaveEnvelope, manifestForEnvelope, SaveManifestSchema } from './save-format';
+import { migrateV5ToV6 } from '../../src/domain/state/migrations/v5-to-v6';
+import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
+import { LayoutMigrationError, recoverWorldLayout } from '../../src/world/maps/layout-recovery';
+import {
+  parseSaveEnvelope,
+  parseSupportedSaveEnvelope,
+  serializeSaveEnvelope,
+  createSaveEnvelope,
+  manifestForEnvelope,
+  SaveManifestSchema,
+} from './save-format';
 import { inspectSaveCandidate, recoverSlot } from './recovery';
 import { SerializedWriteQueue } from './write-queue';
 
@@ -98,11 +109,22 @@ export function saveRootForUserData(userDataPath: string): string {
 
 export class SaveRepository {
   readonly #queue = new SerializedWriteQueue();
+  readonly #catalog: WorldMapV2Catalog;
+  readonly #faultInjector?: SaveFaultInjector;
 
   constructor(
     private readonly rootPath: string,
-    private readonly faultInjector?: SaveFaultInjector,
-  ) {}
+    catalogOrFault: WorldMapV2Catalog | SaveFaultInjector = WORLD_MAP_CATALOG,
+    faultInjector?: SaveFaultInjector,
+  ) {
+    if (typeof catalogOrFault === 'function') {
+      this.#catalog = WORLD_MAP_CATALOG;
+      this.#faultInjector = catalogOrFault;
+    } else {
+      this.#catalog = catalogOrFault;
+      this.#faultInjector = faultInjector;
+    }
+  }
 
   async load(slotCandidate: SaveSlotId): Promise<LoadResult> {
     const slotId = SaveSlotIdSchema.parse(slotCandidate);
@@ -111,24 +133,66 @@ export class SaveRepository {
 
   private async loadSlot(slotId: SaveSlotId): Promise<LoadResult> {
     const recovery = await recoverSlot(this.slotPath(slotId), slotId);
+    const incompatibleCandidateCount = recovery.invalidCandidates.filter(
+      ({ classification }) => classification === 'incompatible',
+    ).length;
+    const corruptCandidateCount = recovery.invalidCandidates.length - incompatibleCandidateCount;
     if (!recovery.selected) {
-      return recovery.invalidCandidates.length === 0
-        ? LoadResultSchema.parse({ status: 'empty', slotId })
-        : LoadResultSchema.parse({
-          status: 'unrecoverable',
-          slotId,
-          invalidCandidateCount: recovery.invalidCandidates.length,
+      if (recovery.invalidCandidates.length === 0) return LoadResultSchema.parse({ status: 'empty', slotId });
+      if (incompatibleCandidateCount > 0) {
+        return LoadResultSchema.parse({
+          status: 'incompatible', slotId, incompatibleCandidateCount, corruptCandidateCount,
         });
+      }
+      return LoadResultSchema.parse({ status: 'corrupt', slotId, corruptCandidateCount });
     }
-    return LoadResultSchema.parse({
-      status: 'loaded',
-      slotId,
-      saveGeneration: recovery.selected.envelope.saveGeneration,
-      checksum: recovery.selected.envelope.payloadChecksum,
-      source: recovery.selected.source,
-      state: recovery.selected.envelope.state,
-      invalidCandidateCount: recovery.invalidCandidates.length,
-    });
+    const sourceSchemaVersion = recovery.selected.envelope.state.schemaVersion;
+    try {
+      const currentState = sourceSchemaVersion === 5
+        ? migrateV5ToV6(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId)
+        : recovery.selected.envelope.state;
+      const layout = recoverWorldLayout(currentState, this.#catalog);
+      if (sourceSchemaVersion === 6 && layout.migratedMapIds.length === 0) {
+        return LoadResultSchema.parse({
+          status: 'unchanged',
+          slotId,
+          saveGeneration: recovery.selected.envelope.saveGeneration,
+          checksum: recovery.selected.envelope.payloadChecksum,
+          source: recovery.selected.source,
+          state: layout.state,
+          incompatibleCandidateCount,
+          corruptCandidateCount,
+        });
+      }
+      const saved = await this.writeSave(SaveRequestSchema.parse({
+        slotId,
+        expectedSaveGeneration: recovery.selected.envelope.saveGeneration,
+        trigger: 'manual',
+        state: layout.state,
+      }));
+      if (saved.status !== 'saved') throw new Error('A load-time migration save was deferred.');
+      return LoadResultSchema.parse({
+        status: 'migrated',
+        slotId,
+        saveGeneration: saved.saveGeneration,
+        checksum: saved.checksum,
+        source: recovery.selected.source,
+        state: layout.state,
+        incompatibleCandidateCount,
+        corruptCandidateCount,
+        migratedFromSchemaVersion: sourceSchemaVersion,
+        migratedMapIds: layout.migratedMapIds,
+      });
+    } catch (error) {
+      if (!(error instanceof LayoutMigrationError)) throw error;
+      return LoadResultSchema.parse({
+        status: 'unrecoverable',
+        slotId,
+        reason: 'layout_migration_failed',
+        incompatibleCandidateCount,
+        corruptCandidateCount,
+      });
+    }
   }
 
   save(candidate: SaveRequest): Promise<SaveResult> {
@@ -154,7 +218,7 @@ export class SaveRepository {
   }
 
   private async inject(stage: SaveFaultStage): Promise<void> {
-    await this.faultInjector?.(stage);
+    await this.#faultInjector?.(stage);
   }
 
   private async migrateSlot(request: MigrationRequest): Promise<MigrationResult> {
@@ -172,7 +236,10 @@ export class SaveRepository {
     ) {
       throw new Error('No registered envelope migration supports this source format.');
     }
-    const migratedState = migrateStateCopy(sourceCandidate, request.nextGenerationId);
+    const migratedState = recoverWorldLayout(
+      migrateStateCopy(sourceCandidate, request.nextGenerationId),
+      this.#catalog,
+    ).state;
     const targetRecovery = await recoverSlot(this.slotPath(request.targetSlotId), request.targetSlotId);
     if (targetRecovery.selected || targetRecovery.invalidCandidates.length > 0) {
       throw new Error('Migration target slot is not empty.');
@@ -204,7 +271,7 @@ export class SaveRepository {
     await mkdir(autosavePath, { recursive: true, mode: 0o700 });
     const recovery = await recoverSlot(slotPath, request.slotId);
     if (!recovery.selected && recovery.invalidCandidates.length > 0) {
-      throw new Error('No valid save candidate exists; corrupt candidates were preserved.');
+      throw new Error('No compatible save candidate exists; existing candidates were preserved.');
     }
     const currentGeneration = recovery.selected?.envelope.saveGeneration ?? null;
     if (request.expectedSaveGeneration !== currentGeneration) {
@@ -257,7 +324,7 @@ export class SaveRepository {
       } finally {
         await backupHandle.close();
       }
-      parseSaveEnvelope(JSON.parse(await readFile(backupTemporary, 'utf8')) as unknown);
+      parseSupportedSaveEnvelope(JSON.parse(await readFile(backupTemporary, 'utf8')) as unknown);
       await rename(backupTemporary, backupPath);
     }
     if (await pathExists(mainPath)) {

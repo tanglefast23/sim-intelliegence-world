@@ -21,7 +21,7 @@ import { createBrowserConversationPort } from '../ai/conversation/browser-port';
 import { autosaveStableState } from '../application/runtime/autosave';
 import { WORLD_MAP_CATALOG } from '../application/runtime/map-catalog';
 import { setWorldSpeed, sleepWorld, tickWorld } from '../application/runtime/tick';
-import { transitionNeighborhood } from '../application/runtime/transitions';
+import { canStartPortalTransition, transitionNeighborhood } from '../application/runtime/transitions';
 import { advanceWorldMovement } from '../application/runtime/world-runtime';
 import { effectiveSpeed } from '../domain/clock/clock';
 import { reduceCommand } from '../domain/commands/reducer';
@@ -37,8 +37,10 @@ import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
 import { WorldInput } from '../ui/WorldInput';
-import { resolveClickTarget, type ClickCandidate } from '../world/maps/hit-testing';
-import { groundSpriteAt, pointsInRect, tileKey, type CompiledMap, type TilePoint } from '../world/maps/schema';
+import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
+import { selectOwnerInteractionApproach } from '../world/maps/compiler';
+import { resolveClickTarget, worldClickCandidates } from '../world/maps/hit-testing';
+import { pointsInRect, tileKey, type TilePoint } from '../world/maps/schema';
 import type { MapId } from '../world/maps/catalog';
 import {
   cancelMovement,
@@ -109,7 +111,7 @@ function atlasData(placements: readonly SpritePlacement[], camera: CameraState) 
   };
 }
 
-function areaName(map: CompiledMap, tile: TilePoint): string {
+function areaName(map: CompiledMapV2, tile: TilePoint): string {
   const area = map.source.areas.find(({ bounds }) => (
     tile.x >= bounds.x && tile.x < bounds.x + bounds.width &&
     tile.y >= bounds.y && tile.y < bounds.y + bounds.height
@@ -146,7 +148,7 @@ function npcBlockers(state: WorldState, mapId: string, excludedNpcId?: string): 
   for (const stateId of Object.keys(state.npcs).sort()) {
     if (stateId === excludedNpcId) continue;
     const presence = state.npcs[stateId]?.presence;
-    if (presence && presence.kind !== 'in_transit' && presence.mapId === mapId) {
+    if (presence?.kind === 'active_local' && presence.mapId === mapId) {
       blockers.add(tileKey({ x: presence.tileX, y: presence.tileY }));
     }
   }
@@ -315,7 +317,13 @@ export function WorldScene({
     const position = runtime.worldState.protagonist.worldPosition;
     const key = `${position.mapId}:${position.tileX},${position.tileY}`;
     if (arrivalLock && arrivalLock !== key) setArrivalLock(undefined);
-    if (arrivalLock === key || transitioning || runtime.movement.status === 'moving') return;
+    if (!canStartPortalTransition({
+      arrivalLocked: arrivalLock === key,
+      transitioning,
+      movementStatus: runtime.movement.status,
+      conversationOpen: conversationNpcId !== undefined,
+      panelOpen: openPanel !== undefined,
+    })) return;
     const portal = map.source.portals.find(({ tile }) => tile.x === position.tileX && tile.y === position.tileY);
     if (!portal) return;
     setTransitioning(true);
@@ -337,7 +345,7 @@ export function WorldScene({
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
       if (result.completed) void requestAutosave(result.state, 'travel');
     }).finally(() => setTransitioning(false));
-  }, [arrivalLock, map, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
+  }, [arrivalLock, conversationNpcId, map, openPanel, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
 
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
@@ -360,18 +368,11 @@ export function WorldScene({
     if (conversationNpcId || openPanel) return;
     const tile = screenToTile(camera, point);
     if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
-    const candidates: ClickCandidate[] = [{ id: `floor-${tileKey(tile)}`, kind: 'floor', tile }];
-    for (const [id, actor] of Object.entries(npcTiles)) {
-      if (tileKey(actor.tile) === tileKey(tile)) candidates.push({ id, kind: 'npc', tile: actor.tile });
-    }
-    for (const prop of map.source.props) {
-      if (tileKey(prop.tile) === tileKey(tile)) candidates.push({ id: prop.id, kind: 'object', tile: prop.tile });
-    }
-    for (const interaction of map.source.interactions) {
-      if (tileKey(interaction.hitTile) === tileKey(tile)) {
-        candidates.push({ id: interaction.id, kind: 'interaction', tile: interaction.targetTile });
-      }
-    }
+    const candidates = worldClickCandidates(
+      map,
+      Object.fromEntries(Object.entries(npcTiles).map(([id, actor]) => [id, actor.tile])),
+      tile,
+    );
     const resolved = resolveClickTarget(candidates);
     if (!resolved) return;
     if (resolved.kind === 'npc') {
@@ -380,12 +381,27 @@ export function WorldScene({
       return;
     }
     if (resolved.kind === 'object') {
-      const interaction = map.source.interactions.find(({ hitTile }) => tileKey(hitTile) === tileKey(tile));
-      requestTile(interaction?.targetTile ?? tile);
+      const interactions = [...map.interactionById.values()].filter(({ ownerId }) => ownerId === resolved.id);
+      if (interactions.length > 0) {
+        const target = selectOwnerInteractionApproach(
+          map,
+          resolved.id,
+          runtime.movement.player,
+          npcBlockers(runtime.worldState, map.source.id),
+        );
+        if (target) requestTile(target.tile);
+        else {
+          setRuntime((current) => ({
+            ...current,
+            movement: { ...cancelMovement(current.movement), status: 'unreachable', feedbackTile: tile },
+          }));
+          setWorldFeedback('NO USABLE APPROACH');
+        }
+      } else requestTile(tile);
       return;
     }
     if (resolved.tile) requestTile(resolved.tile);
-  }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile]);
+  }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile, runtime.movement.player, runtime.worldState]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
@@ -545,15 +561,28 @@ export function WorldScene({
       for (let x = 0; x < map.source.width; x += 1) {
         const tile = { x, y };
         if (isVisible(tile, camera)) {
-          placements.push({ id: `floor-${x}-${y}`, sprite: groundSpriteAt(map, tile), worldX: x * TILE_SIZE, worldY: y * TILE_SIZE });
+          placements.push({ id: `floor-${x}-${y}`, sprite: groundSpriteAtV2(map, tile), worldX: x * TILE_SIZE, worldY: y * TILE_SIZE });
         }
       }
     }
     return placements;
   }, [camera, map]);
-  const visibleProps = map.source.props.filter(({ tile }) => isVisible(tile, camera))
-    .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right))
-    .map((prop) => ({ id: prop.id, sprite: prop.sprite, worldX: prop.tile.x * TILE_SIZE, worldY: prop.tile.y * TILE_SIZE }));
+  const visibleProps = [
+    ...[...map.objectPartById.values()].filter(({ tile }) => isVisible(tile, camera)).map((part) => ({
+      id: part.id,
+      sprite: part.sprite,
+      tile: part.depthAnchor,
+      worldX: part.tile.x * TILE_SIZE,
+      worldY: part.tile.y * TILE_SIZE,
+    })),
+    ...[...map.doorById.values()].filter(({ tile }) => isVisible(tile, camera)).map((door) => ({
+      id: door.id,
+      sprite: door.sprite,
+      tile: door.tile,
+      worldX: door.tile.x * TILE_SIZE,
+      worldY: door.tile.y * TILE_SIZE,
+    })),
+  ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right));
   const visibleWalls = map.wallTiles.filter(({ tile }) => isVisible(tile, camera))
     .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
     .map((wall) => ({ id: wall.id, sprite: wall.sprite, worldX: wall.tile.x * TILE_SIZE, worldY: wall.tile.y * TILE_SIZE }));
@@ -565,7 +594,7 @@ export function WorldScene({
   const wallAtlas = atlasData(visibleWalls, camera);
   const visibleRoofTiles = map.source.roofGroups
     .filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id))
-    .flatMap((roof) => pointsInRect(roof.bounds).map((tile) => ({
+    .flatMap((roof) => roof.cells.flatMap(pointsInRect).map((tile) => ({
       id: `${roof.id}-${tileKey(tile)}`,
       sprite: 'tile.boardwalk',
       worldX: tile.x * TILE_SIZE,
@@ -617,10 +646,12 @@ export function WorldScene({
         return (
           <>
             <Atlas image={image} key="roof-atlas" sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} />
-            {map.source.roofGroups.filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id)).map((roof) => {
-              const screen = worldToScreen(camera, { x: roof.bounds.x * 32, y: roof.bounds.y * 32 });
-              return <Rect color="#4b211f55" height={roof.bounds.height * 32 * camera.zoom} key={roof.id} width={roof.bounds.width * 32 * camera.zoom} x={screen.x} y={screen.y} />;
-            })}
+            {map.source.roofGroups.filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id)).flatMap((roof) => (
+              roof.cells.map((cell, index) => {
+                const screen = worldToScreen(camera, { x: cell.x * 32, y: cell.y * 32 });
+                return <Rect color="#4b211f55" height={cell.height * 32 * camera.zoom} key={`${roof.id}-${index}`} width={cell.width * 32 * camera.zoom} x={screen.x} y={screen.y} />;
+              })
+            ))}
           </>
         );
     }

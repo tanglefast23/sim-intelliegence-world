@@ -10,9 +10,11 @@ import { PROTOTYPE_ECONOMY_POLICY } from '../../src/domain/economy/economy';
 import { createInitialState } from '../../src/domain/state/initial-state';
 import { ScheduleStateSchema } from '../../src/domain/state/models';
 import { SOCIAL_PURCHASES } from '../../src/domain/quests/purchases';
-import { LINDA_QUEST, LindaQuestDefinitionSchema } from '../../src/domain/quests/quest-machine';
+import { LINDA_QUEST, resolveLindaQuestDefinition } from '../../src/domain/quests/quest-machine';
 import { ATLAS_INDEX } from '../../src/render/atlas';
-import { buildWorldMapCatalog, MAP_IDS, type MapId } from '../../src/world/maps/catalog';
+import { buildWorldMapV2Catalog, MAP_IDS, type MapId } from '../../src/world/maps/catalog';
+import type { WorldState } from '../../src/domain/state/schema';
+import { tileKey, type TilePoint } from '../../src/world/maps/schema';
 import { z } from 'zod';
 
 function compareAscii(left: string, right: string): number {
@@ -59,6 +61,104 @@ async function readCharacterRulesDirectory(path: string): Promise<unknown[]> {
   return Promise.all(entries.map((entry) => readJson(resolve(path, entry.name, 'rules.json'))));
 }
 
+function assertBoundTile(
+  maps: ReturnType<typeof buildWorldMapV2Catalog>,
+  locationNeighborhoodById: ReadonlyMap<string, string>,
+  recordId: string,
+  mapId: string,
+  locationId: string,
+  tile: TilePoint,
+): void {
+  const expectedMapId = locationNeighborhoodById.get(locationId);
+  if (expectedMapId !== mapId) {
+    throw new Error(`${recordId} uses ${mapId}, but location ${locationId} belongs to ${String(expectedMapId)}.`);
+  }
+  const map = maps[mapId as MapId];
+  const binding = map?.locationBindingById.get(locationId);
+  if (!map || !binding || !binding.candidateTiles.some((candidate) => tileKey(candidate) === tileKey(tile))) {
+    throw new Error(`${recordId} has no compiled location-binding tile at ${mapId}/${locationId}/${tileKey(tile)}.`);
+  }
+}
+
+function validateInitialWorldReferences(
+  state: WorldState,
+  maps: ReturnType<typeof buildWorldMapV2Catalog>,
+  locationNeighborhoodById: ReadonlyMap<string, string>,
+): void {
+  assertBoundTile(
+    maps, locationNeighborhoodById, 'protagonist.worldPosition',
+    state.protagonist.worldPosition.mapId, state.protagonist.locationId,
+    { x: state.protagonist.worldPosition.tileX, y: state.protagonist.worldPosition.tileY },
+  );
+  for (const npc of Object.values(state.npcs)) {
+    if (npc.presence.kind !== 'in_transit') {
+      assertBoundTile(
+        maps, locationNeighborhoodById, `${npc.id}.presence`, npc.presence.mapId, npc.presence.locationId,
+        { x: npc.presence.tileX, y: npc.presence.tileY },
+      );
+    }
+    if (npc.scheduleGoal && npc.scheduleGoal.activityId !== 'travel') {
+      assertBoundTile(
+        maps, locationNeighborhoodById, `${npc.id}.scheduleGoal`, npc.scheduleGoal.mapId, npc.scheduleGoal.locationId,
+        { x: npc.scheduleGoal.tileX, y: npc.scheduleGoal.tileY },
+      );
+    }
+  }
+  for (const schedule of Object.values(state.schedules)) {
+    for (const [index, block] of schedule.blocks.entries()) {
+      assertBoundTile(
+        maps, locationNeighborhoodById, `${schedule.id}.blocks.${index}`, block.mapId, block.locationId,
+        { x: block.tileX, y: block.tileY },
+      );
+    }
+  }
+  for (const invitation of Object.values(state.invitations)) {
+    assertBoundTile(
+      maps, locationNeighborhoodById, `${invitation.id}.destination`,
+      invitation.destinationMapId, invitation.destinationLocationId,
+      maps[invitation.destinationMapId as MapId].locationBindingById.get(invitation.destinationLocationId)!.candidateTiles[0]!,
+    );
+  }
+  for (const transfer of Object.values(state.transfers)) {
+    const destination = maps[transfer.destinationMapId as MapId];
+    const entrance = destination?.portalById.get(transfer.destinationEntranceId);
+    if (!entrance || entrance.tile.x !== transfer.destinationEntranceTileX || entrance.tile.y !== transfer.destinationEntranceTileY) {
+      throw new Error(`${transfer.id} does not match its compiled destination entrance identity.`);
+    }
+    assertBoundTile(
+      maps, locationNeighborhoodById, `${transfer.id}.destinationGoal`,
+      transfer.destinationMapId, transfer.destinationLocationId,
+      { x: transfer.destinationGoalTileX, y: transfer.destinationGoalTileY },
+    );
+  }
+  for (const journal of Object.values(state.journal)) {
+    if (journal.locationId && !locationNeighborhoodById.has(journal.locationId)) {
+      throw new Error(`${journal.id} references unknown journal location ${journal.locationId}.`);
+    }
+  }
+  for (const evidence of Object.values(state.evidence)) {
+    if (!locationNeighborhoodById.has(evidence.locationId)) {
+      throw new Error(`${evidence.id} references unknown evidence location ${evidence.locationId}.`);
+    }
+  }
+  for (const mapState of Object.values(state.maps)) {
+    const map = maps[mapState.id as MapId];
+    for (const entranceId of mapState.discoveredEntranceIds) {
+      if (!map.portalById.has(entranceId) && !map.locationBindingById.has(entranceId)) {
+        throw new Error(`${mapState.id} references unknown discovered entrance ${entranceId}.`);
+      }
+    }
+  }
+  for (const map of Object.values(maps)) {
+    for (const [spawnId, tile] of Object.entries(map.source.spawns)) {
+      if (map.blockedKeys.has(tileKey(tile))) throw new Error(`${map.source.id} spawn ${spawnId} is blocked.`);
+    }
+    for (const [index, tile] of map.source.stagingTiles.entries()) {
+      if (map.blockedKeys.has(tileKey(tile))) throw new Error(`${map.source.id} staging tile ${index} is blocked.`);
+    }
+  }
+}
+
 export async function loadContentBundle(rootPath: string): Promise<ContentBundleInput> {
   const contentPath = resolve(rootPath, 'content');
   const registryEntries = await Promise.all(
@@ -84,7 +184,7 @@ export async function loadContentBundle(rootPath: string): Promise<ContentBundle
 export async function validateContent(rootPath = process.cwd()): Promise<void> {
   const bundle = await loadContentBundle(rootPath);
   const catalog = buildContentCatalog(bundle);
-  buildLocationNeighborhoodIndex(catalog.locations);
+  const locationNeighborhoodById = buildLocationNeighborhoodIndex(catalog.locations);
   const writingStore = new FileCharacterWritingStore(resolve(rootPath, 'content'));
   await Promise.all(catalog.rules.map(({ npcId }) => writingStore.get(npcId)));
   const mapFiles: Readonly<Record<MapId, string>> = {
@@ -97,13 +197,17 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
     mapId,
     await readJson(resolve(rootPath, 'content', 'maps', mapFiles[mapId])),
   ] as const));
-  const maps = buildWorldMapCatalog(Object.fromEntries(mapEntries) as Record<MapId, unknown>, new Set(ATLAS_INDEX.tiles));
+  const maps = buildWorldMapV2Catalog(Object.fromEntries(mapEntries) as Record<MapId, unknown>, {
+    locationNeighborhoodById,
+    knownSprites: new Set(ATLAS_INDEX.tiles),
+    validateDensity: true,
+  });
   const economy = EconomyPolicySchema.parse(await readJson(resolve(rootPath, 'content', 'economy', 'prototype.json')));
   const schedules = z.array(ScheduleStateSchema).parse(
     await readJson(resolve(rootPath, 'content', 'schedules', 'prototype.json')),
   );
   const social = SocialContentSchema.parse(await readJson(resolve(rootPath, 'content', 'social', 'prototype.json')));
-  const lindaQuest = LindaQuestDefinitionSchema.parse(
+  const lindaQuest = resolveLindaQuestDefinition(
     await readJson(resolve(rootPath, 'content', 'quests', 'linda-boyfriend.json')),
   );
   const factionIds = new Set(catalog.factions.map(({ id }) => id));
@@ -129,7 +233,13 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
   if (JSON.stringify(economy) !== JSON.stringify(PROTOTYPE_ECONOMY_POLICY)) {
     throw new Error('The prototype economy fixture does not match the authoritative economy policy.');
   }
-  const initialSchedules = Object.values(createInitialState().schedules);
+  const initialState = createInitialState();
+  validateInitialWorldReferences(initialState, maps, locationNeighborhoodById);
+  assertBoundTile(
+    maps, locationNeighborhoodById, `${lindaQuest.id}.target`,
+    lindaQuest.targetMapId, lindaQuest.targetLocationId, lindaQuest.targetTile,
+  );
+  const initialSchedules = Object.values(initialState.schedules);
   if (JSON.stringify(schedules) !== JSON.stringify(initialSchedules)) {
     throw new Error('The prototype schedule fixture does not match the authoritative initial schedules.');
   }
