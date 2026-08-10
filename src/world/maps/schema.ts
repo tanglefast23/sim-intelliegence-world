@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-const StableIdSchema = z.string().regex(/^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$/u);
-const SpriteIdSchema = z.string().regex(/^tile\.[a-z][a-z0-9-]*$/u);
+export const MapStableIdSchema = z.string().regex(/^[a-z][a-z0-9]*(?:[_-][a-z0-9]+)*$/u);
+export const MapSpriteIdSchema = z.string().regex(/^tile\.[a-z][a-z0-9-]*$/u);
 
 export const TilePointSchema = z.object({
   x: z.number().int().min(0).max(63),
@@ -15,18 +15,18 @@ export const TileRectSchema = TilePointSchema.extend({
   message: 'Tile rectangle exceeds the 64x48 map bounds.',
 });
 
-const IdentifiedRectSchema = TileRectSchema.extend({ id: StableIdSchema }).strict();
-const SpriteRectSchema = IdentifiedRectSchema.extend({ sprite: SpriteIdSchema }).strict();
+const IdentifiedRectSchema = TileRectSchema.extend({ id: MapStableIdSchema }).strict();
+const SpriteRectSchema = IdentifiedRectSchema.extend({ sprite: MapSpriteIdSchema }).strict();
 
 export const WorldMapSchema = z.object({
   schemaVersion: z.literal(1),
-  id: StableIdSchema,
+  id: MapStableIdSchema,
   displayName: z.string().trim().min(1).max(80),
   width: z.literal(64),
   height: z.literal(48),
   tileSize: z.literal(32),
   ground: z.object({
-    defaultSprite: SpriteIdSchema,
+    defaultSprite: MapSpriteIdSchema,
     regions: z.array(SpriteRectSchema),
   }).strict(),
   collision: z.object({
@@ -38,50 +38,193 @@ export const WorldMapSchema = z.object({
     openings: z.array(TilePointSchema),
   }).strict(),
   props: z.array(z.object({
-    id: StableIdSchema,
-    sprite: SpriteIdSchema,
+    id: MapStableIdSchema,
+    sprite: MapSpriteIdSchema,
     tile: TilePointSchema,
     blocksMovement: z.boolean(),
   }).strict()),
   effects: z.array(z.object({
-    id: StableIdSchema,
+    id: MapStableIdSchema,
     kind: z.enum(['fire', 'sparkle']),
     tile: TilePointSchema,
   }).strict()),
   interactions: z.array(z.object({
-    id: StableIdSchema,
+    id: MapStableIdSchema,
     kind: z.enum(['bed', 'storage', 'door', 'social', 'decoration']),
     hitTile: TilePointSchema,
     targetTile: TilePointSchema,
   }).strict()),
   doors: z.array(z.object({
-    id: StableIdSchema,
+    id: MapStableIdSchema,
     tile: TilePointSchema,
-    roofGroupId: StableIdSchema,
+    roofGroupId: MapStableIdSchema,
   }).strict()),
   roofGroups: z.array(z.object({
-    id: StableIdSchema,
+    id: MapStableIdSchema,
     bounds: TileRectSchema,
     interior: TileRectSchema,
   }).strict()),
   areas: z.array(z.object({
-    id: StableIdSchema,
+    id: MapStableIdSchema,
     bounds: TileRectSchema,
   }).strict()),
   portals: z.array(z.object({
-    id: StableIdSchema,
+    id: MapStableIdSchema,
     edge: z.enum(['north', 'east', 'south', 'west']),
     tile: TilePointSchema,
-    destinationMapId: StableIdSchema,
-    destinationEntranceId: StableIdSchema,
+    destinationMapId: MapStableIdSchema,
+    destinationEntranceId: MapStableIdSchema,
   }).strict()),
   stagingTiles: z.array(TilePointSchema).min(1),
-  spawns: z.record(StableIdSchema, TilePointSchema),
+  spawns: z.record(MapStableIdSchema, TilePointSchema),
+}).strict();
+
+export const TileOffsetSchema = z.object({
+  x: z.number().int().min(-63).max(63),
+  y: z.number().int().min(-47).max(47),
+}).strict();
+
+export const RelativeTileRectSchema = TileOffsetSchema.extend({
+  width: z.number().int().positive().max(64),
+  height: z.number().int().positive().max(48),
+}).strict();
+
+export const DensityProfileSchema = z.enum([
+  'furnished-interior',
+  'active-public',
+  'relaxation-natural',
+  'service-docks',
+  'structural-placeholder',
+]);
+
+const WallOpeningV2Schema = z.object({
+  id: MapStableIdSchema,
+  tile: TilePointSchema,
+}).strict();
+
+const WallRunV2Schema = z.object({
+  id: MapStableIdSchema,
+  material: MapStableIdSchema,
+  bounds: TileRectSchema,
+  openings: z.array(WallOpeningV2Schema),
+}).strict();
+
+const ObjectInteractionV2Schema = z.object({
+  id: MapStableIdSchema,
+  kind: z.enum(['bed', 'storage', 'social', 'decoration']),
+  approachOffsets: z.array(TileOffsetSchema).min(1),
+}).strict();
+
+const DoorInteractionV2Schema = z.object({
+  id: MapStableIdSchema,
+  areaId: MapStableIdSchema,
+  approachTiles: z.array(TilePointSchema).min(1),
+}).strict();
+
+const ObjectV2Schema = z.object({
+  id: MapStableIdSchema,
+  kind: MapStableIdSchema,
+  areaId: MapStableIdSchema,
+  anchor: TilePointSchema,
+  depthAnchorOffset: TileOffsetSchema.default({ x: 0, y: 0 }),
+  renderParts: z.array(z.object({
+    id: MapStableIdSchema,
+    sprite: MapSpriteIdSchema,
+    offset: TileOffsetSchema,
+  }).strict()).min(1),
+  solidFootprints: z.array(z.object({
+    id: MapStableIdSchema,
+    bounds: RelativeTileRectSchema,
+  }).strict()).default([]),
+  interactions: z.array(ObjectInteractionV2Schema).default([]),
+}).strict();
+
+const DoorV2Schema = z.object({
+  id: MapStableIdSchema,
+  openingId: MapStableIdSchema,
+  initialState: z.enum(['open', 'closed-unlocked', 'closed-locked']),
+  sprite: MapSpriteIdSchema,
+  roofGroupId: MapStableIdSchema.optional(),
+  interaction: DoorInteractionV2Schema.optional(),
+}).strict();
+
+const AreaV2Schema = z.object({
+  id: MapStableIdSchema,
+  bounds: TileRectSchema,
+  densityProfile: DensityProfileSchema,
+  intentionalOpenAreas: z.array(TileRectSchema).default([]),
+  entranceTiles: z.array(TilePointSchema).min(1),
+  primaryRoutes: z.array(TileRectSchema).default([]),
+  requiredPortalIds: z.array(MapStableIdSchema).default([]),
+}).strict();
+
+export const WorldMapV2Schema = z.object({
+  schemaVersion: z.literal(2),
+  layoutRevision: z.number().int().positive(),
+  id: MapStableIdSchema,
+  displayName: z.string().trim().min(1).max(80),
+  width: z.literal(64),
+  height: z.literal(48),
+  tileSize: z.literal(32),
+  ground: z.object({
+    defaultSprite: MapSpriteIdSchema,
+    regions: z.array(SpriteRectSchema),
+  }).strict(),
+  terrainSolids: z.array(z.object({
+    id: MapStableIdSchema,
+    kind: z.enum(['water', 'cliff', 'other']),
+    bounds: TileRectSchema,
+  }).strict()).default([]),
+  walls: z.object({ runs: z.array(WallRunV2Schema) }).strict(),
+  doors: z.array(DoorV2Schema).default([]),
+  objects: z.array(ObjectV2Schema).default([]),
+  effects: z.array(z.object({
+    id: MapStableIdSchema,
+    kind: z.enum(['fire', 'sparkle']),
+    tile: TilePointSchema,
+  }).strict()).default([]),
+  roofGroups: z.array(z.object({
+    id: MapStableIdSchema,
+    cells: z.array(TileRectSchema).min(1),
+    interiorCells: z.array(TileRectSchema).min(1),
+  }).strict()).default([]),
+  areas: z.array(AreaV2Schema).min(1),
+  buildings: z.array(z.object({
+    id: MapStableIdSchema,
+    areaIds: z.array(MapStableIdSchema).min(1),
+    outerWallRunIds: z.array(MapStableIdSchema).min(1),
+    entranceOpeningIds: z.array(MapStableIdSchema).min(1),
+    roofGroupId: MapStableIdSchema,
+  }).strict()).default([]),
+  locationBindings: z.array(z.object({
+    locationId: MapStableIdSchema,
+    areaIds: z.array(MapStableIdSchema).min(1),
+    preferredInteractionIds: z.array(MapStableIdSchema).default([]),
+  }).strict()).min(1),
+  portals: z.array(z.object({
+    id: MapStableIdSchema,
+    edge: z.enum(['north', 'east', 'south', 'west']),
+    tile: TilePointSchema,
+    destinationMapId: MapStableIdSchema,
+    destinationEntranceId: MapStableIdSchema,
+  }).strict()),
+  stagingTiles: z.array(TilePointSchema).min(1),
+  spawns: z.record(MapStableIdSchema, TilePointSchema),
+  startComposition: z.object({
+    cameraAnchor: TilePointSchema,
+    requiredActorIds: z.array(MapStableIdSchema).min(1),
+    requiredDetailPartIds: z.array(MapStableIdSchema).min(1),
+    landmarkAreaIds: z.array(MapStableIdSchema).min(1),
+  }).strict().optional(),
 }).strict();
 
 export type TilePoint = z.infer<typeof TilePointSchema>;
 export type TileRect = z.infer<typeof TileRectSchema>;
 export type WorldMap = z.infer<typeof WorldMapSchema>;
+export type TileOffset = z.infer<typeof TileOffsetSchema>;
+export type RelativeTileRect = z.infer<typeof RelativeTileRectSchema>;
+export type DensityProfile = z.infer<typeof DensityProfileSchema>;
+export type WorldMapV2 = z.infer<typeof WorldMapV2Schema>;
 
 export type CompiledMap = Readonly<{
   source: WorldMap;
