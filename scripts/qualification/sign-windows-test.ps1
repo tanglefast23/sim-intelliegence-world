@@ -16,8 +16,7 @@ if ($executables.Count -ne 1) {
 }
 
 $certificate = $null
-$trustedCertificateAdded = $false
-$temporaryCertificatePath = Join-Path ([IO.Path]::GetTempPath()) "si-world-phase-14-$([guid]::NewGuid().ToString('N')).cer"
+$tamperedExecutablePath = Join-Path ([IO.Path]::GetTempPath()) "si-world-phase-14-tampered-$([guid]::NewGuid().ToString('N')).exe"
 try {
   $certificate = New-SelfSignedCertificate `
     -Type CodeSigningCert `
@@ -36,18 +35,33 @@ try {
     throw "Could not find the x64 Windows SDK SignTool under $sdkBinRoot."
   }
   $signTool = $signTools[0].FullName
-  Export-Certificate -Cert $certificate -FilePath $temporaryCertificatePath -Force | Out-Null
-  & certutil.exe -user -f -addstore Root $temporaryCertificatePath
-  if ($LASTEXITCODE -ne 0) { throw 'Certutil failed to add the temporary public test certificate to CurrentUser Root.' }
-  $trustedCertificateAdded = $true
-  $trustedRoot = Get-Item -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)" -ErrorAction Stop
-  if ($trustedRoot.Thumbprint -ne $certificate.Thumbprint) {
-    throw 'The temporary public test certificate was not found in CurrentUser Root.'
-  }
   & $signTool sign /sha1 $certificate.Thumbprint /s My /fd SHA256 $executables[0].FullName
   if ($LASTEXITCODE -ne 0) { throw 'SignTool failed to sign the Windows test artifact.' }
-  & $signTool verify /pa /v $executables[0].FullName
-  if ($LASTEXITCODE -ne 0) { throw 'SignTool failed to verify the Windows test artifact.' }
+  $signature = Get-AuthenticodeSignature -LiteralPath $executables[0].FullName
+  if ($null -eq $signature.SignerCertificate -or $signature.SignerCertificate.Thumbprint -ne $certificate.Thumbprint) {
+    throw 'The Windows test artifact signer does not match the generated test certificate.'
+  }
+  if ($signature.Status -notin @('Valid', 'NotTrusted')) {
+    throw "The Windows test artifact signature is not intact: $($signature.Status)."
+  }
+
+  Copy-Item -LiteralPath $executables[0].FullName -Destination $tamperedExecutablePath -Force
+  $tamperedBytes = [IO.File]::ReadAllBytes($tamperedExecutablePath)
+  if ($tamperedBytes.Length -le 4096) { throw 'The Windows test artifact is too small for the tamper check.' }
+  $tamperedBytes[4096] = $tamperedBytes[4096] -bxor 1
+  [IO.File]::WriteAllBytes($tamperedExecutablePath, $tamperedBytes)
+  $tamperedSignature = Get-AuthenticodeSignature -LiteralPath $tamperedExecutablePath
+  if ($tamperedSignature.Status -ne 'HashMismatch') {
+    throw "The Windows test signature did not detect a changed executable: $($tamperedSignature.Status)."
+  }
+
+  $sha256 = [Security.Cryptography.SHA256]::Create()
+  try {
+    $certificateSha256Fingerprint = ([BitConverter]::ToString($sha256.ComputeHash($certificate.RawData))).Replace('-', '').ToLowerInvariant()
+  }
+  finally {
+    $sha256.Dispose()
+  }
 
   $reportDirectory = Split-Path -Parent $reportPath
   New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
@@ -59,22 +73,17 @@ try {
     signatureType = 'local-self-signed-test'
     releaseTrusted = $false
     timestamped = $false
-    certificateSha256Fingerprint = $certificate.Thumbprint.ToLowerInvariant()
+    certificateSha1Thumbprint = $certificate.Thumbprint.ToLowerInvariant()
+    certificateSha256Fingerprint = $certificateSha256Fingerprint
     mainExecutableSha256 = (Get-FileHash -Algorithm SHA256 $executables[0].FullName).Hash.ToLowerInvariant()
-    verification = 'signtool verify /pa /v'
+    verification = "Get-AuthenticodeSignature $($signature.Status); tampered copy HashMismatch"
   }
   $report | ConvertTo-Json -Depth 4 | Set-Content -Path $reportPath -Encoding utf8
-  Write-Output "Windows local test signature verified: $($executables[0].Name)"
+  Write-Output "Windows local test signature integrity checked: $($executables[0].Name)"
 }
 finally {
-  if ($trustedCertificateAdded -and $null -ne $certificate) {
-    Remove-Item -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
-    if (Test-Path -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)") {
-      throw 'Could not remove the temporary public test certificate from CurrentUser Root.'
-    }
-  }
   if ($null -ne $certificate) {
     Remove-Item -Path "Cert:\CurrentUser\My\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
   }
-  Remove-Item -Path $temporaryCertificatePath -Force -ErrorAction SilentlyContinue
+  Remove-Item -Path $tamperedExecutablePath -Force -ErrorAction SilentlyContinue
 }

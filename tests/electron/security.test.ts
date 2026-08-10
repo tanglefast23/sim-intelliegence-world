@@ -311,9 +311,11 @@ describe('secure Electron boundary', () => {
     expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(3);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
-    expect(windowsSigner).toContain("Cert:\\CurrentUser\\Root");
-    expect(windowsSigner).toContain('certutil.exe -user -f -addstore Root');
-    expect(windowsSigner).not.toContain('certutil.exe -user -silent');
+    expect(windowsSigner).toContain('Get-AuthenticodeSignature');
+    expect(windowsSigner).toContain("$signature.Status -notin @('Valid', 'NotTrusted')");
+    expect(windowsSigner).toContain("$tamperedSignature.Status -ne 'HashMismatch'");
+    expect(windowsSigner).not.toContain('CurrentUser\\Root');
+    expect(windowsSigner).not.toContain('certutil.exe');
     expect(workflow).toContain('timeout-minutes: 2');
   });
 });
