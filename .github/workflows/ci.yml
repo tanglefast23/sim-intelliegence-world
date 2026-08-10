@@ -117,6 +117,7 @@ jobs:
 
       - name: Apply and verify local self-signed test signature
         shell: powershell
+        timeout-minutes: 2
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: ./scripts/qualification/sign-windows-test.ps1

@@ -70,3 +70,7 @@ The focused second Grok 4.5 audit returned `NO_CONFIRMED_FINDINGS`. It confirmed
 The next Windows run reached the current-user root import but did not leave that step. The repair therefore replaces the PowerShell certificate import with `certutil -user -silent -f -addstore Root`, the documented command-line store operation with explicit silent and force options. SignTool verification and `finally` cleanup remain required. This result again shows that a clean document audit does not replace execution on the target host.
 
 The focused third Grok 4.5 audit returned `NO_CONFIRMED_FINDINGS`. It confirmed the `certutil` option set, current-user scope, exit-code check, Authenticode verification, cleanup, and the recorded history of both prior Windows execution failures.
+
+Target CI disproved the third audit verdict: Windows Server 2025 reported `Unexpected "-Silent" option` and printed `-addstore` help that lists `-user` and `-f`, but not `-silent`. The bounded redesign uses only the options accepted by that target, checks that the exact thumbprint exists in `CurrentUser\Root`, applies a two-minute step timeout, and fails if final cleanup leaves that root certificate behind. This is the final signer approach; another target failure requires a different verification design.
+
+The Grok 4.5 audit of the bounded redesign returned `NO_CONFIRMED_FINDINGS`. It checked the target-supported option set, root-thumbprint proof, Authenticode verification, residual cleanup check, workflow timeout, and corrected audit history. Target CI remains the deciding evidence.

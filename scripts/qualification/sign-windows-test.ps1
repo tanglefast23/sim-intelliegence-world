@@ -37,9 +37,13 @@ try {
   }
   $signTool = $signTools[0].FullName
   Export-Certificate -Cert $certificate -FilePath $temporaryCertificatePath -Force | Out-Null
-  & certutil.exe -user -silent -f -addstore Root $temporaryCertificatePath
+  & certutil.exe -user -f -addstore Root $temporaryCertificatePath
   if ($LASTEXITCODE -ne 0) { throw 'Certutil failed to add the temporary public test certificate to CurrentUser Root.' }
   $trustedCertificateAdded = $true
+  $trustedRoot = Get-Item -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)" -ErrorAction Stop
+  if ($trustedRoot.Thumbprint -ne $certificate.Thumbprint) {
+    throw 'The temporary public test certificate was not found in CurrentUser Root.'
+  }
   & $signTool sign /sha1 $certificate.Thumbprint /s My /fd SHA256 $executables[0].FullName
   if ($LASTEXITCODE -ne 0) { throw 'SignTool failed to sign the Windows test artifact.' }
   & $signTool verify /pa /v $executables[0].FullName
@@ -65,6 +69,9 @@ try {
 finally {
   if ($trustedCertificateAdded -and $null -ne $certificate) {
     Remove-Item -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
+    if (Test-Path -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)") {
+      throw 'Could not remove the temporary public test certificate from CurrentUser Root.'
+    }
   }
   if ($null -ne $certificate) {
     Remove-Item -Path "Cert:\CurrentUser\My\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
