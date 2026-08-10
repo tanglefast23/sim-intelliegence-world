@@ -124,7 +124,11 @@ child.once('close', (code) => {
   rmSync(smokeUserData, { force: true, recursive: true });
   const report = parseSmokeResult(stdout);
   validateScreenshotEvidence(loadingScreenshotPath, screenshotPath);
-  validateScreenshotBuffers(readFileSync(loadingScreenshotPath), readFileSync(newGameScreenshotPath));
+  validateScreenshotBuffers(
+    readFileSync(loadingScreenshotPath),
+    readFileSync(newGameScreenshotPath),
+    { requireSameDimensions: false },
+  );
   validateScreenshotBuffers(readFileSync(newGameScreenshotPath), readFileSync(worldZoomPaths[0]!));
   validateWorldZoomEvidence(worldZoomPaths);
   validateScreenshotBuffers(readFileSync(worldZoomPaths[0]!), readFileSync(roofScreenshotPath));

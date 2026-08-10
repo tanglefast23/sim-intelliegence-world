@@ -37,6 +37,10 @@ Grok verified all four corrected paths: latest-surface travel completion, before
 
 ## Windows CI evidence follow-up
 
-The first Windows x64 CI journey reached `complete`, then failed because its early loading PNG and final post-resize PNG had different decoded dimensions. The strict loading-versus-new-game comparison had already proved the initial window size. The final comparison now allows different dimensions after the responsive resize journey while still requiring two valid, minimum-size, non-identical PNG files. All ordinary journey pairs retain strict equal dimensions.
+The first Windows x64 CI journey reached `complete`, then failed because its early loading PNG and final post-resize PNG had different decoded dimensions. The final comparison now allows different dimensions after the responsive resize journey while still requiring two valid, minimum-size, non-identical PNG files.
 
 A final bounded Grok 4.5 `high`-effort audit reviewed only this exception and returned `NO_CONFIRMED_FINDINGS`.
+
+The next Windows run proved that its loading shell can decode at `1008x681` before the requested `1280x720` game content size settles. The loading-versus-new-game comparison now permits this platform transition. It still requires valid, decodable, minimum-size, non-identical PNG files. New-game-versus-world-1x, the 1x/2x/3x set, and all later journey pairs retain strict equal dimensions.
+
+A second bounded Grok 4.5 `high`-effort audit reviewed this exact additional exception and returned `NO_CONFIRMED_FINDINGS`. Grok confirmed that the stable post-content-size evidence remains strict.
