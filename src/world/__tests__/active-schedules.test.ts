@@ -81,7 +81,7 @@ describe('active resident schedules', () => {
       movement,
       worldState,
       'generic_resident',
-      new Set(['36,30']),
+      new Set(['27,28']),
     ));
     expect(movement.status).toBe('unreachable');
     const blockedState = worldState;

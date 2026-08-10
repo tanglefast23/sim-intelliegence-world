@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "npcId": "linda_boyfriend",
+  "factIds": [],
+  "interestIds": [],
+  "actionIds": ["greet", "end_conversation"],
+  "memorySubjectIds": [],
+  "unlockIds": ["velvet_tide_lead"],
+  "questIds": ["linda_boyfriend_check"],
+  "locationIds": ["linda_villa", "northwest_residential"],
+  "factionIds": ["velvet_tide"],
+  "compatibility": {"social": false, "romantic": false, "romanticEligibleAtStart": false},
+  "startingRelationship": {"values": {"familiarity": 0, "trust": 0, "attraction": 0}, "stage": "stranger"},
+  "hardBoundaries": [],
+  "stageRules": [{"stage": "dating", "unavailable": true, "requiredFlagIds": []}],
+  "rejections": []
+}

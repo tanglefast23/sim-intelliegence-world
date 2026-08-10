@@ -6,6 +6,7 @@ import { RelationshipDeltaSchema, RelationshipStageSchema } from '../relationshi
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
 import { SimulationSpeedSchema } from '../clock/clock';
 import { KnowledgeRecordSchema } from '../state/models';
+import { PoliceHookSchema } from '../consequences/police';
 
 const CommandBaseSchema = z.object({
   commandId: CommandIdSchema,
@@ -71,6 +72,22 @@ export const DomainCommandSchema = z.discriminatedUnion('type', [
   CommandBaseSchema.extend({
     type: z.literal('purchase-social-option'),
     offerId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('start-linda-quest'),
+    requestNpcId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('discover-linda-villa'),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('resolve-linda-quest'),
+    approachId: z.enum(['protect_linda', 'betray_linda', 'withdraw']),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('advance-police-attention'),
+    evidenceId: StableIdSchema,
+    hook: PoliceHookSchema,
   }).strict(),
   CommandBaseSchema.extend({
     type: z.literal('move-protagonist'),

@@ -10,6 +10,7 @@ import { PROTOTYPE_ECONOMY_POLICY } from '../../src/domain/economy/economy';
 import { createInitialState } from '../../src/domain/state/initial-state';
 import { ScheduleStateSchema } from '../../src/domain/state/models';
 import { SOCIAL_PURCHASES } from '../../src/domain/quests/purchases';
+import { LINDA_QUEST, LindaQuestDefinitionSchema } from '../../src/domain/quests/quest-machine';
 import { ATLAS_INDEX } from '../../src/render/atlas';
 import { buildWorldMapCatalog, MAP_IDS, type MapId } from '../../src/world/maps/catalog';
 import { z } from 'zod';
@@ -83,8 +84,12 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
     await readJson(resolve(rootPath, 'content', 'schedules', 'prototype.json')),
   );
   const social = SocialContentSchema.parse(await readJson(resolve(rootPath, 'content', 'social', 'prototype.json')));
+  const lindaQuest = LindaQuestDefinitionSchema.parse(
+    await readJson(resolve(rootPath, 'content', 'quests', 'linda-boyfriend.json')),
+  );
   const factionIds = new Set(catalog.factions.map(({ id }) => id));
   const questIds = new Set(catalog.registries.quests.items.map(({ id }) => id));
+  const characterIds = new Set(catalog.characters.map(({ id }) => id));
   for (const gate of social.factionAccessGates) {
     if (!factionIds.has(gate.factionId)) throw new Error(`Unknown social faction gate faction: ${gate.factionId}`);
   }
@@ -94,6 +99,14 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
   if (JSON.stringify(social.purchases) !== JSON.stringify(Object.values(SOCIAL_PURCHASES))) {
     throw new Error('Social purchase content does not match the authoritative deterministic offers.');
   }
+  if (!questIds.has(lindaQuest.id)) throw new Error(`Unknown Linda quest ID: ${lindaQuest.id}`);
+  if (!characterIds.has(lindaQuest.requestNpcId) || !characterIds.has(lindaQuest.targetNpcId)) {
+    throw new Error('Linda quest character references must exist in the world catalog.');
+  }
+  if (!factionIds.has('velvet_tide')) throw new Error('Linda quest requires the Velvet Tide faction.');
+  if (JSON.stringify(lindaQuest) !== JSON.stringify(LINDA_QUEST)) {
+    throw new Error('Linda quest content does not match the authoritative deterministic definition.');
+  }
   if (JSON.stringify(economy) !== JSON.stringify(PROTOTYPE_ECONOMY_POLICY)) {
     throw new Error('The prototype economy fixture does not match the authoritative economy policy.');
   }
@@ -102,7 +115,7 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
     throw new Error('The prototype schedule fixture does not match the authoritative initial schedules.');
   }
   process.stdout.write(
-    `Validated ${catalog.characters.length} characters, ${catalog.locations.length} locations, ${catalog.factions.length} factions, ${catalog.rules.length} rule files, ${Object.keys(maps).length} maps, ${schedules.length} schedules, ${social.factionAccessGates.length} faction gates, and ${social.purchases.length} social purchase.\n`,
+    `Validated ${catalog.characters.length} characters, ${catalog.locations.length} locations, ${catalog.factions.length} factions, ${catalog.rules.length} rule files, ${Object.keys(maps).length} maps, ${schedules.length} schedules, ${social.factionAccessGates.length} faction gates, ${social.purchases.length} social purchase, and 1 Linda quest.\n`,
   );
 }
 

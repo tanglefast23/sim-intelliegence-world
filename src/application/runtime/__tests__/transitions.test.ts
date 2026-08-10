@@ -103,11 +103,15 @@ describe('stable-boundary autosaves', () => {
     const state = createInitialState();
     await autosaveStableState({ persistence: { requestSave }, state, trigger: 'travel', expectedSaveGeneration: 3 });
     expect(requestSave).toHaveBeenCalledWith(expect.objectContaining({ state, trigger: 'travel' }));
+    await autosaveStableState({
+      persistence: { requestSave }, state, trigger: 'major_quest', expectedSaveGeneration: 4,
+    });
+    expect(requestSave).toHaveBeenLastCalledWith(expect.objectContaining({ state, trigger: 'major_quest' }));
 
     const paused = parseWorldState({ ...state, clock: { ...state.clock, pauseTokens: ['pause:transition:test'] } });
     await expect(autosaveStableState({
       persistence: { requestSave }, state: paused, trigger: 'travel', expectedSaveGeneration: 4,
     })).rejects.toThrow('stable world');
-    expect(requestSave).toHaveBeenCalledTimes(1);
+    expect(requestSave).toHaveBeenCalledTimes(2);
   });
 });

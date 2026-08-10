@@ -77,6 +77,7 @@ export const NpcScheduleGoalSchema = z.object({
 export const NpcStateSchema = z.object({
   id: StableIdSchema,
   tier: z.enum(['full_ai', 'ambient']),
+  condition: z.enum(['alive', 'injured', 'dead']).optional(),
   presence: NpcPresenceSchema,
   scheduleGoal: NpcScheduleGoalSchema.optional(),
   knowledge: z.array(KnowledgeRecordSchema),

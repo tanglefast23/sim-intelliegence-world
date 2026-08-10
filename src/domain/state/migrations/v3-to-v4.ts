@@ -75,7 +75,7 @@ const SCHEDULE_BLOCK_DEFAULTS: Readonly<Record<string, Readonly<{ mapId: string;
   'southwest_commercial:shop': { mapId: 'southwest_commercial', tileX: 15, tileY: 16 },
   'linda_villa:home': { mapId: 'northwest_residential', tileX: 23, tileY: 28 },
   'northwest_residential:sleep': { mapId: 'northwest_residential', tileX: 29, tileY: 33 },
-  'northwest_residential:work': { mapId: 'northwest_residential', tileX: 36, tileY: 30 },
+  'northwest_residential:work': { mapId: 'northwest_residential', tileX: 27, tileY: 28 },
   'northeast_downtown:meal': { mapId: 'northeast_downtown', tileX: 44, tileY: 34 },
   'northeast_downtown:nightlife': { mapId: 'northeast_downtown', tileX: 18, tileY: 13 },
 };

@@ -65,7 +65,19 @@ export function createInitialState(displayName = 'Player'): WorldState {
         },
         scheduleGoal: {
           mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'work',
-          tileX: 36, tileY: 30, scheduledMinute: 480,
+          tileX: 27, tileY: 28, scheduledMinute: 480,
+        },
+        knowledge: [],
+        unlockedInterestIds: [],
+        unlockedIds: [],
+        memories: [],
+      },
+      linda_boyfriend: {
+        id: 'linda_boyfriend',
+        tier: 'ambient',
+        condition: 'alive',
+        presence: {
+          kind: 'inactive', mapId: 'northwest_residential', locationId: 'linda_villa', tileX: 25, tileY: 28,
         },
         knowledge: [],
         unlockedInterestIds: [],
@@ -112,6 +124,18 @@ export function createInitialState(displayName = 'Player'): WorldState {
         compatibility: { social: true, romantic: false },
         policy: { romanticEligibleAtStart: false, hardBoundaries: [], stageRules: [] },
       },
+      linda_boyfriend: {
+        npcId: 'linda_boyfriend',
+        values: { familiarity: 0, trust: 0, attraction: 0 },
+        stage: 'stranger',
+        rejections: [],
+        compatibility: { social: false, romantic: false },
+        policy: {
+          romanticEligibleAtStart: false,
+          hardBoundaries: [],
+          stageRules: [{ stage: 'dating', unavailable: true, requiredFlagIds: [] }],
+        },
+      },
     },
     inventory: { money: PROTOTYPE_ECONOMY_POLICY.weeklyAllowance, items: {}, homeStorageItems: {} },
     economy: {
@@ -151,7 +175,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
         npcId: 'generic_resident',
         blocks: [
           { startMinuteOfDay: 0, locationId: 'northwest_residential', activityId: 'sleep', mapId: 'northwest_residential', tileX: 29, tileY: 33 },
-          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'work', mapId: 'northwest_residential', tileX: 36, tileY: 30 },
+          { startMinuteOfDay: 480, locationId: 'northwest_residential', activityId: 'work', mapId: 'northwest_residential', tileX: 27, tileY: 28 },
           { startMinuteOfDay: 720, locationId: 'northeast_downtown', activityId: 'meal', mapId: 'northeast_downtown', tileX: 44, tileY: 34 },
           { startMinuteOfDay: 1_080, locationId: 'northeast_downtown', activityId: 'nightlife', mapId: 'northeast_downtown', tileX: 18, tileY: 13 },
         ],

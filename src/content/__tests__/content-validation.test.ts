@@ -16,7 +16,7 @@ describe('content validation', () => {
 
   test('the locked content layout and minimum fixtures validate', () => {
     const catalog = buildContentCatalog(validBundle);
-    expect(catalog.characters.map(({ id }) => id)).toEqual(['protagonist', 'linda', 'generic_resident']);
+    expect(catalog.characters.map(({ id }) => id)).toEqual(['protagonist', 'linda', 'generic_resident', 'linda_boyfriend']);
     expect(catalog.locations).toHaveLength(7);
     expect(catalog.factions).toHaveLength(2);
     expect(catalog.rules.find(({ npcId }) => npcId === 'linda')).toEqual(expect.objectContaining({
@@ -41,6 +41,9 @@ describe('content validation', () => {
         },
       }));
     }
+    expect(state.npcs.linda_boyfriend).toEqual(expect.objectContaining({
+      id: 'linda_boyfriend', condition: 'alive', tier: 'ambient',
+    }));
   });
 
   test('every non-protagonist world character requires a rules file', () => {

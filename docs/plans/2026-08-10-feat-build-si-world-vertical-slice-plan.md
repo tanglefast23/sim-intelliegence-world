@@ -270,8 +270,8 @@ The required Fable 5 `xhigh`, Opus 5 `xhigh`, and Grok 4.5 `high` review complet
 - [x] Phase 7 — World renderer and local movement
 - [x] Phase 8 — Time, maps, schedules, needs, and economy
 - [x] Phase 9 — Validated conversation system
-- [ ] Phase 10 — Relationships, factions, journal, and invitations
-- [ ] Phase 11 — Consequences and Linda quest
+- [x] Phase 10 — Relationships, factions, journal, and invitations
+- [x] Phase 11 — Consequences and Linda quest
 - [ ] Phase 12 — Integrated first-hour vertical slice
 - [ ] Phase 13 — Cast and neighborhood production
 - [ ] Phase 14 — Desktop and model qualification
@@ -663,10 +663,13 @@ Consent bypass, score-only stage changes, repeat rewards, hidden-faction leaks, 
 
 ### Files
 
-- `src/domain/quests/quest-machine.ts`, `src/domain/consequences/*`
+- `src/domain/quests/{quest-machine.ts,linda-boyfriend.json}`, `src/domain/consequences/*`
+- `src/domain/commands/{types,reducer}.ts`, `src/domain/events/types.ts`, `src/domain/state/{models,initial-state}.ts`, `src/domain/state/migrations/v3-to-v4.ts`
 - `content/quests/linda-boyfriend.json`
 - `content/characters/linda/*`, `content/characters/linda-boyfriend/*`
-- `src/ui/ContextActionMenu.tsx`, quest and consequence fixtures/tests
+- `content/world/characters/prototype.json`, `content/registries/unlocks.json`, `content/schedules/prototype.json`, `scripts/content/validate-content.ts`
+- `src/render/WorldScene.tsx`, `src/ui/{ContextActionMenu,JournalPanel}.tsx`, quest, consequence, and schedule fixtures/tests
+- `electron/main/index.ts`, `scripts/electron/run-package-smoke.ts`, `package.json`, and `artifacts/phase-11/` runtime evidence
 
 ### Work
 

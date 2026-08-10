@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
 import { SimulationSpeedSchema } from '../clock/clock';
+import { PoliceHookSchema } from '../consequences/police';
 
 const EventBaseSchema = z.object({
   eventId: EventIdSchema,
@@ -87,6 +88,48 @@ export const DomainEventSchema = z.discriminatedUnion('type', [
     grantedQuestFlagId: StableIdSchema,
     amount: z.number().int().nonnegative(),
     changed: z.boolean(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('linda-quest-started'),
+    questId: StableIdSchema,
+    requestNpcId: StableIdSchema,
+    journalEntryId: StableIdSchema,
+    reason: z.string().trim().min(1).max(240),
+    grantedItemId: StableIdSchema,
+    grantedItemCount: z.number().int().nonnegative(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('linda-villa-discovered'),
+    questId: StableIdSchema,
+    journalEntryId: StableIdSchema,
+    changed: z.boolean(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('linda-quest-resolved'),
+    questId: StableIdSchema,
+    approachId: z.enum(['protect_linda', 'betray_linda', 'withdraw']),
+    resultId: StableIdSchema,
+    terminalStatus: z.enum(['resolved', 'failed', 'withdrawn']),
+    reason: z.string().trim().min(1).max(240),
+    familiarityDelta: z.number().int(),
+    trustDelta: z.number().int(),
+    attractionDelta: z.number().int(),
+    factionId: StableIdSchema.optional(),
+    factionDelta: z.number().int(),
+    rewardAmount: z.number().int().nonnegative(),
+    healthDelta: z.number().int(),
+    timeDeltaMinutes: z.number().int().nonnegative(),
+    evidenceId: StableIdSchema.optional(),
+    witnessNpcIds: z.array(StableIdSchema),
+    policeFrom: z.enum(['none', 'noticed', 'questioned', 'wanted', 'arrest-on-sight']),
+    policeTo: z.enum(['none', 'noticed', 'questioned', 'wanted', 'arrest-on-sight']),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('police-attention-advanced'),
+    evidenceId: StableIdSchema,
+    hook: PoliceHookSchema,
+    from: z.enum(['noticed', 'questioned', 'wanted']),
+    to: z.enum(['questioned', 'wanted', 'arrest-on-sight']),
   }).strict(),
   EventBaseSchema.extend({
     type: z.literal('protagonist-moved'),

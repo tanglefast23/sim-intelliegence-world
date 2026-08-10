@@ -25,10 +25,12 @@ import { advanceWorldMovement } from '../application/runtime/world-runtime';
 import { effectiveSpeed } from '../domain/clock/clock';
 import { reduceCommand } from '../domain/commands/reducer';
 import { DomainCommandSchema } from '../domain/commands/types';
+import { lindaContextActions, type ContextQuestAction } from '../domain/quests/quest-machine';
 import { createInitialState } from '../domain/state/initial-state';
 import type { WorldState } from '../domain/state/schema';
 import { BedActions } from '../ui/BedActions';
 import { ConversationPanel } from '../ui/ConversationPanel';
+import { ContextActionMenu } from '../ui/ContextActionMenu';
 import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
@@ -184,6 +186,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   const npcTiles = useMemo(() => actorTiles(runtime.worldState, mapId), [mapId, runtime.worldState]);
   const dynamicBlockers = useMemo(() => new Set(Object.values(npcTiles).filter(Boolean).map((tile) => tileKey(tile!))), [npcTiles]);
   const speed = effectiveSpeed(runtime.worldState.clock);
+  const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected));
 
   const applyLoadedState = useCallback((state: WorldState) => {
     const tile = { x: state.protagonist.worldPosition.tileX, y: state.protagonist.worldPosition.tileY };
@@ -214,7 +217,10 @@ export function WorldScene({ onReady }: WorldSceneProps) {
     return () => { active = false; };
   }, [applyLoadedState]);
 
-  const requestAutosave = useCallback(async (state: WorldState, trigger: 'sleep' | 'travel' | 'manual') => {
+  const requestAutosave = useCallback(async (
+    state: WorldState,
+    trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
+  ) => {
     const bridge = getDesktopBridge();
     if (!bridge) {
       setSaveStatus('BROWSER · NO DISK SAVE');
@@ -462,6 +468,75 @@ export function WorldScene({ onReady }: WorldSceneProps) {
       setWorldFeedback('SECURITY REPORT PURCHASE FAILED');
     }
   }, [conversationNpcId, requestAutosave, runtime.worldState]);
+  const runQuestAction = useCallback((actionId: ContextQuestAction['id']) => {
+    if (conversationNpcId || openPanel) return;
+    try {
+      const stableActionId = actionId.replaceAll('_', '-');
+      const base = {
+        commandId: `command-linda-quest-${stableActionId}-r${runtime.worldState.revision}`,
+        eventId: `event-linda-quest-${stableActionId}-r${runtime.worldState.revision}`,
+        scheduledMinute: runtime.worldState.clock.absoluteMinute,
+        priority: 75,
+      };
+      const candidate = actionId === 'start'
+        ? { ...base, type: 'start-linda-quest' as const, requestNpcId: 'linda' }
+        : actionId === 'discover'
+          ? { ...base, type: 'discover-linda-villa' as const }
+          : { ...base, type: 'resolve-linda-quest' as const, approachId: actionId };
+      const result = reduceCommand(runtime.worldState, DomainCommandSchema.parse(candidate));
+      setRuntime((current) => ({
+        movement: cancelMovement(current.movement),
+        npcMovements: npcMovementState(result.state),
+        worldState: result.state,
+      }));
+      if (result.event?.type === 'linda-quest-started') {
+        setWorldFeedback('LINDA QUEST STARTED · VAGUE LEAD ADDED');
+      } else if (result.event?.type === 'linda-villa-discovered') {
+        setWorldFeedback('LINDA VILLA CONFIRMED · THREE CHOICES READY');
+      } else if (result.event?.type === 'linda-quest-resolved') {
+        setWorldFeedback(`${result.event.resultId.replaceAll('_', ' ').toUpperCase()} · CONSEQUENCES SAVED`);
+      }
+      void requestAutosave(
+        result.state,
+        result.event?.type === 'linda-quest-resolved' ? 'major_quest' : 'manual',
+      );
+    } catch (error) {
+      setWorldFeedback(error instanceof Error ? `QUEST BLOCKED · ${error.message.toUpperCase()}` : 'QUEST ACTION FAILED');
+    }
+  }, [conversationNpcId, openPanel, requestAutosave, runtime.worldState]);
+  const advancePoliceHook = useCallback(() => {
+    const hook = runtime.worldState.policeAttention === 'noticed'
+      ? 'officer_contact'
+      : runtime.worldState.policeAttention === 'questioned'
+        ? 'ignored_summons'
+        : runtime.worldState.policeAttention === 'wanted'
+          ? 'wanted_encounter'
+          : undefined;
+    const evidence = Object.values(runtime.worldState.evidence).find((record) => (
+      record.witnessNpcIds.length > 0 && ['noticed', 'linked'].includes(record.status)
+    ));
+    if (!hook || !evidence) {
+      setWorldFeedback('POLICE HOOK BLOCKED · NO MATCHING WITNESSED EVIDENCE');
+      return;
+    }
+    try {
+      const stableHook = hook.replaceAll('_', '-');
+      const result = reduceCommand(runtime.worldState, DomainCommandSchema.parse({
+        type: 'advance-police-attention',
+        commandId: `command-police-${stableHook}-r${runtime.worldState.revision}`,
+        eventId: `event-police-${stableHook}-r${runtime.worldState.revision}`,
+        scheduledMinute: runtime.worldState.clock.absoluteMinute,
+        priority: 75,
+        evidenceId: evidence.id,
+        hook,
+      }));
+      setRuntime((current) => ({ ...current, worldState: result.state }));
+      setWorldFeedback(`POLICE ATTENTION · ${result.state.policeAttention.replaceAll('-', ' ').toUpperCase()}`);
+      void requestAutosave(result.state, 'manual');
+    } catch (error) {
+      setWorldFeedback(error instanceof Error ? `POLICE HOOK FAILED · ${error.message.toUpperCase()}` : 'POLICE HOOK FAILED');
+    }
+  }, [requestAutosave, runtime.worldState]);
 
   useEffect(() => {
     const event = runtime.worldState.eventLedger.at(-1);
@@ -614,6 +689,12 @@ export function WorldScene({ onReady }: WorldSceneProps) {
           pointerEvents="none"
           style={styles.proofState}
         />
+        <View
+          accessibilityLabel={`Linda quest ${runtime.worldState.quests.linda_boyfriend_check?.status ?? 'missing'}; flags ${(runtime.worldState.quests.linda_boyfriend_check?.flagIds ?? []).join(',') || 'none'}; police ${runtime.worldState.policeAttention}; evidence ${Object.keys(runtime.worldState.evidence).length}`}
+          nativeID="world-quest-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
         <View nativeID="world-ui-location" pointerEvents="none" style={styles.proofState}>
           <Text>{`${map.source.displayName} TILE ${runtime.movement.player.x},${runtime.movement.player.y}`}</Text>
         </View>
@@ -666,6 +747,9 @@ export function WorldScene({ onReady }: WorldSceneProps) {
             </Pressable>
           </View>
         ) : null}
+        {!conversationNpcId && !openPanel && runtime.movement.status !== 'moving' ? (
+          <ContextActionMenu actions={questActions} onAction={runQuestAction} />
+        ) : null}
         <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
           <Text style={styles.statusStrong}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
           <Text style={styles.status}>LEFT CLICK MOVE / MIDDLE DRAG PAN / WHEEL ZOOM / F CENTER / ESC STOP</Text>
@@ -684,6 +768,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
         {openPanel === 'journal' ? (
           <JournalPanel
             onDismiss={() => setOpenPanel(undefined)}
+            onAdvancePolice={advancePoliceHook}
             onPurchaseSecurityReport={purchaseSecurityReport}
             state={runtime.worldState}
           />

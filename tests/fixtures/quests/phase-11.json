@@ -1,0 +1,7 @@
+{
+  "villaTile": {"x": 22, "y": 28},
+  "witnessTile": {"x": 24, "y": 28},
+  "injuredEscape": {"healthCost": 25, "timeMinutes": 240},
+  "protect": {"reward": 200, "velvetTideDelta": -10},
+  "betray": {"reward": 800, "velvetTideDelta": 15}
+}
