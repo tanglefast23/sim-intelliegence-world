@@ -24,7 +24,7 @@ The 4B misses were `boundary_005` and `boundary_006`. Both kept consent true and
 
 The report field named `performanceThresholdsPassed` is a combined standalone-candidate flag. It includes capability, fallback, and state-authority gates as well as timing gates. The 9B timing gates passed; its combined flag is false because capability was below 95%.
 
-The signed macOS ARM64 4B package loaded offline, completed both free-text turns without fallback, produced non-text feedback in 5.6 ms, and measured 119.9 FPS during generation on an Apple M5 Max with 128 GB RAM. This integrated evidence is being refreshed against the final Phase 14 commit before merge.
+The signed macOS ARM64 4B package at commit `4e5017a53e555e8972c9ab4cbaae9600ed908209` loaded offline, completed both free-text turns without fallback, produced non-text feedback in 5.6 ms, and measured 119.39 FPS during generation on an Apple M5 Max with 128 GB RAM. The complete route passed camera, movement, building entry, four-neighborhood travel, dialogue, invitation, relationship, purchase, quest, police, save, and reload checks. Model restart, circuit fallback, clean shutdown, and forced-parent-death cleanup also passed.
 
 ## SHIP gate status
 

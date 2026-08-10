@@ -39,3 +39,9 @@ The required exact 16 GB macOS and Windows machines are unavailable. Hosted CI r
 ## Final disposition
 
 The Phase 14 implementation closes the audit defects and produces reproducible development evidence. Phase 14 remains a failed ship gate because `SHIP-01` through `SHIP-04` are blocked. No threshold was weakened and no ship claim is made.
+
+## Integrated package proof
+
+The final native macOS ARM64 package tested commit `4e5017a53e555e8972c9ab4cbaae9600ed908209` with the bundled 4B model. It passed ad-hoc signature verification, model lifecycle and forced-parent-death checks, and the complete playable smoke route. The measured response feedback was 5.6 ms and the measured renderer rate during generation was 119.39 FPS.
+
+The package proof found and fixed two test-harness defects before the passing run. Packaged model smokes now accept an explicit output root, and renderer paint and generation waits have wall-clock bounds. Smoke mode disables Electron background throttling so an occluded test window cannot stop its only proof clock. These settings do not change normal player runtime behavior.
