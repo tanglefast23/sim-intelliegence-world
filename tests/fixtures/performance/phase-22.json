@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "maximumLoad": {
+    "contentWidth": 2560,
+    "contentHeight": 1440,
+    "minimumDevicePixelRatio": 2,
+    "selectedWorldZoom": 1,
+    "minimumRoundedFps": 60,
+    "requiredLayers": [
+      "floor",
+      "prop",
+      "shadow",
+      "character",
+      "effect",
+      "wall",
+      "roof"
+    ]
+  }
+}

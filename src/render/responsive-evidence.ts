@@ -2,6 +2,7 @@ import type { MapId } from '../world/maps/catalog';
 import type { CameraState } from './camera';
 import { automaticWorldZoom, type UiScale } from './responsive-layout';
 import { uiMetrics } from '../ui/ui-metrics';
+import type { WorldLayer } from './world-frame';
 
 type RectEvidence = Readonly<{ x: number; y: number; width: number; height: number }>;
 
@@ -23,6 +24,7 @@ export type ResponsiveEvidence = Readonly<{
   conversationInput: RectEvidence | null;
   roofGroupId: string | null;
   roofState: 'hidden' | 'restored';
+  drawCounts: Readonly<Record<WorldLayer, number> & { total: number }>;
   overflow: Readonly<{ body: boolean; surface: boolean }>;
 }>;
 
@@ -42,6 +44,7 @@ export function measureResponsiveEvidence(
     mapId: MapId;
     roofGroupId?: string;
     uiScale: UiScale;
+    drawCounts: Readonly<Record<WorldLayer, number> & { total: number }>;
   }>,
 ): ResponsiveEvidence | undefined {
   const surfaceElement = documentValue.querySelector<HTMLElement>('#world-input-viewport');
@@ -82,6 +85,7 @@ export function measureResponsiveEvidence(
     conversationInput: input ? rectEvidence(input.getBoundingClientRect()) : null,
     roofGroupId: state.roofGroupId ?? null,
     roofState: state.roofGroupId ? 'hidden' : 'restored',
+    drawCounts: state.drawCounts,
     overflow: {
       body: body.scrollWidth > documentElement.clientWidth || body.scrollHeight > documentElement.clientHeight,
       surface: surfaceElement.scrollWidth > surfaceElement.clientWidth || surfaceElement.scrollHeight > surfaceElement.clientHeight,

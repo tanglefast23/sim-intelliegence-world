@@ -6,14 +6,19 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 
 const packagedApplicationName = process.platform === 'linux' ? 'si-world' : 'SI World';
 const modelResourceRoot = process.env.SI_WORLD_MODEL_RESOURCE_DIR;
+const packageOutputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT;
 if (
   modelResourceRoot &&
   (!isAbsolute(modelResourceRoot) || basename(modelResourceRoot) !== 'model-runtime')
 ) {
   throw new Error('SI_WORLD_MODEL_RESOURCE_DIR must be an absolute model-runtime directory.');
 }
+if (packageOutputRoot && !isAbsolute(packageOutputRoot)) {
+  throw new Error('SI_WORLD_PACKAGE_OUTPUT_ROOT must be an absolute directory while packaging.');
+}
 
 const config: ForgeConfig = {
+  ...(packageOutputRoot ? { outDir: packageOutputRoot } : {}),
   packagerConfig: {
     appBundleId: 'com.tanglefast.si-world',
     asar: true,

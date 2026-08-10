@@ -3,6 +3,7 @@ import {
   Canvas,
   Circle,
   FilterMode,
+  Group,
   Line,
   MipmapMode,
   Rect,
@@ -82,6 +83,7 @@ import {
 import { WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
 import { measureResponsiveEvidence } from './responsive-evidence';
+import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
@@ -100,23 +102,35 @@ type RuntimeViewState = Readonly<{
   worldState: WorldState;
 }>;
 
-function isVisible(tile: TilePoint, camera: CameraState, viewport: ViewportSize, margin = 1): boolean {
-  const minimumX = Math.floor(camera.x / TILE_SIZE) - margin;
-  const minimumY = Math.floor(camera.y / TILE_SIZE) - margin;
-  const maximumX = Math.ceil((camera.x + viewport.width / camera.zoom) / TILE_SIZE) + margin;
-  const maximumY = Math.ceil((camera.y + viewport.height / camera.zoom) / TILE_SIZE) + margin;
-  return tile.x >= minimumX && tile.x <= maximumX && tile.y >= minimumY && tile.y <= maximumY;
+type VisibleTileBounds = Readonly<{
+  minimumX: number;
+  minimumY: number;
+  maximumX: number;
+  maximumY: number;
+}>;
+
+function visibleTileBounds(camera: CameraState, viewport: ViewportSize, margin = 1): VisibleTileBounds {
+  return {
+    minimumX: Math.floor(camera.x / TILE_SIZE) - margin,
+    minimumY: Math.floor(camera.y / TILE_SIZE) - margin,
+    maximumX: Math.ceil((camera.x + viewport.width / camera.zoom) / TILE_SIZE) + margin,
+    maximumY: Math.ceil((camera.y + viewport.height / camera.zoom) / TILE_SIZE) + margin,
+  };
 }
 
-function atlasData(placements: readonly SpritePlacement[], camera: CameraState) {
+function isVisible(tile: TilePoint, bounds: VisibleTileBounds): boolean {
+  return tile.x >= bounds.minimumX && tile.x <= bounds.maximumX &&
+    tile.y >= bounds.minimumY && tile.y <= bounds.maximumY;
+}
+
+function atlasData(placements: readonly SpritePlacement[], zoom: ZoomLevel) {
   return {
     sprites: placements.map(({ sprite }) => {
       const source = atlasRectangle(sprite);
       return rect(source.x, source.y, source.width, source.height);
     }),
     transforms: placements.map(({ worldX, worldY }) => {
-      const screen = worldToScreen(camera, { x: worldX, y: worldY });
-      return Skia.RSXform(camera.zoom, 0, screen.x, screen.y);
+      return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
     }),
   };
 }
@@ -633,44 +647,66 @@ export function WorldScene({
     if (event.mode === 'overnight') void requestAutosave(runtime.worldState, 'sleep');
   }, [requestAutosave, runtime.worldState]);
 
+  const visibility = visibleTileBounds(camera, surface);
   const visibleFloors = useMemo(() => {
     const placements: SpritePlacement[] = [];
     for (let y = 0; y < map.source.height; y += 1) {
       for (let x = 0; x < map.source.width; x += 1) {
         const tile = { x, y };
-        if (isVisible(tile, camera, surface)) {
+        if (isVisible(tile, visibility)) {
           placements.push({ id: `floor-${x}-${y}`, sprite: groundSpriteAtV2(map, tile), worldX: x * TILE_SIZE, worldY: y * TILE_SIZE });
         }
       }
     }
     return placements;
-  }, [camera, map, surface]);
-  const visibleProps = [
-    ...[...map.objectPartById.values()].filter(({ tile }) => isVisible(tile, camera, surface)).map((part) => ({
+  }, [map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
+  const visibleProps = useMemo(() => [
+    ...[...map.objectPartById.values()].filter(({ tile }) => isVisible(tile, visibility)).map((part) => ({
       id: part.id,
       sprite: part.sprite,
       tile: part.depthAnchor,
       worldX: part.tile.x * TILE_SIZE,
       worldY: part.tile.y * TILE_SIZE,
     })),
-    ...[...map.doorById.values()].filter(({ tile }) => isVisible(tile, camera, surface)).map((door) => ({
+    ...[...map.doorById.values()].filter(({ tile }) => isVisible(tile, visibility)).map((door) => ({
       id: door.id,
       sprite: door.sprite,
       tile: door.tile,
       worldX: door.tile.x * TILE_SIZE,
       worldY: door.tile.y * TILE_SIZE,
     })),
-  ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right));
-  const visibleWalls = map.wallTiles.filter(({ tile }) => isVisible(tile, camera, surface))
+  ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right)), [
+    map,
+    visibility.maximumX,
+    visibility.maximumY,
+    visibility.minimumX,
+    visibility.minimumY,
+  ]);
+  const visibleWalls = useMemo(() => map.wallTiles.filter(({ tile }) => isVisible(tile, visibility))
     .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
-    .map((wall) => ({ id: wall.id, sprite: wall.sprite, worldX: wall.tile.x * TILE_SIZE, worldY: wall.tile.y * TILE_SIZE }));
-  const worldFrame = buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, frame);
-  const characters = worldFrame.characters.filter(({ tile }) => isVisible(tile, camera, surface));
-  const floorAtlas = atlasData(visibleFloors, camera);
-  const propAtlas = atlasData(visibleProps, camera);
-  const characterAtlas = atlasData(characters, camera);
-  const wallAtlas = atlasData(visibleWalls, camera);
-  const visibleRoofTiles = map.source.roofGroups
+    .map((wall) => ({ id: wall.id, sprite: wall.sprite, worldX: wall.tile.x * TILE_SIZE, worldY: wall.tile.y * TILE_SIZE })), [
+    map,
+    visibility.maximumX,
+    visibility.maximumY,
+    visibility.minimumX,
+    visibility.minimumY,
+  ]);
+  const worldFrame = useMemo(
+    () => buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, frame),
+    [frame, map, npcTiles, runtime.movement.direction, runtime.worldState],
+  );
+  const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
+    visibility.maximumX,
+    visibility.maximumY,
+    visibility.minimumX,
+    visibility.minimumY,
+    worldFrame.characters,
+  ]);
+  const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
+  const propAtlas = useMemo(() => atlasData(visibleProps, camera.zoom), [camera.zoom, visibleProps]);
+  const characterAtlas = useMemo(() => atlasData(characters, camera.zoom), [camera.zoom, characters]);
+  const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
+  const visibleRoofTiles = useMemo(() => map.source.roofGroups
     .filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id))
     .flatMap((roof) => roof.cells.flatMap(pointsInRect).map((tile) => ({
       id: `${roof.id}-${tileKey(tile)}`,
@@ -678,8 +714,42 @@ export function WorldScene({
       worldX: tile.x * TILE_SIZE,
       worldY: tile.y * TILE_SIZE,
     })))
-    .filter(({ worldX, worldY }) => isVisible({ x: worldX / TILE_SIZE, y: worldY / TILE_SIZE }, camera, surface));
-  const roofAtlas = atlasData(visibleRoofTiles, camera);
+    .filter(({ worldX, worldY }) => isVisible({ x: worldX / TILE_SIZE, y: worldY / TILE_SIZE }, visibility)), [
+    map,
+    visibility.maximumX,
+    visibility.maximumY,
+    visibility.minimumX,
+    visibility.minimumY,
+    worldFrame.visibleRoofGroupIds,
+  ]);
+  const visibleEffects = useMemo(() => map.source.effects.filter(({ tile }) => isVisible(tile, visibility)), [
+    map,
+    visibility.maximumX,
+    visibility.maximumY,
+    visibility.minimumX,
+    visibility.minimumY,
+  ]);
+  const roofAtlas = useMemo(() => atlasData(visibleRoofTiles, camera.zoom), [camera.zoom, visibleRoofTiles]);
+  const atlasCameraTransform = useMemo(() => [
+    { translateX: -camera.x * camera.zoom },
+    { translateY: -camera.y * camera.zoom },
+  ], [camera.x, camera.y, camera.zoom]);
+  const drawCounts = useMemo(() => {
+    const counts = {
+      floor: visibleFloors.length,
+      prop: visibleProps.length,
+      shadow: characters.length,
+      character: characters.length,
+      effect: visibleEffects.length,
+      wall: visibleWalls.length,
+      roof: visibleRoofTiles.length,
+    } as const;
+    return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
+  }, [characters.length, visibleEffects.length, visibleFloors.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
+  const smokeGeometry = useMemo(
+    () => map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
+    [map],
+  );
   const selectedCharacter = selected === 'protagonist'
     ? runtime.movement.player
     : npcTiles[selected]?.tile ?? runtime.movement.player;
@@ -698,23 +768,24 @@ export function WorldScene({
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    let secondFrame = 0;
-    const firstFrame = requestAnimationFrame(() => {
-      secondFrame = requestAnimationFrame(() => {
+    let frameId = 0;
+    const timer = setTimeout(() => {
+      frameId = requestAnimationFrame(() => {
         const evidence = measureResponsiveEvidence(document, {
           camera,
           mapId,
           roofGroupId: worldFrame.hiddenRoofGroupId,
           uiScale,
+          drawCounts,
         });
         if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
       });
-    });
+    }, 80);
     return () => {
-      cancelAnimationFrame(firstFrame);
-      if (secondFrame) cancelAnimationFrame(secondFrame);
+      clearTimeout(timer);
+      if (frameId) cancelAnimationFrame(frameId);
     };
-  }, [camera, conversationNpcId, image, mapId, openPanel, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+  }, [camera, conversationNpcId, drawCounts, image, mapId, openPanel, surface, uiScale, worldFrame.hiddenRoofGroupId]);
 
   if (!image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
@@ -723,27 +794,27 @@ export function WorldScene({
   const renderLayer = (layer: WorldLayer) => {
     switch (layer) {
       case 'floor':
-        return <Atlas image={image} key={layer} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} />;
+        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} /></Group>;
       case 'prop':
-        return <Atlas image={image} key={layer} sampling={NEAREST} sprites={propAtlas.sprites} transforms={propAtlas.transforms} />;
+        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={propAtlas.sprites} transforms={propAtlas.transforms} /></Group>;
       case 'shadow':
         return characters.map((character) => {
           const screen = worldToScreen(camera, { x: character.worldX + 5, y: character.worldY + 27 });
           return <RoundedRect color="#20191566" height={3 * camera.zoom} key={`shadow-${character.id}`} r={camera.zoom} width={14 * camera.zoom} x={screen.x} y={screen.y} />;
         });
       case 'character':
-        return <Atlas image={image} key={layer} sampling={NEAREST} sprites={characterAtlas.sprites} transforms={characterAtlas.transforms} />;
+        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={characterAtlas.sprites} transforms={characterAtlas.transforms} /></Group>;
       case 'effect':
-        return map.source.effects.filter(({ tile }) => isVisible(tile, camera, surface)).map((effect) => {
+        return visibleEffects.map((effect) => {
           const screen = worldToScreen(camera, { x: effect.tile.x * 32 + 16, y: effect.tile.y * 32 + 16 });
           return <Circle color={effect.kind === 'fire' ? '#f07832' : '#f5dd9d'} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
         });
       case 'wall':
-        return <Atlas image={image} key={layer} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} />;
+        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} /></Group>;
       case 'roof':
         return (
           <>
-            <Atlas image={image} key="roof-atlas" sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} />
+            <Group transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} /></Group>
             {map.source.roofGroups.filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id)).flatMap((roof) => (
               roof.cells.map((cell, index) => {
                 const screen = worldToScreen(camera, { x: cell.x * 32, y: cell.y * 32 });
@@ -814,6 +885,14 @@ export function WorldScene({
           pointerEvents="none"
           style={styles.proofState}
         />
+        {smokeGeometry ? (
+          <View
+            accessibilityLabel={JSON.stringify(smokeGeometry)}
+            nativeID="world-geometry-state"
+            pointerEvents="none"
+            style={styles.proofState}
+          />
+        ) : null}
         <View
           accessibilityLabel={`World camera ${camera.x},${camera.y} at ${camera.zoom}x`}
           nativeID="world-camera-state"

@@ -1,9 +1,12 @@
 import { execFileSync, spawn } from 'node:child_process';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 import { z } from 'zod';
 
 import { findPackagedExecutable } from '../electron/package-smoke-utils';
+import { resolveEvidenceSource } from '../qualification/evidence-source';
+import { resolveTestedCommit } from '../qualification/tested-commit';
 
 const ReportSchema = z
   .object({
@@ -63,6 +66,24 @@ child.once('close', (code) => {
   const processListing = execFileSync('ps', ['-axo', 'command='], { encoding: 'utf8' });
   if (processListing.split(/\r?\n/u).some((line) => line.includes(applicationRoot))) {
     throw new Error('A packaged llama-server process remained after application exit.');
+  }
+  const reportPath = process.env.SI_WORLD_MODEL_SMOKE_REPORT;
+  if (reportPath) {
+    const absoluteReportPath = resolve(process.cwd(), reportPath);
+    const evidenceSource = resolveEvidenceSource([
+      'electron/model/conversation-inference.ts',
+      'electron/model/model-smoke.ts',
+      'electron/model/model-supervisor.ts',
+      'scripts/model/run-package-model-smoke.ts',
+    ]);
+    mkdirSync(dirname(absoluteReportPath), { recursive: true });
+    writeFileSync(absoluteReportPath, `${JSON.stringify({
+      schemaVersion: 1,
+      evidenceSource,
+      testedCommit: resolveTestedCommit(),
+      ...report,
+      leakedProcess: false,
+    }, null, 2)}\n`, { encoding: 'utf8', flush: true });
   }
   process.stdout.write(`Packaged model smoke: ${JSON.stringify(report)}\n`);
 });
