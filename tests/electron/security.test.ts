@@ -312,7 +312,9 @@ describe('secure Electron boundary', () => {
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
     expect(windowsSigner).toContain('Get-AuthenticodeSignature');
-    expect(windowsSigner).toContain("$signature.Status -notin @('Valid', 'NotTrusted')");
+    expect(windowsSigner).toContain("$signature.Status -eq 'UnknownError'");
+    expect(windowsSigner).toContain("$signature.StatusMessage -match 'root certificate.+not trusted'");
+    expect(windowsSigner).toContain("$signature.Status -notin @('Valid', 'NotTrusted') -and -not $expectedUntrustedRoot");
     expect(windowsSigner).toContain("$tamperedSignature.Status -ne 'HashMismatch'");
     expect(windowsSigner).not.toContain('CurrentUser\\Root');
     expect(windowsSigner).not.toContain('certutil.exe');

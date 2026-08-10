@@ -41,8 +41,10 @@ try {
   if ($null -eq $signature.SignerCertificate -or $signature.SignerCertificate.Thumbprint -ne $certificate.Thumbprint) {
     throw 'The Windows test artifact signer does not match the generated test certificate.'
   }
-  if ($signature.Status -notin @('Valid', 'NotTrusted')) {
-    throw "The Windows test artifact signature is not intact: $($signature.Status)."
+  $expectedUntrustedRoot = $signature.Status -eq 'UnknownError' -and `
+    $signature.StatusMessage -match 'root certificate.+not trusted'
+  if ($signature.Status -notin @('Valid', 'NotTrusted') -and -not $expectedUntrustedRoot) {
+    throw "The Windows test artifact signature is not intact: $($signature.Status): $($signature.StatusMessage)"
   }
 
   Copy-Item -LiteralPath $executables[0].FullName -Destination $tamperedExecutablePath -Force
@@ -76,7 +78,7 @@ try {
     certificateSha1Thumbprint = $certificate.Thumbprint.ToLowerInvariant()
     certificateSha256Fingerprint = $certificateSha256Fingerprint
     mainExecutableSha256 = (Get-FileHash -Algorithm SHA256 $executables[0].FullName).Hash.ToLowerInvariant()
-    verification = "Get-AuthenticodeSignature $($signature.Status); tampered copy HashMismatch"
+    verification = "Get-AuthenticodeSignature $($signature.Status); expectedUntrustedRoot=$expectedUntrustedRoot; tampered copy HashMismatch"
   }
   $report | ConvertTo-Json -Depth 4 | Set-Content -Path $reportPath -Encoding utf8
   Write-Output "Windows local test signature integrity checked: $($executables[0].Name)"
