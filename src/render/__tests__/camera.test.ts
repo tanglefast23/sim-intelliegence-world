@@ -1,6 +1,9 @@
 import {
+  clampCamera,
   centerCameraOnTile,
+  isScreenPointInsideMap,
   panCamera,
+  resizeCameraPreservingCenter,
   screenToTile,
   worldToScreen,
   zoomCameraAt,
@@ -35,5 +38,28 @@ describe('integer world camera', () => {
     expect(panCamera(camera, { x: 400, y: 300 }, VIEWPORT, MAP_PIXELS)).toEqual(camera);
     const far = panCamera(camera, { x: -100_000, y: -100_000 }, VIEWPORT, MAP_PIXELS);
     expect(far).toEqual({ x: 1488, y: 1226, zoom: 2 });
+  });
+
+  test('centers an oversized viewport and rejects backdrop pointers', () => {
+    const viewport = { width: 2_560, height: 1_800 };
+    const camera = clampCamera({ x: 0, y: 0, zoom: 1 }, viewport, MAP_PIXELS);
+    expect(camera).toEqual({ x: -256, y: -132, zoom: 1 });
+    expect(isScreenPointInsideMap(camera, { x: 0, y: 100 }, MAP_PIXELS)).toBe(false);
+    expect(isScreenPointInsideMap(camera, { x: 256, y: 132 }, MAP_PIXELS)).toBe(true);
+  });
+
+  test('preserves the old center world point across viewport and zoom changes', () => {
+    const oldViewport = { width: 1_256, height: 696 };
+    const nextViewport = { width: 1_896, height: 1_056 };
+    const camera = centerCameraOnTile({ x: 30, y: 24 }, 1, oldViewport, MAP_PIXELS);
+    const oldCenter = {
+      x: camera.x + oldViewport.width / camera.zoom / 2,
+      y: camera.y + oldViewport.height / camera.zoom / 2,
+    };
+    const resized = resizeCameraPreservingCenter(camera, oldViewport, nextViewport, 2, MAP_PIXELS);
+    expect({
+      x: resized.x + nextViewport.width / resized.zoom / 2,
+      y: resized.y + nextViewport.height / resized.zoom / 2,
+    }).toEqual(oldCenter);
   });
 });

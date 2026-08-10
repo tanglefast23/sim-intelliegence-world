@@ -129,8 +129,9 @@ describe('packaged Electron smoke evidence', () => {
         appUrl: 'app://game/',
         assetsLoaded: true,
         bridgeKeys: [
-          'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
-          'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+        'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo',
+        'loadPresentationPreferences', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave',
+        'savePresentationPreferences', 'sendConversationTurn',
         ],
         canvasKitReady: true,
         nodeAccessBlocked: true,
@@ -154,8 +155,9 @@ describe('packaged Electron smoke evidence', () => {
           appUrl: 'app://game/',
           assetsLoaded: true,
           bridgeKeys: [
-            'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
-            'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+            'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo',
+            'loadPresentationPreferences', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave',
+            'savePresentationPreferences', 'sendConversationTurn',
           ],
           canvasKitReady: false,
           nodeAccessBlocked: true,
@@ -168,8 +170,9 @@ describe('packaged Electron smoke evidence', () => {
           appUrl: 'https://example.com/',
           assetsLoaded: true,
           bridgeKeys: [
-            'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
-            'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+            'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo',
+            'loadPresentationPreferences', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave',
+            'savePresentationPreferences', 'sendConversationTurn',
           ],
           canvasKitReady: true,
           nodeAccessBlocked: true,
@@ -230,6 +233,11 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => validateScreenshotBuffers(screenshot(800, 450, 1), ready)).toThrow(
       'dimensions do not match',
     );
+    expect(() => validateScreenshotBuffers(
+      screenshot(800, 450, 1),
+      ready,
+      { requireSameDimensions: false },
+    )).not.toThrow();
     expect(() => validateScreenshotBuffers(loading, loading)).toThrow('identical');
   });
 

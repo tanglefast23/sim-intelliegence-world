@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { ConversationPort } from '../application/effects/ConversationPort';
 import { useReducedMotion } from '../application/accessibility';
 import { conversationPromptSuggestions } from '../ai/conversation/intent';
 import { cueForConversationTurn, type VocalCueId } from '../audio/vocal-cue-policy';
 import type { WorldState } from '../domain/state/schema';
+import type { ViewportSize } from '../render/camera';
+import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
 import { authoredBeginFallback, conversationGenerationNote } from './conversation-feedback';
+import { uiMetrics } from './ui-metrics';
 
 type Line = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
 
@@ -18,6 +21,8 @@ type ConversationPanelProps = Readonly<{
   onStableState: (state: WorldState, committed: boolean) => void;
   onDismiss: () => void;
   onVocalCue: (cue: VocalCueId) => void;
+  surface: ViewportSize;
+  uiScale: UiScale;
 }>;
 
 function idPart(source: string): string {
@@ -25,7 +30,7 @@ function idPart(source: string): string {
 }
 
 export function ConversationPanel({
-  npcId, port, state, onPausedState, onStableState, onDismiss, onVocalCue,
+  npcId, port, state, onPausedState, onStableState, onDismiss, onVocalCue, surface, uiScale,
 }: ConversationPanelProps) {
   const initialState = useRef(state);
   const reducedMotion = useReducedMotion();
@@ -44,6 +49,8 @@ export function ConversationPanel({
   const active = useRef(false);
   const closing = useRef(false);
   const revealTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const panelLayout = responsivePanelLayout(surface, uiScale);
+  const metrics = uiMetrics(uiScale);
 
   useEffect(() => {
     let mounted = true;
@@ -155,37 +162,51 @@ export function ConversationPanel({
 
   return (
     <View nativeID="world-ui-conversation-overlay" style={styles.overlay}>
-      <View accessibilityLabel={`Conversation with ${displayName}`} nativeID="world-ui-conversation-panel" style={styles.panel}>
+      <View
+        accessibilityLabel={`Conversation with ${displayName}`}
+        nativeID="world-ui-conversation-panel"
+        style={[styles.panel, { height: panelLayout.height, padding: metrics.padding, width: panelLayout.width }]}
+      >
         <View style={styles.header}>
-          <View>
-            <Text style={styles.eyebrow}>CONVERSATION · TIME PAUSED</Text>
-            <Text style={styles.name}>{displayName.toUpperCase()}</Text>
+          <View style={styles.headerCopy}>
+            <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION · TIME PAUSED</Text>
+            <Text style={[styles.name, { fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
           </View>
-          <Pressable accessibilityLabel="Cancel conversation" onPress={() => void close(false)} style={styles.smallButton}>
-            <Text style={styles.smallButtonText}>CANCEL</Text>
+          <Pressable accessibilityLabel="Cancel conversation" onPress={() => void close(false)} style={[styles.smallButton, { minHeight: metrics.pointerTarget }]}>
+            <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>CANCEL</Text>
           </Pressable>
         </View>
-        <View nativeID="conversation-transcript" style={styles.transcript}>
-          <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={styles.modelStatus}>{generationNote}</Text>
+        <ScrollView
+          contentContainerStyle={[styles.transcriptContent, { padding: metrics.padding }]}
+          nativeID="conversation-transcript"
+          style={styles.transcript}
+        >
+          <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={[styles.modelStatus, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>{generationNote}</Text>
           {lines.slice(-6).map((line, index) => (
-            <Text key={`${line.speaker}-${index}`} style={line.speaker === 'npc' ? styles.npcLine : styles.playerLine}>
+            <Text
+              key={`${line.speaker}-${index}`}
+              style={[
+                line.speaker === 'npc' ? styles.npcLine : styles.playerLine,
+                { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) },
+              ]}
+            >
               {line.speaker === 'npc' ? `${displayName}: ` : 'YOU: '}{line.text}
             </Text>
           ))}
-          {status === 'generating' ? <Text accessibilityLabel="NPC is thinking" style={styles.thinking}>●  ●  ●</Text> : null}
-          {status === 'revealing' ? <Text style={styles.npcLine}>{displayName}: {reveal}</Text> : null}
-          {status === 'failed' ? <Text style={styles.error}>CONVERSATION COULD NOT START</Text> : null}
-        </View>
+          {status === 'generating' ? <Text accessibilityLabel="NPC is thinking" style={[styles.thinking, { fontSize: metrics.conversationText }]}>●  ●  ●</Text> : null}
+          {status === 'revealing' ? <Text style={[styles.npcLine, { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) }]}>{displayName}: {reveal}</Text> : null}
+          {status === 'failed' ? <Text style={[styles.error, { fontSize: metrics.panelText }]}>CONVERSATION COULD NOT START</Text> : null}
+        </ScrollView>
         {status === 'ambient' || status === 'failed' ? (
-          <Pressable accessibilityLabel="Close dialogue" onPress={() => void close(false)} style={styles.endButton}>
-            <Text style={styles.endText}>CLOSE</Text>
+          <Pressable accessibilityLabel="Close dialogue" onPress={() => void close(false)} style={[styles.endButton, { minHeight: metrics.primaryControl }]}>
+            <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>CLOSE</Text>
           </Pressable>
         ) : (
           status === 'action-complete' ? (
             <View style={styles.actionCompleteRow}>
-              <Text style={styles.actionComplete}>ACTION RECORDED · END OR CANCEL THIS CONVERSATION</Text>
-              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={styles.endButton}>
-                <Text style={styles.endText}>END</Text>
+              <Text style={[styles.actionComplete, { fontSize: metrics.secondaryText }]}>ACTION RECORDED · END OR CANCEL THIS CONVERSATION</Text>
+              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={[styles.endButton, { minHeight: metrics.primaryControl }]}>
+                <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
             </View>
           ) : (
@@ -197,9 +218,9 @@ export function ConversationPanel({
                     disabled={status !== 'ready'}
                     key={suggestion.id}
                     onPress={() => setDraft(suggestion.suggestedText)}
-                    style={styles.actionButton}
+                    style={[styles.actionButton, { minHeight: metrics.pointerTarget }]}
                   >
-                    <Text style={styles.actionText}>{suggestion.label}</Text>
+                    <Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>{suggestion.label}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -212,14 +233,14 @@ export function ConversationPanel({
                 onSubmitEditing={() => void send()}
                 placeholder="TYPE WHAT YOU WANT TO SAY…"
                 placeholderTextColor="#7e6f5b"
-                style={styles.input}
+                style={[styles.input, { fontSize: metrics.conversationText, minHeight: metrics.primaryControl }]}
                 value={draft}
               />
-              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={styles.sendButton}>
-                <Text style={styles.sendText}>SAY</Text>
+              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={[styles.sendButton, { minHeight: metrics.primaryControl }]}>
+                <Text style={[styles.sendText, { fontSize: metrics.persistentText }]}>SAY</Text>
               </Pressable>
-              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={styles.endButton}>
-                <Text style={styles.endText}>END</Text>
+              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={[styles.endButton, { minHeight: metrics.primaryControl }]}>
+                <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
               </View>
             </>
@@ -232,27 +253,29 @@ export function ConversationPanel({
 
 const styles = StyleSheet.create({
   actionComplete: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 12 },
-  actionCompleteRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+  actionCompleteRow: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between' },
   actionButton: { borderColor: '#8b6846', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
-  actionRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
   actionText: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8 },
   endButton: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, justifyContent: 'center', minHeight: 38, paddingHorizontal: 14 },
   endText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
   error: { color: '#ef725b', fontFamily: 'Silkscreen', fontSize: 10 },
   eyebrow: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 8 },
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+  headerCopy: { flexShrink: 1 },
   input: { backgroundColor: '#181512', borderColor: '#76573d', borderWidth: 1, color: '#fff0c7', flex: 1, fontFamily: 'Silkscreen', fontSize: 10, minHeight: 38, paddingHorizontal: 10 },
   inputRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
   name: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 18, marginTop: 3 },
   modelStatus: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 9, lineHeight: 15, marginBottom: 10 },
   npcLine: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 50 },
-  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, maxWidth: 760, padding: 18, width: '74%' },
+  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2 },
   playerLine: { color: '#9fc58e', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   sendButton: { alignItems: 'center', backgroundColor: '#d3a04c', justifyContent: 'center', minHeight: 38, paddingHorizontal: 16 },
   sendText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
   smallButton: { borderColor: '#76573d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
   smallButtonText: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 8 },
   thinking: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10, letterSpacing: 5 },
-  transcript: { backgroundColor: '#1b1713', marginTop: 12, minHeight: 190, padding: 12 },
+  transcript: { backgroundColor: '#1b1713', flex: 1, marginTop: 12, minHeight: 96 },
+  transcriptContent: { flexGrow: 1 },
 });

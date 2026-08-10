@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { WorldState } from '../domain/state/schema';
+import type { UiScale } from '../render/responsive-layout';
+import { uiMetrics } from './ui-metrics';
 
 function clockLabel(absoluteMinute: number): string {
   const day = Math.floor(absoluteMinute / 1_440) + 1;
@@ -16,42 +18,48 @@ type HudProps = Readonly<{
   areaName: string;
   zoom: number;
   saveStatus: string;
+  uiScale: UiScale;
   onSpeed: (speed: 0 | 1 | 2) => void;
 }>;
 
-export function Hud({ state, mapName, areaName, zoom, saveStatus, onSpeed }: HudProps) {
+export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpeed }: HudProps) {
+  const metrics = uiMetrics(uiScale);
   return (
     <>
-      <View nativeID="world-ui-hud" style={styles.hud}>
-        <Text style={styles.eyebrow}>{mapName.toUpperCase()}</Text>
-        <Text style={styles.area}>{areaName}</Text>
+      <View nativeID="world-ui-hud" style={[styles.hud, { padding: metrics.padding, width: Math.round(294 * uiScale) }]}>
+        <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>{mapName.toUpperCase()}</Text>
+        <Text style={[styles.area, { fontSize: metrics.titleText }]}>{areaName}</Text>
         <View style={styles.row}>
-          <Text style={styles.clock}>{clockLabel(state.clock.absoluteMinute)}</Text>
-          <Text style={styles.zoom}>{zoom}×</Text>
+          <Text style={[styles.clock, { fontSize: metrics.persistentText }]}>{clockLabel(state.clock.absoluteMinute)}</Text>
+          <Text style={[styles.zoom, { fontSize: metrics.secondaryText }]}>{zoom}×</Text>
         </View>
-        <View style={styles.meters}>
-          <Text style={styles.energy}>ENERGY {state.protagonist.energy}</Text>
-          <Text style={styles.health}>HEALTH {state.protagonist.health}</Text>
-          <Text style={styles.money}>$ {state.inventory.money}</Text>
+        <View style={[styles.meters, { gap: metrics.gap }]}>
+          <Text style={[styles.energy, { fontSize: metrics.secondaryText }]}>ENERGY {state.protagonist.energy}</Text>
+          <Text style={[styles.health, { fontSize: metrics.secondaryText }]}>HEALTH {state.protagonist.health}</Text>
+          <Text style={[styles.money, { fontSize: metrics.secondaryText }]}>$ {state.inventory.money}</Text>
         </View>
       </View>
-      <View nativeID="world-ui-speed" style={styles.speedPlate}>
-        <Text style={styles.speedLabel}>TIME</Text>
+      <View nativeID="world-ui-speed" style={[styles.speedPlate, { right: 24 + metrics.pointerTarget * 3 + metrics.gap * 2 }]}>
+        <Text style={[styles.speedLabel, { fontSize: metrics.secondaryText }]}>TIME</Text>
         {([0, 1, 2] as const).map((speed) => (
           <Pressable
             accessibilityLabel={speed === 0 ? 'Pause time' : `Set ${speed}x time`}
             key={speed}
             onPress={() => onSpeed(speed)}
-            style={[styles.speedButton, state.clock.selectedSpeed === speed && styles.speedActive]}
+            style={[
+              styles.speedButton,
+              { height: metrics.pointerTarget, width: metrics.pointerTarget },
+              state.clock.selectedSpeed === speed && styles.speedActive,
+            ]}
           >
-            <Text style={[styles.speedText, state.clock.selectedSpeed === speed && styles.speedTextActive]}>
+            <Text style={[styles.speedText, { fontSize: metrics.secondaryText }, state.clock.selectedSpeed === speed && styles.speedTextActive]}>
               {speed === 0 ? 'Ⅱ' : `${speed}×`}
             </Text>
           </Pressable>
         ))}
       </View>
       <View pointerEvents="none" style={styles.savePlate}>
-        <Text nativeID="world-save-status" style={styles.saveText}>{saveStatus.toUpperCase()}</Text>
+        <Text nativeID="world-save-status" style={[styles.saveText, { fontSize: metrics.secondaryText }]}>{saveStatus.toUpperCase()}</Text>
       </View>
     </>
   );

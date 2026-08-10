@@ -1,8 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
+import type { ViewportSize } from '../render/camera';
+import { automaticUiScale } from '../render/responsive-layout';
+import { uiMetrics } from '../ui/ui-metrics';
 
 type LoadingShellProps = Readonly<{
   detail: string;
   failed?: boolean;
+  surface?: ViewportSize;
 }>;
 
 export function getLoadingShellCopy(failed: boolean, detail: string) {
@@ -12,17 +16,18 @@ export function getLoadingShellCopy(failed: boolean, detail: string) {
   } as const;
 }
 
-export function LoadingShell({ detail, failed = false }: LoadingShellProps) {
+export function LoadingShell({ detail, failed = false, surface }: LoadingShellProps) {
   const copy = getLoadingShellCopy(failed, detail);
+  const metrics = uiMetrics(surface ? automaticUiScale(surface) : 1);
   return (
-    <View accessibilityLiveRegion="polite" nativeID="loading-shell" style={styles.screen}>
-      <Text accessibilityRole="header" style={styles.title}>
+    <View accessibilityLiveRegion="polite" nativeID="loading-shell" style={[styles.screen, surface]}>
+      <Text accessibilityRole="header" style={[styles.title, { fontSize: metrics.titleText * 2 }]}>
         SI World
       </Text>
-      <Text style={[styles.detail, failed && styles.failed]}>
+      <Text style={[styles.detail, { fontSize: metrics.panelText }, failed && styles.failed]}>
         {copy.headline}
       </Text>
-      <Text style={styles.subdetail}>{copy.detail}</Text>
+      <Text style={[styles.subdetail, { fontSize: metrics.secondaryText }]}>{copy.detail}</Text>
     </View>
   );
 }

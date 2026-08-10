@@ -1,12 +1,17 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { WorldState } from '../domain/state/schema';
+import type { ViewportSize } from '../render/camera';
+import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
+import { uiMetrics } from './ui-metrics';
 
 type JournalPanelProps = Readonly<{
   state: WorldState;
   onDismiss: () => void;
   onPurchaseSecurityReport: () => void;
   onAdvancePolice: () => void;
+  surface: ViewportSize;
+  uiScale: UiScale;
 }>;
 
 function label(id: string): string {
@@ -19,7 +24,7 @@ function timeLabel(absoluteMinute: number): string {
   return `DAY ${day} ${Math.floor(time / 60).toString().padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
 }
 
-export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdvancePolice }: JournalPanelProps) {
+export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdvancePolice, surface, uiScale }: JournalPanelProps) {
   const entries = Object.values(state.journal);
   const invitations = Object.values(state.invitations);
   const purchased = state.quests.linda_boyfriend_check?.flagIds.includes('security_report_purchased') ?? false;
@@ -31,54 +36,63 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdv
       : state.policeAttention === 'wanted'
         ? { label: 'Trigger wanted encounter', result: 'Attention becomes ARREST-ON-SIGHT.' }
         : undefined;
+  const panelLayout = responsivePanelLayout(surface, uiScale);
+  const metrics = uiMetrics(uiScale);
+  const bodyText = { fontSize: metrics.panelText, lineHeight: Math.round(metrics.panelText * 1.45) };
   return (
     <View nativeID="world-ui-journal-overlay" style={styles.overlay}>
-      <View accessibilityLabel="Lead journal" nativeID="world-ui-journal-panel" style={styles.panel}>
+      <View
+        accessibilityLabel="Lead journal"
+        nativeID="world-ui-journal-panel"
+        style={[styles.panel, { height: panelLayout.height, padding: metrics.padding, width: panelLayout.width }]}
+      >
         <View style={styles.header}>
           <View>
-            <Text style={styles.eyebrow}>VALIDATED LEADS</Text>
-            <Text style={styles.title}>JOURNAL</Text>
+            <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>VALIDATED LEADS</Text>
+            <Text style={[styles.title, { fontSize: metrics.titleText }]}>JOURNAL</Text>
           </View>
-          <Pressable accessibilityLabel="Close journal" onPress={onDismiss} style={styles.close}>
-            <Text style={styles.closeText}>CLOSE</Text>
+          <Pressable accessibilityLabel="Close journal" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
+            <Text style={[styles.closeText, { fontSize: metrics.secondaryText }]}>CLOSE</Text>
           </Pressable>
         </View>
-        <Text style={styles.section}>LEADS</Text>
-        {lindaQuest ? <Text style={styles.detail}>LINDA QUEST · {lindaQuest.status.toUpperCase()}</Text> : null}
-        {entries.length === 0 ? <Text style={styles.muted}>NO VALIDATED LEADS YET</Text> : entries.map((entry) => (
+        <ScrollView contentContainerStyle={styles.body} style={styles.bodyScroll}>
+        <Text style={[styles.section, bodyText]}>LEADS</Text>
+        {lindaQuest ? <Text style={[styles.detail, bodyText]}>LINDA QUEST · {lindaQuest.status.toUpperCase()}</Text> : null}
+        {entries.length === 0 ? <Text style={[styles.muted, bodyText]}>NO VALIDATED LEADS YET</Text> : entries.map((entry) => (
           <View key={entry.id} style={styles.card}>
-            <Text style={styles.cardTitle}>{entry.summary.toUpperCase()}</Text>
-            <Text style={styles.detail}>{entry.locationPrecision.toUpperCase()} LOCATION{entry.markerVisible ? ' · MAP MARKER' : ' · NO MARKER'}</Text>
-            {entry.deadlineMinute !== undefined ? <Text style={styles.detail}>DEADLINE · {timeLabel(entry.deadlineMinute)}</Text> : null}
-            <Text style={styles.detail}>{entry.resolutionState.toUpperCase()}</Text>
+            <Text style={[styles.cardTitle, bodyText]}>{entry.summary.toUpperCase()}</Text>
+            <Text style={[styles.detail, bodyText]}>{entry.locationPrecision.toUpperCase()} LOCATION{entry.markerVisible ? ' · MAP MARKER' : ' · NO MARKER'}</Text>
+            {entry.deadlineMinute !== undefined ? <Text style={[styles.detail, bodyText]}>DEADLINE · {timeLabel(entry.deadlineMinute)}</Text> : null}
+            <Text style={[styles.detail, bodyText]}>{entry.resolutionState.toUpperCase()}</Text>
           </View>
         ))}
-        <Text style={styles.section}>HOME INVITATIONS</Text>
-        {invitations.length === 0 ? <Text style={styles.muted}>NO VISITS SCHEDULED</Text> : invitations.map((invitation) => (
-          <Text key={invitation.id} style={styles.detail}>
+        <Text style={[styles.section, bodyText]}>HOME INVITATIONS</Text>
+        {invitations.length === 0 ? <Text style={[styles.muted, bodyText]}>NO VISITS SCHEDULED</Text> : invitations.map((invitation) => (
+          <Text key={invitation.id} style={[styles.detail, bodyText]}>
             {label(invitation.npcId)} · {invitation.status.toUpperCase()}
             {invitation.scheduledMinute !== undefined ? ` · ${timeLabel(invitation.scheduledMinute)}` : ''}
             {invitation.counterProposedMinute !== undefined ? ` · COUNTER ${timeLabel(invitation.counterProposedMinute)}` : ''}
           </Text>
         ))}
-        <Text style={styles.section}>OPTIONAL PREPARATION</Text>
+        <Text style={[styles.section, bodyText]}>OPTIONAL PREPARATION</Text>
         <Pressable
           accessibilityLabel="Buy villa security report"
           disabled={purchased || state.inventory.money < 60}
           onPress={onPurchaseSecurityReport}
-          style={[styles.purchase, purchased && styles.purchaseDone]}
+          style={[styles.purchase, { minHeight: metrics.pointerTarget }, purchased && styles.purchaseDone]}
         >
-          <Text style={styles.purchaseText}>{purchased ? 'SECURITY REPORT PURCHASED' : 'BUY VILLA SECURITY REPORT · $60'}</Text>
+          <Text style={[styles.purchaseText, bodyText]}>{purchased ? 'SECURITY REPORT PURCHASED' : 'BUY VILLA SECURITY REPORT · $60'}</Text>
         </Pressable>
-        <Text style={styles.section}>CONSEQUENCES</Text>
-        <Text style={styles.detail}>POLICE · {state.policeAttention.toUpperCase()}</Text>
-        <Text style={styles.detail}>EVIDENCE · {Object.keys(state.evidence).length}</Text>
+        <Text style={[styles.section, bodyText]}>CONSEQUENCES</Text>
+        <Text style={[styles.detail, bodyText]}>POLICE · {state.policeAttention.toUpperCase()}</Text>
+        <Text style={[styles.detail, bodyText]}>EVIDENCE · {Object.keys(state.evidence).length}</Text>
         {policeAction ? (
-          <Pressable accessibilityLabel={policeAction.label} onPress={onAdvancePolice} style={styles.policeAction}>
-            <Text style={styles.purchaseText}>{policeAction.label.toUpperCase()}</Text>
-            <Text style={styles.detail}>{policeAction.result}</Text>
+          <Pressable accessibilityLabel={policeAction.label} onPress={onAdvancePolice} style={[styles.policeAction, { minHeight: metrics.pointerTarget }]}>
+            <Text style={[styles.purchaseText, bodyText]}>{policeAction.label.toUpperCase()}</Text>
+            <Text style={[styles.detail, bodyText]}>{policeAction.result}</Text>
           </Pressable>
         ) : null}
+        </ScrollView>
       </View>
     </View>
   );
@@ -86,6 +100,8 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdv
 
 const styles = StyleSheet.create({
   card: { backgroundColor: '#1b1713', borderLeftColor: '#d3a04c', borderLeftWidth: 2, marginTop: 8, padding: 10 },
+  body: { paddingBottom: 4 },
+  bodyScroll: { flex: 1, minHeight: 0 },
   cardTitle: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
   close: { borderColor: '#76573d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
   closeText: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 8 },
@@ -94,7 +110,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
-  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, maxWidth: 680, padding: 18, width: '64%' },
+  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2 },
   policeAction: { backgroundColor: '#4b2d2d', borderColor: '#d3765d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchase: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchaseDone: { backgroundColor: '#324a37' },

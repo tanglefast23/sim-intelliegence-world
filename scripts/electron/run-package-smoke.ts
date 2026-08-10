@@ -124,10 +124,18 @@ child.once('close', (code) => {
   rmSync(smokeUserData, { force: true, recursive: true });
   const report = parseSmokeResult(stdout);
   validateScreenshotEvidence(loadingScreenshotPath, screenshotPath);
-  validateScreenshotBuffers(readFileSync(loadingScreenshotPath), readFileSync(newGameScreenshotPath));
+  validateScreenshotBuffers(
+    readFileSync(loadingScreenshotPath),
+    readFileSync(newGameScreenshotPath),
+    { requireSameDimensions: false },
+  );
   validateScreenshotBuffers(readFileSync(newGameScreenshotPath), readFileSync(worldZoomPaths[0]!));
   validateWorldZoomEvidence(worldZoomPaths);
-  validateScreenshotBuffers(readFileSync(worldZoomPaths[0]!), readFileSync(roofScreenshotPath));
+  validateScreenshotBuffers(
+    readFileSync(worldZoomPaths[0]!),
+    readFileSync(roofScreenshotPath),
+    { requireSameDimensions: false },
+  );
   const worldResultLine = stdout.split(/\r?\n/u).find((line) => line.startsWith('SI_WORLD_WORLD_SMOKE_RESULT '));
   if (!worldResultLine) throw new Error('Packaged app did not emit world input evidence.');
   const worldResult = JSON.parse(worldResultLine.slice('SI_WORLD_WORLD_SMOKE_RESULT '.length)) as Record<string, unknown>;
@@ -136,11 +144,12 @@ child.once('close', (code) => {
   worldResult.questAutosave = worldResult.questAutosave === true && majorQuestAutosave;
   for (const key of [
     'newGameFlow', 'stableProtagonist', 'allowanceReceipt', 'newGameSave', 'accessibilityPolicy',
+    'responsiveSurface', 'resizeCamera', 'uiScaleControls',
     'zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'centerKey', 'cancelKey', 'uiClickThrough',
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',
-    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'modelFailureFeedback', 'audioCaptions', 'conversationCommitSave',
+    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'conversationResponsiveState', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'modelFailureFeedback', 'audioCaptions', 'conversationCommitSave',
     'structuredInvitation', 'relationshipPanel', 'hiddenFaction', 'journalInvitation', 'socialPurchase',
     'questStarted', 'questChoicePreview', 'questOutcome', 'questAutosave', 'consequenceCaption', 'policeHooks', 'saveReload',
   ]) {

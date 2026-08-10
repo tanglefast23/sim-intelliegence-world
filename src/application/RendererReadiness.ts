@@ -5,10 +5,12 @@ const EXPECTED_BRIDGE_KEYS = [
   'beginConversation',
   'endConversation',
   'getRuntimeInfo',
+  'loadPresentationPreferences',
   'loadSave',
   'migrateSave',
   'reportRendererReady',
   'requestSave',
+  'savePresentationPreferences',
   'sendConversationTurn',
 ] as const;
 

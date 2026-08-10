@@ -12,11 +12,15 @@ import {
   useImage,
   vec,
 } from '@shopify/react-native-skia';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { useReducedMotion } from '../application/accessibility';
+import type {
+  PresentationPreferences,
+  RendererPresentationPatch,
+} from '../application/presentation/preferences';
 import { createBrowserConversationPort } from '../ai/conversation/browser-port';
 import { autosaveStableState } from '../application/runtime/autosave';
 import { WORLD_MAP_CATALOG } from '../application/runtime/map-catalog';
@@ -37,6 +41,7 @@ import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
 import { WorldInput } from '../ui/WorldInput';
+import { uiMetrics } from '../ui/ui-metrics';
 import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
 import { selectOwnerInteractionApproach } from '../world/maps/compiler';
 import { resolveClickTarget, worldClickCandidates } from '../world/maps/hit-testing';
@@ -64,13 +69,19 @@ import {
 } from './atlas';
 import {
   centerCameraOnTile,
+  clampCamera,
+  isScreenPointInsideMap,
   panCamera,
+  resizeCameraPreservingCenter,
   screenToTile,
   worldToScreen,
   zoomCameraAt,
   type CameraState,
+  type ViewportSize,
 } from './camera';
 import { WORLD_DEPTH } from './depth';
+import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
+import { measureResponsiveEvidence } from './responsive-evidence';
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
@@ -80,7 +91,6 @@ import {
 
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
 const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
-const VIEWPORT = { width: 1120, height: 620 } as const;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
 type SpritePlacement = Readonly<{ id: string; sprite: string; worldX: number; worldY: number }>;
@@ -90,11 +100,11 @@ type RuntimeViewState = Readonly<{
   worldState: WorldState;
 }>;
 
-function isVisible(tile: TilePoint, camera: CameraState, margin = 1): boolean {
+function isVisible(tile: TilePoint, camera: CameraState, viewport: ViewportSize, margin = 1): boolean {
   const minimumX = Math.floor(camera.x / TILE_SIZE) - margin;
   const minimumY = Math.floor(camera.y / TILE_SIZE) - margin;
-  const maximumX = Math.ceil((camera.x + VIEWPORT.width / camera.zoom) / TILE_SIZE) + margin;
-  const maximumY = Math.ceil((camera.y + VIEWPORT.height / camera.zoom) / TILE_SIZE) + margin;
+  const maximumX = Math.ceil((camera.x + viewport.width / camera.zoom) / TILE_SIZE) + margin;
+  const maximumY = Math.ceil((camera.y + viewport.height / camera.zoom) / TILE_SIZE) + margin;
   return tile.x >= minimumX && tile.x <= maximumX && tile.y >= minimumY && tile.y <= maximumY;
 }
 
@@ -170,13 +180,24 @@ function npcLabel(selectedId: string, actors: WorldActors): string {
 
 type WorldSceneProps = Readonly<{
   initialFeedback: string;
+  initialPresentationPreferences: PresentationPreferences;
   initialSaveGeneration: number | null;
   initialSaveStatus: string;
   initialState: WorldState;
+  newGame: boolean;
+  onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  surface: ViewportSize;
 }>;
 
 export function WorldScene({
-  initialFeedback, initialSaveGeneration, initialSaveStatus, initialState,
+  initialFeedback,
+  initialPresentationPreferences,
+  initialSaveGeneration,
+  initialSaveStatus,
+  initialState,
+  newGame,
+  onPresentationPreferencesChange,
+  surface,
 }: WorldSceneProps) {
   const image = useImage(atlasImage);
   const reducedMotion = useReducedMotion();
@@ -185,12 +206,26 @@ export function WorldScene({
     x: initialState.protagonist.worldPosition.tileX,
     y: initialState.protagonist.worldPosition.tileY,
   }), [initialState]);
+  const initialMapId = initialState.protagonist.worldPosition.mapId as MapId;
+  const initialMap = WORLD_MAP_CATALOG[initialMapId];
+  const initialZoom = initialPresentationPreferences.worldZoom ?? automaticWorldZoom(surface);
+  const initialAnchor = newGame
+    ? (initialMap.source.startComposition?.cameraAnchor ?? initialTile)
+    : initialTile;
   const [runtime, setRuntime] = useState<RuntimeViewState>(() => ({
     movement: createMovementState(initialTile),
     npcMovements: npcMovementState(initialState),
     worldState: initialState,
   }));
-  const [camera, setCamera] = useState<CameraState>(() => centerCameraOnTile(initialTile, 2, VIEWPORT, MAP_PIXELS));
+  const [camera, setCamera] = useState<CameraState>(() => {
+    const saved = initialPresentationPreferences.camera;
+    return !newGame && saved?.mapId === initialMapId
+      ? clampCamera({ x: saved.x, y: saved.y, zoom: initialZoom }, surface, MAP_PIXELS)
+      : centerCameraOnTile(initialAnchor, initialZoom, surface, MAP_PIXELS);
+  });
+  const [explicitWorldZoom, setExplicitWorldZoom] = useState(initialPresentationPreferences.worldZoom !== null);
+  const [uiScale, setUiScale] = useState<UiScale>(() => initialPresentationPreferences.uiScale ?? automaticUiScale(surface));
+  const [explicitUiScale, setExplicitUiScale] = useState(initialPresentationPreferences.uiScale !== null);
   const [frame, setFrame] = useState<0 | 1>(0);
   const [selected, setSelected] = useState<string>('protagonist');
   const [saveStatus, setSaveStatus] = useState(initialSaveStatus);
@@ -200,15 +235,38 @@ export function WorldScene({
   const [conversationNpcId, setConversationNpcId] = useState<string>();
   const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
   const [audioCaption, setAudioCaption] = useState<string>();
+  const [responsiveEvidence, setResponsiveEvidence] = useState('');
   const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const previousSurface = useRef(surface);
+  const surfaceRef = useRef(surface);
+  surfaceRef.current = surface;
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
   const npcTiles = useMemo(() => actorTiles(runtime.worldState, mapId), [mapId, runtime.worldState]);
   const speed = effectiveSpeed(runtime.worldState.clock);
   const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState));
+  const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
+
+  useLayoutEffect(() => {
+    const previous = previousSurface.current;
+    if (previous.width === surface.width && previous.height === surface.height) return;
+    const nextZoom = explicitWorldZoom ? camera.zoom : automaticWorldZoom(surface);
+    setCamera((current) => resizeCameraPreservingCenter(current, previous, surface, nextZoom, MAP_PIXELS));
+    if (!explicitUiScale) setUiScale(automaticUiScale(surface));
+    previousSurface.current = surface;
+  }, [camera.zoom, explicitUiScale, explicitWorldZoom, surface]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => onPresentationPreferencesChange({
+      worldZoom: explicitWorldZoom ? camera.zoom : null,
+      uiScale: explicitUiScale ? uiScale : null,
+      camera: { mapId, x: camera.x, y: camera.y },
+    }), 160);
+    return () => clearTimeout(timer);
+  }, [camera, explicitUiScale, explicitWorldZoom, mapId, onPresentationPreferencesChange, uiScale]);
 
   const triggerVocalCue = useCallback((cue: VocalCueId) => {
     playVocalCue(cue);
@@ -339,7 +397,7 @@ export function WorldScene({
     }).then((result) => {
       const tile = { x: result.state.protagonist.worldPosition.tileX, y: result.state.protagonist.worldPosition.tileY };
       setRuntime({ movement: createMovementState(tile), npcMovements: npcMovementState(result.state), worldState: result.state });
-      setCamera((current) => centerCameraOnTile(tile, current.zoom, VIEWPORT, MAP_PIXELS));
+      setCamera((current) => centerCameraOnTile(tile, current.zoom, surfaceRef.current, MAP_PIXELS));
       setSelected('protagonist');
       setArrivalLock(`${result.state.protagonist.worldPosition.mapId}:${tile.x},${tile.y}`);
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
@@ -366,6 +424,7 @@ export function WorldScene({
 
   const handlePrimary = useCallback((point: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
+    if (!isScreenPointInsideMap(camera, point, MAP_PIXELS)) return;
     const tile = screenToTile(camera, point);
     if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
     const candidates = worldClickCandidates(
@@ -405,20 +464,39 @@ export function WorldScene({
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
-    setCamera((current) => panCamera(current, delta, VIEWPORT, MAP_PIXELS));
-  }, [conversationNpcId, openPanel]);
+    setCamera((current) => panCamera(current, delta, surface, MAP_PIXELS));
+  }, [conversationNpcId, openPanel, surface]);
   const handleZoom = useCallback((direction: -1 | 1, anchor: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
+    setExplicitWorldZoom(true);
     setCamera((current) => {
       const index = ZOOM_LEVELS.indexOf(current.zoom);
       const nextIndex = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, index + direction));
-      return zoomCameraAt(current, ZOOM_LEVELS[nextIndex] as ZoomLevel, anchor, VIEWPORT, MAP_PIXELS);
+      return zoomCameraAt(current, ZOOM_LEVELS[nextIndex] as ZoomLevel, anchor, surface, MAP_PIXELS);
     });
-  }, [conversationNpcId, openPanel]);
+  }, [conversationNpcId, openPanel, surface]);
   const center = useCallback(() => {
     if (conversationNpcId || openPanel) return;
-    setCamera((current) => centerCameraOnTile(runtime.movement.player, current.zoom, VIEWPORT, MAP_PIXELS));
-  }, [conversationNpcId, openPanel, runtime.movement.player]);
+    setCamera((current) => centerCameraOnTile(runtime.movement.player, current.zoom, surface, MAP_PIXELS));
+  }, [conversationNpcId, openPanel, runtime.movement.player, surface]);
+  const selectWorldZoom = useCallback((zoom: ZoomLevel) => {
+    setExplicitWorldZoom(true);
+    setCamera((current) => zoomCameraAt(
+      current,
+      zoom,
+      { x: surface.width / 2, y: surface.height / 2 },
+      surface,
+      MAP_PIXELS,
+    ));
+  }, [surface]);
+  const selectUiScale = useCallback((scale: UiScale) => {
+    setExplicitUiScale(true);
+    setUiScale(scale);
+  }, []);
+  const isPointInteractive = useCallback(
+    (point: Readonly<{ x: number; y: number }>) => isScreenPointInsideMap(camera, point, MAP_PIXELS),
+    [camera],
+  );
   const cancel = useCallback(() => {
     if (openPanel) {
       setOpenPanel(undefined);
@@ -560,22 +638,22 @@ export function WorldScene({
     for (let y = 0; y < map.source.height; y += 1) {
       for (let x = 0; x < map.source.width; x += 1) {
         const tile = { x, y };
-        if (isVisible(tile, camera)) {
+        if (isVisible(tile, camera, surface)) {
           placements.push({ id: `floor-${x}-${y}`, sprite: groundSpriteAtV2(map, tile), worldX: x * TILE_SIZE, worldY: y * TILE_SIZE });
         }
       }
     }
     return placements;
-  }, [camera, map]);
+  }, [camera, map, surface]);
   const visibleProps = [
-    ...[...map.objectPartById.values()].filter(({ tile }) => isVisible(tile, camera)).map((part) => ({
+    ...[...map.objectPartById.values()].filter(({ tile }) => isVisible(tile, camera, surface)).map((part) => ({
       id: part.id,
       sprite: part.sprite,
       tile: part.depthAnchor,
       worldX: part.tile.x * TILE_SIZE,
       worldY: part.tile.y * TILE_SIZE,
     })),
-    ...[...map.doorById.values()].filter(({ tile }) => isVisible(tile, camera)).map((door) => ({
+    ...[...map.doorById.values()].filter(({ tile }) => isVisible(tile, camera, surface)).map((door) => ({
       id: door.id,
       sprite: door.sprite,
       tile: door.tile,
@@ -583,11 +661,11 @@ export function WorldScene({
       worldY: door.tile.y * TILE_SIZE,
     })),
   ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right));
-  const visibleWalls = map.wallTiles.filter(({ tile }) => isVisible(tile, camera))
+  const visibleWalls = map.wallTiles.filter(({ tile }) => isVisible(tile, camera, surface))
     .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
     .map((wall) => ({ id: wall.id, sprite: wall.sprite, worldX: wall.tile.x * TILE_SIZE, worldY: wall.tile.y * TILE_SIZE }));
   const worldFrame = buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, frame);
-  const characters = worldFrame.characters.filter(({ tile }) => isVisible(tile, camera));
+  const characters = worldFrame.characters.filter(({ tile }) => isVisible(tile, camera, surface));
   const floorAtlas = atlasData(visibleFloors, camera);
   const propAtlas = atlasData(visibleProps, camera);
   const characterAtlas = atlasData(characters, camera);
@@ -600,7 +678,7 @@ export function WorldScene({
       worldX: tile.x * TILE_SIZE,
       worldY: tile.y * TILE_SIZE,
     })))
-    .filter(({ worldX, worldY }) => isVisible({ x: worldX / TILE_SIZE, y: worldY / TILE_SIZE }, camera));
+    .filter(({ worldX, worldY }) => isVisible({ x: worldX / TILE_SIZE, y: worldY / TILE_SIZE }, camera, surface));
   const roofAtlas = atlasData(visibleRoofTiles, camera);
   const selectedCharacter = selected === 'protagonist'
     ? runtime.movement.player
@@ -618,8 +696,28 @@ export function WorldScene({
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        const evidence = measureResponsiveEvidence(document, {
+          camera,
+          mapId,
+          roofGroupId: worldFrame.hiddenRoofGroupId,
+          uiScale,
+        });
+        if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
+      });
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame) cancelAnimationFrame(secondFrame);
+    };
+  }, [camera, conversationNpcId, image, mapId, openPanel, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+
   if (!image) {
-    return <View style={styles.loading}><Text style={styles.status}>DECODING WORLD STATE…</Text></View>;
+    return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
   }
 
   const renderLayer = (layer: WorldLayer) => {
@@ -636,7 +734,7 @@ export function WorldScene({
       case 'character':
         return <Atlas image={image} key={layer} sampling={NEAREST} sprites={characterAtlas.sprites} transforms={characterAtlas.transforms} />;
       case 'effect':
-        return map.source.effects.filter(({ tile }) => isVisible(tile, camera)).map((effect) => {
+        return map.source.effects.filter(({ tile }) => isVisible(tile, camera, surface)).map((effect) => {
           const screen = worldToScreen(camera, { x: effect.tile.x * 32 + 16, y: effect.tile.y * 32 + 16 });
           return <Circle color={effect.kind === 'fire' ? '#f07832' : '#f5dd9d'} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
         });
@@ -658,14 +756,22 @@ export function WorldScene({
   };
 
   return (
-    <WorldInput onCancel={cancel} onCenter={center} onPan={handlePan} onPrimary={handlePrimary} onZoom={handleZoom}>
+    <WorldInput
+      isPointInteractive={isPointInteractive}
+      onCancel={cancel}
+      onCenter={center}
+      onPan={handlePan}
+      onPrimary={handlePrimary}
+      onZoom={handleZoom}
+    >
       <View
-        accessibilityLabel={`${map.source.displayName}; tile ${runtime.movement.player.x},${runtime.movement.player.y}; minute ${runtime.worldState.clock.absoluteMinute}; speed ${runtime.worldState.clock.selectedSpeed}`}
+        accessibilityLabel={`${map.source.displayName}; tile ${runtime.movement.player.x},${runtime.movement.player.y}; minute ${runtime.worldState.clock.absoluteMinute}; speed ${runtime.worldState.clock.selectedSpeed}; world zoom ${camera.zoom}; interface ${Math.round(uiScale * 100)} percent`}
         nativeID="world-state"
-        style={styles.frame}
+        style={[styles.frame, surface]}
       >
-        <View nativeID="world-input-viewport" style={styles.viewport}>
-          <Canvas style={styles.canvas}>
+        <View nativeID="world-input-viewport" style={[styles.viewport, surface]}>
+          <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
+            <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
             <Circle color="#f1c65b" cx={selectedScreen.x} cy={selectedScreen.y} r={10 * camera.zoom} style="stroke" strokeWidth={camera.zoom} />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
@@ -680,7 +786,8 @@ export function WorldScene({
                 <Line color="#ef5b43" p1={vec(feedbackScreen.x + 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x - 7, feedbackScreen.y + 7)} strokeWidth={3} />
               </>
             ) : null}
-          </Canvas>
+            </Canvas>
+          </View>
         </View>
         <View pointerEvents="none" style={styles.areaLabels}>
           {(map.source.roofGroups.length === 0 || worldFrame.hiddenRoofGroupId ? map.source.areas : []).map((area) => {
@@ -698,6 +805,12 @@ export function WorldScene({
         <View
           accessibilityLabel={worldFrame.hiddenRoofGroupId ? 'Villa roof hidden' : 'Villa roof restored'}
           nativeID="world-roof-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
+        <View
+          accessibilityLabel={responsiveEvidence}
+          nativeID="world-responsive-state"
           pointerEvents="none"
           style={styles.proofState}
         />
@@ -734,6 +847,7 @@ export function WorldScene({
           onSpeed={changeSpeed}
           saveStatus={saveStatus}
           state={runtime.worldState}
+          uiScale={uiScale}
           zoom={camera.zoom}
         />
         <View nativeID="world-ui-zoom" style={styles.zoomPlate}>
@@ -741,20 +855,49 @@ export function WorldScene({
             <Pressable
               accessibilityLabel={`Set ${zoom}x zoom`}
               key={zoom}
-              onPress={() => setCamera((current) => zoomCameraAt(current, zoom, { x: VIEWPORT.width / 2, y: VIEWPORT.height / 2 }, VIEWPORT, MAP_PIXELS))}
-              style={[styles.zoomButton, camera.zoom === zoom && styles.zoomButtonActive]}
+              onPress={() => selectWorldZoom(zoom)}
+              style={[
+                styles.zoomButton,
+                { height: metrics.pointerTarget, width: metrics.pointerTarget },
+                camera.zoom === zoom && styles.zoomButtonActive,
+              ]}
             >
-              <Text style={[styles.zoomText, camera.zoom === zoom && styles.zoomTextActive]}>{zoom}×</Text>
+              <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }, camera.zoom === zoom && styles.zoomTextActive]}>{zoom}×</Text>
             </Pressable>
           ))}
         </View>
-        {!conversationNpcId && !openPanel ? (
-          <View nativeID="world-ui-social-nav" style={styles.socialNav}>
-            <Pressable accessibilityLabel="Open journal" onPress={() => setOpenPanel('journal')} style={styles.socialButton}>
-              <Text style={styles.socialText}>JOURNAL</Text>
+        <View nativeID="world-ui-scale" style={[styles.uiScalePlate, { top: 22 + metrics.pointerTarget }]}>
+          {UI_SCALES.map((scale) => (
+            <Pressable
+              accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`}
+              key={scale}
+              onPress={() => selectUiScale(scale)}
+              style={[
+                styles.uiScaleButton,
+                { minHeight: metrics.pointerTarget, minWidth: metrics.pointerTarget + 10 },
+                uiScale === scale && styles.zoomButtonActive,
+              ]}
+            >
+              <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }, uiScale === scale && styles.zoomTextActive]}>
+                {Math.round(scale * 100)}%
+              </Text>
             </Pressable>
-            <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={styles.socialButton}>
-              <Text style={styles.socialText}>SOCIAL</Text>
+          ))}
+        </View>
+        <Text
+          accessibilityLiveRegion="polite"
+          nativeID="world-ui-scale-announcement"
+          style={styles.proofState}
+        >
+          {`Interface scale ${Math.round(uiScale * 100)} percent`}
+        </Text>
+        {!conversationNpcId && !openPanel ? (
+          <View nativeID="world-ui-social-nav" style={[styles.socialNav, { top: 32 + metrics.pointerTarget * 2 }]}>
+            <Pressable accessibilityLabel="Open journal" onPress={() => setOpenPanel('journal')} style={[styles.socialButton, { minHeight: metrics.pointerTarget }]}>
+              <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>JOURNAL</Text>
+            </Pressable>
+            <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={[styles.socialButton, { minHeight: metrics.pointerTarget }]}>
+              <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text>
             </Pressable>
           </View>
         ) : null}
@@ -763,26 +906,27 @@ export function WorldScene({
             disabled={transitioning || runtime.worldState.clock.pauseTokens.length > 0}
             minuteOfDay={runtime.worldState.clock.absoluteMinute % 1_440}
             onSleep={sleep}
+            uiScale={uiScale}
           />
         ) : null}
         {stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel ? (
           <View nativeID="world-ui-talk" style={styles.talkPlate}>
-            <Text style={styles.talkLabel}>{npcLabel(selected, npcTiles).toUpperCase()} SELECTED</Text>
+            <Text style={[styles.talkLabel, { fontSize: metrics.secondaryText }]}>{npcLabel(selected, npcTiles).toUpperCase()} SELECTED</Text>
             <Pressable
               accessibilityLabel={`Talk to ${npcLabel(selected, npcTiles)}`}
               onPress={() => setConversationNpcId(stateNpcId(selected, runtime.worldState))}
-              style={styles.talkButton}
+              style={[styles.talkButton, { minHeight: metrics.primaryControl }]}
             >
-              <Text style={styles.talkText}>TALK</Text>
+              <Text style={[styles.talkText, { fontSize: metrics.persistentText }]}>TALK</Text>
             </Pressable>
           </View>
         ) : null}
         {!conversationNpcId && !openPanel && runtime.movement.status !== 'moving' ? (
-          <ContextActionMenu actions={questActions} onAction={runQuestAction} />
+          <ContextActionMenu actions={questActions} onAction={runQuestAction} surface={surface} uiScale={uiScale} />
         ) : null}
         <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
-          <Text style={styles.statusStrong}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
-          <Text style={styles.status}>LEFT CLICK MOVE / MIDDLE DRAG PAN / WHEEL ZOOM / F CENTER / ESC STOP</Text>
+          <Text style={[styles.statusStrong, { fontSize: metrics.persistentText }]}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
+          <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>LEFT CLICK MOVE / MIDDLE DRAG PAN / WHEEL ZOOM / F CENTER / ESC STOP</Text>
         </View>
         {audioCaption ? (
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
@@ -797,6 +941,8 @@ export function WorldScene({
             onVocalCue={triggerVocalCue}
             port={conversationPort}
             state={runtime.worldState}
+            surface={surface}
+            uiScale={uiScale}
           />
         ) : null}
         {openPanel === 'journal' ? (
@@ -805,6 +951,8 @@ export function WorldScene({
             onAdvancePolice={advancePoliceHook}
             onPurchaseSecurityReport={purchaseSecurityReport}
             state={runtime.worldState}
+            surface={surface}
+            uiScale={uiScale}
           />
         ) : null}
         {openPanel === 'relationships' ? (
@@ -812,6 +960,8 @@ export function WorldScene({
             npcId={runtime.worldState.relationships[selected] ? selected : 'linda'}
             onDismiss={() => setOpenPanel(undefined)}
             state={runtime.worldState}
+            surface={surface}
+            uiScale={uiScale}
           />
         ) : null}
       </View>
@@ -831,9 +981,10 @@ const styles = StyleSheet.create({
     bottom: 0, flexDirection: 'row', gap: 16, left: 0, paddingHorizontal: 14, paddingVertical: 8,
     position: 'absolute', right: 0,
   },
-  canvas: { backgroundColor: '#b77945', height: VIEWPORT.height, width: VIEWPORT.width },
-  frame: { borderColor: '#0f1412', borderWidth: 3, height: VIEWPORT.height + 6, overflow: 'hidden', position: 'relative', width: VIEWPORT.width + 6 },
-  loading: { alignItems: 'center', height: VIEWPORT.height, justifyContent: 'center', width: VIEWPORT.width },
+  canvas: { backgroundColor: '#b77945' },
+  canvasHost: { overflow: 'hidden' },
+  frame: { overflow: 'hidden', position: 'relative' },
+  loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },
   status: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 9 },
   statusStrong: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
@@ -846,7 +997,9 @@ const styles = StyleSheet.create({
   talkLabel: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
   talkPlate: { alignItems: 'center', backgroundColor: '#211d1aee', bottom: 42, flexDirection: 'row', gap: 10, padding: 6, position: 'absolute', right: 14 },
   talkText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
-  viewport: { height: VIEWPORT.height, width: VIEWPORT.width },
+  uiScaleButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
+  uiScalePlate: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12 },
+  viewport: { overflow: 'hidden' },
   zoomButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, height: 29, justifyContent: 'center', width: 36 },
   zoomButtonActive: { backgroundColor: '#f1c65b', borderColor: '#fff0c7' },
   zoomPlate: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 12 },

@@ -6,11 +6,17 @@ import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
+import { responsiveSurface } from '../../src/render/responsive-layout';
 import { registerConversationIpc } from '../conversation/ipc';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
 import { BundledConversationInference } from '../model/conversation-inference';
 import { runPackagedModelSmoke } from '../model/model-smoke';
 import { registerPersistenceIpc } from '../persistence/ipc';
+import { registerPresentationPreferencesIpc } from '../persistence/presentation-preferences-ipc';
+import {
+  PresentationPreferencesRepository,
+  presentationPreferencesPathForUserData,
+} from '../persistence/presentation-preferences';
 import { SaveRepository, saveRootForUserData } from '../persistence/save-repository';
 import {
   APP_URL,
@@ -27,6 +33,7 @@ const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
 const processStartedAt = performance.now();
 let smokeFinished = false;
+let activeMainWindow: BrowserWindow | undefined;
 let conversationService: ConversationService | undefined;
 let conversationInference: BundledConversationInference | undefined;
 let quitCleanupStarted = false;
@@ -189,7 +196,7 @@ async function waitForSelector(window: BrowserWindow, selector: string, timeoutM
 }
 
 function parseWorldStateLabel(label: string): Readonly<{ mapName: string; x: number; y: number; minute: number; speed: number }> {
-  const match = /^(.*); tile (\d+),(\d+); minute (\d+); speed (\d+)$/u.exec(label);
+  const match = /^(.*); tile (\d+),(\d+); minute (\d+); speed (\d+)(?:;.*)?$/u.exec(label);
   if (!match) throw new Error(`Invalid world-state label: ${label}`);
   return { mapName: match[1]!, x: Number(match[2]), y: Number(match[3]), minute: Number(match[4]), speed: Number(match[5]) };
 }
@@ -210,7 +217,7 @@ async function surfaceBounds(window: BrowserWindow): Promise<SurfaceBounds> {
 }
 
 function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom: number }> {
-  const match = /^World camera (\d+),(\d+) at (\d+)x$/u.exec(label);
+  const match = /^World camera (-?\d+),(-?\d+) at (\d+)x$/u.exec(label);
   if (!match) throw new Error(`Invalid camera label: ${label}`);
   return { x: Number(match[1]), y: Number(match[2]), zoom: Number(match[3]) };
 }
@@ -222,6 +229,59 @@ async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<
     button.click();
   })()`, true);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+}
+
+async function clickUiScaleButton(window: BrowserWindow, percentage: 100 | 125 | 150): Promise<void> {
+  await clickAriaButton(window, `Set ${percentage} percent interface scale`);
+}
+
+async function responsiveEvidence(window: BrowserWindow): Promise<Record<string, unknown>> {
+  const label = await window.webContents.executeJavaScript(
+    `document.querySelector('#world-responsive-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as string;
+  if (!label) throw new Error('Responsive evidence is missing.');
+  return JSON.parse(label) as Record<string, unknown>;
+}
+
+async function waitForResponsiveEvidence(
+  window: BrowserWindow,
+  predicate: (evidence: Record<string, unknown>) => boolean,
+  timeoutMilliseconds = 6_000,
+): Promise<Record<string, unknown>> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let last: Record<string, unknown> = {};
+  while (Date.now() < deadline) {
+    try {
+      last = await responsiveEvidence(window);
+      if (predicate(last)) return last;
+    } catch {
+      // The first responsive evidence is emitted after two rendered frames.
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Responsive evidence did not reach the expected state. Last: ${JSON.stringify(last)}`);
+}
+
+async function resizeContentAndWait(
+  window: BrowserWindow,
+  width: number,
+  height: number,
+  timeoutMilliseconds = 6_000,
+): Promise<SurfaceBounds> {
+  window.setContentSize(width, height);
+  const expected = responsiveSurface(width, height).surface;
+  const deadline = Date.now() + timeoutMilliseconds;
+  let last = await surfaceBounds(window);
+  while (Date.now() < deadline) {
+    last = await surfaceBounds(window);
+    if (Math.abs(last.width - expected.width) <= 1 && Math.abs(last.height - expected.height) <= 1) {
+      await waitForRendererPaint(window);
+      return last;
+    }
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Responsive surface did not reach ${expected.width}x${expected.height}. Last: ${JSON.stringify(last)}`);
 }
 
 async function clickAriaButton(window: BrowserWindow, label: string): Promise<void> {
@@ -332,11 +392,11 @@ async function waitForAriaButtonEnabled(
   throw new Error(`Timed out waiting for enabled button: ${label}`);
 }
 
-async function conversationTranscriptChildCount(window: BrowserWindow): Promise<number> {
+async function conversationTranscriptMeasure(window: BrowserWindow): Promise<number> {
   return window.webContents.executeJavaScript(`(() => {
     const transcript = document.querySelector('#conversation-transcript');
     if (!(transcript instanceof HTMLElement)) throw new Error('Conversation transcript is missing.');
-    return transcript.children.length;
+    return transcript.textContent?.length ?? 0;
   })()`, true) as Promise<number>;
 }
 
@@ -358,7 +418,7 @@ async function waitForConversationTurnComplete(
       }
       const endEnabled = endButton.getAttribute('aria-disabled') !== 'true' &&
         !('disabled' in endButton && endButton.disabled === true);
-      return { childCount: transcript.children.length, endEnabled };
+      return { childCount: transcript.textContent?.length ?? 0, endEnabled };
     })()`, true) as Readonly<{ childCount: number; endEnabled: boolean }>;
     lastChildCount = state.childCount;
     if (state.endEnabled && state.childCount >= priorTranscriptChildCount + 2) return;
@@ -461,10 +521,39 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
   const zoomButtons = zoomLabels.every((label, index) => label.endsWith(`at ${index + 1}x`));
 
+  await clickZoomButton(window, 2);
+  const responsiveBoundsBefore = await surfaceBounds(window);
+  const responsiveCameraBefore = parseCameraLabel(await cameraLabel(window));
+  const responsiveCenterBefore = {
+    x: responsiveCameraBefore.x + responsiveBoundsBefore.width / responsiveCameraBefore.zoom / 2,
+    y: responsiveCameraBefore.y + responsiveBoundsBefore.height / responsiveCameraBefore.zoom / 2,
+  };
+  const resizedBounds = await resizeContentAndWait(window, 1_440, 900);
+  const resizedCamera = parseCameraLabel(await cameraLabel(window));
+  const resizedCenter = {
+    x: resizedCamera.x + resizedBounds.width / resizedCamera.zoom / 2,
+    y: resizedCamera.y + resizedBounds.height / resizedCamera.zoom / 2,
+  };
+  const resizeCamera = resizedCamera.zoom === 2 &&
+    Math.abs(resizedCenter.x - responsiveCenterBefore.x) <= 1 &&
+    Math.abs(resizedCenter.y - responsiveCenterBefore.y) <= 1;
+  const responsiveDto = await waitForResponsiveEvidence(window, (evidence) => {
+    const content = evidence.content as { width?: number; height?: number } | undefined;
+    return content?.width === 1_440 && content.height === 900;
+  });
+  const coverage = responsiveDto.coverage as { width?: number; height?: number } | undefined;
+  const responsiveSurface = Number(coverage?.width) >= 0.9 && Number(coverage?.height) >= 0.85 &&
+    responsiveDto.automaticWorldZoom === 1 && responsiveDto.selectedWorldZoom === 2;
+  await clickUiScaleButton(window, 150);
+  const scaledDto = await waitForResponsiveEvidence(window, (evidence) => evidence.uiScale === 1.5);
+  const uiScaleControls = scaledDto.minimumFontSize === 17 && scaledDto.minimumPointerTarget === 54;
+  await clickUiScaleButton(window, 100);
+  await resizeContentAndWait(window, 1_280, 720);
+
   progress('camera-and-movement');
   await clickZoomButton(window, 2);
   let bounds = await surfaceBounds(window);
-  const center = { x: bounds.x + 560, y: bounds.y + 310 };
+  const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
   await dispatchWorldTileClick(window, { x: 19, y: 20 });
   await waitForWorldTile(window, { x: 19, y: 20 }, 10_000);
   const movedText = await rendererText(window, '#world-ui-location');
@@ -487,11 +576,17 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'F');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
   const afterCenter = await cameraLabel(window);
-  const centerKey = afterCenter !== afterPan && afterCenter === 'World camera 344,501 at 2x';
+  const expectedCenteredCamera = {
+    x: Math.round(19 * 32 + 16 - bounds.width / 2 / 2),
+    y: Math.round(20 * 32 + 16 - bounds.height / 2 / 2),
+  };
+  const centeredState = parseCameraLabel(afterCenter);
+  const centerKey = afterCenter !== afterPan && centeredState.zoom === 2 &&
+    centeredState.x === expectedCenteredCamera.x && centeredState.y === expectedCenteredCamera.y;
 
   bounds = await surfaceBounds(window);
-  const wheelX = Math.round(bounds.x + 560);
-  const wheelY = Math.round(bounds.y + 310);
+  const wheelX = Math.round(bounds.x + bounds.width / 2);
+  const wheelY = Math.round(bounds.y + bounds.height / 2);
   await window.webContents.executeJavaScript(`(() => {
     const element = document.querySelector('#world-input-surface');
     if (!(element instanceof HTMLElement)) throw new Error('World input surface is missing.');
@@ -510,7 +605,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'F');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   bounds = await surfaceBounds(window);
-  sendMouseClick(window, bounds.x + 560 - 4 * 32 * 2, bounds.y + 310);
+  sendMouseClick(window, bounds.x + bounds.width / 2 - 4 * 32 * 2, bounds.y + bounds.height / 2);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 35));
   sendKey(window, 'Escape');
   const cancelStart = await rendererText(window, '#world-ui-location');
@@ -663,7 +758,32 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     `Boolean(document.querySelector('#world-ui-social-nav'))`, true,
   ));
   const promptIdeasContextual = (await rendererText(window, '#conversation-prompt-suggestions')).trim().length === 0;
-  const transcriptChildrenBeforeFirstTurn = await conversationTranscriptChildCount(window);
+  const responsiveTranscriptCount = await conversationTranscriptMeasure(window);
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[aria-label="Conversation message"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, 'KEEP THIS DRAFT');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`, true);
+  await resizeContentAndWait(window, 1_440, 900);
+  await clickUiScaleButton(window, 150);
+  const conversationResponsiveDto = await waitForResponsiveEvidence(
+    window,
+    (evidence) => evidence.uiScale === 1.5 &&
+      (evidence.activePanel as { id?: string } | null)?.id === 'world-ui-conversation-panel',
+  );
+  const responsiveDraft = await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[aria-label="Conversation message"]');
+    return input instanceof HTMLInputElement ? input.value : '';
+  })()`, true) as string;
+  const conversationResponsiveState = responsiveDraft === 'KEEP THIS DRAFT' &&
+    await conversationTranscriptMeasure(window) === responsiveTranscriptCount &&
+    conversationResponsiveDto.conversationInput !== null &&
+    (await rendererText(window, '#world-ui-conversation-panel')).includes('TIME PAUSED');
+  await clickUiScaleButton(window, 100);
+  await resizeContentAndWait(window, 1_280, 720);
+  const transcriptChildrenBeforeFirstTurn = await conversationTranscriptMeasure(window);
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -725,7 +845,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const modelFailureFeedback = smokeExpectsModel
     ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
     : modelStatus.includes('FALLBACK USED');
-  const transcriptChildrenBeforeInvitation = await conversationTranscriptChildCount(window);
+  const transcriptChildrenBeforeInvitation = await conversationTranscriptMeasure(window);
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -830,10 +950,11 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   progress('complete');
   return {
     newGameFlow, stableProtagonist, allowanceReceipt, newGameSave, accessibilityPolicy,
+    responsiveSurface, resizeCamera, uiScaleControls,
     zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
-    conversationPause, conversationInputLocked, conversationSocialNavLocked, promptIdeasContextual, conversationBuffered,
+    conversationPause, conversationInputLocked, conversationSocialNavLocked, conversationResponsiveState, promptIdeasContextual, conversationBuffered,
     conversationFeedbackMilliseconds, rendererFpsDuringGeneration,
     conversationFallback, modelFailureFeedback, audioCaptions, conversationCommitSave,
     structuredInvitation, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
@@ -882,15 +1003,30 @@ async function createMainWindow(): Promise<void> {
     (_details, callback) => callback({ cancel: true }),
   );
 
+  const presentationPreferences = new PresentationPreferencesRepository(
+    presentationPreferencesPathForUserData(app.getPath('userData')),
+  );
+  const initialPresentation = await presentationPreferences.load();
   const window = new BrowserWindow({
     backgroundColor: '#17201b',
-    height: 720,
+    height: initialPresentation.windowSize?.height ?? 720,
+    minHeight: 640,
+    minWidth: 960,
     show: true,
     title: 'SI World',
+    useContentSize: true,
     webPreferences: lockedWebPreferences(preloadPath),
-    width: 1280,
+    width: initialPresentation.windowSize?.width ?? 1280,
   });
+  activeMainWindow = window;
   if (smokeMode) window.webContents.setBackgroundThrottling(false);
+  if (smokeMode) {
+    window.webContents.on('console-message', (details) => {
+      if (details.level === 'error' || details.message.includes('SI_WORLD_RENDERER_READY_FAILURE')) {
+        process.stderr.write(`SI_WORLD_RENDERER_CONSOLE ${details.message}\n`);
+      }
+    });
+  }
   window.removeMenu();
   registerRuntimeIpc(
     ipcMain,
@@ -926,6 +1062,20 @@ async function createMainWindow(): Promise<void> {
     loadSave: (slotId) => saveRepository.load(slotId),
     migrateSave: (request) => saveRepository.migrate(request),
     requestSave: (request) => saveRepository.save(request),
+  });
+  registerPresentationPreferencesIpc(ipcMain, presentationPreferences);
+  let presentationResizeTimer: ReturnType<typeof setTimeout> | undefined;
+  window.on('resize', () => {
+    if (presentationResizeTimer) clearTimeout(presentationResizeTimer);
+    presentationResizeTimer = setTimeout(() => {
+      const [width, height] = window.getContentSize();
+      void presentationPreferences.saveWindowSize({ width, height }).catch((error: unknown) => {
+        process.stderr.write(`SI_WORLD_PRESENTATION_SAVE_FAILURE ${String(error)}\n`);
+      });
+    }, 180);
+  });
+  window.once('closed', () => {
+    if (presentationResizeTimer) clearTimeout(presentationResizeTimer);
   });
   window.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
     if (smokeMode && !smokeFinished) {
@@ -984,8 +1134,20 @@ app.on('before-quit', (event) => {
 if (smokeMode) {
   setTimeout(() => {
     if (!smokeFinished) {
-      process.stderr.write('SI_WORLD_SMOKE_FAILURE renderer readiness timeout\n');
-      app.exit(1);
+      void activeMainWindow?.webContents.executeJavaScript(`(() => ({
+        bodyText: document.body?.innerText?.slice(0, 1000) ?? '',
+        canvasCount: document.querySelectorAll('canvas').length,
+        ids: Array.from(document.querySelectorAll('[id]')).map((element) => element.id).filter(Boolean).slice(0, 100),
+        loading: Boolean(document.querySelector('#loading-shell')),
+        newGame: Boolean(document.querySelector('#new-game-flow')),
+      }))()`, true).then((diagnostic) => {
+        process.stderr.write(`SI_WORLD_RENDERER_READY_TIMEOUT_DIAGNOSTIC ${JSON.stringify(diagnostic)}\n`);
+      }).catch((error: unknown) => {
+        process.stderr.write(`SI_WORLD_RENDERER_READY_TIMEOUT_DIAGNOSTIC_FAILED ${String(error)}\n`);
+      }).finally(() => {
+        process.stderr.write('SI_WORLD_SMOKE_FAILURE renderer readiness timeout\n');
+        app.exit(1);
+      });
     }
   }, 30_000);
 }

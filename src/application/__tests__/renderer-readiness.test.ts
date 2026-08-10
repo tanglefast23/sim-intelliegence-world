@@ -4,8 +4,9 @@ const completeMeasurements = {
   appUrl: 'app://game/',
   assetsLoaded: true,
   bridgeKeys: [
-    'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
-    'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+    'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo',
+    'loadPresentationPreferences', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave',
+    'savePresentationPreferences', 'sendConversationTurn',
   ],
   canvasHeight: 160,
   canvasWidth: 320,
@@ -18,8 +19,9 @@ describe('renderer readiness measurements', () => {
       appUrl: 'app://game/',
       assetsLoaded: true,
       bridgeKeys: [
-        'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
-        'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+        'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo',
+        'loadPresentationPreferences', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave',
+        'savePresentationPreferences', 'sendConversationTurn',
       ],
       canvasKitReady: true,
       nodeAccessBlocked: true,
