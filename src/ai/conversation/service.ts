@@ -37,6 +37,12 @@ export interface CharacterWritingStore {
   get(npcId: string): Promise<CharacterWriting>;
 }
 
+export type ConversationDiagnostic = Readonly<{
+  stage: 'response-validation' | 'content-policy' | 'structured-response-validation';
+  attempt?: 1 | 2;
+  reason: string;
+}>;
+
 export type BeginConversationResult =
   | Readonly<{ kind: 'active'; conversationId: string; npcId: string; displayName: string; greeting: string; pausedState: WorldState }>
   | Readonly<{ kind: 'ambient'; npcId: string; displayName: string; dialogue: string; state: WorldState }>;
@@ -145,6 +151,7 @@ export class ConversationService {
   constructor(
     private readonly inference: InferencePort,
     private readonly writing: CharacterWritingStore,
+    private readonly onDiagnostic?: (diagnostic: ConversationDiagnostic) => void,
   ) {}
 
   get activeSessionCount(): number {
@@ -270,8 +277,9 @@ export class ConversationService {
             session.registry,
             turnCandidates,
             Object.keys(session.playerMessages),
+            { sourceId: turnId, evidenceText: message },
           ),
-          maxTokens: 512,
+          maxTokens: 256,
         });
         const parsed = parseConversationResponseJson(source);
         const validated = validateConversationTurn(parsed, {
@@ -288,7 +296,12 @@ export class ConversationService {
         approved = validated;
         generationSource = attempt === 1 ? 'model' : 'corrected-model';
         break;
-      } catch {
+      } catch (error) {
+        this.onDiagnostic?.({
+          stage: 'response-validation',
+          attempt,
+          reason: error instanceof Error ? error.message : 'Unknown response validation failure.',
+        });
         // Raw or rejected model text is intentionally neither returned nor logged.
       }
     }
@@ -348,6 +361,10 @@ export class ConversationService {
 
     const policy = await classifyApprovedDialogue(this.inference, approved.dialogue);
     if (policy.decision !== 'allow') {
+      this.onDiagnostic?.({
+        stage: 'content-policy',
+        reason: `Approved dialogue received policy decision ${policy.decision}.`,
+      });
       const dialogue = policy.decision === 'fade_to_black'
         ? AUTHORED_POLICY_RESPONSES.fade_to_black
         : AUTHORED_POLICY_RESPONSES.refuse;
@@ -489,8 +506,9 @@ export class ConversationService {
             session.registry,
             turnCandidates,
             Object.keys(session.playerMessages),
+            { sourceId: turnId, evidenceText: message },
           ),
-          maxTokens: 512,
+          maxTokens: 256,
         });
         const approved = validateConversationTurn(parseConversationResponseJson(generated), {
           state: session.transaction.baseState,
@@ -507,7 +525,12 @@ export class ConversationService {
         emotion = approved.emotion;
         source = attempt === 1 ? 'model' : 'corrected-model';
         break;
-      } catch {
+      } catch (error) {
+        this.onDiagnostic?.({
+          stage: 'structured-response-validation',
+          attempt,
+          reason: error instanceof Error ? error.message : 'Unknown structured response validation failure.',
+        });
         // A structured state outcome remains authoritative when model phrasing fails.
       }
     }

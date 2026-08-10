@@ -51,3 +51,60 @@ jobs:
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
         run: xvfb-run -a npm run smoke:electron
+
+  package-macos-intel:
+    name: package-macos-intel
+    runs-on: macos-15-intel
+    timeout-minutes: 25
+    steps:
+      - name: Check out tested commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.13.1
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Package Intel macOS shell
+        run: npm run package:mac:x64
+
+      - name: Apply and verify ad-hoc test signature
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: npm run sign:test:mac
+
+      - name: Smoke Intel macOS shell without model qualification claims
+        run: npm run smoke:electron
+
+  package-windows-x64:
+    name: package-windows-x64
+    runs-on: windows-2025
+    timeout-minutes: 25
+    steps:
+      - name: Check out tested commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.13.1
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Package Windows x64 shell
+        run: npm run package:windows:x64
+
+      - name: Apply and verify local self-signed test signature
+        shell: powershell
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: ./scripts/qualification/sign-windows-test.ps1
+
+      - name: Smoke Windows x64 shell without model qualification claims
+        run: npm run smoke:electron

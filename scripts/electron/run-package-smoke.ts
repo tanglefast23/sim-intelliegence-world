@@ -1,7 +1,8 @@
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { arch, cpus, hostname, platform, release, tmpdir, totalmem } from 'node:os';
+import { createHash } from 'node:crypto';
+import { basename, join, resolve } from 'node:path';
 import process from 'node:process';
 
 import { parseSaveEnvelope } from '../../electron/persistence/save-format';
@@ -16,7 +17,9 @@ import {
   validateWorldZoomEvidence,
 } from './package-smoke-utils';
 
-const outputRoot = join(process.cwd(), 'out');
+const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
+  ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
+  : join(process.cwd(), 'out');
 const executable = findPackagedExecutable(outputRoot);
 const archive = findPackageArchive(outputRoot);
 const asarCli = join(process.cwd(), 'node_modules/@electron/asar/bin/asar.js');
@@ -79,12 +82,20 @@ const appendBounded = (current: string, chunk: Buffer): string =>
   `${current}${chunk.toString('utf8')}`.slice(-1_000_000);
 child.stdout.on('data', (chunk: Buffer) => {
   stdout = appendBounded(stdout, chunk);
+  const progressLines = chunk.toString('utf8').split(/\r?\n/u)
+    .filter((line) => line.startsWith('SI_WORLD_SMOKE_PROGRESS '));
+  progressLines.forEach((line) => process.stderr.write(`${line}\n`));
 });
 child.stderr.on('data', (chunk: Buffer) => {
   stderr = appendBounded(stderr, chunk);
 });
 
-const timeout = setTimeout(() => child.kill('SIGKILL'), 90_000);
+let timedOut = false;
+const FULL_WORLD_SMOKE_TIMEOUT_MS = 420_000;
+const timeout = setTimeout(() => {
+  timedOut = true;
+  child.kill('SIGKILL');
+}, FULL_WORLD_SMOKE_TIMEOUT_MS);
 child.once('error', (error) => {
   clearTimeout(timeout);
   rmSync(smokeUserData, { force: true, recursive: true });
@@ -94,7 +105,10 @@ child.once('close', (code) => {
   clearTimeout(timeout);
   if (code !== 0) {
     rmSync(smokeUserData, { force: true, recursive: true });
-    throw new Error(`Packaged app exited with ${String(code)}. ${stderr.slice(-2_000)}`);
+    throw new Error(
+      `Packaged app ${timedOut ? `timed out after ${FULL_WORLD_SMOKE_TIMEOUT_MS / 1_000} seconds` : `exited with ${String(code)}`}. ` +
+      `${stderr.slice(-2_000)} ${stdout.slice(-4_000)}`,
+    );
   }
   const autosaveDirectory = join(smokeUserData, 'si-world', 'save-slots', 'slot-001', 'autosaves');
   const majorQuestAutosave = readdirSync(autosaveDirectory)
@@ -112,6 +126,8 @@ child.once('close', (code) => {
   const worldResultLine = stdout.split(/\r?\n/u).find((line) => line.startsWith('SI_WORLD_WORLD_SMOKE_RESULT '));
   if (!worldResultLine) throw new Error('Packaged app did not emit world input evidence.');
   const worldResult = JSON.parse(worldResultLine.slice('SI_WORLD_WORLD_SMOKE_RESULT '.length)) as Record<string, unknown>;
+  const conversationDiagnostics = stdout.split(/\r?\n/u)
+    .filter((line) => line.startsWith('SI_WORLD_CONVERSATION_DIAGNOSTIC '));
   worldResult.questAutosave = worldResult.questAutosave === true && majorQuestAutosave;
   for (const key of [
     'newGameFlow', 'stableProtagonist', 'allowanceReceipt', 'newGameSave', 'accessibilityPolicy',
@@ -124,8 +140,19 @@ child.once('close', (code) => {
     'questStarted', 'questChoicePreview', 'questOutcome', 'questAutosave', 'consequenceCaption', 'policeHooks', 'saveReload',
   ]) {
     if (worldResult[key] !== true) {
-      throw new Error(`Packaged world input check failed: ${key}. ${JSON.stringify(worldResult)}`);
+      throw new Error(
+        `Packaged world input check failed: ${key}. ${JSON.stringify(worldResult)} ` +
+        `diagnostics=${JSON.stringify(conversationDiagnostics)}`,
+      );
     }
+  }
+  const feedbackMilliseconds = Number(worldResult.conversationFeedbackMilliseconds);
+  const rendererFps = Number(worldResult.rendererFpsDuringGeneration);
+  if (!Number.isFinite(feedbackMilliseconds) || feedbackMilliseconds > 100) {
+    throw new Error(`Packaged non-text feedback exceeded 100 ms: ${String(worldResult.conversationFeedbackMilliseconds)}`);
+  }
+  if (!Number.isFinite(rendererFps) || Math.round(rendererFps) < 60) {
+    throw new Error(`Packaged renderer did not hold a rounded 60 FPS during generation: ${String(worldResult.rendererFpsDuringGeneration)}`);
   }
   if (readFileSync(worldZoomPaths[0]!).equals(readFileSync(worldZoomPaths[2]!))) {
     throw new Error('Packaged 1x and 3x world evidence is identical.');
@@ -139,6 +166,34 @@ child.once('close', (code) => {
   validateScreenshotBuffers(readFileSync(journalScreenshotPath), readFileSync(questScreenshotPath));
   validateScreenshotBuffers(readFileSync(questScreenshotPath), readFileSync(questOutcomeScreenshotPath));
   validateScreenshotBuffers(readFileSync(questOutcomeScreenshotPath), readFileSync(policeScreenshotPath));
+  const qualificationReportPath = process.env.SI_WORLD_QUALIFICATION_REPORT;
+  if (qualificationReportPath) {
+    const readyLine = stdout.split(/\r?\n/u).find((line) => line.startsWith('SI_WORLD_RENDERER_READY '));
+    if (!readyLine) throw new Error('Packaged app did not emit renderer-ready timing.');
+    const ready = JSON.parse(readyLine.slice('SI_WORLD_RENDERER_READY '.length)) as { milliseconds?: unknown };
+    const rendererReadyMilliseconds = Number(ready.milliseconds);
+    if (!Number.isFinite(rendererReadyMilliseconds) || rendererReadyMilliseconds <= 0) {
+      throw new Error('Packaged renderer-ready timing is invalid.');
+    }
+    mkdirSync(resolve(qualificationReportPath, '..'), { recursive: true });
+    writeFileSync(qualificationReportPath, `${JSON.stringify({
+      schemaVersion: 1,
+      generatedAt: new Date().toISOString(),
+      testedCommit: process.env.GITHUB_SHA ?? null,
+      qualificationProfile: process.env.SI_WORLD_QUALIFICATION_PROFILE ?? 'development-high-end',
+      hardware: {
+        platform: platform(), release: release(), architecture: arch(),
+        processor: cpus()[0]?.model ?? 'unknown', logicalCpuCount: cpus().length,
+        memoryBytes: totalmem(), hostFingerprint: createHash('sha256').update(hostname()).digest('hex'),
+      },
+      package: { executableName: basename(executable), bundledModelRuntime: process.env.SI_WORLD_MODEL_RESOURCE_DIR ? true : false },
+      measurements: { rendererReadyMilliseconds, nonTextFeedbackMilliseconds: feedbackMilliseconds, rendererFpsDuringGeneration: rendererFps },
+      thresholds: { nonTextFeedback: feedbackMilliseconds <= 100, rendererFps: Math.round(rendererFps) >= 60 },
+      limitations: process.env.SI_WORLD_MODEL_RESOURCE_DIR
+        ? []
+        : ['The renderer used the authored no-model fallback. Run the same package smoke with SI_WORLD_MODEL_RESOURCE_DIR for integrated model evidence.'],
+    }, null, 2)}\n`, { encoding: 'utf8', flush: true });
+  }
   process.stdout.write(
     `Packaged Electron smoke: ${JSON.stringify(report)} world=${JSON.stringify(worldResult)} loading=${loadingScreenshotPath} ready=${screenshotPath}\n`,
   );

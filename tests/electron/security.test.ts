@@ -296,4 +296,15 @@ describe('secure Electron boundary', () => {
     expect(mainProcess).toContain("smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1'");
     expect(mainProcess).toContain('app.disableHardwareAcceleration()');
   });
+
+  test('Phase 14 CI packages and test-signs Intel macOS and Windows x64 shells', () => {
+    const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
+    expect(workflow).toContain('runs-on: macos-15-intel');
+    expect(workflow).toContain('npm run package:mac:x64');
+    expect(workflow).toContain('npm run sign:test:mac');
+    expect(workflow).toContain('runs-on: windows-2025');
+    expect(workflow).toContain('npm run package:windows:x64');
+    expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
+    expect(workflow).toContain('without model qualification claims');
+  });
 });

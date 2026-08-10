@@ -119,6 +119,41 @@ describe('local model runtime', () => {
     expect(JSON.stringify(completionBody)).not.toContain('a'.repeat(64));
   });
 
+  it('buffers streamed tokens and reports timing only after the complete response', async () => {
+    const encoder = new TextEncoder();
+    const events = [
+      'data: {"choices":[{"delta":{"content":"{\\"dialogue\\":\\"Hi"}}]}\n\n',
+      'data: {"choices":[{"delta":{"content":".\\"}"}}]}\n\n',
+      'data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":4},"timings":{"predicted_per_second":18.5}}\n\n',
+      'data: [DONE]\n\n',
+    ];
+    const clock = [0, 125, 400];
+    const client = new ModelClient({
+      baseUrl: 'http://127.0.0.1:50001',
+      apiKey: 'b'.repeat(64),
+      now: () => clock.shift() ?? 400,
+      fetchImplementation: (async () => new Response(new ReadableStream<Uint8Array>({
+        start(controller) {
+          events.forEach((event) => controller.enqueue(encoder.encode(event)));
+          controller.close();
+        },
+      }), { status: 200 })) as typeof fetch,
+    });
+
+    await expect(client.completeBufferedWithTimings({
+      messages: [{ role: 'user', content: 'Hello' }],
+      schemaName: 'spike',
+      jsonSchema: {},
+    })).resolves.toEqual({
+      content: '{"dialogue":"Hi."}',
+      firstTokenMilliseconds: 125,
+      totalMilliseconds: 400,
+      promptTokens: 12,
+      completionTokens: 4,
+      predictedTokensPerSecond: 18.5,
+    });
+  });
+
   it('verifies artifact size and SHA-256 before use', async () => {
     const root = await mkdtemp(join(tmpdir(), 'si-world-manifest-'));
     try {

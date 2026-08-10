@@ -1,0 +1,2079 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T10:24:32.660Z",
+  "testedCommit": null,
+  "qualificationProfile": "development-high-end",
+  "hardware": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "architecture": "arm64",
+    "processor": "Apple M5 Max",
+    "logicalCpuCount": 18,
+    "memoryBytes": 137438953472,
+    "hostFingerprint": "7a5d50e1f60fac3264d40acf9064844ceedc003125753b4e1004d2339cc96aab"
+  },
+  "model": {
+    "id": "qwen3.5-4b",
+    "sourceRevision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+    "ggufSha256": "32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14",
+    "ggufSizeBytes": 2783446752,
+    "quantization": "Q4_K_M",
+    "llamaCppRevision": "74ce15741b420b8d6f12e720398458b576c51c2c",
+    "llamaCppBuildNumber": 10335,
+    "runtimePlatform": "darwin-arm64",
+    "runtimeSha256": "30cf458e1627892f30e874fbe1ecb66412db1fbea0fb4054857245234c379076",
+    "parentGuardSha256": "014d571fc3a8e2cf7a638793ed49b65e8b46f3657bde9ad53a6ebde8700bb688",
+    "manifestSha256": "1aaef2a347b1389604f715db2cb82ab8c858fbc7f87c3c9bdca5d862b6ad675a"
+  },
+  "lockedContract": {
+    "promptMaximumTokens": 4096,
+    "responseMaximumTokens": 256,
+    "warmRequestCount": 100,
+    "capabilityFixtureCount": 100,
+    "firstTokenLimitMilliseconds": 3000,
+    "visibleResponseP95LimitMilliseconds": 12000,
+    "minimumTokensPerSecond": 8,
+    "requiredCapabilityFirstPassPercent": 95,
+    "rawTokensDisplayed": false
+  },
+  "measurements": {
+    "coldLoadMilliseconds": 590.7,
+    "firstTokenMaximumMilliseconds": 345.54,
+    "firstTokenP95Milliseconds": 166.16,
+    "visibleResponseP95Milliseconds": 2239.32,
+    "visibleResponseMaximumMilliseconds": 2988.46,
+    "tokensPerSecondMinimum": 32.92,
+    "tokensPerSecondP50": 51.01,
+    "promptTokensMaximum": 393,
+    "peakRuntimeMemoryBytes": 3469672448,
+    "ordinaryFirstPassCount": 100,
+    "capabilityFirstPassCount": 100,
+    "capabilityFirstPassPercent": 100
+  },
+  "thresholds": {
+    "warmRequestCount": true,
+    "ordinaryResponsesValid": true,
+    "firstToken": true,
+    "visibleResponseP95": true,
+    "throughput": true,
+    "promptLimit": true,
+    "capabilityCount": true,
+    "capabilityFirstPass": true,
+    "safeFallbacks": true,
+    "unauthorizedPersistentState": true,
+    "baselineHardwareVerified": false,
+    "rendererIntegrated": false
+  },
+  "performanceThresholdsPassed": true,
+  "shipEligible": false,
+  "samples": {
+    "performance": [
+      {
+        "id": "ordinary_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 153,
+        "visibleResponseMilliseconds": 992.9,
+        "promptTokens": 393,
+        "completionTokens": 96,
+        "tokensPerSecond": 114.31
+      },
+      {
+        "id": "ordinary_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 54.57,
+        "visibleResponseMilliseconds": 800.37,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 115.36
+      },
+      {
+        "id": "ordinary_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 62.06,
+        "visibleResponseMilliseconds": 1310.25,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 77.72
+      },
+      {
+        "id": "ordinary_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 345.54,
+        "visibleResponseMilliseconds": 2988.46,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 32.92
+      },
+      {
+        "id": "ordinary_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 165.42,
+        "visibleResponseMilliseconds": 1914.15,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 53.19
+      },
+      {
+        "id": "ordinary_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 134.2,
+        "visibleResponseMilliseconds": 2230.29,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 47.71
+      },
+      {
+        "id": "ordinary_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.85,
+        "visibleResponseMilliseconds": 2049.33,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 50.47
+      },
+      {
+        "id": "ordinary_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.55,
+        "visibleResponseMilliseconds": 2193.3,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 46.53
+      },
+      {
+        "id": "ordinary_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 144.6,
+        "visibleResponseMilliseconds": 2013.46,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 51.37
+      },
+      {
+        "id": "ordinary_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 167.38,
+        "visibleResponseMilliseconds": 2092.37,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 48.31
+      },
+      {
+        "id": "ordinary_011",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 130.86,
+        "visibleResponseMilliseconds": 2073.9,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 49.41
+      },
+      {
+        "id": "ordinary_012",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 154.07,
+        "visibleResponseMilliseconds": 1974.81,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 47.24
+      },
+      {
+        "id": "ordinary_013",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 162.29,
+        "visibleResponseMilliseconds": 1948.5,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 54.31
+      },
+      {
+        "id": "ordinary_014",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 142.96,
+        "visibleResponseMilliseconds": 2069.89,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 45.15
+      },
+      {
+        "id": "ordinary_015",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 165.25,
+        "visibleResponseMilliseconds": 1996.34,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 50.79
+      },
+      {
+        "id": "ordinary_016",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.29,
+        "visibleResponseMilliseconds": 2089.04,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 50.77
+      },
+      {
+        "id": "ordinary_017",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 180.74,
+        "visibleResponseMilliseconds": 2035.03,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 51.24
+      },
+      {
+        "id": "ordinary_018",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.08,
+        "visibleResponseMilliseconds": 1981.45,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 51.01
+      },
+      {
+        "id": "ordinary_019",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.16,
+        "visibleResponseMilliseconds": 1995.94,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 52.47
+      },
+      {
+        "id": "ordinary_020",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 128.4,
+        "visibleResponseMilliseconds": 2049.67,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 48.41
+      },
+      {
+        "id": "ordinary_021",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.72,
+        "visibleResponseMilliseconds": 1966.5,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 52.9
+      },
+      {
+        "id": "ordinary_022",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 161.38,
+        "visibleResponseMilliseconds": 1932.57,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 48.56
+      },
+      {
+        "id": "ordinary_023",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 157.19,
+        "visibleResponseMilliseconds": 1936.18,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 54.53
+      },
+      {
+        "id": "ordinary_024",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 141.46,
+        "visibleResponseMilliseconds": 1926.07,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 48.75
+      },
+      {
+        "id": "ordinary_025",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 154,
+        "visibleResponseMilliseconds": 1947.26,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 51.86
+      },
+      {
+        "id": "ordinary_026",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 123.87,
+        "visibleResponseMilliseconds": 2022.72,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 52.67
+      },
+      {
+        "id": "ordinary_027",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 144.82,
+        "visibleResponseMilliseconds": 2120.41,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 48.09
+      },
+      {
+        "id": "ordinary_028",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 158.65,
+        "visibleResponseMilliseconds": 2148.07,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 47.75
+      },
+      {
+        "id": "ordinary_029",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 113.98,
+        "visibleResponseMilliseconds": 2035.62,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 49.97
+      },
+      {
+        "id": "ordinary_030",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 159.12,
+        "visibleResponseMilliseconds": 1956.43,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 51.75
+      },
+      {
+        "id": "ordinary_031",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 120.76,
+        "visibleResponseMilliseconds": 1775.2,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 58.04
+      },
+      {
+        "id": "ordinary_032",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 126.92,
+        "visibleResponseMilliseconds": 2008.12,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 45.71
+      },
+      {
+        "id": "ordinary_033",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 154.53,
+        "visibleResponseMilliseconds": 2017.89,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 52.06
+      },
+      {
+        "id": "ordinary_034",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 145.93,
+        "visibleResponseMilliseconds": 1700.94,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 55.95
+      },
+      {
+        "id": "ordinary_035",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 113.92,
+        "visibleResponseMilliseconds": 1701.65,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 58.58
+      },
+      {
+        "id": "ordinary_036",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 135.74,
+        "visibleResponseMilliseconds": 2100.89,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 50.89
+      },
+      {
+        "id": "ordinary_037",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 143.09,
+        "visibleResponseMilliseconds": 2051.43,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 49.78
+      },
+      {
+        "id": "ordinary_038",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 138.17,
+        "visibleResponseMilliseconds": 2274.03,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 44.48
+      },
+      {
+        "id": "ordinary_039",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 185.61,
+        "visibleResponseMilliseconds": 2284.31,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 45.75
+      },
+      {
+        "id": "ordinary_040",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 161.99,
+        "visibleResponseMilliseconds": 1883.56,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 54.03
+      },
+      {
+        "id": "ordinary_041",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 138.08,
+        "visibleResponseMilliseconds": 2018.68,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 51.05
+      },
+      {
+        "id": "ordinary_042",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 114.51,
+        "visibleResponseMilliseconds": 1729.98,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 53.24
+      },
+      {
+        "id": "ordinary_043",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 116.18,
+        "visibleResponseMilliseconds": 1961.84,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 52.56
+      },
+      {
+        "id": "ordinary_044",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 112.94,
+        "visibleResponseMilliseconds": 1566.52,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 59.85
+      },
+      {
+        "id": "ordinary_045",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 120.75,
+        "visibleResponseMilliseconds": 1726.99,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 57.9
+      },
+      {
+        "id": "ordinary_046",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 117.87,
+        "visibleResponseMilliseconds": 1977.85,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 53.77
+      },
+      {
+        "id": "ordinary_047",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 128.39,
+        "visibleResponseMilliseconds": 2073.8,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 48.83
+      },
+      {
+        "id": "ordinary_048",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 136.95,
+        "visibleResponseMilliseconds": 2086.73,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 48.72
+      },
+      {
+        "id": "ordinary_049",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 129.85,
+        "visibleResponseMilliseconds": 2077.09,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 49.3
+      },
+      {
+        "id": "ordinary_050",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 133.29,
+        "visibleResponseMilliseconds": 1976.43,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 50.46
+      },
+      {
+        "id": "ordinary_051",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 125.38,
+        "visibleResponseMilliseconds": 2151.3,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 47.39
+      },
+      {
+        "id": "ordinary_052",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 128.27,
+        "visibleResponseMilliseconds": 1924,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 47.89
+      },
+      {
+        "id": "ordinary_053",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 131.81,
+        "visibleResponseMilliseconds": 2041.11,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 50.81
+      },
+      {
+        "id": "ordinary_054",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 129.26,
+        "visibleResponseMilliseconds": 1864.37,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 50.14
+      },
+      {
+        "id": "ordinary_055",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 123.82,
+        "visibleResponseMilliseconds": 1943.24,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 51.12
+      },
+      {
+        "id": "ordinary_056",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 141.27,
+        "visibleResponseMilliseconds": 2203.5,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 48.49
+      },
+      {
+        "id": "ordinary_057",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 123.13,
+        "visibleResponseMilliseconds": 2272.68,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 44.21
+      },
+      {
+        "id": "ordinary_058",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 130.86,
+        "visibleResponseMilliseconds": 2016.85,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 50.37
+      },
+      {
+        "id": "ordinary_059",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 133.12,
+        "visibleResponseMilliseconds": 2219.02,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 46.03
+      },
+      {
+        "id": "ordinary_060",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 142.33,
+        "visibleResponseMilliseconds": 1885.15,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 53.36
+      },
+      {
+        "id": "ordinary_061",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 110.34,
+        "visibleResponseMilliseconds": 1888.42,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 54
+      },
+      {
+        "id": "ordinary_062",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 122.7,
+        "visibleResponseMilliseconds": 1844.22,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 49.96
+      },
+      {
+        "id": "ordinary_063",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 141.51,
+        "visibleResponseMilliseconds": 1903.22,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 55.06
+      },
+      {
+        "id": "ordinary_064",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 125.26,
+        "visibleResponseMilliseconds": 1868.2,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 49.92
+      },
+      {
+        "id": "ordinary_065",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 134.9,
+        "visibleResponseMilliseconds": 1894.51,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 52.86
+      },
+      {
+        "id": "ordinary_066",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 121.4,
+        "visibleResponseMilliseconds": 2276.59,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 46.4
+      },
+      {
+        "id": "ordinary_067",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 113.38,
+        "visibleResponseMilliseconds": 1884.82,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 53.63
+      },
+      {
+        "id": "ordinary_068",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 118.43,
+        "visibleResponseMilliseconds": 2007.84,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 50.28
+      },
+      {
+        "id": "ordinary_069",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 127.08,
+        "visibleResponseMilliseconds": 2003.58,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 51.16
+      },
+      {
+        "id": "ordinary_070",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 128.23,
+        "visibleResponseMilliseconds": 2049.97,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 48.4
+      },
+      {
+        "id": "ordinary_071",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 115.87,
+        "visibleResponseMilliseconds": 1865.09,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 54.88
+      },
+      {
+        "id": "ordinary_072",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 126.64,
+        "visibleResponseMilliseconds": 1795.67,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 51.53
+      },
+      {
+        "id": "ordinary_073",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 146.75,
+        "visibleResponseMilliseconds": 1924.62,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 54.56
+      },
+      {
+        "id": "ordinary_074",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.02,
+        "visibleResponseMilliseconds": 1817.87,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 51.22
+      },
+      {
+        "id": "ordinary_075",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 133.77,
+        "visibleResponseMilliseconds": 2011.72,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 49.53
+      },
+      {
+        "id": "ordinary_076",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 126.53,
+        "visibleResponseMilliseconds": 2087.02,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 51.01
+      },
+      {
+        "id": "ordinary_077",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 140.25,
+        "visibleResponseMilliseconds": 1957.59,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 52.28
+      },
+      {
+        "id": "ordinary_078",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 125.31,
+        "visibleResponseMilliseconds": 1837.52,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 55.49
+      },
+      {
+        "id": "ordinary_079",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.21,
+        "visibleResponseMilliseconds": 1785.3,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 57.62
+      },
+      {
+        "id": "ordinary_080",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 132.02,
+        "visibleResponseMilliseconds": 1801.64,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 55.7
+      },
+      {
+        "id": "ordinary_081",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 123.66,
+        "visibleResponseMilliseconds": 2046.76,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 49.92
+      },
+      {
+        "id": "ordinary_082",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 140.15,
+        "visibleResponseMilliseconds": 1742.3,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 53.68
+      },
+      {
+        "id": "ordinary_083",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 121.32,
+        "visibleResponseMilliseconds": 2150.26,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 47.81
+      },
+      {
+        "id": "ordinary_084",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 122.59,
+        "visibleResponseMilliseconds": 1829.39,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 50.97
+      },
+      {
+        "id": "ordinary_085",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 129.27,
+        "visibleResponseMilliseconds": 1922.27,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 51.87
+      },
+      {
+        "id": "ordinary_086",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 138.28,
+        "visibleResponseMilliseconds": 2239.32,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 47.6
+      },
+      {
+        "id": "ordinary_087",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 159.61,
+        "visibleResponseMilliseconds": 2075.26,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 49.59
+      },
+      {
+        "id": "ordinary_088",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 116.79,
+        "visibleResponseMilliseconds": 2232.73,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 44.9
+      },
+      {
+        "id": "ordinary_089",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 125.81,
+        "visibleResponseMilliseconds": 1870.44,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 55.03
+      },
+      {
+        "id": "ordinary_090",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 134.38,
+        "visibleResponseMilliseconds": 2071.46,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 48.01
+      },
+      {
+        "id": "ordinary_091",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.83,
+        "visibleResponseMilliseconds": 1797.14,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 57.24
+      },
+      {
+        "id": "ordinary_092",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 134.76,
+        "visibleResponseMilliseconds": 1871.62,
+        "promptTokens": 18,
+        "completionTokens": 86,
+        "tokensPerSecond": 49.52
+      },
+      {
+        "id": "ordinary_093",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 156.26,
+        "visibleResponseMilliseconds": 1960.78,
+        "promptTokens": 18,
+        "completionTokens": 97,
+        "tokensPerSecond": 53.76
+      },
+      {
+        "id": "ordinary_094",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 135.71,
+        "visibleResponseMilliseconds": 2166.81,
+        "promptTokens": 17,
+        "completionTokens": 87,
+        "tokensPerSecond": 42.84
+      },
+      {
+        "id": "ordinary_095",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.94,
+        "visibleResponseMilliseconds": 1820.16,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 54.71
+      },
+      {
+        "id": "ordinary_096",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 129.98,
+        "visibleResponseMilliseconds": 1955.61,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 54.78
+      },
+      {
+        "id": "ordinary_097",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 109.85,
+        "visibleResponseMilliseconds": 1658.96,
+        "promptTokens": 19,
+        "completionTokens": 95,
+        "tokensPerSecond": 61.33
+      },
+      {
+        "id": "ordinary_098",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 119.64,
+        "visibleResponseMilliseconds": 1785.37,
+        "promptTokens": 22,
+        "completionTokens": 95,
+        "tokensPerSecond": 57.04
+      },
+      {
+        "id": "ordinary_099",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 122.8,
+        "visibleResponseMilliseconds": 1886.99,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 54.42
+      },
+      {
+        "id": "ordinary_100",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 127.67,
+        "visibleResponseMilliseconds": 1823.13,
+        "promptTokens": 19,
+        "completionTokens": 93,
+        "tokensPerSecond": 54.86
+      }
+    ],
+    "capability": [
+      {
+        "id": "halcyra_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 121.8,
+        "visibleResponseMilliseconds": 1881.65,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 54.55
+      },
+      {
+        "id": "halcyra_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.3,
+        "visibleResponseMilliseconds": 1882.45,
+        "promptTokens": 18,
+        "completionTokens": 98,
+        "tokensPerSecond": 56.61
+      },
+      {
+        "id": "halcyra_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 161.34,
+        "visibleResponseMilliseconds": 2305.38,
+        "promptTokens": 19,
+        "completionTokens": 99,
+        "tokensPerSecond": 46.18
+      },
+      {
+        "id": "halcyra_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 153.1,
+        "visibleResponseMilliseconds": 1874.31,
+        "promptTokens": 17,
+        "completionTokens": 94,
+        "tokensPerSecond": 54.62
+      },
+      {
+        "id": "halcyra_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 153.45,
+        "visibleResponseMilliseconds": 1570.08,
+        "promptTokens": 20,
+        "completionTokens": 74,
+        "tokensPerSecond": 52.24
+      },
+      {
+        "id": "halcyra_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 161.2,
+        "visibleResponseMilliseconds": 2193.26,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 47.24
+      },
+      {
+        "id": "halcyra_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 163.89,
+        "visibleResponseMilliseconds": 2176.56,
+        "promptTokens": 18,
+        "completionTokens": 98,
+        "tokensPerSecond": 48.69
+      },
+      {
+        "id": "halcyra_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 162.01,
+        "visibleResponseMilliseconds": 2389.51,
+        "promptTokens": 19,
+        "completionTokens": 99,
+        "tokensPerSecond": 44.45
+      },
+      {
+        "id": "halcyra_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 198.24,
+        "visibleResponseMilliseconds": 2068.47,
+        "promptTokens": 17,
+        "completionTokens": 94,
+        "tokensPerSecond": 50.26
+      },
+      {
+        "id": "halcyra_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 121.2,
+        "visibleResponseMilliseconds": 1655.51,
+        "promptTokens": 20,
+        "completionTokens": 74,
+        "tokensPerSecond": 48.23
+      },
+      {
+        "id": "halcyra_011",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 156.18,
+        "visibleResponseMilliseconds": 2241.39,
+        "promptTokens": 19,
+        "completionTokens": 96,
+        "tokensPerSecond": 46.04
+      },
+      {
+        "id": "halcyra_012",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.03,
+        "visibleResponseMilliseconds": 1897.52,
+        "promptTokens": 18,
+        "completionTokens": 98,
+        "tokensPerSecond": 56.12
+      },
+      {
+        "id": "halcyra_013",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 225.14,
+        "visibleResponseMilliseconds": 2677.13,
+        "promptTokens": 19,
+        "completionTokens": 99,
+        "tokensPerSecond": 40.38
+      },
+      {
+        "id": "halcyra_014",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 126.24,
+        "visibleResponseMilliseconds": 1892.65,
+        "promptTokens": 17,
+        "completionTokens": 94,
+        "tokensPerSecond": 53.22
+      },
+      {
+        "id": "halcyra_015",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 146.82,
+        "visibleResponseMilliseconds": 1394.11,
+        "promptTokens": 20,
+        "completionTokens": 74,
+        "tokensPerSecond": 59.33
+      },
+      {
+        "id": "world_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 144.92,
+        "visibleResponseMilliseconds": 1780.59,
+        "promptTokens": 16,
+        "completionTokens": 93,
+        "tokensPerSecond": 56.86
+      },
+      {
+        "id": "world_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 142.1,
+        "visibleResponseMilliseconds": 1699.36,
+        "promptTokens": 17,
+        "completionTokens": 86,
+        "tokensPerSecond": 55.23
+      },
+      {
+        "id": "world_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.88,
+        "visibleResponseMilliseconds": 1628.75,
+        "promptTokens": 19,
+        "completionTokens": 77,
+        "tokensPerSecond": 52.15
+      },
+      {
+        "id": "world_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 131.99,
+        "visibleResponseMilliseconds": 1966.89,
+        "promptTokens": 17,
+        "completionTokens": 86,
+        "tokensPerSecond": 46.87
+      },
+      {
+        "id": "world_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 158.33,
+        "visibleResponseMilliseconds": 1838.18,
+        "promptTokens": 18,
+        "completionTokens": 89,
+        "tokensPerSecond": 52.98
+      },
+      {
+        "id": "world_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 149.49,
+        "visibleResponseMilliseconds": 2135.18,
+        "promptTokens": 16,
+        "completionTokens": 93,
+        "tokensPerSecond": 46.84
+      },
+      {
+        "id": "world_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 180.36,
+        "visibleResponseMilliseconds": 1917.79,
+        "promptTokens": 17,
+        "completionTokens": 86,
+        "tokensPerSecond": 49.5
+      },
+      {
+        "id": "world_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 155.9,
+        "visibleResponseMilliseconds": 1632.48,
+        "promptTokens": 19,
+        "completionTokens": 77,
+        "tokensPerSecond": 52.15
+      },
+      {
+        "id": "world_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.59,
+        "visibleResponseMilliseconds": 1816.5,
+        "promptTokens": 17,
+        "completionTokens": 86,
+        "tokensPerSecond": 51.66
+      },
+      {
+        "id": "world_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 168.54,
+        "visibleResponseMilliseconds": 1926.2,
+        "promptTokens": 18,
+        "completionTokens": 89,
+        "tokensPerSecond": 50.64
+      },
+      {
+        "id": "uncertain_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 134.81,
+        "visibleResponseMilliseconds": 1944.93,
+        "promptTokens": 20,
+        "completionTokens": 91,
+        "tokensPerSecond": 50.28
+      },
+      {
+        "id": "uncertain_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 167.3,
+        "visibleResponseMilliseconds": 2139.76,
+        "promptTokens": 22,
+        "completionTokens": 97,
+        "tokensPerSecond": 49.18
+      },
+      {
+        "id": "uncertain_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.9,
+        "visibleResponseMilliseconds": 2099.6,
+        "promptTokens": 21,
+        "completionTokens": 95,
+        "tokensPerSecond": 49.16
+      },
+      {
+        "id": "uncertain_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 170.28,
+        "visibleResponseMilliseconds": 2361.98,
+        "promptTokens": 24,
+        "completionTokens": 101,
+        "tokensPerSecond": 46.09
+      },
+      {
+        "id": "uncertain_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 196.33,
+        "visibleResponseMilliseconds": 2309.03,
+        "promptTokens": 23,
+        "completionTokens": 91,
+        "tokensPerSecond": 43.08
+      },
+      {
+        "id": "uncertain_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 136.18,
+        "visibleResponseMilliseconds": 2053.94,
+        "promptTokens": 20,
+        "completionTokens": 91,
+        "tokensPerSecond": 47.46
+      },
+      {
+        "id": "uncertain_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 132.08,
+        "visibleResponseMilliseconds": 2004.74,
+        "promptTokens": 22,
+        "completionTokens": 97,
+        "tokensPerSecond": 51.8
+      },
+      {
+        "id": "uncertain_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 158.24,
+        "visibleResponseMilliseconds": 1831.21,
+        "promptTokens": 21,
+        "completionTokens": 95,
+        "tokensPerSecond": 56.79
+      },
+      {
+        "id": "uncertain_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 136.79,
+        "visibleResponseMilliseconds": 1913.62,
+        "promptTokens": 24,
+        "completionTokens": 101,
+        "tokensPerSecond": 56.85
+      },
+      {
+        "id": "uncertain_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 154.27,
+        "visibleResponseMilliseconds": 1867.37,
+        "promptTokens": 23,
+        "completionTokens": 91,
+        "tokensPerSecond": 53.12
+      },
+      {
+        "id": "belief_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 155.84,
+        "visibleResponseMilliseconds": 2143.25,
+        "promptTokens": 29,
+        "completionTokens": 94,
+        "tokensPerSecond": 47.3
+      },
+      {
+        "id": "belief_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 154.73,
+        "visibleResponseMilliseconds": 1876.92,
+        "promptTokens": 25,
+        "completionTokens": 87,
+        "tokensPerSecond": 50.52
+      },
+      {
+        "id": "belief_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 163.73,
+        "visibleResponseMilliseconds": 1985.1,
+        "promptTokens": 26,
+        "completionTokens": 93,
+        "tokensPerSecond": 51.07
+      },
+      {
+        "id": "belief_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 155.33,
+        "visibleResponseMilliseconds": 2021.94,
+        "promptTokens": 27,
+        "completionTokens": 90,
+        "tokensPerSecond": 48.22
+      },
+      {
+        "id": "belief_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 130.24,
+        "visibleResponseMilliseconds": 2262.64,
+        "promptTokens": 24,
+        "completionTokens": 95,
+        "tokensPerSecond": 44.55
+      },
+      {
+        "id": "belief_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 144.86,
+        "visibleResponseMilliseconds": 1953.43,
+        "promptTokens": 29,
+        "completionTokens": 94,
+        "tokensPerSecond": 51.98
+      },
+      {
+        "id": "belief_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 139.87,
+        "visibleResponseMilliseconds": 1670.29,
+        "promptTokens": 25,
+        "completionTokens": 87,
+        "tokensPerSecond": 56.85
+      },
+      {
+        "id": "belief_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 164.43,
+        "visibleResponseMilliseconds": 2043.94,
+        "promptTokens": 26,
+        "completionTokens": 93,
+        "tokensPerSecond": 49.49
+      },
+      {
+        "id": "belief_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 181.63,
+        "visibleResponseMilliseconds": 2046.06,
+        "promptTokens": 27,
+        "completionTokens": 90,
+        "tokensPerSecond": 48.27
+      },
+      {
+        "id": "belief_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.18,
+        "visibleResponseMilliseconds": 2087.51,
+        "promptTokens": 24,
+        "completionTokens": 95,
+        "tokensPerSecond": 49.45
+      },
+      {
+        "id": "boundary_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 139.54,
+        "visibleResponseMilliseconds": 1967.16,
+        "promptTokens": 23,
+        "completionTokens": 91,
+        "tokensPerSecond": 49.8
+      },
+      {
+        "id": "boundary_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 188.97,
+        "visibleResponseMilliseconds": 2637.64,
+        "promptTokens": 22,
+        "completionTokens": 98,
+        "tokensPerSecond": 40.02
+      },
+      {
+        "id": "boundary_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 181.14,
+        "visibleResponseMilliseconds": 2246.62,
+        "promptTokens": 22,
+        "completionTokens": 102,
+        "tokensPerSecond": 49.4
+      },
+      {
+        "id": "boundary_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 158.59,
+        "visibleResponseMilliseconds": 1977.59,
+        "promptTokens": 22,
+        "completionTokens": 102,
+        "tokensPerSecond": 56.08
+      },
+      {
+        "id": "boundary_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 136.56,
+        "visibleResponseMilliseconds": 1908.47,
+        "promptTokens": 22,
+        "completionTokens": 96,
+        "tokensPerSecond": 54.19
+      },
+      {
+        "id": "boundary_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 139.39,
+        "visibleResponseMilliseconds": 1823.37,
+        "promptTokens": 23,
+        "completionTokens": 91,
+        "tokensPerSecond": 54.04
+      },
+      {
+        "id": "boundary_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 148.6,
+        "visibleResponseMilliseconds": 1856.98,
+        "promptTokens": 22,
+        "completionTokens": 98,
+        "tokensPerSecond": 57.37
+      },
+      {
+        "id": "boundary_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 137.83,
+        "visibleResponseMilliseconds": 1870.21,
+        "promptTokens": 22,
+        "completionTokens": 102,
+        "tokensPerSecond": 58.88
+      },
+      {
+        "id": "boundary_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 147.95,
+        "visibleResponseMilliseconds": 2223.95,
+        "promptTokens": 22,
+        "completionTokens": 102,
+        "tokensPerSecond": 49.14
+      },
+      {
+        "id": "boundary_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 177.59,
+        "visibleResponseMilliseconds": 1815.96,
+        "promptTokens": 22,
+        "completionTokens": 96,
+        "tokensPerSecond": 58.6
+      },
+      {
+        "id": "invitation_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 141.18,
+        "visibleResponseMilliseconds": 1452.27,
+        "promptTokens": 20,
+        "completionTokens": 82,
+        "tokensPerSecond": 62.55
+      },
+      {
+        "id": "invitation_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 140.96,
+        "visibleResponseMilliseconds": 1642.86,
+        "promptTokens": 21,
+        "completionTokens": 97,
+        "tokensPerSecond": 64.59
+      },
+      {
+        "id": "invitation_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 129.22,
+        "visibleResponseMilliseconds": 2003.74,
+        "promptTokens": 20,
+        "completionTokens": 103,
+        "tokensPerSecond": 54.95
+      },
+      {
+        "id": "invitation_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 130.57,
+        "visibleResponseMilliseconds": 1762.94,
+        "promptTokens": 20,
+        "completionTokens": 98,
+        "tokensPerSecond": 60.03
+      },
+      {
+        "id": "invitation_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 128.51,
+        "visibleResponseMilliseconds": 1995.31,
+        "promptTokens": 18,
+        "completionTokens": 99,
+        "tokensPerSecond": 53.04
+      },
+      {
+        "id": "invitation_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 153.66,
+        "visibleResponseMilliseconds": 1488.32,
+        "promptTokens": 20,
+        "completionTokens": 82,
+        "tokensPerSecond": 61.44
+      },
+      {
+        "id": "invitation_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 123.01,
+        "visibleResponseMilliseconds": 1736.67,
+        "promptTokens": 21,
+        "completionTokens": 97,
+        "tokensPerSecond": 60.11
+      },
+      {
+        "id": "invitation_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 123.15,
+        "visibleResponseMilliseconds": 1737.17,
+        "promptTokens": 20,
+        "completionTokens": 103,
+        "tokensPerSecond": 63.82
+      },
+      {
+        "id": "invitation_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 145.48,
+        "visibleResponseMilliseconds": 1714.25,
+        "promptTokens": 20,
+        "completionTokens": 98,
+        "tokensPerSecond": 62.47
+      },
+      {
+        "id": "invitation_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 145.37,
+        "visibleResponseMilliseconds": 2067.48,
+        "promptTokens": 18,
+        "completionTokens": 99,
+        "tokensPerSecond": 51.51
+      },
+      {
+        "id": "quest_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 149.84,
+        "visibleResponseMilliseconds": 1639.34,
+        "promptTokens": 23,
+        "completionTokens": 91,
+        "tokensPerSecond": 61.11
+      },
+      {
+        "id": "quest_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 181.87,
+        "visibleResponseMilliseconds": 2023.73,
+        "promptTokens": 23,
+        "completionTokens": 94,
+        "tokensPerSecond": 51.04
+      },
+      {
+        "id": "quest_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 181.8,
+        "visibleResponseMilliseconds": 2115.89,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 51.71
+      },
+      {
+        "id": "quest_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 209.39,
+        "visibleResponseMilliseconds": 2227.12,
+        "promptTokens": 19,
+        "completionTokens": 98,
+        "tokensPerSecond": 48.57
+      },
+      {
+        "id": "quest_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 173.56,
+        "visibleResponseMilliseconds": 2049.08,
+        "promptTokens": 23,
+        "completionTokens": 104,
+        "tokensPerSecond": 55.45
+      },
+      {
+        "id": "quest_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 144.59,
+        "visibleResponseMilliseconds": 1741.75,
+        "promptTokens": 23,
+        "completionTokens": 91,
+        "tokensPerSecond": 56.98
+      },
+      {
+        "id": "quest_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 157.56,
+        "visibleResponseMilliseconds": 1898.13,
+        "promptTokens": 23,
+        "completionTokens": 94,
+        "tokensPerSecond": 54.01
+      },
+      {
+        "id": "quest_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 148.51,
+        "visibleResponseMilliseconds": 1935.62,
+        "promptTokens": 21,
+        "completionTokens": 100,
+        "tokensPerSecond": 55.96
+      },
+      {
+        "id": "quest_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 155.49,
+        "visibleResponseMilliseconds": 2080.39,
+        "promptTokens": 19,
+        "completionTokens": 98,
+        "tokensPerSecond": 50.91
+      },
+      {
+        "id": "quest_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 169.25,
+        "visibleResponseMilliseconds": 2229.96,
+        "promptTokens": 23,
+        "completionTokens": 104,
+        "tokensPerSecond": 50.47
+      },
+      {
+        "id": "blocked_content_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 178.8,
+        "visibleResponseMilliseconds": 2031.08,
+        "promptTokens": 26,
+        "completionTokens": 93,
+        "tokensPerSecond": 50.21
+      },
+      {
+        "id": "blocked_content_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 151.98,
+        "visibleResponseMilliseconds": 1876.58,
+        "promptTokens": 25,
+        "completionTokens": 87,
+        "tokensPerSecond": 50.45
+      },
+      {
+        "id": "blocked_content_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 179.65,
+        "visibleResponseMilliseconds": 1907.59,
+        "promptTokens": 28,
+        "completionTokens": 81,
+        "tokensPerSecond": 46.88
+      },
+      {
+        "id": "blocked_content_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.79,
+        "visibleResponseMilliseconds": 1988.97,
+        "promptTokens": 30,
+        "completionTokens": 94,
+        "tokensPerSecond": 51.59
+      },
+      {
+        "id": "blocked_content_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 178.43,
+        "visibleResponseMilliseconds": 2044.14,
+        "promptTokens": 31,
+        "completionTokens": 90,
+        "tokensPerSecond": 48.24
+      },
+      {
+        "id": "blocked_content_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 163.6,
+        "visibleResponseMilliseconds": 2011.54,
+        "promptTokens": 26,
+        "completionTokens": 93,
+        "tokensPerSecond": 50.33
+      },
+      {
+        "id": "blocked_content_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 165.59,
+        "visibleResponseMilliseconds": 1826.86,
+        "promptTokens": 25,
+        "completionTokens": 87,
+        "tokensPerSecond": 52.37
+      },
+      {
+        "id": "blocked_content_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 180.69,
+        "visibleResponseMilliseconds": 1944.53,
+        "promptTokens": 28,
+        "completionTokens": 81,
+        "tokensPerSecond": 45.93
+      },
+      {
+        "id": "blocked_content_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 181.29,
+        "visibleResponseMilliseconds": 2074.62,
+        "promptTokens": 30,
+        "completionTokens": 94,
+        "tokensPerSecond": 49.65
+      },
+      {
+        "id": "blocked_content_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 222.64,
+        "visibleResponseMilliseconds": 2196.25,
+        "promptTokens": 31,
+        "completionTokens": 90,
+        "tokensPerSecond": 45.6
+      },
+      {
+        "id": "blocked_content_011",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 154.94,
+        "visibleResponseMilliseconds": 2070.91,
+        "promptTokens": 26,
+        "completionTokens": 93,
+        "tokensPerSecond": 48.55
+      },
+      {
+        "id": "blocked_content_012",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 201.37,
+        "visibleResponseMilliseconds": 1907.74,
+        "promptTokens": 25,
+        "completionTokens": 87,
+        "tokensPerSecond": 50.99
+      },
+      {
+        "id": "blocked_content_013",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 157.97,
+        "visibleResponseMilliseconds": 1865.16,
+        "promptTokens": 28,
+        "completionTokens": 81,
+        "tokensPerSecond": 47.45
+      },
+      {
+        "id": "blocked_content_014",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 158.74,
+        "visibleResponseMilliseconds": 1783.14,
+        "promptTokens": 30,
+        "completionTokens": 94,
+        "tokensPerSecond": 57.82
+      },
+      {
+        "id": "blocked_content_015",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 138.45,
+        "visibleResponseMilliseconds": 1610.52,
+        "promptTokens": 31,
+        "completionTokens": 90,
+        "tokensPerSecond": 61.08
+      },
+      {
+        "id": "injection_001",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 126.69,
+        "visibleResponseMilliseconds": 2731.54,
+        "promptTokens": 33,
+        "completionTokens": 100,
+        "tokensPerSecond": 38.36
+      },
+      {
+        "id": "injection_002",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 219.27,
+        "visibleResponseMilliseconds": 1965.98,
+        "promptTokens": 29,
+        "completionTokens": 96,
+        "tokensPerSecond": 54.92
+      },
+      {
+        "id": "injection_003",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 140.08,
+        "visibleResponseMilliseconds": 1871.38,
+        "promptTokens": 26,
+        "completionTokens": 101,
+        "tokensPerSecond": 58.3
+      },
+      {
+        "id": "injection_004",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 155.76,
+        "visibleResponseMilliseconds": 1924.85,
+        "promptTokens": 29,
+        "completionTokens": 100,
+        "tokensPerSecond": 56.49
+      },
+      {
+        "id": "injection_005",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.64,
+        "visibleResponseMilliseconds": 2240.65,
+        "promptTokens": 26,
+        "completionTokens": 101,
+        "tokensPerSecond": 48.67
+      },
+      {
+        "id": "injection_006",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 163.13,
+        "visibleResponseMilliseconds": 2023.53,
+        "promptTokens": 33,
+        "completionTokens": 100,
+        "tokensPerSecond": 53.73
+      },
+      {
+        "id": "injection_007",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 169.77,
+        "visibleResponseMilliseconds": 2087.65,
+        "promptTokens": 29,
+        "completionTokens": 96,
+        "tokensPerSecond": 50.04
+      },
+      {
+        "id": "injection_008",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.65,
+        "visibleResponseMilliseconds": 2140.76,
+        "promptTokens": 26,
+        "completionTokens": 101,
+        "tokensPerSecond": 51.15
+      },
+      {
+        "id": "injection_009",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 166.6,
+        "visibleResponseMilliseconds": 2146.77,
+        "promptTokens": 29,
+        "completionTokens": 100,
+        "tokensPerSecond": 50.49
+      },
+      {
+        "id": "injection_010",
+        "valid": true,
+        "safeFallbackUsed": false,
+        "firstTokenMilliseconds": 137.92,
+        "visibleResponseMilliseconds": 2708.8,
+        "promptTokens": 26,
+        "completionTokens": 101,
+        "tokensPerSecond": 39.28
+      }
+    ]
+  },
+  "limitations": [
+    "This is high-end development evidence. It does not substitute for either named 16 GB baseline.",
+    "The standalone model run does not measure renderer FPS."
+  ]
+}

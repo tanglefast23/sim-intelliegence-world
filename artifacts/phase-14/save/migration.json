@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T10:54:21.503Z",
+  "testedCommit": null,
+  "fixture": "tests/fixtures/saves/legacy-v1.json",
+  "fixtureSha256": "4021eb4f822454e4c5a71393348a7aab3aa403eb21029508cf4b47e9fed8591c",
+  "compatibleMigration": {
+    "fromSchemaVersion": 1,
+    "toSchemaVersion": 5,
+    "sourceUnchanged": true,
+    "generationId": "generation-phase-14-migrated",
+    "pins": {
+      "engineVersion": "si-world-0.1.0",
+      "contentVersion": "content-0.1.0",
+      "promptVersion": "prompt-0.1.0",
+      "modelContractVersion": "qwen-json-v1",
+      "model": {
+        "id": "qwen3.5-9b",
+        "sourceRevision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+        "artifactSha256": "8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341"
+      }
+    }
+  },
+  "unavailableMigration": {
+    "fromSchemaVersion": 99,
+    "rejected": true,
+    "sourceUnchanged": true,
+    "errorClass": "No compatible state migration"
+  }
+}
