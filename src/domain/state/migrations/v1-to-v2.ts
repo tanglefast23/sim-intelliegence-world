@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
 import { StableIdSchema } from '../ids';
-import { WorldStateBaseSchema, WorldStateSchema, type WorldState } from '../schema';
+import { LegacyStateV2Schema } from './v2-to-v3';
 
-const LegacyStateV1Schema = WorldStateBaseSchema
+const LegacyStateV1Schema = LegacyStateV2Schema
   .omit({ modelPin: true, schemaVersion: true })
   .extend({ schemaVersion: z.literal(1) })
   .strict();
 
-export function migrateV1ToV2(candidate: unknown, nextGenerationId: string): WorldState {
+export function migrateV1ToV2(candidate: unknown, nextGenerationId: string): z.infer<typeof LegacyStateV2Schema> {
   const generationId = StableIdSchema.refine((value) => value.startsWith('generation-'), {
     message: 'Migration generation ID must start with generation-.',
   }).parse(nextGenerationId);
@@ -19,7 +19,7 @@ export function migrateV1ToV2(candidate: unknown, nextGenerationId: string): Wor
     npc.unlockedIds ??= [];
   }
   const source = LegacyStateV1Schema.parse(normalized);
-  return WorldStateSchema.parse({
+  return LegacyStateV2Schema.parse({
     ...source,
     schemaVersion: 2,
     generationId,

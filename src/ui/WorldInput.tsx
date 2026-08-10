@@ -1,0 +1,104 @@
+import type { PropsWithChildren } from 'react';
+import { useEffect, useRef } from 'react';
+import { View } from 'react-native';
+
+type ScreenPoint = Readonly<{ x: number; y: number }>;
+
+type WorldInputProps = PropsWithChildren<Readonly<{
+  onCancel: () => void;
+  onCenter: () => void;
+  onPan: (delta: ScreenPoint) => void;
+  onPrimary: (point: ScreenPoint) => void;
+  onZoom: (direction: -1 | 1, anchor: ScreenPoint) => void;
+}>>;
+
+function eventPoint(event: PointerEvent | WheelEvent, element: HTMLElement): ScreenPoint {
+  const viewport = element.querySelector('#world-input-viewport');
+  if (!(viewport instanceof HTMLElement)) throw new Error('World input viewport is missing.');
+  const bounds = viewport.getBoundingClientRect();
+  return { x: Math.floor(event.clientX - bounds.left), y: Math.floor(event.clientY - bounds.top) };
+}
+
+export function WorldInput({ children, onCancel, onCenter, onPan, onPrimary, onZoom }: WorldInputProps) {
+  const rootRef = useRef<View>(null);
+  const handlersRef = useRef({ onCancel, onCenter, onPan, onPrimary, onZoom });
+  handlersRef.current = { onCancel, onCenter, onPan, onPrimary, onZoom };
+
+  useEffect(() => {
+    const element = rootRef.current as unknown as HTMLElement | null;
+    if (!element || typeof window === 'undefined') return;
+    let middlePointerId: number | undefined;
+    let lastMiddlePoint: ScreenPoint | undefined;
+    let pendingPan = { x: 0, y: 0 };
+    let panFrame = 0;
+
+    const flushPan = () => {
+      panFrame = 0;
+      if (pendingPan.x !== 0 || pendingPan.y !== 0) handlersRef.current.onPan(pendingPan);
+      pendingPan = { x: 0, y: 0 };
+    };
+    const queuePan = (delta: ScreenPoint) => {
+      pendingPan = { x: pendingPan.x + delta.x, y: pendingPan.y + delta.y };
+      if (panFrame === 0) panFrame = requestAnimationFrame(flushPan);
+    };
+    const isUiTarget = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest('[id^="world-ui-"]'));
+    const handlePointerDown = (event: PointerEvent) => {
+      if (isUiTarget(event.target)) return;
+      if (event.button === 1) {
+        event.preventDefault();
+        middlePointerId = event.pointerId;
+        lastMiddlePoint = eventPoint(event, element);
+        element.setPointerCapture?.(event.pointerId);
+      } else if (event.button === 0) {
+        handlersRef.current.onPrimary(eventPoint(event, element));
+      }
+    };
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.pointerId !== middlePointerId || !lastMiddlePoint) return;
+      const point = eventPoint(event, element);
+      queuePan({ x: point.x - lastMiddlePoint.x, y: point.y - lastMiddlePoint.y });
+      lastMiddlePoint = point;
+    };
+    const releasePointer = (event: PointerEvent) => {
+      if (event.pointerId !== middlePointerId) return;
+      element.releasePointerCapture?.(event.pointerId);
+      middlePointerId = undefined;
+      lastMiddlePoint = undefined;
+    };
+    const handleWheel = (event: WheelEvent) => {
+      if (isUiTarget(event.target)) return;
+      event.preventDefault();
+      handlersRef.current.onZoom(event.deltaY < 0 ? 1 : -1, eventPoint(event, element));
+    };
+    const handleKey = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+      if (event.key.toLowerCase() === 'f') handlersRef.current.onCenter();
+      if (event.key === 'Escape') handlersRef.current.onCancel();
+    };
+    const preventMiddleClick = (event: MouseEvent) => {
+      if (event.button === 1) event.preventDefault();
+    };
+
+    element.addEventListener('pointerdown', handlePointerDown);
+    element.addEventListener('pointermove', handlePointerMove);
+    element.addEventListener('pointerup', releasePointer);
+    element.addEventListener('pointercancel', releasePointer);
+    element.addEventListener('wheel', handleWheel, { passive: false });
+    element.addEventListener('auxclick', preventMiddleClick);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      if (panFrame !== 0) cancelAnimationFrame(panFrame);
+      element.removeEventListener('pointerdown', handlePointerDown);
+      element.removeEventListener('pointermove', handlePointerMove);
+      element.removeEventListener('pointerup', releasePointer);
+      element.removeEventListener('pointercancel', releasePointer);
+      element.removeEventListener('wheel', handleWheel);
+      element.removeEventListener('auxclick', preventMiddleClick);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, []);
+
+  return <View nativeID="world-input-surface" ref={rootRef}>{children}</View>;
+}

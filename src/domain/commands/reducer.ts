@@ -108,5 +108,31 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         },
       });
     }
+    case 'move-protagonist': {
+      const from = state.protagonist.worldPosition;
+      if (
+        command.mapId !== from.mapId ||
+        Math.abs(command.tileX - from.tileX) + Math.abs(command.tileY - from.tileY) !== 1
+      ) {
+        throw new Error('Local protagonist movement must be one cardinal tile on the current map.');
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'protagonist-moved',
+        mapId: command.mapId,
+        locationId: command.locationId,
+        fromTileX: from.tileX,
+        fromTileY: from.tileY,
+        toTileX: command.tileX,
+        toTileY: command.tileY,
+      };
+      return commitEvent(state, event, {
+        protagonist: {
+          ...state.protagonist,
+          locationId: command.locationId,
+          worldPosition: { mapId: command.mapId, tileX: command.tileX, tileY: command.tileY },
+        },
+      });
+    }
   }
 }

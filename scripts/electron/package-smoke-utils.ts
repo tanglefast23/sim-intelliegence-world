@@ -128,3 +128,19 @@ export function validateScreenshotBuffers(loading: Buffer, ready: Buffer): void 
 export function validateScreenshotEvidence(loadingPath: string, readyPath: string): void {
   validateScreenshotBuffers(readFileSync(loadingPath), readFileSync(readyPath));
 }
+
+export function validateWorldZoomBuffers(zoomBuffers: readonly Buffer[]): void {
+  if (zoomBuffers.length !== 3) throw new Error('World zoom evidence requires exactly three screenshots.');
+  zoomBuffers.forEach((buffer, index) => assertScreenshot(buffer, `World ${index + 1}x`));
+  for (let left = 0; left < zoomBuffers.length; left += 1) {
+    for (let right = left + 1; right < zoomBuffers.length; right += 1) {
+      if (zoomBuffers[left]?.equals(zoomBuffers[right]!) === true) {
+        throw new Error('World zoom screenshots must be distinct.');
+      }
+    }
+  }
+}
+
+export function validateWorldZoomEvidence(paths: readonly string[]): void {
+  validateWorldZoomBuffers(paths.map((path) => readFileSync(path)));
+}

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererReadyReport } from '../application/RendererReadiness';
-import { AtlasProof } from './AtlasProof';
+import { WorldScene } from './WorldScene';
 
 function hasNoNodeAccess(): boolean {
   const candidate = globalThis as typeof globalThis & {
@@ -33,11 +33,11 @@ async function afterTwoPaints(): Promise<void> {
 
 export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   const [runtime, setRuntime] = useState('Browser proof');
-  const [atlasReady, setAtlasReady] = useState(false);
-  const markAtlasReady = useCallback(() => setAtlasReady(true), []);
+  const [worldReady, setWorldReady] = useState(false);
+  const markWorldReady = useCallback(() => setWorldReady(true), []);
 
   useEffect(() => {
-    if (!atlasReady) {
+    if (!worldReady) {
       return;
     }
     const bridge = getDesktopBridge();
@@ -63,17 +63,17 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
       .catch(() => {
         setRuntime('Desktop bridge rejected the readiness proof');
       });
-  }, [assetsLoaded, atlasReady]);
+  }, [assetsLoaded, worldReady]);
 
   return (
     <View style={styles.screen}>
       <View style={styles.card}>
-        <AtlasProof onReady={markAtlasReady} />
+        <WorldScene onReady={markWorldReady} />
       </View>
       <Text accessibilityRole="header" style={styles.title}>
-        SI World desktop shell
+        SI WORLD / SUNWARD VILLAS
       </Text>
-      <Text style={styles.status}>Generated atlas, CanvasKit, font, and audio resources loaded.</Text>
+      <Text style={styles.status}>Click-to-move island prototype · deterministic 64×48 world</Text>
       <Text style={styles.runtime}>{runtime}</Text>
     </View>
   );

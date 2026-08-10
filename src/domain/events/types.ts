@@ -40,6 +40,15 @@ export const DomainEventSchema = z.discriminatedUnion('type', [
     delta: z.number().int(),
     reason: z.string().min(1).max(160),
   }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('protagonist-moved'),
+    mapId: StableIdSchema,
+    locationId: StableIdSchema,
+    fromTileX: z.number().int().min(0).max(63),
+    fromTileY: z.number().int().min(0).max(47),
+    toTileX: z.number().int().min(0).max(63),
+    toTileY: z.number().int().min(0).max(47),
+  }).strict(),
 ]);
 
 export type DomainEvent = z.infer<typeof DomainEventSchema>;
