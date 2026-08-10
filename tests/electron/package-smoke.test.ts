@@ -233,6 +233,11 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => validateScreenshotBuffers(screenshot(800, 450, 1), ready)).toThrow(
       'dimensions do not match',
     );
+    expect(() => validateScreenshotBuffers(
+      screenshot(800, 450, 1),
+      ready,
+      { requireSameDimensions: false },
+    )).not.toThrow();
     expect(() => validateScreenshotBuffers(loading, loading)).toThrow('identical');
   });
 

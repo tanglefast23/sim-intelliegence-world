@@ -34,3 +34,9 @@ Grok verified all four corrected paths: latest-surface travel completion, before
 - Packaged resize proof preserved camera center and an explicit `2x` zoom.
 - Conversation draft, transcript measurement, panel, and pause state survived resize plus UI-scale change.
 - Measured renderer rate after corrections: 119.96 FPS against the required 60 FPS threshold.
+
+## Windows CI evidence follow-up
+
+The first Windows x64 CI journey reached `complete`, then failed because its early loading PNG and final post-resize PNG had different decoded dimensions. The strict loading-versus-new-game comparison had already proved the initial window size. The final comparison now allows different dimensions after the responsive resize journey while still requiring two valid, minimum-size, non-identical PNG files. All ordinary journey pairs retain strict equal dimensions.
+
+A final bounded Grok 4.5 `high`-effort audit reviewed only this exception and returned `NO_CONFIRMED_FINDINGS`.

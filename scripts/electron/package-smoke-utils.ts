@@ -166,14 +166,22 @@ function assertScreenshot(buffer: Buffer, label: string): Readonly<{ width: numb
   return { width: decoded.width, height: decoded.height };
 }
 
-export function validateScreenshotBuffers(loading: Buffer, ready: Buffer): void {
+export function validateScreenshotBuffers(
+  loading: Buffer,
+  ready: Buffer,
+  options: Readonly<{ requireSameDimensions?: boolean }> = {},
+): void {
   const loadingDimensions = assertScreenshot(loading, 'Loading');
   const readyDimensions = assertScreenshot(ready, 'Ready');
-  if (
+  const requireSameDimensions = options.requireSameDimensions ?? true;
+  if (requireSameDimensions && (
     loadingDimensions.width !== readyDimensions.width ||
     loadingDimensions.height !== readyDimensions.height
-  ) {
-    throw new Error('Loading and ready screenshot dimensions do not match.');
+  )) {
+    throw new Error(
+      `Loading and ready screenshot dimensions do not match: ` +
+      `${loadingDimensions.width}x${loadingDimensions.height} vs ${readyDimensions.width}x${readyDimensions.height}.`,
+    );
   }
   if (loading.equals(ready)) {
     throw new Error('Loading and ready screenshots are identical.');
@@ -181,7 +189,11 @@ export function validateScreenshotBuffers(loading: Buffer, ready: Buffer): void 
 }
 
 export function validateScreenshotEvidence(loadingPath: string, readyPath: string): void {
-  validateScreenshotBuffers(readFileSync(loadingPath), readFileSync(readyPath));
+  validateScreenshotBuffers(
+    readFileSync(loadingPath),
+    readFileSync(readyPath),
+    { requireSameDimensions: false },
+  );
 }
 
 export function validateWorldZoomBuffers(zoomBuffers: readonly Buffer[]): void {
