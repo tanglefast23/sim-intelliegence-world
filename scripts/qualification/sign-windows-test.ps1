@@ -3,6 +3,13 @@ Set-StrictMode -Version Latest
 
 $outputRoot = if ($args.Count -ge 1) { [IO.Path]::GetFullPath($args[0]) } else { [IO.Path]::GetFullPath('out') }
 $reportPath = if ($args.Count -ge 2) { [IO.Path]::GetFullPath($args[1]) } else { [IO.Path]::GetFullPath('artifacts/phase-14/signing/windows-test-signature.json') }
+$testedCommit = (& git rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or $testedCommit -notmatch '^[a-f0-9]{40}$') {
+  throw 'Could not resolve one complete checked-out Git commit.'
+}
+if ($env:GITHUB_SHA -and $env:GITHUB_SHA -ne $testedCommit) {
+  throw "GITHUB_SHA does not match the checked-out commit: expected $testedCommit."
+}
 $executables = @(Get-ChildItem -Path $outputRoot -Recurse -File -Filter 'si-world.exe')
 if ($executables.Count -ne 1) {
   throw "Expected one Windows main executable, found $($executables.Count)."
@@ -28,7 +35,7 @@ try {
   $report = [ordered]@{
     schemaVersion = 1
     generatedAt = (Get-Date).ToUniversalTime().ToString('o')
-    testedCommit = if ($env:GITHUB_SHA) { $env:GITHUB_SHA } else { $null }
+    testedCommit = $testedCommit
     artifact = $executables[0].Name
     signatureType = 'local-self-signed-test'
     releaseTrusted = $false

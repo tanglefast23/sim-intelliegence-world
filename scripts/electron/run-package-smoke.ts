@@ -6,6 +6,7 @@ import { basename, join, resolve } from 'node:path';
 import process from 'node:process';
 
 import { parseSaveEnvelope } from '../../electron/persistence/save-format';
+import { resolveTestedCommit } from '../qualification/tested-commit';
 
 import {
   findPackageArchive,
@@ -20,6 +21,7 @@ import {
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
   : join(process.cwd(), 'out');
+const testedCommit = resolveTestedCommit();
 const executable = findPackagedExecutable(outputRoot);
 const archive = findPackageArchive(outputRoot);
 const asarCli = join(process.cwd(), 'node_modules/@electron/asar/bin/asar.js');
@@ -30,7 +32,7 @@ const listing = execFileSync(process.execPath, [asarCli, 'list', archive], {
 validatePackageListing(listing);
 const screenshotDirectory = process.argv[2]
   ? resolve(process.cwd(), process.argv[2])
-  : join(process.cwd(), 'artifacts/phase-02');
+  : join(process.cwd(), 'artifacts/phase-14/macos/current');
 const screenshotPath = join(screenshotDirectory, 'packaged-electron.png');
 const loadingScreenshotPath = join(screenshotDirectory, 'packaged-loading.png');
 const newGameScreenshotPath = join(screenshotDirectory, 'world-new-game.png');
@@ -179,7 +181,7 @@ child.once('close', (code) => {
     writeFileSync(qualificationReportPath, `${JSON.stringify({
       schemaVersion: 1,
       generatedAt: new Date().toISOString(),
-      testedCommit: process.env.GITHUB_SHA ?? null,
+      testedCommit,
       qualificationProfile: process.env.SI_WORLD_QUALIFICATION_PROFILE ?? 'development-high-end',
       hardware: {
         platform: platform(), release: release(), architecture: arch(),

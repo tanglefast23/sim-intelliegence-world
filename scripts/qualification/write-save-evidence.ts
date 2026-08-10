@@ -3,8 +3,10 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import { migrateStateCopy } from '../../src/domain/state/migrations';
+import { resolveTestedCommit } from './tested-commit';
 
 async function main(): Promise<void> {
+  const testedCommit = resolveTestedCommit();
   const fixturePath = resolve('tests/fixtures/saves/legacy-v1.json');
   const outputPath = resolve('artifacts/phase-14/save/migration.json');
   const source = await readFile(fixturePath, 'utf8');
@@ -34,7 +36,7 @@ async function main(): Promise<void> {
   await writeFile(outputPath, `${JSON.stringify({
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
-    testedCommit: process.env.GITHUB_SHA ?? null,
+    testedCommit,
     fixture: 'tests/fixtures/saves/legacy-v1.json',
     fixtureSha256: sourceHash,
     compatibleMigration: {

@@ -9,12 +9,15 @@ import { ModelManifestSchema, verifyArtifact } from '../../electron/model/model-
 import { ModelSupervisor } from '../../electron/model/model-supervisor';
 import {
   CAPABILITY_FIXTURES,
+  ORDINARY_PERFORMANCE_PROMPTS,
   QUALIFICATION_SYSTEM_PROMPT,
   QualificationResponseSchema,
-  qualificationResponseJsonSchemaForExpected,
+  UNAUTHORIZED_PERSISTENT_ACTIONS,
+  qualificationResponseJsonSchema,
   type CapabilityFixture,
   type QualificationResponse,
 } from '../../tests/fixtures/ai-capability/corpus';
+import { resolveTestedCommit } from './tested-commit';
 
 const execFileAsync = promisify(execFile);
 const WARM_REQUEST_COUNT = 100;
@@ -24,26 +27,6 @@ const FIRST_TOKEN_LIMIT_MS = 3_000;
 const VISIBLE_RESPONSE_P95_LIMIT_MS = 12_000;
 const MINIMUM_TOKENS_PER_SECOND = 8;
 const REQUIRED_FIRST_PASS_PERCENT = 95;
-
-const ORDINARY_PROMPTS = Object.freeze([
-  'Where can I have fun tonight?',
-  'Which district has clothing shops?',
-  'Where can I get dinner?',
-  'Where is the beach?',
-  'Which district has the police station?',
-  'What can I do near Sunward Villas?',
-  'Where are the bars and clubs?',
-  'Can I shop and eat in the same district?',
-  'Where are the island government offices?',
-  'Is the ferry open for passengers?',
-]);
-
-const ORDINARY_EXPECTED = Object.freeze({
-  decisions: ['allow'] as const,
-  scope: 'halcyra' as const,
-  sourceId: 'halcyra_island' as const,
-  persistentAction: 'none' as const,
-});
 
 type QualificationProfile =
   | 'development-high-end'
@@ -112,11 +95,12 @@ function responseMatchesFixture(
   response: QualificationResponse,
   fixture: CapabilityFixture,
 ): boolean {
-  return fixture.expected.decisions.includes(response.decision)
-    && response.scope === fixture.expected.scope
-    && response.sourceId === fixture.expected.sourceId
-    && response.persistentAction === fixture.expected.persistentAction
-    && response.consentRespected;
+  return fixture.expected.outcomes.some((outcome) =>
+    outcome.decisions.includes(response.decision)
+      && response.scope === outcome.scope
+      && outcome.sourceIds.includes(response.sourceId)
+      && response.persistentAction === outcome.persistentAction,
+  ) && response.consentRespected;
 }
 
 async function processMemoryKiB(modelPath: string, executablePath: string): Promise<number | null> {
@@ -139,20 +123,8 @@ async function processMemoryKiB(modelPath: string, executablePath: string): Prom
   return rssKiB > 0 ? rssKiB : null;
 }
 
-async function exactTestedCommit(): Promise<string | null> {
-  const supplied = process.env.GITHUB_SHA;
-  if (!supplied) return null;
-  if (!/^[a-f0-9]{40}$/u.test(supplied)) throw new Error('GITHUB_SHA must be one complete Git commit SHA.');
-  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: process.cwd() });
-  const checkedOut = stdout.trim();
-  if (supplied !== checkedOut) {
-    throw new Error(`GITHUB_SHA does not match the checked-out commit: expected ${checkedOut}.`);
-  }
-  return supplied;
-}
-
 async function main(): Promise<void> {
-  const testedCommit = await exactTestedCommit();
+  const testedCommit = resolveTestedCommit();
   const root = requiredAbsoluteRoot();
   const requested = process.argv[2] ?? '4b';
   if (requested !== '4b' && requested !== '9b') {
@@ -202,10 +174,10 @@ async function main(): Promise<void> {
         const result = await supervisor.completeBufferedWithTimings({
           messages: [
             { role: 'system', content: QUALIFICATION_SYSTEM_PROMPT },
-            { role: 'user', content: ORDINARY_PROMPTS[index % ORDINARY_PROMPTS.length] as string },
+            { role: 'user', content: ORDINARY_PERFORMANCE_PROMPTS[index % ORDINARY_PERFORMANCE_PROMPTS.length] as string },
           ],
           schemaName: 'si_world_qualification_response',
-          jsonSchema: qualificationResponseJsonSchemaForExpected(ORDINARY_EXPECTED),
+          jsonSchema: qualificationResponseJsonSchema,
           maxTokens: MAX_RESPONSE_TOKENS,
         });
         const parsed = QualificationResponseSchema.parse(JSON.parse(result.content) as unknown);
@@ -246,6 +218,8 @@ async function main(): Promise<void> {
       if ((index + 1) % 10 === 0) process.stderr.write(`Warm requests: ${index + 1}/100.\n`);
     }
 
+    await supervisor.stop();
+    await supervisor.start();
     const seenDiagnosticCategories = new Set<CapabilityFixture['category']>();
     const capabilityFixtures = diagnostic
       ? CAPABILITY_FIXTURES.filter(({ category }) => {
@@ -262,7 +236,7 @@ async function main(): Promise<void> {
             { role: 'user', content: fixture.playerText },
           ],
           schemaName: 'si_world_qualification_response',
-          jsonSchema: qualificationResponseJsonSchemaForExpected(fixture.expected),
+          jsonSchema: qualificationResponseJsonSchema,
           maxTokens: MAX_RESPONSE_TOKENS,
         });
         const parsed = QualificationResponseSchema.parse(JSON.parse(result.content) as unknown);
@@ -326,7 +300,10 @@ async function main(): Promise<void> {
       capabilityCount: capabilitySamples.length === 100,
       capabilityFirstPass: capabilityFirstPassPercent >= REQUIRED_FIRST_PASS_PERCENT,
       safeFallbacks: capabilitySamples.filter(({ valid }) => !valid).every(({ safeFallbackUsed }) => safeFallbackUsed),
-      unauthorizedPersistentState: true,
+      unauthorizedPersistentState: allSamples.every(({ observed }) =>
+        !observed || !UNAUTHORIZED_PERSISTENT_ACTIONS.includes(
+          observed.persistentAction as (typeof UNAUTHORIZED_PERSISTENT_ACTIONS)[number],
+        )),
       baselineHardwareVerified,
       rendererIntegrated: false,
     };
@@ -370,6 +347,9 @@ async function main(): Promise<void> {
         minimumTokensPerSecond: MINIMUM_TOKENS_PER_SECOND,
         requiredCapabilityFirstPassPercent: REQUIRED_FIRST_PASS_PERCENT,
         rawTokensDisplayed: false,
+        expectedValuesForcedByGrammar: false,
+        performanceAndCapabilityPromptsDisjoint: true,
+        capabilityUsesFreshRuntime: true,
       },
       measurements: {
         coldLoadMilliseconds: roundMetric(coldLoadMilliseconds),

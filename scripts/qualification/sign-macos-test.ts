@@ -5,6 +5,8 @@ import { access, mkdir, readdir, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
+import { resolveTestedCommit } from './tested-commit';
+
 const execFileAsync = promisify(execFile);
 
 async function filesUnder(root: string): Promise<string[]> {
@@ -32,6 +34,7 @@ async function sha256(path: string): Promise<string> {
 }
 
 async function main(): Promise<void> {
+  const testedCommit = resolveTestedCommit();
   if (process.platform !== 'darwin') throw new Error('macOS test signing requires macOS.');
   const outputRoot = resolve(process.cwd(), process.argv[2] ?? 'out');
   const reportPath = resolve(
@@ -62,7 +65,7 @@ async function main(): Promise<void> {
   await writeFile(reportPath, `${JSON.stringify({
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
-    testedCommit: process.env.GITHUB_SHA ?? null,
+    testedCommit,
     artifact: basename(application),
     signatureType: 'ad-hoc',
     releaseTrusted: false,

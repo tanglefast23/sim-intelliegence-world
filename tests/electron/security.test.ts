@@ -302,9 +302,11 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('runs-on: macos-15-intel');
     expect(workflow).toContain('npm run package:mac:x64');
     expect(workflow).toContain('npm run sign:test:mac');
+    expect(workflow).toContain('artifacts/phase-14/macos-x64/current');
     expect(workflow).toContain('runs-on: windows-2025');
     expect(workflow).toContain('npm run package:windows:x64');
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
+    expect(workflow).toContain('artifacts/phase-14/windows-x64/current');
     expect(workflow).toContain('without model qualification claims');
   });
 });

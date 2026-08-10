@@ -66,6 +66,12 @@ jobs:
           node-version: 22.13.1
           cache: npm
 
+      - name: Prove tested SHA
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          printf 'tested_sha=%s\n' "$GITHUB_SHA"
+
       - name: Install locked dependencies
         run: npm ci
 
@@ -78,7 +84,7 @@ jobs:
         run: npm run sign:test:mac
 
       - name: Smoke Intel macOS shell without model qualification claims
-        run: npm run smoke:electron
+        run: npm run smoke:electron -- artifacts/phase-14/macos-x64/current
 
   package-windows-x64:
     name: package-windows-x64
@@ -94,6 +100,12 @@ jobs:
           node-version: 22.13.1
           cache: npm
 
+      - name: Prove tested SHA
+        shell: powershell
+        run: |
+          if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Checked-out commit does not match GITHUB_SHA.' }
+          Write-Output "tested_sha=$env:GITHUB_SHA"
+
       - name: Install locked dependencies
         run: npm ci
 
@@ -107,4 +119,4 @@ jobs:
         run: ./scripts/qualification/sign-windows-test.ps1
 
       - name: Smoke Windows x64 shell without model qualification claims
-        run: npm run smoke:electron
+        run: npm run smoke:electron -- artifacts/phase-14/windows-x64/current
