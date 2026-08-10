@@ -74,15 +74,82 @@ export const CharacterSourceSchema = z.object({
 export type CharacterSource = z.infer<typeof CharacterSourceSchema>;
 export type TokenFrame = string[];
 
-export const TileSourceSchema = z.object({
+const BaseTileSourceSchema = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]+$/u),
   palette: z.record(TokenSchema, ColorSchema),
-  backgroundToken: TokenSchema,
   commands: z.array(DrawCommandSchema),
-}).strict();
-export type TileSource = z.infer<typeof TileSourceSchema>;
+});
 
-const TileCollectionSchema = z.object({ tiles: z.array(TileSourceSchema).min(8).max(12) }).strict();
+export const GroundCellSourceSchema = BaseTileSourceSchema.extend({
+  cellClass: z.literal('ground'),
+  backgroundToken: TokenSchema,
+}).strict();
+export type GroundCellSource = z.infer<typeof GroundCellSourceSchema>;
+
+export const TransparentPartSourceSchema = BaseTileSourceSchema.extend({
+  cellClass: z.literal('transparent-part'),
+  role: z.enum(['door', 'furniture', 'sign', 'fixture', 'plant', 'landmark']),
+}).strict();
+export type TransparentPartSource = z.infer<typeof TransparentPartSourceSchema>;
+
+const WallModulesSchema = z.object({
+  north: z.array(DrawCommandSchema),
+  east: z.array(DrawCommandSchema),
+  south: z.array(DrawCommandSchema),
+  west: z.array(DrawCommandSchema),
+  core: z.array(DrawCommandSchema),
+}).strict();
+
+const WallPaletteSourceSchema = z.object({
+  id: z.string().regex(/^[a-z][a-z0-9-]+$/u),
+  palette: z.record(TokenSchema, ColorSchema),
+}).strict();
+
+export type WallSource = Readonly<{
+  id: string;
+  palette: Readonly<Record<string, string>>;
+  modules: z.infer<typeof WallModulesSchema>;
+}>;
+
+export type TileSource = GroundCellSource | TransparentPartSource;
+
+const TileCollectionSchema = z.object({
+  version: z.literal(2),
+  tiles: z.array(GroundCellSourceSchema).min(8).max(12),
+  parts: z.array(TransparentPartSourceSchema).min(1),
+  wallModules: WallModulesSchema,
+  wallPalettes: z.array(WallPaletteSourceSchema).min(1),
+}).strict();
+
+type TileCollection = z.infer<typeof TileCollectionSchema>;
+
+function loadTileCollections(root: string): TileCollection[] {
+  const directory = resolve(root, 'assets/source/tiles');
+  return readdirSync(directory)
+    .filter((name) => name.endsWith('.json'))
+    .sort()
+    .map((name) => TileCollectionSchema.parse(
+      JSON.parse(readFileSync(resolve(directory, name), 'utf8')) as unknown,
+    ));
+}
+
+function validateTileSource(source: TileSource): void {
+  assertCommandBounds(source.commands, TILE_CELL.width, TILE_CELL.height);
+  for (const command of source.commands) {
+    if (!source.palette[command.token]) {
+      throw new Error(`${source.id} uses missing palette token ${command.token}.`);
+    }
+  }
+  if (source.cellClass === 'ground' && !source.palette[source.backgroundToken]) {
+    throw new Error(`${source.id} uses missing background token ${source.backgroundToken}.`);
+  }
+}
+
+function assertUniqueSourceIds(label: string, ids: readonly string[]): void {
+  if (new Set(ids).size !== ids.length) {
+    throw new Error(`${label} source IDs must be unique.`);
+  }
+}
 
 function assertCommandBounds(commands: readonly DrawCommand[], width: number, height: number): void {
   for (const command of commands) {
@@ -132,24 +199,33 @@ export function loadCharacterSources(root = process.cwd()): CharacterSource[] {
   return sources;
 }
 
-export function loadTileSources(root = process.cwd()): TileSource[] {
-  const directory = resolve(root, 'assets/source/tiles');
-  const sources = readdirSync(directory)
-    .filter((name) => name.endsWith('.json'))
-    .sort()
-    .flatMap((name) => TileCollectionSchema.parse(
-      JSON.parse(readFileSync(resolve(directory, name), 'utf8')) as unknown,
-    ).tiles);
+export function loadTileSources(root = process.cwd()): GroundCellSource[] {
+  const sources = loadTileCollections(root).flatMap(({ tiles }) => tiles);
+  sources.forEach(validateTileSource);
+  assertUniqueSourceIds('Ground cell', sources.map(({ id }) => id));
+  return sources;
+}
+
+export function loadTransparentPartSources(root = process.cwd()): TransparentPartSource[] {
+  const sources = loadTileCollections(root).flatMap(({ parts }) => parts);
+  sources.forEach(validateTileSource);
+  assertUniqueSourceIds('Transparent part', sources.map(({ id }) => id));
+  return sources;
+}
+
+export function loadWallSources(root = process.cwd()): WallSource[] {
+  const sources = loadTileCollections(root).flatMap(({ wallModules, wallPalettes }) =>
+    wallPalettes.map(({ id, palette }) => ({ id, palette, modules: wallModules })),
+  );
+  assertUniqueSourceIds('Wall palette', sources.map(({ id }) => id));
   for (const source of sources) {
-    assertCommandBounds(source.commands, TILE_CELL.width, TILE_CELL.height);
-    for (const command of source.commands) {
+    const commands = Object.values(source.modules).flat();
+    assertCommandBounds(commands, TILE_CELL.width, TILE_CELL.height);
+    for (const command of commands) {
       if (!source.palette[command.token]) {
-        throw new Error(`${source.id} uses missing palette token ${command.token}.`);
+        throw new Error(`Wall ${source.id} uses missing palette token ${command.token}.`);
       }
     }
-  }
-  if (new Set(sources.map(({ id }) => id)).size !== sources.length) {
-    throw new Error('Tile source IDs must be unique.');
   }
   return sources;
 }
@@ -237,7 +313,22 @@ export function composePortrait(source: CharacterSource): TokenFrame {
 }
 
 export function renderTile(source: TileSource): Bitmap {
-  const frame = Array.from({ length: TILE_CELL.height }, () => source.backgroundToken.repeat(TILE_CELL.width));
+  const frame = source.cellClass === 'ground'
+    ? Array.from({ length: TILE_CELL.height }, () => source.backgroundToken.repeat(TILE_CELL.width))
+    : emptyTokenFrame(TILE_CELL.width, TILE_CELL.height);
   drawTokenCommands(frame, source.commands);
+  return tokenFrameToBitmap(frame, source.palette);
+}
+
+export function renderWallVariant(source: WallSource, adjacencyMask: number): Bitmap {
+  if (!Number.isInteger(adjacencyMask) || adjacencyMask < 0 || adjacencyMask > 15) {
+    throw new Error('Wall adjacency mask must be an integer from 0 through 15.');
+  }
+  const frame = emptyTokenFrame(TILE_CELL.width, TILE_CELL.height);
+  if ((adjacencyMask & 1) !== 0) drawTokenCommands(frame, source.modules.north);
+  if ((adjacencyMask & 2) !== 0) drawTokenCommands(frame, source.modules.east);
+  if ((adjacencyMask & 4) !== 0) drawTokenCommands(frame, source.modules.south);
+  if ((adjacencyMask & 8) !== 0) drawTokenCommands(frame, source.modules.west);
+  drawTokenCommands(frame, source.modules.core);
   return tokenFrameToBitmap(frame, source.palette);
 }

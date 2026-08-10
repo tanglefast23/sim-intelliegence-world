@@ -33,7 +33,7 @@
     "setup:skia-web": "setup-skia-web public",
     "art:variants": "tsx scripts/art/build-character-variants.ts",
     "art:atlas": "npm run art:variants && tsx scripts/art/build-world-atlas.ts && tsx scripts/art/build-review-sheet.ts",
-    "art:check": "npm run art:atlas && git diff --exit-code -- assets/source/characters assets/generated artifacts/phase-04/atlas-review.png",
+    "art:check": "npm run art:atlas && tsx scripts/art/check-generated-art.ts",
     "audio:build": "tsx scripts/audio/build-vocal-cues.ts",
     "audio:check": "npm run audio:build && git diff --exit-code -- assets/generated/audio",
     "verify:first-hour": "tsx scripts/verification/run-first-hour-golden.ts",
