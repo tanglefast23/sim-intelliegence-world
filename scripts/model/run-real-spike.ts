@@ -3,11 +3,17 @@ import { isAbsolute, join } from 'node:path';
 
 import { ModelManifestSchema, verifyArtifact } from '../../electron/model/model-manifest';
 import { ModelSupervisor, type ModelSupervisorState } from '../../electron/model/model-supervisor';
+import { ConversationService } from '../../src/ai/conversation/service';
+import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
+import type { InferencePort } from '../../src/application/effects/InferencePort';
+import { createInitialState } from '../../src/domain/state/initial-state';
 import {
   authoredNoChangeResponse,
   parseSpikeResponseJson,
   spikeResponseJsonSchema,
 } from '../../src/ai/schemas/spike-response';
+import { parseConversationResponseJson } from '../../src/ai/schemas/conversation-response';
+import { parsePolicyResponseJson } from '../../src/ai/schemas/policy-response';
 import { capture } from './process';
 
 function requireModelRoot(): string {
@@ -118,6 +124,82 @@ async function main(): Promise<void> {
       inferenceTimes.push(Math.round(performance.now() - inferenceStartedAt));
       process.stderr.write(`Validated real corpus case ${inferenceTimes.length} of ${cases.length}.\n`);
     }
+    const conversationInference: InferencePort = {
+      complete: async (request) => {
+        try {
+          const source = await supervisor.complete(request);
+          if (request.schemaName === 'si_world_conversation_turn') {
+            try {
+              const parsed = parseConversationResponseJson(source);
+              process.stderr.write(`Real conversation object metadata: ${JSON.stringify({
+                actionId: parsed.actionId,
+                knowledge: parsed.knowledgeCandidates.map(({ candidateType, factId, assertedValue, sourceType, sourceId, evidenceText }) => ({
+                  candidateType, factId, assertedValue, sourceType, sourceId,
+                  evidenceMatchesCatClaim: evidenceText === 'I have a cat named Pepper.',
+                })),
+                interests: parsed.interestCandidateIds,
+                unlocks: parsed.unlockCandidateIds,
+                memories: parsed.memoryCandidates.map(({ subjectId, sourceId, importancePermille }) => ({ subjectId, sourceId, importancePermille })),
+              })}.\n`);
+            } catch {
+              process.stderr.write('Real conversation object failed closed local parsing.\n');
+            }
+          } else if (request.schemaName === 'si_world_content_policy') {
+            try {
+              const parsed = parsePolicyResponseJson(source);
+              process.stderr.write(`Real policy object: decision=${parsed.decision} category=${parsed.category}.\n`);
+            } catch {
+              process.stderr.write('Real policy object failed closed local parsing.\n');
+            }
+          }
+          return source;
+        } catch (error) {
+          process.stderr.write(`Real ${request.schemaName} request failed: ${error instanceof Error ? error.message : 'unknown error'}.\n`);
+          throw error;
+        }
+      },
+    };
+    const conversation = new ConversationService(
+      conversationInference,
+      new FileCharacterWritingStore(join(process.cwd(), 'content')),
+    );
+    await conversation.begin({
+      conversationId: `conversation-real-${requested}-one`,
+      npcId: 'linda',
+      state: createInitialState(),
+    });
+    const catTurn = await conversation.turn({
+      conversationId: `conversation-real-${requested}-one`,
+      turnId: `turn-real-${requested}-cat`,
+      message: 'I have a cat named Pepper.',
+    });
+    if (catTurn.source === 'authored-fallback' || catTurn.source === 'policy-refusal' || catTurn.stagedChangeCount < 3) {
+      throw new Error(`The real conversation did not produce validated cat state: source=${catTurn.source} changes=${catTurn.stagedChangeCount}.`);
+    }
+    const rememberedState = conversation.end(`conversation-real-${requested}-one`);
+    if (
+      !rememberedState.npcs.linda?.knowledge.some(({ factId }) => factId === 'protagonist_has_cat') ||
+      !rememberedState.npcs.linda?.unlockedInterestIds.includes('cats') ||
+      !rememberedState.npcs.linda?.unlockedIds.includes('cats_common_interest') ||
+      conversation.activeSessionCount !== 0
+    ) {
+      throw new Error('The real conversation did not commit or release its active context correctly.');
+    }
+    await conversation.begin({
+      conversationId: `conversation-real-${requested}-two`,
+      npcId: 'linda',
+      state: rememberedState,
+    });
+    const recallTurn = await conversation.turn({
+      conversationId: `conversation-real-${requested}-two`,
+      turnId: `turn-real-${requested}-recall`,
+      message: 'What do you remember about me?',
+    });
+    if (!/cat|pepper/iu.test(recallTurn.dialogue)) {
+      throw new Error('The real model did not use Linda\'s validated private memory projection.');
+    }
+    conversation.end(`conversation-real-${requested}-two`);
+    process.stderr.write('Validated two persistent real conversation contexts.\n');
     if (!supervisor.sawLoadingHealth) {
       throw new Error('The real runtime did not expose a loading health state.');
     }
@@ -141,6 +223,8 @@ async function main(): Promise<void> {
         readyMilliseconds,
         inferenceMilliseconds: inferenceTimes,
         corpusValidated: cases.length,
+        conversationTurnsValidated: 2,
+        privateMemoryRecallValidated: true,
         loadingHealthObserved: true,
         restartsBeforeCircuit: 2,
         stoppedCleanly: true,

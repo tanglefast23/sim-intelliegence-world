@@ -315,6 +315,20 @@ export class ModelSupervisor {
     return operation;
   }
 
+  complete(request: CompletionRequest): Promise<string> {
+    const operation = this.#queue.then(async () => {
+      if (this.#state !== 'ready' || !this.#client) {
+        throw new Error('Local model runtime is not ready.');
+      }
+      return this.#client.complete(request, AbortSignal.timeout(30_000));
+    });
+    this.#queue = operation.then(
+      () => undefined,
+      () => undefined,
+    );
+    return operation;
+  }
+
   killForLifecycleVerification(): void {
     if (!this.config.allowLifecycleFaultInjection) {
       throw new Error('Model lifecycle fault injection is disabled.');

@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getDesktopBridge } from '../application/DesktopBridge';
+import { createBrowserConversationPort } from '../ai/conversation/browser-port';
 import { autosaveStableState } from '../application/runtime/autosave';
 import { WORLD_MAP_CATALOG } from '../application/runtime/map-catalog';
 import { setWorldSpeed, sleepWorld, tickWorld } from '../application/runtime/tick';
@@ -25,6 +26,7 @@ import { effectiveSpeed } from '../domain/clock/clock';
 import { createInitialState } from '../domain/state/initial-state';
 import type { WorldState } from '../domain/state/schema';
 import { BedActions } from '../ui/BedActions';
+import { ConversationPanel } from '../ui/ConversationPanel';
 import { Hud } from '../ui/Hud';
 import { WorldInput } from '../ui/WorldInput';
 import { resolveClickTarget, type ClickCandidate } from '../world/maps/hit-testing';
@@ -140,6 +142,12 @@ function npcBlockers(state: WorldState, mapId: string, excludedNpcId?: string): 
   return blockers;
 }
 
+function stateNpcId(visualId: string): string | undefined {
+  if (visualId === 'linda') return 'linda';
+  if (visualId === 'generic-resident') return 'generic_resident';
+  return undefined;
+}
+
 type WorldSceneProps = Readonly<{ onReady: () => void }>;
 
 export function WorldScene({ onReady }: WorldSceneProps) {
@@ -162,6 +170,8 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   const [transitioning, setTransitioning] = useState(false);
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string>();
+  const [conversationNpcId, setConversationNpcId] = useState<string>();
+  const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
   const saveGeneration = useRef<number | null>(null);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
@@ -199,7 +209,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
     return () => { active = false; };
   }, [applyLoadedState]);
 
-  const requestAutosave = useCallback(async (state: WorldState, trigger: 'sleep' | 'travel') => {
+  const requestAutosave = useCallback(async (state: WorldState, trigger: 'sleep' | 'travel' | 'manual') => {
     const bridge = getDesktopBridge();
     if (!bridge) {
       setSaveStatus('BROWSER · NO DISK SAVE');
@@ -207,12 +217,16 @@ export function WorldScene({ onReady }: WorldSceneProps) {
     }
     setSaveStatus('SAVING…');
     try {
-      const result = await autosaveStableState({
-        persistence: bridge,
-        state,
-        trigger,
-        expectedSaveGeneration: saveGeneration.current,
-      });
+      const result = trigger === 'manual'
+        ? await bridge.requestSave({
+          slotId: 'slot-001', expectedSaveGeneration: saveGeneration.current, trigger, state,
+        })
+        : await autosaveStableState({
+          persistence: bridge,
+          state,
+          trigger,
+          expectedSaveGeneration: saveGeneration.current,
+        });
       if (result.status === 'saved') {
         saveGeneration.current = result.saveGeneration;
         setSaveStatus(`SAVED GEN ${result.saveGeneration}`);
@@ -340,6 +354,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   }, []);
 
   const handlePrimary = useCallback((point: Readonly<{ x: number; y: number }>) => {
+    if (conversationNpcId) return;
     const tile = screenToTile(camera, point);
     if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
     const candidates: ClickCandidate[] = [{ id: `floor-${tileKey(tile)}`, kind: 'floor', tile }];
@@ -367,24 +382,28 @@ export function WorldScene({ onReady }: WorldSceneProps) {
       return;
     }
     if (resolved.tile) requestTile(resolved.tile);
-  }, [camera, map, npcTiles, requestTile]);
+  }, [camera, conversationNpcId, map, npcTiles, requestTile]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
+    if (conversationNpcId) return;
     setCamera((current) => panCamera(current, delta, VIEWPORT, MAP_PIXELS));
-  }, []);
+  }, [conversationNpcId]);
   const handleZoom = useCallback((direction: -1 | 1, anchor: Readonly<{ x: number; y: number }>) => {
+    if (conversationNpcId) return;
     setCamera((current) => {
       const index = ZOOM_LEVELS.indexOf(current.zoom);
       const nextIndex = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, index + direction));
       return zoomCameraAt(current, ZOOM_LEVELS[nextIndex] as ZoomLevel, anchor, VIEWPORT, MAP_PIXELS);
     });
-  }, []);
+  }, [conversationNpcId]);
   const center = useCallback(() => {
+    if (conversationNpcId) return;
     setCamera((current) => centerCameraOnTile(runtime.movement.player, current.zoom, VIEWPORT, MAP_PIXELS));
-  }, [runtime.movement.player]);
+  }, [conversationNpcId, runtime.movement.player]);
   const cancel = useCallback(() => {
+    if (conversationNpcId) return;
     setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
-  }, []);
+  }, [conversationNpcId]);
   const changeSpeed = useCallback((nextSpeed: 0 | 1 | 2) => {
     setRuntime((current) => ({ ...current, worldState: setWorldSpeed(current.worldState, nextSpeed) }));
   }, []);
@@ -398,6 +417,22 @@ export function WorldScene({ onReady }: WorldSceneProps) {
       };
     });
   }, []);
+  const applyConversationPause = useCallback((state: WorldState) => {
+    setRuntime((current) => ({
+      ...current,
+      movement: cancelMovement(current.movement),
+      worldState: state,
+    }));
+  }, []);
+  const applyConversationStableState = useCallback((state: WorldState, committed: boolean) => {
+    setRuntime((current) => ({
+      movement: cancelMovement(current.movement),
+      npcMovements: npcMovementState(state),
+      worldState: state,
+    }));
+    setWorldFeedback(committed ? 'CONVERSATION SAVED' : 'CONVERSATION CANCELLED');
+    if (committed) void requestAutosave(state, 'manual');
+  }, [requestAutosave]);
 
   useEffect(() => {
     const event = runtime.worldState.eventLedger.at(-1);
@@ -544,6 +579,12 @@ export function WorldScene({ onReady }: WorldSceneProps) {
           pointerEvents="none"
           style={styles.proofState}
         />
+        <View
+          accessibilityLabel={`Linda ${npcTiles.linda?.x ?? -1},${npcTiles.linda?.y ?? -1}; Resident ${npcTiles['generic-resident']?.x ?? -1},${npcTiles['generic-resident']?.y ?? -1}`}
+          nativeID="world-npc-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
         <View nativeID="world-ui-location" pointerEvents="none" style={styles.proofState}>
           <Text>{`${map.source.displayName} TILE ${runtime.movement.player.x},${runtime.movement.player.y}`}</Text>
         </View>
@@ -574,11 +615,33 @@ export function WorldScene({ onReady }: WorldSceneProps) {
             onSleep={sleep}
           />
         ) : null}
+        {stateNpcId(selected) && !conversationNpcId ? (
+          <View nativeID="world-ui-talk" style={styles.talkPlate}>
+            <Text style={styles.talkLabel}>{selected === 'linda' ? 'LINDA' : 'RESIDENT'} SELECTED</Text>
+            <Pressable
+              accessibilityLabel={`Talk to ${selected === 'linda' ? 'Linda' : 'Resident'}`}
+              onPress={() => setConversationNpcId(stateNpcId(selected))}
+              style={styles.talkButton}
+            >
+              <Text style={styles.talkText}>TALK</Text>
+            </Pressable>
+          </View>
+        ) : null}
         <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
           <Text style={styles.statusStrong}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
           <Text style={styles.status}>LEFT CLICK MOVE / MIDDLE DRAG PAN / WHEEL ZOOM / F CENTER / ESC STOP</Text>
         </View>
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
+        {conversationNpcId ? (
+          <ConversationPanel
+            npcId={conversationNpcId}
+            onDismiss={() => setConversationNpcId(undefined)}
+            onPausedState={applyConversationPause}
+            onStableState={applyConversationStableState}
+            port={conversationPort}
+            state={runtime.worldState}
+          />
+        ) : null}
       </View>
     </WorldInput>
   );
@@ -603,6 +666,10 @@ const styles = StyleSheet.create({
   statusStrong: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
   transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0 },
   transitionText: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 16 },
+  talkButton: { alignItems: 'center', backgroundColor: '#f1c65b', justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 8 },
+  talkLabel: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
+  talkPlate: { alignItems: 'center', backgroundColor: '#211d1aee', bottom: 42, flexDirection: 'row', gap: 10, padding: 6, position: 'absolute', right: 14 },
+  talkText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
   viewport: { height: VIEWPORT.height, width: VIEWPORT.width },
   zoomButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, height: 29, justifyContent: 'center', width: 36 },
   zoomButtonActive: { backgroundColor: '#f1c65b', borderColor: '#fff0c7' },

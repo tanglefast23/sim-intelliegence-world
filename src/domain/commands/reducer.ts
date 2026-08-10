@@ -340,5 +340,44 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         transfers,
       });
     }
+    case 'commit-conversation': {
+      const npc = state.npcs[command.npcId];
+      if (!npc || npc.tier !== 'full_ai') {
+        throw new Error('Conversation persistence requires a full-AI NPC.');
+      }
+      const knowledge = [...npc.knowledge];
+      for (const candidate of command.knowledge) {
+        const duplicate = knowledge.some((record) => (
+          record.factId === candidate.factId &&
+          record.source.type === candidate.source.type &&
+          record.source.sourceId === candidate.source.sourceId
+        ));
+        if (!duplicate) knowledge.push(candidate);
+      }
+      const unlockedInterestIds = [...new Set([...npc.unlockedInterestIds, ...command.unlockedInterestIds])].sort();
+      const unlockedIds = [...new Set([...npc.unlockedIds, ...command.unlockedIds])].sort();
+      const memories = [...npc.memories];
+      for (const candidate of command.memories) {
+        if (!memories.some((record) => record.subjectId === candidate.subjectId && record.summary === candidate.summary)) {
+          memories.push({ ...candidate, eventId: command.eventId });
+        }
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'conversation-committed',
+        conversationId: command.conversationId,
+        npcId: command.npcId,
+        knowledgeCount: knowledge.length - npc.knowledge.length,
+        interestCount: unlockedInterestIds.length - npc.unlockedInterestIds.length,
+        unlockCount: unlockedIds.length - npc.unlockedIds.length,
+        memoryCount: memories.length - npc.memories.length,
+      };
+      return commitEvent(state, event, {
+        npcs: {
+          ...state.npcs,
+          [npc.id]: { ...npc, knowledge, unlockedInterestIds, unlockedIds, memories },
+        },
+      });
+    }
   }
 }

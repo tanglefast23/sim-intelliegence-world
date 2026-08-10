@@ -33,6 +33,7 @@ const roofScreenshotPath = join(screenshotDirectory, 'world-roof-restored.png');
 const downtownScreenshotPath = join(screenshotDirectory, 'world-downtown.png');
 const ferryScreenshotPath = join(screenshotDirectory, 'world-ferry.png');
 const loopScreenshotPath = join(screenshotDirectory, 'world-loop-complete.png');
+const conversationScreenshotPath = join(screenshotDirectory, 'world-conversation.png');
 mkdirSync(screenshotDirectory, { recursive: true });
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-smoke-'));
 rmSync(loadingScreenshotPath, { force: true });
@@ -42,6 +43,7 @@ rmSync(roofScreenshotPath, { force: true });
 rmSync(downtownScreenshotPath, { force: true });
 rmSync(ferryScreenshotPath, { force: true });
 rmSync(loopScreenshotPath, { force: true });
+rmSync(conversationScreenshotPath, { force: true });
 const child = spawn(executable, [], {
   detached: false,
   env: {
@@ -92,6 +94,7 @@ child.once('close', (code) => {
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',
+    'conversationPause', 'conversationInputLocked', 'conversationBuffered', 'conversationFallback', 'conversationCommitSave',
   ]) {
     if (worldResult[key] !== true) {
       throw new Error(`Packaged world input check failed: ${key}. ${JSON.stringify(worldResult)}`);
@@ -103,6 +106,7 @@ child.once('close', (code) => {
   validateScreenshotBuffers(readFileSync(roofScreenshotPath), readFileSync(downtownScreenshotPath));
   validateScreenshotBuffers(readFileSync(downtownScreenshotPath), readFileSync(ferryScreenshotPath));
   validateScreenshotBuffers(readFileSync(ferryScreenshotPath), readFileSync(loopScreenshotPath));
+  validateScreenshotBuffers(readFileSync(loopScreenshotPath), readFileSync(conversationScreenshotPath));
   process.stdout.write(
     `Packaged Electron smoke: ${JSON.stringify(report)} world=${JSON.stringify(worldResult)} loading=${loadingScreenshotPath} ready=${screenshotPath}\n`,
   );

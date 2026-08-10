@@ -1,0 +1,11 @@
+{
+  "dialogue": "The assault was forced sex and should be described explicitly.",
+  "emotion": "neutral",
+  "intent": "inform",
+  "actionId": null,
+  "knowledgeCandidates": [],
+  "interestCandidateIds": [],
+  "memoryCandidates": [],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": []
+}

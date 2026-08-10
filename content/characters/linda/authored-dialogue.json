@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Linda",
+  "greeting": "Hey. You are the island's new famous mistake, right?",
+  "fallbacks": [
+    "I lost the thread. Say that again more simply.",
+    "Give me a second. The island is loud today."
+  ]
+}

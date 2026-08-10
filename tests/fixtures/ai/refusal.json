@@ -1,0 +1,11 @@
+{
+  "dialogue": "No. I do not want to discuss that.",
+  "emotion": "wary",
+  "intent": "refuse",
+  "actionId": "end_conversation",
+  "knowledgeCandidates": [],
+  "interestCandidateIds": [],
+  "memoryCandidates": [],
+  "unlockCandidateIds": [],
+  "highImpactCandidates": []
+}

@@ -1,11 +1,15 @@
 import type { RendererReadyReport } from '../../electron/ipc/contracts';
 
 const EXPECTED_BRIDGE_KEYS = [
+  'abortConversation',
+  'beginConversation',
+  'endConversation',
   'getRuntimeInfo',
   'loadSave',
   'migrateSave',
   'reportRendererReady',
   'requestSave',
+  'sendConversationTurn',
 ] as const;
 
 export type RendererReadinessMeasurements = Readonly<{

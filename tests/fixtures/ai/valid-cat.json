@@ -1,0 +1,23 @@
+{
+  "dialogue": "A cat? That may be the first sensible thing I have heard about you.",
+  "emotion": "amused",
+  "intent": "continue_conversation",
+  "actionId": "ask_follow_up",
+  "knowledgeCandidates": [{
+    "candidateType": "held_belief",
+    "factId": "protagonist_has_cat",
+    "assertedValue": true,
+    "sourceType": "player_message",
+    "sourceId": "turn-linda-1",
+    "evidenceText": "I have a cat"
+  }],
+  "interestCandidateIds": ["cats"],
+  "memoryCandidates": [{
+    "subjectId": "protagonist_cat",
+    "summary": "Linda heard the protagonist claim to have a cat.",
+    "importancePermille": 600,
+    "sourceId": "turn-linda-1"
+  }],
+  "unlockCandidateIds": ["cats_common_interest"],
+  "highImpactCandidates": []
+}

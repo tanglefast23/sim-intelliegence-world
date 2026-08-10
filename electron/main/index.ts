@@ -3,7 +3,11 @@ import { isAbsolute, join } from 'node:path';
 
 import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 
+import { ConversationService } from '../../src/ai/conversation/service';
+import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
+import { registerConversationIpc } from '../conversation/ipc';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
+import { BundledConversationInference } from '../model/conversation-inference';
 import { runPackagedModelSmoke } from '../model/model-smoke';
 import { registerPersistenceIpc } from '../persistence/ipc';
 import { SaveRepository, saveRootForUserData } from '../persistence/save-repository';
@@ -19,6 +23,10 @@ registerAppSchemePrivileges(protocol);
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 let smokeFinished = false;
+let conversationService: ConversationService | undefined;
+let conversationInference: BundledConversationInference | undefined;
+let quitCleanupStarted = false;
+let quitCleanupFinished = false;
 
 const smokeUserData = process.env.SI_WORLD_SMOKE_USER_DATA;
 if (smokeMode && smokeUserData) {
@@ -65,10 +73,23 @@ async function worldStateLabel(window: BrowserWindow): Promise<string> {
   ) as Promise<string>;
 }
 
+async function npcStateLabel(window: BrowserWindow): Promise<string> {
+  return window.webContents.executeJavaScript(
+    `document.querySelector('#world-npc-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as Promise<string>;
+}
+
 function parseWorldStateLabel(label: string): Readonly<{ mapName: string; x: number; y: number; minute: number; speed: number }> {
   const match = /^(.*); tile (\d+),(\d+); minute (\d+); speed (\d+)$/u.exec(label);
   if (!match) throw new Error(`Invalid world-state label: ${label}`);
   return { mapName: match[1]!, x: Number(match[2]), y: Number(match[3]), minute: Number(match[4]), speed: Number(match[5]) };
+}
+
+function parseLindaTile(label: string): Readonly<{ x: number; y: number }> {
+  const match = /^Linda (-?\d+),(-?\d+);/u.exec(label);
+  if (!match || Number(match[1]) < 0 || Number(match[2]) < 0) throw new Error(`Linda is not active: ${label}`);
+  return { x: Number(match[1]), y: Number(match[2]) };
 }
 
 async function surfaceBounds(window: BrowserWindow): Promise<SurfaceBounds> {
@@ -126,6 +147,20 @@ async function clickWorldTile(window: BrowserWindow, tile: Readonly<{ x: number;
     throw new Error(`Tile ${tile.x},${tile.y} is outside the visible camera.`);
   }
   sendMouseClick(window, x, y);
+}
+
+async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x: number; y: number }>): Promise<void> {
+  const camera = parseCameraLabel(await cameraLabel(window));
+  await window.webContents.executeJavaScript(`(() => {
+    const element = document.querySelector('#world-input-surface');
+    if (!(element instanceof HTMLElement)) throw new Error('World input surface is missing.');
+    const bounds = element.getBoundingClientRect();
+    const clientX = bounds.left + (${tile.x} * 32 + 16 - ${camera.x}) * ${camera.zoom};
+    const clientY = bounds.top + (${tile.y} * 32 + 16 - ${camera.y}) * ${camera.zoom};
+    element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX, clientY, pointerId: 91 }));
+    element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, button: 0, clientX, clientY, pointerId: 91 }));
+  })()`, true);
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
 async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): Promise<void> {
@@ -287,10 +322,59 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
   const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 5');
   await captureSmokeScreenshot(window, join(directory, 'world-loop-complete.png'));
+
+  await clickZoomButton(window, 1);
+  await panWorld(window, 0, 500);
+  const lindaTile = parseLindaTile(await npcStateLabel(window));
+  await dispatchWorldTileClick(window, lindaTile);
+  await clickAriaButton(window, 'Talk to Linda');
+  const conversationBefore = parseWorldStateLabel(await worldStateLabel(window));
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));
+  const conversationAfter = parseWorldStateLabel(await worldStateLabel(window));
+  const conversationPause = conversationBefore.minute === conversationAfter.minute &&
+    (await rendererText(window, '#world-ui-conversation-panel')).includes('TIME PAUSED');
+  const cameraBeforeConversationInput = await cameraLabel(window);
+  const locationBeforeConversationInput = await rendererText(window, '#world-ui-location');
+  await window.webContents.executeJavaScript(`(() => {
+    const overlay = document.querySelector('#world-ui-conversation-overlay');
+    if (!(overlay instanceof HTMLElement)) throw new Error('Conversation overlay is missing.');
+    const bounds = overlay.getBoundingClientRect();
+    const clientX = bounds.left + 20;
+    const clientY = bounds.top + 20;
+    overlay.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX, clientY, pointerId: 92 }));
+    overlay.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 1, clientX, clientY, pointerId: 93 }));
+    overlay.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, button: 1, clientX: clientX + 100, clientY, pointerId: 93 }));
+    overlay.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, button: 1, clientX: clientX + 100, clientY, pointerId: 93 }));
+    overlay.dispatchEvent(new WheelEvent('wheel', { bubbles: true, cancelable: true, clientX, clientY, deltaY: -100 }));
+  })()`, true);
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 200));
+  const conversationInputLocked = cameraBeforeConversationInput === await cameraLabel(window) &&
+    locationBeforeConversationInput === await rendererText(window, '#world-ui-location');
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[aria-label="Conversation message"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, 'I have a cat');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`, true);
+  await clickAriaButton(window, 'Send conversation message');
+  const conversationBuffered = Boolean(await window.webContents.executeJavaScript(
+    `document.querySelector('[aria-label="NPC is thinking"]')`, true,
+  ));
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_000));
+  const transcript = await rendererText(window, '#conversation-transcript');
+  const conversationFallback = transcript.includes('I lost the thread') && !transcript.includes('jsonSchema');
+  await captureSmokeScreenshot(window, join(directory, 'world-conversation.png'));
+  await clickAriaButton(window, 'End conversation');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 350));
+  const conversationCommitSave = !(await window.webContents.executeJavaScript(
+    `Boolean(document.querySelector('#world-ui-conversation-panel'))`, true,
+  )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 6');
   return {
     zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
+    conversationPause, conversationInputLocked, conversationBuffered, conversationFallback, conversationCommitSave,
   };
 }
 
@@ -356,6 +440,14 @@ async function createMainWindow(): Promise<void> {
       });
     },
   );
+  const contentRoot = app.isPackaged ? join(process.resourcesPath, 'content') : join(app.getAppPath(), 'content');
+  conversationInference = new BundledConversationInference(app, process.resourcesPath);
+  conversationService = new ConversationService(
+    conversationInference,
+    new FileCharacterWritingStore(contentRoot),
+  );
+  registerConversationIpc(ipcMain, conversationService);
+  window.webContents.once('destroyed', () => conversationService?.abortAll());
   const saveRepository = new SaveRepository(saveRootForUserData(app.getPath('userData')));
   registerPersistenceIpc(ipcMain, {
     loadSave: (slotId) => saveRepository.load(slotId),
@@ -403,6 +495,18 @@ app
   });
 
 app.on('window-all-closed', () => app.quit());
+
+app.on('before-quit', (event) => {
+  if (!conversationInference || quitCleanupFinished) return;
+  event.preventDefault();
+  if (quitCleanupStarted) return;
+  quitCleanupStarted = true;
+  conversationService?.abortAll();
+  void conversationInference.stop().finally(() => {
+    quitCleanupFinished = true;
+    app.quit();
+  });
+});
 
 if (smokeMode) {
   setTimeout(() => {

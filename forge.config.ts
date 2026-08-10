@@ -18,7 +18,7 @@ const config: ForgeConfig = {
     appBundleId: 'com.tanglefast.si-world',
     asar: true,
     executableName: 'si-world',
-    extraResource: modelResourceRoot ? [modelResourceRoot] : [],
+    extraResource: ['content', ...(modelResourceRoot ? [modelResourceRoot] : [])],
     name: packagedApplicationName,
     overwrite: true,
     ignore: [

@@ -1,0 +1,18 @@
+{
+  "dialogue": "I believe your cat claim, even though the world record can disagree.",
+  "emotion": "wary",
+  "intent": "inform",
+  "actionId": "ask_follow_up",
+  "knowledgeCandidates": [{
+    "candidateType": "held_belief",
+    "factId": "protagonist_has_cat",
+    "assertedValue": true,
+    "sourceType": "player_message",
+    "sourceId": "turn-linda-1",
+    "evidenceText": "I have a cat"
+  }],
+  "interestCandidateIds": ["cats"],
+  "memoryCandidates": [],
+  "unlockCandidateIds": ["cats_common_interest"],
+  "highImpactCandidates": []
+}

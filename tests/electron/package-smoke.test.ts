@@ -12,7 +12,10 @@ describe('packaged Electron smoke evidence', () => {
       `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
         appUrl: 'app://game/',
         assetsLoaded: true,
-        bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
+        bridgeKeys: [
+          'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
+          'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+        ],
         canvasKitReady: true,
         nodeAccessBlocked: true,
       })}`,
@@ -34,7 +37,10 @@ describe('packaged Electron smoke evidence', () => {
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'app://game/',
           assetsLoaded: true,
-          bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
+          bridgeKeys: [
+            'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
+            'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+          ],
           canvasKitReady: false,
           nodeAccessBlocked: true,
         })}`,
@@ -45,7 +51,10 @@ describe('packaged Electron smoke evidence', () => {
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'https://example.com/',
           assetsLoaded: true,
-          bridgeKeys: ['getRuntimeInfo', 'loadSave', 'migrateSave', 'reportRendererReady', 'requestSave'],
+          bridgeKeys: [
+            'abortConversation', 'beginConversation', 'endConversation', 'getRuntimeInfo', 'loadSave',
+            'migrateSave', 'reportRendererReady', 'requestSave', 'sendConversationTurn',
+          ],
           canvasKitReady: true,
           nodeAccessBlocked: true,
         })}`,
