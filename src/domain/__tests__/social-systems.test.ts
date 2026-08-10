@@ -5,6 +5,7 @@ import { evaluateFactionAccess } from '../factions/faction';
 import { reduceCommand } from '../commands/reducer';
 import { DomainCommandSchema } from '../commands/types';
 import { createInitialState } from '../state/initial-state';
+import { GENERATED_LAYOUT } from '../state/generated-layout';
 import { WorldStateSchema, type WorldState } from '../state/schema';
 import { simulateWorldInterval } from '../../world/schedules/simulation';
 
@@ -306,6 +307,10 @@ describe('Phase 10 social systems', () => {
       state: beforeDeparture, toAbsoluteMinute: 570, toSubMinuteMilliseconds: 0, awake: true, frameMovement: false,
     }).state;
     expect(departed.transfers['transfer-invitation-invitation_timed']?.status).toBe('in_transit');
+    expect(departed.transfers['transfer-invitation-invitation_timed']).toEqual(expect.objectContaining({
+      destinationGoalTileX: GENERATED_LAYOUT.homeVisitTile.x,
+      destinationGoalTileY: GENERATED_LAYOUT.homeVisitTile.y,
+    }));
     expect(departed.npcs.linda?.presence).toEqual({ kind: 'in_transit', transferId: 'transfer-invitation-invitation_timed' });
 
     const arrived = simulateWorldInterval({
@@ -575,7 +580,8 @@ describe('Phase 10 social systems', () => {
       state: prepared, toAbsoluteMinute: 600, toSubMinuteMilliseconds: 0, awake: true, frameMovement: true,
     }).state;
     expect(started.npcs.linda?.scheduleGoal).toEqual(expect.objectContaining({
-      activityId: 'home_visit', sourceInvitationId: 'invitation_local', tileX: 18, tileY: 18,
+      activityId: 'home_visit', sourceInvitationId: 'invitation_local',
+      tileX: GENERATED_LAYOUT.homeVisitTile.x, tileY: GENERATED_LAYOUT.homeVisitTile.y,
     }));
 
     const completed = simulateWorldInterval({

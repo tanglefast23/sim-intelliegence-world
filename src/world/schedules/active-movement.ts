@@ -1,7 +1,8 @@
 import { reduceCommand } from '../../domain/commands/reducer';
 import { DomainCommandSchema } from '../../domain/commands/types';
 import type { WorldState } from '../../domain/state/schema';
-import type { CompiledMap, TilePoint } from '../maps/schema';
+import type { CompiledMapV2 } from '../maps/compiled-v2';
+import type { TilePoint } from '../maps/schema';
 import { createMovementState, requestMovement, stepMovement, type MovementState } from '../pathfinding/movement';
 
 export type NpcMovementResult = Readonly<{ movement: MovementState; worldState: WorldState }>;
@@ -23,7 +24,7 @@ export function movementForNpc(state: WorldState, npcId: string): MovementState 
 }
 
 export function advanceActiveNpcMovement(
-  map: CompiledMap,
+  map: CompiledMapV2,
   movement: MovementState,
   state: WorldState,
   npcId: string,
@@ -61,7 +62,7 @@ export function advanceActiveNpcMovement(
     candidate.npcId === npcId && candidate.status === 'approaching_exit'
   ));
   const transferPortal = transfer
-    ? map.source.portals.find(({ id }) => id === transfer.edgePortalId)
+    ? map.portalById.get(transfer.edgePortalId)
     : undefined;
   const ownsTransferExit = transfer && transferPortal && goal.activityId === 'travel' &&
     goal.mapId === transfer.originMapId && goal.tileX === transferPortal.tile.x && goal.tileY === transferPortal.tile.y;

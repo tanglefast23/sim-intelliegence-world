@@ -41,6 +41,7 @@ const worldZoomPaths = [1, 2, 3].map((zoom) => join(screenshotDirectory, `world-
 const roofScreenshotPath = join(screenshotDirectory, 'world-roof-restored.png');
 const downtownScreenshotPath = join(screenshotDirectory, 'world-downtown.png');
 const ferryScreenshotPath = join(screenshotDirectory, 'world-ferry.png');
+const commercialScreenshotPath = join(screenshotDirectory, 'world-commercial.png');
 const loopScreenshotPath = join(screenshotDirectory, 'world-loop-complete.png');
 const conversationScreenshotPath = join(screenshotDirectory, 'world-conversation.png');
 const socialScreenshotPath = join(screenshotDirectory, 'world-social.png');
@@ -57,6 +58,7 @@ worldZoomPaths.forEach((path) => rmSync(path, { force: true }));
 rmSync(roofScreenshotPath, { force: true });
 rmSync(downtownScreenshotPath, { force: true });
 rmSync(ferryScreenshotPath, { force: true });
+rmSync(commercialScreenshotPath, { force: true });
 rmSync(loopScreenshotPath, { force: true });
 rmSync(conversationScreenshotPath, { force: true });
 rmSync(socialScreenshotPath, { force: true });
@@ -164,7 +166,8 @@ child.once('close', (code) => {
   }
   validateScreenshotBuffers(readFileSync(roofScreenshotPath), readFileSync(downtownScreenshotPath));
   validateScreenshotBuffers(readFileSync(downtownScreenshotPath), readFileSync(ferryScreenshotPath));
-  validateScreenshotBuffers(readFileSync(ferryScreenshotPath), readFileSync(loopScreenshotPath));
+  validateScreenshotBuffers(readFileSync(ferryScreenshotPath), readFileSync(commercialScreenshotPath));
+  validateScreenshotBuffers(readFileSync(commercialScreenshotPath), readFileSync(loopScreenshotPath));
   validateScreenshotBuffers(readFileSync(loopScreenshotPath), readFileSync(conversationScreenshotPath));
   validateScreenshotBuffers(readFileSync(conversationScreenshotPath), readFileSync(socialScreenshotPath));
   validateScreenshotBuffers(readFileSync(socialScreenshotPath), readFileSync(journalScreenshotPath));

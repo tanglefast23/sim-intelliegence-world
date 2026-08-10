@@ -1,17 +1,29 @@
 import { reduceCommand } from '../../domain/commands/reducer';
 import { DomainCommandSchema } from '../../domain/commands/types';
 import type { WorldState } from '../../domain/state/schema';
-import { tileKey, type CompiledMap } from '../../world/maps/schema';
-import type { MapId, WorldMapCatalog } from '../../world/maps/catalog';
+import type { CompiledMapV2 } from '../../world/maps/compiled-v2';
+import { tileKey } from '../../world/maps/schema';
+import type { MapId, WorldMapV2Catalog } from '../../world/maps/catalog';
 
-export type MapLoadPort = (mapId: MapId) => Promise<CompiledMap>;
+export type MapLoadPort = (mapId: MapId) => Promise<CompiledMapV2>;
 
 export type TransitionResult = Readonly<{
   completed: boolean;
   state: WorldState;
-  map: CompiledMap;
+  map: CompiledMapV2;
   feedback?: string;
 }>;
+
+export function canStartPortalTransition(input: Readonly<{
+  arrivalLocked: boolean;
+  transitioning: boolean;
+  movementStatus: string;
+  conversationOpen: boolean;
+  panelOpen: boolean;
+}>): boolean {
+  return !input.arrivalLocked && !input.transitioning && input.movementStatus !== 'moving' &&
+    !input.conversationOpen && !input.panelOpen;
+}
 
 function idPart(value: string): string {
   return value.replaceAll('_', '-');
@@ -60,7 +72,7 @@ function transitionCommand(
 }
 
 function chooseArrivalTile(
-  destination: CompiledMap,
+  destination: CompiledMapV2,
   entranceTile: Readonly<{ x: number; y: number }>,
   destinationBlockers: ReadonlySet<string>,
 ): Readonly<{ tile: Readonly<{ x: number; y: number }>; staged: boolean }> {
@@ -74,7 +86,7 @@ function chooseArrivalTile(
 
 export async function transitionNeighborhood(input: Readonly<{
   state: WorldState;
-  catalog: WorldMapCatalog;
+  catalog: WorldMapV2Catalog;
   sourcePortalId: string;
   loadMap: MapLoadPort;
   destinationBlockers?: ReadonlySet<string>;
@@ -83,7 +95,7 @@ export async function transitionNeighborhood(input: Readonly<{
   const originMapId = input.state.protagonist.worldPosition.mapId as MapId;
   const origin = input.catalog[originMapId];
   if (!origin) throw new Error(`The active map ${originMapId} is not in the world catalog.`);
-  const sourcePortal = origin.source.portals.find(({ id }) => id === input.sourcePortalId);
+  const sourcePortal = origin.portalById.get(input.sourcePortalId);
   if (!sourcePortal) throw new Error(`The active map has no portal ${input.sourcePortalId}.`);
   const position = input.state.protagonist.worldPosition;
   if (position.tileX !== sourcePortal.tile.x || position.tileY !== sourcePortal.tile.y) {
@@ -100,7 +112,7 @@ export async function transitionNeighborhood(input: Readonly<{
     if (loaded.source.id !== destinationMapId) {
       throw new Error(`Loaded map ${loaded.source.id} does not match ${destinationMapId}.`);
     }
-    const entrance = loaded.source.portals.find(({ id }) => id === sourcePortal.destinationEntranceId);
+    const entrance = loaded.portalById.get(sourcePortal.destinationEntranceId);
     if (
       !entrance ||
       entrance.destinationMapId !== originMapId ||

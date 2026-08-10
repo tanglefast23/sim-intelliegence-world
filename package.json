@@ -14,7 +14,7 @@
     "start": "expo start",
     "web": "expo start --web",
     "content:build": "tsx scripts/content/build-production-content.ts",
-    "content:check": "npm run content:build && git diff --exit-code -- content src/ai/registry/generated-browser-writing.ts",
+    "content:check": "npm run content:build && git diff --exit-code -- content tests/fixtures/saves/valid-v5-envelope.json tests/fixtures/saves/stale-v6-envelope.json src/ai/registry/generated-browser-writing.ts src/domain/state/generated-layout.ts src/world/transfers/generated-routes.ts",
     "validate:content": "tsx scripts/content/validate-content.ts",
     "check:boundaries": "tsx scripts/verification/check-import-boundaries.ts",
     "typecheck": "tsc --noEmit",

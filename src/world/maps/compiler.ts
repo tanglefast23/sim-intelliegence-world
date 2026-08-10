@@ -350,7 +350,6 @@ function validateDoorSides(
     if (offsets.length === 0) throw new Error(`Wall opening ${opening.id} has no defined wall axis.`);
     const sides = offsets.map((offset) => ({ x: opening.tile.x + offset.x, y: opening.tile.y + offset.y }));
     const traversalBlockers = new Set(blockedKeys);
-    traversalBlockers.delete(tileKey(opening.tile));
     for (const side of sides) {
       if (side.x < 0 || side.y < 0 || side.x >= map.width || side.y >= map.height || traversalBlockers.has(tileKey(side))) {
         throw new Error(`Wall opening ${opening.id} has no walkable tile on one required side.`);
@@ -445,7 +444,6 @@ function validateBuildings(input: Readonly<{
     }
 
     const traversalBlockers = new Set(blockedKeys);
-    entrances.forEach(({ tile }) => traversalBlockers.delete(tileKey(tile)));
     if (!hasRoute(map, traversalBlockers, map.stagingTiles, interior.filter((tile) => !traversalBlockers.has(tileKey(tile))))) {
       throw new Error(`Building ${building.id} has no reachable entrance.`);
     }
@@ -614,4 +612,32 @@ export function selectInteractionApproach(
   });
   candidates.sort((left, right) => left.pathLength - right.pathLength || tileOrder(left.tile, right.tile));
   return candidates[0]?.tile;
+}
+
+export function selectOwnerInteractionApproach(
+  map: CompiledMapV2,
+  ownerId: string,
+  start: TilePoint,
+  dynamicBlockers: ReadonlySet<string> = new Set(),
+): Readonly<{ interactionId: string; tile: TilePoint }> | undefined {
+  const blockers = new Set([...map.blockedKeys, ...dynamicBlockers]);
+  blockers.delete(tileKey(start));
+  const candidates = [...map.interactionById.values()]
+    .filter((interaction) => interaction.ownerId === ownerId)
+    .flatMap((interaction) => interaction.approachTiles.flatMap((tile) => {
+      const path = findCardinalPath({
+        width: map.source.width,
+        height: map.source.height,
+        start,
+        target: tile,
+        blockedKeys: blockers,
+      });
+      return path.status === 'found'
+        ? [{ interactionId: interaction.id, tile, pathLength: path.path.length }]
+        : [];
+    }));
+  candidates.sort((left, right) => left.pathLength - right.pathLength ||
+    compareAscii(left.interactionId, right.interactionId) || tileOrder(left.tile, right.tile));
+  const selected = candidates[0];
+  return selected ? { interactionId: selected.interactionId, tile: selected.tile } : undefined;
 }

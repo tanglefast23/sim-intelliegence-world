@@ -5,6 +5,7 @@ import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 
 import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
+import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { registerConversationIpc } from '../conversation/ipc';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
 import { BundledConversationInference } from '../model/conversation-inference';
@@ -464,10 +465,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickZoomButton(window, 2);
   let bounds = await surfaceBounds(window);
   const center = { x: bounds.x + 560, y: bounds.y + 310 };
-  sendMouseClick(window, center.x + 3 * 32 * 2, center.y);
-  await waitForWorldTile(window, { x: 21, y: 18 }, 10_000);
+  await dispatchWorldTileClick(window, { x: 19, y: 20 });
+  await waitForWorldTile(window, { x: 19, y: 20 }, 10_000);
   const movedText = await rendererText(window, '#world-ui-location');
-  const movement = movedText.includes('TILE 21,18');
+  const movement = movedText.includes('TILE 19,20');
 
   const beforePan = await cameraLabel(window);
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(center.x), y: Math.round(center.y), button: 'middle', clickCount: 1 });
@@ -486,7 +487,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'F');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
   const afterCenter = await cameraLabel(window);
-  const centerKey = afterCenter !== afterPan && afterCenter === 'World camera 408,437 at 2x';
+  const centerKey = afterCenter !== afterPan && afterCenter === 'World camera 344,501 at 2x';
 
   bounds = await surfaceBounds(window);
   const wheelX = Math.round(bounds.x + 560);
@@ -514,7 +515,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'Escape');
   const cancelStart = await rendererText(window, '#world-ui-location');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 350));
-  const cancelKey = (await rendererText(window, '#world-ui-location')) === cancelStart && cancelStart.includes('TILE 21,18');
+  const cancelKey = (await rendererText(window, '#world-ui-location')) === cancelStart && cancelStart.includes('TILE 19,20');
 
   const beforeUi = await rendererText(window, '#world-ui-location');
   await clickZoomButton(window, 1);
@@ -607,6 +608,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await dispatchWorldTileClick(window, { x: 0, y: 24 });
   await waitForWorldLocation(window, 'Palm Exchange', { x: 63, y: 24 });
   const commercial = parseWorldStateLabel(await worldStateLabel(window));
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-commercial.png'), [previousWorldBuffer],
+  );
 
   await panWorld(window, 500, 500);
   await dispatchWorldTileClick(window, { x: 32, y: 0 });
@@ -820,7 +824,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
       policeAttention?: string;
     }>;
   }>;
-  const saveReload = loaded.status === 'loaded' && loaded.saveGeneration === 14 &&
+  const saveReload = loaded.status === 'unchanged' && loaded.saveGeneration === 14 &&
     loaded.state?.protagonist?.id === 'protagonist' && loaded.state.protagonist.displayName === 'MISTAKE' &&
     loaded.state.quests?.linda_boyfriend_check?.status === 'resolved' && loaded.state.policeAttention === 'arrest-on-sight';
   progress('complete');
@@ -914,7 +918,10 @@ async function createMainWindow(): Promise<void> {
   );
   registerConversationIpc(ipcMain, conversationService);
   window.webContents.once('destroyed', () => conversationService?.abortAll());
-  const saveRepository = new SaveRepository(saveRootForUserData(app.getPath('userData')));
+  const saveRepository = new SaveRepository(
+    saveRootForUserData(app.getPath('userData')),
+    WORLD_MAP_CATALOG,
+  );
   registerPersistenceIpc(ipcMain, {
     loadSave: (slotId) => saveRepository.load(slotId),
     migrateSave: (request) => saveRepository.migrate(request),

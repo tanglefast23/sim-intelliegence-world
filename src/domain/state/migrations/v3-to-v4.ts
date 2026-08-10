@@ -50,6 +50,8 @@ export const LegacyStateV3Schema = WorldStateBaseSchema.omit({
   relationships: true,
   journal: true,
   invitations: true,
+  layoutRevisions: true,
+  layoutMigrationEvidence: true,
 }).extend({
   schemaVersion: z.literal(3),
   relationships: LegacyStateV4Schema.shape.relationships,

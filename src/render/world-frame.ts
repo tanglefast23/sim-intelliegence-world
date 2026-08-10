@@ -1,6 +1,6 @@
 import type { WorldState } from '../domain/state/schema';
-import type { CompiledMap, TilePoint } from '../world/maps/schema';
-import { roofGroupAt } from '../world/maps/schema';
+import { roofGroupAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
+import { pointsInRect, type TilePoint } from '../world/maps/schema';
 import type { MovementDirection } from '../world/pathfinding/movement';
 import { movementPresentation, type CharacterId } from './atlas';
 import { compareDepth, WORLD_DEPTH } from './depth';
@@ -55,7 +55,7 @@ export function compareWorldLayerTiles(
 }
 
 export function buildWorldFrameState(
-  map: CompiledMap,
+  map: CompiledMapV2,
   state: WorldState,
   actors: WorldActors,
   direction: MovementDirection,
@@ -91,14 +91,15 @@ export function buildWorldFrameState(
       worldY: tile.y * TILE_SIZE + 2 + presentation.bounceY,
     };
   }).sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.character, left, right));
-  const hiddenRoofGroupId = roofGroupAt(map, playerTile);
+  const hiddenRoofGroupId = roofGroupAtV2(map, playerTile);
   const visibleRoofGroupIds = map.source.roofGroups
     .filter(({ id }) => id !== hiddenRoofGroupId)
     .map(({ id }) => id);
 
   const depthItems = [
     ...map.source.ground.regions.map(({ id, y }) => ({ id: `floor-${id}`, layer: WORLD_DEPTH.floor, tileY: y })),
-    ...map.source.props.map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.prop, tileY: tile.y })),
+    ...[...map.objectPartById.values()].map(({ id, depthAnchor }) => ({ id, layer: WORLD_DEPTH.prop, tileY: depthAnchor.y })),
+    ...[...map.doorById.values()].map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.prop, tileY: tile.y })),
     ...characters.map(({ id, tile }) => ({ id: `shadow-${id}`, layer: WORLD_DEPTH.shadow, tileY: tile.y })),
     ...characters.map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.character, tileY: tile.y })),
     ...map.source.effects.map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.effect, tileY: tile.y })),
@@ -106,7 +107,8 @@ export function buildWorldFrameState(
     ...visibleRoofGroupIds.map((id) => ({
       id,
       layer: WORLD_DEPTH.roof,
-      tileY: map.source.roofGroups.find((roof) => roof.id === id)?.bounds.y ?? 0,
+      tileY: Math.min(...(map.source.roofGroups.find((roof) => roof.id === id)?.cells
+        .flatMap(pointsInRect).map(({ y }) => y) ?? [0])),
     })),
   ].sort(compareDepth);
   const signature = JSON.stringify({

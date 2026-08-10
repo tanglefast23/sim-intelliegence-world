@@ -13,10 +13,17 @@ import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
 import { SaveRequestSchema, type SaveTrigger } from '../../src/application/effects/PersistencePort';
+import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { createInitialState } from '../../src/domain/state/initial-state';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
 import { WorldStateSchema, type WorldState } from '../../src/domain/state/schema';
-import { SaveManifestSchema, parseSaveEnvelope } from '../../electron/persistence/save-format';
+import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
+import {
+  SaveManifestSchema,
+  createSaveEnvelope,
+  parseSaveEnvelope,
+  parseSupportedSaveEnvelope,
+} from '../../electron/persistence/save-format';
 import {
   SaveRepository,
   saveRootForUserData,
@@ -87,12 +94,12 @@ describe('recoverable save repository', () => {
 
     expect(saved).toEqual(expect.objectContaining({ status: 'saved', saveGeneration: 1 }));
     expect(loaded).toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       saveGeneration: 1,
       source: 'main',
       state,
     }));
-    if (loaded.status !== 'loaded') throw new Error('Expected a loaded save.');
+    if (loaded.status !== 'unchanged') throw new Error('Expected an unchanged save.');
     if (saved.status !== 'saved') throw new Error('Expected a saved result.');
     expect(loaded.checksum).toBe(saved.checksum);
     expect(saved.maintenanceWarnings).toEqual([]);
@@ -172,8 +179,8 @@ describe('recoverable save repository', () => {
     armed = true;
     await expect(repository.save(request(stateAtRevision(2), 1))).rejects.toThrow(`Injected ${faultStage}`);
     const loaded = await repository.load('slot-001');
-    expect(loaded.status).toBe('loaded');
-    if (loaded.status !== 'loaded') throw new Error('Expected recovery after injected fault.');
+    expect(loaded.status).toBe('unchanged');
+    if (loaded.status !== 'unchanged') throw new Error('Expected recovery after injected fault.');
     expect(loaded.saveGeneration).toBeGreaterThanOrEqual(1);
     expect(loaded.saveGeneration).toBeLessThanOrEqual(2);
     expect([1, 2]).toContain(loaded.state.revision);
@@ -200,7 +207,7 @@ describe('recoverable save repository', () => {
       }),
     );
     await expect(repository.load('slot-001')).resolves.toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       saveGeneration: 2,
       state: expect.objectContaining({ revision: 2 }),
     }));
@@ -221,8 +228,8 @@ describe('recoverable save repository', () => {
     expect(death.signal === 'SIGKILL' || death.code !== 0).toBe(true);
 
     const loaded = await new SaveRepository(root).load('slot-001');
-    expect(loaded.status).toBe('loaded');
-    if (loaded.status !== 'loaded') throw new Error('Forced death lost every valid generation.');
+    expect(loaded.status).toBe('unchanged');
+    if (loaded.status !== 'unchanged') throw new Error('Forced death lost every valid generation.');
     expect(loaded.saveGeneration).toBeGreaterThanOrEqual(1);
     expect(loaded.saveGeneration).toBeLessThanOrEqual(2);
     expect([1, 2]).toContain(loaded.state.revision);
@@ -248,7 +255,7 @@ describe('recoverable save repository', () => {
     await expect(repository.save(request(stateAtRevision(2), 1))).rejects.toMatchObject({ code });
     expect(await readFile(mainPath, 'utf8')).toBe(before);
     await expect(repository.load('slot-001')).resolves.toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       saveGeneration: 1,
     }));
   });
@@ -266,10 +273,10 @@ describe('recoverable save repository', () => {
 
     const loaded = await repository.load('slot-001');
     expect(loaded).toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       saveGeneration: 1,
       source: 'backup',
-      invalidCandidateCount: 1,
+      corruptCandidateCount: 1,
     }));
     expect(await readFile(mainPath, 'utf8')).toBe(corruptBytes);
   });
@@ -286,7 +293,7 @@ describe('recoverable save repository', () => {
 
     const repository = new SaveRepository(root);
     await expect(repository.load('slot-001')).resolves.toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       saveGeneration: 2,
       source: 'temporary',
     }));
@@ -307,13 +314,13 @@ describe('recoverable save repository', () => {
     const backupPath = join(root, 'save-slots', 'slot-001', 'state.json.bak');
     await utimes(backupPath, new Date('2099-01-01T00:00:00Z'), new Date('2099-01-01T00:00:00Z'));
     await expect(repository.load('slot-001')).resolves.toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       saveGeneration: 2,
       state: expect.objectContaining({ revision: 2 }),
     }));
   });
 
-  test('an unrecoverable unknown file is reported, preserved, and not overwritten', async () => {
+  test('an incompatible unknown file is reported, preserved, and not overwritten', async () => {
     const root = await temporaryRoot();
     const slotPath = join(root, 'save-slots', 'slot-001');
     await mkdir(slotPath, { recursive: true });
@@ -323,11 +330,12 @@ describe('recoverable save repository', () => {
     const repository = new SaveRepository(root);
 
     await expect(repository.load('slot-001')).resolves.toEqual({
-      status: 'unrecoverable',
+      status: 'incompatible',
       slotId: 'slot-001',
-      invalidCandidateCount: 1,
+      incompatibleCandidateCount: 1,
+      corruptCandidateCount: 0,
     });
-    await expect(repository.save(request(stateAtRevision(1), null))).rejects.toThrow('corrupt candidates were preserved');
+    await expect(repository.save(request(stateAtRevision(1), null))).rejects.toThrow('existing candidates were preserved');
     expect(await readFile(mainPath, 'utf8')).toBe(unknown);
   });
 
@@ -339,13 +347,116 @@ describe('recoverable save repository', () => {
 });
 
 describe('save migrations and state invariants', () => {
+  test('a real v5 envelope migrates through layout recovery and keeps its source as backup', async () => {
+    const root = await temporaryRoot();
+    const slotPath = join(root, 'save-slots', 'slot-001');
+    await mkdir(slotPath, { recursive: true });
+    const fixtureBytes = readFileSync(resolve('tests/fixtures/saves/valid-v5-envelope.json'), 'utf8');
+    await writeFile(join(slotPath, 'state.json'), fixtureBytes, 'utf8');
+
+    const loaded = await new SaveRepository(root, WORLD_MAP_CATALOG).load('slot-001');
+    expect(loaded).toEqual(expect.objectContaining({
+      status: 'migrated',
+      saveGeneration: 8,
+      migratedFromSchemaVersion: 5,
+      migratedMapIds: [
+        'northeast_downtown',
+        'northwest_residential',
+        'southeast_docks',
+        'southwest_commercial',
+      ],
+      state: expect.objectContaining({ schemaVersion: 6 }),
+    }));
+    const backupBytes = await readFile(join(slotPath, 'state.json.bak'), 'utf8');
+    expect(backupBytes).toBe(fixtureBytes);
+    expect(parseSupportedSaveEnvelope(JSON.parse(backupBytes) as unknown).state.schemaVersion).toBe(5);
+    expect(parseSaveEnvelope(JSON.parse(await readFile(join(slotPath, 'state.json'), 'utf8')) as unknown).saveGeneration).toBe(8);
+  });
+
+  test('a real stale v6 envelope runs compiled-catalog recovery before it is returned', async () => {
+    const root = await temporaryRoot();
+    const slotPath = join(root, 'save-slots', 'slot-001');
+    await mkdir(slotPath, { recursive: true });
+    const fixtureBytes = readFileSync(resolve('tests/fixtures/saves/stale-v6-envelope.json'), 'utf8');
+    await writeFile(join(slotPath, 'state.json'), fixtureBytes, 'utf8');
+
+    const loaded = await new SaveRepository(root, WORLD_MAP_CATALOG).load('slot-001');
+    expect(loaded).toEqual(expect.objectContaining({
+      status: 'migrated',
+      saveGeneration: 12,
+      migratedFromSchemaVersion: 6,
+      migratedMapIds: [
+        'northeast_downtown',
+        'northwest_residential',
+        'southeast_docks',
+        'southwest_commercial',
+      ],
+    }));
+    if (loaded.status !== 'migrated') throw new Error('Expected stale layout migration.');
+    expect(loaded.state.layoutRevisions).toEqual(createInitialState().layoutRevisions);
+    expect(await readFile(join(slotPath, 'state.json.bak'), 'utf8')).toBe(fixtureBytes);
+  });
+
+  test('a failed first post-migration write preserves the legacy generation byte-for-byte', async () => {
+    const root = await temporaryRoot();
+    const slotPath = join(root, 'save-slots', 'slot-001');
+    await mkdir(slotPath, { recursive: true });
+    const fixtureBytes = readFileSync(resolve('tests/fixtures/saves/valid-v5-envelope.json'), 'utf8');
+    const mainPath = join(slotPath, 'state.json');
+    await writeFile(mainPath, fixtureBytes, 'utf8');
+    const repository = new SaveRepository(root, WORLD_MAP_CATALOG, (stage) => {
+      if (stage === 'after-validation') throw new Error('migration fault');
+    });
+
+    await expect(repository.load('slot-001')).rejects.toThrow('migration fault');
+    expect(await readFile(mainPath, 'utf8')).toBe(fixtureBytes);
+    const recovered = await new SaveRepository(root, WORLD_MAP_CATALOG).load('slot-001');
+    expect(recovered).toEqual(expect.objectContaining({
+      status: 'unchanged', saveGeneration: 8, source: 'temporary',
+    }));
+  });
+
+  test('a newer layout failure never falls back to an older compatible generation', async () => {
+    const root = await temporaryRoot();
+    const slotPath = join(root, 'save-slots', 'slot-001');
+    await mkdir(slotPath, { recursive: true });
+    const mainBytes = readFileSync(resolve('tests/fixtures/saves/stale-v6-envelope.json'), 'utf8');
+    const backupEnvelope = createSaveEnvelope('slot-001', 10, 'manual', createInitialState('Older Compatible'));
+    const backupBytes = `${JSON.stringify(backupEnvelope)}\n`;
+    await writeFile(join(slotPath, 'state.json'), mainBytes, 'utf8');
+    await writeFile(join(slotPath, 'state.json.bak'), backupBytes, 'utf8');
+    const northwest = WORLD_MAP_CATALOG.northwest_residential;
+    const bindings = new Map(northwest.locationBindingById);
+    bindings.set('protagonist_villa', {
+      ...bindings.get('protagonist_villa')!,
+      candidateTiles: [{ x: 20, y: 18 }],
+      preferredApproachTiles: [],
+    });
+    const badCatalog: WorldMapV2Catalog = {
+      ...WORLD_MAP_CATALOG,
+      northwest_residential: { ...northwest, locationBindingById: bindings },
+    };
+
+    await expect(new SaveRepository(root, badCatalog).load('slot-001')).resolves.toEqual({
+      status: 'unrecoverable',
+      slotId: 'slot-001',
+      reason: 'layout_migration_failed',
+      incompatibleCandidateCount: 0,
+      corruptCandidateCount: 0,
+    });
+    expect(await readFile(join(slotPath, 'state.json'), 'utf8')).toBe(mainBytes);
+    expect(await readFile(join(slotPath, 'state.json.bak'), 'utf8')).toBe(backupBytes);
+    expect(parseSaveEnvelope(JSON.parse(backupBytes) as unknown).state.layoutRevisions)
+      .toEqual(createInitialState().layoutRevisions);
+  });
+
   test('v1 migration copies authority, adds the exact model pin, and leaves its source unchanged', () => {
     const source = JSON.parse(readFileSync(resolve('tests/fixtures/saves/legacy-v1.json'), 'utf8')) as unknown;
     const before = JSON.stringify(source);
     const migrated = migrateStateCopy(source, 'generation-migrated-001');
 
     expect(JSON.stringify(source)).toBe(before);
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
     expect(migrated.generationId).toBe('generation-migrated-001');
     expect(migrated.modelPin).toEqual({
       id: 'qwen3.5-9b',
@@ -386,6 +497,8 @@ describe('save migrations and state invariants', () => {
     const current = createInitialState();
     const source: Partial<WorldState> = { ...current };
     delete source.invitations;
+    delete source.layoutRevisions;
+    delete source.layoutMigrationEvidence;
     const legacyRelationships = Object.fromEntries(Object.entries(current.relationships).map(([id, relationship]) => {
       const legacy: Partial<typeof relationship> = { ...relationship };
       delete legacy.policy;
@@ -424,14 +537,14 @@ describe('save migrations and state invariants', () => {
       sourceSlotId: 'slot-001',
       targetSlotId: 'slot-002',
       saveGeneration: 1,
-      stateSchemaVersion: 5,
+      stateSchemaVersion: 6,
     }));
     expect(await readFile(sourcePath, 'utf8')).toBe(legacyBytes);
     await expect(repository.load('slot-002')).resolves.toEqual(expect.objectContaining({
-      status: 'loaded',
+      status: 'unchanged',
       state: expect.objectContaining({
         generationId: 'generation-migrated-002',
-        schemaVersion: 5,
+        schemaVersion: 6,
         protagonist: expect.objectContaining({
           worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
         }),

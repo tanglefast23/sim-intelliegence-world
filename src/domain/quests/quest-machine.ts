@@ -9,6 +9,7 @@ import { applyFactionDelta } from '../factions/faction';
 import { upsertJournalEntry, type JournalEntry } from './journal';
 import { applyRelationshipDelta, upsertRejection } from '../relationships/relationship';
 import { StableIdSchema } from '../state/ids';
+import { GENERATED_LAYOUT } from '../state/generated-layout';
 import { parseWorldState, type WorldState } from '../state/schema';
 
 const RelationshipDeltaSchema = z.object({
@@ -103,7 +104,17 @@ export type LindaQuestDefinition = z.infer<typeof LindaQuestDefinitionSchema>;
 export type LindaQuestApproachId = z.infer<typeof QuestApproachSchema>['id'];
 type QuestEffect = z.infer<typeof QuestEffectSchema>;
 
-export const LINDA_QUEST = LindaQuestDefinitionSchema.parse(lindaBoyfriendJson);
+export function resolveLindaQuestDefinition(candidate: unknown): LindaQuestDefinition {
+  const target = GENERATED_LAYOUT.actorTiles.linda_boyfriend;
+  return LindaQuestDefinitionSchema.parse({
+    ...(typeof candidate === 'object' && candidate !== null ? candidate : {}),
+    targetMapId: target.mapId,
+    targetLocationId: target.locationId,
+    targetTile: { x: target.x, y: target.y },
+  });
+}
+
+export const LINDA_QUEST = resolveLindaQuestDefinition(lindaBoyfriendJson);
 
 function questTargetNpc(state: WorldState): WorldState['npcs'][string] {
   return state.npcs[LINDA_QUEST.targetNpcId] ?? {
@@ -112,7 +123,7 @@ function questTargetNpc(state: WorldState): WorldState['npcs'][string] {
     condition: 'alive',
     presence: {
       kind: 'inactive', mapId: LINDA_QUEST.targetMapId, locationId: LINDA_QUEST.targetLocationId,
-      tileX: 25, tileY: 28,
+      tileX: LINDA_QUEST.targetTile.x, tileY: LINDA_QUEST.targetTile.y,
     },
     knowledge: [],
     unlockedInterestIds: [],

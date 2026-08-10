@@ -21,7 +21,7 @@ import {
   TransferStateSchema,
 } from './models';
 
-export const STATE_SCHEMA_VERSION = 5 as const;
+export const STATE_SCHEMA_VERSION = 6 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
@@ -29,6 +29,17 @@ export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
 const PrngStateSchema = z.object({
   version: z.literal(PRNG_VERSION),
   cursor: z.number().int().min(0).max(0xffff_ffff),
+}).strict();
+
+export const LayoutMigrationEvidenceSchema = z.object({
+  recordId: StableIdSchema,
+  field: z.string().regex(/^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/u).max(96),
+  mapId: StableIdSchema,
+  oldTile: z.object({ x: z.number().int().min(0).max(63), y: z.number().int().min(0).max(47) }).strict(),
+  newTile: z.object({ x: z.number().int().min(0).max(63), y: z.number().int().min(0).max(47) }).strict(),
+  oldLayoutRevision: z.number().int().nonnegative(),
+  newLayoutRevision: z.number().int().positive(),
+  reason: z.enum(['static_solid', 'claimed_actor', 'reserved_role', 'location_binding', 'portal_moved']),
 }).strict();
 
 export const ModelPinSchema = z.object({
@@ -46,6 +57,8 @@ export const WorldStateBaseSchema = z.object({
   modelPin: ModelPinSchema,
   generationId: z.string().regex(/^generation-[a-z0-9-]+$/u),
   revision: z.number().int().nonnegative(),
+  layoutRevisions: z.record(StableIdSchema, z.number().int().nonnegative()),
+  layoutMigrationEvidence: z.array(LayoutMigrationEvidenceSchema).max(512),
   prng: PrngStateSchema,
   clock: ClockStateSchema,
   protagonist: ProtagonistStateSchema,

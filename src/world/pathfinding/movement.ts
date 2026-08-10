@@ -1,4 +1,5 @@
-import type { CompiledMap, TilePoint } from '../maps/schema';
+import type { CompiledMapV2 } from '../maps/compiled-v2';
+import type { TilePoint } from '../maps/schema';
 import { tileKey } from '../maps/schema';
 import { findCardinalPath } from './astar';
 
@@ -13,7 +14,7 @@ export type MovementState = Readonly<{
   feedbackTile?: TilePoint;
 }>;
 
-function mergedBlockers(map: CompiledMap, dynamicBlockers: ReadonlySet<string>): Set<string> {
+function mergedBlockers(map: CompiledMapV2, dynamicBlockers: ReadonlySet<string>): Set<string> {
   return new Set([...map.blockedKeys, ...dynamicBlockers]);
 }
 
@@ -22,7 +23,7 @@ export function createMovementState(player: TilePoint): MovementState {
 }
 
 export function requestMovement(
-  map: CompiledMap,
+  map: CompiledMapV2,
   state: MovementState,
   target: TilePoint,
   dynamicBlockers: ReadonlySet<string> = new Set(),
@@ -53,7 +54,7 @@ export function cancelMovement(state: MovementState): MovementState {
 }
 
 export function stepMovement(
-  map: CompiledMap,
+  map: CompiledMapV2,
   state: MovementState,
   dynamicBlockers: ReadonlySet<string> = new Set(),
 ): MovementState {

@@ -1,4 +1,4 @@
-import type { DensityProfile, TilePoint, WorldMapV2 } from './schema';
+import { tileKey, type DensityProfile, type TilePoint, type WorldMapV2 } from './schema';
 
 export type StaticSolidOwner = Readonly<{
   kind: 'terrain' | 'wall' | 'door' | 'object';
@@ -94,3 +94,18 @@ export type CompiledMapV2 = Readonly<{
   locationBindingById: ReadonlyMap<string, CompiledLocationBindingV2>;
   densityByAreaId: ReadonlyMap<string, DensityMetrics>;
 }>;
+
+export function groundSpriteAtV2(map: CompiledMapV2, tile: TilePoint): string {
+  const sprite = map.groundSprites[tile.y * map.source.width + tile.x];
+  if (!sprite) throw new Error('Ground tile is outside the compiled v2 map.');
+  return sprite;
+}
+
+export function roofGroupAtV2(map: CompiledMapV2, tile: TilePoint): string | undefined {
+  const key = tileKey(tile);
+  return [...map.roofGroupById.values()].find((roof) => (
+    roof.interiorKeys.has(key) || [...map.doorById.values()].some((door) => (
+      door.roofGroupId === roof.id && tileKey(door.tile) === key
+    ))
+  ))?.id;
+}

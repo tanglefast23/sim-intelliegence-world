@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { StableIdSchema } from '../../domain/state/ids';
 import type { CompiledMapV2 } from '../maps/compiled-v2';
 import { TilePointSchema, type CompiledMap } from '../maps/schema';
+import { GENERATED_NEIGHBORHOOD_ROUTES } from './generated-routes';
 
 export const NeighborhoodRouteSchema = z.object({
   originMapId: StableIdSchema,
@@ -14,16 +15,8 @@ export const NeighborhoodRouteSchema = z.object({
 }).strict();
 export type NeighborhoodRoute = z.infer<typeof NeighborhoodRouteSchema>;
 
-export const NEIGHBORHOOD_ROUTES: readonly NeighborhoodRoute[] = [
-  { originMapId: 'northwest_residential', destinationMapId: 'northeast_downtown', sourcePortalId: 'to-downtown', sourcePortalTile: { x: 63, y: 24 }, destinationEntranceId: 'from-residential', destinationEntranceTile: { x: 0, y: 24 } },
-  { originMapId: 'northeast_downtown', destinationMapId: 'northwest_residential', sourcePortalId: 'from-residential', sourcePortalTile: { x: 0, y: 24 }, destinationEntranceId: 'to-downtown', destinationEntranceTile: { x: 63, y: 24 } },
-  { originMapId: 'northwest_residential', destinationMapId: 'southwest_commercial', sourcePortalId: 'to-commercial', sourcePortalTile: { x: 32, y: 47 }, destinationEntranceId: 'from-residential', destinationEntranceTile: { x: 32, y: 0 } },
-  { originMapId: 'southwest_commercial', destinationMapId: 'northwest_residential', sourcePortalId: 'from-residential', sourcePortalTile: { x: 32, y: 0 }, destinationEntranceId: 'to-commercial', destinationEntranceTile: { x: 32, y: 47 } },
-  { originMapId: 'northeast_downtown', destinationMapId: 'southeast_docks', sourcePortalId: 'to-docks', sourcePortalTile: { x: 32, y: 47 }, destinationEntranceId: 'from-downtown', destinationEntranceTile: { x: 32, y: 0 } },
-  { originMapId: 'southeast_docks', destinationMapId: 'northeast_downtown', sourcePortalId: 'from-downtown', sourcePortalTile: { x: 32, y: 0 }, destinationEntranceId: 'to-docks', destinationEntranceTile: { x: 32, y: 47 } },
-  { originMapId: 'southwest_commercial', destinationMapId: 'southeast_docks', sourcePortalId: 'to-docks', sourcePortalTile: { x: 63, y: 24 }, destinationEntranceId: 'from-commercial', destinationEntranceTile: { x: 0, y: 24 } },
-  { originMapId: 'southeast_docks', destinationMapId: 'southwest_commercial', sourcePortalId: 'from-commercial', sourcePortalTile: { x: 0, y: 24 }, destinationEntranceId: 'to-docks', destinationEntranceTile: { x: 63, y: 24 } },
-].map((route) => NeighborhoodRouteSchema.parse(route));
+export const NEIGHBORHOOD_ROUTES: readonly NeighborhoodRoute[] =
+  GENERATED_NEIGHBORHOOD_ROUTES.map((route) => NeighborhoodRouteSchema.parse(route));
 
 export function routeBetween(originMapId: string, destinationMapId: string): NeighborhoodRoute {
   const route = NEIGHBORHOOD_ROUTES.find((candidate) => (
