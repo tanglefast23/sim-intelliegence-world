@@ -16,7 +16,21 @@ describe('runtime atlas bill and movement contract', () => {
     expect(new Set(ATLAS_PROOF_BILL)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
     const renderedNames = buildAtlasProofScene(0).sprites.map(({ sprite }) => sprite);
     expect(new Set(renderedNames)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
-    expect(ATLAS_INDEX.tiles).toHaveLength(10);
+    expect(ATLAS_INDEX.version).toBe(2);
+    expect(ATLAS_INDEX.tiles).toHaveLength(97);
+    expect(ATLAS_INDEX.groundCells).toHaveLength(10);
+    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(87);
+    expect(new Set([...ATLAS_INDEX.groundCells, ...ATLAS_INDEX.transparentPartCells]))
+      .toEqual(new Set(ATLAS_INDEX.tiles));
+    for (const name of ATLAS_INDEX.groundCells) {
+      expect(ATLAS_INDEX.sprites[name]).toMatchObject({ cellClass: 'ground', wallAdjacencyMask: null });
+    }
+    for (const names of Object.values(ATLAS_INDEX.walls)) {
+      expect(names).toHaveLength(16);
+      names.forEach((name, wallAdjacencyMask) => {
+        expect(ATLAS_INDEX.sprites[name]).toMatchObject({ cellClass: 'transparent-part', wallAdjacencyMask });
+      });
+    }
     for (const characterId of CHARACTER_IDS) {
       expect(Object.keys(ATLAS_INDEX.characters[characterId].frames)).toHaveLength(8);
       expect(ATLAS_INDEX.characters[characterId].portrait).toBe(`portrait.${characterId}`);

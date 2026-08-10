@@ -5,8 +5,11 @@ import {
   WORLD_CELL,
   composeFrontFrame,
   loadCharacterSources,
+  loadTransparentPartSources,
   loadTileSources,
+  loadWallSources,
   renderTile,
+  renderWallVariant,
   tokenFrameToBitmap,
   type CharacterSource,
 } from './character-source';
@@ -27,6 +30,8 @@ type Entry = Readonly<{
   name: string;
   sourceId: string;
   kind: 'world-character' | 'portrait' | 'tile';
+  cellClass: 'ground' | 'transparent-part' | null;
+  wallAdjacencyMask: number | null;
   bitmap: Bitmap;
 }>;
 
@@ -37,10 +42,12 @@ export type AtlasRect = Readonly<{
   height: number;
   kind: Entry['kind'];
   sourceId: string;
+  cellClass: Entry['cellClass'];
+  wallAdjacencyMask: number | null;
 }>;
 
 export type AtlasIndex = Readonly<{
-  version: 1;
+  version: 2;
   image: Readonly<{ width: number; height: number; colorType: 'rgba'; gutter: 1 }>;
   tileSize: 32;
   worldCell: typeof WORLD_CELL;
@@ -54,6 +61,9 @@ export type AtlasIndex = Readonly<{
     sourceLayers: readonly ['legs', 'torso-and-clothing', 'head-and-face', 'hair', 'accessory', 'held-item'];
   }>>>;
   tiles: readonly string[];
+  groundCells: readonly string[];
+  transparentPartCells: readonly string[];
+  walls: Readonly<Record<string, readonly string[]>>;
 }>;
 
 function worldEntries(source: CharacterSource): Entry[] {
@@ -72,11 +82,17 @@ function worldEntries(source: CharacterSource): Entry[] {
     name: `character.${source.id}.${frame}`,
     sourceId: source.id,
     kind: 'world-character' as const,
+    cellClass: null,
+    wallAdjacencyMask: null,
     bitmap: tokenFrameToBitmap(tokens, source.palette),
   }));
 }
 
 function pack(entries: readonly Entry[]): { bitmap: Bitmap; sprites: Record<string, AtlasRect> } {
+  const names = entries.map(({ name }) => name);
+  if (new Set(names).size !== names.length) {
+    throw new Error('Atlas entry names must be unique.');
+  }
   let x = ATLAS_GUTTER;
   let y = ATLAS_GUTTER;
   let rowHeight = 0;
@@ -103,6 +119,8 @@ function pack(entries: readonly Entry[]): { bitmap: Bitmap; sprites: Record<stri
       height: placement.entry.bitmap.height,
       kind: placement.entry.kind,
       sourceId: placement.entry.sourceId,
+      cellClass: placement.entry.cellClass,
+      wallAdjacencyMask: placement.entry.wallAdjacencyMask,
     };
   }
   return { bitmap, sprites };
@@ -110,20 +128,48 @@ function pack(entries: readonly Entry[]): { bitmap: Bitmap; sprites: Record<stri
 
 export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasIndex } {
   const characters = loadCharacterSources(root);
-  const tiles = loadTileSources(root);
-  const entries: Entry[] = [
-    ...tiles.map((tile) => ({
-      name: `tile.${tile.id}`,
-      sourceId: tile.id,
+  const groundCells = loadTileSources(root);
+  const wallSources = loadWallSources(root);
+  const transparentParts = loadTransparentPartSources(root);
+  const groundEntries: Entry[] = groundCells.map((tile) => ({
+    name: `tile.${tile.id}`,
+    sourceId: tile.id,
+    kind: 'tile' as const,
+    cellClass: 'ground' as const,
+    wallAdjacencyMask: null,
+    bitmap: renderTile(tile),
+  }));
+  const wallEntries: Entry[] = wallSources.flatMap((wall) =>
+    Array.from({ length: 16 }, (_unused, adjacencyMask) => ({
+      name: `tile.wall-${wall.id}-${adjacencyMask.toString(16)}`,
+      sourceId: wall.id,
       kind: 'tile' as const,
-      bitmap: renderTile(tile),
+      cellClass: 'transparent-part' as const,
+      wallAdjacencyMask: adjacencyMask,
+      bitmap: renderWallVariant(wall, adjacencyMask),
     })),
+  );
+  const partEntries: Entry[] = transparentParts.map((part) => ({
+    name: `tile.${part.id}`,
+    sourceId: part.id,
+    kind: 'tile' as const,
+    cellClass: 'transparent-part' as const,
+    wallAdjacencyMask: null,
+    bitmap: renderTile(part),
+  }));
+  const tileEntries = [...groundEntries, ...wallEntries, ...partEntries];
+  const entries: Entry[] = [
+    ...tileEntries,
     ...characters.flatMap(worldEntries),
-    ...buildPortraitEntries(characters),
+    ...buildPortraitEntries(characters).map((entry) => ({
+      ...entry,
+      cellClass: null,
+      wallAdjacencyMask: null,
+    })),
   ];
   const { bitmap, sprites } = pack(entries);
   const index: AtlasIndex = {
-    version: 1,
+    version: 2,
     image: { width: bitmap.width, height: bitmap.height, colorType: 'rgba', gutter: 1 },
     tileSize: 32,
     worldCell: WORLD_CELL,
@@ -148,7 +194,14 @@ export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasInd
         'held-item',
       ] as const,
     }])),
-    tiles: tiles.map(({ id }) => `tile.${id}`),
+    tiles: tileEntries.map(({ name }) => name),
+    groundCells: groundEntries.map(({ name }) => name),
+    transparentPartCells: [...wallEntries, ...partEntries].map(({ name }) => name),
+    walls: Object.fromEntries(wallSources.map(({ id }) => [
+      id,
+      Array.from({ length: 16 }, (_unused, adjacencyMask) =>
+        `tile.wall-${id}-${adjacencyMask.toString(16)}`),
+    ])),
   };
   return { png: encodePng(bitmap), index };
 }

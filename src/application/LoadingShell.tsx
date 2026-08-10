@@ -15,7 +15,7 @@ export function getLoadingShellCopy(failed: boolean, detail: string) {
 export function LoadingShell({ detail, failed = false }: LoadingShellProps) {
   const copy = getLoadingShellCopy(failed, detail);
   return (
-    <View accessibilityLiveRegion="polite" style={styles.screen}>
+    <View accessibilityLiveRegion="polite" nativeID="loading-shell" style={styles.screen}>
       <Text accessibilityRole="header" style={styles.title}>
         SI World
       </Text>

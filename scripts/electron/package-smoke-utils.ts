@@ -81,6 +81,7 @@ export function validatePackageListing(listing: string): void {
   );
   const required = [
     '/build/electron/main/index.js',
+    '/build/electron/main/smoke-capture.js',
     '/build/electron/preload/index.js',
     '/build/electron/persistence/save-repository.js',
     '/build/src/domain/state/schema.js',

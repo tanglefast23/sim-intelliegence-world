@@ -26,10 +26,12 @@ export type AtlasRectangle = Readonly<{
   height: number;
   kind: 'world-character' | 'portrait' | 'tile';
   sourceId: string;
+  cellClass: 'ground' | 'transparent-part' | null;
+  wallAdjacencyMask: number | null;
 }>;
 
 export type RuntimeAtlasIndex = Readonly<{
-  version: 1;
+  version: 2;
   image: Readonly<{ width: number; height: number; colorType: 'rgba'; gutter: 1 }>;
   tileSize: 32;
   worldCell: Readonly<{ width: 24; height: 30 }>;
@@ -43,11 +45,15 @@ export type RuntimeAtlasIndex = Readonly<{
     sourceLayers: readonly string[];
   }>>>;
   tiles: readonly string[];
+  groundCells: readonly string[];
+  transparentPartCells: readonly string[];
+  walls: Readonly<Record<string, readonly string[]>>;
 }>;
 
 export const ATLAS_INDEX = atlasIndexJson as unknown as RuntimeAtlasIndex;
 
 if (
+  ATLAS_INDEX.version !== 2 ||
   ATLAS_INDEX.image.colorType !== 'rgba' ||
   ATLAS_INDEX.image.gutter !== 1 ||
   ATLAS_INDEX.walkFrameMilliseconds !== WALK_FRAME_MILLISECONDS ||
@@ -149,8 +155,8 @@ export function buildAtlasProofScene(frame: 0 | 1): Readonly<{
 }> {
   const sprites: AtlasProofPlacement[] = [];
   const shadows: AtlasProofShadow[] = [];
-  const proofTiles = ATLAS_PROOF_BILL.filter((name) => atlasRectangle(name).kind === 'tile');
-  const proofCast = ATLAS_PROOF_BILL.filter((name) => atlasRectangle(name).kind !== 'tile');
+  const proofTiles = ATLAS_PROOF_BILL.filter((name) => atlasRectangle(name).cellClass === 'ground');
+  const proofCast = ATLAS_PROOF_BILL.filter((name) => atlasRectangle(name).cellClass !== 'ground');
   const directions: readonly MovementDirection[] = ['right', 'left', 'up'];
   for (const panel of PROOF_PANELS) {
     for (let row = 0; row < panel.rows; row += 1) {
