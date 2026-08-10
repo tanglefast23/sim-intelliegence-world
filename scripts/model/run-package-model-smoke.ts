@@ -1,5 +1,5 @@
 import { execFileSync, spawn } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 import { z } from 'zod';
 
@@ -20,7 +20,10 @@ const ReportSchema = z
   })
   .strict();
 
-const executable = findPackagedExecutable(join(process.cwd(), 'out'));
+const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
+  ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
+  : join(process.cwd(), 'out');
+const executable = findPackagedExecutable(outputRoot);
 const child = spawn(executable, [], {
   detached: false,
   env: { ...process.env, SI_WORLD_MODEL_SMOKE: '1' },
