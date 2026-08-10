@@ -8,7 +8,7 @@ import type { WorldState } from '../../domain/state/schema';
 export async function autosaveStableState(input: Readonly<{
   persistence: Pick<PersistencePort, 'requestSave'>;
   state: WorldState;
-  trigger: Extract<SaveTrigger, 'sleep' | 'travel'>;
+  trigger: Extract<SaveTrigger, 'sleep' | 'travel' | 'major_quest'>;
   expectedSaveGeneration: number | null;
 }>): Promise<SaveResult> {
   if (input.state.clock.pauseTokens.length > 0) {

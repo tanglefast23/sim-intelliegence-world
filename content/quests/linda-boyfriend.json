@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "linda_boyfriend_check",
+  "requestNpcId": "linda",
+  "targetNpcId": "linda_boyfriend",
+  "targetMapId": "northwest_residential",
+  "targetLocationId": "linda_villa",
+  "targetTile": {"x": 23, "y": 28},
+  "maximumActionDistance": 3,
+  "npcDeathPermitted": false,
+  "start": {
+    "journalEntryId": "journal_linda_boyfriend",
+    "summary": "Linda asked me to check on her abusive boyfriend. Her villa is somewhere along the southern villa row.",
+    "reason": "Linda asked for help because she does not feel safe checking on him herself.",
+    "grantedItem": {"id": "first_aid_kit", "count": 1}
+  },
+  "discovery": {
+    "flagId": "linda_villa_discovered",
+    "summary": "I found Linda's villa and confirmed the address.",
+    "sourceId": "linda_villa_arrival"
+  },
+  "readiness": {
+    "minimumScore": 4,
+    "healthAtLeast": 50,
+    "confidenceAtLeast": 40,
+    "equipmentIds": ["first_aid_kit"],
+    "preparationFlagIds": ["security_report_purchased"]
+  },
+  "approaches": [
+    {
+      "id": "protect_linda",
+      "label": "Protect Linda",
+      "cause": "Confront her boyfriend and force him to leave the villa.",
+      "result": "Good preparation protects Linda. Poor preparation causes an injured escape: 25 Health and four hours lost.",
+      "socialConsequence": "Linda remembers whether the player made her safer or made the danger worse.",
+      "routeConsequence": "The Velvet Tide notices the confrontation. A witness creates evidence and police attention.",
+      "violent": true,
+      "requiresExactDiscovery": true,
+      "success": {
+        "id": "linda_protected",
+        "terminalStatus": "resolved",
+        "reason": "The protagonist forced Linda's abusive boyfriend out after arriving prepared.",
+        "relationshipDelta": {"familiarity": 8, "trust": 12, "attraction": 1},
+        "futureAvailability": "unchanged",
+        "factionDelta": {"factionId": "velvet_tide", "delta": -10, "scale": "ordinary", "reveal": true},
+        "reward": {"kind": "ordinary", "amount": 200},
+        "questFlagIds": ["linda_protected", "linda_relationship_resolved", "velvet_tide_lead"],
+        "journalSummary": "Linda is safe for now. Her boyfriend mentioned the Velvet Tide before he left.",
+        "journalOutcome": "success",
+        "npcEffect": {"condition": "injured", "deathPermitted": false}
+      },
+      "defeat": {
+        "id": "injured_escape",
+        "terminalStatus": "failed",
+        "reason": "The protagonist confronted the boyfriend without enough Health, equipment, or preparation and escaped injured.",
+        "relationshipDelta": {"familiarity": 5, "trust": -4, "attraction": 0},
+        "futureAvailability": "unchanged",
+        "questFlagIds": ["linda_protect_failed"],
+        "journalSummary": "The confrontation failed. I escaped injured, and Linda must find another way out.",
+        "journalOutcome": "failure",
+        "defeatPackageId": "injured_escape",
+        "npcEffect": {"condition": "alive", "deathPermitted": false}
+      }
+    },
+    {
+      "id": "betray_linda",
+      "label": "Betray Linda",
+      "cause": "Warn her boyfriend that Linda sent someone and accept his payment.",
+      "result": "Gain $800 and an introduction to the Velvet Tide.",
+      "socialConsequence": "Linda's trust collapses and her romantic route closes.",
+      "routeConsequence": "Velvet Tide standing rises, but Linda will remember the betrayal.",
+      "violent": false,
+      "requiresExactDiscovery": true,
+      "success": {
+        "id": "linda_betrayed",
+        "terminalStatus": "resolved",
+        "reason": "The protagonist sold Linda's confidence to her boyfriend for money and access.",
+        "relationshipDelta": {"familiarity": 5, "trust": -15, "attraction": -10},
+        "futureAvailability": "close_linda_romance",
+        "factionDelta": {"factionId": "velvet_tide", "delta": 15, "scale": "major", "reveal": true},
+        "reward": {"kind": "dangerous", "amount": 800},
+        "questFlagIds": ["linda_betrayed", "velvet_tide_lead"],
+        "journalSummary": "I betrayed Linda for money. Her boyfriend gave me a Velvet Tide contact.",
+        "journalOutcome": "success",
+        "npcEffect": {"condition": "alive", "deathPermitted": false}
+      }
+    },
+    {
+      "id": "withdraw",
+      "label": "Withdraw",
+      "cause": "Tell Linda that the player will not intervene.",
+      "result": "End the quest without money, injury, or police attention.",
+      "socialConsequence": "Linda loses trust but keeps her right to seek help elsewhere.",
+      "routeConsequence": "No underworld route opens from this quest.",
+      "violent": false,
+      "requiresExactDiscovery": false,
+      "success": {
+        "id": "linda_help_withdrawn",
+        "terminalStatus": "withdrawn",
+        "reason": "The protagonist clearly withdrew instead of making a promise he would not keep.",
+        "relationshipDelta": {"familiarity": 2, "trust": -5, "attraction": 0},
+        "futureAvailability": "unchanged",
+        "questFlagIds": ["linda_help_withdrawn"],
+        "journalSummary": "I withdrew. Linda said she would ask someone else for help.",
+        "journalOutcome": "withdrawn",
+        "npcEffect": {"condition": "alive", "deathPermitted": false}
+      }
+    }
+  ]
+}

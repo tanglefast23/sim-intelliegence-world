@@ -16,6 +16,13 @@ import { applyRelationshipDelta, requestRelationshipStage, resolveChangeableReje
 import { parseWorldState, type WorldState } from '../state/schema';
 import { DomainCommandSchema, type DomainCommand } from './types';
 import { simulateWorldInterval } from '../../world/schedules/simulation';
+import { advancePoliceAttention } from '../consequences/police';
+import {
+  LINDA_QUEST,
+  planLindaQuestOutcome,
+  planLindaQuestStart,
+  planLindaVillaDiscovery,
+} from '../quests/quest-machine';
 
 export type CommandResult = Readonly<{
   state: WorldState;
@@ -261,6 +268,82 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         quests: {
           ...state.quests,
           [quest.id]: { ...quest, flagIds: [...quest.flagIds, offer.grantedQuestFlagId].sort() },
+        },
+      });
+    }
+    case 'start-linda-quest': {
+      const plan = planLindaQuestStart(state, command.requestNpcId);
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'linda-quest-started',
+        questId: LINDA_QUEST.id,
+        requestNpcId: LINDA_QUEST.requestNpcId,
+        journalEntryId: plan.journalEntryId,
+        reason: plan.reason,
+        grantedItemId: plan.grantedItemId,
+        grantedItemCount: plan.grantedItemCount,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'discover-linda-villa': {
+      const plan = planLindaVillaDiscovery(state);
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'linda-villa-discovered',
+        questId: LINDA_QUEST.id,
+        journalEntryId: plan.journalEntryId,
+        changed: plan.changed,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'resolve-linda-quest': {
+      const plan = planLindaQuestOutcome(state, command.approachId);
+      const event: DomainEvent = {
+        ...eventBase(state, command, plan.state.clock.absoluteMinute),
+        type: 'linda-quest-resolved',
+        questId: LINDA_QUEST.id,
+        approachId: plan.approachId,
+        resultId: plan.resultId,
+        terminalStatus: plan.terminalStatus,
+        reason: plan.reason,
+        familiarityDelta: plan.relationshipDelta.familiarity,
+        trustDelta: plan.relationshipDelta.trust,
+        attractionDelta: plan.relationshipDelta.attraction,
+        ...(plan.factionId ? { factionId: plan.factionId } : {}),
+        factionDelta: plan.factionDelta,
+        rewardAmount: plan.rewardAmount,
+        healthDelta: plan.healthDelta,
+        timeDeltaMinutes: plan.timeDeltaMinutes,
+        ...(plan.evidenceId ? { evidenceId: plan.evidenceId } : {}),
+        witnessNpcIds: [...plan.witnessNpcIds],
+        policeFrom: plan.policeFrom,
+        policeTo: plan.policeTo,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'advance-police-attention': {
+      const evidence = state.evidence[command.evidenceId];
+      if (!evidence || evidence.witnessNpcIds.length === 0 || !['noticed', 'linked'].includes(evidence.status)) {
+        throw new Error('Police escalation requires witnessed unresolved evidence.');
+      }
+      const from = state.policeAttention;
+      if (!['noticed', 'questioned', 'wanted'].includes(from)) {
+        throw new Error(`Police attention ${from} cannot use an escalation hook.`);
+      }
+      const to = advancePoliceAttention(from, command.hook);
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'police-attention-advanced',
+        evidenceId: evidence.id,
+        hook: command.hook,
+        from: from as 'noticed' | 'questioned' | 'wanted',
+        to,
+      };
+      return commitEvent(state, event, {
+        policeAttention: to,
+        evidence: {
+          ...state.evidence,
+          [evidence.id]: { ...evidence, status: 'linked' },
         },
       });
     }

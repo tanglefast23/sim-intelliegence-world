@@ -1,5 +1,6 @@
 [
   {"schemaVersion":1,"id":"protagonist","displayName":"Protagonist","tier":"protagonist","homeLocationId":"protagonist_villa","factionIds":[]},
   {"schemaVersion":1,"id":"linda","displayName":"Linda","tier":"full_ai","homeLocationId":"linda_villa","factionIds":["velvet_tide"]},
-  {"schemaVersion":1,"id":"generic_resident","displayName":"Generic Resident","tier":"ambient","homeLocationId":"northwest_residential","factionIds":["island_administration"]}
+  {"schemaVersion":1,"id":"generic_resident","displayName":"Generic Resident","tier":"ambient","homeLocationId":"northwest_residential","factionIds":["island_administration"]},
+  {"schemaVersion":1,"id":"linda_boyfriend","displayName":"Marcus Vale","tier":"ambient","homeLocationId":"linda_villa","factionIds":["velvet_tide"]}
 ]

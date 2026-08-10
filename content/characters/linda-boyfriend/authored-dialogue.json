@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Marcus Vale",
+  "greeting": "Linda sent you, did she? That was careless of her.",
+  "fallbacks": ["You do not know enough to make threats here."]
+}

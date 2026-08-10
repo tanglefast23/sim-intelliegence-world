@@ -6,6 +6,7 @@ type JournalPanelProps = Readonly<{
   state: WorldState;
   onDismiss: () => void;
   onPurchaseSecurityReport: () => void;
+  onAdvancePolice: () => void;
 }>;
 
 function label(id: string): string {
@@ -18,10 +19,18 @@ function timeLabel(absoluteMinute: number): string {
   return `DAY ${day} ${Math.floor(time / 60).toString().padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
 }
 
-export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport }: JournalPanelProps) {
+export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdvancePolice }: JournalPanelProps) {
   const entries = Object.values(state.journal);
   const invitations = Object.values(state.invitations);
   const purchased = state.quests.linda_boyfriend_check?.flagIds.includes('security_report_purchased') ?? false;
+  const lindaQuest = state.quests.linda_boyfriend_check;
+  const policeAction = state.policeAttention === 'noticed'
+    ? { label: 'Answer police questions', result: 'Attention becomes QUESTIONED. Evidence becomes linked.' }
+    : state.policeAttention === 'questioned'
+      ? { label: 'Ignore police summons', result: 'Attention becomes WANTED.' }
+      : state.policeAttention === 'wanted'
+        ? { label: 'Trigger wanted encounter', result: 'Attention becomes ARREST-ON-SIGHT.' }
+        : undefined;
   return (
     <View nativeID="world-ui-journal-overlay" style={styles.overlay}>
       <View accessibilityLabel="Lead journal" nativeID="world-ui-journal-panel" style={styles.panel}>
@@ -35,6 +44,7 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport }: Jou
           </Pressable>
         </View>
         <Text style={styles.section}>LEADS</Text>
+        {lindaQuest ? <Text style={styles.detail}>LINDA QUEST · {lindaQuest.status.toUpperCase()}</Text> : null}
         {entries.length === 0 ? <Text style={styles.muted}>NO VALIDATED LEADS YET</Text> : entries.map((entry) => (
           <View key={entry.id} style={styles.card}>
             <Text style={styles.cardTitle}>{entry.summary.toUpperCase()}</Text>
@@ -60,6 +70,15 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport }: Jou
         >
           <Text style={styles.purchaseText}>{purchased ? 'SECURITY REPORT PURCHASED' : 'BUY VILLA SECURITY REPORT · $60'}</Text>
         </Pressable>
+        <Text style={styles.section}>CONSEQUENCES</Text>
+        <Text style={styles.detail}>POLICE · {state.policeAttention.toUpperCase()}</Text>
+        <Text style={styles.detail}>EVIDENCE · {Object.keys(state.evidence).length}</Text>
+        {policeAction ? (
+          <Pressable accessibilityLabel={policeAction.label} onPress={onAdvancePolice} style={styles.policeAction}>
+            <Text style={styles.purchaseText}>{policeAction.label.toUpperCase()}</Text>
+            <Text style={styles.detail}>{policeAction.result}</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -76,6 +95,7 @@ const styles = StyleSheet.create({
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
   panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, maxWidth: 680, padding: 18, width: '64%' },
+  policeAction: { backgroundColor: '#4b2d2d', borderColor: '#d3765d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchase: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchaseDone: { backgroundColor: '#324a37' },
   purchaseText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 8 },
