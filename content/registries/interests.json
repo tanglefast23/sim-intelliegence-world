@@ -1,1 +1,41 @@
-{"schemaVersion":1,"items":[{"id":"cats","displayName":"Cats"},{"id":"island_gossip","displayName":"Island gossip"}]}
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "boating",
+      "displayName": "Boating"
+    },
+    {
+      "id": "cats",
+      "displayName": "Cats"
+    },
+    {
+      "id": "cooking",
+      "displayName": "Cooking"
+    },
+    {
+      "id": "fashion",
+      "displayName": "Fashion"
+    },
+    {
+      "id": "island_gossip",
+      "displayName": "Island gossip"
+    },
+    {
+      "id": "journalism",
+      "displayName": "Journalism"
+    },
+    {
+      "id": "medicine",
+      "displayName": "Medicine"
+    },
+    {
+      "id": "nightlife",
+      "displayName": "Nightlife"
+    },
+    {
+      "id": "wellness",
+      "displayName": "Wellness"
+    }
+  ]
+}

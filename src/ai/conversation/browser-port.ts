@@ -5,6 +5,7 @@ import type { ConversationPort } from '../../application/effects/ConversationPor
 import type { InferenceCompletionRequest, InferencePort } from '../../application/effects/InferencePort';
 import { ConversationService, type CharacterWritingStore } from './service';
 import { parseCharacterKnowledgeMarkdown } from '../knowledge/character-knowledge';
+import { BROWSER_NAMED_WRITING } from '../registry/generated-browser-writing';
 
 const lindaBrowserKnowledgeProfile = parseCharacterKnowledgeMarkdown(`# Knowledge Profile
 
@@ -73,6 +74,17 @@ const writing: CharacterWritingStore = {
       authoredGreeting: "Hey. You are the island's new famous mistake, right?",
       authoredFallbacks: ['I lost the thread. Say that again more simply.'],
     };
+    const named = BROWSER_NAMED_WRITING[npcId as keyof typeof BROWSER_NAMED_WRITING];
+    if (named) return {
+      npcId,
+      displayName: named.displayName,
+      personality: named.personality,
+      biography: named.biography,
+      knowledgeProfile: parseCharacterKnowledgeMarkdown(named.knowledge),
+      rules: NpcRulesSchema.parse(named.rules),
+      authoredGreeting: named.greeting,
+      authoredFallbacks: named.fallbacks,
+    };
     if (npcId === 'generic_resident') return {
       npcId,
       displayName: 'Resident',
@@ -93,10 +105,11 @@ class AuthoredBrowserInference implements InferencePort {
       return JSON.stringify({ decision: 'allow', category: 'allowed_fictional_adult' });
     }
     const prompt = request.messages[0]?.content ?? '';
+    const npcId = /NPC: [^\n]+ \(([a-z][a-z0-9_-]*)\)/u.exec(prompt)?.[1];
     const turnMatch = /CURRENT PLAYER TURN ([a-z][a-z0-9_-]*):\n([^]*?)(?:\n\n|$)/u.exec(prompt);
     const turnId = turnMatch?.[1] ?? 'player-turn';
     const message = turnMatch?.[2]?.trim() ?? '';
-    const hasCatClaim = /\b(?:cat|kitten)\b/iu.test(message) && /\b(?:have|own|my)\b/iu.test(message);
+    const hasCatClaim = npcId === 'linda' && /\b(?:cat|kitten)\b/iu.test(message) && /\b(?:have|own|my)\b/iu.test(message);
     const catEvidence = hasCatClaim ? message : undefined;
     return JSON.stringify({
       dialogue: hasCatClaim

@@ -53,9 +53,11 @@ import {
 } from '../world/schedules/active-movement';
 import {
   ATLAS_INDEX,
+  CHARACTER_IDS,
   WALK_FRAME_MILLISECONDS,
   ZOOM_LEVELS,
   atlasRectangle,
+  type CharacterId,
   type ZoomLevel,
 } from './atlas';
 import {
@@ -70,7 +72,7 @@ import { WORLD_DEPTH } from './depth';
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
-  type WorldActorTiles,
+  type WorldActors,
   type WorldLayer,
 } from './world-frame';
 
@@ -79,11 +81,6 @@ const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const
 const VIEWPORT = { width: 1120, height: 620 } as const;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
-const NPC_VISUAL_IDS = [
-  { stateId: 'generic_resident', visualId: 'generic-resident' },
-  { stateId: 'linda', visualId: 'linda' },
-] as const;
-
 type SpritePlacement = Readonly<{ id: string; sprite: string; worldX: number; worldY: number }>;
 type RuntimeViewState = Readonly<{
   movement: MovementState;
@@ -120,18 +117,24 @@ function areaName(map: CompiledMap, tile: TilePoint): string {
   return (area?.id ?? map.source.displayName).replaceAll('-', ' ').toUpperCase();
 }
 
-function actorTiles(state: WorldState, mapId: string): WorldActorTiles {
-  const output: Partial<Record<'linda' | 'generic-resident', TilePoint>> = {};
-  const linda = activeNpcTile(state, 'linda', mapId);
-  const resident = activeNpcTile(state, 'generic_resident', mapId);
-  if (linda) output.linda = linda;
-  if (resident) output['generic-resident'] = resident;
+function visualIdForNpc(stateId: string, tier: 'full_ai' | 'ambient'): CharacterId {
+  if (tier === 'ambient') return 'generic-resident';
+  const candidate = stateId.replaceAll('_', '-') as CharacterId;
+  return CHARACTER_IDS.includes(candidate) ? candidate : 'generic-resident';
+}
+
+function actorTiles(state: WorldState, mapId: string): WorldActors {
+  const output: Record<string, WorldActors[string]> = {};
+  for (const [stateId, npc] of Object.entries(state.npcs)) {
+    const tile = activeNpcTile(state, stateId, mapId);
+    if (tile) output[stateId] = { tile, visualId: visualIdForNpc(stateId, npc.tier) };
+  }
   return output;
 }
 
 function npcMovementState(state: WorldState): Readonly<Record<string, MovementState>> {
   const movements: Record<string, MovementState> = {};
-  for (const { stateId } of NPC_VISUAL_IDS) {
+  for (const stateId of Object.keys(state.npcs).sort()) {
     const movement = movementForNpc(state, stateId);
     if (movement) movements[stateId] = movement;
   }
@@ -140,7 +143,7 @@ function npcMovementState(state: WorldState): Readonly<Record<string, MovementSt
 
 function npcBlockers(state: WorldState, mapId: string, excludedNpcId?: string): Set<string> {
   const blockers = new Set<string>();
-  for (const { stateId } of NPC_VISUAL_IDS) {
+  for (const stateId of Object.keys(state.npcs).sort()) {
     if (stateId === excludedNpcId) continue;
     const presence = state.npcs[stateId]?.presence;
     if (presence && presence.kind !== 'in_transit' && presence.mapId === mapId) {
@@ -150,10 +153,17 @@ function npcBlockers(state: WorldState, mapId: string, excludedNpcId?: string): 
   return blockers;
 }
 
-function stateNpcId(visualId: string): string | undefined {
-  if (visualId === 'linda') return 'linda';
-  if (visualId === 'generic-resident') return 'generic_resident';
-  return undefined;
+function stateNpcId(selectedId: string, state: WorldState): string | undefined {
+  return state.npcs[selectedId] ? selectedId : undefined;
+}
+
+function npcLabel(selectedId: string, actors: WorldActors): string {
+  const actor = actors[selectedId];
+  if (!actor || selectedId === 'generic_resident') return 'Resident';
+  if (actor.visualId === 'generic-resident') {
+    return selectedId.split('_').map((part) => `${part[0]?.toUpperCase() ?? ''}${part.slice(1)}`).join(' ');
+  }
+  return ATLAS_INDEX.characters[actor.visualId].displayName;
 }
 
 type WorldSceneProps = Readonly<{
@@ -195,9 +205,8 @@ export function WorldScene({
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
   const npcTiles = useMemo(() => actorTiles(runtime.worldState, mapId), [mapId, runtime.worldState]);
-  const dynamicBlockers = useMemo(() => new Set(Object.values(npcTiles).filter(Boolean).map((tile) => tileKey(tile!))), [npcTiles]);
   const speed = effectiveSpeed(runtime.worldState.clock);
-  const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected));
+  const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState));
 
   const triggerVocalCue = useCallback((cue: VocalCueId) => {
     playVocalCue(cue);
@@ -284,7 +293,7 @@ export function WorldScene({
         const currentMap = WORLD_MAP_CATALOG[currentMapId];
         let state = current.worldState;
         const movements = { ...current.npcMovements };
-        for (const { stateId } of NPC_VISUAL_IDS) {
+        for (const stateId of Object.keys(state.npcs).sort()) {
           const base = movements[stateId] ?? movementForNpc(state, stateId);
           if (!base) {
             delete movements[stateId];
@@ -352,8 +361,8 @@ export function WorldScene({
     const tile = screenToTile(camera, point);
     if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
     const candidates: ClickCandidate[] = [{ id: `floor-${tileKey(tile)}`, kind: 'floor', tile }];
-    for (const [id, npcTile] of Object.entries(npcTiles)) {
-      if (npcTile && tileKey(npcTile) === tileKey(tile)) candidates.push({ id, kind: 'npc', tile: npcTile });
+    for (const [id, actor] of Object.entries(npcTiles)) {
+      if (tileKey(actor.tile) === tileKey(tile)) candidates.push({ id, kind: 'npc', tile: actor.tile });
     }
     for (const prop of map.source.props) {
       if (tileKey(prop.tile) === tileKey(tile)) candidates.push({ id: prop.id, kind: 'object', tile: prop.tile });
@@ -566,7 +575,7 @@ export function WorldScene({
   const roofAtlas = atlasData(visibleRoofTiles, camera);
   const selectedCharacter = selected === 'protagonist'
     ? runtime.movement.player
-    : npcTiles[selected as keyof WorldActorTiles] ?? runtime.movement.player;
+    : npcTiles[selected]?.tile ?? runtime.movement.player;
   const selectedScreen = worldToScreen(camera, {
     x: selectedCharacter.x * TILE_SIZE + 16,
     y: selectedCharacter.y * TILE_SIZE + 27,
@@ -668,7 +677,7 @@ export function WorldScene({
           style={styles.proofState}
         />
         <View
-          accessibilityLabel={`Linda ${npcTiles.linda?.x ?? -1},${npcTiles.linda?.y ?? -1}; Resident ${npcTiles['generic-resident']?.x ?? -1},${npcTiles['generic-resident']?.y ?? -1}`}
+          accessibilityLabel={`Linda ${npcTiles.linda?.tile.x ?? -1},${npcTiles.linda?.tile.y ?? -1}; Resident ${npcTiles.generic_resident?.tile.x ?? -1},${npcTiles.generic_resident?.tile.y ?? -1}; NPC count ${Object.keys(npcTiles).length}`}
           nativeID="world-npc-state"
           pointerEvents="none"
           style={styles.proofState}
@@ -725,12 +734,12 @@ export function WorldScene({
             onSleep={sleep}
           />
         ) : null}
-        {stateNpcId(selected) && !conversationNpcId && !openPanel ? (
+        {stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel ? (
           <View nativeID="world-ui-talk" style={styles.talkPlate}>
-            <Text style={styles.talkLabel}>{selected === 'linda' ? 'LINDA' : 'RESIDENT'} SELECTED</Text>
+            <Text style={styles.talkLabel}>{npcLabel(selected, npcTiles).toUpperCase()} SELECTED</Text>
             <Pressable
-              accessibilityLabel={`Talk to ${selected === 'linda' ? 'Linda' : 'Resident'}`}
-              onPress={() => setConversationNpcId(stateNpcId(selected))}
+              accessibilityLabel={`Talk to ${npcLabel(selected, npcTiles)}`}
+              onPress={() => setConversationNpcId(stateNpcId(selected, runtime.worldState))}
               style={styles.talkButton}
             >
               <Text style={styles.talkText}>TALK</Text>
@@ -769,7 +778,7 @@ export function WorldScene({
         ) : null}
         {openPanel === 'relationships' ? (
           <RelationshipPanel
-            npcId={stateNpcId(selected) ?? 'linda'}
+            npcId={runtime.worldState.relationships[selected] ? selected : 'linda'}
             onDismiss={() => setOpenPanel(undefined)}
             state={runtime.worldState}
           />

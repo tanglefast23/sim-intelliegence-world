@@ -5,6 +5,7 @@ import { RecordedInferencePort } from '../../application/effects/InferencePort';
 import { NpcRulesSchema } from '../../content/schemas/registry';
 import { createInitialState } from '../../domain/state/initial-state';
 import { WorldStateSchema } from '../../domain/state/schema';
+import { PRODUCTION_FULL_AI_CAST } from '../../domain/state/production-cast';
 import { ConversationService } from '../conversation/service';
 import { ConversationTransaction, conversationCommitEventId } from '../conversation/transaction';
 import { conversationPromptSuggestions, detectStructuredConversationAction } from '../conversation/intent';
@@ -103,6 +104,40 @@ describe('validated local conversation system', () => {
     expect(prompt).toContain('QUESTION SCOPE: local_halcyra');
     expect(prompt).toContain('go southwest to the commercial district');
     expect(prompt).not.toContain('main offices of the island administration');
+  });
+
+  test('cat instructions are present only when the active registry supports all four Linda IDs', async () => {
+    const state = createInitialState();
+    for (const npcId of ['linda', ...PRODUCTION_FULL_AI_CAST.map(({ id }) => id)]) {
+      const character = await writingStore.get(npcId);
+      const registry = buildSceneRegistry(state, character, {
+        sceneObservationIds: [], npcReportIds: [], authoredEventIds: [],
+      });
+      const prompt = buildPromptProjection({
+        state,
+        character,
+        registry,
+        staged: { knowledge: [], unlockedInterestIds: [], unlockedIds: [], memories: [] },
+        recentTurns: [],
+        playerMessage: 'I have a cat.',
+        turnId: `turn-${npcId}-cat-isolation`,
+      });
+      if (npcId === 'linda') {
+        expect(registry.factIds).toContain('protagonist_has_cat');
+        expect(registry.interestIds).toContain('cats');
+        expect(registry.unlockIds).toContain('cats_common_interest');
+        expect(registry.memorySubjectIds).toContain('protagonist_cat');
+        expect(prompt).toContain('propose fact protagonist_has_cat=true');
+        expect(prompt).toContain('memory subject protagonist_cat');
+      } else {
+        expect(registry.factIds).not.toContain('protagonist_has_cat');
+        expect(registry.interestIds).not.toContain('cats');
+        expect(registry.unlockIds).not.toContain('cats_common_interest');
+        expect(registry.memorySubjectIds).not.toContain('protagonist_cat');
+        expect(prompt).not.toContain('propose fact protagonist_has_cat=true');
+        expect(prompt).not.toContain('memory subject protagonist_cat');
+      }
+    }
   });
 
   test.each([

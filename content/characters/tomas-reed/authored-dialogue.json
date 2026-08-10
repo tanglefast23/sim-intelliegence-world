@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Tomas Reed",
+  "greeting": "If you need a permit, take a number. If you need gossip, take a longer number.",
+  "fallbacks": [
+    "I did not follow that. Try it another way.",
+    "I can answer what I know. I will not make up the rest."
+  ]
+}

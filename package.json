@@ -13,6 +13,8 @@
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
+    "content:build": "tsx scripts/content/build-production-content.ts",
+    "content:check": "npm run content:build && git diff --exit-code -- content src/ai/registry/generated-browser-writing.ts",
     "validate:content": "tsx scripts/content/validate-content.ts",
     "check:boundaries": "tsx scripts/verification/check-import-boundaries.ts",
     "typecheck": "tsc --noEmit",
@@ -27,8 +29,9 @@
     "model:real-spike": "tsx scripts/model/run-real-spike.ts",
     "model:smoke": "tsx scripts/model/run-package-model-smoke.ts",
     "setup:skia-web": "setup-skia-web public",
-    "art:atlas": "tsx scripts/art/build-world-atlas.ts && tsx scripts/art/build-review-sheet.ts",
-    "art:check": "npm run art:atlas && git diff --exit-code -- assets/generated artifacts/phase-04/atlas-review.png",
+    "art:variants": "tsx scripts/art/build-character-variants.ts",
+    "art:atlas": "npm run art:variants && tsx scripts/art/build-world-atlas.ts && tsx scripts/art/build-review-sheet.ts",
+    "art:check": "npm run art:atlas && git diff --exit-code -- assets/source/characters assets/generated artifacts/phase-04/atlas-review.png",
     "audio:build": "tsx scripts/audio/build-vocal-cues.ts",
     "audio:check": "npm run audio:build && git diff --exit-code -- assets/generated/audio",
     "verify:first-hour": "tsx scripts/verification/run-first-hour-golden.ts",
@@ -37,10 +40,10 @@
     "package:electron": "npm run export:web && npm run build:electron && electron-forge package",
     "test:electron:unit": "jest --runInBand --runTestsByPath tests/electron/security.test.ts tests/electron/package-smoke.test.ts tests/electron/conversation-ipc.test.ts",
     "test:model": "jest --runInBand --runTestsByPath src/ai/__tests__/spike-response.test.ts tests/electron/model-lifecycle.test.ts",
-    "smoke:electron": "tsx scripts/electron/run-package-smoke.ts artifacts/phase-12",
+    "smoke:electron": "tsx scripts/electron/run-package-smoke.ts artifacts/phase-13",
     "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron",
-    "verify:ci-build": "npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron",
-    "verify": "npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron"
+    "verify:ci-build": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron",
+    "verify": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.8",

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Sora Tan",
+  "greeting": "The meme looked shorter online. Relax. Most people do.",
+  "fallbacks": [
+    "I did not follow that. Try it another way.",
+    "I can answer what I know. I will not make up the rest."
+  ]
+}

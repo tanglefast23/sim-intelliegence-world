@@ -8,94 +8,818 @@
   "ground": {
     "defaultSprite": "tile.warm-sand",
     "regions": [
-      {"id":"sea","x":0,"y":42,"width":64,"height":6,"sprite":"tile.shallow-water"},
-      {"id":"boardwalk-east-west","x":0,"y":35,"width":64,"height":3,"sprite":"tile.boardwalk"},
-      {"id":"boardwalk-south","x":31,"y":35,"width":3,"height":13,"sprite":"tile.boardwalk"},
-      {"id":"villa-shell","x":8,"y":7,"width":18,"height":18,"sprite":"tile.villa-floor"},
-      {"id":"bath-floor","x":16,"y":8,"width":3,"height":6,"sprite":"tile.spa-stone"},
-      {"id":"storage-floor","x":20,"y":8,"width":5,"height":6,"sprite":"tile.boardwalk"},
-      {"id":"kitchen-floor","x":9,"y":15,"width":6,"height":9,"sprite":"tile.pale-concrete"},
-      {"id":"social-floor","x":16,"y":15,"width":9,"height":9,"sprite":"tile.plaza-paver"},
-      {"id":"villa-path","x":14,"y":24,"width":3,"height":12,"sprite":"tile.boardwalk"},
-      {"id":"garden-one","x":28,"y":12,"width":6,"height":5,"sprite":"tile.dune-grass"},
-      {"id":"garden-two","x":37,"y":25,"width":8,"height":6,"sprite":"tile.dune-grass"},
-      {"id":"spa-patio","x":4,"y":28,"width":8,"height":6,"sprite":"tile.spa-stone"}
+      {
+        "id": "sea",
+        "x": 0,
+        "y": 42,
+        "width": 64,
+        "height": 6,
+        "sprite": "tile.shallow-water"
+      },
+      {
+        "id": "boardwalk-east-west",
+        "x": 0,
+        "y": 35,
+        "width": 64,
+        "height": 3,
+        "sprite": "tile.boardwalk"
+      },
+      {
+        "id": "boardwalk-south",
+        "x": 31,
+        "y": 35,
+        "width": 3,
+        "height": 13,
+        "sprite": "tile.boardwalk"
+      },
+      {
+        "id": "villa-shell",
+        "x": 8,
+        "y": 7,
+        "width": 18,
+        "height": 18,
+        "sprite": "tile.villa-floor"
+      },
+      {
+        "id": "bath-floor",
+        "x": 16,
+        "y": 8,
+        "width": 3,
+        "height": 6,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "storage-floor",
+        "x": 20,
+        "y": 8,
+        "width": 5,
+        "height": 6,
+        "sprite": "tile.boardwalk"
+      },
+      {
+        "id": "kitchen-floor",
+        "x": 9,
+        "y": 15,
+        "width": 6,
+        "height": 9,
+        "sprite": "tile.pale-concrete"
+      },
+      {
+        "id": "social-floor",
+        "x": 16,
+        "y": 15,
+        "width": 9,
+        "height": 9,
+        "sprite": "tile.plaza-paver"
+      },
+      {
+        "id": "villa-path",
+        "x": 14,
+        "y": 24,
+        "width": 3,
+        "height": 12,
+        "sprite": "tile.boardwalk"
+      },
+      {
+        "id": "garden-one",
+        "x": 28,
+        "y": 12,
+        "width": 6,
+        "height": 5,
+        "sprite": "tile.dune-grass"
+      },
+      {
+        "id": "garden-two",
+        "x": 37,
+        "y": 25,
+        "width": 8,
+        "height": 6,
+        "sprite": "tile.dune-grass"
+      },
+      {
+        "id": "spa-patio",
+        "x": 4,
+        "y": 28,
+        "width": 8,
+        "height": 6,
+        "sprite": "tile.spa-stone"
+      }
     ]
   },
   "collision": {
     "rectangles": [
-      {"id":"villa-north","x":8,"y":7,"width":18,"height":1},
-      {"id":"villa-south","x":8,"y":24,"width":18,"height":1},
-      {"id":"villa-west","x":8,"y":7,"width":1,"height":18},
-      {"id":"villa-east","x":25,"y":7,"width":1,"height":18},
-      {"id":"upper-divider","x":9,"y":14,"width":16,"height":1},
-      {"id":"upper-left-divider","x":15,"y":8,"width":1,"height":6},
-      {"id":"upper-right-divider","x":19,"y":8,"width":1,"height":6},
-      {"id":"lower-divider","x":15,"y":15,"width":1,"height":9}
+      {
+        "id": "villa-north",
+        "x": 8,
+        "y": 7,
+        "width": 18,
+        "height": 1
+      },
+      {
+        "id": "villa-south",
+        "x": 8,
+        "y": 24,
+        "width": 18,
+        "height": 1
+      },
+      {
+        "id": "villa-west",
+        "x": 8,
+        "y": 7,
+        "width": 1,
+        "height": 18
+      },
+      {
+        "id": "villa-east",
+        "x": 25,
+        "y": 7,
+        "width": 1,
+        "height": 18
+      },
+      {
+        "id": "upper-divider",
+        "x": 9,
+        "y": 14,
+        "width": 16,
+        "height": 1
+      },
+      {
+        "id": "upper-left-divider",
+        "x": 15,
+        "y": 8,
+        "width": 1,
+        "height": 6
+      },
+      {
+        "id": "upper-right-divider",
+        "x": 19,
+        "y": 8,
+        "width": 1,
+        "height": 6
+      },
+      {
+        "id": "lower-divider",
+        "x": 15,
+        "y": 15,
+        "width": 1,
+        "height": 9
+      }
     ],
     "walkableOverrides": [
-      {"x":15,"y":24},{"x":15,"y":23},{"x":17,"y":14},{"x":18,"y":14},{"x":15,"y":11},{"x":19,"y":11},{"x":15,"y":19}
+      {
+        "x": 15,
+        "y": 24
+      },
+      {
+        "x": 15,
+        "y": 23
+      },
+      {
+        "x": 17,
+        "y": 14
+      },
+      {
+        "x": 18,
+        "y": 14
+      },
+      {
+        "x": 15,
+        "y": 11
+      },
+      {
+        "x": 19,
+        "y": 11
+      },
+      {
+        "x": 15,
+        "y": 19
+      }
     ]
   },
   "walls": {
     "regions": [
-      {"id":"villa-north-wall","x":8,"y":7,"width":18,"height":1,"sprite":"tile.spa-stone"},
-      {"id":"villa-south-wall","x":8,"y":24,"width":18,"height":1,"sprite":"tile.spa-stone"},
-      {"id":"villa-west-wall","x":8,"y":7,"width":1,"height":18,"sprite":"tile.spa-stone"},
-      {"id":"villa-east-wall","x":25,"y":7,"width":1,"height":18,"sprite":"tile.spa-stone"},
-      {"id":"upper-room-wall","x":9,"y":14,"width":16,"height":1,"sprite":"tile.spa-stone"},
-      {"id":"bed-bath-wall","x":15,"y":8,"width":1,"height":6,"sprite":"tile.spa-stone"},
-      {"id":"bath-storage-wall","x":19,"y":8,"width":1,"height":6,"sprite":"tile.spa-stone"},
-      {"id":"kitchen-social-wall","x":15,"y":15,"width":1,"height":9,"sprite":"tile.spa-stone"}
+      {
+        "id": "villa-north-wall",
+        "x": 8,
+        "y": 7,
+        "width": 18,
+        "height": 1,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "villa-south-wall",
+        "x": 8,
+        "y": 24,
+        "width": 18,
+        "height": 1,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "villa-west-wall",
+        "x": 8,
+        "y": 7,
+        "width": 1,
+        "height": 18,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "villa-east-wall",
+        "x": 25,
+        "y": 7,
+        "width": 1,
+        "height": 18,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "upper-room-wall",
+        "x": 9,
+        "y": 14,
+        "width": 16,
+        "height": 1,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "bed-bath-wall",
+        "x": 15,
+        "y": 8,
+        "width": 1,
+        "height": 6,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "bath-storage-wall",
+        "x": 19,
+        "y": 8,
+        "width": 1,
+        "height": 6,
+        "sprite": "tile.spa-stone"
+      },
+      {
+        "id": "kitchen-social-wall",
+        "x": 15,
+        "y": 15,
+        "width": 1,
+        "height": 9,
+        "sprite": "tile.spa-stone"
+      }
     ],
     "openings": [
-      {"x":15,"y":24},{"x":15,"y":23},{"x":17,"y":14},{"x":18,"y":14},{"x":15,"y":11},{"x":19,"y":11},{"x":15,"y":19}
+      {
+        "x": 15,
+        "y": 24
+      },
+      {
+        "x": 15,
+        "y": 23
+      },
+      {
+        "x": 17,
+        "y": 14
+      },
+      {
+        "x": 18,
+        "y": 14
+      },
+      {
+        "x": 15,
+        "y": 11
+      },
+      {
+        "x": 19,
+        "y": 11
+      },
+      {
+        "x": 15,
+        "y": 19
+      }
     ]
   },
   "props": [
-    {"id":"bed","sprite":"tile.garden-soil","tile":{"x":11,"y":10},"blocksMovement":true},
-    {"id":"bath","sprite":"tile.shallow-water","tile":{"x":17,"y":10},"blocksMovement":true},
-    {"id":"storage-crate","sprite":"tile.boardwalk","tile":{"x":22,"y":10},"blocksMovement":true},
-    {"id":"kitchen-counter-one","sprite":"tile.pale-concrete","tile":{"x":11,"y":17},"blocksMovement":true},
-    {"id":"kitchen-counter-two","sprite":"tile.pale-concrete","tile":{"x":12,"y":17},"blocksMovement":true},
-    {"id":"social-sofa","sprite":"tile.garden-soil","tile":{"x":20,"y":19},"blocksMovement":true},
-    {"id":"spa-pool","sprite":"tile.shallow-water","tile":{"x":7,"y":30},"blocksMovement":true}
+    {
+      "id": "bed",
+      "sprite": "tile.garden-soil",
+      "tile": {
+        "x": 11,
+        "y": 10
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "bath",
+      "sprite": "tile.shallow-water",
+      "tile": {
+        "x": 17,
+        "y": 10
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "storage-crate",
+      "sprite": "tile.boardwalk",
+      "tile": {
+        "x": 22,
+        "y": 10
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "kitchen-counter-one",
+      "sprite": "tile.pale-concrete",
+      "tile": {
+        "x": 11,
+        "y": 17
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "kitchen-counter-two",
+      "sprite": "tile.pale-concrete",
+      "tile": {
+        "x": 12,
+        "y": 17
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "social-sofa",
+      "sprite": "tile.garden-soil",
+      "tile": {
+        "x": 20,
+        "y": 19
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "spa-pool",
+      "sprite": "tile.shallow-water",
+      "tile": {
+        "x": 7,
+        "y": 30
+      },
+      "blocksMovement": true
+    },
+    {
+      "id": "production-spa-sign",
+      "sprite": "tile.spa-stone",
+      "tile": {
+        "x": 35,
+        "y": 10
+      },
+      "blocksMovement": false
+    },
+    {
+      "id": "production-cafe-cart",
+      "sprite": "tile.boardwalk",
+      "tile": {
+        "x": 40,
+        "y": 17
+      },
+      "blocksMovement": false
+    },
+    {
+      "id": "production-boutique-sign",
+      "sprite": "tile.plaza-paver",
+      "tile": {
+        "x": 46,
+        "y": 18
+      },
+      "blocksMovement": false
+    },
+    {
+      "id": "production-club-poster",
+      "sprite": "tile.garden-soil",
+      "tile": {
+        "x": 51,
+        "y": 12
+      },
+      "blocksMovement": false
+    },
+    {
+      "id": "production-clinic-sign",
+      "sprite": "tile.pale-concrete",
+      "tile": {
+        "x": 33,
+        "y": 25
+      },
+      "blocksMovement": false
+    },
+    {
+      "id": "production-marina-board",
+      "sprite": "tile.boardwalk",
+      "tile": {
+        "x": 44,
+        "y": 33
+      },
+      "blocksMovement": false
+    },
+    {
+      "id": "production-news-board",
+      "sprite": "tile.plaza-paver",
+      "tile": {
+        "x": 53,
+        "y": 32
+      },
+      "blocksMovement": false
+    }
   ],
   "effects": [
-    {"id":"patio-fire","kind":"fire","tile":{"x":27,"y":31}},
-    {"id":"beach-sparkle","kind":"sparkle","tile":{"x":42,"y":40}}
+    {
+      "id": "patio-fire",
+      "kind": "fire",
+      "tile": {
+        "x": 27,
+        "y": 31
+      }
+    },
+    {
+      "id": "beach-sparkle",
+      "kind": "sparkle",
+      "tile": {
+        "x": 42,
+        "y": 40
+      }
+    },
+    {
+      "id": "production-spa-sparkle",
+      "kind": "sparkle",
+      "tile": {
+        "x": 35,
+        "y": 11
+      }
+    },
+    {
+      "id": "production-beach-fire",
+      "kind": "fire",
+      "tile": {
+        "x": 50,
+        "y": 39
+      }
+    }
   ],
   "interactions": [
-    {"id":"sleep-bed","kind":"bed","hitTile":{"x":11,"y":10},"targetTile":{"x":11,"y":11}},
-    {"id":"home-storage","kind":"storage","hitTile":{"x":22,"y":10},"targetTile":{"x":21,"y":10}},
-    {"id":"villa-front-door","kind":"door","hitTile":{"x":15,"y":24},"targetTile":{"x":16,"y":23}},
-    {"id":"social-seat","kind":"social","hitTile":{"x":20,"y":19},"targetTile":{"x":19,"y":19}}
+    {
+      "id": "sleep-bed",
+      "kind": "bed",
+      "hitTile": {
+        "x": 11,
+        "y": 10
+      },
+      "targetTile": {
+        "x": 11,
+        "y": 11
+      }
+    },
+    {
+      "id": "home-storage",
+      "kind": "storage",
+      "hitTile": {
+        "x": 22,
+        "y": 10
+      },
+      "targetTile": {
+        "x": 21,
+        "y": 10
+      }
+    },
+    {
+      "id": "villa-front-door",
+      "kind": "door",
+      "hitTile": {
+        "x": 15,
+        "y": 24
+      },
+      "targetTile": {
+        "x": 16,
+        "y": 23
+      }
+    },
+    {
+      "id": "social-seat",
+      "kind": "social",
+      "hitTile": {
+        "x": 20,
+        "y": 19
+      },
+      "targetTile": {
+        "x": 19,
+        "y": 19
+      }
+    }
   ],
   "doors": [
-    {"id":"villa-front-door","tile":{"x":15,"y":24},"roofGroupId":"protagonist-villa-roof"},
-    {"id":"bedroom-door","tile":{"x":17,"y":14},"roofGroupId":"protagonist-villa-roof"},
-    {"id":"bathroom-left-door","tile":{"x":15,"y":11},"roofGroupId":"protagonist-villa-roof"},
-    {"id":"bathroom-right-door","tile":{"x":19,"y":11},"roofGroupId":"protagonist-villa-roof"},
-    {"id":"social-door","tile":{"x":15,"y":19},"roofGroupId":"protagonist-villa-roof"}
+    {
+      "id": "villa-front-door",
+      "tile": {
+        "x": 15,
+        "y": 24
+      },
+      "roofGroupId": "protagonist-villa-roof"
+    },
+    {
+      "id": "bedroom-door",
+      "tile": {
+        "x": 17,
+        "y": 14
+      },
+      "roofGroupId": "protagonist-villa-roof"
+    },
+    {
+      "id": "bathroom-left-door",
+      "tile": {
+        "x": 15,
+        "y": 11
+      },
+      "roofGroupId": "protagonist-villa-roof"
+    },
+    {
+      "id": "bathroom-right-door",
+      "tile": {
+        "x": 19,
+        "y": 11
+      },
+      "roofGroupId": "protagonist-villa-roof"
+    },
+    {
+      "id": "social-door",
+      "tile": {
+        "x": 15,
+        "y": 19
+      },
+      "roofGroupId": "protagonist-villa-roof"
+    }
   ],
   "roofGroups": [
-    {"id":"protagonist-villa-roof","bounds":{"x":8,"y":7,"width":18,"height":18},"interior":{"x":9,"y":8,"width":16,"height":16}}
+    {
+      "id": "protagonist-villa-roof",
+      "bounds": {
+        "x": 8,
+        "y": 7,
+        "width": 18,
+        "height": 18
+      },
+      "interior": {
+        "x": 9,
+        "y": 8,
+        "width": 16,
+        "height": 16
+      }
+    }
   ],
   "areas": [
-    {"id":"bedroom","bounds":{"x":9,"y":8,"width":6,"height":6}},
-    {"id":"bathroom","bounds":{"x":16,"y":8,"width":3,"height":6}},
-    {"id":"storage","bounds":{"x":20,"y":8,"width":5,"height":6}},
-    {"id":"kitchen","bounds":{"x":9,"y":15,"width":6,"height":9}},
-    {"id":"social","bounds":{"x":16,"y":15,"width":9,"height":9}}
+    {
+      "id": "bedroom",
+      "bounds": {
+        "x": 9,
+        "y": 8,
+        "width": 6,
+        "height": 6
+      }
+    },
+    {
+      "id": "bathroom",
+      "bounds": {
+        "x": 16,
+        "y": 8,
+        "width": 3,
+        "height": 6
+      }
+    },
+    {
+      "id": "storage",
+      "bounds": {
+        "x": 20,
+        "y": 8,
+        "width": 5,
+        "height": 6
+      }
+    },
+    {
+      "id": "kitchen",
+      "bounds": {
+        "x": 9,
+        "y": 15,
+        "width": 6,
+        "height": 9
+      }
+    },
+    {
+      "id": "social",
+      "bounds": {
+        "x": 16,
+        "y": 15,
+        "width": 9,
+        "height": 9
+      }
+    },
+    {
+      "id": "production-shoreglass-spa",
+      "bounds": {
+        "x": 28,
+        "y": 8,
+        "width": 8,
+        "height": 8
+      }
+    },
+    {
+      "id": "production-villa-promenade",
+      "bounds": {
+        "x": 37,
+        "y": 8,
+        "width": 20,
+        "height": 14
+      }
+    },
+    {
+      "id": "production-beach-market",
+      "bounds": {
+        "x": 37,
+        "y": 25,
+        "width": 20,
+        "height": 10
+      }
+    },
+    {
+      "id": "production-public-beach",
+      "bounds": {
+        "x": 35,
+        "y": 38,
+        "width": 24,
+        "height": 4
+      }
+    }
   ],
   "portals": [
-    {"id":"to-downtown","edge":"east","tile":{"x":63,"y":24},"destinationMapId":"northeast_downtown","destinationEntranceId":"from-residential"},
-    {"id":"to-commercial","edge":"south","tile":{"x":32,"y":47},"destinationMapId":"southwest_commercial","destinationEntranceId":"from-residential"}
+    {
+      "id": "to-downtown",
+      "edge": "east",
+      "tile": {
+        "x": 63,
+        "y": 24
+      },
+      "destinationMapId": "northeast_downtown",
+      "destinationEntranceId": "from-residential"
+    },
+    {
+      "id": "to-commercial",
+      "edge": "south",
+      "tile": {
+        "x": 32,
+        "y": 47
+      },
+      "destinationMapId": "southwest_commercial",
+      "destinationEntranceId": "from-residential"
+    }
   ],
-  "stagingTiles": [{"x":62,"y":24},{"x":32,"y":46},{"x":16,"y":25}],
+  "stagingTiles": [
+    {
+      "x": 62,
+      "y": 24
+    },
+    {
+      "x": 32,
+      "y": 46
+    },
+    {
+      "x": 16,
+      "y": 25
+    }
+  ],
   "spawns": {
-    "protagonist":{"x":18,"y":18},
-    "linda":{"x":23,"y":28},
-    "generic-resident":{"x":29,"y":33}
+    "protagonist": {
+      "x": 18,
+      "y": 18
+    },
+    "linda": {
+      "x": 23,
+      "y": 28
+    },
+    "generic-resident": {
+      "x": 29,
+      "y": 33
+    },
+    "mina_park": {
+      "x": 34,
+      "y": 12
+    },
+    "rafael_cruz": {
+      "x": 39,
+      "y": 15
+    },
+    "sora_tan": {
+      "x": 45,
+      "y": 20
+    },
+    "devon_price": {
+      "x": 50,
+      "y": 14
+    },
+    "priya_nair": {
+      "x": 32,
+      "y": 26
+    },
+    "tomas_reed": {
+      "x": 43,
+      "y": 31
+    },
+    "elise_moreau": {
+      "x": 52,
+      "y": 30
+    },
+    "resident_01": {
+      "x": 30,
+      "y": 5
+    },
+    "resident_02": {
+      "x": 36,
+      "y": 5
+    },
+    "resident_03": {
+      "x": 42,
+      "y": 5
+    },
+    "resident_04": {
+      "x": 48,
+      "y": 5
+    },
+    "resident_05": {
+      "x": 54,
+      "y": 5
+    },
+    "resident_06": {
+      "x": 60,
+      "y": 5
+    },
+    "resident_07": {
+      "x": 30,
+      "y": 20
+    },
+    "resident_08": {
+      "x": 36,
+      "y": 20
+    },
+    "resident_09": {
+      "x": 42,
+      "y": 20
+    },
+    "resident_10": {
+      "x": 48,
+      "y": 20
+    },
+    "resident_11": {
+      "x": 54,
+      "y": 20
+    },
+    "resident_12": {
+      "x": 60,
+      "y": 20
+    },
+    "resident_13": {
+      "x": 30,
+      "y": 30
+    },
+    "resident_14": {
+      "x": 36,
+      "y": 30
+    },
+    "resident_15": {
+      "x": 42,
+      "y": 30
+    },
+    "resident_16": {
+      "x": 48,
+      "y": 30
+    },
+    "resident_17": {
+      "x": 54,
+      "y": 30
+    },
+    "resident_18": {
+      "x": 60,
+      "y": 30
+    },
+    "resident_19": {
+      "x": 28,
+      "y": 40
+    },
+    "resident_20": {
+      "x": 34,
+      "y": 40
+    },
+    "resident_21": {
+      "x": 40,
+      "y": 40
+    },
+    "resident_22": {
+      "x": 46,
+      "y": 40
+    },
+    "resident_23": {
+      "x": 52,
+      "y": 40
+    },
+    "resident_24": {
+      "x": 58,
+      "y": 40
+    }
   }
 }

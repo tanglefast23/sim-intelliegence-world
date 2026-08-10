@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "npcId": "sora_tan",
+  "factIds": [],
+  "interestIds": [
+    "fashion",
+    "island_gossip"
+  ],
+  "actionIds": [
+    "greet",
+    "ask_follow_up",
+    "end_conversation",
+    "invite_home",
+    "ask_date",
+    "aggressive_flirt"
+  ],
+  "memorySubjectIds": [
+    "protagonist_style"
+  ],
+  "unlockIds": [],
+  "questIds": [],
+  "locationIds": [
+    "sora_boutique",
+    "southwest_commercial"
+  ],
+  "factionIds": [],
+  "compatibility": {
+    "social": true,
+    "romantic": true,
+    "romanticEligibleAtStart": false
+  },
+  "startingRelationship": {
+    "values": {
+      "familiarity": 0,
+      "trust": 0,
+      "attraction": 0
+    },
+    "stage": "stranger"
+  },
+  "hardBoundaries": [
+    {
+      "id": "no_aggressive_flirting",
+      "scope": "romantic",
+      "blockedActionIds": [
+        "aggressive_flirt"
+      ]
+    }
+  ],
+  "stageRules": [
+    {
+      "stage": "dating",
+      "unavailable": false,
+      "requiredFlagIds": []
+    }
+  ],
+  "rejections": []
+}

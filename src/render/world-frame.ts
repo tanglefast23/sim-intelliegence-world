@@ -19,7 +19,8 @@ export const WORLD_LAYER_ORDER = [
 
 export type WorldLayer = typeof WORLD_LAYER_ORDER[number];
 export type WorldCharacterPlacement = Readonly<{
-  id: CharacterId;
+  id: string;
+  visualId: CharacterId;
   sprite: string;
   tile: TilePoint;
   worldX: number;
@@ -34,7 +35,13 @@ export type WorldFrameState = Readonly<{
   signature: string;
 }>;
 
-export type WorldActorTiles = Readonly<Partial<Record<'linda' | 'generic-resident', TilePoint>>>;
+export type WorldActor = Readonly<{
+  tile: TilePoint;
+  visualId: CharacterId;
+  direction?: MovementDirection;
+}>;
+
+export type WorldActors = Readonly<Record<string, WorldActor>>;
 
 export function compareWorldLayerTiles(
   layer: number,
@@ -50,7 +57,7 @@ export function compareWorldLayerTiles(
 export function buildWorldFrameState(
   map: CompiledMap,
   state: WorldState,
-  actorTiles: WorldActorTiles,
+  actors: WorldActors,
   direction: MovementDirection,
   frame: 0 | 1,
 ): WorldFrameState {
@@ -60,18 +67,24 @@ export function buildWorldFrameState(
   }
   const playerTile = { x: playerPosition.tileX, y: playerPosition.tileY };
   const characterInputs: Readonly<{
-    id: CharacterId;
+    id: string;
+    visualId: CharacterId;
     tile: TilePoint;
     direction: MovementDirection;
-  }>[] = [{ id: 'protagonist', tile: playerTile, direction }];
-  if (actorTiles.linda) characterInputs.push({ id: 'linda', tile: actorTiles.linda, direction: 'down' });
-  if (actorTiles['generic-resident']) {
-    characterInputs.push({ id: 'generic-resident', tile: actorTiles['generic-resident'], direction: 'left' });
-  }
-  const characters = characterInputs.map(({ id, tile, direction: actorDirection }) => {
-    const presentation = movementPresentation(id, actorDirection, frame);
+  }>[] = [
+    { id: 'protagonist', visualId: 'protagonist', tile: playerTile, direction },
+    ...Object.entries(actors).sort(([left], [right]) => left.localeCompare(right, 'en')).map(([id, actor]) => ({
+      id,
+      visualId: actor.visualId,
+      tile: actor.tile,
+      direction: actor.direction ?? 'down',
+    })),
+  ];
+  const characters = characterInputs.map(({ id, visualId, tile, direction: actorDirection }) => {
+    const presentation = movementPresentation(visualId, actorDirection, frame);
     return {
       id,
+      visualId,
       sprite: presentation.sprite,
       tile: { ...tile },
       worldX: tile.x * TILE_SIZE + 4 + presentation.leanX,

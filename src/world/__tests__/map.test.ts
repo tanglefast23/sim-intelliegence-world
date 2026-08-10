@@ -29,11 +29,13 @@ describe('northwest world map', () => {
     expect(map.groundSprites).toHaveLength(64 * 48);
     expect(map.source.areas.map(({ id }) => id)).toEqual([
       'bedroom', 'bathroom', 'storage', 'kitchen', 'social',
+      'production-shoreglass-spa', 'production-villa-promenade',
+      'production-beach-market', 'production-public-beach',
     ]);
     expect(map.source.portals.map(({ edge }) => edge)).toEqual(['east', 'south']);
   });
 
-  test('all five villa areas and the exterior are cardinally reachable', () => {
+  test('all authored northwest areas and the exterior are cardinally reachable', () => {
     const map = compileWorldMap(northwestMapJson, KNOWN_SPRITES);
     const start = spawnAt(map, 'protagonist');
     for (const area of map.source.areas) {

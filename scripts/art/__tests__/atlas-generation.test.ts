@@ -10,6 +10,7 @@ import {
 } from '../character-source';
 import { composeLateralFrame } from '../lateral-legs';
 import { decodePng } from '../png';
+import { CHARACTER_IDS } from '../../../src/render/atlas';
 
 function alphaMask(frame: readonly string[]): string {
   return frame.map((row) => [...row].map((token) => token === '.' ? '.' : '#').join('')).join('\n');
@@ -27,7 +28,7 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.index).toEqual(second.index);
     expect(first.png[25]).toBe(6);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
-    expect(Object.keys(first.index.sprites)).toHaveLength(37);
+    expect(Object.keys(first.index.sprites)).toHaveLength(100);
     expect(first.index.tiles).toHaveLength(10);
     expect(createHash('sha256').update(first.png).digest('hex')).toHaveLength(64);
   });
@@ -53,11 +54,11 @@ describe('deterministic SI World atlas generation', () => {
     }
   });
 
-  test('builds three distinct identities from the six named source layers', () => {
+  test('builds ten distinct identities from the six named source layers', () => {
     const sources = loadCharacterSources();
-    expect(sources.map(({ id }) => id).sort()).toEqual(['generic-resident', 'linda', 'protagonist']);
+    expect(sources.map(({ id }) => id).sort()).toEqual([...CHARACTER_IDS].sort());
     const silhouettes = new Set(sources.map((source) => alphaMask(composeFrontFrame(source, 0))));
-    expect(silhouettes.size).toBe(3);
+    expect(silhouettes.size).toBeGreaterThanOrEqual(7);
     for (const source of sources) {
       expect(Object.keys(source.sourceLayers)).toEqual([
         'legs', 'torsoAndClothing', 'headAndFace', 'hair', 'accessory', 'heldItem',

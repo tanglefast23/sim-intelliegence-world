@@ -13,6 +13,7 @@ import {
 import { buildPromptProjection, type PromptTurn } from '../projection/prompt-projection';
 import {
   ambientDialogue,
+  ambientDisplayName,
   buildSceneRegistry,
   type CharacterWriting,
   type SceneSources,
@@ -163,17 +164,17 @@ export class ConversationService {
     if (this.#sessions.size > 0) throw new Error('Only one active conversation is permitted.');
     const npc = state.npcs[npcId];
     if (!npc) throw new Error('Conversation NPC does not exist.');
-    const writing = await this.writing.get(npcId);
-    if (writing.npcId !== npcId) throw new Error('Character writing does not match the conversation NPC.');
     if (npc.tier === 'ambient') {
       return {
         kind: 'ambient',
         npcId,
-        displayName: writing.displayName,
+        displayName: ambientDisplayName(npcId),
         dialogue: ambientDialogue(npcId, state.clock.absoluteMinute),
         state,
       };
     }
+    const writing = await this.writing.get(npcId);
+    if (writing.npcId !== npcId) throw new Error('Character writing does not match the conversation NPC.');
     const transaction = new ConversationTransaction(state, conversationId, npcId);
     const registry = buildSceneRegistry(state, writing, input.sources ?? {
       sceneObservationIds: [], npcReportIds: [], authoredEventIds: [],

@@ -1,5 +1,6 @@
 import type { NpcRules } from '../../content/schemas/registry';
 import type { WorldState } from '../../domain/state/schema';
+import { PRODUCTION_AMBIENT_RESIDENTS } from '../../domain/state/production-cast';
 import type { CharacterKnowledgeProfile } from '../knowledge/character-knowledge';
 import type { WorldKnowledgeDocument } from '../knowledge/world-knowledge';
 
@@ -74,9 +75,24 @@ export const AMBIENT_DIALOGUE = Object.freeze({
   ],
 });
 
+const AMBIENT_DISPLAY_NAMES = new Map<string, string>([
+  ['generic_resident', 'Resident'],
+  ['linda_boyfriend', 'Marcus Vale'],
+  ...PRODUCTION_AMBIENT_RESIDENTS.map(({ id, displayName }) => [id, displayName] as const),
+]);
+
+const RESIDENT_DIALOGUE = Object.freeze([
+  'Nice weather for pretending nothing strange happens here.',
+  'The beach is quiet. Downtown is louder after dark.',
+  'I only know the public version of island business.',
+]);
+
+export function ambientDisplayName(npcId: string): string {
+  return AMBIENT_DISPLAY_NAMES.get(npcId) ?? npcId.replaceAll('_', ' ').replaceAll(/\b\w/gu, (letter) => letter.toUpperCase());
+}
+
 export function ambientDialogue(npcId: string, absoluteMinute: number): string {
-  const lines = AMBIENT_DIALOGUE[npcId as keyof typeof AMBIENT_DIALOGUE];
-  if (!lines) throw new Error(`No authored ambient dialogue for ${npcId}.`);
+  const lines = AMBIENT_DIALOGUE[npcId as keyof typeof AMBIENT_DIALOGUE] ?? RESIDENT_DIALOGUE;
   const line = lines[Math.floor(absoluteMinute / 60) % lines.length];
   if (!line) throw new Error(`Authored ambient dialogue is empty for ${npcId}.`);
   return line;

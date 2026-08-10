@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "npcId": "mina_park",
+  "factIds": [],
+  "interestIds": [
+    "wellness",
+    "island_gossip"
+  ],
+  "actionIds": [
+    "greet",
+    "ask_follow_up",
+    "end_conversation",
+    "invite_home",
+    "ask_date",
+    "aggressive_flirt"
+  ],
+  "memorySubjectIds": [
+    "protagonist_wellness"
+  ],
+  "unlockIds": [],
+  "questIds": [],
+  "locationIds": [
+    "mina_spa",
+    "northwest_residential"
+  ],
+  "factionIds": [
+    "island_administration"
+  ],
+  "compatibility": {
+    "social": true,
+    "romantic": true,
+    "romanticEligibleAtStart": false
+  },
+  "startingRelationship": {
+    "values": {
+      "familiarity": 0,
+      "trust": 0,
+      "attraction": 0
+    },
+    "stage": "stranger"
+  },
+  "hardBoundaries": [
+    {
+      "id": "no_aggressive_flirting",
+      "scope": "romantic",
+      "blockedActionIds": [
+        "aggressive_flirt"
+      ]
+    }
+  ],
+  "stageRules": [
+    {
+      "stage": "dating",
+      "unavailable": false,
+      "requiredFlagIds": []
+    }
+  ],
+  "rejections": []
+}

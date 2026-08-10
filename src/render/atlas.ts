@@ -1,6 +1,17 @@
 import atlasIndexJson from '../../assets/generated/atlas-index.json';
 
-export const CHARACTER_IDS = ['generic-resident', 'linda', 'protagonist'] as const;
+export const CHARACTER_IDS = [
+  'devon-price',
+  'elise-moreau',
+  'generic-resident',
+  'linda',
+  'mina-park',
+  'priya-nair',
+  'protagonist',
+  'rafael-cruz',
+  'sora-tan',
+  'tomas-reed',
+] as const;
 export type CharacterId = typeof CHARACTER_IDS[number];
 export const MOVEMENT_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 export type MovementDirection = typeof MOVEMENT_DIRECTIONS[number];
@@ -153,7 +164,7 @@ export function buildAtlasProofScene(frame: 0 | 1): Readonly<{
       }
     }
     CHARACTER_IDS.forEach((characterId, characterIndex) => {
-      const direction = directions[characterIndex] as MovementDirection;
+      const direction = directions[characterIndex % directions.length] as MovementDirection;
       const movement = movementPresentation(characterId, direction, frame);
       const tileX = Math.min(characterIndex + 1, panel.columns - 1);
       const tileY = Math.min(characterIndex % panel.rows, panel.rows - 1);

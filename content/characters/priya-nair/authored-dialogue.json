@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "displayName": "Priya Nair",
+  "greeting": "You are upright and breathing. That already makes this a social visit.",
+  "fallbacks": [
+    "I did not follow that. Try it another way.",
+    "I can answer what I know. I will not make up the rest."
+  ]
+}

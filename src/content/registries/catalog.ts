@@ -80,7 +80,7 @@ export function buildContentCatalog(input: ContentBundleInput): ContentCatalog {
   const factionIds = new Set(factions.map(({ id }) => id));
   const characterIds = new Set(characters.map(({ id }) => id));
   const requiredRuleNpcIds = characters
-    .filter(({ tier }) => tier !== 'protagonist')
+    .filter(({ tier }) => tier === 'full_ai')
     .map(({ id }) => id);
   const ruleNpcIds = new Set(rules.map(({ npcId }) => npcId));
 

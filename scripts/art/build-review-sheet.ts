@@ -44,7 +44,7 @@ export function writeReviewSheet(root = process.cwd()): void {
   const generatedRoot = resolve(root, 'assets/generated');
   const atlas = decodePng(readFileSync(resolve(generatedRoot, 'world-atlas.png')));
   const index = JSON.parse(readFileSync(resolve(generatedRoot, 'atlas-index.json'), 'utf8')) as AtlasIndex;
-  const sheet = createBitmap(940, 620, parseHexColor('#17151b'));
+  const sheet = createBitmap(940, 125 + Object.keys(index.characters).length * 166, parseHexColor('#17151b'));
 
   fillRect(sheet, 12, 12, 916, 78, parseHexColor('#27252d'));
   index.tiles.forEach((name, tileIndex) => {

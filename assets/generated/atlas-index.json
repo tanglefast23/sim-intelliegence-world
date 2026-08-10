@@ -2,7 +2,7 @@
   "version": 1,
   "image": {
     "width": 512,
-    "height": 126,
+    "height": 222,
     "colorType": "rgba",
     "gutter": 1
   },
@@ -98,56 +98,184 @@
       "kind": "tile",
       "sourceId": "dark-asphalt"
     },
-    "character.generic-resident.front-1": {
+    "character.devon-price.front-1": {
       "x": 341,
       "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.front-2": {
+      "x": 367,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.rear-1": {
+      "x": 393,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.rear-2": {
+      "x": 419,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.left-1": {
+      "x": 445,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.left-2": {
+      "x": 471,
+      "y": 1,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.right-1": {
+      "x": 1,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.devon-price.right-2": {
+      "x": 27,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "devon-price"
+    },
+    "character.elise-moreau.front-1": {
+      "x": 53,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.front-2": {
+      "x": 79,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.rear-1": {
+      "x": 105,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.rear-2": {
+      "x": 131,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.left-1": {
+      "x": 157,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.left-2": {
+      "x": 183,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.right-1": {
+      "x": 209,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.elise-moreau.right-2": {
+      "x": 235,
+      "y": 35,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "elise-moreau"
+    },
+    "character.generic-resident.front-1": {
+      "x": 261,
+      "y": 35,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "generic-resident"
     },
     "character.generic-resident.front-2": {
-      "x": 367,
-      "y": 1,
+      "x": 287,
+      "y": 35,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "generic-resident"
     },
     "character.generic-resident.rear-1": {
-      "x": 393,
-      "y": 1,
+      "x": 313,
+      "y": 35,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "generic-resident"
     },
     "character.generic-resident.rear-2": {
-      "x": 419,
-      "y": 1,
+      "x": 339,
+      "y": 35,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "generic-resident"
     },
     "character.generic-resident.left-1": {
-      "x": 445,
-      "y": 1,
+      "x": 365,
+      "y": 35,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "generic-resident"
     },
     "character.generic-resident.left-2": {
-      "x": 471,
-      "y": 1,
+      "x": 391,
+      "y": 35,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "generic-resident"
     },
     "character.generic-resident.right-1": {
-      "x": 1,
+      "x": 417,
       "y": 35,
       "width": 24,
       "height": 30,
@@ -155,7 +283,7 @@
       "sourceId": "generic-resident"
     },
     "character.generic-resident.right-2": {
-      "x": 27,
+      "x": 443,
       "y": 35,
       "width": 24,
       "height": 30,
@@ -163,7 +291,7 @@
       "sourceId": "generic-resident"
     },
     "character.linda.front-1": {
-      "x": 53,
+      "x": 469,
       "y": 35,
       "width": 24,
       "height": 30,
@@ -171,151 +299,571 @@
       "sourceId": "linda"
     },
     "character.linda.front-2": {
-      "x": 79,
-      "y": 35,
+      "x": 1,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
     "character.linda.rear-1": {
-      "x": 105,
-      "y": 35,
+      "x": 27,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
     "character.linda.rear-2": {
-      "x": 131,
-      "y": 35,
+      "x": 53,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
     "character.linda.left-1": {
-      "x": 157,
-      "y": 35,
+      "x": 79,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
     "character.linda.left-2": {
-      "x": 183,
-      "y": 35,
+      "x": 105,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
     "character.linda.right-1": {
-      "x": 209,
-      "y": 35,
+      "x": 131,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
     "character.linda.right-2": {
-      "x": 235,
-      "y": 35,
+      "x": 157,
+      "y": 67,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "linda"
     },
-    "character.protagonist.front-1": {
+    "character.mina-park.front-1": {
+      "x": 183,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.front-2": {
+      "x": 209,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.rear-1": {
+      "x": 235,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.rear-2": {
       "x": 261,
-      "y": 35,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.left-1": {
+      "x": 287,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.left-2": {
+      "x": 313,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.right-1": {
+      "x": 339,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.mina-park.right-2": {
+      "x": 365,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "mina-park"
+    },
+    "character.priya-nair.front-1": {
+      "x": 391,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.front-2": {
+      "x": 417,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.rear-1": {
+      "x": 443,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.rear-2": {
+      "x": 469,
+      "y": 67,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.left-1": {
+      "x": 1,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.left-2": {
+      "x": 27,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.right-1": {
+      "x": 53,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.priya-nair.right-2": {
+      "x": 79,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "priya-nair"
+    },
+    "character.protagonist.front-1": {
+      "x": 105,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.front-2": {
-      "x": 287,
-      "y": 35,
+      "x": 131,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.rear-1": {
-      "x": 313,
-      "y": 35,
+      "x": 157,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.rear-2": {
-      "x": 339,
-      "y": 35,
+      "x": 183,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.left-1": {
-      "x": 365,
-      "y": 35,
+      "x": 209,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.left-2": {
-      "x": 391,
-      "y": 35,
+      "x": 235,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.right-1": {
-      "x": 417,
-      "y": 35,
+      "x": 261,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
     "character.protagonist.right-2": {
-      "x": 443,
-      "y": 35,
+      "x": 287,
+      "y": 99,
       "width": 24,
       "height": 30,
       "kind": "world-character",
       "sourceId": "protagonist"
     },
-    "portrait.generic-resident": {
+    "character.rafael-cruz.front-1": {
+      "x": 313,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.front-2": {
+      "x": 339,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.rear-1": {
+      "x": 365,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.rear-2": {
+      "x": 391,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.left-1": {
+      "x": 417,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.left-2": {
+      "x": 443,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.right-1": {
       "x": 469,
-      "y": 35,
+      "y": 99,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.rafael-cruz.right-2": {
+      "x": 1,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "rafael-cruz"
+    },
+    "character.sora-tan.front-1": {
+      "x": 27,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.front-2": {
+      "x": 53,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.rear-1": {
+      "x": 79,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.rear-2": {
+      "x": 105,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.left-1": {
+      "x": 131,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.left-2": {
+      "x": 157,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.right-1": {
+      "x": 183,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.sora-tan.right-2": {
+      "x": 209,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "sora-tan"
+    },
+    "character.tomas-reed.front-1": {
+      "x": 235,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.front-2": {
+      "x": 261,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.rear-1": {
+      "x": 287,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.rear-2": {
+      "x": 313,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.left-1": {
+      "x": 339,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.left-2": {
+      "x": 365,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.right-1": {
+      "x": 391,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "character.tomas-reed.right-2": {
+      "x": 417,
+      "y": 131,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "sourceId": "tomas-reed"
+    },
+    "portrait.devon-price": {
+      "x": 443,
+      "y": 131,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "devon-price"
+    },
+    "portrait.elise-moreau": {
+      "x": 1,
+      "y": 177,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "elise-moreau"
+    },
+    "portrait.generic-resident": {
+      "x": 43,
+      "y": 177,
       "width": 40,
       "height": 44,
       "kind": "portrait",
       "sourceId": "generic-resident"
     },
     "portrait.linda": {
-      "x": 1,
-      "y": 81,
+      "x": 85,
+      "y": 177,
       "width": 40,
       "height": 44,
       "kind": "portrait",
       "sourceId": "linda"
     },
+    "portrait.mina-park": {
+      "x": 127,
+      "y": 177,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "mina-park"
+    },
+    "portrait.priya-nair": {
+      "x": 169,
+      "y": 177,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "priya-nair"
+    },
     "portrait.protagonist": {
-      "x": 43,
-      "y": 81,
+      "x": 211,
+      "y": 177,
       "width": 40,
       "height": 44,
       "kind": "portrait",
       "sourceId": "protagonist"
+    },
+    "portrait.rafael-cruz": {
+      "x": 253,
+      "y": 177,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "rafael-cruz"
+    },
+    "portrait.sora-tan": {
+      "x": 295,
+      "y": 177,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "sora-tan"
+    },
+    "portrait.tomas-reed": {
+      "x": 337,
+      "y": 177,
+      "width": 40,
+      "height": 44,
+      "kind": "portrait",
+      "sourceId": "tomas-reed"
     }
   },
   "characters": {
+    "devon-price": {
+      "displayName": "Devon Price",
+      "portrait": "portrait.devon-price",
+      "frames": {
+        "front-1": "character.devon-price.front-1",
+        "front-2": "character.devon-price.front-2",
+        "rear-1": "character.devon-price.rear-1",
+        "rear-2": "character.devon-price.rear-2",
+        "left-1": "character.devon-price.left-1",
+        "left-2": "character.devon-price.left-2",
+        "right-1": "character.devon-price.right-1",
+        "right-2": "character.devon-price.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "elise-moreau": {
+      "displayName": "Elise Moreau",
+      "portrait": "portrait.elise-moreau",
+      "frames": {
+        "front-1": "character.elise-moreau.front-1",
+        "front-2": "character.elise-moreau.front-2",
+        "rear-1": "character.elise-moreau.rear-1",
+        "rear-2": "character.elise-moreau.rear-2",
+        "left-1": "character.elise-moreau.left-1",
+        "left-2": "character.elise-moreau.left-2",
+        "right-1": "character.elise-moreau.right-1",
+        "right-2": "character.elise-moreau.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
     "generic-resident": {
       "displayName": "Resident",
       "portrait": "portrait.generic-resident",
@@ -360,6 +908,50 @@
         "held-item"
       ]
     },
+    "mina-park": {
+      "displayName": "Mina Park",
+      "portrait": "portrait.mina-park",
+      "frames": {
+        "front-1": "character.mina-park.front-1",
+        "front-2": "character.mina-park.front-2",
+        "rear-1": "character.mina-park.rear-1",
+        "rear-2": "character.mina-park.rear-2",
+        "left-1": "character.mina-park.left-1",
+        "left-2": "character.mina-park.left-2",
+        "right-1": "character.mina-park.right-1",
+        "right-2": "character.mina-park.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "priya-nair": {
+      "displayName": "Priya Nair",
+      "portrait": "portrait.priya-nair",
+      "frames": {
+        "front-1": "character.priya-nair.front-1",
+        "front-2": "character.priya-nair.front-2",
+        "rear-1": "character.priya-nair.rear-1",
+        "rear-2": "character.priya-nair.rear-2",
+        "left-1": "character.priya-nair.left-1",
+        "left-2": "character.priya-nair.left-2",
+        "right-1": "character.priya-nair.right-1",
+        "right-2": "character.priya-nair.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
     "protagonist": {
       "displayName": "Protagonist",
       "portrait": "portrait.protagonist",
@@ -372,6 +964,72 @@
         "left-2": "character.protagonist.left-2",
         "right-1": "character.protagonist.right-1",
         "right-2": "character.protagonist.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "rafael-cruz": {
+      "displayName": "Rafael Cruz",
+      "portrait": "portrait.rafael-cruz",
+      "frames": {
+        "front-1": "character.rafael-cruz.front-1",
+        "front-2": "character.rafael-cruz.front-2",
+        "rear-1": "character.rafael-cruz.rear-1",
+        "rear-2": "character.rafael-cruz.rear-2",
+        "left-1": "character.rafael-cruz.left-1",
+        "left-2": "character.rafael-cruz.left-2",
+        "right-1": "character.rafael-cruz.right-1",
+        "right-2": "character.rafael-cruz.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "sora-tan": {
+      "displayName": "Sora Tan",
+      "portrait": "portrait.sora-tan",
+      "frames": {
+        "front-1": "character.sora-tan.front-1",
+        "front-2": "character.sora-tan.front-2",
+        "rear-1": "character.sora-tan.rear-1",
+        "rear-2": "character.sora-tan.rear-2",
+        "left-1": "character.sora-tan.left-1",
+        "left-2": "character.sora-tan.left-2",
+        "right-1": "character.sora-tan.right-1",
+        "right-2": "character.sora-tan.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "tomas-reed": {
+      "displayName": "Tomas Reed",
+      "portrait": "portrait.tomas-reed",
+      "frames": {
+        "front-1": "character.tomas-reed.front-1",
+        "front-2": "character.tomas-reed.front-2",
+        "rear-1": "character.tomas-reed.rear-1",
+        "rear-2": "character.tomas-reed.rear-2",
+        "left-1": "character.tomas-reed.left-1",
+        "left-2": "character.tomas-reed.left-2",
+        "right-1": "character.tomas-reed.right-1",
+        "right-2": "character.tomas-reed.right-2"
       },
       "sourceLayers": [
         "legs",
