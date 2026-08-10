@@ -17,6 +17,7 @@ import {
   registerAppSchemePrivileges,
 } from '../protocol/app-protocol';
 import { lockWebContents, lockedWebPreferences } from './security';
+import { captureLoadingSmokeFrame, captureNonEmptySmokeFrame } from './smoke-capture';
 
 registerAppSchemePrivileges(protocol);
 
@@ -45,11 +46,39 @@ if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
   app.disableHardwareAcceleration();
 }
 
-async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: string): Promise<Buffer> {
-  const image = await window.webContents.capturePage();
+const waitForSmokeRetry = (milliseconds: number): Promise<void> =>
+  new Promise((resolveDelay) => setTimeout(resolveDelay, milliseconds));
+
+async function writeSmokeScreenshot(screenshotPath: string, image: Awaited<ReturnType<BrowserWindow['webContents']['capturePage']>>): Promise<Buffer> {
   const buffer = image.toPNG();
   await writeFile(screenshotPath, buffer, { flush: true });
   return buffer;
+}
+
+async function captureSmokeScreenshot(
+  window: BrowserWindow,
+  screenshotPath: string,
+  deadlineMilliseconds?: number,
+): Promise<Buffer> {
+  const image = await captureNonEmptySmokeFrame(
+    () => window.webContents.capturePage(),
+    waitForSmokeRetry,
+    { deadlineMilliseconds },
+  );
+  return writeSmokeScreenshot(screenshotPath, image);
+}
+
+async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPath: string): Promise<Buffer> {
+  const loadingVisible = (): Promise<boolean> => window.webContents.executeJavaScript(
+    `Boolean(document.querySelector('#loading-shell'))`,
+    true,
+  ) as Promise<boolean>;
+  const image = await captureLoadingSmokeFrame(
+    () => window.webContents.capturePage(),
+    loadingVisible,
+    waitForSmokeRetry,
+  );
+  return writeSmokeScreenshot(screenshotPath, image);
 }
 
 async function waitForRendererPaint(window: BrowserWindow): Promise<void> {
@@ -71,7 +100,8 @@ async function captureDistinctSmokeScreenshot(
   const deadline = Date.now() + timeoutMilliseconds;
   do {
     await waitForRendererPaint(window);
-    const buffer = await captureSmokeScreenshot(window, screenshotPath);
+    if (Date.now() >= deadline) break;
+    const buffer = await captureSmokeScreenshot(window, screenshotPath, deadline);
     if (previousBuffers.every((previous) => !buffer.equals(previous))) return buffer;
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 80));
   } while (Date.now() < deadline);
@@ -901,7 +931,7 @@ async function createMainWindow(): Promise<void> {
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
       setTimeout(() => {
-        void captureSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
+        void captureLoadingSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
           smokeFinished = true;
           process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
           app.exit(1);

@@ -7,6 +7,13 @@ import {
 } from '../../scripts/electron/package-smoke-utils';
 import { PNG } from 'pngjs';
 
+import {
+  captureLoadingSmokeFrame,
+  captureNonEmptySmokeFrame,
+  retrySmokeCapture,
+  SMOKE_CAPTURE_RETRY_MILLISECONDS,
+} from '../../electron/main/smoke-capture';
+
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function screenshot(width: number, height: number, fill: number): Buffer {
@@ -16,6 +23,93 @@ function screenshot(width: number, height: number, fill: number): Buffer {
 }
 
 describe('packaged Electron smoke evidence', () => {
+  test('retries transient screenshot failures but keeps a bounded failure', async () => {
+    let attempts = 0;
+    const waits: number[] = [];
+    await expect(retrySmokeCapture(
+      async () => {
+        attempts += 1;
+        if (attempts < 3) throw new Error('UnknownVizError');
+        return 'captured';
+      },
+      async (milliseconds) => { waits.push(milliseconds); },
+    )).resolves.toBe('captured');
+    expect(attempts).toBe(3);
+    expect(waits).toEqual([SMOKE_CAPTURE_RETRY_MILLISECONDS, SMOKE_CAPTURE_RETRY_MILLISECONDS]);
+
+    let failedAttempts = 0;
+    await expect(retrySmokeCapture(
+      async () => {
+        failedAttempts += 1;
+        throw new Error('permanent');
+      },
+      async () => undefined,
+      { maximumAttempts: 2 },
+    )).rejects.toThrow('failed after 2 attempts');
+    expect(failedAttempts).toBe(2);
+  });
+
+  test('rejects empty frames and never accepts a late non-loading frame', async () => {
+    let emptyAttempts = 0;
+    await expect(captureNonEmptySmokeFrame(
+      async () => ({ isEmpty: () => ++emptyAttempts < 3 }),
+      async () => undefined,
+    )).resolves.toEqual(expect.objectContaining({ isEmpty: expect.any(Function) }));
+    expect(emptyAttempts).toBe(3);
+
+    await expect(captureNonEmptySmokeFrame(
+      async () => ({ isEmpty: () => true }),
+      async () => undefined,
+      { maximumAttempts: 2 },
+    )).rejects.toThrow('Electron returned an empty screenshot');
+
+    let loading = true;
+    let captureAttempts = 0;
+    await expect(captureLoadingSmokeFrame(
+      async () => {
+        captureAttempts += 1;
+        loading = false;
+        throw new Error('UnknownVizError');
+      },
+      async () => loading,
+      async () => undefined,
+      { maximumAttempts: 3 },
+    )).rejects.toThrow('Loading shell is no longer visible');
+    expect(captureAttempts).toBe(1);
+
+    const loadingChecks = [true, false];
+    await expect(captureLoadingSmokeFrame(
+      async () => ({ isEmpty: () => false }),
+      async () => loadingChecks.shift() ?? false,
+      async () => undefined,
+      { maximumAttempts: 1 },
+    )).rejects.toThrow('Loading shell changed during screenshot capture');
+
+    await expect(captureLoadingSmokeFrame(
+      async () => ({ isEmpty: () => false }),
+      async () => true,
+      async () => undefined,
+      { maximumAttempts: 1 },
+    )).resolves.toEqual(expect.objectContaining({ isEmpty: expect.any(Function) }));
+  });
+
+  test('stops retries when the caller deadline expires', async () => {
+    let now = 0;
+    let attempts = 0;
+    const waits: number[] = [];
+    await expect(retrySmokeCapture(
+      async () => {
+        attempts += 1;
+        now = 500;
+        throw new Error('capture failed');
+      },
+      async (milliseconds) => { waits.push(milliseconds); },
+      { deadlineMilliseconds: 400, now: () => now },
+    )).rejects.toThrow('failed after 1 attempt');
+    expect(attempts).toBe(1);
+    expect(waits).toEqual([]);
+  });
+
   test('keeps renderer FPS qualification strict while recording hosted shell measurements', () => {
     expect(evaluateRendererFps(60)).toEqual(expect.objectContaining({
       profile: 'qualification', thresholdPassed: true, thresholdRequired: true,
@@ -87,6 +181,7 @@ describe('packaged Electron smoke evidence', () => {
   test('requires runtime files and rejects project-source leaks', () => {
     const requiredListing = [
       '/build/electron/main/index.js',
+      '/build/electron/main/smoke-capture.js',
       '/build/electron/preload/index.js',
       '/build/electron/persistence/save-repository.js',
       '/build/src/domain/state/schema.js',
@@ -110,6 +205,9 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => validatePackageListing(requiredListing.replace('/dist/index.html\n', ''))).toThrow(
       'missing /dist/index.html',
     );
+    expect(() => validatePackageListing(
+      requiredListing.replace('/build/electron/main/smoke-capture.js\n', ''),
+    )).toThrow('missing /build/electron/main/smoke-capture.js');
     expect(() => validatePackageListing(requiredListing.replace(/\/dist\/assets\/assets\/proof\/phase2-atlas[^\n]+\n/u, ''))).toThrow(
       'missing required resource',
     );
