@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T13:05:03.130Z",
+  "testedCommit": "cc1c6368be945bc5a7e76349c47f718a256b848c",
+  "artifact": "SI World.app",
+  "signatureType": "ad-hoc",
+  "releaseTrusted": false,
+  "notarized": false,
+  "cdHash": "7a71a6d65fdbe56a5d694627b1087d394541906c",
+  "mainExecutableSha256": "0d25cdaa2d1c8c361e1b0b60608c4003c8e7e60783731fd5a8d4643276c1741e",
+  "verification": "codesign --verify --deep --strict"
+}

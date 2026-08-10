@@ -1,11 +1,33 @@
 import {
+  evaluateRendererFps,
   parseSmokeResult,
   validatePackageListing,
   validateScreenshotBuffers,
   validateWorldZoomBuffers,
 } from '../../scripts/electron/package-smoke-utils';
+import { PNG } from 'pngjs';
+
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+function screenshot(width: number, height: number, fill: number): Buffer {
+  const png = new PNG({ width, height });
+  png.data.fill(fill);
+  return PNG.sync.write(png);
+}
 
 describe('packaged Electron smoke evidence', () => {
+  test('keeps renderer FPS qualification strict while recording hosted shell measurements', () => {
+    expect(evaluateRendererFps(60)).toEqual(expect.objectContaining({
+      profile: 'qualification', thresholdPassed: true, thresholdRequired: true,
+    }));
+    expect(() => evaluateRendererFps(19.99)).toThrow('rounded 60 FPS');
+    expect(evaluateRendererFps(19.99, 'platform-shell')).toEqual(expect.objectContaining({
+      measuredFps: 19.99, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
+    }));
+    expect(() => evaluateRendererFps('unknown', 'platform-shell')).toThrow('measurement is invalid');
+    expect(() => evaluateRendererFps(60, 'weakened')).toThrow('Unknown package smoke profile');
+  });
+
   test('accepts one complete renderer readiness report', () => {
     const stdout = [
       'startup',
@@ -81,6 +103,7 @@ describe('packaged Electron smoke evidence', () => {
       '/node_modules/zod/package.json',
     ].join('\n');
     expect(() => validatePackageListing(requiredListing)).not.toThrow();
+    expect(() => validatePackageListing(requiredListing.replaceAll('/', '\\'))).not.toThrow();
     expect(() => validatePackageListing(`${requiredListing}\n/src/domain/prng.ts`)).toThrow(
       'excluded source',
     );
@@ -93,20 +116,38 @@ describe('packaged Electron smoke evidence', () => {
   });
 
   test('requires two distinct non-empty PNG screenshots', () => {
-    const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-    const loading = Buffer.concat([signature, Buffer.alloc(5_000, 1)]);
-    const ready = Buffer.concat([signature, Buffer.alloc(5_000, 2)]);
+    const loading = screenshot(640, 360, 1);
+    const ready = screenshot(640, 360, 2);
 
     expect(() => validateScreenshotBuffers(loading, ready)).not.toThrow();
-    expect(() => validateScreenshotBuffers(Buffer.alloc(20), ready)).toThrow('too small');
+    expect(loading.byteLength).toBeLessThan(4_096);
+    expect(() => validateScreenshotBuffers(Buffer.alloc(20), ready)).toThrow('not a PNG');
+    expect(() => validateScreenshotBuffers(
+      Buffer.concat([PNG_SIGNATURE, Buffer.from('invalid')]),
+      ready,
+    )).toThrow('not a valid PNG');
+    expect(() => validateScreenshotBuffers(screenshot(320, 180, 1), ready)).toThrow(
+      'dimensions are too small',
+    );
+    expect(() => validateScreenshotBuffers(screenshot(800, 450, 1), ready)).toThrow(
+      'dimensions do not match',
+    );
     expect(() => validateScreenshotBuffers(loading, loading)).toThrow('identical');
   });
 
   test('requires three distinct world zoom PNG screenshots', () => {
-    const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-    const zooms = [1, 2, 3].map((fill) => Buffer.concat([signature, Buffer.alloc(5_000, fill)]));
+    const zooms = [1, 2, 3].map((fill) => screenshot(640, 360, fill));
     expect(() => validateWorldZoomBuffers(zooms)).not.toThrow();
     expect(() => validateWorldZoomBuffers(zooms.slice(0, 2))).toThrow('exactly three');
+    expect(() => validateWorldZoomBuffers([
+      screenshot(320, 180, 1), zooms[1]!, zooms[2]!,
+    ])).toThrow('dimensions are too small');
+    expect(() => validateWorldZoomBuffers([
+      Buffer.concat([PNG_SIGNATURE, Buffer.from('invalid')]), zooms[1]!, zooms[2]!,
+    ])).toThrow('not a valid PNG');
+    expect(() => validateWorldZoomBuffers([
+      screenshot(800, 450, 1), zooms[1]!, zooms[2]!,
+    ])).toThrow('dimensions do not match');
     expect(() => validateWorldZoomBuffers([zooms[0]!, zooms[0]!, zooms[2]!])).toThrow('must be distinct');
   });
 });

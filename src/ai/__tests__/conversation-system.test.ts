@@ -14,9 +14,12 @@ import { classifyQuestionScope, parseWorldKnowledgeMarkdown } from '../knowledge
 import { buildPromptProjection, MAX_PROMPT_BYTES, promptUtf8Bytes } from '../projection/prompt-projection';
 import { buildSceneRegistry, type CharacterWriting } from '../registry/scene-registry';
 import { FileCharacterWritingStore } from '../registry/file-writing-store';
-import { isPositiveFirstPersonCatClaim } from '../registry/turn-candidates';
+import { buildTurnCandidateRegistry, isPositiveFirstPersonCatClaim } from '../registry/turn-candidates';
 import { deterministicPolicyDecision } from '../policy/content-policy';
-import { parseConversationResponseJson } from '../schemas/conversation-response';
+import {
+  conversationResponseJsonSchemaForScene,
+  parseConversationResponseJson,
+} from '../schemas/conversation-response';
 
 const fixture = (name: string): string => readFileSync(resolve('tests/fixtures/ai', name), 'utf8');
 const policyAllow = JSON.stringify({ decision: 'allow', category: 'allowed_fictional_adult' });
@@ -46,6 +49,33 @@ describe('validated local conversation system', () => {
       }));
       expect(parsed.dialogue).toContain(`fixture ${index}`);
     }
+  });
+
+  test('cat-claim grammar restricts player evidence before local validation', async () => {
+    const state = createInitialState();
+    const linda = await writingStore.get('linda');
+    const registry = buildSceneRegistry(state, linda, {
+      sceneObservationIds: [], npcReportIds: [], authoredEventIds: [],
+    });
+    const turnCandidates = buildTurnCandidateRegistry(registry, 'I have a cat');
+    const schema = conversationResponseJsonSchemaForScene(
+      registry,
+      turnCandidates,
+      ['turn-cat-grammar'],
+      { sourceId: 'turn-cat-grammar', evidenceText: 'I have a cat' },
+    ) as {
+      properties?: Readonly<Record<string, unknown>>;
+    };
+    const knowledge = schema.properties?.knowledgeCandidates as {
+      items?: { properties?: Record<string, { enum?: unknown[]; type?: unknown; anyOf?: unknown }> };
+    };
+    expect(knowledge.items?.properties?.candidateType?.enum).toEqual(['held_belief']);
+    expect(knowledge.items?.properties?.sourceType?.enum).toEqual(['player_message']);
+    expect(knowledge.items?.properties?.sourceId?.enum).toEqual(['turn-cat-grammar']);
+    expect(knowledge.items?.properties?.assertedValue?.enum).toEqual([true]);
+    expect(knowledge.items?.properties?.evidenceText?.type).toBe('string');
+    expect(knowledge.items?.properties?.evidenceText?.enum).toEqual(['I have a cat']);
+    expect(knowledge.items?.properties?.evidenceText?.anyOf).toBeUndefined();
   });
 
   test('prompt projection is deterministic, bounded, and excludes another NPC private state', async () => {

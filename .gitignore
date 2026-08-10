@@ -6,7 +6,7 @@ coverage/
 
 # Platform output
 out/
-release/
+/release/
 *.dmg
 *.exe
 *.AppImage

@@ -22,6 +22,8 @@ registerAppSchemePrivileges(protocol);
 
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
+const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
+const processStartedAt = performance.now();
 let smokeFinished = false;
 let conversationService: ConversationService | undefined;
 let conversationInference: BundledConversationInference | undefined;
@@ -52,7 +54,10 @@ async function captureSmokeScreenshot(window: BrowserWindow, screenshotPath: str
 
 async function waitForRendererPaint(window: BrowserWindow): Promise<void> {
   await window.webContents.executeJavaScript(
-    'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))',
+    `Promise.race([
+      new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)))),
+      new Promise((resolve) => setTimeout(() => resolve(false), 250)),
+    ])`,
     true,
   );
 }
@@ -240,6 +245,26 @@ async function waitForRendererText(
   throw new Error(`Timed out waiting for ${selector} to include ${expectedText}. Last text: ${lastText}`);
 }
 
+async function waitForAriaButtonEnabled(
+  window: BrowserWindow,
+  label: string,
+  timeoutMilliseconds = 20_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  while (Date.now() < deadline) {
+    const enabled = await window.webContents.executeJavaScript(`(() => {
+      const button = Array.from(document.querySelectorAll('[aria-label]')).find(
+        (element) => element.getAttribute('aria-label') === ${JSON.stringify(label)},
+      );
+      return button instanceof HTMLElement && button.getAttribute('aria-disabled') !== 'true' &&
+        !('disabled' in button && button.disabled === true);
+    })()`, true) as boolean;
+    if (enabled) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for enabled button: ${label}`);
+}
+
 function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
@@ -288,7 +313,11 @@ async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): 
   await waitForRendererPaint(window);
 }
 
-async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean>> {
+async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number>> {
+  const progress = (stage: string): void => {
+    process.stdout.write(`SI_WORLD_SMOKE_PROGRESS ${stage}\n`);
+  };
+  progress('new-game');
   await waitForSelector(window, '#new-game-flow');
   await captureSmokeScreenshot(window, join(directory, 'world-new-game.png'));
   const newGameFlow = (await rendererText(window, '#new-game-flow')).includes('WELCOME TO HALCYRA') &&
@@ -328,6 +357,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
   const zoomButtons = zoomLabels.every((label, index) => label.endsWith(`at ${index + 1}x`));
 
+  progress('camera-and-movement');
   await clickZoomButton(window, 2);
   let bounds = await surfaceBounds(window);
   const center = { x: bounds.x + 560, y: bounds.y + 310 };
@@ -400,6 +430,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     [zoomBuffers[0]!],
   );
 
+  progress('villa-interior');
   sendMouseClick(window, bounds.x + 560 - 6 * 32, bounds.y + 310 + 5 * 32);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
   const roofEntry = (await rendererText(window, '#world-ui-location')).includes('TILE 15,23') &&
@@ -440,6 +471,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 2');
   const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
 
+  progress('neighborhood-loop');
   await clickAriaButton(window, 'Set 1x time');
   await clickWorldTile(window, { x: 16, y: 25 });
   await waitForWorldTile(window, { x: 16, y: 25 });
@@ -484,6 +516,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     window, join(directory, 'world-loop-complete.png'), [previousWorldBuffer],
   );
 
+  progress('conversation');
   await clickZoomButton(window, 1);
   await panWorld(window, 0, 500);
   const lindaTile = parseLindaTile(await npcStateLabel(window));
@@ -530,14 +563,60 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     setter?.call(input, 'I have a cat');
     input.dispatchEvent(new Event('input', { bubbles: true }));
   })()`, true);
-  await clickAriaButton(window, 'Send conversation message');
-  const conversationBuffered = Boolean(await window.webContents.executeJavaScript(
-    `document.querySelector('[aria-label="NPC is thinking"]')`, true,
-  ));
+  const generationMetrics = await window.webContents.executeJavaScript(`new Promise((resolve, reject) => {
+    const button = Array.from(document.querySelectorAll('[aria-label]')).find(
+      (element) => element.getAttribute('aria-label') === 'Send conversation message',
+    );
+    if (!(button instanceof HTMLElement)) {
+      reject(new Error('Send conversation button is missing.'));
+      return;
+    }
+    const startedAt = performance.now();
+    const frameTimes = [];
+    let feedbackMilliseconds = null;
+    let finished = false;
+    const finish = (timedOut) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      const measuredFrames = frameTimes.filter((time) => time >= startedAt + (feedbackMilliseconds ?? 0));
+      const duration = measuredFrames.length > 1
+        ? measuredFrames[measuredFrames.length - 1] - measuredFrames[0]
+        : 0;
+      const rendererFps = duration > 0 ? ((measuredFrames.length - 1) * 1000) / duration : 0;
+      resolve({ feedbackMilliseconds, rendererFps, timedOut });
+    };
+    const timeout = setTimeout(() => finish(true), 30000);
+    button.click();
+    const frame = (now) => {
+      frameTimes.push(now);
+      const thinking = Boolean(document.querySelector('[aria-label="NPC is thinking"]'));
+      if (thinking && feedbackMilliseconds === null) feedbackMilliseconds = Math.max(0, now - startedAt);
+      if (feedbackMilliseconds !== null && !thinking) {
+        finish(false);
+        return;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  })`, true) as Readonly<{
+    feedbackMilliseconds: number | null;
+    rendererFps: number;
+    timedOut: boolean;
+  }>;
+  const conversationFeedbackMilliseconds = Math.round((generationMetrics.feedbackMilliseconds ?? 99_999) * 100) / 100;
+  const rendererFpsDuringGeneration = Math.round(generationMetrics.rendererFps * 100) / 100;
+  const conversationBuffered = !generationMetrics.timedOut && conversationFeedbackMilliseconds <= 100;
+  progress('conversation-first-turn-complete');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_000));
   const transcript = await rendererText(window, '#conversation-transcript');
-  const conversationFallback = transcript.includes('I lost the thread') && !transcript.includes('jsonSchema');
-  const modelFailureFeedback = (await rendererText(window, '#conversation-model-status')).includes('FALLBACK USED');
+  const modelStatus = await rendererText(window, '#conversation-model-status');
+  const conversationFallback = smokeExpectsModel
+    ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
+    : transcript.includes('I lost the thread') && !transcript.includes('jsonSchema');
+  const modelFailureFeedback = smokeExpectsModel
+    ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
+    : modelStatus.includes('FALLBACK USED');
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -547,10 +626,14 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   })()`, true);
   await clickAriaButton(window, 'Send conversation message');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 900));
-  const structuredInvitation = (await rendererText(window, '#conversation-transcript')).includes('current situation');
+  const structuredInvitation = smokeExpectsModel
+    ? (await rendererText(window, '#conversation-model-status')).includes('LOCAL MODEL REPLIED')
+    : (await rendererText(window, '#conversation-transcript')).includes('current situation');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-conversation.png'), [previousWorldBuffer],
   );
+  await waitForAriaButtonEnabled(window, 'End conversation');
+  progress('conversation-second-turn-complete');
   await clickAriaButton(window, 'End conversation');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
   const conversationCommitSave = !(await window.webContents.executeJavaScript(
@@ -582,6 +665,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   );
   await clickAriaButton(window, 'Close journal');
   await clickAriaButton(window, "Accept Linda's request");
+  progress('quest');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 9');
   const questStarted = (await questStateLabel(window)).includes('Linda quest active') &&
     (await questStateLabel(window)).includes('flags security_report_purchased');
@@ -634,12 +718,15 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const saveReload = loaded.status === 'loaded' && loaded.saveGeneration === 14 &&
     loaded.state?.protagonist?.id === 'protagonist' && loaded.state.protagonist.displayName === 'MISTAKE' &&
     loaded.state.quests?.linda_boyfriend_check?.status === 'resolved' && loaded.state.policeAttention === 'arrest-on-sight';
+  progress('complete');
   return {
     newGameFlow, stableProtagonist, allowanceReceipt, newGameSave, accessibilityPolicy,
     zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
-    conversationPause, conversationInputLocked, conversationSocialNavLocked, promptIdeasContextual, conversationBuffered, conversationFallback, modelFailureFeedback, audioCaptions, conversationCommitSave,
+    conversationPause, conversationInputLocked, conversationSocialNavLocked, promptIdeasContextual, conversationBuffered,
+    conversationFeedbackMilliseconds, rendererFpsDuringGeneration,
+    conversationFallback, modelFailureFeedback, audioCaptions, conversationCommitSave,
     structuredInvitation, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
     questStarted, questChoicePreview, questOutcome, questAutosave, consequenceCaption, policeHooks, saveReload,
   };
@@ -650,6 +737,9 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     return;
   }
   smokeFinished = true;
+  process.stdout.write(`SI_WORLD_RENDERER_READY ${JSON.stringify({
+    milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
+  })}\n`);
   const worldScreenshotDirectory = process.env.SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR;
   if (worldScreenshotDirectory) {
     const worldResult = await captureWorldSmoke(window, worldScreenshotDirectory);
@@ -691,6 +781,7 @@ async function createMainWindow(): Promise<void> {
     webPreferences: lockedWebPreferences(preloadPath),
     width: 1280,
   });
+  if (smokeMode) window.webContents.setBackgroundThrottling(false);
   window.removeMenu();
   registerRuntimeIpc(
     ipcMain,
@@ -712,6 +803,9 @@ async function createMainWindow(): Promise<void> {
   conversationService = new ConversationService(
     conversationInference,
     new FileCharacterWritingStore(contentRoot),
+    smokeExpectsModel
+      ? (diagnostic) => process.stdout.write(`SI_WORLD_CONVERSATION_DIAGNOSTIC ${JSON.stringify(diagnostic)}\n`)
+      : undefined,
   );
   registerConversationIpc(ipcMain, conversationService);
   window.webContents.once('destroyed', () => conversationService?.abortAll());

@@ -4,7 +4,11 @@ import type { Readable } from 'node:stream';
 import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, relative } from 'node:path';
 
-import { ModelClient, type CompletionRequest } from './model-client';
+import {
+  ModelClient,
+  type BufferedCompletionTiming,
+  type CompletionRequest,
+} from './model-client';
 import { reserveLoopbackPort, type ReservedPort } from './port';
 
 const FIVE_MINUTES = 5 * 60 * 1_000;
@@ -321,6 +325,20 @@ export class ModelSupervisor {
         throw new Error('Local model runtime is not ready.');
       }
       return this.#client.complete(request, AbortSignal.timeout(30_000));
+    });
+    this.#queue = operation.then(
+      () => undefined,
+      () => undefined,
+    );
+    return operation;
+  }
+
+  completeBufferedWithTimings(request: CompletionRequest): Promise<BufferedCompletionTiming> {
+    const operation = this.#queue.then(async () => {
+      if (this.#state !== 'ready' || !this.#client) {
+        throw new Error('Local model runtime is not ready.');
+      }
+      return this.#client.completeBufferedWithTimings(request, AbortSignal.timeout(30_000));
     });
     this.#queue = operation.then(
       () => undefined,

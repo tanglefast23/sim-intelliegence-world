@@ -64,6 +64,7 @@ export function conversationResponseJsonSchemaForScene(
   registry: SceneRegistry,
   turnCandidates: TurnCandidateRegistry,
   playerMessageIds: readonly string[],
+  currentPlayerEvidence?: Readonly<{ sourceId: string; evidenceText: string }>,
 ): Readonly<Record<string, unknown>> {
   const schema = structuredClone(conversationResponseJsonSchema) as JsonSchemaNode;
   property(schema, 'actionId').enum = [...turnCandidates.actionIds, null];
@@ -79,6 +80,9 @@ export function conversationResponseJsonSchemaForScene(
     const assertedValue = property(knowledgeItem, 'assertedValue');
     delete assertedValue.anyOf;
     assertedValue.type = 'boolean';
+    if (factIds.length === 1 && factIds[0] === 'protagonist_has_cat') {
+      assertedValue.enum = [true];
+    }
   }
   const sourceIds = [...new Set([
     ...playerMessageIds,
@@ -88,6 +92,25 @@ export function conversationResponseJsonSchemaForScene(
   ])].sort();
   property(knowledgeItem, 'sourceId').enum = sourceIds;
   delete property(knowledgeItem, 'sourceId').pattern;
+  const hasOnlyPlayerMessageSources = playerMessageIds.length > 0 &&
+    registry.sources.sceneObservationIds.length === 0 &&
+    registry.sources.npcReportIds.length === 0 &&
+    registry.sources.authoredEventIds.length === 0;
+  if (factIds.length > 0 && hasOnlyPlayerMessageSources) {
+    const candidateType = property(knowledgeItem, 'candidateType');
+    candidateType.enum = ['held_belief'];
+    const sourceType = property(knowledgeItem, 'sourceType');
+    sourceType.enum = ['player_message'];
+    const evidenceText = property(knowledgeItem, 'evidenceText');
+    delete evidenceText.anyOf;
+    evidenceText.type = 'string';
+    evidenceText.minLength = 1;
+    evidenceText.maxLength = 500;
+    if (currentPlayerEvidence) {
+      property(knowledgeItem, 'sourceId').enum = [currentPlayerEvidence.sourceId];
+      evidenceText.enum = [currentPlayerEvidence.evidenceText];
+    }
+  }
 
   closeArrayItems(
     property(schema, 'interestCandidateIds'),

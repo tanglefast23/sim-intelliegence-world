@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
 import { findPackagedExecutable } from '../electron/package-smoke-utils';
@@ -51,7 +51,10 @@ async function killProcesses(processIds: readonly number[]): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const applicationExecutable = findPackagedExecutable(join(process.cwd(), 'out'));
+  const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
+    ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
+    : join(process.cwd(), 'out');
+  const applicationExecutable = findPackagedExecutable(outputRoot);
   const modelExecutable = process.platform === 'darwin'
     ? join(dirname(applicationExecutable), '..', 'Resources', 'model-runtime', 'llama-server')
     : join(dirname(applicationExecutable), 'resources', 'model-runtime', 'llama-server.exe');

@@ -296,4 +296,28 @@ describe('secure Electron boundary', () => {
     expect(mainProcess).toContain("smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1'");
     expect(mainProcess).toContain('app.disableHardwareAcceleration()');
   });
+
+  test('Phase 14 CI packages and test-signs Intel macOS and Windows x64 shells', () => {
+    const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
+    expect(workflow).toContain('runs-on: macos-15-intel');
+    expect(workflow).toContain('npm run package:mac:x64');
+    expect(workflow).toContain('npm run sign:test:mac');
+    expect(workflow).toContain('artifacts/phase-14/macos-x64/current');
+    expect(workflow).toContain('runs-on: windows-2025');
+    expect(workflow).toContain('npm run package:windows:x64');
+    expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
+    expect(workflow).toContain('artifacts/phase-14/windows-x64/current');
+    expect(workflow).toContain('without model qualification claims');
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(3);
+    const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
+    expect(windowsSigner).toContain("Windows Kits\\10\\bin");
+    expect(windowsSigner).toContain('Get-AuthenticodeSignature');
+    expect(windowsSigner).toContain("$signature.Status -eq 'UnknownError'");
+    expect(windowsSigner).toContain("$signature.StatusMessage -match 'root certificate.+not trusted'");
+    expect(windowsSigner).toContain("$signature.Status -notin @('Valid', 'NotTrusted') -and -not $expectedUntrustedRoot");
+    expect(windowsSigner).toContain("$tamperedSignature.Status -ne 'HashMismatch'");
+    expect(windowsSigner).not.toContain('CurrentUser\\Root');
+    expect(windowsSigner).not.toContain('certutil.exe');
+    expect(workflow).toContain('timeout-minutes: 2');
+  });
 });

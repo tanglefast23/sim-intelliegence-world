@@ -1,11 +1,43 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { PNG } from 'pngjs';
 
 import { RendererReadySchema, type RendererReadyReport } from '../../electron/ipc/contracts';
 import { isTrustedAppUrl } from '../../electron/main/security';
 import { APP_URL } from '../../electron/protocol/app-protocol';
 
 const RESULT_PREFIX = 'SI_WORLD_SMOKE_RESULT ';
+
+export type PackageSmokeProfile = 'qualification' | 'platform-shell';
+
+export interface RendererFpsEvidence {
+  measuredFps: number;
+  profile: PackageSmokeProfile;
+  thresholdFps: number;
+  thresholdPassed: boolean;
+  thresholdRequired: boolean;
+}
+
+export function evaluateRendererFps(
+  value: unknown,
+  requestedProfile?: string,
+): RendererFpsEvidence {
+  const profile = requestedProfile ?? 'qualification';
+  if (profile !== 'qualification' && profile !== 'platform-shell') {
+    throw new Error(`Unknown package smoke profile: ${profile}.`);
+  }
+  const measuredFps = Number(value);
+  if (!Number.isFinite(measuredFps) || measuredFps <= 0) {
+    throw new Error(`Packaged renderer FPS measurement is invalid: ${String(value)}`);
+  }
+  const thresholdFps = 60;
+  const thresholdPassed = Math.round(measuredFps) >= thresholdFps;
+  const thresholdRequired = profile === 'qualification';
+  if (thresholdRequired && !thresholdPassed) {
+    throw new Error(`Packaged renderer did not hold a rounded 60 FPS during generation: ${String(value)}`);
+  }
+  return { measuredFps, profile, thresholdFps, thresholdPassed, thresholdRequired };
+}
 
 function filesUnder(path: string): string[] {
   return readdirSync(path).flatMap((entry) => {
@@ -44,7 +76,9 @@ export function findPackageArchive(outputRoot: string): string {
 }
 
 export function validatePackageListing(listing: string): void {
-  const entries = new Set(listing.split(/\r?\n/u).filter(Boolean));
+  const entries = new Set(
+    listing.split(/\r?\n/u).filter(Boolean).map((entry) => entry.replaceAll('\\', '/')),
+  );
   const required = [
     '/build/electron/main/index.js',
     '/build/electron/preload/index.js',
@@ -110,20 +144,36 @@ export function parseSmokeResult(stdout: string): RendererReadyReport {
 }
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-const MIN_SCREENSHOT_BYTES = 4_096;
+const MIN_SCREENSHOT_WIDTH = 640;
+const MIN_SCREENSHOT_HEIGHT = 360;
 
-function assertScreenshot(buffer: Buffer, label: string): void {
-  if (buffer.byteLength < MIN_SCREENSHOT_BYTES) {
-    throw new Error(`${label} screenshot is missing or too small.`);
-  }
+function assertScreenshot(buffer: Buffer, label: string): Readonly<{ width: number; height: number }> {
   if (!buffer.subarray(0, PNG_SIGNATURE.byteLength).equals(PNG_SIGNATURE)) {
     throw new Error(`${label} screenshot is not a PNG.`);
   }
+  let decoded: PNG;
+  try {
+    decoded = PNG.sync.read(buffer);
+  } catch (error) {
+    throw new Error(`${label} screenshot is not a valid PNG.`, { cause: error });
+  }
+  if (decoded.width < MIN_SCREENSHOT_WIDTH || decoded.height < MIN_SCREENSHOT_HEIGHT) {
+    throw new Error(
+      `${label} screenshot dimensions are too small: ${decoded.width}x${decoded.height}.`,
+    );
+  }
+  return { width: decoded.width, height: decoded.height };
 }
 
 export function validateScreenshotBuffers(loading: Buffer, ready: Buffer): void {
-  assertScreenshot(loading, 'Loading');
-  assertScreenshot(ready, 'Ready');
+  const loadingDimensions = assertScreenshot(loading, 'Loading');
+  const readyDimensions = assertScreenshot(ready, 'Ready');
+  if (
+    loadingDimensions.width !== readyDimensions.width ||
+    loadingDimensions.height !== readyDimensions.height
+  ) {
+    throw new Error('Loading and ready screenshot dimensions do not match.');
+  }
   if (loading.equals(ready)) {
     throw new Error('Loading and ready screenshots are identical.');
   }
@@ -135,7 +185,13 @@ export function validateScreenshotEvidence(loadingPath: string, readyPath: strin
 
 export function validateWorldZoomBuffers(zoomBuffers: readonly Buffer[]): void {
   if (zoomBuffers.length !== 3) throw new Error('World zoom evidence requires exactly three screenshots.');
-  zoomBuffers.forEach((buffer, index) => assertScreenshot(buffer, `World ${index + 1}x`));
+  const dimensions = zoomBuffers.map((buffer, index) =>
+    assertScreenshot(buffer, `World ${index + 1}x`));
+  const firstDimensions = dimensions[0]!;
+  if (dimensions.some(({ width, height }) =>
+    width !== firstDimensions.width || height !== firstDimensions.height)) {
+    throw new Error('World zoom screenshot dimensions do not match.');
+  }
   for (let left = 0; left < zoomBuffers.length; left += 1) {
     for (let right = left + 1; right < zoomBuffers.length; right += 1) {
       if (zoomBuffers[left]?.equals(zoomBuffers[right]!) === true) {

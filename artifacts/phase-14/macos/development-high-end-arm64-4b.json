@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T13:06:53.450Z",
+  "testedCommit": "cc1c6368be945bc5a7e76349c47f718a256b848c",
+  "qualificationProfile": "development-high-end",
+  "hardware": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "architecture": "arm64",
+    "processor": "Apple M5 Max",
+    "logicalCpuCount": 18,
+    "memoryBytes": 137438953472,
+    "hostFingerprint": "7a5d50e1f60fac3264d40acf9064844ceedc003125753b4e1004d2339cc96aab"
+  },
+  "package": {
+    "executableName": "si-world",
+    "bundledModelRuntime": true
+  },
+  "measurements": {
+    "rendererReadyMilliseconds": 1078.4,
+    "nonTextFeedbackMilliseconds": 4.4,
+    "rendererFpsDuringGeneration": 118.97
+  },
+  "thresholds": {
+    "nonTextFeedback": true,
+    "rendererFps": true
+  },
+  "limitations": []
+}
