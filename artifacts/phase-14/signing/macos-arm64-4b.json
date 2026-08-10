@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T12:23:45.075Z",
-  "testedCommit": "4e5017a53e555e8972c9ab4cbaae9600ed908209",
+  "generatedAt": "2026-08-10T13:05:03.130Z",
+  "testedCommit": "cc1c6368be945bc5a7e76349c47f718a256b848c",
   "artifact": "SI World.app",
   "signatureType": "ad-hoc",
   "releaseTrusted": false,
