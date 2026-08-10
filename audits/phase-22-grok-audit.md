@@ -32,3 +32,9 @@ Grok confirmed that the four initial issues were corrected, then found two mediu
 - The maximum-load responsive qualification passed at 120 FPS.
 - The five-size responsive matrix, presentation restart, and v5-to-v6 save migration passed.
 
+## Correction audit verdict
+
+Grok rechecked only the two residual corrections at high reasoning effort and returned `NO_CONFIRMED_FINDINGS`.
+
+- All three final reports pin `testedCommit` and `evidenceSource.baseCommit` to source commit `4209ce759d8837ea0a40cd03bc2ba85c369c078f`. Evidence commit `54e55c2` stores the resulting artifacts.
+- The active-pan proof event is available only when `SI_WORLD_SMOKE=1` passes through the main process, preload, and renderer gate. A normal game session does not register the event listener.
