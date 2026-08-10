@@ -132,6 +132,18 @@ async function main(): Promise<void> {
   }
   const profile = qualificationProfile();
   const diagnostic = process.env.SI_WORLD_QUALIFICATION_DIAGNOSTIC === '1';
+  const diagnosticFixtureIds = new Set<string>(
+    (process.env.SI_WORLD_QUALIFICATION_FIXTURE_IDS ?? '')
+      .split(',')
+      .map((id: string) => id.trim())
+      .filter(Boolean),
+  );
+  if (!diagnostic && diagnosticFixtureIds.size > 0) {
+    throw new Error('SI_WORLD_QUALIFICATION_FIXTURE_IDS requires diagnostic mode.');
+  }
+  const unknownDiagnosticId = [...diagnosticFixtureIds]
+    .find((id) => !CAPABILITY_FIXTURES.some((fixture) => fixture.id === id));
+  if (unknownDiagnosticId) throw new Error(`Unknown diagnostic fixture ID: ${unknownDiagnosticId}.`);
   const outputPath = resolve(
     process.cwd(),
     process.argv[3] ?? `artifacts/phase-14/model/${profile}/${requested}.json`,
@@ -221,13 +233,15 @@ async function main(): Promise<void> {
     await supervisor.stop();
     await supervisor.start();
     const seenDiagnosticCategories = new Set<CapabilityFixture['category']>();
-    const capabilityFixtures = diagnostic
-      ? CAPABILITY_FIXTURES.filter(({ category }) => {
+    const capabilityFixtures = diagnostic && diagnosticFixtureIds.size > 0
+      ? CAPABILITY_FIXTURES.filter(({ id }) => diagnosticFixtureIds.has(id))
+      : diagnostic
+        ? CAPABILITY_FIXTURES.filter(({ category }) => {
         if (seenDiagnosticCategories.has(category)) return false;
         seenDiagnosticCategories.add(category);
         return true;
-      })
-      : CAPABILITY_FIXTURES;
+        })
+        : CAPABILITY_FIXTURES;
     for (const [index, fixture] of capabilityFixtures.entries()) {
       try {
         const result = await supervisor.completeBufferedWithTimings({
