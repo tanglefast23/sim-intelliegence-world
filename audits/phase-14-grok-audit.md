@@ -27,7 +27,7 @@ Grok reported five high-impact evidence defects. All five were accepted.
 
 ## Honest measured result
 
-The final standalone run tested commit `19f4488fcf789baf6f690086d3be44dbf145c4c0`.
+The final standalone run tested commit `e736be86a9f4dc9b576b7e91ad701d87b5d7b142`.
 
 - Qwen3.5-4B: 100 of 100 ordinary responses valid, 98 of 100 capability fixtures first pass, all standalone development gates pass.
 - Qwen3.5-9B: 100 of 100 ordinary responses valid, 88 of 100 capability fixtures first pass, capability gate fails.
