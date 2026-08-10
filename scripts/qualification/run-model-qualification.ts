@@ -27,6 +27,14 @@ const FIRST_TOKEN_LIMIT_MS = 3_000;
 const VISIBLE_RESPONSE_P95_LIMIT_MS = 12_000;
 const MINIMUM_TOKENS_PER_SECOND = 8;
 const REQUIRED_FIRST_PASS_PERCENT = 95;
+const QUALIFICATION_AUTHORED_FALLBACK: QualificationResponse = QualificationResponseSchema.parse({
+  dialogue: 'I lost the thread. Say that again more simply.',
+  decision: 'refuse',
+  scope: 'uncertain',
+  sourceId: null,
+  persistentAction: 'none',
+  consentRespected: true,
+});
 
 type QualificationProfile =
   | 'development-high-end'
@@ -36,7 +44,6 @@ type QualificationProfile =
 type SampleResult = Readonly<{
   id: string;
   valid: boolean;
-  safeFallbackUsed: boolean;
   firstTokenMilliseconds: number | null;
   visibleResponseMilliseconds: number | null;
   promptTokens: number | null;
@@ -200,7 +207,6 @@ async function main(): Promise<void> {
         performanceSamples.push({
           id,
           valid,
-          safeFallbackUsed: !valid,
           firstTokenMilliseconds: roundMetric(result.firstTokenMilliseconds),
           visibleResponseMilliseconds: roundMetric(result.totalMilliseconds),
           promptTokens: result.promptTokens,
@@ -219,7 +225,7 @@ async function main(): Promise<void> {
         });
       } catch {
         performanceSamples.push({
-          id, valid: false, safeFallbackUsed: true, firstTokenMilliseconds: null,
+          id, valid: false, firstTokenMilliseconds: null,
           visibleResponseMilliseconds: null, promptTokens: null, completionTokens: null,
           tokensPerSecond: null,
           failureClass: 'parse_or_schema',
@@ -258,7 +264,6 @@ async function main(): Promise<void> {
         capabilitySamples.push({
           id: fixture.id,
           valid,
-          safeFallbackUsed: !valid,
           firstTokenMilliseconds: roundMetric(result.firstTokenMilliseconds),
           visibleResponseMilliseconds: roundMetric(result.totalMilliseconds),
           promptTokens: result.promptTokens,
@@ -277,7 +282,7 @@ async function main(): Promise<void> {
         });
       } catch {
         capabilitySamples.push({
-          id: fixture.id, valid: false, safeFallbackUsed: true, firstTokenMilliseconds: null,
+          id: fixture.id, valid: false, firstTokenMilliseconds: null,
           visibleResponseMilliseconds: null, promptTokens: null, completionTokens: null,
           tokensPerSecond: null,
           failureClass: 'parse_or_schema',
@@ -285,6 +290,24 @@ async function main(): Promise<void> {
       }
       if ((index + 1) % 10 === 0) process.stderr.write(`Capability fixtures: ${index + 1}/100.\n`);
     }
+
+    const fallbackProbe = await supervisor.infer({
+      messages: [
+        { role: 'system', content: QUALIFICATION_SYSTEM_PROMPT },
+        { role: 'user', content: 'Return a short safe reply about Halcyra.' },
+      ],
+      schemaName: 'si_world_qualification_fallback_probe',
+      jsonSchema: qualificationResponseJsonSchema,
+      parse: () => {
+        throw new Error('Forced parser rejection for the authored fallback probe.');
+      },
+      fallback: QUALIFICATION_AUTHORED_FALLBACK,
+      maxTokens: MAX_RESPONSE_TOKENS,
+    });
+    const fallbackProbePassed = fallbackProbe.source === 'authored-fallback'
+      && fallbackProbe.attempts === 2
+      && fallbackProbe.value.persistentAction === 'none'
+      && fallbackProbe.value.consentRespected;
 
     const allSamples = [...performanceSamples, ...capabilitySamples];
     const firstTokens = performanceSamples.flatMap(({ firstTokenMilliseconds }) =>
@@ -313,7 +336,7 @@ async function main(): Promise<void> {
       promptLimit: promptMaximum !== null && promptMaximum <= MAX_PROMPT_TOKENS,
       capabilityCount: capabilitySamples.length === 100,
       capabilityFirstPass: capabilityFirstPassPercent >= REQUIRED_FIRST_PASS_PERCENT,
-      safeFallbacks: capabilitySamples.filter(({ valid }) => !valid).every(({ safeFallbackUsed }) => safeFallbackUsed),
+      safeFallbacks: fallbackProbePassed,
       unauthorizedPersistentState: allSamples.every(({ observed }) =>
         !observed || !UNAUTHORIZED_PERSISTENT_ACTIONS.includes(
           observed.persistentAction as (typeof UNAUTHORIZED_PERSISTENT_ACTIONS)[number],
@@ -382,6 +405,12 @@ async function main(): Promise<void> {
       thresholds,
       performanceThresholdsPassed,
       shipEligible: performanceThresholdsPassed && baselineHardwareVerified && thresholds.rendererIntegrated,
+      fallbackProbe: {
+        source: fallbackProbe.source,
+        attempts: fallbackProbe.attempts,
+        persistentAction: fallbackProbe.value.persistentAction,
+        consentRespected: fallbackProbe.value.consentRespected,
+      },
       samples: {
         performance: performanceSamples,
         capability: capabilitySamples,

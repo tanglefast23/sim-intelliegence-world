@@ -45,3 +45,12 @@ The Phase 14 implementation closes the audit defects and produces reproducible d
 The final native macOS ARM64 package tested commit `4e5017a53e555e8972c9ab4cbaae9600ed908209` with the bundled 4B model. It passed ad-hoc signature verification, model lifecycle and forced-parent-death checks, and the complete playable smoke route. The measured response feedback was 5.6 ms and the measured renderer rate during generation was 119.39 FPS.
 
 The package proof found and fixed two test-harness defects before the passing run. Packaged model smokes now accept an explicit output root, and renderer paint and generation waits have wall-clock bounds. Smoke mode disables Electron background throttling so an occluded test window cannot stop its only proof clock. These settings do not change normal player runtime behavior.
+
+## Final re-audit
+
+Grok confirmed the recorded 4B and 9B scores, the open capability scoring, tested-commit binding, smoke target selection, bounded waits, cross-platform CI design, and the absence of a ship claim. It found two residual evidence errors. Both were accepted.
+
+1. `safeFallbacks` was derived from a flag set automatically on every invalid sample.
+   - Fix: remove that per-sample flag. Run two deliberately rejected model responses through the real supervisor and require the resulting authored fallback to preserve consent and propose no persistent action.
+2. The qualification status called every 9B miss a no-change path.
+   - Fix: record that `halcyra_001` proposed the allowed `request_authored_action` bridge. The other misses proposed no persistent action, and none proposed an unauthorized state change.
