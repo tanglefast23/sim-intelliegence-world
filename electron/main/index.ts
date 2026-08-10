@@ -101,6 +101,21 @@ async function roofLabel(window: BrowserWindow): Promise<string> {
   ) as Promise<string>;
 }
 
+async function waitForRoofLabel(
+  window: BrowserWindow,
+  expectedLabel: 'Villa roof restored' | 'Villa roof hidden',
+  timeoutMilliseconds = 6_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastLabel = '';
+  while (Date.now() < deadline) {
+    lastLabel = await roofLabel(window);
+    if (lastLabel === expectedLabel) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for roof label ${expectedLabel}. Last label: ${lastLabel}`);
+}
+
 async function worldStateLabel(window: BrowserWindow): Promise<string> {
   return window.webContents.executeJavaScript(
     `document.querySelector('#world-state')?.getAttribute('aria-label') ?? ''`,
@@ -229,6 +244,27 @@ async function waitForWorldLocation(
   throw new Error(`Timed out waiting for ${mapName} tile ${tile.x},${tile.y}. Last state: ${lastLabel}`);
 }
 
+async function waitForWorldMinuteStable(
+  window: BrowserWindow,
+  stableMilliseconds = 1_500,
+  timeoutMilliseconds = 8_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let stableSince = Date.now();
+  let lastMinute = parseWorldStateLabel(await worldStateLabel(window)).minute;
+  while (Date.now() < deadline) {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+    const minute = parseWorldStateLabel(await worldStateLabel(window)).minute;
+    if (minute !== lastMinute) {
+      lastMinute = minute;
+      stableSince = Date.now();
+      continue;
+    }
+    if (Date.now() - stableSince >= stableMilliseconds) return;
+  }
+  throw new Error(`Timed out waiting for the world clock to pause. Last minute: ${lastMinute}`);
+}
+
 async function waitForRendererText(
   window: BrowserWindow,
   selector: string,
@@ -263,6 +299,43 @@ async function waitForAriaButtonEnabled(
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   }
   throw new Error(`Timed out waiting for enabled button: ${label}`);
+}
+
+async function conversationTranscriptChildCount(window: BrowserWindow): Promise<number> {
+  return window.webContents.executeJavaScript(`(() => {
+    const transcript = document.querySelector('#conversation-transcript');
+    if (!(transcript instanceof HTMLElement)) throw new Error('Conversation transcript is missing.');
+    return transcript.children.length;
+  })()`, true) as Promise<number>;
+}
+
+async function waitForConversationTurnComplete(
+  window: BrowserWindow,
+  priorTranscriptChildCount: number,
+  timeoutMilliseconds = 30_000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastChildCount = priorTranscriptChildCount;
+  while (Date.now() < deadline) {
+    const state = await window.webContents.executeJavaScript(`(() => {
+      const transcript = document.querySelector('#conversation-transcript');
+      const endButton = Array.from(document.querySelectorAll('[aria-label]')).find(
+        (element) => element.getAttribute('aria-label') === 'End conversation',
+      );
+      if (!(transcript instanceof HTMLElement) || !(endButton instanceof HTMLElement)) {
+        return { childCount: 0, endEnabled: false };
+      }
+      const endEnabled = endButton.getAttribute('aria-disabled') !== 'true' &&
+        !('disabled' in endButton && endButton.disabled === true);
+      return { childCount: transcript.children.length, endEnabled };
+    })()`, true) as Readonly<{ childCount: number; endEnabled: boolean }>;
+    lastChildCount = state.childCount;
+    if (state.endEnabled && state.childCount >= priorTranscriptChildCount + 2) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(
+    `Timed out waiting for a completed conversation turn. Transcript children: ${lastChildCount}; prior: ${priorTranscriptChildCount}`,
+  );
 }
 
 function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
@@ -362,7 +435,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   let bounds = await surfaceBounds(window);
   const center = { x: bounds.x + 560, y: bounds.y + 310 };
   sendMouseClick(window, center.x + 3 * 32 * 2, center.y);
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 750));
+  await waitForWorldTile(window, { x: 21, y: 18 }, 10_000);
   const movedText = await rendererText(window, '#world-ui-location');
   const movement = movedText.includes('TILE 21,18');
 
@@ -419,9 +492,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const tilePattern = /TILE \d+,\d+/u;
   const uiClickThrough = beforeUi.match(tilePattern)?.[0] === afterUi.match(tilePattern)?.[0];
 
-  bounds = await surfaceBounds(window);
-  sendMouseClick(window, bounds.x + 560 - 6 * 32, bounds.y + 310 + 7 * 32);
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 2_300));
+  await clickWorldTile(window, { x: 15, y: 25 });
+  await waitForWorldTile(window, { x: 15, y: 25 }, 10_000);
+  await waitForRoofLabel(window, 'Villa roof restored');
   const outsideText = await rendererText(window, '#world-ui-location');
   const roofRestore = outsideText.includes('TILE 15,25') && await roofLabel(window) === 'Villa roof restored';
   let previousWorldBuffer = await captureDistinctSmokeScreenshot(
@@ -431,8 +504,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   );
 
   progress('villa-interior');
-  sendMouseClick(window, bounds.x + 560 - 6 * 32, bounds.y + 310 + 5 * 32);
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
+  await clickWorldTile(window, { x: 15, y: 23 });
+  await waitForWorldTile(window, { x: 15, y: 23 }, 10_000);
+  await waitForRoofLabel(window, 'Villa roof hidden');
   const roofEntry = (await rendererText(window, '#world-ui-location')).includes('TILE 15,23') &&
     await roofLabel(window) === 'Villa roof hidden';
 
@@ -529,12 +603,11 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     throw new Error(`Linda selection failed: talk ${JSON.stringify(talkLabels)}; NPC ${await npcStateLabel(window)}; world ${await worldStateLabel(window)}`);
   }
   await clickAriaButton(window, 'Talk to Linda');
-  const conversationBefore = parseWorldStateLabel(await worldStateLabel(window));
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));
-  const conversationAfter = parseWorldStateLabel(await worldStateLabel(window));
-  const conversationPause = conversationBefore.minute === conversationAfter.minute &&
-    (await rendererText(window, '#world-ui-conversation-panel')).includes('TIME PAUSED');
+  await waitForRendererText(window, '#world-ui-conversation-panel', 'TIME PAUSED');
+  await waitForRendererText(window, '#world-audio-caption', 'GREETING CHIRP');
   const audioCaptions = (await rendererText(window, '#world-audio-caption')).includes('GREETING CHIRP');
+  await waitForWorldMinuteStable(window);
+  const conversationPause = (await rendererText(window, '#world-ui-conversation-panel')).includes('TIME PAUSED');
   const cameraBeforeConversationInput = await cameraLabel(window);
   const locationBeforeConversationInput = await rendererText(window, '#world-ui-location');
   await window.webContents.executeJavaScript(`(() => {
@@ -556,6 +629,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     `Boolean(document.querySelector('#world-ui-social-nav'))`, true,
   ));
   const promptIdeasContextual = (await rendererText(window, '#conversation-prompt-suggestions')).trim().length === 0;
+  const transcriptChildrenBeforeFirstTurn = await conversationTranscriptChildCount(window);
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -608,7 +682,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const rendererFpsDuringGeneration = Math.round(generationMetrics.rendererFps * 100) / 100;
   const conversationBuffered = !generationMetrics.timedOut && conversationFeedbackMilliseconds <= 100;
   progress('conversation-first-turn-complete');
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_000));
+  await waitForConversationTurnComplete(window, transcriptChildrenBeforeFirstTurn);
   const transcript = await rendererText(window, '#conversation-transcript');
   const modelStatus = await rendererText(window, '#conversation-model-status');
   const conversationFallback = smokeExpectsModel
@@ -617,6 +691,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const modelFailureFeedback = smokeExpectsModel
     ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
     : modelStatus.includes('FALLBACK USED');
+  const transcriptChildrenBeforeInvitation = await conversationTranscriptChildCount(window);
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -625,14 +700,14 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     input.dispatchEvent(new Event('input', { bubbles: true }));
   })()`, true);
   await clickAriaButton(window, 'Send conversation message');
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 900));
+  await waitForConversationTurnComplete(window, transcriptChildrenBeforeInvitation);
+  await waitForAriaButtonEnabled(window, 'End conversation');
   const structuredInvitation = smokeExpectsModel
     ? (await rendererText(window, '#conversation-model-status')).includes('LOCAL MODEL REPLIED')
     : (await rendererText(window, '#conversation-transcript')).includes('current situation');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-conversation.png'), [previousWorldBuffer],
   );
-  await waitForAriaButtonEnabled(window, 'End conversation');
   progress('conversation-second-turn-complete');
   await clickAriaButton(window, 'End conversation');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
@@ -654,7 +729,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForWorldTile(window, lindaApproachTile, 10_000);
   await dispatchWorldTileClick(window, currentLindaTile);
   await clickAriaButton(window, 'Open journal');
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
+  await waitForRendererText(window, '#world-ui-journal-panel', 'LINDA · REJECTED');
   const journalInvitation = (await rendererText(window, '#world-ui-journal-panel')).includes('LINDA · REJECTED');
   await clickAriaButton(window, 'Buy villa security report');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 8');

@@ -33,3 +33,11 @@ Grok found no remaining defect in intentional-open validation, exact roof-mask s
 ## Final disposition
 
 Phase 18 is ready for its full repository gate and focused PR. It adds the v2 authoring and compiler foundation without changing production v1 map geometry, runtime collision, or save data.
+
+## Post-PR Intel smoke correction
+
+The first PR run passed the full verification and Windows package jobs but failed the Intel macOS smoke at `roofRestore`. The test used fixed elapsed delays and sampled player, roof, and conversation state before slower hosts had completed those actions.
+
+The smoke harness now waits for exact player tiles, roof accessibility labels, completed transcript turns, a stable paused world minute, the timely greeting caption, and the exact journal invitation text. The complete local Intel package smoke passed with every world check true.
+
+Grok audited the correction at high effort. Its first pass found two confirmed issues: the second-turn End-button wait did not prove a new reply, and the long roof path retained a six-second timeout. Both were fixed. The final re-audit verdict was `NO_CONFIRMED_FINDINGS`.
