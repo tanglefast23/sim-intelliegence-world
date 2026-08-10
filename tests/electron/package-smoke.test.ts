@@ -2,6 +2,7 @@ import {
   parseSmokeResult,
   validatePackageListing,
   validateScreenshotBuffers,
+  validateWorldZoomBuffers,
 } from '../../scripts/electron/package-smoke-utils';
 
 describe('packaged Electron smoke evidence', () => {
@@ -86,5 +87,13 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => validateScreenshotBuffers(loading, ready)).not.toThrow();
     expect(() => validateScreenshotBuffers(Buffer.alloc(20), ready)).toThrow('too small');
     expect(() => validateScreenshotBuffers(loading, loading)).toThrow('identical');
+  });
+
+  test('requires three distinct world zoom PNG screenshots', () => {
+    const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const zooms = [1, 2, 3].map((fill) => Buffer.concat([signature, Buffer.alloc(5_000, fill)]));
+    expect(() => validateWorldZoomBuffers(zooms)).not.toThrow();
+    expect(() => validateWorldZoomBuffers(zooms.slice(0, 2))).toThrow('exactly three');
+    expect(() => validateWorldZoomBuffers([zooms[0]!, zooms[0]!, zooms[2]!])).toThrow('must be distinct');
   });
 });

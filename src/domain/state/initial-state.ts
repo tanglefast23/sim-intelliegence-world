@@ -39,6 +39,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
       health: 100,
       confidence: 50,
       locationId: 'protagonist_villa',
+      worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
     },
     npcs: {
       linda: {

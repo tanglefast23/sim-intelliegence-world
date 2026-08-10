@@ -37,6 +37,13 @@ export const DomainCommandSchema = z.discriminatedUnion('type', [
     scale: z.enum(['ordinary', 'major']),
     reason: z.string().trim().min(1).max(160),
   }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('move-protagonist'),
+    mapId: StableIdSchema,
+    locationId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
+  }).strict(),
 ]);
 
 export type DomainCommand = z.infer<typeof DomainCommandSchema>;

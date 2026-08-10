@@ -1,5 +1,5 @@
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import process from 'node:process';
 
@@ -8,7 +8,9 @@ import {
   findPackagedExecutable,
   parseSmokeResult,
   validatePackageListing,
+  validateScreenshotBuffers,
   validateScreenshotEvidence,
+  validateWorldZoomEvidence,
 } from './package-smoke-utils';
 
 const outputRoot = join(process.cwd(), 'out');
@@ -25,9 +27,13 @@ const screenshotDirectory = process.argv[2]
   : join(process.cwd(), 'artifacts/phase-02');
 const screenshotPath = join(screenshotDirectory, 'packaged-electron.png');
 const loadingScreenshotPath = join(screenshotDirectory, 'packaged-loading.png');
+const worldZoomPaths = [1, 2, 3].map((zoom) => join(screenshotDirectory, `world-${zoom}x.png`));
+const roofScreenshotPath = join(screenshotDirectory, 'world-roof-restored.png');
 mkdirSync(screenshotDirectory, { recursive: true });
 rmSync(loadingScreenshotPath, { force: true });
 rmSync(screenshotPath, { force: true });
+worldZoomPaths.forEach((path) => rmSync(path, { force: true }));
+rmSync(roofScreenshotPath, { force: true });
 const child = spawn(executable, [], {
   detached: false,
   env: {
@@ -35,6 +41,7 @@ const child = spawn(executable, [], {
     SI_WORLD_SMOKE: '1',
     SI_WORLD_SMOKE_LOADING_SCREENSHOT: loadingScreenshotPath,
     SI_WORLD_SMOKE_SCREENSHOT: screenshotPath,
+    SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR: screenshotDirectory,
   },
   shell: false,
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -64,7 +71,20 @@ child.once('close', (code) => {
   }
   const report = parseSmokeResult(stdout);
   validateScreenshotEvidence(loadingScreenshotPath, screenshotPath);
+  validateWorldZoomEvidence(worldZoomPaths);
+  validateScreenshotBuffers(readFileSync(worldZoomPaths[0]!), readFileSync(roofScreenshotPath));
+  const worldResultLine = stdout.split(/\r?\n/u).find((line) => line.startsWith('SI_WORLD_WORLD_SMOKE_RESULT '));
+  if (!worldResultLine) throw new Error('Packaged app did not emit world input evidence.');
+  const worldResult = JSON.parse(worldResultLine.slice('SI_WORLD_WORLD_SMOKE_RESULT '.length)) as Record<string, unknown>;
+  for (const key of ['zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'centerKey', 'cancelKey', 'uiClickThrough', 'roofRestore', 'roofEntry']) {
+    if (worldResult[key] !== true) {
+      throw new Error(`Packaged world input check failed: ${key}. ${JSON.stringify(worldResult)}`);
+    }
+  }
+  if (readFileSync(worldZoomPaths[0]!).equals(readFileSync(worldZoomPaths[2]!))) {
+    throw new Error('Packaged 1x and 3x world evidence is identical.');
+  }
   process.stdout.write(
-    `Packaged Electron smoke: ${JSON.stringify(report)} loading=${loadingScreenshotPath} ready=${screenshotPath}\n`,
+    `Packaged Electron smoke: ${JSON.stringify(report)} world=${JSON.stringify(worldResult)} loading=${loadingScreenshotPath} ready=${screenshotPath}\n`,
   );
 });

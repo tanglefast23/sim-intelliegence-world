@@ -16,6 +16,11 @@ export const ProtagonistStateSchema = z.object({
   health: BoundedConditionSchema,
   confidence: BoundedConditionSchema,
   locationId: StableIdSchema,
+  worldPosition: z.object({
+    mapId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
+  }).strict(),
 }).strict();
 
 export const KnowledgeSourceSchema = z.object({

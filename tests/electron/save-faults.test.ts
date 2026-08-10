@@ -345,7 +345,7 @@ describe('save migrations and state invariants', () => {
     const migrated = migrateStateCopy(source, 'generation-migrated-001');
 
     expect(JSON.stringify(source)).toBe(before);
-    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
     expect(migrated.generationId).toBe('generation-migrated-001');
     expect(migrated.modelPin).toEqual({
       id: 'qwen3.5-9b',
@@ -353,6 +353,11 @@ describe('save migrations and state invariants', () => {
       artifactSha256: '8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341',
     });
     expect(migrated.npcs.linda?.unlockedIds).toEqual([]);
+    expect(migrated.protagonist.worldPosition).toEqual({
+      mapId: 'northwest_residential',
+      tileX: 18,
+      tileY: 18,
+    });
   });
 
   test('an unavailable migration fails without modifying its source', () => {
@@ -362,7 +367,7 @@ describe('save migrations and state invariants', () => {
     expect(JSON.stringify(source)).toBe(before);
   });
 
-  test('copying a current v2 state also receives the requested new generation ID', () => {
+  test('copying a current v3 state also receives the requested new generation ID', () => {
     const source = createInitialState();
     const migrated = migrateStateCopy(source, 'generation-current-copy-001');
     expect(migrated.generationId).toBe('generation-current-copy-001');
@@ -387,12 +392,18 @@ describe('save migrations and state invariants', () => {
       sourceSlotId: 'slot-001',
       targetSlotId: 'slot-002',
       saveGeneration: 1,
-      stateSchemaVersion: 2,
+      stateSchemaVersion: 3,
     }));
     expect(await readFile(sourcePath, 'utf8')).toBe(legacyBytes);
     await expect(repository.load('slot-002')).resolves.toEqual(expect.objectContaining({
       status: 'loaded',
-      state: expect.objectContaining({ generationId: 'generation-migrated-002', schemaVersion: 2 }),
+      state: expect.objectContaining({
+        generationId: 'generation-migrated-002',
+        schemaVersion: 3,
+        protagonist: expect.objectContaining({
+          worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
+        }),
+      }),
     }));
   });
 

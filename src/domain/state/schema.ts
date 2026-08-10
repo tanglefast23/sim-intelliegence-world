@@ -20,7 +20,7 @@ import {
   TransferStateSchema,
 } from './models';
 
-export const STATE_SCHEMA_VERSION = 2 as const;
+export const STATE_SCHEMA_VERSION = 3 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
