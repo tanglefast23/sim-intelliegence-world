@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getDesktopBridge } from '../application/DesktopBridge';
+import { useReducedMotion } from '../application/accessibility';
 import { createBrowserConversationPort } from '../ai/conversation/browser-port';
 import { autosaveStableState } from '../application/runtime/autosave';
 import { WORLD_MAP_CATALOG } from '../application/runtime/map-catalog';
@@ -26,8 +27,9 @@ import { effectiveSpeed } from '../domain/clock/clock';
 import { reduceCommand } from '../domain/commands/reducer';
 import { DomainCommandSchema } from '../domain/commands/types';
 import { lindaContextActions, type ContextQuestAction } from '../domain/quests/quest-machine';
-import { createInitialState } from '../domain/state/initial-state';
 import type { WorldState } from '../domain/state/schema';
+import { VOCAL_CUE_CAPTIONS, type VocalCueId } from '../audio/vocal-cue-policy';
+import { useVocalCues } from '../audio/vocal-cues';
 import { BedActions } from '../ui/BedActions';
 import { ConversationPanel } from '../ui/ConversationPanel';
 import { ContextActionMenu } from '../ui/ContextActionMenu';
@@ -154,11 +156,19 @@ function stateNpcId(visualId: string): string | undefined {
   return undefined;
 }
 
-type WorldSceneProps = Readonly<{ onReady: () => void }>;
+type WorldSceneProps = Readonly<{
+  initialFeedback: string;
+  initialSaveGeneration: number | null;
+  initialSaveStatus: string;
+  initialState: WorldState;
+}>;
 
-export function WorldScene({ onReady }: WorldSceneProps) {
+export function WorldScene({
+  initialFeedback, initialSaveGeneration, initialSaveStatus, initialState,
+}: WorldSceneProps) {
   const image = useImage(atlasImage);
-  const initialState = useMemo(() => createInitialState(), []);
+  const reducedMotion = useReducedMotion();
+  const playVocalCue = useVocalCues();
   const initialTile = useMemo(() => ({
     x: initialState.protagonist.worldPosition.tileX,
     y: initialState.protagonist.worldPosition.tileY,
@@ -171,16 +181,17 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   const [camera, setCamera] = useState<CameraState>(() => centerCameraOnTile(initialTile, 2, VIEWPORT, MAP_PIXELS));
   const [frame, setFrame] = useState<0 | 1>(0);
   const [selected, setSelected] = useState<string>('protagonist');
-  const [saveStatus, setSaveStatus] = useState('SAVE READY');
-  const [persistenceReady, setPersistenceReady] = useState(() => !getDesktopBridge());
+  const [saveStatus, setSaveStatus] = useState(initialSaveStatus);
   const [transitioning, setTransitioning] = useState(false);
   const [arrivalLock, setArrivalLock] = useState<string>();
-  const [worldFeedback, setWorldFeedback] = useState<string>();
+  const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
   const [conversationNpcId, setConversationNpcId] = useState<string>();
   const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
+  const [audioCaption, setAudioCaption] = useState<string>();
   const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
-  const saveGeneration = useRef<number | null>(null);
+  const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const handledSleepEventId = useRef<string | undefined>(undefined);
+  const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
   const npcTiles = useMemo(() => actorTiles(runtime.worldState, mapId), [mapId, runtime.worldState]);
@@ -188,34 +199,16 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   const speed = effectiveSpeed(runtime.worldState.clock);
   const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected));
 
-  const applyLoadedState = useCallback((state: WorldState) => {
-    const tile = { x: state.protagonist.worldPosition.tileX, y: state.protagonist.worldPosition.tileY };
-    setRuntime({ movement: createMovementState(tile), npcMovements: npcMovementState(state), worldState: state });
-    setCamera((current) => centerCameraOnTile(tile, current.zoom, VIEWPORT, MAP_PIXELS));
-  }, []);
+  const triggerVocalCue = useCallback((cue: VocalCueId) => {
+    playVocalCue(cue);
+    setAudioCaption(VOCAL_CUE_CAPTIONS[cue]);
+    if (captionTimer.current) clearTimeout(captionTimer.current);
+    captionTimer.current = setTimeout(() => setAudioCaption(undefined), 1_500);
+  }, [playVocalCue]);
 
-  useEffect(() => {
-    const bridge = getDesktopBridge();
-    if (!bridge) return;
-    let active = true;
-    void bridge.loadSave('slot-001').then((result) => {
-      if (!active) return;
-      if (result.status === 'loaded') {
-        saveGeneration.current = result.saveGeneration;
-        applyLoadedState(result.state);
-        setSaveStatus(`LOADED GEN ${result.saveGeneration}`);
-      } else if (result.status === 'unrecoverable') {
-        setSaveStatus('SAVE RECOVERY FAILED');
-      }
-      setPersistenceReady(true);
-    }).catch(() => {
-      if (active) {
-        setSaveStatus('SAVE LOAD FAILED');
-        setPersistenceReady(true);
-      }
-    });
-    return () => { active = false; };
-  }, [applyLoadedState]);
+  useEffect(() => () => {
+    if (captionTimer.current) clearTimeout(captionTimer.current);
+  }, []);
 
   const requestAutosave = useCallback(async (
     state: WorldState,
@@ -250,32 +243,22 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   }, []);
 
   useEffect(() => {
-    if (runtime.movement.status !== 'moving' || speed === 0) {
+    if (reducedMotion || runtime.movement.status !== 'moving' || speed === 0) {
       setFrame(0);
       return;
     }
     const timer = setInterval(() => setFrame((current) => current === 0 ? 1 : 0), WALK_FRAME_MILLISECONDS);
     return () => clearInterval(timer);
-  }, [runtime.movement.status, speed]);
+  }, [reducedMotion, runtime.movement.status, speed]);
 
   useEffect(() => {
-    if (!image || !persistenceReady) return;
-    let active = true;
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (active) onReady();
-    }));
-    return () => { active = false; };
-  }, [image, onReady, persistenceReady]);
-
-  useEffect(() => {
-    if (!persistenceReady) return;
     const timer = setInterval(() => {
       setRuntime((current) => effectiveSpeed(current.worldState.clock) === 0
         ? current
         : { ...current, worldState: tickWorld(current.worldState, 1_000) });
     }, 1_000);
     return () => clearInterval(timer);
-  }, [persistenceReady]);
+  }, []);
 
   useEffect(() => {
     if (runtime.movement.status !== 'moving' || speed === 0 || transitioning) return;
@@ -495,6 +478,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
         setWorldFeedback('LINDA VILLA CONFIRMED · THREE CHOICES READY');
       } else if (result.event?.type === 'linda-quest-resolved') {
         setWorldFeedback(`${result.event.resultId.replaceAll('_', ' ').toUpperCase()} · CONSEQUENCES SAVED`);
+        triggerVocalCue('consequence');
       }
       void requestAutosave(
         result.state,
@@ -503,7 +487,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
     } catch (error) {
       setWorldFeedback(error instanceof Error ? `QUEST BLOCKED · ${error.message.toUpperCase()}` : 'QUEST ACTION FAILED');
     }
-  }, [conversationNpcId, openPanel, requestAutosave, runtime.worldState]);
+  }, [conversationNpcId, openPanel, requestAutosave, runtime.worldState, triggerVocalCue]);
   const advancePoliceHook = useCallback(() => {
     const hook = runtime.worldState.policeAttention === 'noticed'
       ? 'officer_contact'
@@ -596,7 +580,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
 
-  if (!image || !persistenceReady) {
+  if (!image) {
     return <View style={styles.loading}><Text style={styles.status}>DECODING WORLD STATE…</Text></View>;
   }
 
@@ -695,6 +679,12 @@ export function WorldScene({ onReady }: WorldSceneProps) {
           pointerEvents="none"
           style={styles.proofState}
         />
+        <View
+          accessibilityLabel={`Protagonist ${runtime.worldState.protagonist.id}; name ${runtime.worldState.protagonist.displayName}; allowance ${runtime.worldState.economy.weeklyAllowance}; money ${runtime.worldState.inventory.money}`}
+          nativeID="world-protagonist-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
         <View nativeID="world-ui-location" pointerEvents="none" style={styles.proofState}>
           <Text>{`${map.source.displayName} TILE ${runtime.movement.player.x},${runtime.movement.player.y}`}</Text>
         </View>
@@ -754,6 +744,9 @@ export function WorldScene({ onReady }: WorldSceneProps) {
           <Text style={styles.statusStrong}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
           <Text style={styles.status}>LEFT CLICK MOVE / MIDDLE DRAG PAN / WHEEL ZOOM / F CENTER / ESC STOP</Text>
         </View>
+        {audioCaption ? (
+          <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
+        ) : null}
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
         {conversationNpcId ? (
           <ConversationPanel
@@ -761,6 +754,7 @@ export function WorldScene({ onReady }: WorldSceneProps) {
             onDismiss={() => setConversationNpcId(undefined)}
             onPausedState={applyConversationPause}
             onStableState={applyConversationStableState}
+            onVocalCue={triggerVocalCue}
             port={conversationPort}
             state={runtime.worldState}
           />
@@ -791,6 +785,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4, paddingVertical: 2, position: 'absolute', textAlign: 'center', width: 96,
   },
   areaLabels: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
+  audioCaption: { backgroundColor: '#181512dd', bottom: 48, color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, left: 12, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute' },
   bottomPlate: {
     alignItems: 'center', backgroundColor: '#211d1adf', borderColor: '#ad7640', borderTopWidth: 2,
     bottom: 0, flexDirection: 'row', gap: 16, left: 0, paddingHorizontal: 14, paddingVertical: 8,

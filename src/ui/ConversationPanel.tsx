@@ -2,8 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { ConversationPort } from '../application/effects/ConversationPort';
+import { useReducedMotion } from '../application/accessibility';
 import { conversationPromptSuggestions } from '../ai/conversation/intent';
+import { cueForConversationTurn, type VocalCueId } from '../audio/vocal-cue-policy';
 import type { WorldState } from '../domain/state/schema';
+import { authoredBeginFallback, conversationGenerationNote } from './conversation-feedback';
 
 type Line = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
 
@@ -14,6 +17,7 @@ type ConversationPanelProps = Readonly<{
   onPausedState: (state: WorldState) => void;
   onStableState: (state: WorldState, committed: boolean) => void;
   onDismiss: () => void;
+  onVocalCue: (cue: VocalCueId) => void;
 }>;
 
 function idPart(source: string): string {
@@ -21,9 +25,10 @@ function idPart(source: string): string {
 }
 
 export function ConversationPanel({
-  npcId, port, state, onPausedState, onStableState, onDismiss,
+  npcId, port, state, onPausedState, onStableState, onDismiss, onVocalCue,
 }: ConversationPanelProps) {
   const initialState = useRef(state);
+  const reducedMotion = useReducedMotion();
   const conversationId = useMemo(
     () => `conversation-${idPart(npcId)}-${initialState.current.revision}-${initialState.current.clock.absoluteMinute}`,
     [npcId],
@@ -33,10 +38,12 @@ export function ConversationPanel({
   const [draft, setDraft] = useState('');
   const [status, setStatus] = useState<'opening' | 'ready' | 'generating' | 'revealing' | 'action-complete' | 'ambient' | 'failed'>('opening');
   const [reveal, setReveal] = useState('');
+  const [generationNote, setGenerationNote] = useState('LOCAL MODEL LOADING…');
   const [suggestions, setSuggestions] = useState(() => conversationPromptSuggestions(initialState.current, npcId));
   const turnNumber = useRef(0);
   const active = useRef(false);
   const closing = useRef(false);
+  const revealTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   useEffect(() => {
     let mounted = true;
@@ -48,21 +55,32 @@ export function ConversationPanel({
       setDisplayName(result.displayName);
       if (result.kind === 'ambient') {
         setLines([{ speaker: 'npc', text: result.dialogue }]);
+        setGenerationNote('AUTHORED AMBIENT DIALOGUE');
         setStatus('ambient');
       } else {
         active.current = true;
         onPausedState(result.pausedState);
         setLines([{ speaker: 'npc', text: result.greeting }]);
+        setGenerationNote('LOCAL MODEL READY');
         setStatus('ready');
       }
+      onVocalCue('greeting');
     }).catch(() => {
-      if (mounted) setStatus('failed');
+      if (mounted) {
+        const fallback = authoredBeginFallback(npcId);
+        setDisplayName(fallback.displayName);
+        setLines([{ speaker: 'npc', text: fallback.dialogue }]);
+        setGenerationNote('LOCAL MODEL UNAVAILABLE · SAFE FALLBACK USED');
+        setStatus('ambient');
+        onVocalCue('sigh');
+      }
     });
     return () => {
       mounted = false;
+      if (revealTimer.current) clearInterval(revealTimer.current);
       if (active.current && !closing.current) void port.abortConversation({ conversationId });
     };
-  }, [conversationId, npcId, onPausedState, port]);
+  }, [conversationId, npcId, onPausedState, onVocalCue, port]);
 
   const sendMessage = async (message: string) => {
     if (!active.current || status !== 'ready' || !message) return;
@@ -76,15 +94,25 @@ export function ConversationPanel({
         port.sendConversationTurn({ conversationId, turnId, message }),
         new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 180)),
       ]);
+      setGenerationNote(conversationGenerationNote(result.source));
+      const cue = cueForConversationTurn(result);
+      if (cue) onVocalCue(cue);
       setSuggestions(result.promptSuggestions);
+      if (reducedMotion) {
+        setLines((current) => [...current, { speaker: 'npc', text: result.dialogue }]);
+        setStatus(result.intent === 'end_conversation' ? 'action-complete' : 'ready');
+        return;
+      }
       setStatus('revealing');
       setReveal('');
       let index = 0;
-      const timer = setInterval(() => {
+      if (revealTimer.current) clearInterval(revealTimer.current);
+      revealTimer.current = setInterval(() => {
         index += 1;
         setReveal(result.dialogue.slice(0, index));
         if (index >= result.dialogue.length) {
-          clearInterval(timer);
+          if (revealTimer.current) clearInterval(revealTimer.current);
+          revealTimer.current = undefined;
           setLines((current) => [...current, { speaker: 'npc', text: result.dialogue }]);
           setReveal('');
           setStatus(result.intent === 'end_conversation' ? 'action-complete' : 'ready');
@@ -92,6 +120,8 @@ export function ConversationPanel({
       }, 12);
     } catch {
       setLines((current) => [...current, { speaker: 'npc', text: 'I cannot talk right now.' }]);
+      setGenerationNote('LOCAL MODEL UNAVAILABLE · SAFE FALLBACK USED');
+      onVocalCue('sigh');
       setStatus('ready');
     }
   };
@@ -106,6 +136,10 @@ export function ConversationPanel({
   const close = async (commit: boolean) => {
     if (closing.current) return;
     closing.current = true;
+    if (revealTimer.current) {
+      clearInterval(revealTimer.current);
+      revealTimer.current = undefined;
+    }
     try {
       if (active.current) {
         const result = commit
@@ -132,6 +166,7 @@ export function ConversationPanel({
           </Pressable>
         </View>
         <View nativeID="conversation-transcript" style={styles.transcript}>
+          <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={styles.modelStatus}>{generationNote}</Text>
           {lines.slice(-6).map((line, index) => (
             <Text key={`${line.speaker}-${index}`} style={line.speaker === 'npc' ? styles.npcLine : styles.playerLine}>
               {line.speaker === 'npc' ? `${displayName}: ` : 'YOU: '}{line.text}
@@ -209,6 +244,7 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#181512', borderColor: '#76573d', borderWidth: 1, color: '#fff0c7', flex: 1, fontFamily: 'Silkscreen', fontSize: 10, minHeight: 38, paddingHorizontal: 10 },
   inputRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
   name: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 18, marginTop: 3 },
+  modelStatus: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 9, lineHeight: 15, marginBottom: 10 },
   npcLine: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 50 },
   panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, maxWidth: 760, padding: 18, width: '74%' },
