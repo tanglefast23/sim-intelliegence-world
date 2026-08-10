@@ -1,0 +1,113 @@
+import { createInitialState } from '../../../domain/state/initial-state';
+import { parseWorldState } from '../../../domain/state/schema';
+import { WORLD_MAP_CATALOG } from '../map-catalog';
+import { transitionNeighborhood } from '../transitions';
+import { autosaveStableState } from '../autosave';
+import type { MapId } from '../../../world/maps/catalog';
+
+function atPortal(mapId: MapId, portalId: string) {
+  const portal = WORLD_MAP_CATALOG[mapId].source.portals.find(({ id }) => id === portalId)!;
+  return parseWorldState({
+    ...createInitialState(),
+    protagonist: {
+      ...createInitialState().protagonist,
+      locationId: mapId,
+      worldPosition: { mapId, tileX: portal.tile.x, tileY: portal.tile.y },
+    },
+    maps: Object.fromEntries(Object.entries(createInitialState().maps).map(([id, map]) => [id, {
+      ...map,
+      active: id === mapId,
+    }])),
+    npcs: Object.fromEntries(Object.entries(createInitialState().npcs).map(([id, npc]) => [id, {
+      ...npc,
+      presence: npc.presence.kind === 'in_transit' ? npc.presence : {
+        ...npc.presence,
+        kind: npc.presence.mapId === mapId ? 'active_local' : 'inactive',
+      },
+    }])),
+  });
+}
+
+const loadMap = async (mapId: MapId) => WORLD_MAP_CATALOG[mapId];
+
+describe('atomic neighborhood transitions', () => {
+  test.each([
+    ['northwest_residential', 'to-downtown', 'northeast_downtown'],
+    ['northeast_downtown', 'to-docks', 'southeast_docks'],
+    ['southeast_docks', 'from-commercial', 'southwest_commercial'],
+    ['southwest_commercial', 'from-residential', 'northwest_residential'],
+  ] as const)('moves through the square from %s through %s', async (origin, portalId, destination) => {
+    const pausedStates: unknown[] = [];
+    const result = await transitionNeighborhood({
+      state: atPortal(origin, portalId),
+      catalog: WORLD_MAP_CATALOG,
+      sourcePortalId: portalId,
+      loadMap,
+      onPaused: (state) => pausedStates.push(state),
+    });
+    expect(result.completed).toBe(true);
+    expect(result.state.protagonist.worldPosition.mapId).toBe(destination);
+    expect(result.state.maps[destination]?.active).toBe(true);
+    expect(result.state.clock.pauseTokens).toEqual([]);
+    expect(pausedStates).toHaveLength(1);
+  });
+
+  test('rolls spatial state back after a destination load failure', async () => {
+    const source = atPortal('northwest_residential', 'to-downtown');
+    const result = await transitionNeighborhood({
+      state: source,
+      catalog: WORLD_MAP_CATALOG,
+      sourcePortalId: 'to-downtown',
+      loadMap: async () => { throw new Error('Map bundle unavailable.'); },
+    });
+    expect(result.completed).toBe(false);
+    expect(result.feedback).toBe('Map bundle unavailable.');
+    expect(result.state.protagonist).toEqual(source.protagonist);
+    expect(result.state.maps).toEqual(source.maps);
+    expect(result.state.clock.pauseTokens).toEqual([]);
+  });
+
+  test('uses the first free staging tile when the entrance is occupied', async () => {
+    const result = await transitionNeighborhood({
+      state: atPortal('northwest_residential', 'to-downtown'),
+      catalog: WORLD_MAP_CATALOG,
+      sourcePortalId: 'to-downtown',
+      loadMap,
+      destinationBlockers: new Set(['0,24']),
+    });
+    expect(result.state.protagonist.worldPosition).toEqual({
+      mapId: 'northeast_downtown', tileX: 1, tileY: 24,
+    });
+    expect(result.feedback).toContain('staging tile');
+  });
+
+  test('rejects activation away from the exact portal without changing state', async () => {
+    await expect(transitionNeighborhood({
+      state: createInitialState(),
+      catalog: WORLD_MAP_CATALOG,
+      sourcePortalId: 'to-downtown',
+      loadMap,
+    })).rejects.toThrow('exact source portal');
+  });
+});
+
+describe('stable-boundary autosaves', () => {
+  test('saves only the final unpaused state', async () => {
+    const requestSave = jest.fn(async () => ({
+      status: 'saved' as const,
+      slotId: 'slot-001' as const,
+      saveGeneration: 4,
+      checksum: 'a'.repeat(64),
+      maintenanceWarnings: [],
+    }));
+    const state = createInitialState();
+    await autosaveStableState({ persistence: { requestSave }, state, trigger: 'travel', expectedSaveGeneration: 3 });
+    expect(requestSave).toHaveBeenCalledWith(expect.objectContaining({ state, trigger: 'travel' }));
+
+    const paused = parseWorldState({ ...state, clock: { ...state.clock, pauseTokens: ['pause:transition:test'] } });
+    await expect(autosaveStableState({
+      persistence: { requestSave }, state: paused, trigger: 'travel', expectedSaveGeneration: 4,
+    })).rejects.toThrow('stable world');
+    expect(requestSave).toHaveBeenCalledTimes(1);
+  });
+});

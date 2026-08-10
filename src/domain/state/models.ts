@@ -45,15 +45,37 @@ export const MemoryRecordSchema = z.object({
 }).strict();
 
 export const NpcPresenceSchema = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('active_local'), locationId: StableIdSchema }).strict(),
+  z.object({
+    kind: z.literal('active_local'),
+    mapId: StableIdSchema,
+    locationId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
+  }).strict(),
   z.object({ kind: z.literal('in_transit'), transferId: StableIdSchema }).strict(),
-  z.object({ kind: z.literal('inactive'), destinationLocationId: StableIdSchema }).strict(),
+  z.object({
+    kind: z.literal('inactive'),
+    mapId: StableIdSchema,
+    locationId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
+  }).strict(),
 ]);
+
+export const NpcScheduleGoalSchema = z.object({
+  mapId: StableIdSchema,
+  locationId: StableIdSchema,
+  activityId: StableIdSchema,
+  tileX: z.number().int().min(0).max(63),
+  tileY: z.number().int().min(0).max(47),
+  scheduledMinute: z.number().int().nonnegative(),
+}).strict();
 
 export const NpcStateSchema = z.object({
   id: StableIdSchema,
   tier: z.enum(['full_ai', 'ambient']),
   presence: NpcPresenceSchema,
+  scheduleGoal: NpcScheduleGoalSchema.optional(),
   knowledge: z.array(KnowledgeRecordSchema),
   unlockedInterestIds: uniqueStableIds('Unlocked interest IDs must be unique.'),
   unlockedIds: uniqueStableIds('Unlock IDs must be unique.'),
@@ -70,6 +92,7 @@ export const EconomyStateSchema = z.object({
   weeklyAllowance: z.number().int().positive(),
   basicDailyCost: z.number().int().positive(),
   nextAllowanceMinute: z.number().int().nonnegative(),
+  nextBasicCostMinute: z.number().int().nonnegative(),
 }).strict();
 
 export const FactionStateSchema = z.object({
@@ -109,6 +132,9 @@ export const ScheduleBlockSchema = z.object({
   startMinuteOfDay: z.number().int().min(0).max(1_439),
   locationId: StableIdSchema,
   activityId: StableIdSchema,
+  mapId: StableIdSchema,
+  tileX: z.number().int().min(0).max(63),
+  tileY: z.number().int().min(0).max(47),
 }).strict();
 
 export const ScheduleStateSchema = z.object({
@@ -125,6 +151,7 @@ export const ScheduleStateSchema = z.object({
 
 export const TransferStateSchema = z.object({
   id: StableIdSchema,
+  status: z.enum(['approaching_exit', 'in_transit']),
   npcId: StableIdSchema,
   originMapId: StableIdSchema,
   destinationMapId: StableIdSchema,
@@ -132,6 +159,12 @@ export const TransferStateSchema = z.object({
   departureMinute: z.number().int().nonnegative(),
   arrivalMinute: z.number().int().nonnegative(),
   destinationEntranceId: StableIdSchema,
+  destinationEntranceTileX: z.number().int().min(0).max(63),
+  destinationEntranceTileY: z.number().int().min(0).max(47),
+  destinationLocationId: StableIdSchema,
+  destinationActivityId: StableIdSchema,
+  destinationGoalTileX: z.number().int().min(0).max(63),
+  destinationGoalTileY: z.number().int().min(0).max(47),
 }).strict().refine((transfer) => transfer.arrivalMinute > transfer.departureMinute, {
   message: 'Transfer arrival must be after departure.',
 });

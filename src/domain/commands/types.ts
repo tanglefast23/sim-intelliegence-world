@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { RelationshipDeltaSchema } from '../relationships/relationship';
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
+import { SimulationSpeedSchema } from '../clock/clock';
 
 const CommandBaseSchema = z.object({
   commandId: CommandIdSchema,
@@ -41,6 +42,49 @@ export const DomainCommandSchema = z.discriminatedUnion('type', [
     type: z.literal('move-protagonist'),
     mapId: StableIdSchema,
     locationId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('set-simulation-speed'),
+    speed: SimulationSpeedSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('advance-simulation'),
+    realMilliseconds: z.number().int().nonnegative(),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('sleep-protagonist'),
+    mode: z.enum(['nap', 'overnight']),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('apply-quest-reward'),
+    rewardKind: z.enum(['ordinary', 'dangerous']),
+    amount: z.number().int().nonnegative(),
+    questId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('move-npc'),
+    npcId: StableIdSchema,
+    mapId: StableIdSchema,
+    tileX: z.number().int().min(0).max(63),
+    tileY: z.number().int().min(0).max(47),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('complete-npc-goal'),
+    npcId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('depart-npc-transfer'),
+    npcId: StableIdSchema,
+    transferId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('transition-protagonist'),
+    originMapId: StableIdSchema,
+    destinationMapId: StableIdSchema,
+    sourcePortalId: StableIdSchema,
+    destinationEntranceId: StableIdSchema,
     tileX: z.number().int().min(0).max(63),
     tileY: z.number().int().min(0).max(47),
   }).strict(),

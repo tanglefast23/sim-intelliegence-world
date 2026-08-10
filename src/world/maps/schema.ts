@@ -65,9 +65,9 @@ export const WorldMapSchema = z.object({
     interior: TileRectSchema,
   }).strict()),
   areas: z.array(z.object({
-    id: z.enum(['bedroom', 'bathroom', 'kitchen', 'storage', 'social']),
+    id: StableIdSchema,
     bounds: TileRectSchema,
-  }).strict()).length(5),
+  }).strict()),
   portals: z.array(z.object({
     id: StableIdSchema,
     edge: z.enum(['north', 'east', 'south', 'west']),
@@ -76,11 +76,7 @@ export const WorldMapSchema = z.object({
     destinationEntranceId: StableIdSchema,
   }).strict()),
   stagingTiles: z.array(TilePointSchema).min(1),
-  spawns: z.object({
-    protagonist: TilePointSchema,
-    linda: TilePointSchema,
-    genericResident: TilePointSchema,
-  }).strict(),
+  spawns: z.record(StableIdSchema, TilePointSchema),
 }).strict();
 
 export type TilePoint = z.infer<typeof TilePointSchema>;
@@ -204,6 +200,12 @@ export function groundSpriteAt(map: CompiledMap, tile: TilePoint): string {
   const sprite = map.groundSprites[tile.y * map.source.width + tile.x];
   if (!sprite) throw new Error('Ground tile is outside the compiled map.');
   return sprite;
+}
+
+export function spawnAt(map: CompiledMap, id: string): TilePoint {
+  const spawn = map.source.spawns[id];
+  if (!spawn) throw new Error(`Map ${map.source.id} has no ${id} spawn.`);
+  return spawn;
 }
 
 export function roofGroupAt(map: CompiledMap, tile: TilePoint): string | undefined {

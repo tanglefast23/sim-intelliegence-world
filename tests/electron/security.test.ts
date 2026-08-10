@@ -236,7 +236,7 @@ describe('secure Electron boundary', () => {
       targetSlotId: 'slot-002' as const,
       saveGeneration: 1,
       checksum: 'b'.repeat(64),
-      stateSchemaVersion: 3,
+      stateSchemaVersion: 4,
       maintenanceWarnings: [],
     }));
     registerPersistenceIpc(ipcMain, { requestSave, loadSave, migrateSave });

@@ -1,0 +1,22 @@
+[
+  {
+    "id":"linda_daily",
+    "npcId":"linda",
+    "blocks":[
+      {"startMinuteOfDay":0,"locationId":"linda_villa","activityId":"sleep","mapId":"northwest_residential","tileX":23,"tileY":28},
+      {"startMinuteOfDay":480,"locationId":"northwest_residential","activityId":"relax","mapId":"northwest_residential","tileX":28,"tileY":30},
+      {"startMinuteOfDay":720,"locationId":"southwest_commercial","activityId":"shop","mapId":"southwest_commercial","tileX":15,"tileY":16},
+      {"startMinuteOfDay":1080,"locationId":"linda_villa","activityId":"home","mapId":"northwest_residential","tileX":23,"tileY":28}
+    ]
+  },
+  {
+    "id":"generic_daily",
+    "npcId":"generic_resident",
+    "blocks":[
+      {"startMinuteOfDay":0,"locationId":"northwest_residential","activityId":"sleep","mapId":"northwest_residential","tileX":29,"tileY":33},
+      {"startMinuteOfDay":480,"locationId":"northwest_residential","activityId":"work","mapId":"northwest_residential","tileX":36,"tileY":30},
+      {"startMinuteOfDay":720,"locationId":"northeast_downtown","activityId":"meal","mapId":"northeast_downtown","tileX":44,"tileY":34},
+      {"startMinuteOfDay":1080,"locationId":"northeast_downtown","activityId":"nightlife","mapId":"northeast_downtown","tileX":18,"tileY":13}
+    ]
+  }
+]

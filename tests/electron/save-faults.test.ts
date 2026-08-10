@@ -345,7 +345,7 @@ describe('save migrations and state invariants', () => {
     const migrated = migrateStateCopy(source, 'generation-migrated-001');
 
     expect(JSON.stringify(source)).toBe(before);
-    expect(migrated.schemaVersion).toBe(3);
+    expect(migrated.schemaVersion).toBe(4);
     expect(migrated.generationId).toBe('generation-migrated-001');
     expect(migrated.modelPin).toEqual({
       id: 'qwen3.5-9b',
@@ -358,6 +358,14 @@ describe('save migrations and state invariants', () => {
       tileX: 18,
       tileY: 18,
     });
+    expect(migrated.npcs.linda?.presence).toEqual({
+      kind: 'active_local', mapId: 'northwest_residential', locationId: 'linda_villa', tileX: 23, tileY: 28,
+    });
+    expect(migrated.npcs.generic_resident?.presence).toEqual({
+      kind: 'active_local', mapId: 'northwest_residential', locationId: 'northwest_residential', tileX: 29, tileY: 33,
+    });
+    expect(migrated.economy.nextBasicCostMinute).toBe(1_440);
+    expect(migrated.schedules.linda_daily?.blocks).toEqual(createInitialState().schedules.linda_daily?.blocks);
   });
 
   test('an unavailable migration fails without modifying its source', () => {
@@ -367,7 +375,7 @@ describe('save migrations and state invariants', () => {
     expect(JSON.stringify(source)).toBe(before);
   });
 
-  test('copying a current v3 state also receives the requested new generation ID', () => {
+  test('copying a current v4 state also receives the requested new generation ID', () => {
     const source = createInitialState();
     const migrated = migrateStateCopy(source, 'generation-current-copy-001');
     expect(migrated.generationId).toBe('generation-current-copy-001');
@@ -392,14 +400,14 @@ describe('save migrations and state invariants', () => {
       sourceSlotId: 'slot-001',
       targetSlotId: 'slot-002',
       saveGeneration: 1,
-      stateSchemaVersion: 3,
+      stateSchemaVersion: 4,
     }));
     expect(await readFile(sourcePath, 'utf8')).toBe(legacyBytes);
     await expect(repository.load('slot-002')).resolves.toEqual(expect.objectContaining({
       status: 'loaded',
       state: expect.objectContaining({
         generationId: 'generation-migrated-002',
-        schemaVersion: 3,
+        schemaVersion: 4,
         protagonist: expect.objectContaining({
           worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
         }),

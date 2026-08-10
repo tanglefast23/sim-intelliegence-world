@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "southwest_commercial",
+  "displayName": "Palm Exchange",
+  "width": 64,
+  "height": 48,
+  "tileSize": 32,
+  "ground": {
+    "defaultSprite": "tile.warm-sand",
+    "regions": [
+      {"id":"north-road","x":30,"y":0,"width":5,"height":48,"sprite":"tile.pale-concrete"},
+      {"id":"east-road","x":30,"y":22,"width":34,"height":5,"sprite":"tile.pale-concrete"},
+      {"id":"mall","x":7,"y":9,"width":18,"height":14,"sprite":"tile.villa-floor"},
+      {"id":"restaurant-row","x":38,"y":31,"width":18,"height":8,"sprite":"tile.boardwalk"}
+    ]
+  },
+  "collision": {"rectangles":[],"walkableOverrides":[]},
+  "walls": {"regions":[],"openings":[]},
+  "props": [
+    {"id":"mall-kiosk","sprite":"tile.garden-soil","tile":{"x":16,"y":16},"blocksMovement":true},
+    {"id":"restaurant-table","sprite":"tile.plaza-paver","tile":{"x":46,"y":35},"blocksMovement":true}
+  ],
+  "effects": [{"id":"mall-sparkle","kind":"sparkle","tile":{"x":17,"y":16}}],
+  "interactions": [],
+  "doors": [],
+  "roofGroups": [],
+  "areas": [
+    {"id":"shopping-mall","bounds":{"x":7,"y":9,"width":18,"height":14}},
+    {"id":"restaurant-row","bounds":{"x":38,"y":31,"width":18,"height":8}}
+  ],
+  "portals": [
+    {"id":"from-residential","edge":"north","tile":{"x":32,"y":0},"destinationMapId":"northwest_residential","destinationEntranceId":"to-commercial"},
+    {"id":"to-docks","edge":"east","tile":{"x":63,"y":24},"destinationMapId":"southeast_docks","destinationEntranceId":"from-commercial"}
+  ],
+  "stagingTiles": [{"x":32,"y":1},{"x":62,"y":24}],
+  "spawns": {"linda":{"x":15,"y":16},"generic-resident":{"x":45,"y":35}}
+}

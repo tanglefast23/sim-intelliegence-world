@@ -96,6 +96,6 @@
   "spawns": {
     "protagonist":{"x":18,"y":18},
     "linda":{"x":23,"y":28},
-    "genericResident":{"x":29,"y":33}
+    "generic-resident":{"x":29,"y":33}
   }
 }

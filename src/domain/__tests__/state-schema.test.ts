@@ -53,10 +53,10 @@ describe('world state schema', () => {
         linda_daily: {
           ...state.schedules.linda_daily,
           blocks: [
-            { startMinuteOfDay: 100, locationId: 'linda_villa', activityId: 'home' },
-            { startMinuteOfDay: 90, locationId: 'linda_villa', activityId: 'sleep' },
-            { startMinuteOfDay: 200, locationId: 'linda_villa', activityId: 'home' },
-            { startMinuteOfDay: 300, locationId: 'linda_villa', activityId: 'home' },
+            { ...state.schedules.linda_daily!.blocks[0]!, startMinuteOfDay: 100 },
+            { ...state.schedules.linda_daily!.blocks[1]!, startMinuteOfDay: 90 },
+            { ...state.schedules.linda_daily!.blocks[2]!, startMinuteOfDay: 200 },
+            { ...state.schedules.linda_daily!.blocks[3]!, startMinuteOfDay: 300 },
           ],
         },
       },

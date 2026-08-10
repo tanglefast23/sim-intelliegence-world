@@ -3,8 +3,13 @@ import { resolve } from 'node:path';
 
 import { buildContentCatalog, type ContentBundleInput } from '../../src/content/registries/catalog';
 import { REGISTRY_NAMES, type RegistryName } from '../../src/content/schemas/registry';
+import { EconomyPolicySchema } from '../../src/domain/economy/economy';
+import { PROTOTYPE_ECONOMY_POLICY } from '../../src/domain/economy/economy';
+import { createInitialState } from '../../src/domain/state/initial-state';
+import { ScheduleStateSchema } from '../../src/domain/state/models';
 import { ATLAS_INDEX } from '../../src/render/atlas';
-import { compileWorldMap } from '../../src/world/maps/schema';
+import { buildWorldMapCatalog, MAP_IDS, type MapId } from '../../src/world/maps/catalog';
+import { z } from 'zod';
 
 function compareAscii(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -57,12 +62,30 @@ export async function loadContentBundle(rootPath: string): Promise<ContentBundle
 export async function validateContent(rootPath = process.cwd()): Promise<void> {
   const bundle = await loadContentBundle(rootPath);
   const catalog = buildContentCatalog(bundle);
-  const northwestMap = compileWorldMap(
-    await readJson(resolve(rootPath, 'content', 'maps', 'northwest.json')),
-    new Set(ATLAS_INDEX.tiles),
+  const mapFiles: Readonly<Record<MapId, string>> = {
+    northwest_residential: 'northwest.json',
+    northeast_downtown: 'northeast.json',
+    southwest_commercial: 'southwest.json',
+    southeast_docks: 'southeast.json',
+  };
+  const mapEntries = await Promise.all(MAP_IDS.map(async (mapId) => [
+    mapId,
+    await readJson(resolve(rootPath, 'content', 'maps', mapFiles[mapId])),
+  ] as const));
+  const maps = buildWorldMapCatalog(Object.fromEntries(mapEntries) as Record<MapId, unknown>, new Set(ATLAS_INDEX.tiles));
+  const economy = EconomyPolicySchema.parse(await readJson(resolve(rootPath, 'content', 'economy', 'prototype.json')));
+  const schedules = z.array(ScheduleStateSchema).parse(
+    await readJson(resolve(rootPath, 'content', 'schedules', 'prototype.json')),
   );
+  if (JSON.stringify(economy) !== JSON.stringify(PROTOTYPE_ECONOMY_POLICY)) {
+    throw new Error('The prototype economy fixture does not match the authoritative economy policy.');
+  }
+  const initialSchedules = Object.values(createInitialState().schedules);
+  if (JSON.stringify(schedules) !== JSON.stringify(initialSchedules)) {
+    throw new Error('The prototype schedule fixture does not match the authoritative initial schedules.');
+  }
   process.stdout.write(
-    `Validated ${catalog.characters.length} characters, ${catalog.locations.length} locations, ${catalog.factions.length} factions, ${catalog.rules.length} rule files, and ${northwestMap.source.width}x${northwestMap.source.height} ${northwestMap.source.id}.\n`,
+    `Validated ${catalog.characters.length} characters, ${catalog.locations.length} locations, ${catalog.factions.length} factions, ${catalog.rules.length} rule files, ${Object.keys(maps).length} maps, and ${schedules.length} schedules.\n`,
   );
 }
 
