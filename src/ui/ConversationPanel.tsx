@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { ConversationPort } from '../application/effects/ConversationPort';
+import { conversationPromptSuggestions } from '../ai/conversation/intent';
 import type { WorldState } from '../domain/state/schema';
 
 type Line = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
@@ -30,8 +31,9 @@ export function ConversationPanel({
   const [displayName, setDisplayName] = useState(npcId);
   const [lines, setLines] = useState<Line[]>([]);
   const [draft, setDraft] = useState('');
-  const [status, setStatus] = useState<'opening' | 'ready' | 'generating' | 'revealing' | 'ambient' | 'failed'>('opening');
+  const [status, setStatus] = useState<'opening' | 'ready' | 'generating' | 'revealing' | 'action-complete' | 'ambient' | 'failed'>('opening');
   const [reveal, setReveal] = useState('');
+  const [suggestions, setSuggestions] = useState(() => conversationPromptSuggestions(initialState.current, npcId));
   const turnNumber = useRef(0);
   const active = useRef(false);
   const closing = useRef(false);
@@ -62,8 +64,7 @@ export function ConversationPanel({
     };
   }, [conversationId, npcId, onPausedState, port]);
 
-  const send = async () => {
-    const message = draft.trim();
+  const sendMessage = async (message: string) => {
     if (!active.current || status !== 'ready' || !message) return;
     turnNumber.current += 1;
     const turnId = `turn-${idPart(npcId)}-${turnNumber.current}`;
@@ -75,6 +76,7 @@ export function ConversationPanel({
         port.sendConversationTurn({ conversationId, turnId, message }),
         new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 180)),
       ]);
+      setSuggestions(result.promptSuggestions);
       setStatus('revealing');
       setReveal('');
       let index = 0;
@@ -85,13 +87,20 @@ export function ConversationPanel({
           clearInterval(timer);
           setLines((current) => [...current, { speaker: 'npc', text: result.dialogue }]);
           setReveal('');
-          setStatus('ready');
+          setStatus(result.intent === 'end_conversation' ? 'action-complete' : 'ready');
         }
       }, 12);
     } catch {
       setLines((current) => [...current, { speaker: 'npc', text: 'I cannot talk right now.' }]);
       setStatus('ready');
     }
+  };
+
+  const send = async () => {
+    const message = draft.trim();
+    if (!message) return;
+    setDraft('');
+    await sendMessage(message);
   };
 
   const close = async (commit: boolean) => {
@@ -137,25 +146,49 @@ export function ConversationPanel({
             <Text style={styles.endText}>CLOSE</Text>
           </Pressable>
         ) : (
-          <View style={styles.inputRow}>
-            <TextInput
-              accessibilityLabel="Conversation message"
-              editable={status === 'ready'}
-              maxLength={500}
-              onChangeText={setDraft}
-              onSubmitEditing={() => void send()}
-              placeholder="TYPE WHAT YOU WANT TO SAY…"
-              placeholderTextColor="#7e6f5b"
-              style={styles.input}
-              value={draft}
-            />
-            <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={styles.sendButton}>
-              <Text style={styles.sendText}>SAY</Text>
-            </Pressable>
-            <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={styles.endButton}>
-              <Text style={styles.endText}>END</Text>
-            </Pressable>
-          </View>
+          status === 'action-complete' ? (
+            <View style={styles.actionCompleteRow}>
+              <Text style={styles.actionComplete}>ACTION RECORDED · END OR CANCEL THIS CONVERSATION</Text>
+              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={styles.endButton}>
+                <Text style={styles.endText}>END</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              <View nativeID="conversation-prompt-suggestions" style={styles.actionRow}>
+                {suggestions.map((suggestion) => (
+                  <Pressable
+                    accessibilityLabel={`Use ${suggestion.label.toLowerCase()} prompt idea`}
+                    disabled={status !== 'ready'}
+                    key={suggestion.id}
+                    onPress={() => setDraft(suggestion.suggestedText)}
+                    style={styles.actionButton}
+                  >
+                    <Text style={styles.actionText}>{suggestion.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <View style={styles.inputRow}>
+              <TextInput
+                accessibilityLabel="Conversation message"
+                editable={status === 'ready'}
+                maxLength={500}
+                onChangeText={setDraft}
+                onSubmitEditing={() => void send()}
+                placeholder="TYPE WHAT YOU WANT TO SAY…"
+                placeholderTextColor="#7e6f5b"
+                style={styles.input}
+                value={draft}
+              />
+              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={styles.sendButton}>
+                <Text style={styles.sendText}>SAY</Text>
+              </Pressable>
+              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={styles.endButton}>
+                <Text style={styles.endText}>END</Text>
+              </Pressable>
+              </View>
+            </>
+          )
         )}
       </View>
     </View>
@@ -163,6 +196,11 @@ export function ConversationPanel({
 }
 
 const styles = StyleSheet.create({
+  actionComplete: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 12 },
+  actionCompleteRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+  actionButton: { borderColor: '#8b6846', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
+  actionRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  actionText: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8 },
   endButton: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, justifyContent: 'center', minHeight: 38, paddingHorizontal: 14 },
   endText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
   error: { color: '#ef725b', fontFamily: 'Silkscreen', fontSize: 10 },

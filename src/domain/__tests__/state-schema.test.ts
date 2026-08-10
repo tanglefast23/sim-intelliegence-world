@@ -8,7 +8,7 @@ describe('world state schema', () => {
     expect(state.protagonist.id).toBe('protagonist');
     expect(Object.keys(state)).toEqual(expect.arrayContaining([
       'npcs', 'relationships', 'inventory', 'economy', 'factions', 'quests', 'journal',
-      'maps', 'schedules', 'transfers', 'evidence', 'policeAttention', 'eventReceipts', 'eventLedger',
+      'invitations', 'maps', 'schedules', 'transfers', 'evidence', 'policeAttention', 'eventReceipts', 'eventLedger',
     ]));
   });
 
@@ -39,7 +39,9 @@ describe('world state schema', () => {
           summary: 'Look for Linda.',
           locationPrecision: 'vague',
           markerVisible: true,
+          source: { type: 'npc_report', sourceId: 'report_linda' },
           resolutionState: 'open',
+          outcomeReceipts: [],
         },
       },
     })).toThrow('A map marker requires an exact known location');

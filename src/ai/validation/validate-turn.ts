@@ -27,6 +27,7 @@ export type ValidationContext = Readonly<{
   registry: SceneRegistry;
   turnCandidates: TurnCandidateRegistry;
   playerMessages: Readonly<Record<string, string>>;
+  currentPlayerMessage: string;
   staged: Readonly<{
     knowledge: readonly KnowledgeRecord[];
     unlockedInterestIds: readonly string[];
@@ -34,6 +35,14 @@ export type ValidationContext = Readonly<{
     memories: readonly Readonly<{ subjectId: string; summary: string; importancePermille: number }>[];
   }>;
 }>;
+
+function normalizedDialogue(value: string): string {
+  return value
+    .normalize('NFKC')
+    .toLocaleLowerCase('en')
+    .replaceAll(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+}
 
 function hasId(values: readonly string[], id: string, label: string): void {
   if (!values.includes(id)) throw new Error(`Unknown or unavailable ${label} ID.`);
@@ -96,11 +105,15 @@ export function validateConversationTurn(
 ): ApprovedTurn {
   const npc = context.state.npcs[context.registry.npcId];
   if (!npc || npc.tier !== 'full_ai') throw new Error('Conversation target is not a full-AI NPC.');
+  if (normalizedDialogue(response.dialogue) === normalizedDialogue(context.currentPlayerMessage)) {
+    throw new Error('Generated dialogue cannot repeat the current player message.');
+  }
   if (response.highImpactCandidates.length > 0) {
     throw new Error('Generated high-impact state changes are not supported.');
   }
   if (response.actionId !== null) {
     hasId(context.registry.actionIds, response.actionId, 'action');
+    hasId(context.turnCandidates.actionIds, response.actionId, 'turn action');
     if (context.registry.blockedActionIds.includes(response.actionId)) {
       throw new Error('Proposed action crosses an authored hard boundary.');
     }

@@ -126,6 +126,12 @@ The following decisions are currently locked:
 - Each save pins its model, prompt, content, and engine versions. Updates require explicit compatible migration and never silently change old NPC behavior.
 - The LLM can propose dialogue, intent, emotion, actions, memories, and unlocks, but deterministic game code validates and applies all persistent changes.
 - Model proposals use a closed scene-specific JSON schema. Invalid output receives one retry and then safe fallback dialogue with no persistent change.
+- The player may type any permitted free-text question to a full-AI NPC. The game does not limit dialogue to authored question buttons or a dialogue tree.
+- Halcyra exists inside the story's contemporary real-world frame. Real countries, cities, history, and stable public facts also exist, but Halcyra has no authored real-world coordinates or nearby country yet.
+- An explicit external place takes priority. Otherwise, practical questions about where to eat, shop, travel, or have fun default to Halcyra while the player is on the island.
+- A wider-world answer can name a real region or stable fact, but it cannot invent a direction, distance, route, or travel time between Halcyra and a real place.
+- Each full-AI NPC has a required `knowledge.md` that defines reasoning style, education, life experience, real-world baseline, topic strengths, topic limits, island-section familiarity, and natural uncertainty behavior.
+- A full-AI NPC answers only within that authored profile and validated dynamic knowledge. Being powered by a broadly trained model never makes the character an all-knowing assistant.
 
 ## 3. Player Fantasy and Core Experience
 
@@ -351,8 +357,11 @@ Player approaches Linda
   → prefetch or parse Linda's context
 
 Player begins talking
-  → load/assemble Linda's personality, biography, interaction state,
-    permitted world knowledge, current scene, and recent conversation
+  → classify the question as local Halcyra, wider real world, personal,
+    or concealed/unsupported without invoking a second model call
+  → load/assemble Linda's personality, biography, knowledge profile,
+    interaction state, permitted world knowledge, current scene,
+    and recent conversation
   → generate responses through the shared selected local model
 
 Player leaves
@@ -376,6 +385,7 @@ content/
     linda/
       personality.md
       biography.md
+      knowledge.md
       rules.json
       portrait.png              # future/optional
       voice.json                # future/optional
@@ -383,6 +393,7 @@ content/
     sarah/
       personality.md
       biography.md
+      knowledge.md
       rules.json
 
     main-character/
@@ -436,7 +447,7 @@ Linda is warm but cautious, independently minded, and slow to trust.
 
 ### 5.3 `biography.md`
 
-`biography.md` defines the character's stable authored identity and starting knowledge.
+`biography.md` defines the character's stable authored identity and history.
 
 It may include:
 
@@ -448,9 +459,7 @@ It may include:
 - Interests
 - Existing relationships
 - Starting goals
-- Starting knowledge
 - Secrets
-- Facts the character does not know
 
 Example:
 
@@ -473,13 +482,28 @@ Linda grew up in the riverside district and operates a small bakery.
 - Mystery novels
 - Early morning walks
 
-## Starting knowledge
-
-Linda knows the bakery, its customers, and the riverside district.
-Linda does not initially know that the protagonist owns a cat.
 ```
 
-### 5.4 `rules.json` and global registries
+### 5.4 `knowledge.md`
+
+`knowledge.md` defines how much the character can reasonably know and how the character behaves when uncertain. It is not one numerical intelligence score. Intelligence, education, experience, and subject knowledge remain separate.
+
+Every full-AI profile contains:
+
+- Reasoning style
+- Education and life experience
+- Real-world baseline
+- Per-section Halcyra familiarity using `knows_well`, `knows_roughly`, `heard_of`, or `does_not_know`
+- Topics known well
+- Topics known roughly
+- Topics the character does not know
+- Natural uncertainty behavior
+
+Static starting competence belongs here. Facts learned during play, player claims, quest discoveries, private knowledge, and memories remain validated save state. A character outside their profile gives a partial answer, admits uncertainty, or says they do not know in character. They do not invent exact current facts, business names, foreign recommendations, concealed information, or professional expertise.
+
+Linda is poorly educated but socially clever. She has little formal education, strong practical Halcyra knowledge, and a sharp ability to read motives, lies, danger, and social status. She knows basic stable real-world facts, including common countries and famous places, but she does not give academic, technical, or current-news explanations. Her limited education must not make her sound foolish or unable to speak naturally.
+
+### 5.5 `rules.json` and global registries
 
 Natural-language personality and biography files provide writing context. They are not a deterministic rules database. Each named NPC also has a required Zod-validated `rules.json` that provides machine-readable references for:
 
@@ -509,7 +533,7 @@ content/
 
 The build fails if an authored file is invalid, contains a duplicate ID, or references a missing ID. Runtime registry construction reads only validated structured files. Prose can explain a rule to the model, but prose cannot create, weaken, or override a deterministic boundary.
 
-### 5.5 `interaction.md`
+### 5.6 `interaction.md`
 
 `interaction.md` is the generated, save-specific prompt view that contains the major ways the protagonist's interactions have affected the NPC, along with what that NPC knows or believes about him. Versioned JSON remains authoritative.
 
@@ -562,6 +586,15 @@ An NPC must not receive the whole game save. Each NPC receives a compact project
 - Relevant public world information
 - Events the NPC witnessed or was told about
 - Facts the NPC can perceive in the current scene
+
+Before selecting prose knowledge, deterministic code classifies the current question as:
+
+- `local_halcyra`
+- `real_world`
+- `personal_npc`
+- `concealed_or_unknown`
+
+Explicit external place wording overrides the local default. A practical destination question without an external place defaults to Halcyra while the player is on the island. Local selection uses authored keywords, the last two player turns, the current neighborhood, and the active NPC's per-section familiarity. Wider-world questions receive the fixed world frame but do not receive an unrelated Halcyra district section. Personal and concealed questions use only the relevant biography, validated state, and permitted memories.
 
 Example:
 
@@ -1069,7 +1102,9 @@ Each gate belongs to the earliest milestone that must prove it. Later milestones
 
 - **AI-01:** Electron starts, health-checks, restarts after a tested crash, and stops one bundled loopback-only `llama-server` child process without Ollama or another user-installed runtime.
 - **AI-02:** The selected candidate model loads once, remains loaded through multiple conversations, and releases Linda's active context after a conversation.
-- **AI-03:** Linda loads `personality.md`, `biography.md`, Zod-validated `rules.json`, authoritative save state, and only her permitted knowledge projection.
+- **AI-03:** Linda loads `personality.md`, `biography.md`, validated `knowledge.md`, Zod-validated `rules.json`, authoritative save state, and only her permitted knowledge projection.
+- **AI-03A:** `Where is China?` stays a wider-real-world question; `Where can I have fun?`, `Where can I eat?`, and `Where should I go?` default to grounded Halcyra information when no external place is named.
+- **AI-03B:** A question outside Linda's education or experience produces an in-character partial answer or uncertainty rather than invented expertise. Concealed knowledge remains unavailable without a validated source.
 - **AI-04:** Free-text player input produces buffered schema-constrained JSON containing dialogue, emotion, intent, proposed action, and optional persistent candidates.
 - **AI-05:** No raw token appears. Non-text feedback appears while generating, and dialogue starts its type-on reveal only after the full object passes parse, registry, source, boundary, and content checks.
 - **AI-06:** An unknown ID or invalid source is rejected. Invalid output retries once; a second failure shows safe authored fallback dialogue and applies no persistent change.

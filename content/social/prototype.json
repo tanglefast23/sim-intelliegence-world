@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "factionAccessGates": [
+    {
+      "id": "velvet_tide_back_room",
+      "factionId": "velvet_tide",
+      "minimumStanding": 10,
+      "requiredQuestFlagIds": ["velvet_tide_lead"]
+    }
+  ],
+  "purchases": [
+    {
+      "id": "security_report",
+      "displayName": "Villa security report",
+      "cost": 60,
+      "questId": "linda_boyfriend_check",
+      "grantedQuestFlagId": "security_report_purchased",
+      "benefit": "practical_quest_advantage"
+    }
+  ]
+}

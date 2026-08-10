@@ -1,0 +1,30 @@
+{
+  "vagueLead": {
+    "id": "linda_villa_lead",
+    "questId": "linda_boyfriend_check",
+    "summary": "Linda said the problem is near the residential beach.",
+    "locationPrecision": "vague",
+    "markerVisible": false,
+    "deadlineMinute": 2880,
+    "source": {"type": "npc_report", "sourceId": "linda_report_vague"},
+    "resolutionState": "open",
+    "outcomeReceipts": []
+  },
+  "exactLead": {
+    "id": "linda_villa_lead",
+    "questId": "linda_boyfriend_check",
+    "summary": "The exact villa door was observed.",
+    "locationPrecision": "exact",
+    "locationId": "linda_villa",
+    "markerVisible": true,
+    "deadlineMinute": 2880,
+    "source": {"type": "scene_observation", "sourceId": "observed_linda_villa_door"},
+    "resolutionState": "open",
+    "outcomeReceipts": []
+  },
+  "invitation": {
+    "acceptedMinute": 600,
+    "conflictMinute": 900,
+    "durationMinutes": 120
+  }
+}

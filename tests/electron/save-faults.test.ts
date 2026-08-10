@@ -345,7 +345,7 @@ describe('save migrations and state invariants', () => {
     const migrated = migrateStateCopy(source, 'generation-migrated-001');
 
     expect(JSON.stringify(source)).toBe(before);
-    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.schemaVersion).toBe(5);
     expect(migrated.generationId).toBe('generation-migrated-001');
     expect(migrated.modelPin).toEqual({
       id: 'qwen3.5-9b',
@@ -375,11 +375,35 @@ describe('save migrations and state invariants', () => {
     expect(JSON.stringify(source)).toBe(before);
   });
 
-  test('copying a current v4 state also receives the requested new generation ID', () => {
+  test('copying a current v5 state also receives the requested new generation ID', () => {
     const source = createInitialState();
     const migrated = migrateStateCopy(source, 'generation-current-copy-001');
     expect(migrated.generationId).toBe('generation-current-copy-001');
     expect(source.generationId).toBe('generation-prototype-001');
+  });
+
+  test('v4 migration resolves injected Linda circumstances when the resolving flag already exists', () => {
+    const current = createInitialState();
+    const source: Partial<WorldState> = { ...current };
+    delete source.invitations;
+    const legacyRelationships = Object.fromEntries(Object.entries(current.relationships).map(([id, relationship]) => {
+      const legacy: Partial<typeof relationship> = { ...relationship };
+      delete legacy.policy;
+      return [id, id === 'linda' ? { ...legacy, rejections: [] } : legacy];
+    }));
+    const migrated = migrateStateCopy({
+      ...source,
+      schemaVersion: 4,
+      npcs: {
+        ...current.npcs,
+        linda: { ...current.npcs.linda, unlockedIds: ['linda_relationship_resolved'] },
+      },
+      relationships: legacyRelationships,
+    }, 'generation-migrated-004');
+    expect(migrated.relationships.linda?.rejections.filter(({ kind }) => kind === 'changeable_circumstance')).toEqual([
+      expect.objectContaining({ reasonId: 'current_relationship', resolved: true }),
+      expect.objectContaining({ reasonId: 'home_visit_not_safe', resolved: true }),
+    ]);
   });
 
   test('repository migration writes a new slot and keeps the old state file byte-identical', async () => {
@@ -400,14 +424,14 @@ describe('save migrations and state invariants', () => {
       sourceSlotId: 'slot-001',
       targetSlotId: 'slot-002',
       saveGeneration: 1,
-      stateSchemaVersion: 4,
+      stateSchemaVersion: 5,
     }));
     expect(await readFile(sourcePath, 'utf8')).toBe(legacyBytes);
     await expect(repository.load('slot-002')).resolves.toEqual(expect.objectContaining({
       status: 'loaded',
       state: expect.objectContaining({
         generationId: 'generation-migrated-002',
-        schemaVersion: 4,
+        schemaVersion: 5,
         protagonist: expect.objectContaining({
           worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
         }),

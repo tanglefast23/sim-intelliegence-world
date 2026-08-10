@@ -3,7 +3,7 @@
   "npcId": "generic_resident",
   "factIds": [],
   "interestIds": ["island_gossip"],
-  "actionIds": ["greet", "ask_follow_up", "end_conversation"],
+  "actionIds": ["greet", "ask_date", "ask_follow_up", "end_conversation"],
   "memorySubjectIds": [],
   "unlockIds": [],
   "questIds": [],
@@ -23,6 +23,6 @@
     {"stage": "dating", "unavailable": true, "requiredFlagIds": []}
   ],
   "rejections": [
-    {"reasonId": "not_romantically_compatible", "kind": "permanent_boundary", "sourceActionId": "invite_home", "resolved": false}
+    {"reasonId": "not_romantically_compatible", "kind": "permanent_boundary", "sourceActionId": "ask_date", "resolved": false}
   ]
 }

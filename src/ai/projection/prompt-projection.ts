@@ -1,7 +1,8 @@
 import type { WorldState } from '../../domain/state/schema';
+import { classifyQuestionScope, formatWorldKnowledge, selectWorldKnowledge } from '../knowledge/world-knowledge';
 import type { CharacterWriting, SceneRegistry } from '../registry/scene-registry';
 
-export const MAX_PROMPT_TOKENS = 4_096;
+export const MAX_PROMPT_BYTES = 7_000;
 
 export type PromptTurn = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
 export type StagedProjection = Readonly<{
@@ -13,9 +14,10 @@ export type StagedProjection = Readonly<{
 
 type PromptSection = Readonly<{ id: string; priority: number; text: string }>;
 
-// Count each UTF-8 byte as one conservative token. This intentionally stays below
-// the model tokenizer's 4,096-token budget for the English prototype content.
-export function conservativePromptTokens(source: string): number {
+// Count each UTF-8 byte as one conservative token. The runtime context is 8,192
+// tokens; this byte ceiling reserves at least 1,192 worst-case tokens for output
+// and chat framing while ordinary English uses materially fewer tokens than bytes.
+export function promptUtf8Bytes(source: string): number {
   return new TextEncoder().encode(source).byteLength;
 }
 
@@ -38,7 +40,7 @@ function boundedSection(section: PromptSection, maximumBytes: number): PromptSec
   const suffixBytes = new TextEncoder().encode(suffix).byteLength;
   if (maximumBytes <= suffixBytes) return undefined;
   let text = section.text;
-  while (conservativePromptTokens(text) > maximumBytes - suffixBytes) text = text.slice(0, -64);
+  while (promptUtf8Bytes(text) > maximumBytes - suffixBytes) text = text.slice(0, -64);
   return { ...section, text: `${text}${suffix}` };
 }
 
@@ -50,9 +52,26 @@ export function buildPromptProjection(input: Readonly<{
   recentTurns: readonly PromptTurn[];
   playerMessage: string;
   turnId: string;
+  authoritativeSocialOutcome?: Readonly<Record<string, unknown>>;
 }>): string {
   const npc = input.state.npcs[input.character.npcId];
   if (!npc) throw new Error('Prompt NPC does not exist.');
+  const questionScope = classifyQuestionScope(input.playerMessage, input.recentTurns);
+  const worldKnowledge = input.character.worldKnowledge
+    ? formatWorldKnowledge(
+      input.character.worldKnowledge,
+      selectWorldKnowledge(
+        input.character.worldKnowledge,
+        input.playerMessage,
+        input.recentTurns,
+        input.state.protagonist.worldPosition.mapId,
+        input.character.knowledgeProfile,
+        questionScope,
+      ),
+      input.character.knowledgeProfile,
+      questionScope,
+    )
+    : undefined;
   const sections: PromptSection[] = [
     { id: 'contract', priority: 100, text: [
       'SYSTEM CONTRACT: Return one JSON object that matches the supplied schema.',
@@ -62,16 +81,35 @@ export function buildPromptProjection(input: Readonly<{
       'For an explicit cat-ownership claim, propose fact protagonist_has_cat=true, interest cats, unlock cats_common_interest, and memory subject protagonist_cat.',
       'Do not repeat a knowledge candidate unless the current turn contains a new explicit claim. Use existing knowledge and memory when the player asks what you remember.',
       'Never propose a blocked action or a high-impact candidate. Keep dialogue concise and in character.',
+      'Halcyra exists in the contemporary real world of the story. Real countries, cities, history, and stable public facts also exist.',
+      'Treat Halcyra as real in character. Never call it fictional, claim to be an AI, or invent Halcyra\'s exact position on Earth.',
+      'An explicit external place overrides a local interpretation. Otherwise, practical questions about where to eat, shop, travel, or have fun default to Halcyra while the player is on the island.',
+      'Answer only within the NPC knowledge profile. If the NPC does not know or is unsure, say so naturally instead of inventing details.',
+      'Do not claim live news or current changing facts unless they are supplied as authored knowledge.',
+      'Answer the current player turn. Never copy, mirror, or merely restate the player\'s sentence as the NPC reply.',
+      'Set actionId ask_date or invite_home only when the player directly performs that action. Discussion, questions about the topic, and hypothetical statements are not the action.',
     ].join('\n') },
     { id: 'identity', priority: 95, text: `NPC: ${input.character.displayName} (${input.character.npcId})\nPERSONALITY:\n${input.character.personality}` },
+    { id: 'knowledge-profile', priority: 94, text: input.character.knowledgeProfile.source },
+    { id: 'current-turn', priority: 93, text: `CURRENT PLAYER TURN ${input.turnId}:\n${input.playerMessage}` },
+    ...(worldKnowledge ? [{ id: 'world-knowledge', priority: 92, text: worldKnowledge }] : []),
     { id: 'scene-registry', priority: 90, text: `SCENE REGISTRY:\n${stableJson(input.registry)}` },
-    { id: 'current-turn', priority: 90, text: `CURRENT PLAYER TURN ${input.turnId}:\n${input.playerMessage}` },
+    ...(input.authoritativeSocialOutcome ? [{
+      id: 'social-outcome',
+      priority: 92,
+      text: [
+        'AUTHORITATIVE SOCIAL OUTCOME:',
+        stableJson(input.authoritativeSocialOutcome),
+        'Respond naturally in character, but clearly communicate this exact outcome. Do not reverse, bargain away, or contradict it.',
+      ].join('\n'),
+    }] : []),
     { id: 'authoritative-state', priority: 80, text: `AUTHORITATIVE STATE PROJECTION:\n${stableJson({
       absoluteMinute: input.state.clock.absoluteMinute,
       protagonist: {
         id: input.state.protagonist.id,
         displayName: input.state.protagonist.displayName,
         locationId: input.state.protagonist.locationId,
+        mapId: input.state.protagonist.worldPosition.mapId,
       },
       npc: {
         id: npc.id,
@@ -90,13 +128,13 @@ export function buildPromptProjection(input: Readonly<{
   let used = 0;
   for (const section of ordered) {
     const separatorBytes = accepted.length === 0 ? 0 : 2;
-    const remaining = MAX_PROMPT_TOKENS - used - separatorBytes;
+    const remaining = MAX_PROMPT_BYTES - used - separatorBytes;
     const bounded = boundedSection(section, remaining);
     if (!bounded) continue;
     accepted.push(bounded);
-    used += separatorBytes + conservativePromptTokens(bounded.text);
+    used += separatorBytes + promptUtf8Bytes(bounded.text);
   }
   const prompt = accepted.map(({ text }) => text).join('\n\n');
-  if (conservativePromptTokens(prompt) > MAX_PROMPT_TOKENS) throw new Error('Prompt projection exceeded its token budget.');
+  if (promptUtf8Bytes(prompt) > MAX_PROMPT_BYTES) throw new Error('Prompt projection exceeded its byte budget.');
   return prompt;
 }
