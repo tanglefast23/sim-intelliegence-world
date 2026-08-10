@@ -12,13 +12,13 @@ The Apple silicon ARM64 package is the primary macOS target. The x64 package exi
 |---|---:|---:|
 | Warm ordinary requests | 100/100 valid | 100/100 valid |
 | Capability fixtures | 100/100 first pass | 100/100 first pass |
-| First-token maximum | 386.69 ms | 345.54 ms |
-| Visible response p95 | 3,510.55 ms | 2,239.32 ms |
-| Minimum generation rate | 24.52 tokens/s | 32.92 tokens/s |
-| Peak runtime memory | 6,419,906,560 bytes | 3,469,672,448 bytes |
+| First-token maximum | 969.95 ms | 151.03 ms |
+| Visible response p95 | 3,332.20 ms | 1,301.65 ms |
+| Minimum generation rate | 27.85 tokens/s | 69.36 tokens/s |
+| Peak runtime memory | 6,418,219,008 bytes | 3,469,705,216 bytes |
 | Integrated signed package | Not current | Passed |
 
-The signed macOS ARM64 4B package loaded offline, completed both free-text turns without fallback, produced non-text feedback in 3.3 ms, and measured 119.9 FPS during generation on an Apple M5 Max with 128 GB RAM.
+The signed macOS ARM64 4B package loaded offline, completed both free-text turns without fallback, produced non-text feedback in 5.6 ms, and measured 119.9 FPS during generation on an Apple M5 Max with 128 GB RAM.
 
 ## SHIP gate status
 

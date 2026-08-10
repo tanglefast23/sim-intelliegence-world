@@ -139,7 +139,20 @@ async function processMemoryKiB(modelPath: string, executablePath: string): Prom
   return rssKiB > 0 ? rssKiB : null;
 }
 
+async function exactTestedCommit(): Promise<string | null> {
+  const supplied = process.env.GITHUB_SHA;
+  if (!supplied) return null;
+  if (!/^[a-f0-9]{40}$/u.test(supplied)) throw new Error('GITHUB_SHA must be one complete Git commit SHA.');
+  const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd: process.cwd() });
+  const checkedOut = stdout.trim();
+  if (supplied !== checkedOut) {
+    throw new Error(`GITHUB_SHA does not match the checked-out commit: expected ${checkedOut}.`);
+  }
+  return supplied;
+}
+
 async function main(): Promise<void> {
+  const testedCommit = await exactTestedCommit();
   const root = requiredAbsoluteRoot();
   const requested = process.argv[2] ?? '4b';
   if (requested !== '4b' && requested !== '9b') {
@@ -323,7 +336,7 @@ async function main(): Promise<void> {
     const report = {
       schemaVersion: 1,
       generatedAt: new Date().toISOString(),
-      testedCommit: process.env.GITHUB_SHA ?? null,
+      testedCommit,
       qualificationProfile: profile,
       hardware: {
         platform: platform(),

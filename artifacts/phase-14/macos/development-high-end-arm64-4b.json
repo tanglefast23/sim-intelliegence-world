@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T11:02:56.299Z",
-  "testedCommit": null,
+  "generatedAt": "2026-08-10T11:20:33.625Z",
+  "testedCommit": "e5dc137419bb4cacdc2e72bf1e7c12d1a988c6f1",
   "qualificationProfile": "development-high-end",
   "hardware": {
     "platform": "darwin",
@@ -17,8 +17,8 @@
     "bundledModelRuntime": true
   },
   "measurements": {
-    "rendererReadyMilliseconds": 1093.81,
-    "nonTextFeedbackMilliseconds": 4.3,
+    "rendererReadyMilliseconds": 1304,
+    "nonTextFeedbackMilliseconds": 5.6,
     "rendererFpsDuringGeneration": 119.9
   },
   "thresholds": {
