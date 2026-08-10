@@ -16,7 +16,7 @@ if ($executables.Count -ne 1) {
 }
 
 $certificate = $null
-$trustedCertificate = $null
+$trustedCertificateAdded = $false
 $temporaryCertificatePath = Join-Path ([IO.Path]::GetTempPath()) "si-world-phase-14-$([guid]::NewGuid().ToString('N')).cer"
 try {
   $certificate = New-SelfSignedCertificate `
@@ -37,9 +37,9 @@ try {
   }
   $signTool = $signTools[0].FullName
   Export-Certificate -Cert $certificate -FilePath $temporaryCertificatePath -Force | Out-Null
-  $trustedCertificate = Import-Certificate `
-    -FilePath $temporaryCertificatePath `
-    -CertStoreLocation 'Cert:\CurrentUser\Root'
+  & certutil.exe -user -silent -f -addstore Root $temporaryCertificatePath
+  if ($LASTEXITCODE -ne 0) { throw 'Certutil failed to add the temporary public test certificate to CurrentUser Root.' }
+  $trustedCertificateAdded = $true
   & $signTool sign /sha1 $certificate.Thumbprint /s My /fd SHA256 $executables[0].FullName
   if ($LASTEXITCODE -ne 0) { throw 'SignTool failed to sign the Windows test artifact.' }
   & $signTool verify /pa /v $executables[0].FullName
@@ -63,8 +63,8 @@ try {
   Write-Output "Windows local test signature verified: $($executables[0].Name)"
 }
 finally {
-  if ($null -ne $trustedCertificate) {
-    Remove-Item -Path "Cert:\CurrentUser\Root\$($trustedCertificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
+  if ($trustedCertificateAdded -and $null -ne $certificate) {
+    Remove-Item -Path "Cert:\CurrentUser\Root\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue
   }
   if ($null -ne $certificate) {
     Remove-Item -Path "Cert:\CurrentUser\My\$($certificate.Thumbprint)" -Force -ErrorAction SilentlyContinue

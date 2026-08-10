@@ -66,3 +66,7 @@ The repair adds an explicit `platform-shell` profile for hosted Linux, Intel mac
 Grok 4.5 reviewed the seven changed CI, smoke, signing, test, and status files at high effort. It returned `NO_CONFIRMED_FINDINGS`. GitHub CI then disproved part of that verdict: `TrustedPeople` did not establish a trusted root for `signtool verify /pa`. The second repair imports only the public test certificate into the current user's `Root` store, verifies the artifact, and removes it in `finally`. The repository does not contain or export the temporary private key.
 
 The focused second Grok 4.5 audit returned `NO_CONFIRMED_FINDINGS`. It confirmed the current-user root trust, same-user `/pa` verification, cleanup of the `Root` and `My` entries and temporary CER, and the corrected audit history. GitHub CI remains the required proof that this Windows-host behavior works.
+
+The next Windows run reached the current-user root import but did not leave that step. The repair therefore replaces the PowerShell certificate import with `certutil -user -silent -f -addstore Root`, the documented command-line store operation with explicit silent and force options. SignTool verification and `finally` cleanup remain required. This result again shows that a clean document audit does not replace execution on the target host.
+
+The focused third Grok 4.5 audit returned `NO_CONFIRMED_FINDINGS`. It confirmed the `certutil` option set, current-user scope, exit-code check, Authenticode verification, cleanup, and the recorded history of both prior Windows execution failures.
