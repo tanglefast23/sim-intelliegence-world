@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { StableIdSchema } from '../../domain/state/ids';
+import type { CompiledMapV2 } from '../maps/compiled-v2';
 import { TilePointSchema, type CompiledMap } from '../maps/schema';
 
 export const NeighborhoodRouteSchema = z.object({
@@ -30,6 +31,29 @@ export function routeBetween(originMapId: string, destinationMapId: string): Nei
   ));
   if (!route) throw new Error(`Maps ${originMapId} and ${destinationMapId} are not cardinal neighbors.`);
   return route;
+}
+
+export function deriveNeighborhoodRoutes(
+  catalog: Readonly<Record<string, CompiledMapV2>>,
+): readonly NeighborhoodRoute[] {
+  return Object.values(catalog).flatMap((map) => map.source.portals.map((portal) => {
+    const destination = catalog[portal.destinationMapId];
+    const entrance = destination?.portalById.get(portal.destinationEntranceId);
+    if (!destination || !entrance) {
+      throw new Error(`Portal ${map.source.id}/${portal.id} has no compiled destination entrance.`);
+    }
+    return NeighborhoodRouteSchema.parse({
+      originMapId: map.source.id,
+      destinationMapId: portal.destinationMapId,
+      sourcePortalId: portal.id,
+      sourcePortalTile: portal.tile,
+      destinationEntranceId: portal.destinationEntranceId,
+      destinationEntranceTile: entrance.tile,
+    });
+  })).sort((left, right) => (
+    left.originMapId.localeCompare(right.originMapId, 'en') ||
+    left.sourcePortalId.localeCompare(right.sourcePortalId, 'en')
+  ));
 }
 
 export function assertNeighborhoodRoutes(catalog: Readonly<Record<string, CompiledMap>>): void {

@@ -19,6 +19,24 @@ function compareAscii(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
+export function buildLocationNeighborhoodIndex(
+  locations: readonly Readonly<{ id: string; neighborhoodId: string }>[],
+): ReadonlyMap<string, string> {
+  const result = new Map<string, string>();
+  const mapIds = new Set<string>(MAP_IDS);
+  for (const location of [...locations].sort((left, right) => compareAscii(left.id, right.id))) {
+    if (result.has(location.id)) throw new Error(`Duplicate world location ID: ${location.id}`);
+    if (!mapIds.has(location.neighborhoodId)) {
+      throw new Error(`Location ${location.id} references unknown neighborhood ${location.neighborhoodId}.`);
+    }
+    result.set(location.id, location.neighborhoodId);
+  }
+  for (const mapId of MAP_IDS) {
+    if (result.get(mapId) !== mapId) throw new Error(`Neighborhood ${mapId} must be a self-bound world location.`);
+  }
+  return result;
+}
+
 async function readJson(path: string): Promise<unknown> {
   return JSON.parse(await readFile(path, 'utf8')) as unknown;
 }
@@ -66,6 +84,7 @@ export async function loadContentBundle(rootPath: string): Promise<ContentBundle
 export async function validateContent(rootPath = process.cwd()): Promise<void> {
   const bundle = await loadContentBundle(rootPath);
   const catalog = buildContentCatalog(bundle);
+  buildLocationNeighborhoodIndex(catalog.locations);
   const writingStore = new FileCharacterWritingStore(resolve(rootPath, 'content'));
   await Promise.all(catalog.rules.map(({ npcId }) => writingStore.get(npcId)));
   const mapFiles: Readonly<Record<MapId, string>> = {

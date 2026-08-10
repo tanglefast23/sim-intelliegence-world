@@ -1,4 +1,4 @@
-import { loadContentBundle } from '../../../scripts/content/validate-content';
+import { buildLocationNeighborhoodIndex, loadContentBundle } from '../../../scripts/content/validate-content';
 import { buildContentCatalog, type ContentBundleInput } from '../registries/catalog';
 import type { NpcRules, RegistryFile } from '../schemas/registry';
 import { createInitialState } from '../../domain/state/initial-state';
@@ -30,6 +30,16 @@ describe('content validation', () => {
         stage: 'stranger',
       },
     }));
+  });
+
+  test('indexes every world location under one known neighborhood', () => {
+    const catalog = buildContentCatalog(validBundle);
+    const index = buildLocationNeighborhoodIndex(catalog.locations);
+    expect(index.size).toBe(14);
+    expect(index.get('protagonist_villa')).toBe('northwest_residential');
+    expect(index.get('devon_bar')).toBe('northeast_downtown');
+    expect(index.get('sora_boutique')).toBe('southwest_commercial');
+    expect(index.get('priya_clinic')).toBe('southeast_docks');
   });
 
   test('prototype state starts from the same relationship authority as NPC rules', () => {
