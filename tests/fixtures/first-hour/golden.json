@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "protagonist": {
+    "id": "protagonist",
+    "displayName": "MISTAKE",
+    "mapId": "northwest_residential",
+    "tileX": 22,
+    "tileY": 28
+  },
+  "startMinute": 480,
+  "endMinute": 540,
+  "energy": 99,
+  "health": 100,
+  "money": 940,
+  "quest": {
+    "status": "resolved",
+    "flags": [
+      "linda_protected",
+      "linda_relationship_resolved",
+      "linda_villa_discovered",
+      "security_report_purchased",
+      "velvet_tide_lead"
+    ],
+    "outcome": "success"
+  },
+  "linda": {
+    "familiarity": 13,
+    "trust": 12,
+    "attraction": 1
+  },
+  "velvetTide": {
+    "revealed": true,
+    "standing": -10
+  },
+  "policeAttention": "noticed",
+  "evidenceIds": [
+    "evidence_linda_protected"
+  ],
+  "journalMarkerVisible": true,
+  "revision": 33
+}

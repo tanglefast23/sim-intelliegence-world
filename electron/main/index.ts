@@ -109,6 +109,26 @@ async function questStateLabel(window: BrowserWindow): Promise<string> {
   ) as Promise<string>;
 }
 
+async function protagonistStateLabel(window: BrowserWindow): Promise<string> {
+  return window.webContents.executeJavaScript(
+    `document.querySelector('#world-protagonist-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as Promise<string>;
+}
+
+async function waitForSelector(window: BrowserWindow, selector: string, timeoutMilliseconds = 15_000): Promise<void> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  while (Date.now() < deadline) {
+    const found = await window.webContents.executeJavaScript(
+      `Boolean(document.querySelector(${JSON.stringify(selector)}))`,
+      true,
+    ) as boolean;
+    if (found) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for renderer selector: ${selector}`);
+}
+
 function parseWorldStateLabel(label: string): Readonly<{ mapName: string; x: number; y: number; minute: number; speed: number }> {
   const match = /^(.*); tile (\d+),(\d+); minute (\d+); speed (\d+)$/u.exec(label);
   if (!match) throw new Error(`Invalid world-state label: ${label}`);
@@ -217,7 +237,7 @@ function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
 }
 
-function sendKey(window: BrowserWindow, keyCode: 'F' | 'Escape'): void {
+function sendKey(window: BrowserWindow, keyCode: 'Enter' | 'F' | 'Escape'): void {
   window.webContents.sendInputEvent({ type: 'keyDown', keyCode });
   window.webContents.sendInputEvent({ type: 'keyUp', keyCode });
 }
@@ -258,6 +278,32 @@ async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): 
 }
 
 async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean>> {
+  await waitForSelector(window, '#new-game-flow');
+  await captureSmokeScreenshot(window, join(directory, 'world-new-game.png'));
+  const newGameFlow = (await rendererText(window, '#new-game-flow')).includes('WELCOME TO HALCYRA') &&
+    (await rendererText(window, '#new-game-flow')).includes('$800');
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[aria-label="Player name"]');
+    if (!(input instanceof HTMLInputElement)) throw new Error('Player name input is missing.');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, 'MISTAKE');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+  })()`, true);
+  sendKey(window, 'Enter');
+  await waitForSelector(window, '#world-state', 20_000);
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
+  const protagonistLabel = await protagonistStateLabel(window);
+  const stableProtagonist = protagonistLabel.includes('Protagonist protagonist') && protagonistLabel.includes('name MISTAKE');
+  const allowanceReceipt = protagonistLabel.includes('allowance 800') && protagonistLabel.includes('money 800') &&
+    (await rendererText(window, '#world-ui-help')).includes('$800 WEEKLY ALLOWANCE RECEIVED');
+  const newGameSave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 1');
+  const accessibilityPolicy = await window.webContents.executeJavaScript(`(() => {
+    const policy = document.querySelector('#si-world-accessibility');
+    return policy instanceof HTMLStyleElement && policy.textContent.includes(':focus-visible') &&
+      policy.textContent.includes('prefers-reduced-motion: reduce');
+  })()`, true) as boolean;
+
   const zoomLabels: string[] = [];
   const zoomBuffers: Buffer[] = [];
   for (const zoom of [1, 2, 3] as const) {
@@ -380,8 +426,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 400));
   const afterOvernight = parseWorldStateLabel(await worldStateLabel(window));
   const overnightSleep = afterOvernight.minute > beforeOvernight.minute && afterOvernight.minute % 1_440 === 8 * 60;
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
-  const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 1');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 2');
+  const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
 
   await clickAriaButton(window, 'Set 1x time');
   await clickWorldTile(window, { x: 16, y: 25 });
@@ -393,8 +439,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForWorldLocation(window, 'Neon Crescent', { x: 0, y: 24 });
   const afterTravel = parseWorldStateLabel(await worldStateLabel(window));
   const travel = afterTravel.mapName === 'Neon Crescent' && afterTravel.x === 0 && afterTravel.y === 24;
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 2');
-  const travelAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 3');
+  const travelAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 3');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-downtown.png'), [previousWorldBuffer],
   );
@@ -421,8 +467,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
   const allNeighborhoods = commercial.mapName === 'Palm Exchange' &&
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 5');
-  const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 5');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 6');
+  const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 6');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-loop-complete.png'), [previousWorldBuffer],
   );
@@ -437,6 +483,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const conversationAfter = parseWorldStateLabel(await worldStateLabel(window));
   const conversationPause = conversationBefore.minute === conversationAfter.minute &&
     (await rendererText(window, '#world-ui-conversation-panel')).includes('TIME PAUSED');
+  const audioCaptions = (await rendererText(window, '#world-audio-caption')).includes('GREETING CHIRP');
   const cameraBeforeConversationInput = await cameraLabel(window);
   const locationBeforeConversationInput = await rendererText(window, '#world-ui-location');
   await window.webContents.executeJavaScript(`(() => {
@@ -472,6 +519,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_000));
   const transcript = await rendererText(window, '#conversation-transcript');
   const conversationFallback = transcript.includes('I lost the thread') && !transcript.includes('jsonSchema');
+  const modelFailureFeedback = (await rendererText(window, '#conversation-model-status')).includes('FALLBACK USED');
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Conversation message"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Conversation input is missing.');
@@ -486,10 +534,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     window, join(directory, 'world-conversation.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'End conversation');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 6');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
   const conversationCommitSave = !(await window.webContents.executeJavaScript(
     `Boolean(document.querySelector('#world-ui-conversation-panel'))`, true,
-  )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 6');
+  )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 7');
   await clickAriaButton(window, 'Open relationships');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
   const relationshipText = await rendererText(window, '#world-ui-relationship-panel');
@@ -508,21 +556,21 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
   const journalInvitation = (await rendererText(window, '#world-ui-journal-panel')).includes('LINDA · REJECTED');
   await clickAriaButton(window, 'Buy villa security report');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 8');
   const socialPurchase = (await rendererText(window, '#world-ui-journal-panel')).includes('SECURITY REPORT PURCHASED') &&
-    (await rendererText(window, '#world-save-status')).includes('SAVED GEN 7');
+    (await rendererText(window, '#world-save-status')).includes('SAVED GEN 8');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-journal.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'Close journal');
   await clickAriaButton(window, "Accept Linda's request");
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 8');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 9');
   const questStarted = (await questStateLabel(window)).includes('Linda quest active') &&
     (await questStateLabel(window)).includes('flags security_report_purchased');
   await dispatchWorldTileClick(window, { x: 22, y: 28 });
   await waitForWorldTile(window, { x: 22, y: 28 }, 10_000);
   await clickAriaButton(window, "Confirm Linda's villa");
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 9');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 10');
   const choiceText = await rendererText(window, '#world-ui-context-actions');
   const questChoicePreview = choiceText.includes('PROTECT LINDA') && choiceText.includes('BETRAY LINDA') &&
     choiceText.includes('WITHDRAW') && choiceText.includes('YOU DO') && choiceText.includes('RESULT') &&
@@ -531,34 +579,51 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     window, join(directory, 'world-linda-quest.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'Protect Linda');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 10');
+  const consequenceCaption = (await rendererText(window, '#world-audio-caption')).includes('CONSEQUENCE TONE');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 11');
   const questLabel = await questStateLabel(window);
   const questOutcome = questLabel.includes('Linda quest resolved') && questLabel.includes('linda_protected') &&
     questLabel.includes('police noticed') && questLabel.includes('evidence 1') &&
     (await rendererText(window, '#world-ui-help')).includes('LINDA PROTECTED');
-  const questAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 10');
+  const questAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 11');
   await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-linda-outcome.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'Open journal');
   await clickAriaButton(window, 'Answer police questions');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 11');
-  await clickAriaButton(window, 'Ignore police summons');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 12');
-  await clickAriaButton(window, 'Trigger wanted encounter');
+  await clickAriaButton(window, 'Ignore police summons');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 13');
+  await clickAriaButton(window, 'Trigger wanted encounter');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 14');
   const policeHooks = (await questStateLabel(window)).includes('police arrest-on-sight') &&
     (await rendererText(window, '#world-ui-journal-panel')).includes('POLICE · ARREST-ON-SIGHT');
   await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-police.png'), [previousWorldBuffer],
   );
+  const loaded = await window.webContents.executeJavaScript(
+    `window.siWorldDesktop?.loadSave('slot-001')`,
+    true,
+  ) as Readonly<{
+    status?: string;
+    saveGeneration?: number;
+    state?: Readonly<{
+      protagonist?: Readonly<{ id?: string; displayName?: string }>;
+      quests?: Readonly<Record<string, Readonly<{ status?: string }>>>;
+      policeAttention?: string;
+    }>;
+  }>;
+  const saveReload = loaded.status === 'loaded' && loaded.saveGeneration === 14 &&
+    loaded.state?.protagonist?.id === 'protagonist' && loaded.state.protagonist.displayName === 'MISTAKE' &&
+    loaded.state.quests?.linda_boyfriend_check?.status === 'resolved' && loaded.state.policeAttention === 'arrest-on-sight';
   return {
+    newGameFlow, stableProtagonist, allowanceReceipt, newGameSave, accessibilityPolicy,
     zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
-    conversationPause, conversationInputLocked, conversationSocialNavLocked, promptIdeasContextual, conversationBuffered, conversationFallback, conversationCommitSave,
+    conversationPause, conversationInputLocked, conversationSocialNavLocked, promptIdeasContextual, conversationBuffered, conversationFallback, modelFailureFeedback, audioCaptions, conversationCommitSave,
     structuredInvitation, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
-    questStarted, questChoicePreview, questOutcome, questAutosave, policeHooks,
+    questStarted, questChoicePreview, questOutcome, questAutosave, consequenceCaption, policeHooks, saveReload,
   };
 }
 

@@ -1,9 +1,10 @@
+import { Canvas, Rect } from '@shopify/react-native-skia';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { GameScreen } from '../application/GameScreen';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererReadyReport } from '../application/RendererReadiness';
-import { WorldScene } from './WorldScene';
 
 function hasNoNodeAccess(): boolean {
   const candidate = globalThis as typeof globalThis & {
@@ -33,11 +34,11 @@ async function afterTwoPaints(): Promise<void> {
 
 export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   const [runtime, setRuntime] = useState('Browser proof');
-  const [worldReady, setWorldReady] = useState(false);
-  const markWorldReady = useCallback(() => setWorldReady(true), []);
+  const [gameReady, setGameReady] = useState(false);
+  const markGameReady = useCallback(() => setGameReady(true), []);
 
   useEffect(() => {
-    if (!worldReady) {
+    if (!gameReady) {
       return;
     }
     const bridge = getDesktopBridge();
@@ -63,12 +64,15 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
       .catch(() => {
         setRuntime('Desktop bridge rejected the readiness proof');
       });
-  }, [assetsLoaded, worldReady]);
+  }, [assetsLoaded, gameReady]);
 
   return (
     <View style={styles.screen}>
+      <Canvas style={styles.readinessCanvas}>
+        <Rect color="#17201b" height={2} width={2} x={0} y={0} />
+      </Canvas>
       <View style={styles.card}>
-        <WorldScene onReady={markWorldReady} />
+        <GameScreen onReady={markGameReady} />
       </View>
       <Text accessibilityRole="header" style={styles.title}>
         SI WORLD / THE ISLAND
@@ -89,6 +93,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 8,
   },
+  readinessCanvas: { height: 2, left: 0, opacity: 0, position: 'absolute', top: 0, width: 2 },
   screen: {
     alignItems: 'center',
     backgroundColor: '#17201b',

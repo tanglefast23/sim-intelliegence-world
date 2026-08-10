@@ -5,8 +5,10 @@ import * as Font from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 
+import { installWebAccessibilityStyles } from './src/application/accessibility';
 import { LoadingShell } from './src/application/LoadingShell';
 import { type ResourceState, settleResourceGate } from './src/application/ResourceGate';
+import { VOCAL_CUE_ASSETS } from './src/audio/vocal-cues';
 
 const proofAtlas = require('./assets/proof/phase2-atlas.png') as number;
 const proofAudio = require('./assets/proof/phase2-tone.wav') as number;
@@ -16,12 +18,16 @@ export default function App() {
   const [resources, setResources] = useState<ResourceState>({ status: 'loading' });
 
   useEffect(() => {
+    installWebAccessibilityStyles();
+  }, []);
+
+  useEffect(() => {
     let active = true;
     const startedAt = performance.now();
     void settleResourceGate(async () => {
       const [, loadedAssets] = await Promise.all([
         Font.loadAsync({ Silkscreen: Silkscreen_400Regular }),
-        Asset.loadAsync([proofAtlas, proofAudio, worldAtlas]),
+        Asset.loadAsync([proofAtlas, proofAudio, worldAtlas, ...VOCAL_CUE_ASSETS]),
       ]);
       const imageAsset = loadedAssets.find((asset) => asset.name.includes('phase2-atlas'));
       if (!imageAsset) {
@@ -34,6 +40,10 @@ export default function App() {
       const worldImageAsset = loadedAssets.find((asset) => asset.name.includes('world-atlas'));
       if (!worldImageAsset) {
         throw new Error('Generated world atlas was not resolved.');
+      }
+      const vocalCueAssets = loadedAssets.filter((asset) => ['greeting', 'laugh', 'sigh', 'consequence'].some((name) => asset.name.includes(name)));
+      if (vocalCueAssets.length !== VOCAL_CUE_ASSETS.length) {
+        throw new Error('One or more vocal cues were not resolved.');
       }
       const [imageResponse, audioResponse, worldImageResponse] = await Promise.all([
         fetch(imageAsset.localUri ?? imageAsset.uri),
@@ -48,6 +58,14 @@ export default function App() {
       }
       if (!worldImageResponse.ok || (await worldImageResponse.arrayBuffer()).byteLength === 0) {
         throw new Error('Generated world atlas could not be loaded.');
+      }
+      const vocalCueResponses = await Promise.all(vocalCueAssets.map((asset) => fetch(asset.localUri ?? asset.uri)));
+      if (vocalCueResponses.some((response) => !response.ok)) {
+        throw new Error('A packaged vocal cue could not be loaded.');
+      }
+      const vocalCueBuffers = await Promise.all(vocalCueResponses.map((response) => response.arrayBuffer()));
+      if (vocalCueBuffers.some((buffer) => buffer.byteLength === 0)) {
+        throw new Error('A packaged vocal cue was empty.');
       }
       const remainingLoadingTime = Math.max(0, 500 - (performance.now() - startedAt));
       await new Promise((resolveDelay) => setTimeout(resolveDelay, remainingLoadingTime));

@@ -30,6 +30,7 @@ const screenshotDirectory = process.argv[2]
   : join(process.cwd(), 'artifacts/phase-02');
 const screenshotPath = join(screenshotDirectory, 'packaged-electron.png');
 const loadingScreenshotPath = join(screenshotDirectory, 'packaged-loading.png');
+const newGameScreenshotPath = join(screenshotDirectory, 'world-new-game.png');
 const worldZoomPaths = [1, 2, 3].map((zoom) => join(screenshotDirectory, `world-${zoom}x.png`));
 const roofScreenshotPath = join(screenshotDirectory, 'world-roof-restored.png');
 const downtownScreenshotPath = join(screenshotDirectory, 'world-downtown.png');
@@ -45,6 +46,7 @@ mkdirSync(screenshotDirectory, { recursive: true });
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-smoke-'));
 rmSync(loadingScreenshotPath, { force: true });
 rmSync(screenshotPath, { force: true });
+rmSync(newGameScreenshotPath, { force: true });
 worldZoomPaths.forEach((path) => rmSync(path, { force: true }));
 rmSync(roofScreenshotPath, { force: true });
 rmSync(downtownScreenshotPath, { force: true });
@@ -103,6 +105,8 @@ child.once('close', (code) => {
   rmSync(smokeUserData, { force: true, recursive: true });
   const report = parseSmokeResult(stdout);
   validateScreenshotEvidence(loadingScreenshotPath, screenshotPath);
+  validateScreenshotBuffers(readFileSync(loadingScreenshotPath), readFileSync(newGameScreenshotPath));
+  validateScreenshotBuffers(readFileSync(newGameScreenshotPath), readFileSync(worldZoomPaths[0]!));
   validateWorldZoomEvidence(worldZoomPaths);
   validateScreenshotBuffers(readFileSync(worldZoomPaths[0]!), readFileSync(roofScreenshotPath));
   const worldResultLine = stdout.split(/\r?\n/u).find((line) => line.startsWith('SI_WORLD_WORLD_SMOKE_RESULT '));
@@ -110,13 +114,14 @@ child.once('close', (code) => {
   const worldResult = JSON.parse(worldResultLine.slice('SI_WORLD_WORLD_SMOKE_RESULT '.length)) as Record<string, unknown>;
   worldResult.questAutosave = worldResult.questAutosave === true && majorQuestAutosave;
   for (const key of [
+    'newGameFlow', 'stableProtagonist', 'allowanceReceipt', 'newGameSave', 'accessibilityPolicy',
     'zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'centerKey', 'cancelKey', 'uiClickThrough',
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',
-    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'conversationCommitSave',
+    'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'modelFailureFeedback', 'audioCaptions', 'conversationCommitSave',
     'structuredInvitation', 'relationshipPanel', 'hiddenFaction', 'journalInvitation', 'socialPurchase',
-    'questStarted', 'questChoicePreview', 'questOutcome', 'questAutosave', 'policeHooks',
+    'questStarted', 'questChoicePreview', 'questOutcome', 'questAutosave', 'consequenceCaption', 'policeHooks', 'saveReload',
   ]) {
     if (worldResult[key] !== true) {
       throw new Error(`Packaged world input check failed: ${key}. ${JSON.stringify(worldResult)}`);

@@ -73,6 +73,10 @@ describe('packaged Electron smoke evidence', () => {
       '/dist/assets/assets/proof/phase2-atlas.abc123.png',
       '/dist/assets/assets/proof/phase2-tone.abc123.wav',
       '/dist/assets/assets/generated/world-atlas.abc123.png',
+      '/dist/assets/assets/generated/audio/greeting.abc123.wav',
+      '/dist/assets/assets/generated/audio/laugh.abc123.wav',
+      '/dist/assets/assets/generated/audio/sigh.abc123.wav',
+      '/dist/assets/assets/generated/audio/consequence.abc123.wav',
       '/dist/assets/node_modules/@expo-google-fonts/silkscreen/400Regular/Silkscreen_400Regular.abc123.ttf',
       '/node_modules/zod/package.json',
     ].join('\n');
