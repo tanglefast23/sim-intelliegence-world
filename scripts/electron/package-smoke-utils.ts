@@ -75,7 +75,9 @@ export function findPackageArchive(outputRoot: string): string {
 }
 
 export function validatePackageListing(listing: string): void {
-  const entries = new Set(listing.split(/\r?\n/u).filter(Boolean));
+  const entries = new Set(
+    listing.split(/\r?\n/u).filter(Boolean).map((entry) => entry.replaceAll('\\', '/')),
+  );
   const required = [
     '/build/electron/main/index.js',
     '/build/electron/preload/index.js',

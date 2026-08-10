@@ -94,6 +94,7 @@ describe('packaged Electron smoke evidence', () => {
       '/node_modules/zod/package.json',
     ].join('\n');
     expect(() => validatePackageListing(requiredListing)).not.toThrow();
+    expect(() => validatePackageListing(requiredListing.replaceAll('/', '\\'))).not.toThrow();
     expect(() => validatePackageListing(`${requiredListing}\n/src/domain/prng.ts`)).toThrow(
       'excluded source',
     );
