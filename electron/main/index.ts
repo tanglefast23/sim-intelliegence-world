@@ -574,19 +574,26 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     const startedAt = performance.now();
     const frameTimes = [];
     let feedbackMilliseconds = null;
+    let finished = false;
+    const finish = (timedOut) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      const measuredFrames = frameTimes.filter((time) => time >= startedAt + (feedbackMilliseconds ?? 0));
+      const duration = measuredFrames.length > 1
+        ? measuredFrames[measuredFrames.length - 1] - measuredFrames[0]
+        : 0;
+      const rendererFps = duration > 0 ? ((measuredFrames.length - 1) * 1000) / duration : 0;
+      resolve({ feedbackMilliseconds, rendererFps, timedOut });
+    };
+    const timeout = setTimeout(() => finish(true), 30000);
     button.click();
     const frame = (now) => {
       frameTimes.push(now);
       const thinking = Boolean(document.querySelector('[aria-label="NPC is thinking"]'));
       if (thinking && feedbackMilliseconds === null) feedbackMilliseconds = Math.max(0, now - startedAt);
-      const timedOut = now - startedAt >= 30000;
-      if ((feedbackMilliseconds !== null && !thinking) || timedOut) {
-        const measuredFrames = frameTimes.filter((time) => time >= startedAt + (feedbackMilliseconds ?? 0));
-        const duration = measuredFrames.length > 1
-          ? measuredFrames[measuredFrames.length - 1] - measuredFrames[0]
-          : 0;
-        const rendererFps = duration > 0 ? ((measuredFrames.length - 1) * 1000) / duration : 0;
-        resolve({ feedbackMilliseconds, rendererFps, timedOut });
+      if (feedbackMilliseconds !== null && !thinking) {
+        finish(false);
         return;
       }
       requestAnimationFrame(frame);
@@ -774,6 +781,7 @@ async function createMainWindow(): Promise<void> {
     webPreferences: lockedWebPreferences(preloadPath),
     width: 1280,
   });
+  if (smokeMode) window.webContents.setBackgroundThrottling(false);
   window.removeMenu();
   registerRuntimeIpc(
     ipcMain,
