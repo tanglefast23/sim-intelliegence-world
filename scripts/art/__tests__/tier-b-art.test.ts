@@ -85,8 +85,8 @@ describe('Phase 31 Tier B shared and district art', () => {
   const bitmap = decodePng(built.png);
   const revision4Cells = revision4PixelHashes.cells as Readonly<Record<string, string>>;
 
-  test('uses revision 5 map-specific material cells without changing public map sprites', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(5);
+  test('uses revision 6 map-specific material cells without changing public map sprites', () => {
+    expect(ART_PRESENTATION_REVISION).toBe(6);
     for (const id of NEW_SPRITES) expect(built.index.publicSpriteIds).toContain(id);
     expect(MATERIAL_RECIPE_BY_ID['dark-asphalt']?.publicVariantSprites).toEqual([
       'tile.dark-asphalt', 'tile.dark-asphalt-b',

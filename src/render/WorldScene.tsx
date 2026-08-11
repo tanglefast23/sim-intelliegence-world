@@ -41,6 +41,7 @@ import { ContextActionMenu } from '../ui/ContextActionMenu';
 import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
+import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
 import { uiMetrics } from '../ui/ui-metrics';
 import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
@@ -84,6 +85,7 @@ import {
 } from './camera';
 import { WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
+import { journalMapMarkers } from './journal-markers';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
@@ -766,7 +768,7 @@ export function WorldScene({
     const event = runtime.worldState.eventLedger.at(-1);
     if (!event || event.type !== 'sleep-completed' || handledSleepEventId.current === event.eventId) return;
     handledSleepEventId.current = event.eventId;
-    setWorldFeedback(event.mode === 'nap' ? 'NAP COMPLETE · +25 ENERGY' : 'RESTED UNTIL 08:00 · +80 ENERGY');
+    setWorldFeedback(sleepCompletionFeedback(event));
     if (event.mode === 'overnight') void requestAutosave(runtime.worldState, 'sleep');
   }, [requestAutosave, runtime.worldState]);
 
@@ -982,6 +984,10 @@ export function WorldScene({
       y: runtime.movement.feedbackTile.y * TILE_SIZE + 16,
     })
     : undefined;
+  const journalMarkers = useMemo(
+    () => journalMapMarkers(runtime.worldState.journal, map),
+    [map, runtime.worldState.journal],
+  );
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
 
@@ -1101,6 +1107,20 @@ export function WorldScene({
               return <Circle color="#f5dd9d88" cx={screen.x} cy={screen.y} r={Math.max(2, camera.zoom * 2)} style="stroke" strokeWidth={camera.zoom} />;
             })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
+            {journalMarkers.map((marker) => {
+              const foot = worldToScreen(camera, tileFootPoint(marker.tile));
+              const centerX = foot.x - 10 * camera.zoom;
+              const centerY = foot.y - 30 * camera.zoom;
+              return (
+                <Group key={`journal-marker-${marker.journalEntryId}`}>
+                  <Line color="#201915" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
+                  <Line color="#f1c65b" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
+                  <Circle color="#201915" cx={centerX} cy={centerY} r={7 * camera.zoom} />
+                  <Circle color="#f1c65b" cx={centerX} cy={centerY} r={5 * camera.zoom} />
+                  <Circle color="#201915" cx={centerX} cy={centerY} r={2 * camera.zoom} />
+                </Group>
+              );
+            })}
             {feedbackScreen ? (
               <>
                 <Line color="#ef5b43" p1={vec(feedbackScreen.x - 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x + 7, feedbackScreen.y + 7)} strokeWidth={3} />
