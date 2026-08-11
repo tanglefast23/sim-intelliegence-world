@@ -748,7 +748,7 @@ Before Phase 26 starts:
 - [x] Confirmed council findings are integrated into this plan.
 - [x] Final Grok plan closure has no unresolved confirmed material finding.
 - [x] Phase 25 PR is squash-merged and synchronized.
-- [ ] Phase 26 deterministic art foundation is Grok-audited and merged.
+- [x] Phase 26 deterministic art foundation is Grok-audited and merged.
 - [ ] Phase 27 pure presentation system is Grok-audited and merged.
 - [ ] Phase 28 hard Sunward prototype passes all eleven gates, is Grok-audited, and is merged.
 - [ ] Phase 29 full current cast is Grok-audited and merged.

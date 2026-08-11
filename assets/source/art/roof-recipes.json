@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 1,
+  "defaultRecipe": {
+    "id": "legacy-boardwalk-roof",
+    "publicSprite": "tile.boardwalk",
+    "tint": "#4b211f55",
+    "selectionSalt": "roof-v1",
+    "visualBounds": { "left": 0, "top": 0, "right": 32, "bottom": 32 }
+  }
+}

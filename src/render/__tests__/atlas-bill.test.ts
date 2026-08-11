@@ -10,6 +10,7 @@ import {
   buildAtlasProofScene,
   movementPresentation,
 } from '../atlas';
+import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
 
 describe('runtime atlas bill and movement contract', () => {
   test('makes every generated atlas cell reachable', () => {
@@ -66,5 +67,22 @@ describe('runtime atlas bill and movement contract', () => {
     expect(proof).toContain('FilterMode.Nearest');
     expect(proof).toContain('MipmapMode.None');
     expect(`${proof}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
+  });
+
+  test('uses one immutable presentation index and a bounded static ground-detail batch', () => {
+    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    const map = WORLD_MAP_CATALOG.northwest_residential;
+    expect(Object.isFrozen(map.presentation)).toBe(true);
+    expect(Object.isFrozen(map.presentation.ground)).toBe(true);
+    expect(map.presentation.ground).toBe(WORLD_MAP_CATALOG.northwest_residential.presentation.ground);
+    expect(scene.match(/<Atlas\b/gu)?.length).toBeLessThanOrEqual(7);
+    expect(scene).toContain('map.presentation.transitions');
+    expect(scene).toContain('map.presentation.decals');
+    expect(scene).toContain('map.presentation.roofs');
+    expect(scene).not.toContain("sprite: 'tile.boardwalk'");
+    expect(scene).not.toContain('color="#4b211f55"');
+    const publicIds = new Set(ATLAS_INDEX.publicSpriteIds);
+    expect(map.presentation.ground.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
+    expect(map.presentation.roofs.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
   });
 });

@@ -15,7 +15,13 @@ import {
   type CharacterSource,
 } from './character-source';
 import { buildPortraitEntries } from './build-portrait-atlas';
-import { loadArtManifest, type ArtCategoryId } from './art-manifest';
+import {
+  loadArtManifest,
+  loadArtPresentationRecipeManifest,
+  loadArtPresentationRuntimeRecipes,
+  type ArtCategoryId,
+  type ArtPresentationRuntimeRecipes,
+} from './art-manifest';
 import { createAtlasBudgetReport, type AtlasBudgetReport } from './atlas-budget';
 import { packAtlasRectangles } from './atlas-pack';
 import { composeLateralFrame } from './lateral-legs';
@@ -151,8 +157,14 @@ export function buildAtlas(root = process.cwd()): {
   png: Buffer;
   index: AtlasIndex;
   report: AtlasGenerationReport;
+  presentationRecipes: ArtPresentationRuntimeRecipes;
 } {
   const manifest = loadArtManifest(root);
+  const presentationRecipes = loadArtPresentationRecipeManifest(root);
+  const presentationRuntimeRecipes = loadArtPresentationRuntimeRecipes(root);
+  if (presentationRecipes.artRevision !== manifest.artRevision) {
+    throw new Error('Art presentation recipes do not match the atlas art revision.');
+  }
   const characters = loadCharacterSources(root);
   const groundCells = loadTileSources(root);
   const wallSources = loadWallSources(root);
@@ -190,6 +202,11 @@ export function buildAtlas(root = process.cwd()): {
     bitmap: renderTile(part),
   }));
   const tileEntries = [...groundEntries, ...wallEntries, ...partEntries];
+  const atlasTileNames = new Set(tileEntries.map(({ name }) => name));
+  const missingPresentationSprites = presentationRecipes.publicSpriteIds.filter((name) => !atlasTileNames.has(name));
+  if (missingPresentationSprites.length > 0) {
+    throw new Error(`Art presentation recipes reference missing public cells: ${missingPresentationSprites.join(', ')}`);
+  }
   const entries: Entry[] = [
     ...tileEntries,
     ...characters.flatMap(worldEntries),
@@ -269,7 +286,7 @@ export function buildAtlas(root = process.cwd()): {
     internalReviewSpriteCount: internalReviewSpriteIds.length,
   };
   validateAtlasArtifacts(png, index, report, root);
-  return { png, index, report };
+  return { png, index, report, presentationRecipes: presentationRuntimeRecipes };
 }
 
 export function validateAtlasArtifacts(
@@ -350,24 +367,33 @@ export function validateAtlasArtifacts(
 
 export function writeAtlas(root = process.cwd()): void {
   const outputDirectory = resolve(root, 'assets/generated');
-  const { png, index, report } = buildAtlas(root);
+  const runtimeRecipeDirectory = resolve(root, 'src/world/presentation');
+  const { png, index, report, presentationRecipes } = buildAtlas(root);
   mkdirSync(outputDirectory, { recursive: true });
+  mkdirSync(runtimeRecipeDirectory, { recursive: true });
   const candidateId = `${process.pid}-${randomUUID()}`;
   const candidates = {
     png: resolve(outputDirectory, `.world-atlas.${candidateId}.tmp`),
     index: resolve(outputDirectory, `.atlas-index.${candidateId}.tmp`),
+    presentationRecipes: resolve(runtimeRecipeDirectory, `.generated-recipes.${candidateId}.tmp`),
     report: resolve(outputDirectory, `.atlas-report.${candidateId}.tmp`),
   };
   try {
     writeFileSync(candidates.png, png, { flush: true });
     writeFileSync(candidates.index, `${JSON.stringify(index, null, 2)}\n`, { encoding: 'utf8', flush: true });
+    writeFileSync(candidates.presentationRecipes, `${JSON.stringify(presentationRecipes, null, 2)}\n`, { encoding: 'utf8', flush: true });
     writeFileSync(candidates.report, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });
     const candidatePng = readFileSync(candidates.png);
     const candidateIndex = JSON.parse(readFileSync(candidates.index, 'utf8')) as AtlasIndex;
+    const candidatePresentationRecipes = JSON.parse(readFileSync(candidates.presentationRecipes, 'utf8')) as ArtPresentationRuntimeRecipes;
     const candidateReport = JSON.parse(readFileSync(candidates.report, 'utf8')) as AtlasGenerationReport;
     validateAtlasArtifacts(candidatePng, candidateIndex, candidateReport, root);
+    if (JSON.stringify(candidatePresentationRecipes) !== JSON.stringify(presentationRecipes)) {
+      throw new Error('Art presentation runtime recipe candidate is incomplete.');
+    }
     renameSync(candidates.png, resolve(outputDirectory, 'world-atlas.png'));
     renameSync(candidates.report, resolve(outputDirectory, 'atlas-report.json'));
+    renameSync(candidates.presentationRecipes, resolve(runtimeRecipeDirectory, 'generated-recipes.json'));
     renameSync(candidates.index, resolve(outputDirectory, 'atlas-index.json'));
   } finally {
     Object.values(candidates).forEach((path) => rmSync(path, { force: true }));

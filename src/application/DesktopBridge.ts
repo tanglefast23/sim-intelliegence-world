@@ -31,6 +31,7 @@ export type DesktopBridge = ConversationPort & Readonly<{
 declare global {
   interface Window {
     siWorldDesktop?: DesktopBridge;
+    siWorldArtMode?: 'legacy' | 'enhanced';
     siWorldSmokeMode?: boolean;
   }
 }

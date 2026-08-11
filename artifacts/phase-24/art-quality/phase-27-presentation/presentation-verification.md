@@ -1,0 +1,21 @@
+# Phase 27 presentation verification
+
+- Tested source commit: `138044bab2da5a14b632d8be17597128cb045100`
+- Atlas revision: `1`
+- Atlas cells: `187` public, `0` internal-review
+- Atlas size: `512x412`
+- Phase gate plus correction tests: `9` suites and `62` tests passed.
+- Full Jest gate: `49` suites and `406` tests passed.
+- Content build and validation: passed.
+- Pure-module boundary check: passed.
+- TypeScript checks for renderer and Electron: passed.
+- Web export and Electron package: passed.
+- Packaged world journey: passed and produced the world screenshots in `world/`.
+- Presentation seed/restart: both used enhanced mode and hash `d88f9acd`.
+- Same-package maximum load: legacy and enhanced both drew `3571` items at DPR `2` and rounded `120 FPS`.
+- Median frame time: `8.3 ms` in both modes.
+- Enhanced-to-legacy median ratio: `1.0`, below the required maximum of `1.1`.
+- Packaged payload: `app.asar`, `16630831` bytes, SHA-256 `4a877b79dd8efe9b3e51c329dfff554e0c085c9e177dc0d8b38b27372b8ff00e`.
+- Legacy and enhanced draw counts were identical.
+- No public atlas inner pixel changed. Phase 27 adds selection and rendering architecture only.
+- No map JSON, save schema, domain event, solid owner, route, interaction, density rule, or simulation PRNG owns a presentation variant.

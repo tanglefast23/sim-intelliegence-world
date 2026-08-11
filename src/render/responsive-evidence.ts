@@ -18,6 +18,8 @@ export type ResponsiveEvidence = Readonly<{
   uiScale: UiScale;
   camera: CameraState;
   mapId: MapId;
+  artMode: 'legacy' | 'enhanced';
+  presentationHash: string;
   minimumFontSize: number;
   minimumPointerTarget: number;
   activePanel: Readonly<{ id: string; rect: RectEvidence }> | null;
@@ -42,6 +44,8 @@ export function measureResponsiveEvidence(
   state: Readonly<{
     camera: CameraState;
     mapId: MapId;
+    artMode: 'legacy' | 'enhanced';
+    presentationHash: string;
     roofGroupId?: string;
     uiScale: UiScale;
     drawCounts: Readonly<Record<WorldLayer, number> & { total: number }>;
@@ -79,6 +83,8 @@ export function measureResponsiveEvidence(
     uiScale: state.uiScale,
     camera: state.camera,
     mapId: state.mapId,
+    artMode: state.artMode,
+    presentationHash: state.presentationHash,
     minimumFontSize: Math.min(metrics.persistentText, metrics.secondaryText),
     minimumPointerTarget: metrics.pointerTarget,
     activePanel: panel ? { id: panel.id, rect: rectEvidence(panel.getBoundingClientRect()) } : null,

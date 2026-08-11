@@ -35,6 +35,7 @@ const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE ===
 const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED === '1';
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
+const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
@@ -60,6 +61,10 @@ if (smokeMode) {
 
 if (responsiveHighDpiMode) {
   app.commandLine.appendSwitch('force-device-scale-factor', '2');
+}
+
+if (responsiveArtMode !== undefined && (!responsiveSmokeMode || !['legacy', 'enhanced'].includes(responsiveArtMode))) {
+  throw new Error('Art mode is available only to responsive smoke as legacy or enhanced.');
 }
 
 if (naturalMovementReducedMode) {
@@ -782,6 +787,7 @@ function cameraCenter(camera: Readonly<{ x: number; y: number; zoom: number }>, 
 async function measureRendererFps(window: BrowserWindow, durationMilliseconds = 2_000): Promise<Readonly<{
   rendererFps: number;
   displayRafFps: number;
+  medianFrameTimeMilliseconds: number;
   sampledFrames: number;
   cameraChangeFrames: number;
 }>> {
@@ -807,9 +813,17 @@ async function measureRendererFps(window: BrowserWindow, durationMilliseconds = 
           const duration = frames.length > 1 ? frames[frames.length - 1] - frames[0] : 0;
           const displayRafFps = duration > 0 ? (frames.length - 1) * 1000 / duration : 0;
           const rendererFps = duration > 0 ? cameraChangeFrames * 1000 / duration : 0;
+          const intervals = frames.slice(1).map((value, index) => value - frames[index]).sort((left, right) => left - right);
+          const middle = Math.floor(intervals.length / 2);
+          const medianFrameTimeMilliseconds = intervals.length === 0
+            ? 0
+            : intervals.length % 2 === 0
+              ? (intervals[middle - 1] + intervals[middle]) / 2
+              : intervals[middle];
           resolve({
             rendererFps: Math.round(rendererFps * 100) / 100,
             displayRafFps: Math.round(displayRafFps * 100) / 100,
+            medianFrameTimeMilliseconds: Math.round(medianFrameTimeMilliseconds * 1000) / 1000,
             sampledFrames: frames.length,
             cameraChangeFrames,
           });
@@ -825,6 +839,7 @@ async function measureRendererFps(window: BrowserWindow, durationMilliseconds = 
     })`, true) as Readonly<{
       rendererFps: number;
       displayRafFps: number;
+      medianFrameTimeMilliseconds: number;
       sampledFrames: number;
       cameraChangeFrames: number;
     }>;
@@ -1595,7 +1610,10 @@ async function createMainWindow(): Promise<void> {
     useContentSize: true,
     webPreferences: {
       ...lockedWebPreferences(preloadPath),
-      additionalArguments: smokeMode ? ['--si-world-smoke-mode=1'] : [],
+      additionalArguments: smokeMode ? [
+        '--si-world-smoke-mode=1',
+        ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
+      ] : [],
     },
     width: initialPresentation.windowSize?.width ?? 1280,
   });

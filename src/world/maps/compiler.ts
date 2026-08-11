@@ -1,4 +1,6 @@
 import { findPath } from '../pathfinding/astar';
+import { compileArtPresentation } from '../presentation/art-presentation';
+import type { VisualBounds } from '../presentation/recipes';
 import type {
   CompiledDoorV2,
   CompiledInteractionV2,
@@ -24,6 +26,7 @@ import {
 export type CompileWorldMapV2Options = Readonly<{
   knownLocationIds: ReadonlySet<string>;
   knownSprites?: ReadonlySet<string>;
+  visualBoundsBySprite?: Readonly<Record<string, VisualBounds>>;
   validateDensity?: boolean;
 }>;
 
@@ -571,9 +574,17 @@ export function compileWorldMapV2(candidate: unknown, options: CompileWorldMapV2
     : measureAndValidateDensity({ map, staticSolidOwnerByTile: owners, objectParts: compiledObjects.parts });
   if (options.knownSprites) assertKnownSprites(map, wallTiles, options.knownSprites);
 
+  const groundSprites = buildGroundSprites(map);
+  const presentation = compileArtPresentation({
+    map,
+    groundSprites,
+    visualBoundsBySprite: options.visualBoundsBySprite,
+  });
+
   return {
     source: map,
-    groundSprites: buildGroundSprites(map),
+    groundSprites,
+    presentation,
     staticSolidOwnerByTile: owners,
     blockedKeys,
     wallTiles,
