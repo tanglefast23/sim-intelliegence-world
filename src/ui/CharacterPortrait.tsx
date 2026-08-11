@@ -9,7 +9,7 @@ import {
 } from '@shopify/react-native-skia';
 import { StyleSheet, View } from 'react-native';
 
-import { CHARACTER_IDS, atlasRectangle, type CharacterId } from '../render/atlas';
+import { ATLAS_INDEX, CHARACTER_IDS, atlasRectangle, type CharacterId } from '../render/atlas';
 
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
 const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
@@ -20,10 +20,20 @@ function portraitCharacterId(npcId: string): CharacterId {
   return CHARACTER_IDS.includes(candidate) ? candidate : 'generic-resident';
 }
 
-export function CharacterPortrait({ displayName, npcId }: Readonly<{ displayName: string; npcId: string }>) {
+export function CharacterPortrait({
+  displayName,
+  expression = 'rest',
+  npcId,
+}: Readonly<{
+  displayName: string;
+  expression?: 'rest' | 'joy' | 'upset';
+  npcId: string;
+}>) {
   const image = useImage(atlasImage);
   const characterId = portraitCharacterId(npcId);
-  const source = atlasRectangle(`portrait.${characterId}`);
+  const portraitId = ATLAS_INDEX.characters[characterId].portraits[expression]
+    ?? ATLAS_INDEX.characters[characterId].portrait;
+  const source = atlasRectangle(portraitId);
 
   return (
     <View

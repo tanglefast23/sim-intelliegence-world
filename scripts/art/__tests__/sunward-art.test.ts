@@ -63,7 +63,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
   });
 
   test('makes all completed Sunward materials and states public and revisioned', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(4);
+    expect(ART_PRESENTATION_REVISION).toBe(5);
     expect(MATERIAL_RECIPE_BY_ID['warm-sand']?.publicVariantSprites).toEqual([
       'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
     ]);

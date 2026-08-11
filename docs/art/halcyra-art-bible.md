@@ -1,6 +1,6 @@
 # Halcyra art bible
 
-Status: Phase 29 full-cast contract
+Status: Canonical art contract. The Phase 33 HFM-geometry full-cast rebuild follows section 9.
 
 ## 1. Style target
 
@@ -10,13 +10,13 @@ Halcyra uses an original warm-noir pixel-diorama style.
 - Warm sun, clean water, and inviting businesses sell the public image.
 - Deep shade, worn service routes, guarded doors, and selective neon show the hidden vice economy.
 - The result must stay readable at native `1x` zoom.
-- The art must not copy another game's shapes, palette, texture, or interface.
+- Character art must reuse the proven HFM geometry and assembly grammar. Halcyra clothing, accessories, palettes, jobs, and identities remain original.
 
 ## 2. Fixed scale
 
 - One world tile is `32x32` pixels.
 - One world character cell is `24x30` pixels.
-- One portrait cell is `40x44` pixels.
+- One portrait cell is `24x29` pixels.
 - World zoom is exactly `1x`, `2x`, or `3x`.
 - All final placement is on whole screen pixels.
 - Runtime sampling is nearest neighbor.
@@ -144,16 +144,73 @@ Each shipped material family needs:
 - Contact shadows must touch the prop. Floating shadows are rejected.
 - A landmark needs one clear large shape before micro-detail.
 
-## 9. Character proportions
+## 9. Character identity and proportions
 
-- Keep the current `24x30` cell and eight walking cells.
-- The head and hair own the clearest identity silhouette.
-- Torso, clothing block, and accessory give a second identity signal.
+### 9.1 One source for one person
+
+- One stable character source is authoritative for the portrait and all world cells.
+- The source owns the stable look ID, skin, face, eyes, brows, mouth, hair, body build, clothing, accessory, held item, and portrait-expression hooks.
+- Generate the portrait and the eight walking cells from this shared source. Do not draw a portrait and a world character as separate designs.
+- A portrait can contain more detail. It cannot change the head shape, hair mass, skin ramp, key facial feature, body build, main clothing shape, or signature accessory.
+- A rear or lateral cell can omit a hidden detail. It must preserve the same readable person.
+- A recolor, status tint, outfit state, or expression changes only that state. It does not create a new face.
+
+### 9.2 Halcyra character style
+
+- Permanent creation rule: every new or changed character portrait and in-game character must use the HFM `24x29` portrait and `24x30` world geometry in this section. Do not invent a separate square portrait skeleton or rectangular world body.
+- Use original expressive oddball chibi pixel art. HFM supplies the shared-source method and pixel discipline, not production pixels or character designs.
+- Use HFM's cut-corner face box, fixed eye and mouth rows, stepped portrait shoulders, visible arm and hand columns, two narrow separated legs, shaped feet, and `face -> feature -> body -> outline` assembly order.
+- Use one logical pixel as the drawing unit. Use hard edges. Do not use gradients, smoothing, or anti-aliasing.
+- Light the character from the upper left.
+- Use a large, readable head and face. The face must remain readable at native `1x`.
+- Design the silhouette before the face detail. One major silhouette feature must identify the person before color is considered.
+- Use a controlled dark outer contour. Keep skin, hair, clothing, and accessory values separate where they touch.
+- Use the shared Halcyra palette families. Add a color only when it improves identity at `1x`.
+- Keep all identities fictional and original. Do not copy a real person, full costume, badge, or exact character silhouette.
+
+### 9.3 Mandatory two-feature identity
+
+Every person must have a special, unique, and slightly goofy look. This is a production rule, not an optional polish pass.
+
+- Give each person one primary `signature oddity` and one secondary distinctive feature. Both features must be real authored pixels, not text metadata.
+- The oddity can use the face, hair, facial hair, clothing, accessory, posture, body shape, or the size of one body part.
+- Halcyra has no football-uniform limit. Use odd coats, uneven sleeves, huge collars, tiny hats, oversized bags, strange shoes, long noses, broad jaws, narrow shoulders, large hands, or other story-compatible choices.
+- Exaggerate one main feature and one supporting feature. The supporting feature can be a hat, jewelry, scarf, dress, cape, unusual sleeve, large black boots, case, bag, tool, or body proportion. Do not make every part noisy.
+- Both features must change shape or add a readable object. Color alone does not count.
+- The primary oddity must survive front, rear, left, and right cells. A second face detail can be front-specific.
+- No two production people can use the same primary oddity or the same complete look.
+- The oddity must fit the person's job, habits, history, or attitude. It must not become a cruel stereotype.
+- Named people and the protagonist use authored look records.
+- Ambient residents use a stable look ID derived from their stable person ID and an authored component pool. Resolve collisions so two people in the active population do not receive the same complete look.
+- `generic-resident` identifies the single prototype resident and can remain the unknown-ID development fallback. Reusing it for other production residents does not pass this rule.
+
+### 9.4 Fixed geometry and motion
+
+- Keep the current `24x30` world cell and eight walking cells.
+- Keep the HFM `24x29` portrait cell.
+- Use the same head, eye, mouth, hair, and feature coordinates in portrait and world sources. Do not scale a separate portrait drawing.
+- Keep the top, left, and right source margins open for the generated contour. World feet can use the bottom row, as in HFM.
+- World bodies need visible arms or an intentional asymmetric garment, two separate narrow legs, and two shaped feet.
+- Portrait shoulders must widen through the HFM neck and four shoulder steps before the lower bust. A solid rectangle that starts directly below the head is rejected.
 - Feet must change in both walking frames.
 - Lateral movement keeps the current front-body method until a native-zoom test proves it unclear.
 - If lateral identity is unclear, add one mirrored three-quarter head and hair view before a full side body.
-- Do not reduce face contrast below native-zoom readability.
-- Portrait and world sprite must share hair, skin, clothing, and accessory identity tokens.
+
+### 9.5 Portrait expressions
+
+- Each new or rebuilt named identity has `rest`, `joy`, and `upset` portrait expressions from the same source.
+- Expressions can change eyes, brows, and mouth. They cannot change the person's geometry or signature oddity.
+- Until the UI selects expressions, `rest` is the default portrait. The other expressions remain generated and reviewable.
+
+### 9.6 Character review gate
+
+- Review the full cast at native `1x` before the enlarged `3x` board.
+- Review silhouettes without color.
+- Review each person in all eight world cells and all portrait expressions.
+- Compare the portrait and front world cell side by side.
+- Reject a person who reads as a palette swap, ordinary haircut plus ordinary clothes, or a softened version of another person.
+- Reject a person if either coded feature disappears from the native `1x` review.
+- Reject a portrait that looks good alone but does not match the world cell.
 
 ## 10. District identity
 
@@ -238,7 +295,7 @@ This ledger is the source contract for the hard Sunward prototype. All entries u
 | Linda | long side hair columns | paired gold earrings | hair columns, coral dress, earrings, skin, and mouth match | hair columns and earrings survive front and lateral cells; rear keeps the long hair mass |
 | Generic resident | high swept quiff | wide glasses | quiff, glasses, blue shirt, skin, and face marks match | quiff and glasses survive front and lateral cells; rear keeps the asymmetric hair mass |
 
-Source margins stay open on the top, left, and right. The bottom row stays open under world-sprite feet. A one-pixel outward contour is generated after layer composition. Full side profiles are not used because the native `1x` prototype keeps all three identities readable.
+Source margins stay open on the top, left, and right. Phase 33 supersedes the old open-bottom rule: shaped feet can use the bottom row. A one-pixel outward contour is generated after layer composition. Full side profiles are not used because the native `1x` prototype keeps all three identities readable.
 
 ### 16.2 Materials
 
@@ -273,24 +330,56 @@ The soft transition uses broken triangular edge groups. The built transition use
 
 The sofa, table, palm, lamp, and fountain are tall-prop review classes. Each needs player-in-front and player-behind proof. Contact shadows stay attached to the object. Ground decals never become solids or interactions.
 
-## 17. Phase 29 full-cast identity ledger
+## 17. Phase 33 HFM full-cast two-feature ledger
 
-All ten source files are authoritative. Each row has one shape that survives front, rear, left, and right generation. The second feature gives a separate non-color signal. Empty means the character has no hat or held item; do not add an item only to increase difference counts.
+The compact look records in `scripts/art/character-look-roster.ts` are authoritative. They generate 35 production identities, 280 world cells, 35 rest portraits, and 18 additional named-character expression portraits. The old per-character JSON sources are retired.
 
-| Character | All-direction identity feature | Second feature | Hair or hat | Glasses | Outfit or accessory | Held item |
-|---|---|---|---|---|---|---|
-| Devon Price | compact flat-top | broad epaulet jacket | all directions | none | jacket all directions | none |
-| Elise Moreau | curled side hair | asymmetric temple ribbon | all directions | front and lateral | ribbon all directions | none |
-| Generic resident | high swept quiff | wide glasses | all directions | front and lateral | blue shirt all directions | none |
-| Linda | long side hair | paired earrings | all directions | none | earrings front and lateral | none |
-| Mina Park | straight side hair | right-side bag | all directions | front and lateral | bag all directions | none |
-| Priya Nair | high center bun | left scarf tail | all directions | none | scarf all directions | none |
-| Protagonist | swept side hair | diagonal chest strap | all directions | none | strap front and lateral | none |
-| Rafael Cruz | cropped textured hair | double shoulder band | all directions | none | bands all directions | none |
-| Sora Tan | rounded bob | paired sleeve tabs | all directions | front and lateral | tabs all directions | none |
-| Tomas Reed | low side-part | square headphones | all directions | none | headphones all directions | none |
+### 17.1 Named cast
 
-The cast keeps the generated rear method and front-body lateral method. Phase 29 did not need the three-quarter-head fallback. Review `full-cast-identity-1x.png` before the scaled board. The `3x` board is inspection help, not proof of native clarity.
+| Character | Signature oddity | Supporting feature |
+|---|---|---|
+| Devon Price | towering nightclub-door flat-top | broad bartender jacket over a tiny waist |
+| Elise Moreau | question-mark forelock | oversized shoulder recorder |
+| Linda | cloud-sized side hair mass | flared dress |
+| Mina Park | three-layer spa-stone bun | one huge towel sleeve and a small supply bag |
+| Priya Nair | long crossed hair sticks | oversized clinic coat pockets |
+| Protagonist | enormous wind-swept prizewinner forelock | diagonal luggage strap |
+| Rafael Cruz | moustache curls beyond both cheeks | cook apron and ladle |
+| Sora Tan | angular collar beyond both shoulders | one long sleeve and one short sleeve |
+| Tomas Reed | square ear defenders wider than his head | long narrow clerk body and permit pouch |
+
+### 17.2 Ambient cast
+
+| Visual ID | Signature oddity | Supporting feature |
+|---|---|---|
+| `generic-resident` | apartment-window glasses | long scarf |
+| `linda-boyfriend` | tiny pompadour on a long head | broad bow tie |
+| `resident-01` | wearable umbrella hat | wide rain cape |
+| `resident-02` | planet-like twin buns | large black boots |
+| `resident-03` | one-sided crescent cap | one bright cuff |
+| `resident-04` | shoulder-to-ankle satchel | guitar case |
+| `resident-05` | lantern-shaped chin | short jacket |
+| `resident-06` | full-width straw hat | two short braids |
+| `resident-07` | coin hat with cheek-high collar | flared coat |
+| `resident-08` | one giant bell sleeve | opposite ponytail |
+| `resident-09` | head-width bow | large black boots |
+| `resident-10` | crooked tower beanie | long scarf |
+| `resident-11` | one-sided fan hair | split tunic |
+| `resident-12` | square spiral moustache | round vest and tiny button |
+| `resident-13` | eye-to-waist monocle chain | side-fastened jacket |
+| `resident-14` | collar wings above both shoulders | tiny waist belt |
+| `resident-15` | loop backpack above the head | charm bracelet |
+| `resident-16` | torso-sized square gloves | large black boots |
+| `resident-17` | cap with one tall ear flap | half cape |
+| `resident-18` | bent soft mohawk | narrow suspenders |
+| `resident-19` | stiff square veil cap | pearl necklace |
+| `resident-20` | face-covering star glasses | star cuff |
+| `resident-21` | permanent shoulder bird | large necklace |
+| `resident-22` | three stiff tripod braids | guitar case |
+| `resident-23` | two stacked pairs of square goggles | short jacket |
+| `resident-24` | spiral shell shoulders | thin ponytail |
+
+The cast keeps generated rear cells and the front-body lateral method. Named sources generate `rest`, `joy`, and `upset`; ambient sources generate `rest`. Review `artifacts/phase-24/art-quality/phase-33-hfm-full-cast/full-cast-identity-1x.png` before the `3x` board.
 
 ## 18. Phase 30 complete Sunward family ledger
 

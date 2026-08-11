@@ -5,10 +5,35 @@ export const CHARACTER_IDS = [
   'elise-moreau',
   'generic-resident',
   'linda',
+  'linda-boyfriend',
   'mina-park',
   'priya-nair',
   'protagonist',
   'rafael-cruz',
+  'resident-01',
+  'resident-02',
+  'resident-03',
+  'resident-04',
+  'resident-05',
+  'resident-06',
+  'resident-07',
+  'resident-08',
+  'resident-09',
+  'resident-10',
+  'resident-11',
+  'resident-12',
+  'resident-13',
+  'resident-14',
+  'resident-15',
+  'resident-16',
+  'resident-17',
+  'resident-18',
+  'resident-19',
+  'resident-20',
+  'resident-21',
+  'resident-22',
+  'resident-23',
+  'resident-24',
   'sora-tan',
   'tomas-reed',
 ] as const;
@@ -18,7 +43,7 @@ export type MovementDirection = typeof MOVEMENT_DIRECTIONS[number];
 export const ZOOM_LEVELS = [1, 2, 3] as const;
 export type ZoomLevel = typeof ZOOM_LEVELS[number];
 export const WALK_FRAME_MILLISECONDS = 145;
-export const ART_REVISION = 4;
+export const ART_REVISION = 6;
 
 export type AtlasRectangle = Readonly<{
   x: number;
@@ -49,6 +74,7 @@ export type RuntimeAtlasIndex = Readonly<{
   characters: Readonly<Record<CharacterId, Readonly<{
     displayName: string;
     portrait: string;
+    portraits: Readonly<Record<string, string>>;
     frames: Readonly<Record<string, string>>;
     sourceLayers: readonly string[];
   }>>>;

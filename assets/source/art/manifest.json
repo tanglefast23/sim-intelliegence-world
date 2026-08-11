@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "artRevision": 4,
-  "toolVersion": "atlas-v4-phase30",
+  "artRevision": 6,
+  "toolVersion": "atlas-v6-hfm-full-cast",
   "indexVersion": 3,
   "publicIdPrefixes": [
     "tile.",
@@ -16,14 +16,14 @@
     "gutter": 1
   },
   "categories": {
-    "ground-base": { "maximumCount": 48, "width": 32, "height": 32 },
-    "ground-transition": { "maximumCount": 160, "width": 32, "height": 32 },
-    "ground-decal": { "maximumCount": 48, "width": 32, "height": 32 },
+    "ground-base": { "maximumCount": 32, "width": 32, "height": 32 },
+    "ground-transition": { "maximumCount": 64, "width": 32, "height": 32 },
+    "ground-decal": { "maximumCount": 24, "width": 32, "height": 32 },
     "wall-door": { "maximumCount": 80, "width": 32, "height": 32 },
-    "roof": { "maximumCount": 96, "width": 32, "height": 32 },
-    "object-landmark": { "maximumCount": 96, "width": 32, "height": 32 },
-    "world-character": { "maximumCount": 80, "width": 24, "height": 30 },
-    "portrait": { "maximumCount": 10, "width": 40, "height": 44 },
+    "roof": { "maximumCount": 32, "width": 32, "height": 32 },
+    "object-landmark": { "maximumCount": 48, "width": 32, "height": 32 },
+    "world-character": { "maximumCount": 280, "width": 24, "height": 30 },
+    "portrait": { "maximumCount": 53, "width": 24, "height": 29 },
     "effect-reserve": { "maximumCount": 16, "width": 32, "height": 32 }
   }
 }

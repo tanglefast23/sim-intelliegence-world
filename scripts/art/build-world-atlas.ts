@@ -92,6 +92,7 @@ export type AtlasIndex = Readonly<{
   characters: Readonly<Record<string, Readonly<{
     displayName: string;
     portrait: string;
+    portraits: Readonly<Record<string, string>>;
     frames: Readonly<Record<string, string>>;
     sourceLayers: readonly ['legs', 'torso-and-clothing', 'head-and-face', 'hair', 'accessory', 'held-item'];
   }>>>;
@@ -401,6 +402,10 @@ export function buildAtlas(root = process.cwd()): {
     characters: Object.fromEntries(characters.map((character) => [character.id, {
       displayName: character.displayName,
       portrait: `portrait.${character.id}`,
+      portraits: Object.fromEntries(Object.keys(character.portraitExpressions).map((expression) => [
+        expression,
+        expression === 'rest' ? `portrait.${character.id}` : `portrait.${character.id}.${expression}`,
+      ])),
       frames: Object.fromEntries(WALK_DIRECTIONS.flatMap((direction) =>
         WALK_FRAMES.map((frame) => [
           `${direction}-${frame}`,
