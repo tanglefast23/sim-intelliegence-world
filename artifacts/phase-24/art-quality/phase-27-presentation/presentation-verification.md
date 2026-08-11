@@ -5,7 +5,7 @@
 - Atlas cells: `187` public, `0` internal-review
 - Atlas size: `512x412`
 - Phase gate plus correction tests: `9` suites and `62` tests passed.
-- Full Jest gate: passed.
+- Full Jest gate: `49` suites and `406` tests passed.
 - Content build and validation: passed.
 - Pure-module boundary check: passed.
 - TypeScript checks for renderer and Electron: passed.
