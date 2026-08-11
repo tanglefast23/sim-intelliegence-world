@@ -30,6 +30,20 @@
     "clothing": "C",
     "skin": "S"
   },
+  "identityFeatures": [
+    {
+      "id": "cropped-textured-hair",
+      "description": "Cropped textured hair remains visible around the head.",
+      "layer": "hair",
+      "visibleIn": ["front", "rear", "left", "right"]
+    },
+    {
+      "id": "double-shoulder-band",
+      "description": "Two shoulder bands remain visible from every direction.",
+      "layer": "accessory",
+      "visibleIn": ["front", "rear", "left", "right"]
+    }
+  ],
   "rearStyle": {
     "head": "H",
     "lower": "S",
@@ -451,7 +465,10 @@
       ]
     },
     "accessory": {
-      "commands": []
+      "commands": [
+        { "kind": "rect", "token": "A", "x": 4, "y": 15, "width": 3, "height": 3 },
+        { "kind": "rect", "token": "A", "x": 17, "y": 15, "width": 3, "height": 3 }
+      ]
     },
     "heldItem": {
       "commands": []
@@ -642,7 +659,10 @@
       ]
     },
     "accessory": {
-      "commands": []
+      "commands": [
+        { "kind": "rect", "token": "A", "x": 3, "y": 31, "width": 5, "height": 5 },
+        { "kind": "rect", "token": "A", "x": 32, "y": 31, "width": 5, "height": 5 }
+      ]
     },
     "heldItem": {
       "commands": []

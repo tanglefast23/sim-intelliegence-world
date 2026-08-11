@@ -90,6 +90,18 @@ const MaximumLoadSchema = z.object({
   allOrdinaryLayersEnabled: z.literal(true),
   screenshot: z.string().min(1),
 }).strict();
+const FullCastPortraitEntrySchema = z.object({
+  characterId: z.enum([
+    'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
+    'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
+  ]),
+  uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
+  screenshot: z.string().min(1),
+  evidence: EvidenceSchema,
+  portraitRect: RectSchema,
+  inputRect: RectSchema,
+  transcriptFontSize: z.number().positive(),
+}).strict();
 const ResponsiveSmokeSchema = z.object({
   schemaVersion: z.literal(1),
   highDpi: z.boolean(),
@@ -105,6 +117,7 @@ const ResponsiveSmokeSchema = z.object({
     roof: z.object({ id: z.string().min(1), interiorTile: PointSchema, exteriorTile: PointSchema }).strict(),
   }).passthrough(),
   targets: z.array(TargetReportSchema).min(1),
+  fullCastPortraitMatrix: z.array(FullCastPortraitEntrySchema).length(30).nullable(),
   maximumLoad: MaximumLoadSchema.nullable(),
 }).strict();
 
@@ -123,11 +136,23 @@ if (compareArtModes && !includeMaximumLoad) {
 }
 const highDpi = commandArguments.includes('--high-dpi') || includeMaximumLoad;
 const qualification = commandArguments.includes('--qualification');
+const fullCastPortraitSmoke = process.env.SI_WORLD_FULL_CAST_PORTRAIT_SMOKE === '1';
 const performanceFixture = PerformanceFixtureSchema.parse(
   JSON.parse(readFileSync(resolve('tests/fixtures/performance/phase-22.json'), 'utf8')) as unknown,
 );
 const evidenceSource = resolveEvidenceSource([
   '.github/workflows/ci.yml',
+  'assets/generated/atlas-index.json',
+  'assets/source/characters/devon-price.json',
+  'assets/source/characters/elise-moreau.json',
+  'assets/source/characters/generic-resident.json',
+  'assets/source/characters/linda.json',
+  'assets/source/characters/mina-park.json',
+  'assets/source/characters/priya-nair.json',
+  'assets/source/characters/protagonist.json',
+  'assets/source/characters/rafael-cruz.json',
+  'assets/source/characters/sora-tan.json',
+  'assets/source/characters/tomas-reed.json',
   'assets/source/art/decal-recipes.json',
   'assets/source/art/material-recipes.json',
   'assets/source/art/roof-recipes.json',
@@ -139,6 +164,8 @@ const evidenceSource = resolveEvidenceSource([
   'src/render/WorldScene.tsx',
   'src/render/responsive-evidence.ts',
   'src/render/smoke-geometry.ts',
+  'src/ui/CharacterPortrait.tsx',
+  'src/ui/ConversationPanel.tsx',
   'src/ui/WorldInput.tsx',
   'src/world/presentation/art-presentation.ts',
   'src/world/presentation/material-selection.ts',
@@ -420,6 +447,34 @@ child.once('close', (code) => {
       }
     } else if (report.maximumLoad !== null) {
       throw new Error('Ordinary responsive smoke emitted unexpected maximum-load evidence.');
+    }
+    if ((report.fullCastPortraitMatrix !== null) !== fullCastPortraitSmoke) {
+      throw new Error('Responsive full-cast portrait matrix mode did not match its request.');
+    }
+    if (report.fullCastPortraitMatrix) {
+      const characterIds = [
+        'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
+        'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
+      ] as const;
+      const expected = [1, 1.25, 1.5].flatMap((uiScale) => (
+        characterIds.map((characterId) => ({ characterId, uiScale }))
+      ));
+      const actual = report.fullCastPortraitMatrix.map(({ characterId, uiScale }) => ({ characterId, uiScale }));
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        throw new Error('Responsive full-cast portrait matrix is incomplete or out of order.');
+      }
+      for (const entry of report.fullCastPortraitMatrix) {
+        if (entry.evidence.uiScale !== entry.uiScale ||
+            entry.evidence.activePanel?.id !== 'world-ui-conversation-panel' ||
+            !entry.evidence.conversationInput) {
+          throw new Error(`Responsive portrait ${entry.characterId} at ${entry.uiScale}x lacks panel evidence.`);
+        }
+        const screenshotPath = join(evidenceRoot, entry.screenshot);
+        const decoded = PNG.sync.read(readFileSync(screenshotPath));
+        if (decoded.width < 1_280 || decoded.height < 720) {
+          throw new Error(`Responsive portrait ${entry.screenshot} is too small.`);
+        }
+      }
     }
     const evidencePath = join(evidenceRoot, 'responsive-report.json');
     writeFileSync(evidencePath, `${JSON.stringify({

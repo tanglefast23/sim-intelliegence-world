@@ -30,6 +30,20 @@
     "clothing": "C",
     "skin": "S"
   },
+  "identityFeatures": [
+    {
+      "id": "rounded-bob-hair",
+      "description": "A rounded bob remains visible around the head.",
+      "layer": "hair",
+      "visibleIn": ["front", "rear", "left", "right"]
+    },
+    {
+      "id": "paired-sleeve-tabs",
+      "description": "Paired sleeve tabs widen the torso from every direction.",
+      "layer": "accessory",
+      "visibleIn": ["front", "rear", "left", "right"]
+    }
+  ],
   "rearStyle": {
     "head": "H",
     "lower": "S",
@@ -481,6 +495,11 @@
           "y": 9,
           "width": 3,
           "height": 1
+        },
+        {
+          "kind": "pixels",
+          "token": "A",
+          "points": [[3, 16], [4, 16], [19, 16], [20, 16], [3, 17], [20, 17]]
         }
       ]
     },
@@ -729,6 +748,22 @@
           "y": 19,
           "width": 4,
           "height": 2
+        },
+        {
+          "kind": "rect",
+          "token": "A",
+          "x": 2,
+          "y": 32,
+          "width": 5,
+          "height": 5
+        },
+        {
+          "kind": "rect",
+          "token": "A",
+          "x": 33,
+          "y": 32,
+          "width": 5,
+          "height": 5
         }
       ]
     },

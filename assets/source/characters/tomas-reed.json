@@ -30,6 +30,20 @@
     "clothing": "C",
     "skin": "S"
   },
+  "identityFeatures": [
+    {
+      "id": "low-side-part",
+      "description": "A low side-part remains visible around the head.",
+      "layer": "hair",
+      "visibleIn": ["front", "rear", "left", "right"]
+    },
+    {
+      "id": "square-headphones",
+      "description": "Square headphones widen the head silhouette in every direction.",
+      "layer": "accessory",
+      "visibleIn": ["front", "rear", "left", "right"]
+    }
+  ],
   "rearStyle": {
     "head": "H",
     "lower": "S",
@@ -451,7 +465,10 @@
       ]
     },
     "accessory": {
-      "commands": []
+      "commands": [
+        { "kind": "rect", "token": "A", "x": 3, "y": 7, "width": 3, "height": 7 },
+        { "kind": "rect", "token": "A", "x": 18, "y": 7, "width": 3, "height": 7 }
+      ]
     },
     "heldItem": {
       "commands": []
@@ -650,7 +667,10 @@
       ]
     },
     "accessory": {
-      "commands": []
+      "commands": [
+        { "kind": "rect", "token": "A", "x": 2, "y": 13, "width": 5, "height": 14 },
+        { "kind": "rect", "token": "A", "x": 33, "y": 13, "width": 5, "height": 14 }
+      ]
     },
     "heldItem": {
       "commands": []

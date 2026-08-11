@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revisionPixelHashes from '../../../assets/source/art/revision-2-pixel-hashes.json';
+import revisionPixelHashes from '../../../assets/source/art/revision-3-pixel-hashes.json';
 import { buildAtlas, validateAtlasArtifacts, writeAtlas } from '../build-world-atlas';
 import {
   composeFrontFrame,
@@ -66,7 +66,7 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.report).toEqual(second.report);
     expect(first.png[25]).toBe(6);
     expect(first.index.version).toBe(3);
-    expect(first.index.artRevision).toBe(2);
+    expect(first.index.artRevision).toBe(3);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
     expect(Object.keys(first.index.sprites)).toHaveLength(235);
     expect(first.index.tiles).toHaveLength(145);
@@ -198,7 +198,7 @@ describe('deterministic SI World atlas generation', () => {
     expect(aggregatePublicCellHash(bitmap, index.sprites, index.publicSpriteIds)).toBe(
       revisionPixelHashes.allPublicCellsAggregateSha256,
     );
-    expect(revisionPixelHashes.artRevision).toBe(2);
+    expect(revisionPixelHashes.artRevision).toBe(3);
     for (const tile of tiles) {
       const name = `tile.${tile.id}`;
       const expectedHash = revisionPixelHashes.cells[name as keyof typeof revisionPixelHashes.cells];

@@ -15,6 +15,7 @@ import type {
   PresentationPreferences,
   RendererPresentationPatch,
 } from './presentation/preferences';
+import type { CharacterId } from '../render/atlas';
 
 export type DesktopBridge = ConversationPort & Readonly<{
   getRuntimeInfo: () => Promise<RuntimeInfo>;
@@ -33,6 +34,8 @@ declare global {
     siWorldDesktop?: DesktopBridge;
     siWorldArtMode?: 'legacy' | 'enhanced';
     siWorldSmokeMode?: boolean;
+    siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
+    siWorldCloseConversationFixture?: () => void;
   }
 }
 

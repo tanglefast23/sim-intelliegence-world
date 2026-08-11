@@ -30,6 +30,20 @@
     "clothing": "C",
     "skin": "S"
   },
+  "identityFeatures": [
+    {
+      "id": "straight-side-hair",
+      "description": "Straight side hair remains visible around the head.",
+      "layer": "hair",
+      "visibleIn": ["front", "rear", "left", "right"]
+    },
+    {
+      "id": "right-side-bag",
+      "description": "A small bag changes the right torso edge in every direction.",
+      "layer": "accessory",
+      "visibleIn": ["front", "rear", "left", "right"]
+    }
+  ],
   "rearStyle": {
     "head": "H",
     "lower": "S",
@@ -481,6 +495,14 @@
           "y": 9,
           "width": 3,
           "height": 1
+        },
+        {
+          "kind": "rect",
+          "token": "A",
+          "x": 18,
+          "y": 16,
+          "width": 3,
+          "height": 6
         }
       ]
     },
@@ -729,6 +751,14 @@
           "y": 19,
           "width": 4,
           "height": 2
+        },
+        {
+          "kind": "rect",
+          "token": "A",
+          "x": 34,
+          "y": 30,
+          "width": 4,
+          "height": 12
         }
       ]
     },

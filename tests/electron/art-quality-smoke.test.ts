@@ -6,8 +6,8 @@ import { PNG } from 'pngjs';
 
 import { validateArtQualityEvidence } from '../../src/render/art-quality-evidence';
 
-function png(path: string, first: number, second: number): void {
-  const image = new PNG({ width: 640, height: 360 });
+function pngBuffer(width: number, height: number, first: number, second: number): Buffer {
+  const image = new PNG({ width, height });
   for (let offset = 0; offset < image.data.length; offset += 4) {
     const pixelIndex = offset / 4;
     const value = (pixelIndex % 17 === 0 ? first : second) + (pixelIndex % 11);
@@ -16,7 +16,11 @@ function png(path: string, first: number, second: number): void {
     image.data[offset + 2] = (value + 90) % 255;
     image.data[offset + 3] = 255;
   }
-  writeFileSync(path, PNG.sync.write(image));
+  return PNG.sync.write(image);
+}
+
+function png(path: string, first: number, second: number): void {
+  writeFileSync(path, pngBuffer(640, 360, first, second));
 }
 
 describe('Phase 28 packaged art-quality evidence', () => {
@@ -120,6 +124,37 @@ describe('Phase 28 packaged art-quality evidence', () => {
         hashes: { atlas: 'b'.repeat(64) },
       };
       expect(validateArtQualityEvidence(report, root)).toMatchObject({ artRevision: 2 });
+      expect(() => validateArtQualityEvidence({ ...report, artRevision: 3 }, root)).toThrow(
+        'full-cast portrait matrix',
+      );
+      const characterIds = [
+        'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
+        'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
+      ] as const;
+      const fullCastPortraitMatrix = [1, 1.25, 1.5].flatMap((uiScale) => characterIds.map((characterId) => ({
+        characterId,
+        uiScale,
+        screenshot: `portrait-${uiScale}-${characterId}.png`,
+        evidence: {
+          content: { width: 1440, height: 900 },
+          devicePixelRatio: 1,
+          selectedWorldZoom: 1,
+          uiScale,
+          camera: { x: 400, y: 300, zoom: 1 },
+          mapId: 'northwest_residential',
+          artMode: 'enhanced',
+        },
+        portraitRect: { x: 20, y: 20, width: 82, height: 90 },
+        inputRect: { x: 120, y: 700, width: 600, height: 44 },
+        transcriptFontSize: 16,
+      })));
+      const portraitPng = pngBuffer(1280, 720, 45, 95);
+      fullCastPortraitMatrix.forEach(({ screenshot }) => writeFileSync(join(root, screenshot), portraitPng));
+      writeFileSync(join(root, 'enhanced.json'), `${JSON.stringify({
+        ...responsiveReport('enhanced'),
+        fullCastPortraitMatrix,
+      })}\n`);
+      expect(validateArtQualityEvidence({ ...report, artRevision: 3 }, root)).toMatchObject({ artRevision: 3 });
       writeFileSync(join(root, 'performance.json'), '{}\n');
       expect(() => validateArtQualityEvidence(report, root)).toThrow();
       writeFileSync(join(root, 'performance.json'), `${JSON.stringify({

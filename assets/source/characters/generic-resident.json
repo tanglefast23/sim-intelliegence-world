@@ -4,12 +4,16 @@
   "cell": { "width": 24, "height": 30 },
   "portraitCell": { "width": 40, "height": 44 },
   "palette": {
-    "K": "#22202a", "S": "#e1aa76", "s": "#aa704f", "H": "#d4a846",
-    "h": "#f4da86", "C": "#4e82ad", "c": "#2d5275", "A": "#a7cee0",
+    "K": "#22202a", "S": "#e1aa76", "s": "#aa704f", "H": "#9d6b28",
+    "h": "#d9ad54", "C": "#4e82ad", "c": "#2d5275", "A": "#a7cee0",
     "P": "#69587e", "p": "#443953", "W": "#e8e3d4", "D": "#3b3541",
     "X": "#bcdaeb", "E": "#fff5dd"
   },
   "identityTokens": { "hair": "H", "clothing": "C", "skin": "S" },
+  "identityFeatures": [
+    { "id": "high-swept-quiff", "description": "A high quiff remains visible around the head.", "layer": "hair", "visibleIn": ["front", "rear", "left", "right"] },
+    { "id": "wide-glasses", "description": "Wide glasses identify the resident from the front and sides.", "layer": "accessory", "visibleIn": ["front", "left", "right"] }
+  ],
   "rearStyle": { "head": "H", "lower": "S", "clothing": "C", "torsoDetailTokens": ["A", "S", "s", "X"] },
   "sourceLayers": {
     "legs": {

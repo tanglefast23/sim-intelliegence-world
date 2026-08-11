@@ -116,7 +116,21 @@ export function validateNaturalMovementReport(
       evidenceTag === 'interruption' && player.status === 'moving' && player.target != null &&
       (player.committed.x !== player.target.x || player.committed.y !== player.target.y)
     ));
-    return { firstSegmentPositions, playerFrames, npcFrames, curveObserved, interruptionObserved };
+    const independentDirectionObserved = samples.some(({ player, npcs }) => (
+      Object.values(npcs).some(({ direction }) => direction !== player.direction)
+    ));
+    const independentWalkPhaseObserved = samples.some(({ player, npcs }) => (
+      Object.values(npcs).some(({ walkFrame }) => walkFrame !== player.walkFrame)
+    ));
+    return {
+      firstSegmentPositions,
+      playerFrames,
+      npcFrames,
+      curveObserved,
+      interruptionObserved,
+      independentDirectionObserved,
+      independentWalkPhaseObserved,
+    };
   };
   const standardSummary = packageSummary(packaged.standard.samples);
   const reducedSummary = packageSummary(packaged.reduced.samples);
@@ -132,6 +146,9 @@ export function validateNaturalMovementReport(
   if (standardSummary.npcFrames.length !== 2) {
     throw new Error('Packaged NPC did not use both walking frames.');
   }
+  if (!standardSummary.independentDirectionObserved || !standardSummary.independentWalkPhaseObserved) {
+    throw new Error('Packaged actors did not prove independent direction and walking phase.');
+  }
   if (
     packaged.standard.firstSegmentUniquePositions !== standardSummary.firstSegmentPositions.size ||
     packaged.standard.curveObserved !== standardSummary.curveObserved ||
@@ -144,6 +161,9 @@ export function validateNaturalMovementReport(
   }
   if (reducedSummary.firstSegmentPositions.size < 5) {
     throw new Error('Reduced-motion movement was not continuous.');
+  }
+  if (!reducedSummary.independentDirectionObserved || !reducedSummary.independentWalkPhaseObserved) {
+    throw new Error('Reduced-motion actors did not prove independent direction and walking phase.');
   }
   if (
     packaged.reduced.firstSegmentUniquePositions !== reducedSummary.firstSegmentPositions.size ||

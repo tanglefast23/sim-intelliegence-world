@@ -62,7 +62,13 @@ describe('natural-movement packaged evidence', () => {
             visualFoot: { x: actor.visualFoot.x + index, y: actor.visualFoot.y + index },
             walkFrame: index % 2 as 0 | 1,
           },
-          npcs: { resident: { ...npcActor, walkFrame: index % 2 as 0 | 1 } },
+          npcs: {
+            resident: {
+              ...npcActor,
+              direction: index % 2 === 0 ? 'left' as const : 'right' as const,
+              walkFrame: (index + 1) % 2 as 0 | 1,
+            },
+          },
           reducedMotion: false,
           ...(index === 4 ? { evidenceTag: 'interruption' as const } : {}),
         })),
@@ -123,6 +129,25 @@ describe('natural-movement packaged evidence', () => {
         },
         rendererFpsEvidence: qualifyingEvidence,
       }, root)).toThrow('Reduced-motion movement summary does not match');
+      expect(() => validateNaturalMovementReport({
+        ...report,
+        package: {
+          ...report.package,
+          standard: {
+            ...report.package.standard,
+            rendererFps: 55,
+            samples: report.package.standard.samples.map((sample) => ({
+              ...sample,
+              npcs: Object.fromEntries(Object.entries(sample.npcs).map(([id, npc]) => [id, {
+                ...npc,
+                direction: sample.player.direction,
+                walkFrame: sample.player.walkFrame,
+              }])),
+            })),
+          },
+        },
+        rendererFpsEvidence: qualifyingEvidence,
+      }, root)).toThrow('independent direction and walking phase');
       const platformShellReport = {
         ...report,
         rendererFpsEvidence: evaluateNaturalMovementRendererFps(23.96, 'platform-shell'),

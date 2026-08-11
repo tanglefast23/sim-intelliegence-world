@@ -18,7 +18,10 @@ import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 const argumentsValue = process.argv.slice(2);
 const outputRoot = resolveEvidenceOutputRoot(argumentsValue, {
   required: true,
-  allowedRootPrefixes: ['artifacts/phase-24/art-quality/phase-28-prototype'],
+  allowedRootPrefixes: [
+    'artifacts/phase-24/art-quality/phase-28-prototype',
+    'artifacts/phase-24/art-quality/phase-29-full-cast',
+  ],
 });
 mkdirSync(outputRoot, { recursive: true });
 const absoluteDeadlineMilliseconds = Date.now() + 20 * 60_000;
@@ -76,7 +79,7 @@ run('legacy-responsive', 'scripts/electron/run-responsive-package-smoke.ts', [
 ]);
 run('enhanced-responsive', 'scripts/electron/run-responsive-package-smoke.ts', [
   '--art-mode=enhanced', '--output-root', join(outputRoot, 'enhanced'),
-]);
+], ATLAS_INDEX.artRevision >= 3 ? { SI_WORLD_FULL_CAST_PORTRAIT_SMOKE: '1' } : {});
 run('same-package-performance', 'scripts/electron/run-responsive-package-smoke.ts', [
   '--compare-art-modes', '--include-maximum-load', '--qualification',
   '--output-root', join(outputRoot, 'performance'),
