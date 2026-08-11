@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 2,
+  "families": [
+    {
+      "id": "soft",
+      "publicSpritePrefix": "tile.transition-soft",
+      "palette": {
+        "light": "#f0d7a766",
+        "mid": "#b58b5b66",
+        "shade": "#80654c55"
+      }
+    },
+    {
+      "id": "built",
+      "publicSpritePrefix": "tile.transition-built",
+      "palette": {
+        "light": "#e6d4b8cc",
+        "mid": "#9c8268cc",
+        "shade": "#5f4a40bb"
+      }
+    }
+  ]
+}

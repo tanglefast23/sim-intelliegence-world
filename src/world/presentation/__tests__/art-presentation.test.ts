@@ -57,7 +57,7 @@ describe('immutable art presentation index', () => {
     expect(compiled.presentation.decals.every(({ solid, interactive }) => !solid && !interactive)).toBe(true);
     expect(compiled.presentation.decals.every(({ tile }) => !compiled.staticSolidOwnerByTile.has(tileKey(tile)))).toBe(true);
     expect(compiled.presentation.transitions.every(({ solid, interactive }) => !solid && !interactive)).toBe(true);
-    expect(compiled.presentation.transitions.every(({ sprite }) => sprite === null)).toBe(true);
+    expect(compiled.presentation.transitions.every(({ sprite }) => /^tile\.transition-(?:soft|built)-[1-9a-f]$/u.test(sprite ?? ''))).toBe(true);
   });
 
   test('derives authored roof cells without changing roof masks or ownership', () => {
@@ -70,6 +70,9 @@ describe('immutable art presentation index', () => {
       expect(presented).toEqual(expected);
       expect(compiled.roofGroupById.get(roof.id)?.cellKeys).toEqual(expected);
     }
+    expect(new Set(compiled.presentation.roofs.map(({ sprite }) => sprite))).toEqual(new Set([
+      'tile.roof-sunward-base', 'tile.roof-sunward-edge', 'tile.roof-sunward-corner',
+    ]));
   });
 
   test('uses visual bounds for culling without changing any solid, route, or density authority', () => {

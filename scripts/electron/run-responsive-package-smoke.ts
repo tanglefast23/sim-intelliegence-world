@@ -62,6 +62,7 @@ const EvidenceSchema = z.object({
   roofGroupId: z.string().nullable(),
   roofState: z.enum(['hidden', 'restored']),
   drawCounts: DrawCountsSchema,
+  staticBatchCount: z.number().int().positive(),
   overflow: z.object({ body: z.literal(false), surface: z.literal(false) }).strict(),
 }).strict();
 const TargetReportSchema = z.object({
@@ -250,12 +251,17 @@ if (compareArtModes) {
       }
       return value;
     };
+    const staticBatchCount = evidence.staticBatchCount;
+    if (typeof staticBatchCount !== 'number' || !Number.isInteger(staticBatchCount) || staticBatchCount < 1) {
+      throw new Error(`${mode} art mode has invalid staticBatchCount.`);
+    }
     return {
       rendererFps: requiredNumber('rendererFps'),
       displayRafFps: requiredNumber('displayRafFps'),
       medianFrameTimeMilliseconds: requiredNumber('medianFrameTimeMilliseconds'),
       roundedFps: requiredNumber('roundedFps'),
       drawCounts: evidence.drawCounts,
+      staticBatchCount,
       presentationHash: evidence.presentationHash,
       report: `${mode}/responsive-report.json`,
       screenshot: `${mode}/${String(maximumLoad.screenshot)}`,
@@ -263,8 +269,12 @@ if (compareArtModes) {
   };
   const legacy = modeRecord('legacy');
   const enhanced = modeRecord('enhanced');
-  if (JSON.stringify(legacy.drawCounts) !== JSON.stringify(enhanced.drawCounts)) {
-    throw new Error('Legacy and enhanced art modes did not preserve draw-count identity.');
+  const nonPresentationCounts = (drawCounts: Record<string, unknown>) => Object.fromEntries(
+    Object.entries(drawCounts).filter(([key]) => key !== 'floor' && key !== 'total'),
+  );
+  if (JSON.stringify(nonPresentationCounts(legacy.drawCounts as Record<string, unknown>)) !==
+      JSON.stringify(nonPresentationCounts(enhanced.drawCounts as Record<string, unknown>))) {
+    throw new Error('Legacy and enhanced art modes changed non-presentation draw counts.');
   }
   const performanceAcceptance = validateArtModePerformance(
     legacy,

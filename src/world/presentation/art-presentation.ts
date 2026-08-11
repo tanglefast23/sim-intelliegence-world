@@ -1,4 +1,4 @@
-import { pointsInRect, type TilePoint, type WorldMapV2 } from '../maps/schema';
+import { pointsInRect, tileKey, type TilePoint, type WorldMapV2 } from '../maps/schema';
 import { stableTupleHash, selectMaterialVariants } from './material-selection';
 import { compileMaterialTransitions, type MaterialTransition } from './material-transitions';
 import {
@@ -7,6 +7,7 @@ import {
   DEFAULT_ROOF_RECIPE,
   MATERIAL_RECIPE_BY_ID,
   MATERIAL_RECIPE_BY_SPRITE,
+  TRANSITION_RECIPE_BY_ID,
   type VisualBounds,
 } from './recipes';
 import { TILE_VISUAL_BOUNDS } from './visual-bounds';
@@ -96,7 +97,7 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
       tile: Object.freeze({ x, y }),
       materialId: selection.materialId,
       logicalVariantId: selection.logicalVariantId,
-      sprite: recipe.publicBaseSprite,
+      sprite: recipe.publicVariantSprites[selection.variantIndex] as string,
       visualBounds: freezeBounds(input.visualBoundsBySprite?.[recipe.publicBaseSprite]),
     });
   }));
@@ -105,19 +106,46 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
     height: input.map.height,
     materialIds,
     recipesById: MATERIAL_RECIPE_BY_ID,
-  }).map((transition) => Object.freeze({
-    ...transition,
-    id: `transition-${transition.tileX}-${transition.tileY}`,
-    tile: Object.freeze({ x: transition.tileX, y: transition.tileY }),
-    sprite: null,
-    solid: false as const,
-    interactive: false as const,
-  })));
+  }).map((transition) => {
+    const owner = MATERIAL_RECIPE_BY_ID[transition.ownerMaterialId];
+    if (!owner) throw new Error(`Transition owner ${transition.ownerMaterialId} has no material recipe.`);
+    const familyId = owner.edgeMode === 'soft' ? 'soft' : 'built';
+    const family = TRANSITION_RECIPE_BY_ID[familyId];
+    if (!family) throw new Error(`Transition family ${familyId} is missing.`);
+    return Object.freeze({
+      ...transition,
+      id: `transition-${transition.tileX}-${transition.tileY}`,
+      tile: Object.freeze({ x: transition.tileX, y: transition.tileY }),
+      sprite: `${family.publicSpritePrefix}-${transition.cornerMask.toString(16)}`,
+      solid: false as const,
+      interactive: false as const,
+    });
+  }));
   const decals: DecalPresentationCell[] = [];
+  const decalBlockedTiles = new Set<string>();
+  input.map.terrainSolids.flatMap(({ bounds }) => pointsInRect(bounds))
+    .forEach((tile) => decalBlockedTiles.add(tileKey(tile)));
+  for (const run of input.map.walls.runs) {
+    const openings = new Set(run.openings.map(({ tile }) => tileKey(tile)));
+    pointsInRect(run.bounds).filter((tile) => !openings.has(tileKey(tile)))
+      .forEach((tile) => decalBlockedTiles.add(tileKey(tile)));
+  }
+  for (const object of input.map.objects) {
+    for (const footprint of object.solidFootprints) {
+      for (let y = 0; y < footprint.bounds.height; y += 1) {
+        for (let x = 0; x < footprint.bounds.width; x += 1) {
+          decalBlockedTiles.add(tileKey({
+            x: object.anchor.x + footprint.bounds.x + x,
+            y: object.anchor.y + footprint.bounds.y + y,
+          }));
+        }
+      }
+    }
+  }
   for (const cell of ground) {
     const material = MATERIAL_RECIPE_BY_ID[cell.materialId];
     const family = material?.decalFamily ? DECAL_RECIPE_BY_ID[material.decalFamily] : undefined;
-    if (!family || family.densityPerThousand === 0) continue;
+    if (!family || family.densityPerThousand === 0 || decalBlockedTiles.has(tileKey(cell.tile))) continue;
     const roll = stableTupleHash([
       input.map.id,
       cell.tile.x,
@@ -139,14 +167,33 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
   }
   const roofs = Object.freeze([...input.map.roofGroups]
     .sort((left, right) => left.id < right.id ? -1 : left.id > right.id ? 1 : 0)
-    .flatMap((roof) => roof.cells.flatMap(pointsInRect).map((tile) => Object.freeze({
-      id: `roof-${roof.id}-${tile.x}-${tile.y}`,
-      roofGroupId: roof.id,
-      tile: Object.freeze({ ...tile }),
-      sprite: DEFAULT_ROOF_RECIPE.publicSprite,
-      tint: DEFAULT_ROOF_RECIPE.tint,
-      visualBounds: freezeBounds(input.visualBoundsBySprite?.[DEFAULT_ROOF_RECIPE.publicSprite] ?? DEFAULT_ROOF_RECIPE.visualBounds),
-    }))));
+    .flatMap((roof) => {
+      const tiles = roof.cells.flatMap(pointsInRect);
+      const keys = new Set(tiles.map(({ x, y }) => `${x},${y}`));
+      return tiles.map((tile) => {
+        const neighbors = [
+          keys.has(`${tile.x},${tile.y - 1}`),
+          keys.has(`${tile.x + 1},${tile.y}`),
+          keys.has(`${tile.x},${tile.y + 1}`),
+          keys.has(`${tile.x - 1},${tile.y}`),
+        ];
+        const neighborCount = neighbors.filter(Boolean).length;
+        const adjacentCorner = neighborCount === 2 && (
+          (neighbors[0] && neighbors[1]) || (neighbors[1] && neighbors[2]) ||
+          (neighbors[2] && neighbors[3]) || (neighbors[3] && neighbors[0])
+        );
+        const kind = neighborCount === 4 ? 'base' : adjacentCorner || neighborCount < 2 ? 'corner' : 'edge';
+        const sprite = DEFAULT_ROOF_RECIPE.publicSprites[kind];
+        return Object.freeze({
+          id: `roof-${roof.id}-${tile.x}-${tile.y}`,
+          roofGroupId: roof.id,
+          tile: Object.freeze({ ...tile }),
+          sprite,
+          tint: DEFAULT_ROOF_RECIPE.tint,
+          visualBounds: freezeBounds(input.visualBoundsBySprite?.[sprite] ?? DEFAULT_ROOF_RECIPE.visualBounds),
+        });
+      });
+    }));
   const usedSprites = new Set([
     ...ground.map(({ sprite }) => sprite),
     ...decals.map(({ sprite }) => sprite),

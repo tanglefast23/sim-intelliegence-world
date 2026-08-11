@@ -1,9 +1,10 @@
 import {
+  addOutwardContour,
   composePortrait,
   tokenFrameToBitmap,
   type CharacterSource,
 } from './character-source';
-import type { Bitmap } from './png';
+import { parseHexColor, type Bitmap } from './png';
 
 export type PortraitEntry = Readonly<{
   name: string;
@@ -17,6 +18,9 @@ export function buildPortraitEntries(sources: readonly CharacterSource[]): Portr
     name: `portrait.${source.id}`,
     sourceId: source.id,
     kind: 'portrait' as const,
-    bitmap: tokenFrameToBitmap(composePortrait(source), source.palette),
+    bitmap: addOutwardContour(
+      tokenFrameToBitmap(composePortrait(source), source.palette),
+      parseHexColor(source.palette.K as string),
+    ),
   }));
 }

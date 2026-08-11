@@ -815,6 +815,7 @@ export function WorldScene({
     } as const;
     return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
   }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
+  const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
   const smokeGeometry = useMemo(
     () => map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map],
@@ -845,6 +846,7 @@ export function WorldScene({
           roofGroupId: worldFrame.hiddenRoofGroupId,
           uiScale,
           drawCounts,
+          staticBatchCount,
         });
         if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
       });
@@ -853,7 +855,7 @@ export function WorldScene({
       clearTimeout(timer);
       if (frameId) cancelAnimationFrame(frameId);
     };
-  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, staticBatchCount, surface, uiScale, worldFrame.hiddenRoofGroupId]);
 
   if (!image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;

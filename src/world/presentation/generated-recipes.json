@@ -1,9 +1,13 @@
 {
   "schemaVersion": 1,
-  "artRevision": 1,
+  "artRevision": 2,
   "materials": [
     {
       "publicBaseSprite": "tile.boardwalk",
+      "publicVariantSprites": [
+        "tile.boardwalk",
+        "tile.boardwalk"
+      ],
       "id": "boardwalk",
       "logicalVariants": [
         "boardwalk-a",
@@ -23,6 +27,10 @@
     },
     {
       "publicBaseSprite": "tile.dark-asphalt",
+      "publicVariantSprites": [
+        "tile.dark-asphalt",
+        "tile.dark-asphalt"
+      ],
       "id": "dark-asphalt",
       "logicalVariants": [
         "dark-asphalt-a",
@@ -42,6 +50,12 @@
     },
     {
       "publicBaseSprite": "tile.dune-grass",
+      "publicVariantSprites": [
+        "tile.dune-grass",
+        "tile.dune-grass-b",
+        "tile.dune-grass-c",
+        "tile.dune-grass-d"
+      ],
       "id": "dune-grass",
       "logicalVariants": [
         "dune-grass-a",
@@ -57,12 +71,18 @@
       "densityBand": "natural-high",
       "seamMode": "hashed",
       "edgeMode": "soft",
-      "decalFamily": null,
+      "decalFamily": "grass-tufts",
       "transitionPriority": 20,
       "selectionSalt": "dune-grass-v1"
     },
     {
       "publicBaseSprite": "tile.garden-soil",
+      "publicVariantSprites": [
+        "tile.garden-soil",
+        "tile.garden-soil",
+        "tile.garden-soil",
+        "tile.garden-soil"
+      ],
       "id": "garden-soil",
       "logicalVariants": [
         "garden-soil-a",
@@ -84,6 +104,10 @@
     },
     {
       "publicBaseSprite": "tile.pale-concrete",
+      "publicVariantSprites": [
+        "tile.pale-concrete",
+        "tile.pale-concrete"
+      ],
       "id": "pale-concrete",
       "logicalVariants": [
         "pale-concrete-a",
@@ -103,6 +127,10 @@
     },
     {
       "publicBaseSprite": "tile.plaza-paver",
+      "publicVariantSprites": [
+        "tile.plaza-paver",
+        "tile.plaza-paver"
+      ],
       "id": "plaza-paver",
       "logicalVariants": [
         "plaza-paver-a",
@@ -122,6 +150,12 @@
     },
     {
       "publicBaseSprite": "tile.shallow-water",
+      "publicVariantSprites": [
+        "tile.shallow-water",
+        "tile.shallow-water-b",
+        "tile.shallow-water-c",
+        "tile.shallow-water-d"
+      ],
       "id": "shallow-water",
       "logicalVariants": [
         "shallow-water-a",
@@ -143,6 +177,10 @@
     },
     {
       "publicBaseSprite": "tile.spa-stone",
+      "publicVariantSprites": [
+        "tile.spa-stone",
+        "tile.spa-stone-b"
+      ],
       "id": "spa-stone",
       "logicalVariants": [
         "spa-stone-a",
@@ -162,6 +200,10 @@
     },
     {
       "publicBaseSprite": "tile.villa-floor",
+      "publicVariantSprites": [
+        "tile.villa-floor",
+        "tile.villa-floor-b"
+      ],
       "id": "villa-floor",
       "logicalVariants": [
         "villa-floor-a",
@@ -181,6 +223,12 @@
     },
     {
       "publicBaseSprite": "tile.warm-sand",
+      "publicVariantSprites": [
+        "tile.warm-sand",
+        "tile.warm-sand-b",
+        "tile.warm-sand-c",
+        "tile.warm-sand-d"
+      ],
       "id": "warm-sand",
       "logicalVariants": [
         "warm-sand-a",
@@ -196,16 +244,20 @@
       "densityBand": "natural-low",
       "seamMode": "hashed",
       "edgeMode": "soft",
-      "decalFamily": null,
+      "decalFamily": "sand-traces",
       "transitionPriority": 40,
       "selectionSalt": "warm-sand-v1"
     }
   ],
   "defaultRoof": {
-    "publicSprite": "tile.boardwalk",
-    "id": "legacy-boardwalk-roof",
-    "tint": "#4b211f55",
-    "selectionSalt": "roof-v1",
+    "publicSprites": {
+      "base": "tile.roof-sunward-base",
+      "edge": "tile.roof-sunward-edge",
+      "corner": "tile.roof-sunward-corner"
+    },
+    "id": "sunward-terracotta-roof",
+    "tint": "#ffffff00",
+    "selectionSalt": "roof-v2",
     "visualBounds": {
       "left": 0,
       "top": 0,
@@ -213,5 +265,43 @@
       "bottom": 32
     }
   },
-  "decalFamilies": []
+  "decalFamilies": [
+    {
+      "publicSprites": [
+        "tile.decal-sand-ripple",
+        "tile.decal-sand-pebbles"
+      ],
+      "id": "sand-traces",
+      "densityPerThousand": 95,
+      "selectionSalt": "sand-traces-v2"
+    },
+    {
+      "publicSprites": [
+        "tile.decal-grass-tuft"
+      ],
+      "id": "grass-tufts",
+      "densityPerThousand": 70,
+      "selectionSalt": "grass-tufts-v2"
+    }
+  ],
+  "transitionFamilies": [
+    {
+      "id": "soft",
+      "publicSpritePrefix": "tile.transition-soft",
+      "palette": {
+        "light": "#f0d7a766",
+        "mid": "#b58b5b66",
+        "shade": "#80654c55"
+      }
+    },
+    {
+      "id": "built",
+      "publicSpritePrefix": "tile.transition-built",
+      "palette": {
+        "light": "#e6d4b8cc",
+        "mid": "#9c8268cc",
+        "shade": "#5f4a40bb"
+      }
+    }
+  ]
 }
