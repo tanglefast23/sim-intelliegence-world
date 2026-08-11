@@ -68,6 +68,8 @@ Codex treated every finding as a hypothesis, compared it with the final specific
 6. Added `artRevision` and revisioned-hash coupling.
 7. Added full-suite Jest gates to every cross-cutting art phase.
 
-## Remaining step
+## Closure result
 
-Grok 4.5 must perform the requested high-reasoning closure audit of the corrected plan and this record. Phase 26 cannot start until that audit is clean and Phase 25 is merged.
+Grok 4.5 found one residual ambiguity in the corrected Phase 27 performance command. Codex added explicit dual-mode and maximum-load flags, a report-validator contract, and a missing-or-invalid report stop rule. Grok then rechecked only that correction at high reasoning effort and returned `NO_CONFIRMED_FINDINGS`. The record is `audits/phase-25-grok-plan-audit.md`.
+
+Phase 26 can start only after Phase 25 verification and merge.

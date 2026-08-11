@@ -22,4 +22,11 @@ Codex verified the ambiguity. The plan now requires:
 
 ## Correction audit
 
-Pending. Grok 4.5 must recheck the corrected Phase 27 gate before Phase 25 can merge.
+Grok 4.5 rechecked only the Phase 27 dual-mode maximum-load correction at high reasoning effort and returned `NO_CONFIRMED_FINDINGS`.
+
+It confirmed that:
+
+- the formal command passes `--compare-art-modes` and `--include-maximum-load`;
+- work requires same-package dual-mode maximum-load measurement with matching inputs;
+- the report validator requires both mode records, FPS, median frame time, draw counts, package provenance, and tested source commit;
+- the stop rule blocks progression when the report is absent or invalid, FPS is below `60`, or median frame time regresses by more than `10%`.

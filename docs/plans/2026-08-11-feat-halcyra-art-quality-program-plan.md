@@ -2,7 +2,7 @@
 title: "feat: Implement the Halcyra art-quality program"
 type: feat
 date: 2026-08-11
-status: council-reviewed-awaiting-grok-closure
+status: council-reviewed-grok-closed
 source_spec: docs/specs/2026-08-11-art-quality.md
 base_sha: 9d44f0e6753bf5e6439037b10f5379c045749cc1
 ---
@@ -746,7 +746,7 @@ Before Phase 26 starts:
 
 - [x] Fable 5, Opus 5, and Grok 4.5 plan reviews are complete and recorded.
 - [x] Confirmed council findings are integrated into this plan.
-- [ ] Final Grok plan closure has no unresolved confirmed material finding.
+- [x] Final Grok plan closure has no unresolved confirmed material finding.
 - [ ] Phase 25 PR is squash-merged and synchronized.
 - [ ] Phase 26 deterministic art foundation is Grok-audited and merged.
 - [ ] Phase 27 pure presentation system is Grok-audited and merged.
