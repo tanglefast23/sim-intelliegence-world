@@ -66,6 +66,10 @@ const desktopBridge = Object.freeze({
 
 contextBridge.exposeInMainWorld('siWorldDesktop', desktopBridge);
 contextBridge.exposeInMainWorld(
+  'siWorldDevHarnessMode',
+  process.argv.includes('--si-world-dev-harness=1'),
+);
+contextBridge.exposeInMainWorld(
   'siWorldSmokeMode',
   process.argv.includes('--si-world-smoke-mode=1'),
 );

@@ -213,24 +213,30 @@ function npcLabel(selectedId: string, actors: WorldActors): string {
 }
 
 type WorldSceneProps = Readonly<{
+  initialConversationFixtureId?: CharacterId;
   initialFeedback: string;
+  initialOpenPanel?: 'journal' | 'relationships';
   initialPresentationPreferences: PresentationPreferences;
   initialSaveGeneration: number | null;
   initialSaveStatus: string;
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  persistenceDisabled?: boolean;
   surface: ViewportSize;
 }>;
 
 export function WorldScene({
+  initialConversationFixtureId,
   initialFeedback,
+  initialOpenPanel,
   initialPresentationPreferences,
   initialSaveGeneration,
   initialSaveStatus,
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  persistenceDisabled = false,
   surface,
 }: WorldSceneProps) {
   const image = useImage(atlasImage);
@@ -265,13 +271,16 @@ export function WorldScene({
   const [transitioning, setTransitioning] = useState(false);
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
-  const [conversationNpcId, setConversationNpcId] = useState<string>();
-  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId>();
-  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
+  const [conversationNpcId, setConversationNpcId] = useState<string | undefined>(initialConversationFixtureId);
+  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId | undefined>(initialConversationFixtureId);
+  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships' | undefined>(initialOpenPanel);
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
-  const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
+  const conversationPort = useMemo(
+    () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
+    [persistenceDisabled],
+  );
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -347,6 +356,10 @@ export function WorldScene({
     state: WorldState,
     trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
   ) => {
+    if (persistenceDisabled) {
+      setSaveStatus('DEV HARNESS · NO DISK SAVE');
+      return;
+    }
     const bridge = getDesktopBridge();
     if (!bridge) {
       setSaveStatus('BROWSER · NO DISK SAVE');
@@ -373,7 +386,7 @@ export function WorldScene({
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, []);
+  }, [persistenceDisabled]);
 
   useEffect(() => {
     const timer = setInterval(() => {

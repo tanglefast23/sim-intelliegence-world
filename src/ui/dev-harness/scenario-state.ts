@@ -1,0 +1,97 @@
+import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
+import {
+  LINDA_QUEST,
+  planLindaQuestStart,
+  planLindaVillaDiscovery,
+} from '../../domain/quests/quest-machine';
+import { createInitialState } from '../../domain/state/initial-state';
+import { parseWorldState, type WorldState } from '../../domain/state/schema';
+import type { MapId } from '../../world/maps/catalog';
+
+export const DEV_HARNESS_MAP_IDS = [
+  'northwest_residential',
+  'northeast_downtown',
+  'southwest_commercial',
+  'southeast_docks',
+] as const satisfies readonly MapId[];
+
+export type DevHarnessQuestStage = 'locked' | 'active' | 'discovered';
+
+function paused(state: WorldState): WorldState {
+  return parseWorldState({
+    ...state,
+    clock: { ...state.clock, selectedSpeed: 0 },
+  });
+}
+
+function representativeTile(mapId: MapId): Readonly<{ x: number; y: number }> {
+  if (mapId === 'northwest_residential') {
+    const initial = createInitialState().protagonist.worldPosition;
+    return { x: initial.tileX, y: initial.tileY };
+  }
+  const map = WORLD_MAP_CATALOG[mapId];
+  const tile = map.source.areas[0]?.entranceTiles[0] ?? map.source.stagingTiles[0];
+  if (!tile || map.blockedKeys.has(`${tile.x},${tile.y}`)) {
+    throw new Error(`Dev harness map ${mapId} has no usable representative tile.`);
+  }
+  return tile;
+}
+
+export function devHarnessLocationState(
+  mapId: MapId,
+  displayName = 'DEV PLAYER',
+): WorldState {
+  const state = createInitialState(displayName);
+  const tile = representativeTile(mapId);
+  return paused(parseWorldState({
+    ...state,
+    protagonist: {
+      ...state.protagonist,
+      locationId: mapId,
+      worldPosition: { mapId, tileX: tile.x, tileY: tile.y },
+    },
+    maps: Object.fromEntries(Object.entries(state.maps).map(([id, map]) => [
+      id,
+      { ...map, active: id === mapId },
+    ])),
+  }));
+}
+
+function nearLinda(state: WorldState): WorldState {
+  const presence = state.npcs.linda?.presence;
+  if (!presence || presence.kind !== 'active_local') {
+    throw new Error('The dev harness requires Linda to be active locally.');
+  }
+  return parseWorldState({
+    ...state,
+    protagonist: {
+      ...state.protagonist,
+      locationId: presence.locationId,
+      worldPosition: {
+        mapId: presence.mapId,
+        tileX: presence.tileX - 1,
+        tileY: presence.tileY,
+      },
+    },
+  });
+}
+
+export function devHarnessQuestState(stage: DevHarnessQuestStage): WorldState {
+  const initial = paused(createInitialState('DEV PLAYER'));
+  if (stage === 'locked') return initial;
+  const active = planLindaQuestStart(nearLinda(initial), 'linda').state;
+  if (stage === 'active') return paused(active);
+  const atVilla = parseWorldState({
+    ...active,
+    protagonist: {
+      ...active.protagonist,
+      locationId: LINDA_QUEST.targetLocationId,
+      worldPosition: {
+        mapId: LINDA_QUEST.targetMapId,
+        tileX: LINDA_QUEST.targetTile.x,
+        tileY: LINDA_QUEST.targetTile.y,
+      },
+    },
+  });
+  return paused(planLindaVillaDiscovery(atVilla).state);
+}

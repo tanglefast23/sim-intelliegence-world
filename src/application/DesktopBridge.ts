@@ -33,6 +33,7 @@ declare global {
   interface Window {
     siWorldDesktop?: DesktopBridge;
     siWorldArtMode?: 'legacy' | 'enhanced';
+    siWorldDevHarnessMode?: boolean;
     siWorldSmokeMode?: boolean;
     siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
     siWorldCloseConversationFixture?: () => void;
