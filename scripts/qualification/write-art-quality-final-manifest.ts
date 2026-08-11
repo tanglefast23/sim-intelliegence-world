@@ -11,9 +11,11 @@ import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { resolveTestedCommit } from './tested-commit';
 import {
   FINAL_ART_REQUIRED_CASE_IDS,
+  atlasBuildInvocation,
   sha256File,
   simulateColorVision,
   validateFinalArtManifest,
+  validateFinalSubsystemReports,
   type BuildHashes,
   type FinalArtManifest,
 } from './art-quality-final-manifest';
@@ -36,8 +38,8 @@ function reportCommit(candidate: unknown, label: string): void {
 }
 
 function runAtlasBuild(): BuildHashes {
-  const command = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const result = spawnSync(command, ['run', 'art:atlas'], {
+  const invocation = atlasBuildInvocation(process.execPath, process.env.npm_execpath);
+  const result = spawnSync(invocation.command, invocation.argumentsList, {
     cwd: process.cwd(), encoding: 'utf8', maxBuffer: 10_000_000, shell: false,
   });
   if (result.status !== 0) throw new Error(`Deterministic art build failed. ${result.stderr} ${result.stdout}`);
@@ -129,11 +131,6 @@ function main(): void {
   validateNaturalMovementReport(movementCandidate, join(outputRoot, 'movement'), {
     validateScreenshots: true, requiredProfile: 'qualification',
   });
-  for (const [label, path] of [
-    ['Responsive', 'responsive/responsive-report.json'],
-    ['Presentation restart', 'restart/presentation-restart-report.json'],
-    ['Save migration', 'save/save-migration-report.json'],
-  ] as const) reportCommit(json(join(outputRoot, path)), label);
   const authority = z.object({
     baselineMatch: z.literal(true), presentationOnlyChange: z.literal(true),
   }).passthrough().parse(json(join(outputRoot, 'review/tier-b-content-authority-report.json')));
@@ -150,6 +147,17 @@ function main(): void {
   if (JSON.stringify(first) !== JSON.stringify(second)) {
     throw new Error('Two deterministic art and presentation builds produced different hashes.');
   }
+  validateFinalSubsystemReports({
+    qualificationResponsive: json(join(outputRoot, 'responsive/responsive-report.json')),
+    presentationRestart: json(join(outputRoot, 'restart/presentation-restart-report.json')),
+    saveMigration: json(join(outputRoot, 'save/save-migration-report.json')),
+    prototypeReview: json(join(outputRoot, 'review/prototype-review-report.json')),
+    reviewManifest: json(join(outputRoot, 'review/review-manifest.json')),
+  }, {
+    testedCommit,
+    packageProvenance: artReport.packageProvenance,
+    atlasSha256: first.atlas,
+  });
   const cases = buildCases();
   if (JSON.stringify(cases.map(({ id }) => id).sort()) !== JSON.stringify(FINAL_ART_REQUIRED_CASE_IDS)) {
     throw new Error('Final art case builder does not cover the required case IDs.');
@@ -165,7 +173,7 @@ function main(): void {
       payload: artReport.packageProvenance.payload,
       payloadSha256: artReport.packageProvenance.payloadSha256,
     },
-    deterministicBuild: { measuredBeforeProvenance: true, first, second, identical: true },
+    deterministicBuild: { first, second, identical: true },
     sourceAuthority: {
       presentationOnlyChange: authority.presentationOnlyChange,
       contentAuthorityBaselineMatch: authority.baselineMatch,
@@ -173,7 +181,7 @@ function main(): void {
     cases,
     passed: true,
   };
-  validateFinalArtManifest(report, outputRoot);
+  validateFinalArtManifest(report, outputRoot, { projectRoot: process.cwd() });
   const path = join(outputRoot, 'final-art-quality-manifest.json');
   writeFileSync(path, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });
   process.stdout.write(`Final art-quality manifest: ${relative(process.cwd(), path)}\n`);

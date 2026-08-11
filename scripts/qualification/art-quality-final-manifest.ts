@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { isAbsolute, relative, resolve, sep, win32 } from 'node:path';
 
 import { PNG } from 'pngjs';
 import { z } from 'zod';
@@ -15,6 +15,12 @@ const MAP_IDS = [
 const TALL_PROP_CLASSES = ['sofa', 'table', 'planter', 'palm', 'lamp', 'fountain'] as const;
 const MULTI_TILE_GROUPS = ['harbor-ferry', 'sunward-fountain', 'sunward-sofa', 'sunward-table'] as const;
 const UI_SCALE_LABELS = ['100', '125', '150'] as const;
+const GENERATED_ART_PATHS = Object.freeze({
+  atlas: 'assets/generated/world-atlas.png',
+  index: 'assets/generated/atlas-index.json',
+  report: 'assets/generated/atlas-report.json',
+  presentationRecipes: 'src/world/presentation/generated-recipes.json',
+} as const);
 
 export const FINAL_ART_REQUIRED_CASE_IDS = Object.freeze([
   ...['1280x720', '1440x900', '1920x1080', '2560x1440', '1600x720'].map((value) => `window-${value}`),
@@ -33,7 +39,8 @@ export const FINAL_ART_REQUIRED_CASE_IDS = Object.freeze([
 ].sort());
 
 const RelativePathSchema = z.string().min(1).refine((path) => (
-  !path.startsWith('/') && !path.split('/').includes('..')
+  !isAbsolute(path) && !win32.isAbsolute(path) && !path.includes('\\') &&
+  !path.split('/').includes('..')
 ), { message: 'Final art evidence paths must stay inside the output root.' });
 const Sha256Schema = z.string().regex(/^[0-9a-f]{64}$/u);
 const CommitSchema = z.string().regex(/^[0-9a-f]{40}$/u);
@@ -52,6 +59,106 @@ const BuildHashesSchema = z.object({
   report: Sha256Schema,
   presentationRecipes: Sha256Schema,
 }).strict();
+const FullPackageProvenanceSchema = z.object({
+  executable: z.string().min(1),
+  sizeBytes: z.number().int().positive(),
+  modifiedMilliseconds: z.number().int().positive(),
+  payload: z.string().min(1),
+  payloadSizeBytes: z.number().int().positive(),
+  payloadSha256: Sha256Schema,
+}).strict();
+const QualificationResponsiveReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  highDpi: z.literal(true),
+  testedCommit: CommitSchema,
+  packageProvenance: FullPackageProvenanceSchema,
+  targets: z.array(z.object({
+    requested: z.object({ width: z.literal(2_560), height: z.literal(1_440) }).strict(),
+  }).passthrough()).length(1),
+  maximumLoad: z.object({
+    evidence: z.object({
+      devicePixelRatio: z.number().min(2),
+      selectedWorldZoom: z.literal(1),
+      overflow: z.object({ body: z.literal(false), surface: z.literal(false) }).strict(),
+    }).passthrough(),
+    roundedFps: z.number().int().min(60),
+    qualificationRequired: z.literal(true),
+    allOrdinaryLayersEnabled: z.literal(true),
+    screenshot: z.literal('maximum-load.png'),
+  }).passthrough(),
+}).passthrough();
+const RestartEvidenceSchema = z.object({
+  artMode: z.literal('enhanced'),
+  presentationHash: z.string().regex(/^[0-9a-f]{8}$/u),
+  selectedWorldZoom: z.literal(3),
+  uiScale: z.literal(1.25),
+  overflow: z.object({ body: z.literal(false), surface: z.literal(false) }).strict(),
+}).passthrough();
+const PersistedPresentationSchema = z.object({
+  schemaVersion: z.literal(1),
+  worldZoom: z.literal(3),
+  uiScale: z.literal(1.25),
+}).passthrough();
+const PresentationRestartReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  testedCommit: CommitSchema,
+  packageProvenance: FullPackageProvenanceSchema,
+  seed: z.object({ mode: z.literal('seed'), evidence: RestartEvidenceSchema }).strict(),
+  restart: z.object({ mode: z.literal('restart'), evidence: RestartEvidenceSchema }).strict(),
+  persistedAfterSeed: PersistedPresentationSchema,
+  persistedAfterRestart: PersistedPresentationSchema,
+  screenshots: z.object({ seed: z.literal('seed.png'), restart: z.literal('restart.png') }).strict(),
+}).passthrough();
+const SaveResultSchema = z.object({
+  mode: z.enum(['migration', 'reload']),
+  expectedSaveStatus: z.string().min(1),
+  visibleSaveStatus: z.string().min(1),
+  loaded: z.object({
+    status: z.literal('unchanged'),
+    saveGeneration: z.literal(8),
+    checksum: Sha256Schema,
+    state: z.object({ schemaVersion: z.literal(6) }).passthrough(),
+  }).passthrough(),
+}).passthrough();
+const SaveMigrationReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  testedCommit: CommitSchema,
+  packageProvenance: FullPackageProvenanceSchema,
+  migration: SaveResultSchema,
+  reload: SaveResultSchema,
+  disk: z.object({
+    mainSchemaVersion: z.literal(6),
+    mainSaveGeneration: z.literal(8),
+    mainPayloadChecksum: Sha256Schema,
+    exactV5BackupPreserved: z.literal(true),
+    backupSchemaVersion: z.literal(5),
+  }).strict(),
+  screenshots: z.object({ migration: z.literal('migration.png'), reload: z.literal('reload.png') }).strict(),
+}).passthrough();
+const PrototypeReviewReportSchema = z.object({
+  schemaVersion: z.literal(1),
+  artRevision: z.literal(5),
+  materials: z.array(z.object({ passed: z.literal(true) }).passthrough()).min(1),
+  tallPropClasses: z.tuple([
+    z.literal('sofa'), z.literal('table'), z.literal('planter'),
+    z.literal('palm'), z.literal('lamp'), z.literal('fountain'),
+  ]),
+  multiTileGroups: z.object({
+    'sunward-sofa': z.tuple([z.literal('sofa-left'), z.literal('sofa-right')]),
+    'sunward-table': z.tuple([z.literal('table-left'), z.literal('table-right')]),
+    'sunward-fountain': z.tuple([
+      z.literal('landmark-fountain-nw'), z.literal('landmark-fountain-ne'),
+      z.literal('landmark-fountain-sw'), z.literal('landmark-fountain-se'),
+    ]),
+    'harbor-ferry': z.tuple([z.literal('landmark-ferry-left'), z.literal('landmark-ferry-right')]),
+  }).strict(),
+}).passthrough();
+const ReviewManifestSchema = z.object({
+  schemaVersion: z.literal(1),
+  artRevision: z.literal(5),
+  imageSha256: Sha256Schema,
+  files: z.array(z.string().min(1)),
+}).strict();
 
 export const FinalArtManifestSchema = z.object({
   schemaVersion: z.literal(1),
@@ -68,7 +175,6 @@ export const FinalArtManifestSchema = z.object({
     payloadSha256: Sha256Schema,
   }).strict(),
   deterministicBuild: z.object({
-    measuredBeforeProvenance: z.literal(true),
     first: BuildHashesSchema,
     second: BuildHashesSchema,
     identical: z.literal(true),
@@ -83,12 +189,81 @@ export const FinalArtManifestSchema = z.object({
 
 export type BuildHashes = z.infer<typeof BuildHashesSchema>;
 export type FinalArtManifest = z.infer<typeof FinalArtManifestSchema>;
+export type FullPackageProvenance = z.infer<typeof FullPackageProvenanceSchema>;
+export type FinalArtManifestValidationContext = Readonly<{ projectRoot: string }>;
+
+export function atlasBuildInvocation(
+  nodeExecutable: string,
+  npmExecPath: string | undefined,
+): Readonly<{ command: string; argumentsList: readonly string[] }> {
+  if (!npmExecPath) throw new Error('Final art qualification requires npm_execpath. Run it through npm.');
+  return { command: nodeExecutable, argumentsList: [npmExecPath, 'run', 'art:atlas'] };
+}
+
+export function validateFinalSubsystemReports(
+  candidates: Readonly<{
+    qualificationResponsive: unknown;
+    presentationRestart: unknown;
+    saveMigration: unknown;
+    prototypeReview: unknown;
+    reviewManifest: unknown;
+  }>,
+  expected: Readonly<{
+    testedCommit: string;
+    packageProvenance: FullPackageProvenance;
+    atlasSha256: string;
+  }>,
+): void {
+  const responsive = QualificationResponsiveReportSchema.parse(candidates.qualificationResponsive);
+  const restart = PresentationRestartReportSchema.parse(candidates.presentationRestart);
+  const save = SaveMigrationReportSchema.parse(candidates.saveMigration);
+  const prototype = PrototypeReviewReportSchema.parse(candidates.prototypeReview);
+  const review = ReviewManifestSchema.parse(candidates.reviewManifest);
+  for (const [label, report] of [['responsive', responsive], ['restart', restart], ['save', save]] as const) {
+    if (report.testedCommit !== expected.testedCommit) {
+      throw new Error(`Final art ${label} report tested the wrong commit.`);
+    }
+    if (JSON.stringify(report.packageProvenance) !== JSON.stringify(expected.packageProvenance)) {
+      throw new Error(`Final art ${label} report used a different package.`);
+    }
+  }
+  if (restart.seed.evidence.presentationHash !== restart.restart.evidence.presentationHash ||
+      JSON.stringify(restart.persistedAfterSeed) !== JSON.stringify(restart.persistedAfterRestart)) {
+    throw new Error('Final art presentation state did not remain stable across restart.');
+  }
+  if (save.migration.mode !== 'migration' || save.reload.mode !== 'reload' ||
+      save.migration.visibleSaveStatus !== save.migration.expectedSaveStatus ||
+      save.reload.visibleSaveStatus !== save.reload.expectedSaveStatus ||
+      save.migration.loaded.checksum !== save.disk.mainPayloadChecksum ||
+      save.reload.loaded.checksum !== save.disk.mainPayloadChecksum) {
+    throw new Error('Final art save migration or reload acceptance did not pass.');
+  }
+  if (review.imageSha256 !== expected.atlasSha256 ||
+      !review.files.includes('prototype-review-report.json') ||
+      prototype.materials.some(({ passed }) => !passed)) {
+    throw new Error('Final art review boards are not bound to the current passing atlas review.');
+  }
+}
 
 export function sha256File(path: string): string {
   return createHash('sha256').update(readFileSync(path)).digest('hex');
 }
 
-export function validateFinalArtManifest(candidate: unknown, outputRoot: string): FinalArtManifest {
+function containedEvidencePath(outputRoot: string, path: string): string {
+  const root = resolve(outputRoot);
+  const target = resolve(root, path);
+  const fromRoot = relative(root, target);
+  if (fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
+    throw new Error(`Final art evidence path escapes the output root: ${path}.`);
+  }
+  return target;
+}
+
+export function validateFinalArtManifest(
+  candidate: unknown,
+  outputRoot: string,
+  context: FinalArtManifestValidationContext,
+): FinalArtManifest {
   const report = FinalArtManifestSchema.parse(candidate);
   if (JSON.stringify(report.deterministicBuild.first) !== JSON.stringify(report.deterministicBuild.second)) {
     throw new Error('Final art deterministic build hashes do not match.');
@@ -106,12 +281,26 @@ export function validateFinalArtManifest(candidate: unknown, outputRoot: string)
   }
   for (const testCase of report.cases) {
     for (const evidence of testCase.evidence) {
-      const path = resolve(outputRoot, evidence.path);
+      const path = containedEvidencePath(outputRoot, evidence.path);
       if (!existsSync(path)) throw new Error(`Final art case ${testCase.id} is missing ${evidence.path}.`);
       if (sha256File(path) !== evidence.sha256) {
         throw new Error(`Final art case ${testCase.id} has a stale hash for ${evidence.path}.`);
       }
     }
+  }
+  for (const [key, path] of Object.entries(GENERATED_ART_PATHS) as [keyof BuildHashes, string][]) {
+    const absolute = resolve(context.projectRoot, path);
+    if (!existsSync(absolute)) throw new Error(`Final art generated artifact is missing ${path}.`);
+    const actual = sha256File(absolute);
+    if (report.deterministicBuild.first[key] !== actual || report.deterministicBuild.second[key] !== actual) {
+      throw new Error(`Final art generated artifact hash is stale for ${path}.`);
+    }
+  }
+  if (!existsSync(report.package.executable)) {
+    throw new Error(`Final art package executable is missing ${report.package.executable}.`);
+  }
+  if (!existsSync(report.package.payload) || sha256File(report.package.payload) !== report.package.payloadSha256) {
+    throw new Error('Final art package payload hash is stale.');
   }
   return report;
 }
