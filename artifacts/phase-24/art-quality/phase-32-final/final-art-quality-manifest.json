@@ -1,0 +1,1087 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-11T13:17:16.813Z",
+  "testedCommit": "6e16934b3b11b2819ecda58a039bfdb471f0e8cc",
+  "artRevision": 5,
+  "platform": {
+    "operatingSystem": "darwin",
+    "architecture": "arm64"
+  },
+  "package": {
+    "executable": "/Users/joemacprom5/.codex/worktrees/si-world-phase32-final/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
+    "payload": "/Users/joemacprom5/.codex/worktrees/si-world-phase32-final/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+    "payloadSha256": "5f48782458733746e7a8e225ac0e2510d8fd7568d1b5e86dc58f167aba451528"
+  },
+  "deterministicBuild": {
+    "first": {
+      "atlas": "383de3461c08997cbc46dce876ca1da59c8d919456036c1c4b7c15e77b31472b",
+      "index": "98376e07f16256d4e6509ec85ed8be94a5486c64775b35ba75b828a8ee589c20",
+      "report": "7ab7b0b3aed7bf3bbc9e31099b69eb4b47570aa5c2f0b8873241377ac95cf544",
+      "presentationRecipes": "8e41d8eae18d4c1d033e14c0653d4623a3fd6c8f64a013c0cf7fb3dbec0df1e2"
+    },
+    "second": {
+      "atlas": "383de3461c08997cbc46dce876ca1da59c8d919456036c1c4b7c15e77b31472b",
+      "index": "98376e07f16256d4e6509ec85ed8be94a5486c64775b35ba75b828a8ee589c20",
+      "report": "7ab7b0b3aed7bf3bbc9e31099b69eb4b47570aa5c2f0b8873241377ac95cf544",
+      "presentationRecipes": "8e41d8eae18d4c1d033e14c0653d4623a3fd6c8f64a013c0cf7fb3dbec0df1e2"
+    },
+    "identical": true
+  },
+  "sourceAuthority": {
+    "presentationOnlyChange": true,
+    "contentAuthorityBaselineMatch": true
+  },
+  "cases": [
+    {
+      "id": "building-doorway",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-1x.png",
+          "sha256": "5d81dc6c9f60f3959d4fa980661e723e41faff702d024e4a0461b8d93492bcb4"
+        },
+        {
+          "path": "art-quality-smoke-report.json",
+          "sha256": "ec8232435d181b28c408b5474675b426fec292f580b53175a7647efa08bdb036"
+        }
+      ]
+    },
+    {
+      "id": "building-inside",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-1x.png",
+          "sha256": "27fa4d25f2ae4b891a6ef85df3fd4349409d643db0a88ce04d3dfc40fff78e47"
+        },
+        {
+          "path": "art-quality-smoke-report.json",
+          "sha256": "ec8232435d181b28c408b5474675b426fec292f580b53175a7647efa08bdb036"
+        }
+      ]
+    },
+    {
+      "id": "building-outside",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-roof-restored.png",
+          "sha256": "526dde12dd3bb151df70288c07bdc04ef6f55db0a7a8bc9ee1ea455f774437e1"
+        }
+      ]
+    },
+    {
+      "id": "building-roof-restored",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-roof-restored.png",
+          "sha256": "526dde12dd3bb151df70288c07bdc04ef6f55db0a7a8bc9ee1ea455f774437e1"
+        },
+        {
+          "path": "responsive/maximum-load.png",
+          "sha256": "9a9b39256d99daefd013cb53a2fa8dc99be74ae73d7e149615d04d01426879bf"
+        }
+      ]
+    },
+    {
+      "id": "character-active-interaction",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-linda-quest.png",
+          "sha256": "9b30ecd7902f04c00e2f5f30fb30098ba64b98d151625775bad38d2c55303e7a"
+        }
+      ]
+    },
+    {
+      "id": "character-selected-idle",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-1x.png",
+          "sha256": "5d81dc6c9f60f3959d4fa980661e723e41faff702d024e4a0461b8d93492bcb4"
+        }
+      ]
+    },
+    {
+      "id": "character-talk",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-conversation.png",
+          "sha256": "d20a4d6cbdfcc935652da31da2184f6d81ec1b8b96cf857b72cf05e332fd8e31"
+        }
+      ]
+    },
+    {
+      "id": "character-unselected-idle",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/full-cast-identity-1x.png",
+          "sha256": "1c09b1399fd15f66a0fdc17b1f35458b6086ea23433b5abdd29ede3187b972c4"
+        }
+      ]
+    },
+    {
+      "id": "character-walk",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "movement/standard-1x-frame-01.png",
+          "sha256": "9d0199275efc8c3039a88e8bf540a2abefa1ff4ceea3cdf9440275924f069dac"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "color-deuteranopia",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "color-vision/deuteranopia.png",
+          "sha256": "e346b1ef91735d61b48cde6703c21283668e1d07ed8fedecd253ab8d94c1ee99"
+        }
+      ]
+    },
+    {
+      "id": "color-full",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1920x1080-1x.png",
+          "sha256": "f25a4d1e198e5c2bea5f8c5dea658a7a2a466297458c3ddbd6e1682ec144eb66"
+        }
+      ]
+    },
+    {
+      "id": "color-grayscale",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "fixed-camera-1x-grayscale.png",
+          "sha256": "d9fa5e2f98e26ee1f060e8a720a4429fe3c26ff27b312a59fec6f30c00b76013"
+        }
+      ]
+    },
+    {
+      "id": "color-protanopia",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "color-vision/protanopia.png",
+          "sha256": "2ed11c736cc1bebd7f4ce001f9789c961cfa5fedd6b74296ea54f9d2aff959de"
+        }
+      ]
+    },
+    {
+      "id": "color-tritanopia",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "color-vision/tritanopia.png",
+          "sha256": "8e7eae01281fc7d75233f60c2ff16d66323dc0d2af533d354b947c9fb5e229e8"
+        }
+      ]
+    },
+    {
+      "id": "direction-front-cell-1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-front-cell-2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-left-cell-1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-left-cell-2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-rear-cell-1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-rear-cell-2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-right-cell-1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "direction-right-cell-2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/characters-3x.png",
+          "sha256": "baf75dd2ed5a167843e42877515fedf3f66b607fd260a7891bd5f14d53feade2"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "dpr-1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1920x1080-1x.png",
+          "sha256": "f25a4d1e198e5c2bea5f8c5dea658a7a2a466297458c3ddbd6e1682ec144eb66"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    },
+    {
+      "id": "dpr-2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "responsive/maximum-load.png",
+          "sha256": "9a9b39256d99daefd013cb53a2fa8dc99be74ae73d7e149615d04d01426879bf"
+        },
+        {
+          "path": "responsive/responsive-report.json",
+          "sha256": "5f6f3ae71bcf2270f8117bbd96b5af996b67e38f738138afb9bbab72a4c4b07d"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle-fresh-start",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-new-game.png",
+          "sha256": "eb35b5176fda659cf75c982104c788f0bb090e6d68aed501d4258c038fa60598"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle-loaded-save",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "save/reload.png",
+          "sha256": "64856747d8237987cc6a1b85f970f025cbe05e0e648f9e3cb58341bf83f01e0a"
+        },
+        {
+          "path": "save/save-migration-report.json",
+          "sha256": "9baaac67da356bc449420887a167841fbc77e4bfbed84c1999ee67c3da77e03e"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle-resize",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1600x720-1x.png",
+          "sha256": "71cbd1835a2428441f851f118e1e81fe10ed7110d3d3e2f54d2de88c60a8a16c"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle-restart",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "restart/seed.png",
+          "sha256": "b67aaee0988fb200ca5885005df669fae9465c92b45c5662855f8e9da92eb9c3"
+        },
+        {
+          "path": "restart/restart.png",
+          "sha256": "2a28d157d5a7ea4d4ab620b326ddb6960b8b90ab7b426fb4abbb7a7c5c185ce7"
+        },
+        {
+          "path": "restart/presentation-restart-report.json",
+          "sha256": "4fb2f2292d10c4f6582c5a09015e4ae2a911d7d379f113c96ecc73c33ae758dc"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle-transition",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-loop-complete.png",
+          "sha256": "4f3e1d1aacb9531c3d8348bf749ff8f75002ac900b87bfd48695f95a5a5ab22a"
+        }
+      ]
+    },
+    {
+      "id": "load-maximum",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "responsive/maximum-load.png",
+          "sha256": "9a9b39256d99daefd013cb53a2fa8dc99be74ae73d7e149615d04d01426879bf"
+        },
+        {
+          "path": "responsive/responsive-report.json",
+          "sha256": "5f6f3ae71bcf2270f8117bbd96b5af996b67e38f738138afb9bbab72a4c4b07d"
+        }
+      ]
+    },
+    {
+      "id": "load-standard",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-1x.png",
+          "sha256": "5d81dc6c9f60f3959d4fa980661e723e41faff702d024e4a0461b8d93492bcb4"
+        }
+      ]
+    },
+    {
+      "id": "map-northeast_downtown-1x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-downtown-1x.png",
+          "sha256": "01bf018820e7d314307b50adf680b1113b733ef1c86dad6e7951c91dcc2cec6f"
+        }
+      ]
+    },
+    {
+      "id": "map-northeast_downtown-2x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-downtown-2x.png",
+          "sha256": "76f9679e90c4ac7a0fd4c21b41054e11b9bc14aa07baf175a6331f28c9f01c72"
+        }
+      ]
+    },
+    {
+      "id": "map-northeast_downtown-3x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-downtown-3x.png",
+          "sha256": "f58c38873e691a7014ea17bc4e533af82195b88b459ba7c93b229d80614d1064"
+        }
+      ]
+    },
+    {
+      "id": "map-northwest_residential-1x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-1x.png",
+          "sha256": "27fa4d25f2ae4b891a6ef85df3fd4349409d643db0a88ce04d3dfc40fff78e47"
+        }
+      ]
+    },
+    {
+      "id": "map-northwest_residential-2x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-2x.png",
+          "sha256": "4c2cf9bdc2d28c62e97837368fce823a0567e7f8f41ea92b1c0ecb0118ea209a"
+        }
+      ]
+    },
+    {
+      "id": "map-northwest_residential-3x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-3x.png",
+          "sha256": "b46bbccfe58117b13e6ab7cb54842fb975d1b5fe0779d19ec7c09ff743108642"
+        }
+      ]
+    },
+    {
+      "id": "map-southeast_docks-1x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-ferry-1x.png",
+          "sha256": "bfeffa8c9979e8f5d3e191d7d72ceca3e80a5fcc075a21e0d18420e0cb18dc85"
+        }
+      ]
+    },
+    {
+      "id": "map-southeast_docks-2x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-ferry-2x.png",
+          "sha256": "5dcd8bbade29091e50da07daecaf1ca6f39af72e1980cd90cd417129aae16748"
+        }
+      ]
+    },
+    {
+      "id": "map-southeast_docks-3x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-ferry-3x.png",
+          "sha256": "abeaad3bed7397da9e939f1231821576e5330689b26996c6f208a545d877baef"
+        }
+      ]
+    },
+    {
+      "id": "map-southwest_commercial-1x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-commercial-1x.png",
+          "sha256": "99d8d9409ac7d42b33803526dab85e35debb3e67ebbcc58ae17970cade61c79f"
+        }
+      ]
+    },
+    {
+      "id": "map-southwest_commercial-2x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-commercial-2x.png",
+          "sha256": "f2063db86747a6aae7f234a71d0beeccadd79ec69e181b9c5413d9b886bf6d2c"
+        }
+      ]
+    },
+    {
+      "id": "map-southwest_commercial-3x",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "lifecycle/world-commercial-3x.png",
+          "sha256": "0a043f2f559df68e314b2e30a0177ca25ea60ff1f5dcd3618881f95e21dfd72e"
+        }
+      ]
+    },
+    {
+      "id": "multi-tile-harbor-ferry",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/multi-harbor-ferry-1x.png",
+          "sha256": "a93f73d60f8dd91467089de8558585b5ad048274be1a5e88d00a632335af08ba"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "multi-tile-sunward-fountain",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/multi-sunward-fountain-1x.png",
+          "sha256": "4e20fce26d9109c665f09d04fd704b2f5cf8f8fa22cd5e96d01a7ad054b9ba09"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "multi-tile-sunward-sofa",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/multi-sunward-sofa-1x.png",
+          "sha256": "60df41a1d1f9b56609f1cc7afa6e27583c73f916c6b570e10e8b3c16a04ddeff"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "multi-tile-sunward-table",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/multi-sunward-table-1x.png",
+          "sha256": "e782e49a33a288cc2d6dd48f27a8c2ae388e66033cdc691e308d3b26fe314695"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "portrait-devon-price-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-devon-price.png",
+          "sha256": "659d14ef2b93c86c770ceb731106a2e69f7b5c22ca9b47f3e4b5bbc8710f8471"
+        }
+      ]
+    },
+    {
+      "id": "portrait-devon-price-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-devon-price.png",
+          "sha256": "1770888b925c12577b3635b3a3c0f980ff72775becf80e52787972d94fa2f38b"
+        }
+      ]
+    },
+    {
+      "id": "portrait-devon-price-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-devon-price.png",
+          "sha256": "81b454c3dd3551f52244a8cbfb4ec682992beb34ed4dc43ca74afbb8d44c0712"
+        }
+      ]
+    },
+    {
+      "id": "portrait-elise-moreau-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-elise-moreau.png",
+          "sha256": "01c5920bfe70ad9040398aefedd8f4ec07895ac4f43e85b18e6f53e136b64b3a"
+        }
+      ]
+    },
+    {
+      "id": "portrait-elise-moreau-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-elise-moreau.png",
+          "sha256": "a1290fada0a519f5816059f7d37921e0acc4f3630636676c410660ca9c5f6401"
+        }
+      ]
+    },
+    {
+      "id": "portrait-elise-moreau-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-elise-moreau.png",
+          "sha256": "4a8ebd4cc514879370c0f16d2e5f075d462150dedea647c2c06b4f5c92f62b0e"
+        }
+      ]
+    },
+    {
+      "id": "portrait-generic-resident-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-generic-resident.png",
+          "sha256": "43282f228c651568abf377a11dfe08f2eab26daeaa43d0f798c3b0d7ef01cce8"
+        }
+      ]
+    },
+    {
+      "id": "portrait-generic-resident-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-generic-resident.png",
+          "sha256": "b5a1a851109e8cd40c98f4cd5e46fc49c3f0c5e55b516ed6d102994778af37af"
+        }
+      ]
+    },
+    {
+      "id": "portrait-generic-resident-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-generic-resident.png",
+          "sha256": "0d50e7295d1afed006e017b5d8f3fc8bd00528fcfbcfb786ffc4450a1f3b5bbd"
+        }
+      ]
+    },
+    {
+      "id": "portrait-linda-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-linda.png",
+          "sha256": "343f8831225dac8045ed0ce9dfc2a22b02aab74cfc9c87275ba35987ad746587"
+        }
+      ]
+    },
+    {
+      "id": "portrait-linda-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-linda.png",
+          "sha256": "5d7d0f6e6f76592fd2fd27a9e9f174b24fd6339bf4977330f786bfc213ac4849"
+        }
+      ]
+    },
+    {
+      "id": "portrait-linda-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-linda.png",
+          "sha256": "fb5a5c2f471de8d8878812c02f07f867fe2e13acf9b2a22f1b879090f5af16f8"
+        }
+      ]
+    },
+    {
+      "id": "portrait-mina-park-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-mina-park.png",
+          "sha256": "c1f1d307466c6688a232ad85a725afb4396f27da8fea9c99bd22af27deb27274"
+        }
+      ]
+    },
+    {
+      "id": "portrait-mina-park-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-mina-park.png",
+          "sha256": "126dc459ddcb8aaf2326b42e77f4061575274f3e49205adbb0e11790d6da1922"
+        }
+      ]
+    },
+    {
+      "id": "portrait-mina-park-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-mina-park.png",
+          "sha256": "6b87f2717c68c3ac470b1f433d3bf170bb847302185cfcba07fec09a241ffcd3"
+        }
+      ]
+    },
+    {
+      "id": "portrait-priya-nair-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-priya-nair.png",
+          "sha256": "6bb22e653c301292355aa106c259955c2b3383342c0f42b1ce037a866ad7e928"
+        }
+      ]
+    },
+    {
+      "id": "portrait-priya-nair-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-priya-nair.png",
+          "sha256": "08d4db8ab7a28ac6d8b7b6147e957237ac3646c77e511808f40d03f0d1f62e40"
+        }
+      ]
+    },
+    {
+      "id": "portrait-priya-nair-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-priya-nair.png",
+          "sha256": "36daa9922bbef3de9d9cf36ba31e3f081dd52ae999b0fc957f097d4383d68ce2"
+        }
+      ]
+    },
+    {
+      "id": "portrait-protagonist-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-protagonist.png",
+          "sha256": "c7f4d6be635e3766bde3b01926c5bfe3fc468cb8ca34e11e4f46345fc95021bb"
+        }
+      ]
+    },
+    {
+      "id": "portrait-protagonist-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-protagonist.png",
+          "sha256": "b3b7b5231d05056599d6155d9684f867efae302eb245d556c5fa4186f590d5f8"
+        }
+      ]
+    },
+    {
+      "id": "portrait-protagonist-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-protagonist.png",
+          "sha256": "deb18f68045ea38b28fcf6a1b732572a1d8e79f3d57ef424229b470666162e2c"
+        }
+      ]
+    },
+    {
+      "id": "portrait-rafael-cruz-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-rafael-cruz.png",
+          "sha256": "ce8b95cb24dfead8e415a75a98ce180e8a12eaccea0ad2c723ea502cc0b2ad09"
+        }
+      ]
+    },
+    {
+      "id": "portrait-rafael-cruz-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-rafael-cruz.png",
+          "sha256": "a8684356b2ebeb0a8a969724e45729e0944f7fa69632e7d2c83eda0e31a2ff5b"
+        }
+      ]
+    },
+    {
+      "id": "portrait-rafael-cruz-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-rafael-cruz.png",
+          "sha256": "4fca70c7b5c18a331f6d227fbc5ac97feb307499d78fe5cd591fca8be0574110"
+        }
+      ]
+    },
+    {
+      "id": "portrait-sora-tan-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-sora-tan.png",
+          "sha256": "f4e1395a0587a9dc08b654c175ad223eb3374844e74050e8fa909e8c9f21b75b"
+        }
+      ]
+    },
+    {
+      "id": "portrait-sora-tan-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-sora-tan.png",
+          "sha256": "81af188a0e1ac12baae978787c0e26c9b1a686bd4fefcf71287e21303804c633"
+        }
+      ]
+    },
+    {
+      "id": "portrait-sora-tan-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-sora-tan.png",
+          "sha256": "a5c9ca33e79fe8934701c4dbd06a5dc9698921d7ccdc82e6de2ddab42b812698"
+        }
+      ]
+    },
+    {
+      "id": "portrait-tomas-reed-100",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/100-tomas-reed.png",
+          "sha256": "2a5e872160aa10083056f5a1138e2343ac4a245f704fefaa5178316d65597715"
+        }
+      ]
+    },
+    {
+      "id": "portrait-tomas-reed-125",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/125-tomas-reed.png",
+          "sha256": "acc0152b526553612a4b1b291829489aea0f2079d7176c4461a3849d855184cb"
+        }
+      ]
+    },
+    {
+      "id": "portrait-tomas-reed-150",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/full-cast-portraits/150-tomas-reed.png",
+          "sha256": "7d15d53c0cbec72280bfb0c3a73b0befe88455ddd6dab401b2f75572b091079c"
+        }
+      ]
+    },
+    {
+      "id": "reduced-motion",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "movement/reduced-1x-frame-01.png",
+          "sha256": "282b8e8cbdf674b5c8185b69f529abd8e78f3e0b0da61932a4574530f6f74133"
+        },
+        {
+          "path": "movement/natural-movement-report.json",
+          "sha256": "fdf0285c304427f6a96ca39134869467c087d9925df9e482cc1215c82bc3e34f"
+        }
+      ]
+    },
+    {
+      "id": "selection-npc",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1920x1080-1x.png",
+          "sha256": "f25a4d1e198e5c2bea5f8c5dea658a7a2a466297458c3ddbd6e1682ec144eb66"
+        }
+      ]
+    },
+    {
+      "id": "selection-player",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "world/world-1x.png",
+          "sha256": "5d81dc6c9f60f3959d4fa980661e723e41faff702d024e4a0461b8d93492bcb4"
+        }
+      ]
+    },
+    {
+      "id": "tall-prop-fountain-front-behind",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/tall-prop-depth-1x.png",
+          "sha256": "14778707d61a3683fee3b14a71ebb3fce8aafb197fc5b52cb135c530b784b6e8"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "tall-prop-lamp-front-behind",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/tall-prop-depth-1x.png",
+          "sha256": "14778707d61a3683fee3b14a71ebb3fce8aafb197fc5b52cb135c530b784b6e8"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "tall-prop-palm-front-behind",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/tall-prop-depth-1x.png",
+          "sha256": "14778707d61a3683fee3b14a71ebb3fce8aafb197fc5b52cb135c530b784b6e8"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "tall-prop-planter-front-behind",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/tall-prop-depth-1x.png",
+          "sha256": "14778707d61a3683fee3b14a71ebb3fce8aafb197fc5b52cb135c530b784b6e8"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "tall-prop-sofa-front-behind",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/tall-prop-depth-1x.png",
+          "sha256": "14778707d61a3683fee3b14a71ebb3fce8aafb197fc5b52cb135c530b784b6e8"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "tall-prop-table-front-behind",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "review/tall-prop-depth-1x.png",
+          "sha256": "14778707d61a3683fee3b14a71ebb3fce8aafb197fc5b52cb135c530b784b6e8"
+        },
+        {
+          "path": "review/prototype-review-report.json",
+          "sha256": "692d5b3028ea9f65bedcbe3bbc94dadfd94ec12cc59bb072a5d321f85a67c22c"
+        }
+      ]
+    },
+    {
+      "id": "window-1280x720",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1280x720-1x.png",
+          "sha256": "de0e564f7e6cb5a6be1183296d10a8343075fbc53e2165aa711c2d061cfa1345"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    },
+    {
+      "id": "window-1440x900",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1440x900-1x.png",
+          "sha256": "5f33277b1667d4b242aa8e133ad29942db441faded4bc5ccb23189014cddea6a"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    },
+    {
+      "id": "window-1600x720",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1600x720-1x.png",
+          "sha256": "71cbd1835a2428441f851f118e1e81fe10ed7110d3d3e2f54d2de88c60a8a16c"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    },
+    {
+      "id": "window-1920x1080",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/1920x1080-1x.png",
+          "sha256": "f25a4d1e198e5c2bea5f8c5dea658a7a2a466297458c3ddbd6e1682ec144eb66"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    },
+    {
+      "id": "window-2560x1440",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "enhanced/2560x1440-1x.png",
+          "sha256": "aea92b8a8f6aa8c4a4864c5cef4301c4a2cef3a9c027dfcaf3b2cdc799a98869"
+        },
+        {
+          "path": "enhanced/responsive-report.json",
+          "sha256": "69b058138b9b3dea7db50b89b996ce1f1f45a63c75f954027c7a6d202ed6da62"
+        }
+      ]
+    }
+  ],
+  "passed": true
+}

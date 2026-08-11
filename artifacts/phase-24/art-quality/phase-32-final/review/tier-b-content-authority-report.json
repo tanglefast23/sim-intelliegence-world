@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "maps": [
+    {
+      "mapId": "northeast_downtown",
+      "mapSourceSha256": "93d7ef5f585c88343b1a182a25e6aa29724f9fccca8a5b132f0c0e09edf0d9c2",
+      "layoutRevision": 1,
+      "placementHash": "a464601d3bf1c314ef9a0d1f2b16f1a3b2533495aa3db0aa04a89a4dc9723e78",
+      "solidOwnerHash": "06bb431911ceb70cbc28325ead6540de76c30ce44b098477a56a210dd0f931f6",
+      "routeHash": "8450b53b6b42a75143b2d02a1e0e40a2d57725f9d0e87954d9d8b493a452c866",
+      "densityHash": "e90161bac43eea774b0af81b83aaa5df5e45303fa7868c0e9278980ea8be1de3",
+      "interactionHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "authoritativeHash": "179d902a310dfdfce89f3d325b9c36771410cd83c245f80393df44f6c64c14fe"
+    },
+    {
+      "mapId": "southwest_commercial",
+      "mapSourceSha256": "fad27f9314305febf51b7ba549352b41e52e2a6b2c95576bc60f8b1f37bf194c",
+      "layoutRevision": 1,
+      "placementHash": "059622369cc7e286d659221601c2001087267afbfdd76a9f05ba6e32c108f9c5",
+      "solidOwnerHash": "8757e83559530959203916ddd3ea616b648b5278a1bd0c6f692b0c3446027dd4",
+      "routeHash": "fe6115784e5fb4154a68e5e7942f3eec2082047dd90becc14bc842aada776d5e",
+      "densityHash": "9f2cea791926721b403635d964fb3e04a88ab4b967d9d7a205e71fbd1fa248ef",
+      "interactionHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "authoritativeHash": "5f16c22f3551d0b996495425e36ee7eb8e292b80dac147ae2e7d22544c8e34eb"
+    },
+    {
+      "mapId": "southeast_docks",
+      "mapSourceSha256": "2ec2a4988ba014f9f9d9333ba14cf448c9f3c5d3a7fe62671e549db9e1f20c60",
+      "layoutRevision": 1,
+      "placementHash": "e1b09437f88f116e9eb1f071ba5c55432441faf563712f449cc450d91ba0f15a",
+      "solidOwnerHash": "ff265ab4a893aa3263f1c63c6f4833738253e4260d76147e8137401c39ba4e29",
+      "routeHash": "ee81f86d67414112ed4e22e4e5c4c876418206956aacc016ae1fe7124e828c8d",
+      "densityHash": "bd85794fff3308765e075e55f96f020e5fd72f5e94c173af45fe8bb5e35e20f2",
+      "interactionHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "authoritativeHash": "a6dc3f7e7a97e4c5d5d6ed742c0a634624c1aed371a21bd83cbd1338947e04fb"
+    }
+  ],
+  "baselineMatch": true,
+  "changedAuthorityFields": [],
+  "presentationOnlyChange": true
+}

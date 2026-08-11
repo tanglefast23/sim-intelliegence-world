@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -10,7 +11,7 @@ import { PresentationPreferencesSchema } from '../../src/application/presentatio
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
-import { findPackagedExecutable, validateScreenshotBuffers } from './package-smoke-utils';
+import { findPackageArchive, findPackagedExecutable, validateScreenshotBuffers } from './package-smoke-utils';
 
 const EvidenceSchema = z.object({
   artMode: z.literal('enhanced'),
@@ -31,6 +32,17 @@ const evidenceRoot = resolveEvidenceOutputRoot(process.argv.slice(2), {
   defaultRelative: 'output/verification/presentation-restart',
 });
 const executable = findPackagedExecutable(outputRoot);
+const payload = findPackageArchive(outputRoot);
+const executableStat = statSync(executable);
+const payloadStat = statSync(payload);
+const packageProvenance = Object.freeze({
+  executable,
+  sizeBytes: executableStat.size,
+  modifiedMilliseconds: Math.round(executableStat.mtimeMs),
+  payload,
+  payloadSizeBytes: payloadStat.size,
+  payloadSha256: createHash('sha256').update(readFileSync(payload)).digest('hex'),
+});
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-presentation-smoke-'));
 const seedScreenshot = join(evidenceRoot, 'seed.png');
 const restartScreenshot = join(evidenceRoot, 'restart.png');
@@ -121,6 +133,7 @@ async function main(): Promise<void> {
       schemaVersion: 1,
       evidenceSource,
       testedCommit: resolveTestedCommit(),
+      packageProvenance,
       seed,
       restart,
       persistedAfterSeed,

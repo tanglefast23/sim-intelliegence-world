@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -10,7 +11,7 @@ import { parseSaveEnvelope, parseSupportedSaveEnvelope } from '../../electron/pe
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
-import { findPackagedExecutable, validateScreenshotBuffers } from './package-smoke-utils';
+import { findPackageArchive, findPackagedExecutable, validateScreenshotBuffers } from './package-smoke-utils';
 
 const LoadResultSchema = z.object({
   status: z.literal('unchanged'),
@@ -42,6 +43,17 @@ const evidenceRoot = resolveEvidenceOutputRoot(process.argv.slice(2), {
   defaultRelative: 'output/verification/save-migration',
 });
 const executable = findPackagedExecutable(outputRoot);
+const payload = findPackageArchive(outputRoot);
+const executableStat = statSync(executable);
+const payloadStat = statSync(payload);
+const packageProvenance = Object.freeze({
+  executable,
+  sizeBytes: executableStat.size,
+  modifiedMilliseconds: Math.round(executableStat.mtimeMs),
+  payload,
+  payloadSizeBytes: payloadStat.size,
+  payloadSha256: createHash('sha256').update(readFileSync(payload)).digest('hex'),
+});
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-save-migration-smoke-'));
 const slotPath = join(smokeUserData, 'si-world', 'save-slots', 'slot-001');
 const statePath = join(slotPath, 'state.json');
@@ -143,6 +155,7 @@ async function main(): Promise<void> {
       schemaVersion: 1,
       evidenceSource,
       testedCommit: resolveTestedCommit(),
+      packageProvenance,
       migration,
       reload,
       disk: {

@@ -106,9 +106,10 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: npm run sign:test:mac
 
-      - name: Smoke Intel macOS shell without model qualification claims
+      - name: Verify Intel macOS packaged art-quality world subset without model qualification claims
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
+          SI_WORLD_TIER_B_ART_SMOKE: '1'
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-x64/package
 
       - name: Verify Intel macOS natural movement
@@ -160,9 +161,10 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: ./scripts/qualification/sign-windows-test.ps1
 
-      - name: Smoke Windows x64 shell without model qualification claims
+      - name: Verify Windows x64 packaged art-quality world subset without model qualification claims
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
+          SI_WORLD_TIER_B_ART_SMOKE: '1'
         run: node --import tsx scripts/electron/run-package-smoke.ts --output-root output/verification/ci/windows-x64/package
 
       - name: Verify Windows natural movement

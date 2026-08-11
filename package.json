@@ -35,6 +35,7 @@
     "art:atlas": "tsx scripts/art/build-world-atlas.ts",
     "art:baseline": "tsx scripts/art/write-pixel-baseline.ts",
     "art:review": "tsx scripts/art/build-art-quality-review.ts",
+    "art:qualify:final": "tsx scripts/qualification/write-art-quality-final-manifest.ts",
     "art:check": "npm run art:atlas && tsx scripts/art/check-generated-art.ts",
     "audio:build": "tsx scripts/audio/build-vocal-cues.ts",
     "audio:check": "npm run audio:build && git diff --exit-code -- assets/generated/audio",
