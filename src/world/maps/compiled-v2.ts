@@ -1,4 +1,5 @@
 import { tileKey, type DensityProfile, type TilePoint, type WorldMapV2 } from './schema';
+import type { ArtPresentationIndex } from '../presentation/art-presentation';
 
 export type StaticSolidOwner = Readonly<{
   kind: 'terrain' | 'wall' | 'door' | 'object';
@@ -80,6 +81,7 @@ export type DensityMetrics = Readonly<{
 export type CompiledMapV2 = Readonly<{
   source: WorldMapV2;
   groundSprites: readonly string[];
+  presentation: ArtPresentationIndex;
   staticSolidOwnerByTile: ReadonlyMap<string, StaticSolidOwner>;
   blockedKeys: ReadonlySet<string>;
   wallTiles: readonly CompiledWallCellV2[];

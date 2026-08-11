@@ -298,9 +298,11 @@ describe('secure Electron boundary', () => {
     expect(forgeConfig).toContain("process.platform === 'linux' ? 'si-world' : 'SI World'");
     expect(mainProcess).toContain("smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1'");
     expect(mainProcess).toContain('app.disableHardwareAcceleration()');
-    expect(mainProcess).toContain("additionalArguments: smokeMode ? ['--si-world-smoke-mode=1'] : []");
+    expect(mainProcess).toContain("'--si-world-smoke-mode=1'");
+    expect(mainProcess).toContain('`--si-world-art-mode=${responsiveArtMode}`');
     const preload = readFileSync(resolve('electron/preload/index.ts'), 'utf8');
     expect(preload).toContain("process.argv.includes('--si-world-smoke-mode=1')");
+    expect(preload).toContain("contextBridge.exposeInMainWorld('siWorldArtMode', smokeArtMode)");
   });
 
   test('CI packages platform shells without overwriting historical evidence', () => {

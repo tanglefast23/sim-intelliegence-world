@@ -1,5 +1,5 @@
-import { spawn } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -51,6 +51,8 @@ const EvidenceSchema = z.object({
   uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
   camera: z.object({ x: z.number().int(), y: z.number().int(), zoom: z.union([z.literal(1), z.literal(2), z.literal(3)]) }).strict(),
   mapId: z.literal('northwest_residential'),
+  artMode: z.enum(['legacy', 'enhanced']),
+  presentationHash: z.string().regex(/^[0-9a-f]{8}$/u),
   minimumFontSize: z.number().min(11),
   minimumPointerTarget: z.number().min(36),
   activePanel: z.object({ id: z.string().min(1), rect: RectSchema }).strict().nullable(),
@@ -77,6 +79,7 @@ const MaximumLoadSchema = z.object({
   evidence: EvidenceSchema,
   rendererFps: z.number().positive(),
   displayRafFps: z.number().positive(),
+  medianFrameTimeMilliseconds: z.number().positive(),
   sampledFrames: z.number().int().positive(),
   cameraChangeFrames: z.number().int().positive(),
   roundedFps: z.number().int().positive(),
@@ -103,13 +106,28 @@ const ResponsiveSmokeSchema = z.object({
 }).strict();
 
 const commandArguments = process.argv.slice(2);
-const highDpi = commandArguments.includes('--high-dpi');
+const compareArtModes = commandArguments.includes('--compare-art-modes');
+const includeMaximumLoad = commandArguments.includes('--include-maximum-load');
+const artModeArguments = commandArguments.filter((argument) => argument.startsWith('--art-mode='));
+if (artModeArguments.length > 1) throw new Error('Only one art mode can be supplied.');
+const artMode = artModeArguments[0]?.slice('--art-mode='.length);
+if (artMode !== undefined && artMode !== 'legacy' && artMode !== 'enhanced') {
+  throw new Error('Art mode must be legacy or enhanced.');
+}
+if (compareArtModes && artMode) throw new Error('Art-mode comparison selects both modes itself.');
+if (compareArtModes && !includeMaximumLoad) {
+  throw new Error('--compare-art-modes requires --include-maximum-load.');
+}
+const highDpi = commandArguments.includes('--high-dpi') || includeMaximumLoad;
 const qualification = commandArguments.includes('--qualification');
 const performanceFixture = PerformanceFixtureSchema.parse(
   JSON.parse(readFileSync(resolve('tests/fixtures/performance/phase-22.json'), 'utf8')) as unknown,
 );
 const evidenceSource = resolveEvidenceSource([
   '.github/workflows/ci.yml',
+  'assets/source/art/decal-recipes.json',
+  'assets/source/art/material-recipes.json',
+  'assets/source/art/roof-recipes.json',
   'electron/main/index.ts',
   'electron/preload/index.ts',
   'forge.config.ts',
@@ -119,6 +137,9 @@ const evidenceSource = resolveEvidenceSource([
   'src/render/responsive-evidence.ts',
   'src/render/smoke-geometry.ts',
   'src/ui/WorldInput.tsx',
+  'src/world/presentation/art-presentation.ts',
+  'src/world/presentation/material-selection.ts',
+  'src/world/presentation/material-transitions.ts',
   'tests/fixtures/performance/phase-22.json',
 ]);
 
@@ -143,12 +164,104 @@ const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
   : join(process.cwd(), 'out');
 const evidenceRoot = resolveEvidenceOutputRoot(commandArguments, {
-  allowedFlags: ['--high-dpi', '--qualification'],
-  defaultRelative: `output/verification/${qualification ? 'responsive-qualification' : highDpi ? 'responsive-high-dpi' : 'responsive'}`,
+  allowedFlags: [
+    '--high-dpi',
+    '--qualification',
+    '--compare-art-modes',
+    '--include-maximum-load',
+    '--art-mode=legacy',
+    '--art-mode=enhanced',
+  ],
+  defaultRelative: `output/verification/${compareArtModes ? 'responsive-art-modes' : qualification ? 'responsive-qualification' : highDpi ? 'responsive-high-dpi' : 'responsive'}`,
 });
 mkdirSync(evidenceRoot, { recursive: true });
-const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-responsive-smoke-'));
 const executable = findPackagedExecutable(outputRoot);
+const executableStats = statSync(executable);
+const packageProvenance = Object.freeze({
+  executable,
+  sizeBytes: executableStats.size,
+  modifiedMilliseconds: Math.round(executableStats.mtimeMs),
+});
+
+if (compareArtModes) {
+  const reports: Record<'legacy' | 'enhanced', Record<string, unknown>> = {} as Record<'legacy' | 'enhanced', Record<string, unknown>>;
+  for (const mode of ['legacy', 'enhanced'] as const) {
+    const modeRoot = join(evidenceRoot, mode);
+    const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const result = spawnSync(command, [
+      'tsx',
+      'scripts/electron/run-responsive-package-smoke.ts',
+      '--high-dpi',
+      ...(qualification ? ['--qualification'] : []),
+      `--art-mode=${mode}`,
+      '--output-root',
+      modeRoot,
+    ], {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      env: process.env,
+      maxBuffer: 10_000_000,
+      shell: false,
+      timeout: 360_000,
+    });
+    if (result.status !== 0) {
+      throw new Error(`Responsive ${mode} art-mode pass failed: ${result.stderr.slice(-5_000)} ${result.stdout.slice(-5_000)}`);
+    }
+    reports[mode] = JSON.parse(readFileSync(join(modeRoot, 'responsive-report.json'), 'utf8')) as Record<string, unknown>;
+  }
+  const inputRecord = (report: Record<string, unknown>) => {
+    const targets = report.targets as readonly Record<string, unknown>[];
+    const maximumLoad = report.maximumLoad as { evidence?: Record<string, unknown> };
+    return {
+      geometry: report.geometry,
+      requestedTargets: targets.map(({ requested }) => requested),
+      highDpi: report.highDpi,
+      devicePixelRatio: maximumLoad.evidence?.devicePixelRatio,
+      selectedWorldZoom: maximumLoad.evidence?.selectedWorldZoom,
+      testedCommit: report.testedCommit,
+      packageProvenance: report.packageProvenance,
+    };
+  };
+  if (JSON.stringify(inputRecord(reports.legacy)) !== JSON.stringify(inputRecord(reports.enhanced))) {
+    throw new Error('Legacy and enhanced art-mode inputs or package provenance do not match.');
+  }
+  const modeRecord = (mode: 'legacy' | 'enhanced') => {
+    const maximumLoad = reports[mode].maximumLoad as Record<string, unknown> | null;
+    if (!maximumLoad) throw new Error(`${mode} art mode did not emit maximum-load evidence.`);
+    const evidence = maximumLoad.evidence as Record<string, unknown>;
+    if (evidence.artMode !== mode) throw new Error(`${mode} art mode reported ${String(evidence.artMode)}.`);
+    return {
+      rendererFps: maximumLoad.rendererFps,
+      displayRafFps: maximumLoad.displayRafFps,
+      medianFrameTimeMilliseconds: maximumLoad.medianFrameTimeMilliseconds,
+      roundedFps: maximumLoad.roundedFps,
+      drawCounts: evidence.drawCounts,
+      presentationHash: evidence.presentationHash,
+      report: `${mode}/responsive-report.json`,
+      screenshot: `${mode}/${String(maximumLoad.screenshot)}`,
+    };
+  };
+  const legacy = modeRecord('legacy');
+  const enhanced = modeRecord('enhanced');
+  if (JSON.stringify(legacy.drawCounts) !== JSON.stringify(enhanced.drawCounts)) {
+    throw new Error('Legacy and enhanced art modes did not preserve draw-count identity.');
+  }
+  const comparisonPath = join(evidenceRoot, 'art-mode-comparison-report.json');
+  writeFileSync(comparisonPath, `${JSON.stringify({
+    schemaVersion: 1,
+    compareArtModes: true,
+    includeMaximumLoad: true,
+    qualification,
+    testedCommit: reports.legacy.testedCommit,
+    packageProvenance,
+    matchedInputs: inputRecord(reports.legacy),
+    modes: { legacy, enhanced },
+  }, null, 2)}\n`, { encoding: 'utf8', flush: true });
+  process.stdout.write(`Responsive art-mode comparison: ${comparisonPath}\n`);
+  process.exit(0);
+}
+
+const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-responsive-smoke-'));
 const child = spawn(executable, highDpi ? ['--force-device-scale-factor=2'] : [], {
   detached: false,
   env: {
@@ -157,6 +270,7 @@ const child = spawn(executable, highDpi ? ['--force-device-scale-factor=2'] : []
     SI_WORLD_RESPONSIVE_SCREENSHOT_DIR: evidenceRoot,
     SI_WORLD_RESPONSIVE_SMOKE: '1',
     SI_WORLD_SMOKE: '1',
+    ...(artMode ? { SI_WORLD_ART_MODE: artMode } : {}),
     ...(qualification ? { SI_WORLD_SMOKE_PROFILE: 'qualification' } : {}),
     SI_WORLD_SMOKE_USER_DATA: smokeUserData,
   },
@@ -270,6 +384,7 @@ child.once('close', (code) => {
     writeFileSync(evidencePath, `${JSON.stringify({
       ...report,
       evidenceSource,
+      packageProvenance,
       testedCommit: resolveTestedCommit(),
     }, null, 2)}\n`, { encoding: 'utf8', flush: true });
     process.stdout.write(`Responsive packaged smoke: ${evidencePath}\n`);

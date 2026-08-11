@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 1,
+  "materials": [
+    {
+      "publicBaseSprite": "tile.boardwalk",
+      "id": "boardwalk",
+      "logicalVariants": [
+        "boardwalk-a",
+        "boardwalk-b"
+      ],
+      "paletteRamp": [
+        "#5b3427",
+        "#85523a",
+        "#b57950"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "built",
+      "decalFamily": null,
+      "transitionPriority": 60,
+      "selectionSalt": "boardwalk-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dark-asphalt",
+      "id": "dark-asphalt",
+      "logicalVariants": [
+        "dark-asphalt-a",
+        "dark-asphalt-b"
+      ],
+      "paletteRamp": [
+        "#242424",
+        "#343434",
+        "#4a4540"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "dark-asphalt-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dune-grass",
+      "id": "dune-grass",
+      "logicalVariants": [
+        "dune-grass-a",
+        "dune-grass-b",
+        "dune-grass-c",
+        "dune-grass-d"
+      ],
+      "paletteRamp": [
+        "#556b2f",
+        "#78944a",
+        "#a6b85f"
+      ],
+      "densityBand": "natural-high",
+      "seamMode": "hashed",
+      "edgeMode": "soft",
+      "decalFamily": null,
+      "transitionPriority": 20,
+      "selectionSalt": "dune-grass-v1"
+    },
+    {
+      "publicBaseSprite": "tile.garden-soil",
+      "id": "garden-soil",
+      "logicalVariants": [
+        "garden-soil-a",
+        "garden-soil-b",
+        "garden-soil-c",
+        "garden-soil-d"
+      ],
+      "paletteRamp": [
+        "#543728",
+        "#76503a",
+        "#9b704e"
+      ],
+      "densityBand": "natural-medium",
+      "seamMode": "hashed",
+      "edgeMode": "soft",
+      "decalFamily": null,
+      "transitionPriority": 30,
+      "selectionSalt": "garden-soil-v1"
+    },
+    {
+      "publicBaseSprite": "tile.pale-concrete",
+      "id": "pale-concrete",
+      "logicalVariants": [
+        "pale-concrete-a",
+        "pale-concrete-b"
+      ],
+      "paletteRamp": [
+        "#8f8a7e",
+        "#b5ad9d",
+        "#d2c8b4"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "built",
+      "decalFamily": null,
+      "transitionPriority": 70,
+      "selectionSalt": "pale-concrete-v1"
+    },
+    {
+      "publicBaseSprite": "tile.plaza-paver",
+      "id": "plaza-paver",
+      "logicalVariants": [
+        "plaza-paver-a",
+        "plaza-paver-b"
+      ],
+      "paletteRamp": [
+        "#725b4c",
+        "#957664",
+        "#b8957c"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "built",
+      "decalFamily": null,
+      "transitionPriority": 80,
+      "selectionSalt": "plaza-paver-v1"
+    },
+    {
+      "publicBaseSprite": "tile.shallow-water",
+      "id": "shallow-water",
+      "logicalVariants": [
+        "shallow-water-a",
+        "shallow-water-b",
+        "shallow-water-c",
+        "shallow-water-d"
+      ],
+      "paletteRamp": [
+        "#315d64",
+        "#4e8286",
+        "#73a8a5"
+      ],
+      "densityBand": "natural-medium",
+      "seamMode": "hashed",
+      "edgeMode": "soft",
+      "decalFamily": null,
+      "transitionPriority": 10,
+      "selectionSalt": "shallow-water-v1"
+    },
+    {
+      "publicBaseSprite": "tile.spa-stone",
+      "id": "spa-stone",
+      "logicalVariants": [
+        "spa-stone-a",
+        "spa-stone-b"
+      ],
+      "paletteRamp": [
+        "#77756c",
+        "#9a978b",
+        "#bbb7a8"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "built",
+      "decalFamily": null,
+      "transitionPriority": 65,
+      "selectionSalt": "spa-stone-v1"
+    },
+    {
+      "publicBaseSprite": "tile.villa-floor",
+      "id": "villa-floor",
+      "logicalVariants": [
+        "villa-floor-a",
+        "villa-floor-b"
+      ],
+      "paletteRamp": [
+        "#714833",
+        "#9d6947",
+        "#c79264"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "built",
+      "decalFamily": null,
+      "transitionPriority": 75,
+      "selectionSalt": "villa-floor-v1"
+    },
+    {
+      "publicBaseSprite": "tile.warm-sand",
+      "id": "warm-sand",
+      "logicalVariants": [
+        "warm-sand-a",
+        "warm-sand-b",
+        "warm-sand-c",
+        "warm-sand-d"
+      ],
+      "paletteRamp": [
+        "#9f7141",
+        "#c69356",
+        "#e2b66c"
+      ],
+      "densityBand": "natural-low",
+      "seamMode": "hashed",
+      "edgeMode": "soft",
+      "decalFamily": null,
+      "transitionPriority": 40,
+      "selectionSalt": "warm-sand-v1"
+    }
+  ],
+  "defaultRoof": {
+    "publicSprite": "tile.boardwalk",
+    "id": "legacy-boardwalk-roof",
+    "tint": "#4b211f55",
+    "selectionSalt": "roof-v1",
+    "visualBounds": {
+      "left": 0,
+      "top": 0,
+      "right": 32,
+      "bottom": 32
+    }
+  },
+  "decalFamilies": []
+}

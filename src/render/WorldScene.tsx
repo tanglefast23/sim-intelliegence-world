@@ -46,7 +46,9 @@ import { uiMetrics } from '../ui/ui-metrics';
 import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
 import { selectOwnerInteractionApproach } from '../world/maps/compiler';
 import { resolveClickTarget, worldClickCandidates } from '../world/maps/hit-testing';
-import { pointsInRect, tileKey, type TilePoint } from '../world/maps/schema';
+import { presentationGroundAt } from '../world/presentation/art-presentation';
+import { visualBoundsIntersectTileWindow } from '../world/presentation/visual-bounds';
+import { tileKey, type TilePoint } from '../world/maps/schema';
 import type { MapId } from '../world/maps/catalog';
 import {
   cancelMovement,
@@ -277,6 +279,9 @@ export function WorldScene({
   surfaceRef.current = surface;
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
+  const artMode = typeof window !== 'undefined' && window.siWorldSmokeMode === true && window.siWorldArtMode === 'legacy'
+    ? 'legacy' as const
+    : 'enhanced' as const;
   const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio;
   const npcTiles = useMemo(() => actorTiles(
     runtime.worldState,
@@ -671,22 +676,61 @@ export function WorldScene({
     for (let y = 0; y < map.source.height; y += 1) {
       for (let x = 0; x < map.source.width; x += 1) {
         const tile = { x, y };
-        if (isVisible(tile, visibility)) {
-          placements.push({ id: `floor-${x}-${y}`, sprite: groundSpriteAtV2(map, tile), worldX: x * TILE_SIZE, worldY: y * TILE_SIZE });
+        const cell = presentationGroundAt(map.presentation, tile, map.source.width);
+        if (visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility)) {
+          placements.push({
+            id: `floor-${x}-${y}`,
+            sprite: artMode === 'legacy' ? groundSpriteAtV2(map, tile) : cell.sprite,
+            worldX: x * TILE_SIZE,
+            worldY: y * TILE_SIZE,
+          });
         }
       }
     }
     return placements;
-  }, [map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
+  }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
+  const visibleGroundDetails = useMemo(() => {
+    if (artMode === 'legacy') return [];
+    const details = [
+      ...map.presentation.transitions.flatMap((transition) => transition.sprite ? [{
+        id: transition.id,
+        sprite: transition.sprite,
+        tile: transition.tile,
+      }] : []),
+      ...map.presentation.decals.map((decal) => ({
+        id: decal.id,
+        sprite: decal.sprite,
+        tile: decal.tile,
+      })),
+    ];
+    return details.filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
+      tile,
+      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
+      visibility,
+    )).map((detail) => ({
+      id: detail.id,
+      sprite: detail.sprite,
+      worldX: detail.tile.x * TILE_SIZE,
+      worldY: detail.tile.y * TILE_SIZE,
+    }));
+  }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
   const visibleProps = useMemo(() => [
-    ...[...map.objectPartById.values()].filter(({ tile }) => isVisible(tile, visibility)).map((part) => ({
+    ...[...map.objectPartById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
+      tile,
+      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
+      visibility,
+    )).map((part) => ({
       id: part.id,
       sprite: part.sprite,
       tile: part.depthAnchor,
       worldX: part.tile.x * TILE_SIZE,
       worldY: part.tile.y * TILE_SIZE,
     })),
-    ...[...map.doorById.values()].filter(({ tile }) => isVisible(tile, visibility)).map((door) => ({
+    ...[...map.doorById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
+      tile,
+      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
+      visibility,
+    )).map((door) => ({
       id: door.id,
       sprite: door.sprite,
       tile: door.tile,
@@ -727,18 +771,19 @@ export function WorldScene({
     worldFrame.characters,
   ]);
   const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
+  const groundDetailAtlas = useMemo(() => atlasData(visibleGroundDetails, camera.zoom), [camera.zoom, visibleGroundDetails]);
   const propAtlas = useMemo(() => atlasData(visibleProps, camera.zoom), [camera.zoom, visibleProps]);
   const characterAtlas = useMemo(() => atlasData(characters, camera.zoom), [camera.zoom, characters]);
   const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
-  const visibleRoofTiles = useMemo(() => map.source.roofGroups
-    .filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id))
-    .flatMap((roof) => roof.cells.flatMap(pointsInRect).map((tile) => ({
-      id: `${roof.id}-${tileKey(tile)}`,
-      sprite: 'tile.boardwalk',
-      worldX: tile.x * TILE_SIZE,
-      worldY: tile.y * TILE_SIZE,
-    })))
-    .filter(({ worldX, worldY }) => isVisible({ x: worldX / TILE_SIZE, y: worldY / TILE_SIZE }, visibility)), [
+  const visibleRoofTiles = useMemo(() => map.presentation.roofs
+    .filter(({ roofGroupId }) => worldFrame.visibleRoofGroupIds.includes(roofGroupId))
+    .filter(({ tile, visualBounds }) => visualBoundsIntersectTileWindow(tile, visualBounds, visibility))
+    .map((roof) => ({
+      id: roof.id,
+      sprite: roof.sprite,
+      worldX: roof.tile.x * TILE_SIZE,
+      worldY: roof.tile.y * TILE_SIZE,
+    })), [
     map,
     visibility.maximumX,
     visibility.maximumY,
@@ -760,7 +805,7 @@ export function WorldScene({
   ], [camera.x, camera.y, camera.zoom]);
   const drawCounts = useMemo(() => {
     const counts = {
-      floor: visibleFloors.length,
+      floor: visibleFloors.length + visibleGroundDetails.length,
       prop: visibleProps.length,
       shadow: characters.length,
       character: characters.length,
@@ -769,7 +814,7 @@ export function WorldScene({
       roof: visibleRoofTiles.length,
     } as const;
     return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
-  }, [characters.length, visibleEffects.length, visibleFloors.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
+  }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
   const smokeGeometry = useMemo(
     () => map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map],
@@ -795,6 +840,8 @@ export function WorldScene({
         const evidence = measureResponsiveEvidence(document, {
           camera,
           mapId,
+          artMode,
+          presentationHash: map.presentation.hash,
           roofGroupId: worldFrame.hiddenRoofGroupId,
           uiScale,
           drawCounts,
@@ -806,7 +853,7 @@ export function WorldScene({
       clearTimeout(timer);
       if (frameId) cancelAnimationFrame(frameId);
     };
-  }, [camera, conversationNpcId, drawCounts, image, mapId, openPanel, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, surface, uiScale, worldFrame.hiddenRoofGroupId]);
 
   if (!image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
@@ -815,7 +862,14 @@ export function WorldScene({
   const renderLayer = (layer: WorldLayer) => {
     switch (layer) {
       case 'floor':
-        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} /></Group>;
+        return (
+          <Group key={layer} transform={atlasCameraTransform}>
+            <Atlas image={image} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} />
+            {visibleGroundDetails.length > 0 ? (
+              <Atlas image={image} sampling={NEAREST} sprites={groundDetailAtlas.sprites} transforms={groundDetailAtlas.transforms} />
+            ) : null}
+          </Group>
+        );
       case 'prop':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={propAtlas.sprites} transforms={propAtlas.transforms} /></Group>;
       case 'shadow':
@@ -839,7 +893,9 @@ export function WorldScene({
             {map.source.roofGroups.filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id)).flatMap((roof) => (
               roof.cells.map((cell, index) => {
                 const screen = worldToScreen(camera, { x: cell.x * 32, y: cell.y * 32 });
-                return <Rect color="#4b211f55" height={cell.height * 32 * camera.zoom} key={`${roof.id}-${index}`} width={cell.width * 32 * camera.zoom} x={screen.x} y={screen.y} />;
+                const tint = map.presentation.roofs.find(({ roofGroupId }) => roofGroupId === roof.id)?.tint;
+                if (!tint) throw new Error(`Roof ${roof.id} has no authored presentation tint.`);
+                return <Rect color={tint} height={cell.height * 32 * camera.zoom} key={`${roof.id}-${index}`} width={cell.width * 32 * camera.zoom} x={screen.x} y={screen.y} />;
               })
             ))}
           </>
@@ -894,6 +950,12 @@ export function WorldScene({
             );
           })}
         </View>
+        <View
+          accessibilityLabel={`Art mode ${artMode}; presentation ${map.presentation.hash}`}
+          nativeID="world-art-presentation"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
         <View
           accessibilityLabel={worldFrame.hiddenRoofGroupId ? 'Villa roof hidden' : 'Villa roof restored'}
           nativeID="world-roof-state"

@@ -69,3 +69,7 @@ contextBridge.exposeInMainWorld(
   'siWorldSmokeMode',
   process.argv.includes('--si-world-smoke-mode=1'),
 );
+const smokeArtMode = process.argv.find((argument) => argument.startsWith('--si-world-art-mode='))?.split('=')[1];
+if (process.argv.includes('--si-world-smoke-mode=1') && (smokeArtMode === 'legacy' || smokeArtMode === 'enhanced')) {
+  contextBridge.exposeInMainWorld('siWorldArtMode', smokeArtMode);
+}

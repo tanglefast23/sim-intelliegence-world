@@ -10,8 +10,12 @@ import { decodePng } from './png';
 const REQUIRED_GENERATED_ARTIFACTS = [
   'assets/generated/atlas-index.json',
   'assets/generated/atlas-report.json',
+  'src/world/presentation/generated-recipes.json',
   'assets/generated/world-atlas.png',
   'assets/source/art/manifest.json',
+  'assets/source/art/material-recipes.json',
+  'assets/source/art/roof-recipes.json',
+  'assets/source/art/decal-recipes.json',
   'assets/source/art/revision-1-pixel-hashes.json',
 ] as const;
 
@@ -78,12 +82,16 @@ function main(root = process.cwd()): void {
   const generatedPng = readFileSync(resolve(root, 'assets/generated/world-atlas.png'));
   const generatedIndex = readFileSync(resolve(root, 'assets/generated/atlas-index.json'), 'utf8');
   const generatedReport = readFileSync(resolve(root, 'assets/generated/atlas-report.json'), 'utf8');
+  const generatedPresentationRecipes = readFileSync(resolve(root, 'src/world/presentation/generated-recipes.json'), 'utf8');
   if (!generatedPng.equals(built.png)) throw new Error('Generated atlas PNG does not match the deterministic builder.');
   if (generatedIndex !== `${JSON.stringify(built.index, null, 2)}\n`) {
     throw new Error('Generated atlas index does not match the deterministic builder.');
   }
   if (generatedReport !== `${JSON.stringify(built.report, null, 2)}\n`) {
     throw new Error('Generated atlas report does not match the deterministic builder.');
+  }
+  if (generatedPresentationRecipes !== `${JSON.stringify(built.presentationRecipes, null, 2)}\n`) {
+    throw new Error('Generated art presentation recipes do not match the deterministic builder.');
   }
   if (pixelBaseline.artRevision !== built.index.artRevision) {
     throw new Error('Revisioned pixel baseline does not match the atlas art revision.');
@@ -103,6 +111,7 @@ function main(root = process.cwd()): void {
     'assets/generated/world-atlas.png',
     'assets/generated/atlas-index.json',
     'assets/generated/atlas-report.json',
+    'src/world/presentation/generated-recipes.json',
   ];
   execFileSync('git', ['ls-files', '--error-unmatch', ...generatedPaths], {
     cwd: root,

@@ -13,6 +13,8 @@ import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { findPackagedExecutable, validateScreenshotBuffers } from './package-smoke-utils';
 
 const EvidenceSchema = z.object({
+  artMode: z.literal('enhanced'),
+  presentationHash: z.string().regex(/^[0-9a-f]{8}$/u),
   selectedWorldZoom: z.literal(3),
   uiScale: z.literal(1.25),
   overflow: z.object({ body: z.literal(false), surface: z.literal(false) }).strict(),
@@ -38,6 +40,8 @@ const evidenceSource = resolveEvidenceSource([
   'package.json',
   'scripts/electron/run-presentation-restart-package-smoke.ts',
   'src/application/presentation/preferences.ts',
+  'src/world/presentation/art-presentation.ts',
+  'src/world/presentation/material-selection.ts',
 ]);
 mkdirSync(evidenceRoot, { recursive: true });
 
@@ -102,6 +106,9 @@ async function main(): Promise<void> {
     if (persistedAfterSeed.worldZoom !== 3 || persistedAfterSeed.uiScale !== 1.25 ||
         persistedAfterRestart.worldZoom !== 3 || persistedAfterRestart.uiScale !== 1.25) {
       throw new Error('Presentation preferences did not persist as 3x and 125 percent across restart.');
+    }
+    if (seed.evidence.presentationHash !== restart.evidence.presentationHash) {
+      throw new Error('Art presentation hash changed across restart.');
     }
     const seedImage = PNG.sync.read(readFileSync(seedScreenshot));
     const restartImage = PNG.sync.read(readFileSync(restartScreenshot));

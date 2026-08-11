@@ -34,6 +34,7 @@ export type WorldFrameState = Readonly<{
   characters: readonly WorldCharacterPlacement[];
   hiddenRoofGroupId?: string;
   visibleRoofGroupIds: readonly string[];
+  presentationHash: string;
   signature: string;
 }>;
 
@@ -162,6 +163,7 @@ export function buildWorldFrameState(
     playerTile,
     characters,
     hiddenRoofGroupId: hiddenRoofGroupId ?? null,
+    presentationHash: map.presentation.hash,
     depthItems,
   });
   return {
@@ -169,6 +171,7 @@ export function buildWorldFrameState(
     characters,
     hiddenRoofGroupId,
     visibleRoofGroupIds,
+    presentationHash: map.presentation.hash,
     signature,
   };
 }

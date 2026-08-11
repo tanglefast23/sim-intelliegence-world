@@ -1,6 +1,7 @@
 import { compileWorldMapV2 } from './compiler';
 import type { CompiledMapV2 } from './compiled-v2';
 import { compileWorldMap, type CompiledMap, type WorldMap } from './schema';
+import type { VisualBounds } from '../presentation/recipes';
 import { assertNeighborhoodRoutes, deriveNeighborhoodRoutes, NEIGHBORHOOD_ROUTES } from '../transfers/routes';
 
 export const MAP_IDS = [
@@ -108,6 +109,7 @@ export function buildWorldMapV2Catalog(
   options: Readonly<{
     locationNeighborhoodById: ReadonlyMap<string, string>;
     knownSprites?: ReadonlySet<string>;
+    visualBoundsBySprite?: Readonly<Record<string, VisualBounds>>;
     validateDensity?: boolean;
   }>,
 ): WorldMapV2Catalog {
@@ -115,6 +117,7 @@ export function buildWorldMapV2Catalog(
   const compile = (candidate: unknown): CompiledMapV2 => compileWorldMapV2(candidate, {
     knownLocationIds,
     knownSprites: options.knownSprites,
+    visualBoundsBySprite: options.visualBoundsBySprite,
     validateDensity: options.validateDensity,
   });
   const catalog = {
