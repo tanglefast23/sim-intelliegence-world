@@ -13358,7 +13358,7 @@
         },
         "mapId": "northwest_residential",
         "artMode": "enhanced",
-        "presentationHash": "ee1361cd",
+        "presentationHash": "d88f9acd",
         "minimumFontSize": 17,
         "minimumPointerTarget": 54,
         "activePanel": null,
@@ -13411,7 +13411,7 @@
         },
         "mapId": "northwest_residential",
         "artMode": "enhanced",
-        "presentationHash": "ee1361cd",
+        "presentationHash": "d88f9acd",
         "minimumFontSize": 17,
         "minimumPointerTarget": 54,
         "activePanel": {
@@ -13488,7 +13488,7 @@
       },
       "mapId": "northwest_residential",
       "artMode": "enhanced",
-      "presentationHash": "ee1361cd",
+      "presentationHash": "d88f9acd",
       "minimumFontSize": 17,
       "minimumPointerTarget": 54,
       "activePanel": null,
@@ -13521,8 +13521,8 @@
     "screenshot": "maximum-load.png"
   },
   "evidenceSource": {
-    "baseCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58",
-    "sourceSha256": "7fbb66de2500dd1fd5d8471a4706b228047d2155651d4896c37118e1873b00ae",
+    "baseCommit": "138044bab2da5a14b632d8be17597128cb045100",
+    "sourceSha256": "16a42b49e9b949a74edde1d149d65956e89306a71ee39a4b8556d4ed5145be8b",
     "sourcePaths": [
       ".github/workflows/ci.yml",
       "assets/source/art/decal-recipes.json",
@@ -13546,7 +13546,10 @@
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786420763654
+    "modifiedMilliseconds": 1786421586350,
+    "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+    "payloadSizeBytes": 16630831,
+    "payloadSha256": "4a877b79dd8efe9b3e51c329dfff554e0c085c9e177dc0d8b38b27372b8ff00e"
   },
-  "testedCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58"
+  "testedCommit": "138044bab2da5a14b632d8be17597128cb045100"
 }

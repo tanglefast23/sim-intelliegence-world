@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "evidenceSource": {
-    "baseCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58",
+    "baseCommit": "138044bab2da5a14b632d8be17597128cb045100",
     "sourceSha256": "02d2c6df83e2e9a02e65e126ee295b809ad5b389c687abded5d366962e4a5b39",
     "sourcePaths": [
       "electron/main/index.ts",
@@ -13,12 +13,12 @@
       "src/world/presentation/material-selection.ts"
     ]
   },
-  "testedCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58",
+  "testedCommit": "138044bab2da5a14b632d8be17597128cb045100",
   "seed": {
     "mode": "seed",
     "evidence": {
       "artMode": "enhanced",
-      "presentationHash": "ee1361cd",
+      "presentationHash": "d88f9acd",
       "selectedWorldZoom": 3,
       "uiScale": 1.25,
       "overflow": {
@@ -74,7 +74,7 @@
     "mode": "restart",
     "evidence": {
       "artMode": "enhanced",
-      "presentationHash": "ee1361cd",
+      "presentationHash": "d88f9acd",
       "selectedWorldZoom": 3,
       "uiScale": 1.25,
       "overflow": {

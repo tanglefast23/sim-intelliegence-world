@@ -3,11 +3,14 @@
   "compareArtModes": true,
   "includeMaximumLoad": true,
   "qualification": true,
-  "testedCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58",
+  "testedCommit": "138044bab2da5a14b632d8be17597128cb045100",
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786420763654
+    "modifiedMilliseconds": 1786421586350,
+    "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+    "payloadSizeBytes": 16630831,
+    "payloadSha256": "4a877b79dd8efe9b3e51c329dfff554e0c085c9e177dc0d8b38b27372b8ff00e"
   },
   "matchedInputs": {
     "geometry": {
@@ -13321,17 +13324,26 @@
     "highDpi": true,
     "devicePixelRatio": 2,
     "selectedWorldZoom": 1,
-    "testedCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58",
+    "testedCommit": "138044bab2da5a14b632d8be17597128cb045100",
     "packageProvenance": {
       "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
       "sizeBytes": 33968,
-      "modifiedMilliseconds": 1786420763654
+      "modifiedMilliseconds": 1786421586350,
+      "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+      "payloadSizeBytes": 16630831,
+      "payloadSha256": "4a877b79dd8efe9b3e51c329dfff554e0c085c9e177dc0d8b38b27372b8ff00e"
     }
+  },
+  "performanceAcceptance": {
+    "enhancedToLegacyMedianRatio": 1,
+    "maximumMedianRatio": 1.1,
+    "minimumRoundedFps": 60,
+    "passed": true
   },
   "modes": {
     "legacy": {
-      "rendererFps": 119.9,
-      "displayRafFps": 119.9,
+      "rendererFps": 119.89,
+      "displayRafFps": 119.89,
       "medianFrameTimeMilliseconds": 8.3,
       "roundedFps": 120,
       "drawCounts": {
@@ -13344,7 +13356,7 @@
         "roof": 324,
         "total": 3571
       },
-      "presentationHash": "ee1361cd",
+      "presentationHash": "d88f9acd",
       "report": "legacy/responsive-report.json",
       "screenshot": "legacy/maximum-load.png"
     },
@@ -13363,7 +13375,7 @@
         "roof": 324,
         "total": 3571
       },
-      "presentationHash": "ee1361cd",
+      "presentationHash": "d88f9acd",
       "report": "enhanced/responsive-report.json",
       "screenshot": "enhanced/maximum-load.png"
     }
