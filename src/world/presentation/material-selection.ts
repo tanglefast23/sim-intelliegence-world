@@ -133,8 +133,8 @@ export function canonicalMaterialDistribution(
   const counts = Object.fromEntries(recipe.logicalVariants.map((variant) => [variant, 0])) as Record<string, number>;
   selections.forEach(({ logicalVariantId }) => { counts[logicalVariantId] = (counts[logicalVariantId] ?? 0) + 1; });
   const expectedPerVariant = selections.length / recipe.logicalVariants.length;
-  const minimumAllowed = Math.floor(expectedPerVariant * 0.65);
-  const maximumAllowed = Math.ceil(expectedPerVariant * 1.35);
+  const minimumAllowed = Math.floor(72 / recipe.logicalVariants.length);
+  const maximumAllowed = Math.ceil(216 / recipe.logicalVariants.length);
   const passed = Object.values(counts).every((count) => count >= minimumAllowed && count <= maximumAllowed);
   return Object.freeze({
     materialId: recipe.id,

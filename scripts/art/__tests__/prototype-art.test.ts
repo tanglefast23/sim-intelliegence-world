@@ -151,7 +151,13 @@ describe('Phase 28 hard Sunward prototype art', () => {
           const left = partPixels[row * group.columns + column - 1]!;
           const right = partPixels[row * group.columns + column]!;
           for (let y = 0; y < 32; y += 1) {
-            if (left[(y * 32 + 31) * 4 + 3] && right[(y * 32) * 4 + 3]) opaquePairs += 1;
+            const leftOffset = (y * 32 + 31) * 4;
+            const rightOffset = y * 32 * 4;
+            if (left[leftOffset + 3] && right[rightOffset + 3]) {
+              opaquePairs += 1;
+              expect([...left.subarray(leftOffset, leftOffset + 4)])
+                .toEqual([...right.subarray(rightOffset, rightOffset + 4)]);
+            }
           }
         }
       }
@@ -160,7 +166,13 @@ describe('Phase 28 hard Sunward prototype art', () => {
           const top = partPixels[(row - 1) * group.columns + column]!;
           const bottom = partPixels[row * group.columns + column]!;
           for (let x = 0; x < 32; x += 1) {
-            if (top[((31 * 32) + x) * 4 + 3] && bottom[x * 4 + 3]) opaquePairs += 1;
+            const topOffset = ((31 * 32) + x) * 4;
+            const bottomOffset = x * 4;
+            if (top[topOffset + 3] && bottom[bottomOffset + 3]) {
+              opaquePairs += 1;
+              expect([...top.subarray(topOffset, topOffset + 4)])
+                .toEqual([...bottom.subarray(bottomOffset, bottomOffset + 4)]);
+            }
           }
         }
       }
@@ -170,6 +182,20 @@ describe('Phase 28 hard Sunward prototype art', () => {
     expect(atlas.width).toBeLessThanOrEqual(1024);
     expect(atlas.height).toBeLessThanOrEqual(1024);
     expect(atlas.width * atlas.height * 4).toBeLessThanOrEqual(4 * 1024 * 1024);
+  });
+
+  test('provides visibly distinct closed-unlocked and closed-locked door fixtures', () => {
+    const { png, index } = buildAtlas();
+    const atlas = decodePng(png);
+    const unlocked = cellPixels(atlas, index.sprites['tile.closed-door']!);
+    const locked = cellPixels(atlas, index.sprites['tile.closed-locked-door']!);
+    expect(index.sprites['tile.closed-locked-door']).toMatchObject({
+      width: 32,
+      height: 32,
+      category: 'wall-door',
+      visibility: 'public',
+    });
+    expect(locked.equals(unlocked)).toBe(false);
   });
 
   test('tracks the full prototype family ledger and native review rules', () => {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artRevision": 2,
-  "allPublicCellsAggregateSha256": "a4d0197d6dea8db594de3407045f842b96f1cb1eef812f12127491b886b2f212",
+  "allPublicCellsAggregateSha256": "794a6dfa23635e25377a9dfd15c4ff8e696414d6a2ffd246af58fcc17daa0d8f",
   "cells": {
     "character.devon-price.front-1": "56dca163a08ce95106df531b88d5aba7f59e489ba728f28cb240135d71a8f638",
     "character.devon-price.front-2": "8d18b4879eb3290dc5473294ad69b8e080d1f41c96237bfb6fd522eba9e89c1d",
@@ -97,6 +97,7 @@
     "tile.bed-head": "49ccaf0e2200fe5c4354735357478627cc90d1ba160eb5d42402afb35fe29572",
     "tile.boardwalk": "4af1ca85ae8ae8f086343f76de336691458b33d9f5d9ce86510aa13079cf30fe",
     "tile.closed-door": "059a98ccaa386f63eafbb3d2ecbafa599b8565cfff142e38b178ad3c1cd80a73",
+    "tile.closed-locked-door": "dfc0dab8a9c2d55e01ec0a2a95f29f1066657b0993a0e1b881e14787bc8c7080",
     "tile.counter-left": "bbf05e439cad3425322d6bf26de217014bb64b4a7b84370ddae97b6e48cb94a3",
     "tile.counter-right": "9d1024706538a292311c4bec0f7a8050da3fc52cd25b7f742aebe4afb837b000",
     "tile.dark-asphalt": "3288d056c58f872e36c6583767c6ec0ac9b827fe1b9f222f012ef73a01ea3ccd",

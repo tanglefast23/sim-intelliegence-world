@@ -68,10 +68,10 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.index.version).toBe(3);
     expect(first.index.artRevision).toBe(2);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
-    expect(Object.keys(first.index.sprites)).toHaveLength(234);
-    expect(first.index.tiles).toHaveLength(144);
+    expect(Object.keys(first.index.sprites)).toHaveLength(235);
+    expect(first.index.tiles).toHaveLength(145);
     expect(first.index.groundCells).toHaveLength(21);
-    expect(first.index.transparentPartCells).toHaveLength(87);
+    expect(first.index.transparentPartCells).toHaveLength(88);
     expect(first.index.presentationCells).toHaveLength(36);
     expect(createHash('sha256').update(first.png).digest('hex')).toBe(first.index.image.sha256);
     expect(first.index.publicSpriteIds).toEqual(Object.keys(first.index.sprites));

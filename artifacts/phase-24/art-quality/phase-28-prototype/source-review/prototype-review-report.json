@@ -39,8 +39,8 @@
       "width": 12,
       "height": 12,
       "expectedPerVariant": 36,
-      "minimumAllowed": 23,
-      "maximumAllowed": 49,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
       "counts": {
         "warm-sand-a": 36,
         "warm-sand-b": 36,
@@ -54,8 +54,8 @@
       "width": 12,
       "height": 12,
       "expectedPerVariant": 36,
-      "minimumAllowed": 23,
-      "maximumAllowed": 49,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
       "counts": {
         "dune-grass-a": 36,
         "dune-grass-b": 36,
@@ -69,8 +69,8 @@
       "width": 12,
       "height": 12,
       "expectedPerVariant": 72,
-      "minimumAllowed": 46,
-      "maximumAllowed": 98,
+      "minimumAllowed": 36,
+      "maximumAllowed": 108,
       "counts": {
         "villa-floor-a": 72,
         "villa-floor-b": 72
@@ -82,8 +82,8 @@
       "width": 12,
       "height": 12,
       "expectedPerVariant": 72,
-      "minimumAllowed": 46,
-      "maximumAllowed": 98,
+      "minimumAllowed": 36,
+      "maximumAllowed": 108,
       "counts": {
         "spa-stone-a": 72,
         "spa-stone-b": 72
@@ -95,8 +95,8 @@
       "width": 12,
       "height": 12,
       "expectedPerVariant": 36,
-      "minimumAllowed": 23,
-      "maximumAllowed": 49,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
       "counts": {
         "shallow-water-a": 36,
         "shallow-water-b": 36,

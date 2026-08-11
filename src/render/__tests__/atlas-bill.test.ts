@@ -21,9 +21,9 @@ describe('runtime atlas bill and movement contract', () => {
     expect(ATLAS_INDEX.artRevision).toBe(2);
     expect(ATLAS_INDEX.publicSpriteIds).toEqual(Object.keys(ATLAS_INDEX.sprites));
     expect(ATLAS_INDEX.internalReviewSpriteIds).toEqual([]);
-    expect(ATLAS_INDEX.tiles).toHaveLength(144);
+    expect(ATLAS_INDEX.tiles).toHaveLength(145);
     expect(ATLAS_INDEX.groundCells).toHaveLength(21);
-    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(87);
+    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(88);
     expect(ATLAS_INDEX.presentationCells).toHaveLength(36);
     expect(new Set([
       ...ATLAS_INDEX.groundCells,

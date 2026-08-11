@@ -18,9 +18,9 @@
       "rawRectangleArea": 3468
     },
     "wall-door": {
-      "actualCount": 66,
+      "actualCount": 67,
       "maximumCount": 80,
-      "rawRectangleArea": 76296
+      "rawRectangleArea": 77452
     },
     "roof": {
       "actualCount": 3,
@@ -49,12 +49,12 @@
     }
   },
   "actual": {
-    "cellCount": 234,
-    "rawRectangleArea": 252344,
+    "cellCount": 235,
+    "rawRectangleArea": 253500,
     "width": 512,
     "height": 514,
     "boundingRectangleArea": 263168,
-    "occupancy": 0.9588703793774319
+    "occupancy": 0.9632630107003891
   },
   "forecast": {
     "cellCount": 634,
@@ -154,7 +154,7 @@
   ],
   "indexVersion": 3,
   "toolVersion": "atlas-v3-phase28",
-  "imageSha256": "0f4cd24485d819e1ca6d61749664e35088923a865361e6444aa87144f4c42294",
-  "publicSpriteCount": 234,
+  "imageSha256": "c940e82f2e32c9558983e80ea6915a23e4d81fccb746da59db3ff583f6de0c3d",
+  "publicSpriteCount": 235,
   "internalReviewSpriteCount": 0
 }

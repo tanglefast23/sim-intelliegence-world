@@ -109,14 +109,14 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
   }).map((transition) => {
     const owner = MATERIAL_RECIPE_BY_ID[transition.ownerMaterialId];
     if (!owner) throw new Error(`Transition owner ${transition.ownerMaterialId} has no material recipe.`);
-    const familyId = owner.edgeMode === 'soft' ? 'soft' : 'built';
-    const family = TRANSITION_RECIPE_BY_ID[familyId];
-    if (!family) throw new Error(`Transition family ${familyId} is missing.`);
+    const familyId = owner.edgeMode === 'hard' ? null : owner.edgeMode;
+    const family = familyId ? TRANSITION_RECIPE_BY_ID[familyId] : null;
+    if (familyId && !family) throw new Error(`Transition family ${familyId} is missing.`);
     return Object.freeze({
       ...transition,
       id: `transition-${transition.tileX}-${transition.tileY}`,
       tile: Object.freeze({ x: transition.tileX, y: transition.tileY }),
-      sprite: `${family.publicSpritePrefix}-${transition.cornerMask.toString(16)}`,
+      sprite: family ? `${family.publicSpritePrefix}-${transition.cornerMask.toString(16)}` : null,
       solid: false as const,
       interactive: false as const,
     });
@@ -142,6 +142,8 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
       }
     }
   }
+  input.map.roofGroups.flatMap(({ cells }) => cells.flatMap(pointsInRect))
+    .forEach((tile) => decalBlockedTiles.add(tileKey(tile)));
   for (const cell of ground) {
     const material = MATERIAL_RECIPE_BY_ID[cell.materialId];
     const family = material?.decalFamily ? DECAL_RECIPE_BY_ID[material.decalFamily] : undefined;

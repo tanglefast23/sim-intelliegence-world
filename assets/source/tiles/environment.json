@@ -310,6 +310,25 @@
       ]
     },
     {
+      "id": "closed-locked-door",
+      "cellClass": "transparent-part",
+      "role": "door",
+      "palette": { "K": "#352728", "D": "#704b3a", "B": "#a66f49", "L": "#dfb477", "A": "#d5b45b" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 4, "y": 2, "width": 24, "height": 30 },
+        { "kind": "rect", "token": "B", "x": 6, "y": 4, "width": 20, "height": 27 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 7, "width": 16, "height": 9 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 19, "width": 16, "height": 9 },
+        { "kind": "rect", "token": "L", "x": 9, "y": 8, "width": 14, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 9, "y": 20, "width": 14, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 18, "y": 14, "width": 8, "height": 9 },
+        { "kind": "rect", "token": "A", "x": 20, "y": 12, "width": 4, "height": 4 },
+        { "kind": "rect", "token": "D", "x": 21, "y": 13, "width": 2, "height": 3 },
+        { "kind": "rect", "token": "A", "x": 20, "y": 16, "width": 4, "height": 5 },
+        { "kind": "pixels", "token": "K", "points": [[22,18],[22,19],[22,20]] }
+      ]
+    },
+    {
       "id": "bed-head",
       "cellClass": "transparent-part",
       "role": "furniture",

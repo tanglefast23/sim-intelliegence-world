@@ -172,7 +172,7 @@ function transitionJunctionBoard(atlas: Bitmap, index: AtlasIndex): Bitmap {
 function doorStateBoard(atlas: Bitmap, index: AtlasIndex): Bitmap {
   const board = createBitmap(3 * 64, 64, parseHexColor('#17151b'));
   const floor = sprite(atlas, index, 'tile.villa-floor');
-  const states = ['tile.open-door', 'tile.closed-door', 'tile.closed-door'] as const;
+  const states = ['tile.open-door', 'tile.closed-door', 'tile.closed-locked-door'] as const;
   states.forEach((door, column) => {
     blitScaled(floor, board, column * 64, 0, 2);
     blitScaled(sprite(atlas, index, door), board, column * 64, 0, 2);
@@ -184,7 +184,7 @@ function architectureBoard(atlas: Bitmap, index: AtlasIndex): Bitmap {
   const ids = [
     'tile.roof-sunward-base', 'tile.roof-sunward-edge', 'tile.roof-sunward-corner',
     'tile.wall-villa-0', 'tile.wall-villa-3', 'tile.wall-villa-f',
-    'tile.open-door', 'tile.closed-door',
+    'tile.open-door', 'tile.closed-door', 'tile.closed-locked-door',
     'tile.sofa-left', 'tile.sofa-right', 'tile.table-left', 'tile.table-right',
     'tile.fixture-planter', 'tile.plant-palm', 'tile.fixture-lamp',
     'tile.landmark-fountain-nw', 'tile.landmark-fountain-ne',
