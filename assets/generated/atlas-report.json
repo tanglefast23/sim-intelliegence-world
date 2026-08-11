@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 1,
+  "categories": {
+    "ground-base": {
+      "actualCount": 10,
+      "maximumCount": 48,
+      "rawRectangleArea": 11560
+    },
+    "ground-transition": {
+      "actualCount": 0,
+      "maximumCount": 160,
+      "rawRectangleArea": 0
+    },
+    "ground-decal": {
+      "actualCount": 0,
+      "maximumCount": 48,
+      "rawRectangleArea": 0
+    },
+    "wall-door": {
+      "actualCount": 66,
+      "maximumCount": 80,
+      "rawRectangleArea": 76296
+    },
+    "roof": {
+      "actualCount": 0,
+      "maximumCount": 96,
+      "rawRectangleArea": 0
+    },
+    "object-landmark": {
+      "actualCount": 21,
+      "maximumCount": 96,
+      "rawRectangleArea": 24276
+    },
+    "world-character": {
+      "actualCount": 80,
+      "maximumCount": 80,
+      "rawRectangleArea": 66560
+    },
+    "portrait": {
+      "actualCount": 10,
+      "maximumCount": 10,
+      "rawRectangleArea": 19320
+    },
+    "effect-reserve": {
+      "actualCount": 0,
+      "maximumCount": 16,
+      "rawRectangleArea": 0
+    }
+  },
+  "actual": {
+    "cellCount": 187,
+    "rawRectangleArea": 198012,
+    "width": 512,
+    "height": 412,
+    "boundingRectangleArea": 210944,
+    "occupancy": 0.9386946298543689
+  },
+  "forecast": {
+    "cellCount": 634,
+    "rawRectangleArea": 714744,
+    "rawAreaRatio": 0.6816329956054688,
+    "width": 1024,
+    "height": 722,
+    "boundingRectangleArea": 739328,
+    "packedAreaRatio": 0.705078125,
+    "occupancy": 0.966748182132964
+  },
+  "largestCells": [
+    {
+      "id": "portrait.devon-price",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.elise-moreau",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.generic-resident",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.linda",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.mina-park",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.priya-nair",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.protagonist",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.rafael-cruz",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.sora-tan",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.tomas-reed",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "tile.bed-foot",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.bed-head",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    }
+  ],
+  "indexVersion": 3,
+  "toolVersion": "atlas-v3",
+  "imageSha256": "a3b56b65e7e68e7b4847f2f3f30c50506f2e702a596dfc3f5e28fb04130ca008",
+  "publicSpriteCount": 187,
+  "internalReviewSpriteCount": 0
+}

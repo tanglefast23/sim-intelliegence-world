@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 1,
+  "allPublicCellsAggregateSha256": "734554be6b7e9ba95c8ab29ee1c891618fc8306d976a5eb69e22341c106ad478",
+  "cells": {
+    "tile.warm-sand": "c82ebb11f2f07bf9bc69ccd00ec5e92c7ec1f9da739fba7cba8163339a54c071",
+    "tile.dune-grass": "9dd3d52ada1aaa8ca87f23091b25cba4fd9f33af48ebe3235de0a21b805f2d3f",
+    "tile.villa-floor": "c12ca3f56e41f1a83ec909ded5c1a5b8177b8f8c205538b8ffa2e2fff54381f7",
+    "tile.spa-stone": "de5fa395f039a75981e07518aa980a5841bab72129d68ad7a2d9b8e0a4ee25a2",
+    "tile.plaza-paver": "f2e83eb06ee2c5369f0b6f8db0efd95c1b8ebc077f11b557ea465c45f7e6a132",
+    "tile.boardwalk": "4af1ca85ae8ae8f086343f76de336691458b33d9f5d9ce86510aa13079cf30fe",
+    "tile.shallow-water": "745015a16e0967be417fa6c0d5ade243ac21db5e9fcf0e7177ccb320c5d6d704",
+    "tile.garden-soil": "bc7db30e0a2de879d9db1ea0bc2fce738d5369caa3266101df76255ffb5ef973",
+    "tile.pale-concrete": "e3974445102834d044a1255dc462b0eeae96ec3d7dedd5a4f44de48d805e7773",
+    "tile.dark-asphalt": "3288d056c58f872e36c6583767c6ec0ac9b827fe1b9f222f012ef73a01ea3ccd"
+  }
+}

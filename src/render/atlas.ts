@@ -18,6 +18,7 @@ export type MovementDirection = typeof MOVEMENT_DIRECTIONS[number];
 export const ZOOM_LEVELS = [1, 2, 3] as const;
 export type ZoomLevel = typeof ZOOM_LEVELS[number];
 export const WALK_FRAME_MILLISECONDS = 145;
+export const ART_REVISION = 1;
 
 export type AtlasRectangle = Readonly<{
   x: number;
@@ -28,16 +29,23 @@ export type AtlasRectangle = Readonly<{
   sourceId: string;
   cellClass: 'ground' | 'transparent-part' | null;
   wallAdjacencyMask: number | null;
+  category: 'ground-base' | 'ground-transition' | 'ground-decal' | 'wall-door' | 'roof' |
+    'object-landmark' | 'world-character' | 'portrait' | 'effect-reserve';
+  visibility: 'public' | 'internal-review';
 }>;
 
 export type RuntimeAtlasIndex = Readonly<{
-  version: 2;
-  image: Readonly<{ width: number; height: number; colorType: 'rgba'; gutter: 1 }>;
+  version: 3;
+  artRevision: number;
+  toolVersion: string;
+  image: Readonly<{ width: number; height: number; colorType: 'rgba'; gutter: 1; sha256: string }>;
   tileSize: 32;
   worldCell: Readonly<{ width: 24; height: 30 }>;
   walkFrameMilliseconds: 145;
   zoomLevels: readonly [1, 2, 3];
   sprites: Readonly<Record<string, AtlasRectangle>>;
+  publicSpriteIds: readonly string[];
+  internalReviewSpriteIds: readonly string[];
   characters: Readonly<Record<CharacterId, Readonly<{
     displayName: string;
     portrait: string;
@@ -53,14 +61,31 @@ export type RuntimeAtlasIndex = Readonly<{
 export const ATLAS_INDEX = atlasIndexJson as unknown as RuntimeAtlasIndex;
 
 if (
-  ATLAS_INDEX.version !== 2 ||
+  ATLAS_INDEX.version !== 3 ||
+  ATLAS_INDEX.artRevision !== ART_REVISION ||
   ATLAS_INDEX.image.colorType !== 'rgba' ||
   ATLAS_INDEX.image.gutter !== 1 ||
+  !/^[0-9a-f]{64}$/u.test(ATLAS_INDEX.image.sha256) ||
   ATLAS_INDEX.walkFrameMilliseconds !== WALK_FRAME_MILLISECONDS ||
   ATLAS_INDEX.worldCell.width !== 24 ||
   ATLAS_INDEX.worldCell.height !== 30
 ) {
-  throw new Error('Generated atlas does not satisfy the Phase 4 runtime contract.');
+  throw new Error('Generated atlas does not satisfy the revisioned runtime contract.');
+}
+
+const publicSpriteIds = new Set(ATLAS_INDEX.publicSpriteIds);
+const internalReviewSpriteIds = new Set(ATLAS_INDEX.internalReviewSpriteIds);
+if (
+  publicSpriteIds.size !== ATLAS_INDEX.publicSpriteIds.length ||
+  internalReviewSpriteIds.size !== ATLAS_INDEX.internalReviewSpriteIds.length ||
+  [...publicSpriteIds].some((id) => internalReviewSpriteIds.has(id)) ||
+  publicSpriteIds.size + internalReviewSpriteIds.size !== Object.keys(ATLAS_INDEX.sprites).length ||
+  ATLAS_INDEX.publicSpriteIds.some((id) => ATLAS_INDEX.sprites[id]?.visibility !== 'public') ||
+  ATLAS_INDEX.internalReviewSpriteIds.some((id) => ATLAS_INDEX.sprites[id]?.visibility !== 'internal-review') ||
+  Object.entries(ATLAS_INDEX.sprites).some(([id, rectangle]) =>
+    rectangle.visibility === 'public' ? !publicSpriteIds.has(id) : !internalReviewSpriteIds.has(id))
+) {
+  throw new Error('Generated atlas visibility lists do not cover every sprite exactly once.');
 }
 
 export function atlasRectangle(name: string): AtlasRectangle {
@@ -112,16 +137,7 @@ export function assertZoomLevel(candidate: number): ZoomLevel {
   return candidate;
 }
 
-export const ATLAS_PROOF_BILL = [
-  ...ATLAS_INDEX.tiles,
-  ...CHARACTER_IDS.flatMap((characterId) => [
-    ...['front', 'rear', 'left', 'right'].flatMap((direction) => [
-      `character.${characterId}.${direction}-1`,
-      `character.${characterId}.${direction}-2`,
-    ]),
-    `portrait.${characterId}`,
-  ]),
-] as const;
+export const ATLAS_PROOF_BILL = ATLAS_INDEX.publicSpriteIds;
 
 export type AtlasProofPlacement = Readonly<{
   sprite: string;

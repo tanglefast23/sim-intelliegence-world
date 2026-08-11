@@ -97,7 +97,7 @@ function drawSprite(
   blitScaled(crop(atlas, rectangle), sheet, x, y, scale);
 }
 
-export function writeReviewSheet(root = process.cwd()): void {
+export function writeReviewSheet(outputRoot: string, root = process.cwd()): readonly string[] {
   const generatedRoot = resolve(root, 'assets/generated');
   const atlas = decodePng(readFileSync(resolve(generatedRoot, 'world-atlas.png')));
   const index = JSON.parse(readFileSync(resolve(generatedRoot, 'atlas-index.json'), 'utf8')) as AtlasIndex;
@@ -126,10 +126,10 @@ export function writeReviewSheet(root = process.cwd()): void {
     drawSprite(sheet, atlas, index, `portrait.${characterId}`, 755, panelY + 9, 3);
   });
 
-  const outputRoot = resolve(root, 'artifacts/phase-04');
   mkdirSync(outputRoot, { recursive: true });
-  writeFileSync(resolve(outputRoot, 'atlas-review.png'), encodePng(sheet));
-  process.stdout.write(`Art review sheet: ${resolve(outputRoot, 'atlas-review.png')}\n`);
+  const characterReviewPath = resolve(outputRoot, 'characters-3x.png');
+  writeFileSync(characterReviewPath, encodePng(sheet));
+  process.stdout.write(`Character review sheet: ${characterReviewPath}\n`);
 
   const previewCells = [...index.groundCells, ...index.transparentPartCells];
   const columns = 6;
@@ -147,7 +147,7 @@ export function writeReviewSheet(root = process.cwd()): void {
   const mutedInk = parseHexColor('#9ca7a4');
   const dark = parseHexColor('#20242a');
   const light = parseHexColor('#e6e0cf');
-  drawText(preview, 'PHASE 19 FUNCTIONAL ATLAS', margin, 12, ink, 2);
+  drawText(preview, 'HALCYRA FUNCTIONAL ATLAS', margin, 12, ink, 2);
   drawText(preview, 'NATIVE 1X ON DARK AND LIGHT / NEAREST 3X ON SPLIT BACKGROUND', margin, 34, mutedInk);
   previewCells.forEach((name, indexInPreview) => {
     const column = indexInPreview % columns;
@@ -167,12 +167,8 @@ export function writeReviewSheet(root = process.cwd()): void {
     drawText(preview, '1X', cardX + 50, cardY + 68, mutedInk);
     drawText(preview, '3X', cardX + 94, cardY + 126, mutedInk);
   });
-  const phase19Root = resolve(root, 'artifacts/phase-19');
-  mkdirSync(phase19Root, { recursive: true });
-  writeFileSync(resolve(phase19Root, 'atlas-preview.png'), encodePng(preview));
-  process.stdout.write(`Functional atlas preview: ${resolve(phase19Root, 'atlas-preview.png')}\n`);
-}
-
-if (require.main === module) {
-  writeReviewSheet();
+  const atlasReviewPath = resolve(outputRoot, 'atlas-cells-1x-3x.png');
+  writeFileSync(atlasReviewPath, encodePng(preview));
+  process.stdout.write(`Functional atlas preview: ${atlasReviewPath}\n`);
+  return [characterReviewPath, atlasReviewPath];
 }

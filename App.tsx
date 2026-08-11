@@ -6,9 +6,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 
 import { installWebAccessibilityStyles } from './src/application/accessibility';
+import { verifyAtlasDigest } from './src/application/atlas-integrity';
 import { LoadingShell } from './src/application/LoadingShell';
 import { type ResourceState, settleResourceGate } from './src/application/ResourceGate';
 import { VOCAL_CUE_ASSETS } from './src/audio/vocal-cues';
+import { ATLAS_INDEX } from './src/render/atlas';
 
 const proofAtlas = require('./assets/proof/phase2-atlas.png') as number;
 const proofAudio = require('./assets/proof/phase2-tone.wav') as number;
@@ -56,9 +58,10 @@ export default function App() {
       if (!audioResponse.ok || (await audioResponse.arrayBuffer()).byteLength === 0) {
         throw new Error('Packaged audio proof could not be loaded.');
       }
-      if (!worldImageResponse.ok || (await worldImageResponse.arrayBuffer()).byteLength === 0) {
+      if (!worldImageResponse.ok) {
         throw new Error('Generated world atlas could not be loaded.');
       }
+      await verifyAtlasDigest(await worldImageResponse.arrayBuffer(), ATLAS_INDEX.image.sha256);
       const vocalCueResponses = await Promise.all(vocalCueAssets.map((asset) => fetch(asset.localUri ?? asset.uri)));
       if (vocalCueResponses.some((response) => !response.ok)) {
         throw new Error('A packaged vocal cue could not be loaded.');

@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -11,6 +11,7 @@ import {
   validateScreenshotBuffers,
   validateWorldZoomBuffers,
 } from '../../scripts/electron/package-smoke-utils';
+import { resolveEvidenceOutputRoot } from '../../scripts/verification/evidence-output';
 import { PNG } from 'pngjs';
 
 import {
@@ -29,6 +30,36 @@ function screenshot(width: number, height: number, fill: number): Buffer {
 }
 
 describe('packaged Electron smoke evidence', () => {
+  test('uses explicit output roots and rejects immutable historical evidence', () => {
+    const root = join(tmpdir(), 'si-world-evidence-root');
+    expect(resolveEvidenceOutputRoot([], { defaultRelative: 'output/verification/package' }, root))
+      .toBe(join(root, 'output/verification/package'));
+    expect(resolveEvidenceOutputRoot(
+      ['--high-dpi', '--output-root', 'artifacts/phase-24/art-quality/phase-26-foundation'],
+      { allowedFlags: ['--high-dpi'] },
+      root,
+    )).toBe(join(root, 'artifacts/phase-24/art-quality/phase-26-foundation'));
+    expect(() => resolveEvidenceOutputRoot(
+      ['--output-root', 'artifacts/phase-22/responsive'],
+      {},
+      root,
+    )).toThrow('Historical evidence is immutable');
+    expect(() => resolveEvidenceOutputRoot(
+      ['artifacts/phase-24/new'],
+      {},
+      root,
+    )).toThrow('Use --output-root');
+    expect(() => resolveEvidenceOutputRoot([], { required: true }, root)).toThrow('requires --output-root');
+  });
+
+  test('passes the high-DPI scale factor on the packaged process command line', () => {
+    const responsiveSmoke = readFileSync(
+      join(process.cwd(), 'scripts/electron/run-responsive-package-smoke.ts'),
+      'utf8',
+    );
+    expect(responsiveSmoke).toContain("highDpi ? ['--force-device-scale-factor=2'] : []");
+  });
+
   test('selects the current platform and architecture from a multi-target output root', () => {
     const root = mkdtempSync(join(tmpdir(), 'si-world-package-targets-'));
     try {

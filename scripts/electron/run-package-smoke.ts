@@ -8,6 +8,7 @@ import process from 'node:process';
 import { parseSaveEnvelope } from '../../electron/persistence/save-format';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
+import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 
 import {
   evaluateRendererFps,
@@ -32,9 +33,9 @@ const listing = execFileSync(process.execPath, [asarCli, 'list', archive], {
   maxBuffer: 10_000_000,
 });
 validatePackageListing(listing);
-const screenshotDirectory = process.argv[2]
-  ? resolve(process.cwd(), process.argv[2])
-  : join(process.cwd(), 'artifacts/phase-14/macos/current');
+const screenshotDirectory = resolveEvidenceOutputRoot(process.argv.slice(2), {
+  defaultRelative: 'output/verification/package-smoke',
+});
 const screenshotPath = join(screenshotDirectory, 'packaged-electron.png');
 const loadingScreenshotPath = join(screenshotDirectory, 'packaged-loading.png');
 const newGameScreenshotPath = join(screenshotDirectory, 'world-new-game.png');

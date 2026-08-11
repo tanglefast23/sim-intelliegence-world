@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { PresentationPreferencesSchema } from '../../src/application/presentation/preferences';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveTestedCommit } from '../qualification/tested-commit';
+import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { findPackagedExecutable, validateScreenshotBuffers } from './package-smoke-utils';
 
 const EvidenceSchema = z.object({
@@ -24,9 +25,9 @@ const ResultSchema = z.object({
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
   : join(process.cwd(), 'out');
-const evidenceRoot = process.argv[2]
-  ? resolve(process.cwd(), process.argv[2])
-  : join(process.cwd(), 'artifacts/phase-22/presentation-restart');
+const evidenceRoot = resolveEvidenceOutputRoot(process.argv.slice(2), {
+  defaultRelative: 'output/verification/presentation-restart',
+});
 const executable = findPackagedExecutable(outputRoot);
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-presentation-smoke-'));
 const seedScreenshot = join(evidenceRoot, 'seed.png');

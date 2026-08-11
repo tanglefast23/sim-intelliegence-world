@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 1,
+  "imageSha256": "a3b56b65e7e68e7b4847f2f3f30c50506f2e702a596dfc3f5e28fb04130ca008",
+  "files": [
+    "characters-3x.png",
+    "atlas-cells-1x-3x.png",
+    "atlas-report.json"
+  ]
+}

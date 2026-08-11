@@ -51,29 +51,29 @@ jobs:
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: xvfb-run -a npm run smoke:electron
+        run: xvfb-run -a npm run smoke:electron -- --output-root output/verification/ci/linux/package
 
       - name: Verify Linux natural movement
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: xvfb-run -a npm run smoke:natural-movement -- artifacts/phase-23/linux-x64/natural-movement
+        run: xvfb-run -a npm run smoke:natural-movement -- --output-root output/verification/ci/linux/natural-movement
 
       - name: Verify Linux responsive matrix
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: xvfb-run -a -s "-screen 0 3200x1800x24" npm run smoke:responsive -- artifacts/phase-22/linux-x64/responsive
+        run: xvfb-run -a -s "-screen 0 3200x1800x24" npm run smoke:responsive -- --output-root output/verification/ci/linux/responsive
 
       - name: Verify Linux presentation restart
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-        run: xvfb-run -a npm run smoke:presentation-restart
+        run: xvfb-run -a npm run smoke:presentation-restart -- --output-root output/verification/ci/linux/presentation-restart
 
       - name: Verify Linux v5 save migration and reload
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-        run: xvfb-run -a npm run smoke:save-migration
+        run: xvfb-run -a npm run smoke:save-migration -- --output-root output/verification/ci/linux/save-migration
 
   package-macos-intel:
     name: package-macos-intel
@@ -109,23 +109,23 @@ jobs:
       - name: Smoke Intel macOS shell without model qualification claims
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:electron -- artifacts/phase-14/macos-x64/current
+        run: npm run smoke:electron -- --output-root output/verification/ci/macos-x64/package
 
       - name: Verify Intel macOS natural movement
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:natural-movement -- artifacts/phase-23/macos-x64/natural-movement
+        run: npm run smoke:natural-movement -- --output-root output/verification/ci/macos-x64/natural-movement
 
       - name: Verify Intel macOS responsive matrix
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:responsive -- artifacts/phase-22/macos-x64/responsive
+        run: npm run smoke:responsive -- --output-root output/verification/ci/macos-x64/responsive
 
       - name: Verify Intel macOS presentation restart
-        run: npm run smoke:presentation-restart -- artifacts/phase-22/macos-x64/presentation-restart
+        run: npm run smoke:presentation-restart -- --output-root output/verification/ci/macos-x64/presentation-restart
 
       - name: Verify Intel macOS v5 save migration and reload
-        run: npm run smoke:save-migration -- artifacts/phase-22/macos-x64/save-migration
+        run: npm run smoke:save-migration -- --output-root output/verification/ci/macos-x64/save-migration
 
   package-windows-x64:
     name: package-windows-x64
@@ -163,20 +163,20 @@ jobs:
       - name: Smoke Windows x64 shell without model qualification claims
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:electron -- artifacts/phase-14/windows-x64/current
+        run: npm run smoke:electron -- --output-root output/verification/ci/windows-x64/package
 
       - name: Verify Windows natural movement
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:natural-movement -- artifacts/phase-23/windows-x64/natural-movement
+        run: npm run smoke:natural-movement -- --output-root output/verification/ci/windows-x64/natural-movement
 
       - name: Verify Windows x64 responsive matrix
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:responsive -- artifacts/phase-22/windows-x64/responsive
+        run: npm run smoke:responsive -- --output-root output/verification/ci/windows-x64/responsive
 
       - name: Verify Windows x64 presentation restart
-        run: npm run smoke:presentation-restart -- artifacts/phase-22/windows-x64/presentation-restart
+        run: npm run smoke:presentation-restart -- --output-root output/verification/ci/windows-x64/presentation-restart
 
       - name: Verify Windows x64 v5 save migration and reload
-        run: npm run smoke:save-migration -- artifacts/phase-22/windows-x64/save-migration
+        run: npm run smoke:save-migration -- --output-root output/verification/ci/windows-x64/save-migration
