@@ -13,6 +13,7 @@
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
+    "dev:harness": "npm run export:web && npm run build:electron && tsx scripts/electron/run-dev-harness.ts",
     "content:build": "tsx scripts/content/build-production-content.ts",
     "content:check": "npm run content:build && git diff --exit-code -- content tests/fixtures/saves/valid-v5-envelope.json tests/fixtures/saves/stale-v6-envelope.json src/ai/registry/generated-browser-writing.ts src/domain/state/generated-layout.ts src/world/transfers/generated-routes.ts",
     "validate:content": "tsx scripts/content/validate-content.ts",
@@ -49,6 +50,7 @@
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
     "smoke:natural-movement": "tsx scripts/electron/run-natural-movement-package-smoke.ts",
     "smoke:art-quality": "tsx scripts/electron/run-art-quality-package-smoke.ts",
+    "smoke:procedural-vfx": "tsx scripts/electron/run-procedural-vfx-package-smoke.ts",
     "smoke:responsive": "tsx scripts/electron/run-responsive-package-smoke.ts",
     "smoke:responsive:high-dpi": "tsx scripts/electron/run-responsive-package-smoke.ts --high-dpi",
     "smoke:responsive:qualification": "tsx scripts/electron/run-responsive-package-smoke.ts --high-dpi --qualification",

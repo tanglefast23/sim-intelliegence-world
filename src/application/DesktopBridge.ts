@@ -16,6 +16,7 @@ import type {
   RendererPresentationPatch,
 } from './presentation/preferences';
 import type { CharacterId } from '../render/atlas';
+import type { MapId } from '../world/maps/catalog';
 
 export type DesktopBridge = ConversationPort & Readonly<{
   getRuntimeInfo: () => Promise<RuntimeInfo>;
@@ -33,9 +34,12 @@ declare global {
   interface Window {
     siWorldDesktop?: DesktopBridge;
     siWorldArtMode?: 'legacy' | 'enhanced';
+    siWorldDevHarnessMode?: boolean;
+    siWorldVfxMode?: 'circle' | 'procedural';
     siWorldSmokeMode?: boolean;
     siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
     siWorldCloseConversationFixture?: () => void;
+    siWorldOpenVfxFixture?: (mapId: MapId, effectId: string) => void;
   }
 }
 

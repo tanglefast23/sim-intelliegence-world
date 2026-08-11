@@ -66,10 +66,18 @@ const desktopBridge = Object.freeze({
 
 contextBridge.exposeInMainWorld('siWorldDesktop', desktopBridge);
 contextBridge.exposeInMainWorld(
+  'siWorldDevHarnessMode',
+  process.argv.includes('--si-world-dev-harness=1'),
+);
+contextBridge.exposeInMainWorld(
   'siWorldSmokeMode',
   process.argv.includes('--si-world-smoke-mode=1'),
 );
 const smokeArtMode = process.argv.find((argument) => argument.startsWith('--si-world-art-mode='))?.split('=')[1];
 if (process.argv.includes('--si-world-smoke-mode=1') && (smokeArtMode === 'legacy' || smokeArtMode === 'enhanced')) {
   contextBridge.exposeInMainWorld('siWorldArtMode', smokeArtMode);
+}
+const smokeVfxMode = process.argv.find((argument) => argument.startsWith('--si-world-vfx-mode='))?.split('=')[1];
+if (process.argv.includes('--si-world-smoke-mode=1') && (smokeVfxMode === 'circle' || smokeVfxMode === 'procedural')) {
+  contextBridge.exposeInMainWorld('siWorldVfxMode', smokeVfxMode);
 }

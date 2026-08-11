@@ -32,7 +32,7 @@ import { effectiveSpeed } from '../domain/clock/clock';
 import { reduceCommand } from '../domain/commands/reducer';
 import { DomainCommandSchema } from '../domain/commands/types';
 import { lindaContextActions, type ContextQuestAction } from '../domain/quests/quest-machine';
-import type { WorldState } from '../domain/state/schema';
+import { parseWorldState, type WorldState } from '../domain/state/schema';
 import { VOCAL_CUE_CAPTIONS, type VocalCueId } from '../audio/vocal-cue-policy';
 import { useVocalCues } from '../audio/vocal-cues';
 import { BedActions } from '../ui/BedActions';
@@ -86,6 +86,11 @@ import { WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
+import { parseVfxEvidence } from './vfx/evidence';
+import { ProceduralMapEffects, PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
+import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
+import { partitionVfxEmitters } from './vfx/seed';
+import { VFX_REVISION, VFX_STEP_MILLISECONDS, type AuthoredMapEffect } from './vfx/types';
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
@@ -213,24 +218,30 @@ function npcLabel(selectedId: string, actors: WorldActors): string {
 }
 
 type WorldSceneProps = Readonly<{
+  initialConversationFixtureId?: CharacterId;
   initialFeedback: string;
+  initialOpenPanel?: 'journal' | 'relationships';
   initialPresentationPreferences: PresentationPreferences;
   initialSaveGeneration: number | null;
   initialSaveStatus: string;
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  persistenceDisabled?: boolean;
   surface: ViewportSize;
 }>;
 
 export function WorldScene({
+  initialConversationFixtureId,
   initialFeedback,
+  initialOpenPanel,
   initialPresentationPreferences,
   initialSaveGeneration,
   initialSaveStatus,
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  persistenceDisabled = false,
   surface,
 }: WorldSceneProps) {
   const image = useImage(atlasImage);
@@ -265,13 +276,17 @@ export function WorldScene({
   const [transitioning, setTransitioning] = useState(false);
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
-  const [conversationNpcId, setConversationNpcId] = useState<string>();
-  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId>();
-  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
+  const [conversationNpcId, setConversationNpcId] = useState<string | undefined>(initialConversationFixtureId);
+  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId | undefined>(initialConversationFixtureId);
+  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships' | undefined>(initialOpenPanel);
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
+  const [vfxAgeStep, setVfxAgeStep] = useState(0);
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
-  const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
+  const conversationPort = useMemo(
+    () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
+    [persistenceDisabled],
+  );
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -283,6 +298,10 @@ export function WorldScene({
   const artMode = typeof window !== 'undefined' && window.siWorldSmokeMode === true && window.siWorldArtMode === 'legacy'
     ? 'legacy' as const
     : 'enhanced' as const;
+  const smokeMode = typeof window !== 'undefined' && window.siWorldSmokeMode === true;
+  const vfxMode = smokeMode && window.siWorldVfxMode === 'circle'
+    ? 'circle' as const
+    : 'procedural' as const;
   const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio;
   const npcTiles = useMemo(() => actorTiles(
     runtime.worldState,
@@ -295,6 +314,8 @@ export function WorldScene({
   const speed = effectiveSpeed(runtime.worldState.clock);
   const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState));
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
+
+  useEffect(() => setVfxAgeStep(0), [mapId]);
 
   useLayoutEffect(() => {
     const previous = previousSurface.current;
@@ -337,9 +358,65 @@ export function WorldScene({
       setConversationFixtureId(undefined);
       setConversationNpcId(undefined);
     };
+    window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
+      const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
+      const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
+      if (!effect) throw new Error(`Unknown VFX fixture ${fixtureMapId}/${effectId}.`);
+      const effectTile = { ...effect.tile };
+      const tile = [
+        { x: effectTile.x, y: effectTile.y + 3 },
+        { x: effectTile.x + 3, y: effectTile.y },
+        { x: effectTile.x, y: effectTile.y - 3 },
+        { x: effectTile.x - 3, y: effectTile.y },
+      ].find((candidate) => (
+        candidate.x >= 0 && candidate.x < fixtureMap.source.width &&
+        candidate.y >= 0 && candidate.y < fixtureMap.source.height &&
+        !fixtureMap.blockedKeys.has(tileKey(candidate))
+      ));
+      if (!tile) throw new Error(`VFX fixture ${fixtureMapId}/${effectId} has no nearby player tile.`);
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setDestinationMarker(undefined);
+      setSelected('protagonist');
+      setArrivalLock(`${fixtureMapId}:${tile.x},${tile.y}`);
+      setWorldFeedback(`VFX FIXTURE · ${effectId.toUpperCase()}`);
+      setRuntime((current) => {
+        const worldState = parseWorldState({
+          ...current.worldState,
+          protagonist: {
+            ...current.worldState.protagonist,
+            locationId: fixtureMapId,
+            worldPosition: {
+              mapId: fixtureMapId,
+              tileX: tile.x,
+              tileY: tile.y,
+            },
+          },
+          maps: Object.fromEntries(Object.entries(current.worldState.maps).map(([id, state]) => [id, {
+            ...state,
+            active: id === fixtureMapId,
+          }])),
+          npcs: Object.fromEntries(Object.entries(current.worldState.npcs).map(([id, npc]) => [id, {
+            ...npc,
+            presence: npc.presence.kind === 'in_transit' ? npc.presence : {
+              ...npc.presence,
+              kind: npc.presence.mapId === fixtureMapId ? 'active_local' : 'inactive',
+            },
+          }])),
+        });
+        return {
+          movement: createMovementState(tile),
+          npcMovements: npcMovementState(worldState),
+          worldState,
+        };
+      });
+      setCamera((current) => centerCameraOnTile(effectTile, current.zoom, surfaceRef.current, MAP_PIXELS));
+    };
     return () => {
       delete window.siWorldOpenConversationFixture;
       delete window.siWorldCloseConversationFixture;
+      delete window.siWorldOpenVfxFixture;
     };
   }, []);
 
@@ -347,6 +424,10 @@ export function WorldScene({
     state: WorldState,
     trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
   ) => {
+    if (persistenceDisabled) {
+      setSaveStatus('DEV HARNESS · NO DISK SAVE');
+      return;
+    }
     const bridge = getDesktopBridge();
     if (!bridge) {
       setSaveStatus('BROWSER · NO DISK SAVE');
@@ -373,7 +454,7 @@ export function WorldScene({
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, []);
+  }, [persistenceDisabled]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -810,13 +891,28 @@ export function WorldScene({
     visibility.minimumY,
     worldFrame.visibleRoofGroupIds,
   ]);
-  const visibleEffects = useMemo(() => map.source.effects.filter(({ tile }) => isVisible(tile, visibility)), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-  ]);
+  const vfxViewport = useMemo(() => ({
+    left: camera.x - TILE_SIZE,
+    top: camera.y - TILE_SIZE,
+    right: camera.x + surface.width / camera.zoom + TILE_SIZE,
+    bottom: camera.y + surface.height / camera.zoom + TILE_SIZE,
+  }), [camera.x, camera.y, camera.zoom, surface.height, surface.width]);
+  const visibleEffects = useMemo(() => map.source.effects.filter((effect) => (
+    vfxBoundsIntersectWorldRect(effect, vfxViewport)
+  )), [map, vfxViewport]);
+  const culledEffects = useMemo(() => map.source.effects.filter((effect) => (
+    !vfxBoundsIntersectWorldRect(effect, vfxViewport)
+  )), [map, vfxViewport]);
+  const vfxEmitters = useMemo(
+    () => partitionVfxEmitters(mapId, visibleEffects),
+    [mapId, visibleEffects],
+  );
+  const vfxCamera = useMemo(() => ({
+    x: camera.x,
+    y: camera.y,
+    zoom: camera.zoom,
+    dpr,
+  }), [camera.x, camera.y, camera.zoom, dpr]);
   const roofAtlas = useMemo(() => atlasData(visibleRoofTiles, camera.zoom), [camera.zoom, visibleRoofTiles]);
   const atlasCameraTransform = useMemo(() => [
     { translateX: -camera.x * camera.zoom },
@@ -835,6 +931,43 @@ export function WorldScene({
     return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
   }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
   const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
+  const vfxEvidence = useMemo(() => {
+    const geometries = vfxMode === 'procedural'
+      ? vfxEmitters.valid.map((emitter) => sampleVfxGeometry(
+        emitter,
+        vfxAgeStep * VFX_STEP_MILLISECONDS,
+        reducedMotion,
+      ))
+      : [];
+    const firePrimitiveCount = vfxMode === 'procedural'
+      ? geometries.filter(({ kind }) => kind === 'fire').reduce((total, geometry) => total + geometry.rects.length, 0) +
+        vfxEmitters.fallback.filter(({ kind }) => kind === 'fire').length
+      : visibleEffects.filter(({ kind }) => kind === 'fire').length;
+    const sparklePrimitiveCount = vfxMode === 'procedural'
+      ? geometries.filter(({ kind }) => kind === 'sparkle').reduce((total, geometry) => total + geometry.rects.length, 0) +
+        vfxEmitters.fallback.filter(({ kind }) => kind === 'sparkle').length
+      : visibleEffects.filter(({ kind }) => kind === 'sparkle').length;
+    return JSON.stringify(parseVfxEvidence({
+      schemaVersion: 1,
+      mode: vfxMode,
+      mapId,
+      vfxRevision: VFX_REVISION,
+      ageStep: vfxAgeStep,
+      reducedMotion,
+      visibleEmitterIds: visibleEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
+      culledEmitterIds: culledEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
+      fallbackEmitterIds: vfxEmitters.fallback.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
+      primitiveCounts: {
+        fire: firePrimitiveCount,
+        sparkle: sparklePrimitiveCount,
+        total: firePrimitiveCount + sparklePrimitiveCount,
+      },
+      renderNodeCount: vfxMode === 'procedural'
+        ? PROCEDURAL_VFX_RENDER_NODE_COUNT + vfxEmitters.fallback.length
+        : visibleEffects.length,
+      updateRateHz: vfxMode === 'procedural' && !reducedMotion ? 1_000 / VFX_STEP_MILLISECONDS : 0,
+    }));
+  }, [culledEffects, mapId, reducedMotion, vfxAgeStep, vfxEmitters, vfxMode, visibleEffects]);
   const smokeGeometry = useMemo(
     () => map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map],
@@ -900,11 +1033,30 @@ export function WorldScene({
         });
       case 'character':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={characterAtlas.sprites} transforms={characterAtlas.transforms} /></Group>;
-      case 'effect':
-        return visibleEffects.map((effect) => {
+      case 'effect': {
+        const circleEffects: readonly AuthoredMapEffect[] = vfxMode === 'circle'
+          ? visibleEffects
+          : vfxEmitters.fallback;
+        return (
+          <Group key={layer}>
+            {vfxMode === 'procedural' ? (
+              <ProceduralMapEffects
+                camera={vfxCamera}
+                emitters={vfxEmitters.valid}
+                key={mapId}
+                mapEntryIdentity={mapId}
+                onAgeStepChange={smokeMode ? setVfxAgeStep : undefined}
+                reducedMotion={reducedMotion}
+                running={speed > 0}
+              />
+            ) : null}
+            {circleEffects.map((effect) => {
           const screen = worldToScreen(camera, { x: effect.tile.x * 32 + 16, y: effect.tile.y * 32 + 16 });
           return <Circle color={effect.kind === 'fire' ? '#f07832' : '#f5dd9d'} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
-        });
+            })}
+          </Group>
+        );
+      }
       case 'wall':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} /></Group>;
       case 'roof':
@@ -986,6 +1138,12 @@ export function WorldScene({
         <View
           accessibilityLabel={responsiveEvidence}
           nativeID="world-responsive-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
+        <View
+          accessibilityLabel={vfxEvidence}
+          nativeID="world-vfx-state"
           pointerEvents="none"
           style={styles.proofState}
         />
