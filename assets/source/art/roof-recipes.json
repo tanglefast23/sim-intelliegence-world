@@ -1,11 +1,15 @@
 {
   "schemaVersion": 1,
-  "artRevision": 1,
+  "artRevision": 2,
   "defaultRecipe": {
-    "id": "legacy-boardwalk-roof",
-    "publicSprite": "tile.boardwalk",
-    "tint": "#4b211f55",
-    "selectionSalt": "roof-v1",
+    "id": "sunward-terracotta-roof",
+    "publicSprites": {
+      "base": "tile.roof-sunward-base",
+      "edge": "tile.roof-sunward-edge",
+      "corner": "tile.roof-sunward-corner"
+    },
+    "tint": "#ffffff00",
+    "selectionSalt": "roof-v2",
     "visualBounds": { "left": 0, "top": 0, "right": 32, "bottom": 32 }
   }
 }

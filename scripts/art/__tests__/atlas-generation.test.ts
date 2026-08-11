@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revisionPixelHashes from '../../../assets/source/art/revision-1-pixel-hashes.json';
+import revisionPixelHashes from '../../../assets/source/art/revision-2-pixel-hashes.json';
 import { buildAtlas, validateAtlasArtifacts, writeAtlas } from '../build-world-atlas';
 import {
   composeFrontFrame,
@@ -66,12 +66,13 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.report).toEqual(second.report);
     expect(first.png[25]).toBe(6);
     expect(first.index.version).toBe(3);
-    expect(first.index.artRevision).toBe(1);
+    expect(first.index.artRevision).toBe(2);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
-    expect(Object.keys(first.index.sprites)).toHaveLength(187);
-    expect(first.index.tiles).toHaveLength(97);
-    expect(first.index.groundCells).toHaveLength(10);
-    expect(first.index.transparentPartCells).toHaveLength(87);
+    expect(Object.keys(first.index.sprites)).toHaveLength(235);
+    expect(first.index.tiles).toHaveLength(145);
+    expect(first.index.groundCells).toHaveLength(21);
+    expect(first.index.transparentPartCells).toHaveLength(88);
+    expect(first.index.presentationCells).toHaveLength(36);
     expect(createHash('sha256').update(first.png).digest('hex')).toBe(first.index.image.sha256);
     expect(first.index.publicSpriteIds).toEqual(Object.keys(first.index.sprites));
     expect(first.index.internalReviewSpriteIds).toEqual([]);
@@ -187,23 +188,30 @@ describe('deterministic SI World atlas generation', () => {
     }
   });
 
-  test('keeps every public inner cell and ten opaque ground cells byte stable', () => {
+  test('keeps every public inner cell and all opaque ground cells byte stable', () => {
     const tiles = loadTileSources();
-    expect(tiles).toHaveLength(10);
-    expect(new Set(tiles.map(({ id }) => id)).size).toBe(10);
+    expect(tiles).toHaveLength(21);
+    expect(new Set(tiles.map(({ id }) => id)).size).toBe(21);
     expect(tiles.every(({ cellClass }) => cellClass === 'ground')).toBe(true);
     const { png, index } = buildAtlas();
     const bitmap = decodePng(png);
     expect(aggregatePublicCellHash(bitmap, index.sprites, index.publicSpriteIds)).toBe(
       revisionPixelHashes.allPublicCellsAggregateSha256,
     );
-    expect(revisionPixelHashes.artRevision).toBe(1);
-    for (const [name, expectedHash] of Object.entries(revisionPixelHashes.cells)) {
+    expect(revisionPixelHashes.artRevision).toBe(2);
+    for (const tile of tiles) {
+      const name = `tile.${tile.id}`;
+      const expectedHash = revisionPixelHashes.cells[name as keyof typeof revisionPixelHashes.cells];
       const rectangle = index.sprites[name];
       expect(rectangle).toMatchObject({ kind: 'tile', cellClass: 'ground', wallAdjacencyMask: null });
       const pixels = rectanglePixels(bitmap, rectangle!);
       expect([...pixels].filter((_value, offset) => offset % 4 === 3).every((alpha) => alpha === 255)).toBe(true);
       expect(createHash('sha256').update(pixels).digest('hex')).toBe(expectedHash);
+    }
+    for (const [name, expectedHash] of Object.entries(revisionPixelHashes.cells)) {
+      const rectangle = index.sprites[name];
+      expect(rectangle).toBeDefined();
+      expect(createHash('sha256').update(rectanglePixels(bitmap, rectangle!)).digest('hex')).toBe(expectedHash);
     }
   });
 

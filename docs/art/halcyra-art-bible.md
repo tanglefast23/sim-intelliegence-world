@@ -1,6 +1,6 @@
 # Halcyra art bible
 
-Status: Phase 26 foundation contract
+Status: Phase 28 hard-prototype contract
 
 ## 1. Style target
 
@@ -225,3 +225,50 @@ Reference games can teach scale, density, contrast, depth order, and review meth
 ## 15. Review gate
 
 Every changed cell must appear on a review board at native `1x` and nearest-neighbor `3x`. Review it on dark and light backgrounds. A generated-pixel change requires an `artRevision` bump and a new revisioned pixel baseline in the same phase.
+
+## 16. Phase 28 prototype family ledger
+
+This ledger is the source contract for the hard Sunward prototype. All entries use upper-left light, a warm dark contour, whole pixels, and nearest-neighbor sampling.
+
+### 16.1 Characters
+
+| Family | Primary shape | Second non-color feature | Portrait match | Direction rule |
+|---|---|---|---|---|
+| Protagonist | swept side-part hair | diagonal gold strap | hair, teal shirt, strap, skin, and face marks match | front body stays; feet move laterally; rear keeps hair mass and strap-free back |
+| Linda | long side hair columns | paired gold earrings | hair columns, coral dress, earrings, skin, and mouth match | hair columns and earrings survive front and lateral cells; rear keeps the long hair mass |
+| Generic resident | high swept quiff | wide glasses | quiff, glasses, blue shirt, skin, and face marks match | quiff and glasses survive front and lateral cells; rear keeps the asymmetric hair mass |
+
+Source margins stay open on the top, left, and right. The bottom row stays open under world-sprite feet. A one-pixel outward contour is generated after layer composition. Full side profiles are not used because the native `1x` prototype keeps all three identities readable.
+
+### 16.2 Materials
+
+| Family | Ramp | Density | Edge | Variant rule | Good native sample | Reject |
+|---|---|---|---|---|---|---|
+| Warm sand | pale amber, tan, ochre, muted umber | low | soft | four broad ripple and pebble variants | grouped ripples with open calm areas | even dots or a one-cell stamp |
+| Dune grass | sand, dusty green, deep leaf green | high in small clusters | soft | four irregular planted clusters | clustered blades with visible sand | a full green carpet or checker |
+| Villa floor | pale amber wood, umber seam | medium | built | two coordinate-phased board patterns | long board groups that continue visually | a dark square grid |
+| Spa stone | warm sage-gray, pale edge, deep joint | low | built | two coordinate-phased slab patterns | grouped slabs with quiet centers | uniform grain on every pixel |
+| Shallow water | muted teal, pale glint, deep band | medium | soft | four slow horizontal band variants | calm bands with rare glints | electric blue or noisy waves |
+
+The soft transition uses broken triangular edge groups. The built transition uses a continuous light, mid, and shade curb. Both families provide masks `1` through `f`; the review board covers straight, inner, outer, saddle, island, strip, unequal-priority junction, and equal-priority tie cases.
+
+### 16.3 Building and roof
+
+| Family | Shape and material | Contact or edge cue | States |
+|---|---|---|---|
+| Villa wall | warm pale stucco on a brown-gray core | darker lower and right faces show thickness | all 16 orthogonal joins |
+| Villa door | amber timber panels with brass detail | dark threshold remains readable | open, closed-unlocked fixture, closed-locked fixture |
+| Sunward roof | terracotta groups with pale fascia | dark five-pixel overhang and light fascia | base, edge, corner |
+
+### 16.4 Props, vegetation, and landmark
+
+| Family | Focal shape | Depth and collision cue | Multi-tile rule |
+|---|---|---|---|
+| Sofa | long rose cushion and two arms | dark lower cushion and feet | compose the `2x1` object, then split |
+| Table | long amber top with two pale place settings | dark legs touch the lower edge | compose the `2x1` object, then split |
+| Planter | terracotta box with three leaf masses | dark lower pot edge | one cell |
+| Palm | wide dusty-green crown over one narrow trunk | trunk reaches its anchor and uses a dark base | one tall cell |
+| Lamp | small amber lantern on a charcoal post | broad dark foot marks the blocker | one tall cell |
+| Fountain landmark | pale stone square, teal basin, brass center | dark outer rim and lower band define the footprint | compose the `2x2` object, then split |
+
+The sofa, table, palm, lamp, and fountain are tall-prop review classes. Each needs player-in-front and player-behind proof. Contact shadows stay attached to the object. Ground decals never become solids or interactions.

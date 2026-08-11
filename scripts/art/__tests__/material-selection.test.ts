@@ -52,5 +52,10 @@ describe('deterministic material selection', () => {
     ));
     expect(reports.filter(({ passed }) => !passed)).toEqual([]);
     expect(reports.every(({ counts }) => Object.values(counts).every((count) => count > 0))).toBe(true);
+    for (const report of reports) {
+      const variantCount = Object.keys(report.counts).length;
+      expect(report.minimumAllowed).toBe(Math.floor(72 / variantCount));
+      expect(report.maximumAllowed).toBe(Math.ceil(216 / variantCount));
+    }
   });
 });

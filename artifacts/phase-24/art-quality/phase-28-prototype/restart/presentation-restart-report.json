@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "evidenceSource": {
+    "baseCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
+    "sourceSha256": "e5ec9e5c83da0fa1f05cbdd05c8994b450c6cda236522a8753dcd1a2790c4064",
+    "sourcePaths": [
+      "electron/main/index.ts",
+      "electron/persistence/presentation-preferences.ts",
+      "package.json",
+      "scripts/electron/run-presentation-restart-package-smoke.ts",
+      "src/application/presentation/preferences.ts",
+      "src/world/presentation/art-presentation.ts",
+      "src/world/presentation/material-selection.ts"
+    ]
+  },
+  "testedCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
+  "seed": {
+    "mode": "seed",
+    "evidence": {
+      "artMode": "enhanced",
+      "presentationHash": "2c53bd1c",
+      "selectedWorldZoom": 3,
+      "uiScale": 1.25,
+      "overflow": {
+        "body": false,
+        "surface": false
+      },
+      "schemaVersion": 1,
+      "content": {
+        "width": 1280,
+        "height": 720
+      },
+      "surface": {
+        "x": 15,
+        "y": 15,
+        "width": 1250,
+        "height": 690
+      },
+      "coverage": {
+        "width": 0.9766,
+        "height": 0.9583
+      },
+      "devicePixelRatio": 1,
+      "canvas": {
+        "backingWidth": 1250,
+        "backingHeight": 690
+      },
+      "automaticWorldZoom": 1,
+      "camera": {
+        "zoom": 3,
+        "x": 544,
+        "y": 733
+      },
+      "mapId": "northwest_residential",
+      "minimumFontSize": 14,
+      "minimumPointerTarget": 45,
+      "activePanel": null,
+      "conversationInput": null,
+      "roofGroupId": "protagonist-villa-roof",
+      "roofState": "hidden",
+      "drawCounts": {
+        "floor": 243,
+        "prop": 14,
+        "shadow": 1,
+        "character": 1,
+        "effect": 1,
+        "wall": 13,
+        "roof": 0,
+        "total": 273
+      },
+      "staticBatchCount": 2
+    }
+  },
+  "restart": {
+    "mode": "restart",
+    "evidence": {
+      "artMode": "enhanced",
+      "presentationHash": "2c53bd1c",
+      "selectedWorldZoom": 3,
+      "uiScale": 1.25,
+      "overflow": {
+        "body": false,
+        "surface": false
+      },
+      "schemaVersion": 1,
+      "content": {
+        "width": 1280,
+        "height": 720
+      },
+      "surface": {
+        "x": 15,
+        "y": 15,
+        "width": 1250,
+        "height": 690
+      },
+      "coverage": {
+        "width": 0.9766,
+        "height": 0.9583
+      },
+      "devicePixelRatio": 1,
+      "canvas": {
+        "backingWidth": 1250,
+        "backingHeight": 690
+      },
+      "automaticWorldZoom": 1,
+      "camera": {
+        "zoom": 3,
+        "x": 544,
+        "y": 733
+      },
+      "mapId": "northwest_residential",
+      "minimumFontSize": 14,
+      "minimumPointerTarget": 45,
+      "activePanel": null,
+      "conversationInput": null,
+      "roofGroupId": "protagonist-villa-roof",
+      "roofState": "hidden",
+      "drawCounts": {
+        "floor": 243,
+        "prop": 14,
+        "shadow": 1,
+        "character": 1,
+        "effect": 1,
+        "wall": 13,
+        "roof": 0,
+        "total": 273
+      },
+      "staticBatchCount": 2
+    }
+  },
+  "persistedAfterSeed": {
+    "schemaVersion": 1,
+    "worldZoom": 3,
+    "uiScale": 1.25,
+    "camera": {
+      "mapId": "northwest_residential",
+      "x": 544,
+      "y": 733
+    },
+    "windowSize": null
+  },
+  "persistedAfterRestart": {
+    "schemaVersion": 1,
+    "worldZoom": 3,
+    "uiScale": 1.25,
+    "camera": {
+      "mapId": "northwest_residential",
+      "x": 544,
+      "y": 733
+    },
+    "windowSize": null
+  },
+  "screenshots": {
+    "seed": "seed.png",
+    "restart": "restart.png"
+  }
+}

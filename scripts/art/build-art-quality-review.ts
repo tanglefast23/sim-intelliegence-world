@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 import type { AtlasGenerationReport } from './build-world-atlas';
 import { writeReviewSheet } from './build-review-sheet';
+import { writePrototypeReview } from './build-prototype-review';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 
 function main(root = process.cwd()): void {
@@ -11,6 +12,7 @@ function main(root = process.cwd()): void {
     allowedRootPrefixes: ['artifacts/phase-24/art-quality'],
   }, root);
   const files = writeReviewSheet(outputRoot, root);
+  const prototype = writePrototypeReview(outputRoot, root);
   const report = JSON.parse(
     readFileSync(resolve(root, 'assets/generated/atlas-report.json'), 'utf8'),
   ) as AtlasGenerationReport;
@@ -20,7 +22,12 @@ function main(root = process.cwd()): void {
     schemaVersion: 1,
     artRevision: report.artRevision,
     imageSha256: report.imageSha256,
-    files: [...files.map((file) => file.slice(outputRoot.length + 1)), 'atlas-report.json'],
+    files: [
+      ...files.map((file) => file.slice(outputRoot.length + 1)),
+      ...prototype.files,
+      'prototype-review-report.json',
+      'atlas-report.json',
+    ],
   }, null, 2)}\n`, { encoding: 'utf8', flush: true });
 }
 

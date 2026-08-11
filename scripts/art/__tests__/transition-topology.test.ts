@@ -11,6 +11,7 @@ function recipe(id: string, transitionPriority: number): MaterialRecipe {
     id,
     publicBaseSprite: `tile.${id}`,
     logicalVariants: [`${id}-a`, `${id}-b`],
+    publicVariantSprites: [`tile.${id}`, `tile.${id}`],
     paletteRamp: ['#111111', '#222222', '#333333'],
     densityBand: 'natural-low',
     seamMode: 'hashed',

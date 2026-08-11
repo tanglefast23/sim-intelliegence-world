@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 import northwestMapJson from '../../../../content/maps/northwest.json';
 import { compileWorldMapV2 } from '../../maps/compiler';
 import { pointsInRect, tileKey, WorldMapV2Schema } from '../../maps/schema';
+import { compileArtPresentation } from '../art-presentation';
+import { MATERIAL_RECIPE_BY_ID } from '../recipes';
 import { visualBoundsIntersectTileWindow } from '../visual-bounds';
 
 const SOURCE = WorldMapV2Schema.parse(northwestMapJson);
@@ -57,7 +59,27 @@ describe('immutable art presentation index', () => {
     expect(compiled.presentation.decals.every(({ solid, interactive }) => !solid && !interactive)).toBe(true);
     expect(compiled.presentation.decals.every(({ tile }) => !compiled.staticSolidOwnerByTile.has(tileKey(tile)))).toBe(true);
     expect(compiled.presentation.transitions.every(({ solid, interactive }) => !solid && !interactive)).toBe(true);
-    expect(compiled.presentation.transitions.every(({ sprite }) => sprite === null)).toBe(true);
+    expect(compiled.presentation.transitions.every(({ ownerMaterialId, sprite }) => (
+      sprite === null
+        ? MATERIAL_RECIPE_BY_ID[ownerMaterialId]?.edgeMode === 'hard'
+        : /^tile\.transition-(?:soft|built)-[1-9a-f]$/u.test(sprite)
+    ))).toBe(true);
+  });
+
+  test('leaves declared hard material edges unblended', () => {
+    const groundSprites = Array.from({ length: SOURCE.width * SOURCE.height }, () => 'tile.warm-sand');
+    groundSprites[0] = 'tile.dark-asphalt';
+    const presentation = compileArtPresentation({ map: SOURCE, groundSprites });
+    const hardTransitions = presentation.transitions.filter(({ ownerMaterialId }) => ownerMaterialId === 'dark-asphalt');
+    expect(hardTransitions.length).toBeGreaterThan(0);
+    expect(hardTransitions.every(({ sprite }) => sprite === null)).toBe(true);
+  });
+
+  test('does not place presentation decals inside roofed rooms', () => {
+    const groundSprites = Array.from({ length: SOURCE.width * SOURCE.height }, () => 'tile.warm-sand');
+    const presentation = compileArtPresentation({ map: SOURCE, groundSprites });
+    const roofTiles = new Set(SOURCE.roofGroups.flatMap(({ cells }) => cells.flatMap(pointsInRect)).map(tileKey));
+    expect(presentation.decals.some(({ tile }) => roofTiles.has(tileKey(tile)))).toBe(false);
   });
 
   test('derives authored roof cells without changing roof masks or ownership', () => {
@@ -70,6 +92,9 @@ describe('immutable art presentation index', () => {
       expect(presented).toEqual(expected);
       expect(compiled.roofGroupById.get(roof.id)?.cellKeys).toEqual(expected);
     }
+    expect(new Set(compiled.presentation.roofs.map(({ sprite }) => sprite))).toEqual(new Set([
+      'tile.roof-sunward-base', 'tile.roof-sunward-edge', 'tile.roof-sunward-corner',
+    ]));
   });
 
   test('uses visual bounds for culling without changing any solid, route, or density authority', () => {

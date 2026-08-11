@@ -1,13 +1,13 @@
 {
   "version": 3,
-  "artRevision": 1,
-  "toolVersion": "atlas-v3",
+  "artRevision": 2,
+  "toolVersion": "atlas-v3-phase28",
   "image": {
     "width": 512,
-    "height": 412,
+    "height": 514,
     "colorType": "rgba",
     "gutter": 1,
-    "sha256": "a3b56b65e7e68e7b4847f2f3f30c50506f2e702a596dfc3f5e28fb04130ca008"
+    "sha256": "c940e82f2e32c9558983e80ea6915a23e4d81fccb746da59db3ff583f6de0c3d"
   },
   "tileSize": 32,
   "worldCell": {
@@ -189,8 +189,20 @@
       "cellClass": "transparent-part",
       "wallAdjacencyMask": null
     },
-    "tile.counter-left": {
+    "tile.closed-locked-door": {
       "x": 69,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "wall-door",
+      "visibility": "public",
+      "sourceId": "closed-locked-door",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.counter-left": {
+      "x": 103,
       "y": 47,
       "width": 32,
       "height": 32,
@@ -202,7 +214,7 @@
       "wallAdjacencyMask": null
     },
     "tile.counter-right": {
-      "x": 103,
+      "x": 137,
       "y": 47,
       "width": 32,
       "height": 32,
@@ -214,7 +226,7 @@
       "wallAdjacencyMask": null
     },
     "tile.dark-asphalt": {
-      "x": 137,
+      "x": 171,
       "y": 47,
       "width": 32,
       "height": 32,
@@ -225,8 +237,44 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
+    "tile.decal-grass-tuft": {
+      "x": 205,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-decal",
+      "visibility": "public",
+      "sourceId": "decal-grass-tuft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.decal-sand-pebbles": {
+      "x": 239,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-decal",
+      "visibility": "public",
+      "sourceId": "decal-sand-pebbles",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.decal-sand-ripple": {
+      "x": 273,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-decal",
+      "visibility": "public",
+      "sourceId": "decal-sand-ripple",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
     "tile.dune-grass": {
-      "x": 171,
+      "x": 307,
       "y": 47,
       "width": 32,
       "height": 32,
@@ -237,8 +285,44 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
+    "tile.dune-grass-b": {
+      "x": 341,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "dune-grass-b",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.dune-grass-c": {
+      "x": 375,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "dune-grass-c",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.dune-grass-d": {
+      "x": 409,
+      "y": 47,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "dune-grass-d",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
     "tile.fixture-lamp": {
-      "x": 205,
+      "x": 443,
       "y": 47,
       "width": 32,
       "height": 32,
@@ -250,7 +334,7 @@
       "wallAdjacencyMask": null
     },
     "tile.fixture-planter": {
-      "x": 239,
+      "x": 477,
       "y": 47,
       "width": 32,
       "height": 32,
@@ -262,8 +346,8 @@
       "wallAdjacencyMask": null
     },
     "tile.garden-soil": {
-      "x": 273,
-      "y": 47,
+      "x": 1,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -274,8 +358,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-ferry-left": {
-      "x": 307,
-      "y": 47,
+      "x": 35,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -286,8 +370,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-ferry-right": {
-      "x": 341,
-      "y": 47,
+      "x": 69,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -298,8 +382,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-ne": {
-      "x": 375,
-      "y": 47,
+      "x": 103,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -310,8 +394,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-nw": {
-      "x": 409,
-      "y": 47,
+      "x": 137,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -322,8 +406,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-se": {
-      "x": 443,
-      "y": 47,
+      "x": 171,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -334,8 +418,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-sw": {
-      "x": 477,
-      "y": 47,
+      "x": 205,
+      "y": 81,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -346,7 +430,7 @@
       "wallAdjacencyMask": null
     },
     "tile.open-door": {
-      "x": 1,
+      "x": 239,
       "y": 81,
       "width": 32,
       "height": 32,
@@ -358,7 +442,7 @@
       "wallAdjacencyMask": null
     },
     "tile.pale-concrete": {
-      "x": 35,
+      "x": 273,
       "y": 81,
       "width": 32,
       "height": 32,
@@ -370,7 +454,7 @@
       "wallAdjacencyMask": null
     },
     "tile.plant-palm": {
-      "x": 69,
+      "x": 307,
       "y": 81,
       "width": 32,
       "height": 32,
@@ -382,7 +466,7 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver": {
-      "x": 103,
+      "x": 341,
       "y": 81,
       "width": 32,
       "height": 32,
@@ -393,8 +477,44 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
+    "tile.roof-sunward-base": {
+      "x": 375,
+      "y": 81,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "roof",
+      "visibility": "public",
+      "sourceId": "roof-sunward-base",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.roof-sunward-corner": {
+      "x": 409,
+      "y": 81,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "roof",
+      "visibility": "public",
+      "sourceId": "roof-sunward-corner",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.roof-sunward-edge": {
+      "x": 443,
+      "y": 81,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "roof",
+      "visibility": "public",
+      "sourceId": "roof-sunward-edge",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
     "tile.shallow-water": {
-      "x": 137,
+      "x": 477,
       "y": 81,
       "width": 32,
       "height": 32,
@@ -405,9 +525,45 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
+    "tile.shallow-water-b": {
+      "x": 1,
+      "y": 115,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "shallow-water-b",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.shallow-water-c": {
+      "x": 35,
+      "y": 115,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "shallow-water-c",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.shallow-water-d": {
+      "x": 69,
+      "y": 115,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "shallow-water-d",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
     "tile.sign-civic": {
-      "x": 171,
-      "y": 81,
+      "x": 103,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -418,8 +574,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-market": {
-      "x": 205,
-      "y": 81,
+      "x": 137,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -430,8 +586,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-neon": {
-      "x": 239,
-      "y": 81,
+      "x": 171,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -442,8 +598,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-spa": {
-      "x": 273,
-      "y": 81,
+      "x": 205,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -454,8 +610,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sofa-left": {
-      "x": 307,
-      "y": 81,
+      "x": 239,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -466,8 +622,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sofa-right": {
-      "x": 341,
-      "y": 81,
+      "x": 273,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -478,8 +634,8 @@
       "wallAdjacencyMask": null
     },
     "tile.spa-stone": {
-      "x": 375,
-      "y": 81,
+      "x": 307,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -489,9 +645,21 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
+    "tile.spa-stone-b": {
+      "x": 341,
+      "y": 115,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "spa-stone-b",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
     "tile.table-left": {
-      "x": 409,
-      "y": 81,
+      "x": 375,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -502,8 +670,8 @@
       "wallAdjacencyMask": null
     },
     "tile.table-right": {
-      "x": 443,
-      "y": 81,
+      "x": 409,
+      "y": 115,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -513,9 +681,369 @@
       "cellClass": "transparent-part",
       "wallAdjacencyMask": null
     },
-    "tile.villa-floor": {
+    "tile.transition-built-1": {
+      "x": 443,
+      "y": 115,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-2": {
       "x": 477,
-      "y": 81,
+      "y": 115,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-3": {
+      "x": 1,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-4": {
+      "x": 35,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-5": {
+      "x": 69,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-6": {
+      "x": 103,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-7": {
+      "x": 137,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-8": {
+      "x": 171,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-9": {
+      "x": 205,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-a": {
+      "x": 239,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-b": {
+      "x": 273,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-c": {
+      "x": 307,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-d": {
+      "x": 341,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-e": {
+      "x": 375,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-built-f": {
+      "x": 409,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "built",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-1": {
+      "x": 443,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-2": {
+      "x": 477,
+      "y": 149,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-3": {
+      "x": 1,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-4": {
+      "x": 35,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-5": {
+      "x": 69,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-6": {
+      "x": 103,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-7": {
+      "x": 137,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-8": {
+      "x": 171,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-9": {
+      "x": 205,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-a": {
+      "x": 239,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-b": {
+      "x": 273,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-c": {
+      "x": 307,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-d": {
+      "x": 341,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-e": {
+      "x": 375,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.transition-soft-f": {
+      "x": 409,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-transition",
+      "visibility": "public",
+      "sourceId": "soft",
+      "cellClass": "transparent-part",
+      "wallAdjacencyMask": null
+    },
+    "tile.villa-floor": {
+      "x": 443,
+      "y": 183,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -525,9 +1053,21 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
+    "tile.villa-floor-b": {
+      "x": 477,
+      "y": 183,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "villa-floor-b",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
     "tile.wall-civic-0": {
       "x": 1,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -539,7 +1079,7 @@
     },
     "tile.wall-civic-1": {
       "x": 35,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -551,7 +1091,7 @@
     },
     "tile.wall-civic-2": {
       "x": 69,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -563,7 +1103,7 @@
     },
     "tile.wall-civic-3": {
       "x": 103,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -575,7 +1115,7 @@
     },
     "tile.wall-civic-4": {
       "x": 137,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -587,7 +1127,7 @@
     },
     "tile.wall-civic-5": {
       "x": 171,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -599,7 +1139,7 @@
     },
     "tile.wall-civic-6": {
       "x": 205,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -611,7 +1151,7 @@
     },
     "tile.wall-civic-7": {
       "x": 239,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -623,7 +1163,7 @@
     },
     "tile.wall-civic-8": {
       "x": 273,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -635,7 +1175,7 @@
     },
     "tile.wall-civic-9": {
       "x": 307,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -647,7 +1187,7 @@
     },
     "tile.wall-civic-a": {
       "x": 341,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -659,7 +1199,7 @@
     },
     "tile.wall-civic-b": {
       "x": 375,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -671,7 +1211,7 @@
     },
     "tile.wall-civic-c": {
       "x": 409,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -683,7 +1223,7 @@
     },
     "tile.wall-civic-d": {
       "x": 443,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -695,7 +1235,7 @@
     },
     "tile.wall-civic-e": {
       "x": 477,
-      "y": 115,
+      "y": 217,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -707,7 +1247,7 @@
     },
     "tile.wall-civic-f": {
       "x": 1,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -719,7 +1259,7 @@
     },
     "tile.wall-commercial-0": {
       "x": 35,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -731,7 +1271,7 @@
     },
     "tile.wall-commercial-1": {
       "x": 69,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -743,7 +1283,7 @@
     },
     "tile.wall-commercial-2": {
       "x": 103,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -755,7 +1295,7 @@
     },
     "tile.wall-commercial-3": {
       "x": 137,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -767,7 +1307,7 @@
     },
     "tile.wall-commercial-4": {
       "x": 171,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -779,7 +1319,7 @@
     },
     "tile.wall-commercial-5": {
       "x": 205,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -791,7 +1331,7 @@
     },
     "tile.wall-commercial-6": {
       "x": 239,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -803,7 +1343,7 @@
     },
     "tile.wall-commercial-7": {
       "x": 273,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -815,7 +1355,7 @@
     },
     "tile.wall-commercial-8": {
       "x": 307,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -827,7 +1367,7 @@
     },
     "tile.wall-commercial-9": {
       "x": 341,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -839,7 +1379,7 @@
     },
     "tile.wall-commercial-a": {
       "x": 375,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -851,7 +1391,7 @@
     },
     "tile.wall-commercial-b": {
       "x": 409,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -863,7 +1403,7 @@
     },
     "tile.wall-commercial-c": {
       "x": 443,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -875,7 +1415,7 @@
     },
     "tile.wall-commercial-d": {
       "x": 477,
-      "y": 149,
+      "y": 251,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -887,7 +1427,7 @@
     },
     "tile.wall-commercial-e": {
       "x": 1,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -899,7 +1439,7 @@
     },
     "tile.wall-commercial-f": {
       "x": 35,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -911,7 +1451,7 @@
     },
     "tile.wall-downtown-0": {
       "x": 69,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -923,7 +1463,7 @@
     },
     "tile.wall-downtown-1": {
       "x": 103,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -935,7 +1475,7 @@
     },
     "tile.wall-downtown-2": {
       "x": 137,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -947,7 +1487,7 @@
     },
     "tile.wall-downtown-3": {
       "x": 171,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -959,7 +1499,7 @@
     },
     "tile.wall-downtown-4": {
       "x": 205,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -971,7 +1511,7 @@
     },
     "tile.wall-downtown-5": {
       "x": 239,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -983,7 +1523,7 @@
     },
     "tile.wall-downtown-6": {
       "x": 273,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -995,7 +1535,7 @@
     },
     "tile.wall-downtown-7": {
       "x": 307,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1007,7 +1547,7 @@
     },
     "tile.wall-downtown-8": {
       "x": 341,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1019,7 +1559,7 @@
     },
     "tile.wall-downtown-9": {
       "x": 375,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1031,7 +1571,7 @@
     },
     "tile.wall-downtown-a": {
       "x": 409,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1043,7 +1583,7 @@
     },
     "tile.wall-downtown-b": {
       "x": 443,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1055,7 +1595,7 @@
     },
     "tile.wall-downtown-c": {
       "x": 477,
-      "y": 183,
+      "y": 285,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1067,7 +1607,7 @@
     },
     "tile.wall-downtown-d": {
       "x": 1,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1079,7 +1619,7 @@
     },
     "tile.wall-downtown-e": {
       "x": 35,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1091,7 +1631,7 @@
     },
     "tile.wall-downtown-f": {
       "x": 69,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1103,7 +1643,7 @@
     },
     "tile.wall-villa-0": {
       "x": 103,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1115,7 +1655,7 @@
     },
     "tile.wall-villa-1": {
       "x": 137,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1127,7 +1667,7 @@
     },
     "tile.wall-villa-2": {
       "x": 171,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1139,7 +1679,7 @@
     },
     "tile.wall-villa-3": {
       "x": 205,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1151,7 +1691,7 @@
     },
     "tile.wall-villa-4": {
       "x": 239,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1163,7 +1703,7 @@
     },
     "tile.wall-villa-5": {
       "x": 273,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1175,7 +1715,7 @@
     },
     "tile.wall-villa-6": {
       "x": 307,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1187,7 +1727,7 @@
     },
     "tile.wall-villa-7": {
       "x": 341,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1199,7 +1739,7 @@
     },
     "tile.wall-villa-8": {
       "x": 375,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1211,7 +1751,7 @@
     },
     "tile.wall-villa-9": {
       "x": 409,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1223,7 +1763,7 @@
     },
     "tile.wall-villa-a": {
       "x": 443,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1235,7 +1775,7 @@
     },
     "tile.wall-villa-b": {
       "x": 477,
-      "y": 217,
+      "y": 319,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1247,7 +1787,7 @@
     },
     "tile.wall-villa-c": {
       "x": 1,
-      "y": 251,
+      "y": 353,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1259,7 +1799,7 @@
     },
     "tile.wall-villa-d": {
       "x": 35,
-      "y": 251,
+      "y": 353,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1271,7 +1811,7 @@
     },
     "tile.wall-villa-e": {
       "x": 69,
-      "y": 251,
+      "y": 353,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1283,7 +1823,7 @@
     },
     "tile.wall-villa-f": {
       "x": 103,
-      "y": 251,
+      "y": 353,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1295,7 +1835,7 @@
     },
     "tile.warm-sand": {
       "x": 137,
-      "y": 251,
+      "y": 353,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1305,9 +1845,45 @@
       "cellClass": "ground",
       "wallAdjacencyMask": null
     },
-    "character.devon-price.front-1": {
+    "tile.warm-sand-b": {
       "x": 171,
-      "y": 251,
+      "y": 353,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "warm-sand-b",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.warm-sand-c": {
+      "x": 205,
+      "y": 353,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "warm-sand-c",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "tile.warm-sand-d": {
+      "x": 239,
+      "y": 353,
+      "width": 32,
+      "height": 32,
+      "kind": "tile",
+      "category": "ground-base",
+      "visibility": "public",
+      "sourceId": "warm-sand-d",
+      "cellClass": "ground",
+      "wallAdjacencyMask": null
+    },
+    "character.devon-price.front-1": {
+      "x": 273,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1318,8 +1894,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.front-2": {
-      "x": 197,
-      "y": 251,
+      "x": 299,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1330,8 +1906,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.left-1": {
-      "x": 223,
-      "y": 251,
+      "x": 325,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1342,8 +1918,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.left-2": {
-      "x": 249,
-      "y": 251,
+      "x": 351,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1354,8 +1930,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.rear-1": {
-      "x": 275,
-      "y": 251,
+      "x": 377,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1366,8 +1942,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.rear-2": {
-      "x": 301,
-      "y": 251,
+      "x": 403,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1378,8 +1954,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.right-1": {
-      "x": 327,
-      "y": 251,
+      "x": 429,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1390,8 +1966,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.right-2": {
-      "x": 353,
-      "y": 251,
+      "x": 455,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1402,8 +1978,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.front-1": {
-      "x": 379,
-      "y": 251,
+      "x": 481,
+      "y": 353,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1414,8 +1990,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.front-2": {
-      "x": 405,
-      "y": 251,
+      "x": 1,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1426,8 +2002,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.left-1": {
-      "x": 431,
-      "y": 251,
+      "x": 27,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1438,8 +2014,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.left-2": {
-      "x": 457,
-      "y": 251,
+      "x": 53,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1450,8 +2026,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.rear-1": {
-      "x": 483,
-      "y": 251,
+      "x": 79,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1462,8 +2038,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.rear-2": {
-      "x": 1,
-      "y": 285,
+      "x": 105,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1474,8 +2050,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.right-1": {
-      "x": 27,
-      "y": 285,
+      "x": 131,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1486,8 +2062,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.right-2": {
-      "x": 53,
-      "y": 285,
+      "x": 157,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1498,8 +2074,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.front-1": {
-      "x": 79,
-      "y": 285,
+      "x": 183,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1510,8 +2086,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.front-2": {
-      "x": 105,
-      "y": 285,
+      "x": 209,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1522,8 +2098,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.left-1": {
-      "x": 131,
-      "y": 285,
+      "x": 235,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1534,8 +2110,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.left-2": {
-      "x": 157,
-      "y": 285,
+      "x": 261,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1546,8 +2122,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.rear-1": {
-      "x": 183,
-      "y": 285,
+      "x": 287,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1558,8 +2134,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.rear-2": {
-      "x": 209,
-      "y": 285,
+      "x": 313,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1570,8 +2146,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.right-1": {
-      "x": 235,
-      "y": 285,
+      "x": 339,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1582,8 +2158,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.right-2": {
-      "x": 261,
-      "y": 285,
+      "x": 365,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1594,8 +2170,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.front-1": {
-      "x": 287,
-      "y": 285,
+      "x": 391,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1606,8 +2182,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.front-2": {
-      "x": 313,
-      "y": 285,
+      "x": 417,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1618,8 +2194,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.left-1": {
-      "x": 339,
-      "y": 285,
+      "x": 443,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1630,8 +2206,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.left-2": {
-      "x": 365,
-      "y": 285,
+      "x": 469,
+      "y": 387,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1642,8 +2218,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.rear-1": {
-      "x": 391,
-      "y": 285,
+      "x": 1,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1654,8 +2230,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.rear-2": {
-      "x": 417,
-      "y": 285,
+      "x": 27,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1666,8 +2242,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.right-1": {
-      "x": 443,
-      "y": 285,
+      "x": 53,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1678,8 +2254,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.right-2": {
-      "x": 469,
-      "y": 285,
+      "x": 79,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1690,8 +2266,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.front-1": {
-      "x": 1,
-      "y": 317,
+      "x": 105,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1702,8 +2278,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.front-2": {
-      "x": 27,
-      "y": 317,
+      "x": 131,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1714,8 +2290,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.left-1": {
-      "x": 53,
-      "y": 317,
+      "x": 157,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1726,8 +2302,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.left-2": {
-      "x": 79,
-      "y": 317,
+      "x": 183,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1738,8 +2314,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.rear-1": {
-      "x": 105,
-      "y": 317,
+      "x": 209,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1750,8 +2326,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.rear-2": {
-      "x": 131,
-      "y": 317,
+      "x": 235,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1762,8 +2338,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.right-1": {
-      "x": 157,
-      "y": 317,
+      "x": 261,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1774,8 +2350,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.right-2": {
-      "x": 183,
-      "y": 317,
+      "x": 287,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1786,8 +2362,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.front-1": {
-      "x": 209,
-      "y": 317,
+      "x": 313,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1798,8 +2374,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.front-2": {
-      "x": 235,
-      "y": 317,
+      "x": 339,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1810,8 +2386,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.left-1": {
-      "x": 261,
-      "y": 317,
+      "x": 365,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1822,8 +2398,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.left-2": {
-      "x": 287,
-      "y": 317,
+      "x": 391,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1834,8 +2410,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.rear-1": {
-      "x": 313,
-      "y": 317,
+      "x": 417,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1846,8 +2422,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.rear-2": {
-      "x": 339,
-      "y": 317,
+      "x": 443,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1858,8 +2434,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.right-1": {
-      "x": 365,
-      "y": 317,
+      "x": 469,
+      "y": 419,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1870,8 +2446,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.right-2": {
-      "x": 391,
-      "y": 317,
+      "x": 1,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1882,8 +2458,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.front-1": {
-      "x": 417,
-      "y": 317,
+      "x": 27,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1894,8 +2470,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.front-2": {
-      "x": 443,
-      "y": 317,
+      "x": 53,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1906,8 +2482,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.left-1": {
-      "x": 469,
-      "y": 317,
+      "x": 79,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1918,8 +2494,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.left-2": {
-      "x": 1,
-      "y": 349,
+      "x": 105,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1930,8 +2506,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.rear-1": {
-      "x": 27,
-      "y": 349,
+      "x": 131,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1942,8 +2518,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.rear-2": {
-      "x": 53,
-      "y": 349,
+      "x": 157,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1954,8 +2530,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.right-1": {
-      "x": 79,
-      "y": 349,
+      "x": 183,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1966,8 +2542,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.right-2": {
-      "x": 105,
-      "y": 349,
+      "x": 209,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1978,8 +2554,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.front-1": {
-      "x": 131,
-      "y": 349,
+      "x": 235,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -1990,8 +2566,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.front-2": {
-      "x": 157,
-      "y": 349,
+      "x": 261,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2002,8 +2578,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.left-1": {
-      "x": 183,
-      "y": 349,
+      "x": 287,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2014,8 +2590,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.left-2": {
-      "x": 209,
-      "y": 349,
+      "x": 313,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2026,8 +2602,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.rear-1": {
-      "x": 235,
-      "y": 349,
+      "x": 339,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2038,8 +2614,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.rear-2": {
-      "x": 261,
-      "y": 349,
+      "x": 365,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2050,8 +2626,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.right-1": {
-      "x": 287,
-      "y": 349,
+      "x": 391,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2062,8 +2638,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.right-2": {
-      "x": 313,
-      "y": 349,
+      "x": 417,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2074,8 +2650,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.front-1": {
-      "x": 339,
-      "y": 349,
+      "x": 443,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2086,8 +2662,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.front-2": {
-      "x": 365,
-      "y": 349,
+      "x": 469,
+      "y": 451,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2098,8 +2674,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.left-1": {
-      "x": 391,
-      "y": 349,
+      "x": 1,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2110,8 +2686,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.left-2": {
-      "x": 417,
-      "y": 349,
+      "x": 27,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2122,8 +2698,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.rear-1": {
-      "x": 443,
-      "y": 349,
+      "x": 53,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2134,8 +2710,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.rear-2": {
-      "x": 469,
-      "y": 349,
+      "x": 79,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2146,8 +2722,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.right-1": {
-      "x": 1,
-      "y": 381,
+      "x": 105,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2158,8 +2734,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.right-2": {
-      "x": 27,
-      "y": 381,
+      "x": 131,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2170,8 +2746,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.front-1": {
-      "x": 53,
-      "y": 381,
+      "x": 157,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2182,8 +2758,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.front-2": {
-      "x": 79,
-      "y": 381,
+      "x": 183,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2194,8 +2770,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.left-1": {
-      "x": 105,
-      "y": 381,
+      "x": 209,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2206,8 +2782,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.left-2": {
-      "x": 131,
-      "y": 381,
+      "x": 235,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2218,8 +2794,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.rear-1": {
-      "x": 157,
-      "y": 381,
+      "x": 261,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2230,8 +2806,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.rear-2": {
-      "x": 183,
-      "y": 381,
+      "x": 287,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2242,8 +2818,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.right-1": {
-      "x": 209,
-      "y": 381,
+      "x": 313,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2254,8 +2830,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.right-2": {
-      "x": 235,
-      "y": 381,
+      "x": 339,
+      "y": 483,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2281,10 +2857,17 @@
     "tile.bed-head",
     "tile.boardwalk",
     "tile.closed-door",
+    "tile.closed-locked-door",
     "tile.counter-left",
     "tile.counter-right",
     "tile.dark-asphalt",
+    "tile.decal-grass-tuft",
+    "tile.decal-sand-pebbles",
+    "tile.decal-sand-ripple",
     "tile.dune-grass",
+    "tile.dune-grass-b",
+    "tile.dune-grass-c",
+    "tile.dune-grass-d",
     "tile.fixture-lamp",
     "tile.fixture-planter",
     "tile.garden-soil",
@@ -2298,7 +2881,13 @@
     "tile.pale-concrete",
     "tile.plant-palm",
     "tile.plaza-paver",
+    "tile.roof-sunward-base",
+    "tile.roof-sunward-corner",
+    "tile.roof-sunward-edge",
     "tile.shallow-water",
+    "tile.shallow-water-b",
+    "tile.shallow-water-c",
+    "tile.shallow-water-d",
     "tile.sign-civic",
     "tile.sign-market",
     "tile.sign-neon",
@@ -2306,9 +2895,41 @@
     "tile.sofa-left",
     "tile.sofa-right",
     "tile.spa-stone",
+    "tile.spa-stone-b",
     "tile.table-left",
     "tile.table-right",
+    "tile.transition-built-1",
+    "tile.transition-built-2",
+    "tile.transition-built-3",
+    "tile.transition-built-4",
+    "tile.transition-built-5",
+    "tile.transition-built-6",
+    "tile.transition-built-7",
+    "tile.transition-built-8",
+    "tile.transition-built-9",
+    "tile.transition-built-a",
+    "tile.transition-built-b",
+    "tile.transition-built-c",
+    "tile.transition-built-d",
+    "tile.transition-built-e",
+    "tile.transition-built-f",
+    "tile.transition-soft-1",
+    "tile.transition-soft-2",
+    "tile.transition-soft-3",
+    "tile.transition-soft-4",
+    "tile.transition-soft-5",
+    "tile.transition-soft-6",
+    "tile.transition-soft-7",
+    "tile.transition-soft-8",
+    "tile.transition-soft-9",
+    "tile.transition-soft-a",
+    "tile.transition-soft-b",
+    "tile.transition-soft-c",
+    "tile.transition-soft-d",
+    "tile.transition-soft-e",
+    "tile.transition-soft-f",
     "tile.villa-floor",
+    "tile.villa-floor-b",
     "tile.wall-civic-0",
     "tile.wall-civic-1",
     "tile.wall-civic-2",
@@ -2374,6 +2995,9 @@
     "tile.wall-villa-e",
     "tile.wall-villa-f",
     "tile.warm-sand",
+    "tile.warm-sand-b",
+    "tile.warm-sand-c",
+    "tile.warm-sand-d",
     "character.devon-price.front-1",
     "character.devon-price.front-2",
     "character.devon-price.left-1",
@@ -2689,6 +3313,17 @@
     "tile.garden-soil",
     "tile.pale-concrete",
     "tile.dark-asphalt",
+    "tile.warm-sand-b",
+    "tile.warm-sand-c",
+    "tile.warm-sand-d",
+    "tile.dune-grass-b",
+    "tile.dune-grass-c",
+    "tile.dune-grass-d",
+    "tile.shallow-water-b",
+    "tile.shallow-water-c",
+    "tile.shallow-water-d",
+    "tile.spa-stone-b",
+    "tile.villa-floor-b",
     "tile.wall-villa-0",
     "tile.wall-villa-1",
     "tile.wall-villa-2",
@@ -2755,6 +3390,7 @@
     "tile.wall-civic-f",
     "tile.open-door",
     "tile.closed-door",
+    "tile.closed-locked-door",
     "tile.bed-head",
     "tile.bed-foot",
     "tile.sofa-left",
@@ -2775,7 +3411,43 @@
     "tile.landmark-fountain-sw",
     "tile.landmark-fountain-se",
     "tile.landmark-ferry-left",
-    "tile.landmark-ferry-right"
+    "tile.landmark-ferry-right",
+    "tile.roof-sunward-base",
+    "tile.roof-sunward-edge",
+    "tile.roof-sunward-corner",
+    "tile.decal-sand-ripple",
+    "tile.decal-sand-pebbles",
+    "tile.decal-grass-tuft",
+    "tile.transition-soft-1",
+    "tile.transition-soft-2",
+    "tile.transition-soft-3",
+    "tile.transition-soft-4",
+    "tile.transition-soft-5",
+    "tile.transition-soft-6",
+    "tile.transition-soft-7",
+    "tile.transition-soft-8",
+    "tile.transition-soft-9",
+    "tile.transition-soft-a",
+    "tile.transition-soft-b",
+    "tile.transition-soft-c",
+    "tile.transition-soft-d",
+    "tile.transition-soft-e",
+    "tile.transition-soft-f",
+    "tile.transition-built-1",
+    "tile.transition-built-2",
+    "tile.transition-built-3",
+    "tile.transition-built-4",
+    "tile.transition-built-5",
+    "tile.transition-built-6",
+    "tile.transition-built-7",
+    "tile.transition-built-8",
+    "tile.transition-built-9",
+    "tile.transition-built-a",
+    "tile.transition-built-b",
+    "tile.transition-built-c",
+    "tile.transition-built-d",
+    "tile.transition-built-e",
+    "tile.transition-built-f"
   ],
   "groundCells": [
     "tile.warm-sand",
@@ -2787,7 +3459,18 @@
     "tile.shallow-water",
     "tile.garden-soil",
     "tile.pale-concrete",
-    "tile.dark-asphalt"
+    "tile.dark-asphalt",
+    "tile.warm-sand-b",
+    "tile.warm-sand-c",
+    "tile.warm-sand-d",
+    "tile.dune-grass-b",
+    "tile.dune-grass-c",
+    "tile.dune-grass-d",
+    "tile.shallow-water-b",
+    "tile.shallow-water-c",
+    "tile.shallow-water-d",
+    "tile.spa-stone-b",
+    "tile.villa-floor-b"
   ],
   "transparentPartCells": [
     "tile.wall-villa-0",
@@ -2856,6 +3539,7 @@
     "tile.wall-civic-f",
     "tile.open-door",
     "tile.closed-door",
+    "tile.closed-locked-door",
     "tile.bed-head",
     "tile.bed-foot",
     "tile.sofa-left",
@@ -2877,6 +3561,44 @@
     "tile.landmark-fountain-se",
     "tile.landmark-ferry-left",
     "tile.landmark-ferry-right"
+  ],
+  "presentationCells": [
+    "tile.roof-sunward-base",
+    "tile.roof-sunward-edge",
+    "tile.roof-sunward-corner",
+    "tile.decal-sand-ripple",
+    "tile.decal-sand-pebbles",
+    "tile.decal-grass-tuft",
+    "tile.transition-soft-1",
+    "tile.transition-soft-2",
+    "tile.transition-soft-3",
+    "tile.transition-soft-4",
+    "tile.transition-soft-5",
+    "tile.transition-soft-6",
+    "tile.transition-soft-7",
+    "tile.transition-soft-8",
+    "tile.transition-soft-9",
+    "tile.transition-soft-a",
+    "tile.transition-soft-b",
+    "tile.transition-soft-c",
+    "tile.transition-soft-d",
+    "tile.transition-soft-e",
+    "tile.transition-soft-f",
+    "tile.transition-built-1",
+    "tile.transition-built-2",
+    "tile.transition-built-3",
+    "tile.transition-built-4",
+    "tile.transition-built-5",
+    "tile.transition-built-6",
+    "tile.transition-built-7",
+    "tile.transition-built-8",
+    "tile.transition-built-9",
+    "tile.transition-built-a",
+    "tile.transition-built-b",
+    "tile.transition-built-c",
+    "tile.transition-built-d",
+    "tile.transition-built-e",
+    "tile.transition-built-f"
   ],
   "walls": {
     "villa": [
@@ -2950,6 +3672,26 @@
       "tile.wall-civic-d",
       "tile.wall-civic-e",
       "tile.wall-civic-f"
+    ]
+  },
+  "multiTileCompositions": {
+    "sunward-sofa": [
+      "sofa-left",
+      "sofa-right"
+    ],
+    "sunward-table": [
+      "table-left",
+      "table-right"
+    ],
+    "sunward-fountain": [
+      "landmark-fountain-nw",
+      "landmark-fountain-ne",
+      "landmark-fountain-sw",
+      "landmark-fountain-se"
+    ],
+    "harbor-ferry": [
+      "landmark-ferry-left",
+      "landmark-ferry-right"
     ]
   }
 }

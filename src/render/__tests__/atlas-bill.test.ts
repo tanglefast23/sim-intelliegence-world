@@ -18,13 +18,18 @@ describe('runtime atlas bill and movement contract', () => {
     const renderedNames = buildAtlasProofScene(0).sprites.map(({ sprite }) => sprite);
     expect(new Set(renderedNames)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
     expect(ATLAS_INDEX.version).toBe(3);
-    expect(ATLAS_INDEX.artRevision).toBe(1);
+    expect(ATLAS_INDEX.artRevision).toBe(2);
     expect(ATLAS_INDEX.publicSpriteIds).toEqual(Object.keys(ATLAS_INDEX.sprites));
     expect(ATLAS_INDEX.internalReviewSpriteIds).toEqual([]);
-    expect(ATLAS_INDEX.tiles).toHaveLength(97);
-    expect(ATLAS_INDEX.groundCells).toHaveLength(10);
-    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(87);
-    expect(new Set([...ATLAS_INDEX.groundCells, ...ATLAS_INDEX.transparentPartCells]))
+    expect(ATLAS_INDEX.tiles).toHaveLength(145);
+    expect(ATLAS_INDEX.groundCells).toHaveLength(21);
+    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(88);
+    expect(ATLAS_INDEX.presentationCells).toHaveLength(36);
+    expect(new Set([
+      ...ATLAS_INDEX.groundCells,
+      ...ATLAS_INDEX.transparentPartCells,
+      ...ATLAS_INDEX.presentationCells,
+    ]))
       .toEqual(new Set(ATLAS_INDEX.tiles));
     for (const name of ATLAS_INDEX.groundCells) {
       expect(ATLAS_INDEX.sprites[name]).toMatchObject({ cellClass: 'ground', wallAdjacencyMask: null });

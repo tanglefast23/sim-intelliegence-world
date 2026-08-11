@@ -136,6 +136,144 @@
         { "kind": "rect", "token": "Y", "x": 15, "y": 3, "width": 2, "height": 8 },
         { "kind": "rect", "token": "Y", "x": 15, "y": 21, "width": 2, "height": 8 }
       ]
+    },
+    {
+      "id": "warm-sand-b",
+      "cellClass": "ground",
+      "palette": { "B": "#d8b579", "L": "#ead19a", "D": "#bc9362", "P": "#866348" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "L", "x": 3, "y": 6, "width": 10, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 8, "width": 13, "height": 1 },
+        { "kind": "rect", "token": "L", "x": 18, "y": 22, "width": 10, "height": 1 },
+        { "kind": "pixels", "token": "P", "points": [[5,24],[6,24],[25,11],[26,12]] }
+      ]
+    },
+    {
+      "id": "warm-sand-c",
+      "cellClass": "ground",
+      "palette": { "B": "#dab97f", "L": "#eed6a2", "D": "#b78c5c", "P": "#846047" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 1, "y": 16, "width": 12, "height": 1 },
+        { "kind": "rect", "token": "L", "x": 5, "y": 14, "width": 15, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 20, "y": 4, "width": 9, "height": 1 },
+        { "kind": "pixels", "token": "P", "points": [[12,27],[13,27],[27,25]] }
+      ]
+    },
+    {
+      "id": "warm-sand-d",
+      "cellClass": "ground",
+      "palette": { "B": "#d5b175", "L": "#e8cb91", "D": "#b38859", "P": "#7b5942" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "L", "x": 0, "y": 26, "width": 11, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 4, "y": 28, "width": 15, "height": 1 },
+        { "kind": "rect", "token": "L", "x": 19, "y": 10, "width": 12, "height": 1 },
+        { "kind": "pixels", "token": "P", "points": [[6,5],[7,5],[16,19],[29,20]] }
+      ]
+    },
+    {
+      "id": "dune-grass-b",
+      "cellClass": "ground",
+      "palette": { "B": "#d3b177", "L": "#e2c58d", "G": "#76934c", "g": "#4b6737", "D": "#a57e52" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "G", "points": [[4,9],[5,7],[6,10],[7,6],[8,9],[18,23],[19,20],[20,24],[21,19],[22,22]] },
+        { "kind": "pixels", "token": "g", "points": [[5,11],[7,11],[19,25],[21,25]] },
+        { "kind": "rect", "token": "L", "x": 12, "y": 14, "width": 8, "height": 1 },
+        { "kind": "pixels", "token": "D", "points": [[26,5],[27,5]] }
+      ]
+    },
+    {
+      "id": "dune-grass-c",
+      "cellClass": "ground",
+      "palette": { "B": "#cfaa70", "L": "#dfbf83", "G": "#698745", "g": "#415f34", "D": "#a27a50" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "G", "points": [[10,25],[11,21],[12,26],[13,20],[14,24],[23,12],[24,9],[25,13],[26,8],[27,11]] },
+        { "kind": "pixels", "token": "g", "points": [[11,27],[13,27],[24,14],[26,14]] },
+        { "kind": "rect", "token": "L", "x": 2, "y": 4, "width": 9, "height": 1 },
+        { "kind": "pixels", "token": "D", "points": [[4,17],[5,17]] }
+      ]
+    },
+    {
+      "id": "dune-grass-d",
+      "cellClass": "ground",
+      "palette": { "B": "#d5b67d", "L": "#e6cb94", "G": "#7c9951", "g": "#4f6c39", "D": "#aa8355" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "G", "points": [[3,23],[4,19],[5,24],[6,18],[7,22],[17,8],[18,5],[19,9],[20,4],[21,7],[28,26],[29,23],[30,27]] },
+        { "kind": "pixels", "token": "g", "points": [[4,25],[6,25],[18,10],[20,10],[29,28]] },
+        { "kind": "rect", "token": "L", "x": 9, "y": 15, "width": 10, "height": 1 },
+        { "kind": "pixels", "token": "D", "points": [[24,18],[25,18]] }
+      ]
+    },
+    {
+      "id": "shallow-water-b",
+      "cellClass": "ground",
+      "palette": { "B": "#4f94a2", "L": "#7ab8b7", "W": "#b9ded2", "D": "#326c79" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 2, "y": 7, "width": 13, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 16, "y": 16, "width": 14, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 19, "y": 15, "width": 8, "height": 1 },
+        { "kind": "rect", "token": "L", "x": 5, "y": 27, "width": 11, "height": 2 }
+      ]
+    },
+    {
+      "id": "shallow-water-c",
+      "cellClass": "ground",
+      "palette": { "B": "#478c9b", "L": "#71b0b1", "W": "#add7cf", "D": "#2f6676" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "L", "x": 0, "y": 3, "width": 9, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 2, "y": 2, "width": 5, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 11, "y": 12, "width": 16, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 18, "y": 25, "width": 13, "height": 2 }
+      ]
+    },
+    {
+      "id": "shallow-water-d",
+      "cellClass": "ground",
+      "palette": { "B": "#5599a6", "L": "#80bbb9", "W": "#c1e1d5", "D": "#376f7d" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 17, "y": 5, "width": 14, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 3, "y": 14, "width": 15, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 6, "y": 13, "width": 9, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 29, "width": 12, "height": 2 }
+      ]
+    },
+    {
+      "id": "spa-stone-b",
+      "cellClass": "ground",
+      "palette": { "B": "#8e9c91", "L": "#b0bbae", "D": "#697870", "K": "#4b5852" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 9, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 22, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 10, "y": 0, "width": 1, "height": 9 },
+        { "kind": "rect", "token": "K", "x": 22, "y": 10, "width": 1, "height": 12 },
+        { "kind": "rect", "token": "K", "x": 13, "y": 23, "width": 1, "height": 9 },
+        { "kind": "pixels", "token": "L", "points": [[3,3],[17,5],[6,15],[27,16],[8,28],[23,27]] }
+      ]
+    },
+    {
+      "id": "villa-floor-b",
+      "cellClass": "ground",
+      "palette": { "B": "#ad7850", "L": "#ca9461", "D": "#79503a", "K": "#51362e" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 8, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 16, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 24, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 17, "y": 0, "width": 1, "height": 8 },
+        { "kind": "rect", "token": "K", "x": 5, "y": 9, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 20, "y": 17, "width": 1, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 9, "y": 25, "width": 1, "height": 7 },
+        { "kind": "pixels", "token": "L", "points": [[6,3],[25,12],[10,20],[26,28]] }
+      ]
     }
   ],
   "parts": [
@@ -143,7 +281,7 @@
       "id": "open-door",
       "cellClass": "transparent-part",
       "role": "door",
-      "palette": { "K": "#3f2b28", "D": "#76513f", "B": "#a87854", "L": "#d2a46f" },
+      "palette": { "K": "#352728", "D": "#704b3a", "B": "#a66f49", "L": "#dfb477", "A": "#d5b45b" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 0, "y": 5, "width": 5, "height": 25 },
         { "kind": "rect", "token": "D", "x": 1, "y": 6, "width": 3, "height": 23 },
@@ -152,21 +290,42 @@
         { "kind": "rect", "token": "D", "x": 28, "y": 6, "width": 3, "height": 23 },
         { "kind": "rect", "token": "L", "x": 29, "y": 7, "width": 1, "height": 20 },
         { "kind": "rect", "token": "K", "x": 1, "y": 26, "width": 30, "height": 5 },
-        { "kind": "rect", "token": "B", "x": 3, "y": 27, "width": 26, "height": 2 }
+        { "kind": "rect", "token": "B", "x": 3, "y": 27, "width": 26, "height": 2 },
+        { "kind": "pixels", "token": "A", "points": [[4,25],[27,25]] }
       ]
     },
     {
       "id": "closed-door",
       "cellClass": "transparent-part",
       "role": "door",
-      "palette": { "K": "#3f2b28", "D": "#76513f", "B": "#a87854", "L": "#d2a46f", "A": "#e1bd5d" },
+      "palette": { "K": "#352728", "D": "#704b3a", "B": "#a66f49", "L": "#dfb477", "A": "#d5b45b" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 4, "y": 2, "width": 24, "height": 30 },
         { "kind": "rect", "token": "B", "x": 6, "y": 4, "width": 20, "height": 27 },
         { "kind": "rect", "token": "D", "x": 8, "y": 7, "width": 16, "height": 9 },
         { "kind": "rect", "token": "D", "x": 8, "y": 19, "width": 16, "height": 9 },
         { "kind": "rect", "token": "L", "x": 9, "y": 8, "width": 14, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 9, "y": 20, "width": 14, "height": 1 },
         { "kind": "pixels", "token": "A", "points": [[22,18],[23,18],[22,19],[23,19]] }
+      ]
+    },
+    {
+      "id": "closed-locked-door",
+      "cellClass": "transparent-part",
+      "role": "door",
+      "palette": { "K": "#352728", "D": "#704b3a", "B": "#a66f49", "L": "#dfb477", "A": "#d5b45b" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 4, "y": 2, "width": 24, "height": 30 },
+        { "kind": "rect", "token": "B", "x": 6, "y": 4, "width": 20, "height": 27 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 7, "width": 16, "height": 9 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 19, "width": 16, "height": 9 },
+        { "kind": "rect", "token": "L", "x": 9, "y": 8, "width": 14, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 9, "y": 20, "width": 14, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 18, "y": 14, "width": 8, "height": 9 },
+        { "kind": "rect", "token": "A", "x": 20, "y": 12, "width": 4, "height": 4 },
+        { "kind": "rect", "token": "D", "x": 21, "y": 13, "width": 2, "height": 3 },
+        { "kind": "rect", "token": "A", "x": 20, "y": 16, "width": 4, "height": 5 },
+        { "kind": "pixels", "token": "K", "points": [[22,18],[22,19],[22,20]] }
       ]
     },
     {
@@ -199,37 +358,45 @@
       "id": "sofa-left",
       "cellClass": "transparent-part",
       "role": "furniture",
-      "palette": { "K": "#43343a", "D": "#76576a", "B": "#a87991", "L": "#cf9fb5" },
+      "palette": { "K": "#352d35", "D": "#6f5064", "B": "#a16e88", "L": "#d5a4ba", "A": "#e5bfca", "S": "#493744" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 3, "y": 7, "width": 29, "height": 23 },
         { "kind": "rect", "token": "D", "x": 5, "y": 9, "width": 27, "height": 19 },
         { "kind": "rect", "token": "B", "x": 8, "y": 12, "width": 24, "height": 13 },
         { "kind": "rect", "token": "L", "x": 9, "y": 13, "width": 21, "height": 3 },
-        { "kind": "rect", "token": "K", "x": 3, "y": 19, "width": 7, "height": 12 }
+        { "kind": "rect", "token": "K", "x": 3, "y": 19, "width": 7, "height": 12 },
+        { "kind": "rect", "token": "S", "x": 11, "y": 24, "width": 21, "height": 3 },
+        { "kind": "pixels", "token": "A", "points": [[15,18],[24,18]] },
+        { "kind": "rect", "token": "K", "x": 8, "y": 29, "width": 5, "height": 3 }
       ]
     },
     {
       "id": "sofa-right",
       "cellClass": "transparent-part",
       "role": "furniture",
-      "palette": { "K": "#43343a", "D": "#76576a", "B": "#a87991", "L": "#cf9fb5" },
+      "palette": { "K": "#352d35", "D": "#6f5064", "B": "#a16e88", "L": "#d5a4ba", "A": "#e5bfca", "S": "#493744" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 0, "y": 7, "width": 29, "height": 23 },
         { "kind": "rect", "token": "D", "x": 0, "y": 9, "width": 27, "height": 19 },
         { "kind": "rect", "token": "B", "x": 0, "y": 12, "width": 24, "height": 13 },
         { "kind": "rect", "token": "L", "x": 2, "y": 13, "width": 21, "height": 3 },
-        { "kind": "rect", "token": "K", "x": 22, "y": 19, "width": 7, "height": 12 }
+        { "kind": "rect", "token": "K", "x": 22, "y": 19, "width": 7, "height": 12 },
+        { "kind": "rect", "token": "S", "x": 0, "y": 24, "width": 21, "height": 3 },
+        { "kind": "pixels", "token": "A", "points": [[7,18],[16,18]] },
+        { "kind": "rect", "token": "K", "x": 19, "y": 29, "width": 5, "height": 3 }
       ]
     },
     {
       "id": "table-left",
       "cellClass": "transparent-part",
       "role": "furniture",
-      "palette": { "K": "#433029", "D": "#75513d", "B": "#a7774e", "L": "#cf9c68" },
+      "palette": { "K": "#392b28", "D": "#704b38", "B": "#aa7448", "L": "#dda66c", "A": "#e3c56d", "P": "#d8d7c6" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 3, "y": 5, "width": 29, "height": 22 },
         { "kind": "rect", "token": "B", "x": 5, "y": 7, "width": 27, "height": 16 },
         { "kind": "rect", "token": "L", "x": 7, "y": 8, "width": 25, "height": 3 },
+        { "kind": "rect", "token": "P", "x": 18, "y": 13, "width": 8, "height": 5 },
+        { "kind": "rect", "token": "A", "x": 20, "y": 14, "width": 4, "height": 2 },
         { "kind": "rect", "token": "D", "x": 6, "y": 23, "width": 5, "height": 8 },
         { "kind": "rect", "token": "D", "x": 27, "y": 23, "width": 5, "height": 8 }
       ]
@@ -238,11 +405,13 @@
       "id": "table-right",
       "cellClass": "transparent-part",
       "role": "furniture",
-      "palette": { "K": "#433029", "D": "#75513d", "B": "#a7774e", "L": "#cf9c68" },
+      "palette": { "K": "#392b28", "D": "#704b38", "B": "#aa7448", "L": "#dda66c", "A": "#e3c56d", "P": "#d8d7c6" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 0, "y": 5, "width": 29, "height": 22 },
         { "kind": "rect", "token": "B", "x": 0, "y": 7, "width": 27, "height": 16 },
         { "kind": "rect", "token": "L", "x": 0, "y": 8, "width": 25, "height": 3 },
+        { "kind": "rect", "token": "P", "x": 5, "y": 13, "width": 8, "height": 5 },
+        { "kind": "rect", "token": "A", "x": 7, "y": 14, "width": 4, "height": 2 },
         { "kind": "rect", "token": "D", "x": 0, "y": 23, "width": 5, "height": 8 },
         { "kind": "rect", "token": "D", "x": 21, "y": 23, "width": 5, "height": 8 }
       ]
@@ -329,10 +498,11 @@
       "id": "fixture-lamp",
       "cellClass": "transparent-part",
       "role": "fixture",
-      "palette": { "K": "#2f3034", "D": "#55585c", "L": "#aeb1aa", "A": "#f1c55f" },
+      "palette": { "K": "#292b30", "D": "#50545b", "L": "#b9bcb5", "A": "#f1c55f", "W": "#fff0a8" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 12, "y": 4, "width": 8, "height": 9 },
         { "kind": "rect", "token": "A", "x": 14, "y": 6, "width": 4, "height": 5 },
+        { "kind": "pixels", "token": "W", "points": [[15,6],[16,6],[15,7]] },
         { "kind": "rect", "token": "L", "x": 15, "y": 5, "width": 2, "height": 2 },
         { "kind": "rect", "token": "D", "x": 14, "y": 13, "width": 4, "height": 16 },
         { "kind": "rect", "token": "K", "x": 9, "y": 29, "width": 14, "height": 3 }
@@ -342,11 +512,12 @@
       "id": "fixture-planter",
       "cellClass": "transparent-part",
       "role": "fixture",
-      "palette": { "K": "#49352f", "D": "#855a42", "B": "#b77b52", "G": "#55794b", "L": "#82a75c" },
+      "palette": { "K": "#40302d", "D": "#81563d", "B": "#b9764b", "G": "#4f7547", "L": "#88ad63", "F": "#b0c977" },
       "commands": [
         { "kind": "rect", "token": "G", "x": 7, "y": 5, "width": 7, "height": 13 },
         { "kind": "rect", "token": "L", "x": 11, "y": 2, "width": 6, "height": 15 },
         { "kind": "rect", "token": "G", "x": 17, "y": 6, "width": 8, "height": 12 },
+        { "kind": "pixels", "token": "F", "points": [[12,4],[15,3],[20,8]] },
         { "kind": "rect", "token": "K", "x": 4, "y": 16, "width": 24, "height": 15 },
         { "kind": "rect", "token": "B", "x": 6, "y": 18, "width": 20, "height": 11 },
         { "kind": "rect", "token": "D", "x": 8, "y": 27, "width": 16, "height": 4 }
@@ -356,13 +527,14 @@
       "id": "plant-palm",
       "cellClass": "transparent-part",
       "role": "plant",
-      "palette": { "K": "#3c3527", "D": "#72563a", "B": "#9a7247", "G": "#3f7044", "L": "#69a651" },
+      "palette": { "K": "#342f27", "D": "#6f5237", "B": "#9d7448", "G": "#396b42", "L": "#6fac55", "F": "#a0c86a" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 13, "y": 12, "width": 7, "height": 20 },
         { "kind": "rect", "token": "B", "x": 15, "y": 13, "width": 3, "height": 19 },
         { "kind": "rect", "token": "G", "x": 3, "y": 6, "width": 26, "height": 6 },
         { "kind": "rect", "token": "G", "x": 7, "y": 2, "width": 19, "height": 7 },
         { "kind": "rect", "token": "L", "x": 10, "y": 0, "width": 13, "height": 6 },
+        { "kind": "pixels", "token": "F", "points": [[13,1],[16,0],[20,2],[8,5],[25,5]] },
         { "kind": "pixels", "token": "D", "points": [[15,18],[17,23],[16,28]] }
       ]
     },
@@ -370,48 +542,52 @@
       "id": "landmark-fountain-nw",
       "cellClass": "transparent-part",
       "role": "landmark",
-      "palette": { "K": "#45555a", "D": "#71858a", "B": "#9fb1af", "W": "#5aa0b2", "L": "#9fd1d1" },
+      "palette": { "K": "#3d4d52", "D": "#697e82", "B": "#a9bbb5", "W": "#559dac", "L": "#b2ded7", "A": "#d4b45e" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 4, "y": 5, "width": 28, "height": 27 },
         { "kind": "rect", "token": "B", "x": 7, "y": 8, "width": 25, "height": 24 },
         { "kind": "rect", "token": "W", "x": 10, "y": 11, "width": 22, "height": 21 },
-        { "kind": "rect", "token": "L", "x": 12, "y": 13, "width": 20, "height": 3 }
+        { "kind": "rect", "token": "L", "x": 12, "y": 13, "width": 20, "height": 3 },
+        { "kind": "rect", "token": "A", "x": 28, "y": 27, "width": 4, "height": 5 }
       ]
     },
     {
       "id": "landmark-fountain-ne",
       "cellClass": "transparent-part",
       "role": "landmark",
-      "palette": { "K": "#45555a", "D": "#71858a", "B": "#9fb1af", "W": "#5aa0b2", "L": "#9fd1d1" },
+      "palette": { "K": "#3d4d52", "D": "#697e82", "B": "#a9bbb5", "W": "#559dac", "L": "#b2ded7", "A": "#d4b45e" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 0, "y": 5, "width": 28, "height": 27 },
         { "kind": "rect", "token": "B", "x": 0, "y": 8, "width": 25, "height": 24 },
         { "kind": "rect", "token": "W", "x": 0, "y": 11, "width": 22, "height": 21 },
-        { "kind": "rect", "token": "L", "x": 0, "y": 13, "width": 20, "height": 3 }
+        { "kind": "rect", "token": "L", "x": 0, "y": 13, "width": 20, "height": 3 },
+        { "kind": "rect", "token": "A", "x": 0, "y": 27, "width": 4, "height": 5 }
       ]
     },
     {
       "id": "landmark-fountain-sw",
       "cellClass": "transparent-part",
       "role": "landmark",
-      "palette": { "K": "#45555a", "D": "#71858a", "B": "#9fb1af", "W": "#5aa0b2", "L": "#9fd1d1" },
+      "palette": { "K": "#3d4d52", "D": "#697e82", "B": "#a9bbb5", "W": "#559dac", "L": "#b2ded7", "A": "#d4b45e" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 4, "y": 0, "width": 28, "height": 28 },
         { "kind": "rect", "token": "B", "x": 7, "y": 0, "width": 25, "height": 25 },
         { "kind": "rect", "token": "W", "x": 10, "y": 0, "width": 22, "height": 22 },
-        { "kind": "rect", "token": "D", "x": 7, "y": 25, "width": 25, "height": 5 }
+        { "kind": "rect", "token": "D", "x": 7, "y": 25, "width": 25, "height": 5 },
+        { "kind": "rect", "token": "A", "x": 28, "y": 0, "width": 4, "height": 5 }
       ]
     },
     {
       "id": "landmark-fountain-se",
       "cellClass": "transparent-part",
       "role": "landmark",
-      "palette": { "K": "#45555a", "D": "#71858a", "B": "#9fb1af", "W": "#5aa0b2", "L": "#9fd1d1" },
+      "palette": { "K": "#3d4d52", "D": "#697e82", "B": "#a9bbb5", "W": "#559dac", "L": "#b2ded7", "A": "#d4b45e" },
       "commands": [
         { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 28, "height": 28 },
         { "kind": "rect", "token": "B", "x": 0, "y": 0, "width": 25, "height": 25 },
         { "kind": "rect", "token": "W", "x": 0, "y": 0, "width": 22, "height": 22 },
-        { "kind": "rect", "token": "D", "x": 0, "y": 25, "width": 25, "height": 5 }
+        { "kind": "rect", "token": "D", "x": 0, "y": 25, "width": 25, "height": 5 },
+        { "kind": "rect", "token": "A", "x": 0, "y": 0, "width": 4, "height": 5 }
       ]
     },
     {
@@ -440,6 +616,94 @@
         { "kind": "rect", "token": "A", "x": 0, "y": 12, "width": 9, "height": 4 }
       ]
     }
+  ],
+  "presentationCells": [
+    {
+      "id": "roof-sunward-base",
+      "cellClass": "presentation",
+      "role": "roof",
+      "palette": { "B": "#9e563d", "L": "#c87852", "D": "#6e3a34", "K": "#472b2d" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 7, "width": 32, "height": 2 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 23, "width": 32, "height": 2 },
+        { "kind": "rect", "token": "K", "x": 15, "y": 0, "width": 2, "height": 7 },
+        { "kind": "rect", "token": "K", "x": 7, "y": 9, "width": 2, "height": 14 },
+        { "kind": "rect", "token": "K", "x": 23, "y": 25, "width": 2, "height": 7 },
+        { "kind": "rect", "token": "L", "x": 2, "y": 2, "width": 11, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 11, "y": 12, "width": 10, "height": 2 }
+      ]
+    },
+    {
+      "id": "roof-sunward-edge",
+      "cellClass": "presentation",
+      "role": "roof",
+      "palette": { "B": "#9e563d", "L": "#c87852", "D": "#6e3a34", "K": "#472b2d", "F": "#d7a06b" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 7, "width": 32, "height": 2 },
+        { "kind": "rect", "token": "K", "x": 15, "y": 0, "width": 2, "height": 7 },
+        { "kind": "rect", "token": "L", "x": 2, "y": 2, "width": 11, "height": 2 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 27, "width": 32, "height": 5 },
+        { "kind": "rect", "token": "F", "x": 0, "y": 27, "width": 32, "height": 2 }
+      ]
+    },
+    {
+      "id": "roof-sunward-corner",
+      "cellClass": "presentation",
+      "role": "roof",
+      "palette": { "B": "#9e563d", "L": "#c87852", "D": "#6e3a34", "K": "#472b2d", "F": "#d7a06b" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "D", "x": 0, "y": 7, "width": 32, "height": 2 },
+        { "kind": "rect", "token": "L", "x": 3, "y": 2, "width": 11, "height": 2 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 5, "height": 32 },
+        { "kind": "rect", "token": "F", "x": 4, "y": 0, "width": 2, "height": 28 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 27, "width": 32, "height": 5 },
+        { "kind": "rect", "token": "F", "x": 4, "y": 27, "width": 28, "height": 2 }
+      ]
+    },
+    {
+      "id": "decal-sand-ripple",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "L": "#f0d39d", "D": "#ad8056" },
+      "commands": [
+        { "kind": "rect", "token": "L", "x": 4, "y": 12, "width": 11, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 8, "y": 14, "width": 13, "height": 1 }
+      ]
+    },
+    {
+      "id": "decal-sand-pebbles",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "L": "#d7ad77", "D": "#806047" },
+      "commands": [
+        { "kind": "pixels", "token": "D", "points": [[7,9],[8,9],[19,21],[25,13]] },
+        { "kind": "pixels", "token": "L", "points": [[7,8],[19,20],[24,12]] }
+      ]
+    },
+    {
+      "id": "decal-grass-tuft",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "G": "#78974e", "g": "#486536" },
+      "commands": [
+        { "kind": "pixels", "token": "G", "points": [[14,20],[15,17],[16,20],[17,16],[18,20]] },
+        { "kind": "pixels", "token": "g", "points": [[15,21],[16,21],[17,21]] }
+      ]
+    }
+  ],
+  "multiTileCompositions": [
+    { "id": "sunward-sofa", "columns": 2, "rows": 1, "partIds": ["sofa-left", "sofa-right"] },
+    { "id": "sunward-table", "columns": 2, "rows": 1, "partIds": ["table-left", "table-right"] },
+    {
+      "id": "sunward-fountain",
+      "columns": 2,
+      "rows": 2,
+      "partIds": ["landmark-fountain-nw", "landmark-fountain-ne", "landmark-fountain-sw", "landmark-fountain-se"]
+    },
+    { "id": "harbor-ferry", "columns": 2, "rows": 1, "partIds": ["landmark-ferry-left", "landmark-ferry-right"] }
   ],
   "wallModules": {
     "north": [
@@ -477,7 +741,7 @@
     ]
   },
   "wallPalettes": [
-    { "id": "villa", "palette": { "K": "#43302b", "D": "#765142", "B": "#a67655", "L": "#d1a875" } },
+    { "id": "villa", "palette": { "K": "#3c302e", "D": "#766456", "B": "#b49a78", "L": "#e0c99e" } },
     { "id": "downtown", "palette": { "K": "#292b32", "D": "#4b4f5b", "B": "#747986", "L": "#a8aebb" } },
     { "id": "commercial", "palette": { "K": "#4a3b2a", "D": "#846848", "B": "#b9935f", "L": "#dfc087" } },
     { "id": "civic", "palette": { "K": "#303d48", "D": "#536b78", "B": "#8399a0", "L": "#bac8c7" } }

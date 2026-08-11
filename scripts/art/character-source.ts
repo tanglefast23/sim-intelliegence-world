@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 import { z } from 'zod';
 
-import { createBitmap, parseHexColor, setPixel, type Bitmap } from './png';
+import { createBitmap, parseHexColor, setPixel, type Bitmap, type Rgba } from './png';
 
 export const WORLD_CELL = { width: 24, height: 30 } as const;
 export const PORTRAIT_CELL = { width: 40, height: 44 } as const;
@@ -92,6 +92,23 @@ export const TransparentPartSourceSchema = BaseTileSourceSchema.extend({
 }).strict();
 export type TransparentPartSource = z.infer<typeof TransparentPartSourceSchema>;
 
+export const PresentationCellSourceSchema = BaseTileSourceSchema.extend({
+  cellClass: z.literal('presentation'),
+  role: z.enum(['transition', 'decal', 'roof']),
+  backgroundToken: TokenSchema.optional(),
+}).strict();
+export type PresentationCellSource = z.infer<typeof PresentationCellSourceSchema>;
+
+const MultiTileCompositionSchema = z.object({
+  id: z.string().regex(/^[a-z][a-z0-9-]+$/u),
+  columns: z.number().int().min(2).max(4),
+  rows: z.number().int().min(1).max(4),
+  partIds: z.array(z.string().regex(/^[a-z][a-z0-9-]+$/u)).min(2).max(16),
+}).strict().refine(({ columns, rows, partIds }) => partIds.length === columns * rows, {
+  message: 'Multi-tile composition part count must match its grid.',
+});
+export type MultiTileComposition = z.infer<typeof MultiTileCompositionSchema>;
+
 const WallModulesSchema = z.object({
   north: z.array(DrawCommandSchema),
   east: z.array(DrawCommandSchema),
@@ -111,12 +128,14 @@ export type WallSource = Readonly<{
   modules: z.infer<typeof WallModulesSchema>;
 }>;
 
-export type TileSource = GroundCellSource | TransparentPartSource;
+export type TileSource = GroundCellSource | TransparentPartSource | PresentationCellSource;
 
 const TileCollectionSchema = z.object({
   version: z.literal(2),
-  tiles: z.array(GroundCellSourceSchema).min(8).max(12),
+  tiles: z.array(GroundCellSourceSchema).min(8).max(48),
   parts: z.array(TransparentPartSourceSchema).min(1),
+  presentationCells: z.array(PresentationCellSourceSchema).max(48).default([]),
+  multiTileCompositions: z.array(MultiTileCompositionSchema).max(16).default([]),
   wallModules: WallModulesSchema,
   wallPalettes: z.array(WallPaletteSourceSchema).min(1),
 }).strict();
@@ -140,7 +159,11 @@ function validateTileSource(source: TileSource): void {
       throw new Error(`${source.id} uses missing palette token ${command.token}.`);
     }
   }
-  if (source.cellClass === 'ground' && !source.palette[source.backgroundToken]) {
+  if (
+    (source.cellClass === 'ground' || source.cellClass === 'presentation') &&
+    source.backgroundToken &&
+    !source.palette[source.backgroundToken]
+  ) {
     throw new Error(`${source.id} uses missing background token ${source.backgroundToken}.`);
   }
 }
@@ -181,6 +204,18 @@ function validateCharacter(source: CharacterSource): CharacterSource {
       throw new Error(`${source.id} uses missing palette token ${command.token}.`);
     }
   }
+  if (['protagonist', 'linda', 'generic-resident'].includes(source.id)) {
+    for (const frameIndex of [0, 1] as const) {
+      const frame = composeFrontFrame(source, frameIndex);
+      if (
+        [...frame[0] as string].some((token) => token !== '.') ||
+        [...frame[WORLD_CELL.height - 1] as string].some((token) => token !== '.') ||
+        frame.some((row) => row[0] !== '.' || row[WORLD_CELL.width - 1] !== '.')
+      ) {
+        throw new Error(`${source.id} must keep top, left, right, and bottom-foot source margins open.`);
+      }
+    }
+  }
   return source;
 }
 
@@ -211,6 +246,26 @@ export function loadTransparentPartSources(root = process.cwd()): TransparentPar
   sources.forEach(validateTileSource);
   assertUniqueSourceIds('Transparent part', sources.map(({ id }) => id));
   return sources;
+}
+
+export function loadPresentationCellSources(root = process.cwd()): PresentationCellSource[] {
+  const sources = loadTileCollections(root).flatMap(({ presentationCells }) => presentationCells);
+  sources.forEach(validateTileSource);
+  assertUniqueSourceIds('Presentation cell', sources.map(({ id }) => id));
+  return sources;
+}
+
+export function loadMultiTileCompositions(root = process.cwd()): MultiTileComposition[] {
+  const collections = loadTileCollections(root);
+  const compositions = collections.flatMap(({ multiTileCompositions }) => multiTileCompositions);
+  assertUniqueSourceIds('Multi-tile composition', compositions.map(({ id }) => id));
+  const partIds = new Set(collections.flatMap(({ parts }) => parts.map(({ id }) => id)));
+  for (const composition of compositions) {
+    for (const partId of composition.partIds) {
+      if (!partIds.has(partId)) throw new Error(`${composition.id} references missing part ${partId}.`);
+    }
+  }
+  return compositions;
 }
 
 export function loadWallSources(root = process.cwd()): WallSource[] {
@@ -275,6 +330,28 @@ export function tokenFrameToBitmap(frame: readonly string[], palette: Readonly<R
   return bitmap;
 }
 
+export function addOutwardContour(
+  source: Bitmap,
+  color: Rgba,
+  keepBottomRowOpen = false,
+): Bitmap {
+  const output = { width: source.width, height: source.height, data: Buffer.from(source.data) };
+  const painted = (x: number, y: number): boolean => {
+    if (x < 0 || y < 0 || x >= source.width || y >= source.height) return false;
+    return source.data[(y * source.width + x) * 4 + 3] !== 0;
+  };
+  for (let y = 0; y < source.height; y += 1) {
+    if (keepBottomRowOpen && y === source.height - 1) continue;
+    for (let x = 0; x < source.width; x += 1) {
+      if (painted(x, y)) continue;
+      if (painted(x - 1, y) || painted(x + 1, y) || painted(x, y - 1) || painted(x, y + 1)) {
+        setPixel(output, x, y, color);
+      }
+    }
+  }
+  return output;
+}
+
 function staticWorldLayers(source: CharacterSource): readonly DrawCommand[][] {
   return [
     source.sourceLayers.torsoAndClothing.commands,
@@ -313,8 +390,13 @@ export function composePortrait(source: CharacterSource): TokenFrame {
 }
 
 export function renderTile(source: TileSource): Bitmap {
-  const frame = source.cellClass === 'ground'
-    ? Array.from({ length: TILE_CELL.height }, () => source.backgroundToken.repeat(TILE_CELL.width))
+  const backgroundToken = source.cellClass === 'ground'
+    ? source.backgroundToken
+    : source.cellClass === 'presentation'
+      ? source.backgroundToken
+      : undefined;
+  const frame = backgroundToken
+    ? Array.from({ length: TILE_CELL.height }, () => backgroundToken.repeat(TILE_CELL.width))
     : emptyTokenFrame(TILE_CELL.width, TILE_CELL.height);
   drawTokenCommands(frame, source.commands);
   return tokenFrameToBitmap(frame, source.palette);

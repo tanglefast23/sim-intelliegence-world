@@ -27,6 +27,7 @@ export type ResponsiveEvidence = Readonly<{
   roofGroupId: string | null;
   roofState: 'hidden' | 'restored';
   drawCounts: Readonly<Record<WorldLayer, number> & { total: number }>;
+  staticBatchCount: number;
   overflow: Readonly<{ body: boolean; surface: boolean }>;
 }>;
 
@@ -49,6 +50,7 @@ export function measureResponsiveEvidence(
     roofGroupId?: string;
     uiScale: UiScale;
     drawCounts: Readonly<Record<WorldLayer, number> & { total: number }>;
+    staticBatchCount: number;
   }>,
 ): ResponsiveEvidence | undefined {
   const surfaceElement = documentValue.querySelector<HTMLElement>('#world-input-viewport');
@@ -92,6 +94,7 @@ export function measureResponsiveEvidence(
     roofGroupId: state.roofGroupId ?? null,
     roofState: state.roofGroupId ? 'hidden' : 'restored',
     drawCounts: state.drawCounts,
+    staticBatchCount: state.staticBatchCount,
     overflow: {
       body: body.scrollWidth > documentElement.clientWidth || body.scrollHeight > documentElement.clientHeight,
       surface: surfaceElement.scrollWidth > surfaceElement.clientWidth || surfaceElement.scrollHeight > surfaceElement.clientHeight,

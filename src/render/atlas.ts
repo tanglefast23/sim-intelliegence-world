@@ -18,7 +18,7 @@ export type MovementDirection = typeof MOVEMENT_DIRECTIONS[number];
 export const ZOOM_LEVELS = [1, 2, 3] as const;
 export type ZoomLevel = typeof ZOOM_LEVELS[number];
 export const WALK_FRAME_MILLISECONDS = 145;
-export const ART_REVISION = 1;
+export const ART_REVISION = 2;
 
 export type AtlasRectangle = Readonly<{
   x: number;
@@ -55,7 +55,9 @@ export type RuntimeAtlasIndex = Readonly<{
   tiles: readonly string[];
   groundCells: readonly string[];
   transparentPartCells: readonly string[];
+  presentationCells: readonly string[];
   walls: Readonly<Record<string, readonly string[]>>;
+  multiTileCompositions: Readonly<Record<string, readonly string[]>>;
 }>;
 
 export const ATLAS_INDEX = atlasIndexJson as unknown as RuntimeAtlasIndex;

@@ -101,16 +101,31 @@ export function writeReviewSheet(outputRoot: string, root = process.cwd()): read
   const generatedRoot = resolve(root, 'assets/generated');
   const atlas = decodePng(readFileSync(resolve(generatedRoot, 'world-atlas.png')));
   const index = JSON.parse(readFileSync(resolve(generatedRoot, 'atlas-index.json'), 'utf8')) as AtlasIndex;
-  const sheet = createBitmap(940, 125 + Object.keys(index.characters).length * 166, parseHexColor('#17151b'));
+  const groundColumns = 10;
+  const groundRows = Math.ceil(index.groundCells.length / groundColumns);
+  const groundPanelHeight = 22 + groundRows * 72;
+  const sheet = createBitmap(
+    940,
+    groundPanelHeight + 20 + Object.keys(index.characters).length * 166,
+    parseHexColor('#17151b'),
+  );
 
-  fillRect(sheet, 12, 12, 916, 78, parseHexColor('#27252d'));
+  fillRect(sheet, 12, 12, 916, groundPanelHeight - 12, parseHexColor('#27252d'));
   index.groundCells.forEach((name, tileIndex) => {
-    drawSprite(sheet, atlas, index, name, 22 + tileIndex * 90, 20, 2);
+    drawSprite(
+      sheet,
+      atlas,
+      index,
+      name,
+      22 + (tileIndex % groundColumns) * 90,
+      20 + Math.floor(tileIndex / groundColumns) * 72,
+      2,
+    );
   });
 
   const directions = ['front-1', 'front-2', 'rear-1', 'rear-2', 'left-1', 'left-2', 'right-1', 'right-2'];
   Object.keys(index.characters).sort().forEach((characterId, characterIndex) => {
-    const panelY = 105 + characterIndex * 166;
+    const panelY = groundPanelHeight + characterIndex * 166;
     fillRect(sheet, 12, panelY, 916, 150, parseHexColor(characterIndex % 2 === 0 ? '#23222a' : '#292630'));
     directions.forEach((direction, frameIndex) => {
       drawSprite(

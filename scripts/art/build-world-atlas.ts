@@ -4,8 +4,11 @@ import { resolve } from 'node:path';
 
 import {
   WORLD_CELL,
+  addOutwardContour,
   composeFrontFrame,
   loadCharacterSources,
+  loadMultiTileCompositions,
+  loadPresentationCellSources,
   loadTransparentPartSources,
   loadTileSources,
   loadWallSources,
@@ -25,7 +28,16 @@ import {
 import { createAtlasBudgetReport, type AtlasBudgetReport } from './atlas-budget';
 import { packAtlasRectangles } from './atlas-pack';
 import { composeLateralFrame } from './lateral-legs';
-import { blitWithExtrudedGutter, createBitmap, decodePng, encodePng, type Bitmap } from './png';
+import {
+  blit,
+  blitWithExtrudedGutter,
+  createBitmap,
+  decodePng,
+  encodePng,
+  parseHexColor,
+  setPixel,
+  type Bitmap,
+} from './png';
 import { deriveRearFrame } from './rear-frame';
 
 export const ATLAS_GUTTER = 1;
@@ -86,7 +98,9 @@ export type AtlasIndex = Readonly<{
   tiles: readonly string[];
   groundCells: readonly string[];
   transparentPartCells: readonly string[];
+  presentationCells: readonly string[];
   walls: Readonly<Record<string, readonly string[]>>;
+  multiTileCompositions: Readonly<Record<string, readonly string[]>>;
 }>;
 
 export type AtlasGenerationReport = AtlasBudgetReport & Readonly<{
@@ -117,8 +131,109 @@ function worldEntries(source: CharacterSource): Entry[] {
     visibility: 'public' as const,
     cellClass: null,
     wallAdjacencyMask: null,
-    bitmap: tokenFrameToBitmap(tokens, source.palette),
+    bitmap: addOutwardContour(
+      tokenFrameToBitmap(tokens, source.palette),
+      parseHexColor(source.palette.K as string),
+      true,
+    ),
   }));
+}
+
+function renderTransitionMask(
+  familyId: string,
+  mask: number,
+  palette: Readonly<{ light: string; mid: string; shade: string }>,
+): Bitmap {
+  const bitmap = createBitmap(32, 32);
+  const recipeColor = (source: string): readonly [number, number, number, number] => {
+    const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/iu.exec(source);
+    if (!match) return parseHexColor(source);
+    return [1, 2, 3, 4].map((index) => Number.parseInt(match[index] as string, 16)) as unknown as readonly [number, number, number, number];
+  };
+  const colors = [recipeColor(palette.light), recipeColor(palette.mid), recipeColor(palette.shade)] as const;
+  const edges = [
+    { bits: 1 | 2, axis: 'horizontal', fixed: 0, direction: 1 },
+    { bits: 2 | 4, axis: 'vertical', fixed: 31, direction: -1 },
+    { bits: 4 | 8, axis: 'horizontal', fixed: 31, direction: -1 },
+    { bits: 8 | 1, axis: 'vertical', fixed: 0, direction: 1 },
+  ] as const;
+  const connectedBits = new Set<number>();
+  for (const edge of edges) {
+    if ((mask & edge.bits) !== edge.bits) continue;
+    for (const bit of [1, 2, 4, 8]) if ((edge.bits & bit) !== 0) connectedBits.add(bit);
+    for (let position = 0; position < 32; position += 1) {
+      const softGap = familyId === 'soft' && (position + edge.bits * 3) % 11 <= 1;
+      if (softGap) continue;
+      const softWave = familyId === 'soft' ? ((position * 5 + edge.bits) % 7 === 0 ? 1 : 0) : 0;
+      const thickness = familyId === 'soft' ? 2 : 4;
+      for (let depth = 0; depth < thickness; depth += 1) {
+        const fixed = edge.fixed + edge.direction * (depth + softWave);
+        if (fixed < 0 || fixed >= 32) continue;
+        const x = edge.axis === 'horizontal' ? position : fixed;
+        const y = edge.axis === 'horizontal' ? fixed : position;
+        setPixel(bitmap, x, y, colors[Math.min(depth, 2)] as readonly [number, number, number, number]);
+      }
+    }
+  }
+  const corners = [
+    { bit: 1, originX: 0, originY: 0, directionX: 1, directionY: 1 },
+    { bit: 2, originX: 31, originY: 0, directionX: -1, directionY: 1 },
+    { bit: 4, originX: 31, originY: 31, directionX: -1, directionY: -1 },
+    { bit: 8, originX: 0, originY: 31, directionX: 1, directionY: -1 },
+  ] as const;
+  for (const corner of corners) {
+    if ((mask & corner.bit) === 0 || connectedBits.has(corner.bit)) continue;
+    for (let localY = 0; localY < 9; localY += 1) {
+      for (let localX = 0; localX < 9; localX += 1) {
+        const distance = localX + localY;
+        const inBand = distance >= 5 && distance <= (familyId === 'soft' ? 6 : 8);
+        const softGap = familyId === 'soft' && (localX * 3 + localY * 5 + corner.bit) % 9 === 0;
+        if (!inBand || softGap) continue;
+        setPixel(
+          bitmap,
+          corner.originX + localX * corner.directionX,
+          corner.originY + localY * corner.directionY,
+          colors[Math.min(distance - 5, 2)] as readonly [number, number, number, number],
+        );
+      }
+    }
+  }
+  return bitmap;
+}
+
+function cropBitmap(source: Bitmap, x: number, y: number, width: number, height: number): Bitmap {
+  const output = createBitmap(width, height);
+  for (let row = 0; row < height; row += 1) {
+    const sourceStart = ((y + row) * source.width + x) * 4;
+    source.data.copy(output.data, row * width * 4, sourceStart, sourceStart + width * 4);
+  }
+  return output;
+}
+
+function composeAndSplitMultiTileEntries(
+  entries: readonly Entry[],
+  compositions: ReturnType<typeof loadMultiTileCompositions>,
+): Entry[] {
+  const bySourceId = new Map(entries.map((entry) => [entry.sourceId, entry]));
+  const replacements = new Map<string, Bitmap>();
+  for (const composition of compositions) {
+    const composed = createBitmap(composition.columns * 32, composition.rows * 32);
+    composition.partIds.forEach((partId, index) => {
+      const entry = bySourceId.get(partId);
+      if (!entry) throw new Error(`${composition.id} cannot compose missing atlas part ${partId}.`);
+      blit(entry.bitmap, composed, (index % composition.columns) * 32, Math.floor(index / composition.columns) * 32);
+    });
+    composition.partIds.forEach((partId, index) => {
+      replacements.set(partId, cropBitmap(
+        composed,
+        (index % composition.columns) * 32,
+        Math.floor(index / composition.columns) * 32,
+        32,
+        32,
+      ));
+    });
+  }
+  return entries.map((entry) => ({ ...entry, bitmap: replacements.get(entry.sourceId) ?? entry.bitmap }));
 }
 
 function pack(entries: readonly Entry[], maximumWidth: number, maximumHeight: number): {
@@ -169,6 +284,8 @@ export function buildAtlas(root = process.cwd()): {
   const groundCells = loadTileSources(root);
   const wallSources = loadWallSources(root);
   const transparentParts = loadTransparentPartSources(root);
+  const presentationCells = loadPresentationCellSources(root);
+  const multiTileCompositions = loadMultiTileCompositions(root);
   const groundEntries: Entry[] = groundCells.map((tile) => ({
     name: `tile.${tile.id}`,
     sourceId: tile.id,
@@ -191,7 +308,7 @@ export function buildAtlas(root = process.cwd()): {
       bitmap: renderWallVariant(wall, adjacencyMask),
     })),
   );
-  const partEntries: Entry[] = transparentParts.map((part) => ({
+  const rawPartEntries: Entry[] = transparentParts.map((part) => ({
     name: `tile.${part.id}`,
     sourceId: part.id,
     kind: 'tile' as const,
@@ -201,7 +318,38 @@ export function buildAtlas(root = process.cwd()): {
     wallAdjacencyMask: null,
     bitmap: renderTile(part),
   }));
-  const tileEntries = [...groundEntries, ...wallEntries, ...partEntries];
+  const partEntries = composeAndSplitMultiTileEntries(rawPartEntries, multiTileCompositions);
+  const authoredPresentationEntries: Entry[] = presentationCells.map((cell) => ({
+    name: `tile.${cell.id}`,
+    sourceId: cell.id,
+    kind: 'tile' as const,
+    category: cell.role === 'roof' ? 'roof' as const : 'ground-decal' as const,
+    visibility: 'public' as const,
+    cellClass: cell.backgroundToken ? 'ground' as const : 'transparent-part' as const,
+    wallAdjacencyMask: null,
+    bitmap: renderTile(cell),
+  }));
+  const transitionEntries: Entry[] = presentationRuntimeRecipes.transitionFamilies.flatMap((family) =>
+    Array.from({ length: 15 }, (_unused, index) => {
+      const mask = index + 1;
+      return {
+        name: `${family.publicSpritePrefix}-${mask.toString(16)}`,
+        sourceId: family.id,
+        kind: 'tile' as const,
+        category: 'ground-transition' as const,
+        visibility: 'public' as const,
+        cellClass: 'transparent-part' as const,
+        wallAdjacencyMask: null,
+        bitmap: renderTransitionMask(
+          family.id,
+          mask,
+          family.palette as Readonly<{ light: string; mid: string; shade: string }>,
+        ),
+      };
+    }),
+  );
+  const presentationEntries = [...authoredPresentationEntries, ...transitionEntries];
+  const tileEntries = [...groundEntries, ...wallEntries, ...partEntries, ...presentationEntries];
   const atlasTileNames = new Set(tileEntries.map(({ name }) => name));
   const missingPresentationSprites = presentationRecipes.publicSpriteIds.filter((name) => !atlasTileNames.has(name));
   if (missingPresentationSprites.length > 0) {
@@ -271,11 +419,13 @@ export function buildAtlas(root = process.cwd()): {
     tiles: tileEntries.map(({ name }) => name),
     groundCells: groundEntries.map(({ name }) => name),
     transparentPartCells: [...wallEntries, ...partEntries].map(({ name }) => name),
+    presentationCells: presentationEntries.map(({ name }) => name),
     walls: Object.fromEntries(wallSources.map(({ id }) => [
       id,
       Array.from({ length: 16 }, (_unused, adjacencyMask) =>
         `tile.wall-${id}-${adjacencyMask.toString(16)}`),
     ])),
+    multiTileCompositions: Object.fromEntries(multiTileCompositions.map(({ id, partIds }) => [id, partIds])),
   };
   const report: AtlasGenerationReport = {
     ...budget,
