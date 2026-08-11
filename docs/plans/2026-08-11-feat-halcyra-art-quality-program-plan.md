@@ -2,7 +2,7 @@
 title: "feat: Implement the Halcyra art-quality program"
 type: feat
 date: 2026-08-11
-status: council-review-draft
+status: council-reviewed-awaiting-grok-closure
 source_spec: docs/specs/2026-08-11-art-quality.md
 base_sha: 9d44f0e6753bf5e6439037b10f5379c045749cc1
 ---
@@ -178,7 +178,8 @@ Add:
 15. Preserve Phase 4, 19, 22, and 23 evidence byte-for-byte. Update `art:check` so it no longer regenerates historical images.
 16. Replace weak per-ground pixel locks only after the old cells have revisioned baseline hashes and stronger semantic checks. Keep whole-build determinism, bounds, dimensions, public ID reachability, foot motion, and source-to-output checks.
 17. Write the art bible before visual authoring. Include palettes, light direction, contours, density, transitions, character proportions, materials, districts, good samples, rejected samples, and imitation limits.
-18. Capture the clean same-machine, same-package, same-camera pre-art baseline for FPS, median frame time, draw counts, window, DPR, zoom, and package provenance. Later phases compare against this Phase 26 baseline.
+18. Require every phase that changes generated cell pixels to bump `artRevision` and regenerate its revisioned hashes in the same commit. `art:check` fails a pixel-hash change without the paired revision change.
+19. Capture a clean pre-art performance reference and the exact measurement method. This is a methodology and historical reference, not the later regression oracle. Every performance hard gate compares baseline and enhanced modes from the same package on the same machine, camera, window, DPR, and zoom.
 
 ### 7.4 Tests first
 
@@ -210,6 +211,7 @@ npm run content:check
 npm run validate:content
 npm run check:boundaries
 npm run typecheck
+npm test -- --runInBand
 npm run export:web
 npm run package:electron
 npm run art:review -- --output-root artifacts/phase-24/art-quality/phase-26-foundation
@@ -272,6 +274,8 @@ Do not add internal sprite IDs to map JSON, state schemas, save fixtures, or dom
 11. Remove the hard-coded boardwalk roof and tint only after an equivalent authored fallback roof recipe exists.
 12. Prove fresh start, load, resize, zoom, map transfer, and restart produce the same presentation hash.
 13. Prove the presentation compiler cannot change `blockedKeys`, `staticSolidOwnerByTile`, doors, approaches, routes, density, layout revisions, save data, reservations, or the simulation PRNG state.
+14. Add a smoke-only switch that renders the legacy baseline path and the enhanced presentation path in the same package. It is unavailable in normal gameplay.
+15. Run the Phase 22 maximum-load camera against both modes with identical package, machine, camera, window, DPR, and zoom inputs.
 
 ### 8.4 Tests first
 
@@ -308,11 +312,12 @@ npm run export:web
 npm run package:electron
 npm run smoke:electron -- --output-root artifacts/phase-24/art-quality/phase-27-presentation/world
 npm run smoke:presentation-restart -- --output-root artifacts/phase-24/art-quality/phase-27-presentation/restart
+npm run smoke:responsive:qualification -- --output-root artifacts/phase-24/art-quality/phase-27-presentation/performance
 ```
 
 ### 8.6 Stop and rollback
 
-Do not start visual authoring if any geometry hash changes, a presentation hash is unstable, or batching exceeds the final-spec limit. A failed material or transition recipe must fall back to its public base cell and still report a qualification failure.
+Do not start visual authoring if any geometry hash changes, a presentation hash is unstable, batching exceeds the final-spec limit, the enhanced path falls below `60 FPS`, or median frame time regresses by more than `10%` against the same-package baseline. A failed material or transition recipe must fall back to its public base cell and still report a qualification failure.
 
 ## 9. Phase 28: hard Sunward prototype
 
@@ -330,7 +335,7 @@ Only these characters:
 
 Only this environment proof:
 
-- five Sunward ground materials plus one roof material;
+- warm sand, dune grass, villa floor, spa stone, shallow water, and one roof material;
 - at least one soft and one built transition family;
 - villa wall and door;
 - sofa;
@@ -365,25 +370,26 @@ Add:
 8. Match portrait and world identity from the same tokens.
 9. Preserve all Phase 23 direction, foot, bounce, lean, shadow, curve, and reduced-motion behavior.
 10. Test closed-unlocked and closed-locked door presentation with a pure presentation fixture when those states are not active in the current player flow. Do not change a live map to create the test.
-11. Add a smoke-only baseline-presentation switch for measured before/after comparison in one packaged build. Do not expose it in normal gameplay.
-12. Make the smoke runner state-based: wait for exact ready state and two paints, use one absolute deadline, decode PNG dimensions and pixels, and reject blank or stale frames.
-13. Record the tested source commit and hashes for atlas, index, manifest, maps, renderer, and smoke files.
+11. Render the protagonist, Linda, and generic-resident portrait fixtures in the current dark conversation panel at UI scales `1`, `1.25`, and `1.5`. Prove identity match and unchanged transcript and input readability.
+12. Reuse the Phase 27 same-package baseline/enhanced switch for measured before/after comparison. Do not expose it in normal gameplay.
+13. Make the smoke runner state-based: wait for exact ready state and two paints, use one absolute deadline, decode PNG dimensions and pixels, and reject blank or stale frames.
+14. Record the tested source commit and hashes for atlas, index, manifest, maps, renderer, and smoke files.
 
 ### 9.5 Eleven hard gates
 
 Phase 29 cannot start until all are true:
 
-1. three characters have eight reachable `24x30` cells and one matching `40x44` portrait each;
-2. two front frames, generated rear frames, and composed lateral frames remain readable at `1x`;
-3. feet alternate in rows `21-29` and Phase 23 movement stays correct;
-4. five materials pass the `12x12` distribution and native-`1x` visual review;
-5. soft and built transition boards cover all required topology cases;
-6. roof hide and restore use authored roof art on unchanged masks;
-7. wall, door, collision, and approach visuals match unchanged geometry;
-8. the object seam board has no internal split, outline, alpha, or gutter seam;
-9. atlas actual and placeholder-forecast budgets pass;
-10. standard and maximum-load packaged scenes keep at least `60 FPS` and no more than `10%` median-frame-time regression against the same packaged baseline;
-11. Grok's implementation audit has no unresolved confirmed material finding.
+1. Every prototype character, material, roof, wall, door, object, vegetation, and landmark family has its required section 14.1 art-bible entry.
+2. Warm sand, dune grass, villa floor, spa stone, and shallow water pass section 14.2 `12x12` boards, automated count checks, and native-`1x` review.
+3. The prototype soft and built transition families pass every section 14.3 topology case and junction, and the roof passes a base, edge, and corner board. Roof art does not use the terrain count band.
+4. The protagonist, Linda, and generic resident pass all section 14.4 identity, direction, foot, contour, portrait-match, and native-`1x` checks. Each has eight reachable `24x30` cells, a matching `40x44` portrait, and a readable conversation-panel fixture at UI scales `1`, `1.25`, and `1.5`.
+5. The fixed Sunward camera passes the section 14.5 six-question Tier A review: questions 1-3 and at least five of six total.
+6. The prototype door, wall, sofa, table, planter, palm, lamp, and landmark pass section 14.6 collision and depth checks. This includes open and fixture-only closed door states, room entrances, a portal with the new cells, player-in-front and player-behind frames for each tall-prop class, multi-tile seams, and the landmark depth anchor.
+7. The complete generated atlas passes every section 14.7 integrity check: identical bytes, public-ID reachability, bounds, extruded gutters, transparent-RGB hygiene, no bleed, matching versions and signature, `1024x1024` cap, decoded-memory cap, and no filtering at every supported zoom and DPR.
+8. The prototype and Phase 22 maximum-load packaged cameras pass section 14.8 with at least `60 FPS`, no more than `10%` median-frame-time regression against the same-package baseline, and no more than one added static batch.
+9. With prototype art enabled, fresh start, compatible save load, resize, every zoom, all four map transitions, and app restart keep the same presentation choices and pass section 14.9 without a save or `layoutRevision` change.
+10. The real-packer full-program placeholder projection passes the section 11.3 raw-area, packed-area, dimension, and actual-prototype pack gates.
+11. Grok's implementation audit has every confirmed high- or medium-impact finding fixed and no unresolved confirmed material finding.
 
 The tracked Tier A review record answers the six section 14.5 questions one by one, names the reviewer, links the exact native-`1x` frame, and records pass or fail. Questions 1-3 and at least five of six total must pass. Direct user feedback overrides an external reviewer preference.
 
@@ -397,6 +403,9 @@ Track under `artifacts/phase-24/art-quality/phase-28-prototype/`:
 - five `12x12` material boards at `1x` and `3x`;
 - transition and three-material junction boards;
 - roof, wall, door, object, and seam boards;
+- player-in-front and player-behind frames for each prototype tall-prop class and the landmark depth anchor;
+- room-entrance and portal frames with the new cells;
+- conversation-panel portrait frames at UI scales `1`, `1.25`, and `1.5`;
 - fixed-camera before/after images at `1x`, `2x`, and `3x`;
 - ordered normal and reduced-motion walking frames;
 - restart, save-load, roof, and performance reports.
@@ -418,6 +427,7 @@ npm run content:check
 npm run validate:content
 npm run check:boundaries
 npm run typecheck
+npm test -- --runInBand
 npm run package:electron
 npm run smoke:art-quality -- --output-root artifacts/phase-24/art-quality/phase-28-prototype
 npm run smoke:natural-movement -- --output-root artifacts/phase-24/art-quality/phase-28-prototype/movement
@@ -447,12 +457,13 @@ Upgrade the remaining seven character identities. Keep exactly ten current ident
 7. Keep skin and hair value separation, source margins, contour bounds, foot alternation, and portrait match.
 8. Generate a complete ten-character direction, foot, silhouette, contour, and portrait matrix.
 9. Run standard and reduced-motion movement with more than one actor so each actor keeps independent direction and walk phase.
+10. Render all ten portraits in the current dark conversation panel at UI scales `1`, `1.25`, and `1.5`. Prove portrait/world identity and unchanged transcript and input readability.
 
 ### 10.3 Files and evidence
 
 Modify all ten character sources only when needed, shared character grammar, contour and portrait builders, character semantic tests, review generator, atlas/index/report, and packaged art smoke.
 
-Track evidence under `artifacts/phase-24/art-quality/phase-29-full-cast/`.
+Track evidence under `artifacts/phase-24/art-quality/phase-29-full-cast/`, including the complete conversation-panel portrait matrix at UI scales `1`, `1.25`, and `1.5`.
 
 ### 10.4 Gate
 
@@ -492,12 +503,13 @@ Complete the art re-authoring for every material, wall, door, roof, sign, object
 7. Prove every solid footprint cell has visible blocking mass and every decorative overhang keeps the walk lane clear.
 8. Prove selected actors, doors, and interactions remain above ground detail in scene hierarchy.
 9. Compare fixed cameras to the Phase 19 and Phase 22 baselines. Character scale stays unchanged.
+10. Repeat the tracked section 14.5 six-question Tier A review against the completed Sunward art. Name the reviewer, link the exact native-`1x` full-color and grayscale frames, pass questions 1-3, and pass at least five of six total.
 
 ### 11.3 Files and evidence
 
 Modify Sunward-used art recipes and sources, generated atlas/index/report, semantic tests, and review boards. Map-source changes are forbidden unless they are presentation-only references produced through the authoritative content builder and leave geometry hashes unchanged.
 
-Track evidence under `artifacts/phase-24/art-quality/phase-30-sunward/`.
+Track evidence under `artifacts/phase-24/art-quality/phase-30-sunward/`, including the completed-art Tier A six-question decision record.
 
 ### 11.4 Gate
 
@@ -516,6 +528,7 @@ npm run content:check
 npm run validate:content
 npm run check:boundaries
 npm run typecheck
+npm test -- --runInBand
 npm run package:electron
 npm run smoke:art-quality -- --output-root artifacts/phase-24/art-quality/phase-30-sunward
 npm run smoke:natural-movement -- --output-root artifacts/phase-24/art-quality/phase-30-sunward/movement
@@ -524,7 +537,7 @@ npm run smoke:responsive:qualification -- --output-root artifacts/phase-24/art-q
 
 ### 11.5 Stop and rollback
 
-Roll back only the failed art family and regenerate. Never change a solid or approach cell to match a new silhouette in this program.
+Do not merge if the completed-art Tier A review fails. Roll back only the failed art family and regenerate. Never change a solid or approach cell to match a new silhouette in this program.
 
 ## 12. Phase 31: Tier B shared and district art
 
@@ -545,6 +558,7 @@ No new map object, render-part placement, room, wall run, interaction, solid, de
 7. Compare before/after placement, solid-owner, route, density, interaction, and layout-revision hashes for all four maps. Only presentation hashes can change.
 8. Generate Tier B regression boards and fixed-camera images at all zooms. Do not apply the Tier A scene-content gate to missing placeholder content.
 9. When a Tier B map has no roof group, record the roof cases as `N/A` with the compiled-map evidence. Do not add a roof group to fabricate proof.
+10. For each Tier B map, complete the tracked section 14.5 reduced shared-upgrade review: existing paths, doors, portals, walls, solids, characters, and signs are no less readable; the district palette is distinct at `1x`; shared art adds no blur, seam, false blocker, or false interaction; and no content placement or geometry was added.
 
 ### 12.3 Evidence
 
@@ -555,6 +569,7 @@ Track under `artifacts/phase-24/art-quality/phase-31-tier-b/`:
 - unchanged geometry and content-authority report;
 - atlas budget and public-ID report;
 - responsive and performance report.
+- one tracked reduced shared-upgrade decision record for each Tier B map.
 
 ### 12.4 Gate
 
@@ -573,6 +588,7 @@ npm run content:check
 npm run validate:content
 npm run check:boundaries
 npm run typecheck
+npm test -- --runInBand
 npm run package:electron
 npm run smoke:art-quality -- --output-root artifacts/phase-24/art-quality/phase-31-tier-b
 npm run smoke:responsive:qualification -- --output-root artifacts/phase-24/art-quality/phase-31-tier-b/responsive
@@ -580,7 +596,7 @@ npm run smoke:responsive:qualification -- --output-root artifacts/phase-24/art-q
 
 ### 12.5 Stop and rollback
 
-If a Tier B change creates or moves content, remove it. Revert one district override or material recipe and regenerate. Never resolve an atlas binary conflict with `ours` or `theirs`; rebuild from merged sources.
+Do not merge a Tier B map that fails its reduced shared-upgrade review. If a Tier B change creates or moves content, remove it. Revert one district override or material recipe and regenerate. Never resolve an atlas binary conflict with `ours` or `theirs`; rebuild from merged sources.
 
 ## 13. Phase 32: integrated packaged qualification
 
@@ -596,13 +612,15 @@ Prove the complete art program against every final-spec permutation from an exac
 4. Validate `1280x720`, `1440x900`, `1920x1080`, `2560x1440`, and `1600x720`.
 5. Validate DPR `1` and `2`, zoom `1x`, `2x`, and `3x`, and all four maps.
 6. Validate idle, walk, talk, all directions, both foot frames, selected player, selected NPC, reduced motion, doorway, interior, roof restored, fresh start, compatible save load, map transition, resize, restart, normal load, and Phase 22 maximum load.
-7. Validate grayscale, protanopia, deuteranopia, and tritanopia for identity and material hierarchy.
-8. Run deterministic art and presentation builds twice and require identical output before provenance fields.
-9. Prove stable public IDs, atlas/index agreement, gutters, bounds, no bleed, multi-tile seams, portrait matches, and material boards.
-10. Prove no save-schema, `layoutRevision`, solid-owner, route, interaction, density, or simulation-randomness change.
-11. Require at least `60 FPS` and no more than `10%` median-frame-time regression from the same packaged baseline, machine, camera, window, DPR, and zoom.
-12. Add art-quality packaged qualification to supported CI jobs. Linux validates deterministic build and static export. Intel macOS and Windows validate package launch and the supported smoke subset.
-13. Make no broad source change in this phase. A verified defect gets one narrow correction with affected regression and evidence rerun.
+7. Validate player-in-front and player-behind rendering for every tall-prop class and each multi-tile depth anchor.
+8. Validate every portrait in the current dark conversation panel at UI scales `1`, `1.25`, and `1.5`, with readable transcript and input.
+9. Validate grayscale, protanopia, deuteranopia, and tritanopia for identity and material hierarchy.
+10. Run deterministic art and presentation builds twice and require identical output before provenance fields.
+11. Prove stable public IDs, atlas/index agreement, gutters, bounds, no bleed, multi-tile seams, portrait matches, and material boards.
+12. Prove no save-schema, `layoutRevision`, solid-owner, route, interaction, density, or simulation-randomness change.
+13. Require at least `60 FPS` and no more than `10%` median-frame-time regression from the same-package baseline on the same machine, camera, window, DPR, and zoom.
+14. Add art-quality packaged qualification to supported CI jobs. Linux validates deterministic build and static export. Intel macOS and Windows validate package launch and the supported smoke subset.
+15. Make no broad source change in this phase. A verified defect gets one narrow correction with affected regression and evidence rerun.
 
 ### 13.3 Evidence
 
@@ -650,7 +668,7 @@ Do not call static export, unit tests, or one screenshot proof that the art look
 | all Sunward existing art reaches Tier A quality | 30 | 32 |
 | all Tier B existing art upgrades without content expansion | 31 | 32 |
 | resize, map transfer, save load, and restart keep visual choices | 27 | 32 |
-| maximum load meets the frame budget | 28 | 32 |
+| maximum load meets the frame budget | 27 | 32 |
 
 The evidence manifest uses named case IDs rather than an uncontrolled full Cartesian product. At minimum it contains one case for every value in the final-spec review matrix and the cross-cases named in the phase gates. The validator rejects an omitted required case. It permits `N/A` only with a machine-readable reason and supporting compiled-map fact, such as a Tier B map with no roof group.
 
@@ -725,8 +743,8 @@ Before Phase 26 starts:
 
 ## 19. Acceptance checklist
 
-- [ ] Fable 5, Opus 5, and Grok 4.5 plan reviews are complete and recorded.
-- [ ] Confirmed council findings are integrated into this plan.
+- [x] Fable 5, Opus 5, and Grok 4.5 plan reviews are complete and recorded.
+- [x] Confirmed council findings are integrated into this plan.
 - [ ] Final Grok plan closure has no unresolved confirmed material finding.
 - [ ] Phase 25 PR is squash-merged and synchronized.
 - [ ] Phase 26 deterministic art foundation is Grok-audited and merged.
