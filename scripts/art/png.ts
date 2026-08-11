@@ -79,6 +79,45 @@ export function blit(source: Bitmap, target: Bitmap, targetX: number, targetY: n
   }
 }
 
+function controlledPixel(source: Bitmap, x: number, y: number): Rgba {
+  const offset = (y * source.width + x) * 4;
+  const alpha = source.data[offset + 3] as number;
+  if (alpha === 0) return [0, 0, 0, 0];
+  return [
+    source.data[offset] as number,
+    source.data[offset + 1] as number,
+    source.data[offset + 2] as number,
+    alpha,
+  ];
+}
+
+/** Copies the complete cell and owns every edge and corner pixel in its gutter. */
+export function blitWithExtrudedGutter(
+  source: Bitmap,
+  target: Bitmap,
+  targetX: number,
+  targetY: number,
+  gutter: number,
+): void {
+  if (!Number.isInteger(gutter) || gutter < 0) {
+    throw new Error('Extruded gutter must be a nonnegative integer.');
+  }
+  if (
+    targetX - gutter < 0 || targetY - gutter < 0 ||
+    targetX + source.width + gutter > target.width ||
+    targetY + source.height + gutter > target.height
+  ) {
+    throw new Error('Extruded cell exceeds the target bitmap.');
+  }
+  for (let y = -gutter; y < source.height + gutter; y += 1) {
+    for (let x = -gutter; x < source.width + gutter; x += 1) {
+      const sourceX = Math.max(0, Math.min(source.width - 1, x));
+      const sourceY = Math.max(0, Math.min(source.height - 1, y));
+      setPixel(target, targetX + x, targetY + y, controlledPixel(source, sourceX, sourceY));
+    }
+  }
+}
+
 export function blitScaled(
   source: Bitmap,
   target: Bitmap,

@@ -303,19 +303,20 @@ describe('secure Electron boundary', () => {
     expect(preload).toContain("process.argv.includes('--si-world-smoke-mode=1')");
   });
 
-  test('Phase 14, Phase 22, and Phase 23 CI package and verify platform shells', () => {
+  test('CI packages platform shells without overwriting historical evidence', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
     expect(workflow).toContain('runs-on: macos-15-intel');
     expect(workflow).toContain('npm run package:mac:x64');
     expect(workflow).toContain('npm run sign:test:mac');
-    expect(workflow).toContain('artifacts/phase-14/macos-x64/current');
+    expect(workflow).toContain('--output-root output/verification/ci/macos-x64/package');
     expect(workflow).toContain('runs-on: windows-2025');
     expect(workflow).toContain('npm run package:windows:x64');
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
-    expect(workflow).toContain('artifacts/phase-14/windows-x64/current');
-    expect(workflow).toContain('artifacts/phase-23/linux-x64/natural-movement');
-    expect(workflow).toContain('artifacts/phase-23/macos-x64/natural-movement');
-    expect(workflow).toContain('artifacts/phase-23/windows-x64/natural-movement');
+    expect(workflow).toContain('--output-root output/verification/ci/windows-x64/package');
+    expect(workflow).toContain('--output-root output/verification/ci/linux/natural-movement');
+    expect(workflow).toContain('--output-root output/verification/ci/macos-x64/natural-movement');
+    expect(workflow).toContain('--output-root output/verification/ci/windows-x64/natural-movement');
+    expect(workflow).not.toMatch(/artifacts\/phase-(?:14|22|23)/u);
     expect(workflow).toContain('without model qualification claims');
     expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(9);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');

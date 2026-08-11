@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { createHash, randomUUID } from 'node:crypto';
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import {
@@ -14,14 +15,16 @@ import {
   type CharacterSource,
 } from './character-source';
 import { buildPortraitEntries } from './build-portrait-atlas';
+import { loadArtManifest, type ArtCategoryId } from './art-manifest';
+import { createAtlasBudgetReport, type AtlasBudgetReport } from './atlas-budget';
+import { packAtlasRectangles } from './atlas-pack';
 import { composeLateralFrame } from './lateral-legs';
-import { blit, createBitmap, encodePng, type Bitmap } from './png';
+import { blitWithExtrudedGutter, createBitmap, decodePng, encodePng, type Bitmap } from './png';
 import { deriveRearFrame } from './rear-frame';
 
 export const ATLAS_GUTTER = 1;
 export const WALK_FRAME_MILLISECONDS = 145;
 export const ZOOM_LEVELS = [1, 2, 3] as const;
-const ATLAS_WIDTH = 512;
 
 export const WALK_DIRECTIONS = ['front', 'rear', 'left', 'right'] as const;
 export const WALK_FRAMES = [1, 2] as const;
@@ -30,6 +33,8 @@ type Entry = Readonly<{
   name: string;
   sourceId: string;
   kind: 'world-character' | 'portrait' | 'tile';
+  category: ArtCategoryId;
+  visibility: 'public' | 'internal-review';
   cellClass: 'ground' | 'transparent-part' | null;
   wallAdjacencyMask: number | null;
   bitmap: Bitmap;
@@ -41,19 +46,31 @@ export type AtlasRect = Readonly<{
   width: number;
   height: number;
   kind: Entry['kind'];
+  category: ArtCategoryId;
+  visibility: Entry['visibility'];
   sourceId: string;
   cellClass: Entry['cellClass'];
   wallAdjacencyMask: number | null;
 }>;
 
 export type AtlasIndex = Readonly<{
-  version: 2;
-  image: Readonly<{ width: number; height: number; colorType: 'rgba'; gutter: 1 }>;
+  version: 3;
+  artRevision: number;
+  toolVersion: string;
+  image: Readonly<{
+    width: number;
+    height: number;
+    colorType: 'rgba';
+    gutter: 1;
+    sha256: string;
+  }>;
   tileSize: 32;
   worldCell: typeof WORLD_CELL;
   walkFrameMilliseconds: 145;
   zoomLevels: typeof ZOOM_LEVELS;
   sprites: Readonly<Record<string, AtlasRect>>;
+  publicSpriteIds: readonly string[];
+  internalReviewSpriteIds: readonly string[];
   characters: Readonly<Record<string, Readonly<{
     displayName: string;
     portrait: string;
@@ -64,6 +81,14 @@ export type AtlasIndex = Readonly<{
   groundCells: readonly string[];
   transparentPartCells: readonly string[];
   walls: Readonly<Record<string, readonly string[]>>;
+}>;
+
+export type AtlasGenerationReport = AtlasBudgetReport & Readonly<{
+  indexVersion: 3;
+  toolVersion: string;
+  imageSha256: string;
+  publicSpriteCount: number;
+  internalReviewSpriteCount: number;
 }>;
 
 function worldEntries(source: CharacterSource): Entry[] {
@@ -82,51 +107,52 @@ function worldEntries(source: CharacterSource): Entry[] {
     name: `character.${source.id}.${frame}`,
     sourceId: source.id,
     kind: 'world-character' as const,
+    category: 'world-character' as const,
+    visibility: 'public' as const,
     cellClass: null,
     wallAdjacencyMask: null,
     bitmap: tokenFrameToBitmap(tokens, source.palette),
   }));
 }
 
-function pack(entries: readonly Entry[]): { bitmap: Bitmap; sprites: Record<string, AtlasRect> } {
-  const names = entries.map(({ name }) => name);
-  if (new Set(names).size !== names.length) {
-    throw new Error('Atlas entry names must be unique.');
-  }
-  let x = ATLAS_GUTTER;
-  let y = ATLAS_GUTTER;
-  let rowHeight = 0;
-  const placements: { entry: Entry; x: number; y: number }[] = [];
-  for (const entry of entries) {
-    if (x + entry.bitmap.width + ATLAS_GUTTER > ATLAS_WIDTH) {
-      x = ATLAS_GUTTER;
-      y += rowHeight + ATLAS_GUTTER * 2;
-      rowHeight = 0;
-    }
-    placements.push({ entry, x, y });
-    x += entry.bitmap.width + ATLAS_GUTTER * 2;
-    rowHeight = Math.max(rowHeight, entry.bitmap.height);
-  }
-  const height = y + rowHeight + ATLAS_GUTTER;
-  const bitmap = createBitmap(ATLAS_WIDTH, height);
+function pack(entries: readonly Entry[], maximumWidth: number, maximumHeight: number): {
+  bitmap: Bitmap;
+  sprites: Record<string, AtlasRect>;
+} {
+  const result = packAtlasRectangles(entries.map((entry) => ({
+    id: entry.name,
+    width: entry.bitmap.width,
+    height: entry.bitmap.height,
+  })), { maximumWidth, maximumHeight, gutter: ATLAS_GUTTER });
+  const bitmap = createBitmap(result.width, result.height);
+  const entriesByName = new Map(entries.map((entry) => [entry.name, entry]));
   const sprites: Record<string, AtlasRect> = {};
-  for (const placement of placements) {
-    blit(placement.entry.bitmap, bitmap, placement.x, placement.y);
-    sprites[placement.entry.name] = {
+  for (const placement of result.placements) {
+    const entry = entriesByName.get(placement.id);
+    if (!entry) throw new Error(`Atlas pack returned unknown cell ${placement.id}.`);
+    blitWithExtrudedGutter(entry.bitmap, bitmap, placement.x, placement.y, ATLAS_GUTTER);
+    sprites[entry.name] = {
       x: placement.x,
       y: placement.y,
-      width: placement.entry.bitmap.width,
-      height: placement.entry.bitmap.height,
-      kind: placement.entry.kind,
-      sourceId: placement.entry.sourceId,
-      cellClass: placement.entry.cellClass,
-      wallAdjacencyMask: placement.entry.wallAdjacencyMask,
+      width: entry.bitmap.width,
+      height: entry.bitmap.height,
+      kind: entry.kind,
+      category: entry.category,
+      visibility: entry.visibility,
+      sourceId: entry.sourceId,
+      cellClass: entry.cellClass,
+      wallAdjacencyMask: entry.wallAdjacencyMask,
     };
   }
   return { bitmap, sprites };
 }
 
-export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasIndex } {
+export function buildAtlas(root = process.cwd()): {
+  png: Buffer;
+  index: AtlasIndex;
+  report: AtlasGenerationReport;
+} {
+  const manifest = loadArtManifest(root);
   const characters = loadCharacterSources(root);
   const groundCells = loadTileSources(root);
   const wallSources = loadWallSources(root);
@@ -135,6 +161,8 @@ export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasInd
     name: `tile.${tile.id}`,
     sourceId: tile.id,
     kind: 'tile' as const,
+    category: 'ground-base' as const,
+    visibility: 'public' as const,
     cellClass: 'ground' as const,
     wallAdjacencyMask: null,
     bitmap: renderTile(tile),
@@ -144,6 +172,8 @@ export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasInd
       name: `tile.wall-${wall.id}-${adjacencyMask.toString(16)}`,
       sourceId: wall.id,
       kind: 'tile' as const,
+      category: 'wall-door' as const,
+      visibility: 'public' as const,
       cellClass: 'transparent-part' as const,
       wallAdjacencyMask: adjacencyMask,
       bitmap: renderWallVariant(wall, adjacencyMask),
@@ -153,6 +183,8 @@ export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasInd
     name: `tile.${part.id}`,
     sourceId: part.id,
     kind: 'tile' as const,
+    category: part.role === 'door' ? 'wall-door' as const : 'object-landmark' as const,
+    visibility: 'public' as const,
     cellClass: 'transparent-part' as const,
     wallAdjacencyMask: null,
     bitmap: renderTile(part),
@@ -163,19 +195,44 @@ export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasInd
     ...characters.flatMap(worldEntries),
     ...buildPortraitEntries(characters).map((entry) => ({
       ...entry,
+      category: 'portrait' as const,
+      visibility: 'public' as const,
       cellClass: null,
       wallAdjacencyMask: null,
     })),
   ];
-  const { bitmap, sprites } = pack(entries);
+  const budget = createAtlasBudgetReport(entries.map((entry) => ({
+    id: entry.name,
+    category: entry.category,
+    width: entry.bitmap.width,
+    height: entry.bitmap.height,
+  })), manifest);
+  const { bitmap, sprites } = pack(entries, manifest.limits.maximumWidth, manifest.limits.maximumHeight);
+  if (bitmap.width !== budget.actual.width || bitmap.height !== budget.actual.height) {
+    throw new Error('Atlas budget and production packer dimensions disagree.');
+  }
+  const png = encodePng(bitmap);
+  const imageSha256 = createHash('sha256').update(png).digest('hex');
+  const publicSpriteIds = Object.keys(sprites).filter((name) => sprites[name]?.visibility === 'public');
+  const internalReviewSpriteIds = Object.keys(sprites).filter((name) => sprites[name]?.visibility === 'internal-review');
   const index: AtlasIndex = {
-    version: 2,
-    image: { width: bitmap.width, height: bitmap.height, colorType: 'rgba', gutter: 1 },
+    version: 3,
+    artRevision: manifest.artRevision,
+    toolVersion: manifest.toolVersion,
+    image: {
+      width: bitmap.width,
+      height: bitmap.height,
+      colorType: 'rgba',
+      gutter: ATLAS_GUTTER,
+      sha256: imageSha256,
+    },
     tileSize: 32,
     worldCell: WORLD_CELL,
     walkFrameMilliseconds: WALK_FRAME_MILLISECONDS,
     zoomLevels: ZOOM_LEVELS,
     sprites,
+    publicSpriteIds,
+    internalReviewSpriteIds,
     characters: Object.fromEntries(characters.map((character) => [character.id, {
       displayName: character.displayName,
       portrait: `portrait.${character.id}`,
@@ -203,17 +260,121 @@ export function buildAtlas(root = process.cwd()): { png: Buffer; index: AtlasInd
         `tile.wall-${id}-${adjacencyMask.toString(16)}`),
     ])),
   };
-  return { png: encodePng(bitmap), index };
+  const report: AtlasGenerationReport = {
+    ...budget,
+    indexVersion: 3,
+    toolVersion: manifest.toolVersion,
+    imageSha256,
+    publicSpriteCount: publicSpriteIds.length,
+    internalReviewSpriteCount: internalReviewSpriteIds.length,
+  };
+  validateAtlasArtifacts(png, index, report, root);
+  return { png, index, report };
+}
+
+export function validateAtlasArtifacts(
+  png: Buffer,
+  index: AtlasIndex,
+  report: AtlasGenerationReport,
+  root = process.cwd(),
+): void {
+  const manifest = loadArtManifest(root);
+  const decoded = decodePng(png);
+  const digest = createHash('sha256').update(png).digest('hex');
+  if (index.version !== manifest.indexVersion || report.indexVersion !== manifest.indexVersion) {
+    throw new Error('Atlas index version does not match the art manifest.');
+  }
+  if (index.artRevision !== manifest.artRevision || report.artRevision !== manifest.artRevision) {
+    throw new Error('Atlas art revision does not match the art manifest.');
+  }
+  if (index.toolVersion !== manifest.toolVersion || report.toolVersion !== manifest.toolVersion) {
+    throw new Error('Atlas tool version does not match the art manifest.');
+  }
+  if (
+    decoded.width !== index.image.width || decoded.height !== index.image.height ||
+    decoded.width > manifest.limits.maximumWidth || decoded.height > manifest.limits.maximumHeight
+  ) {
+    throw new Error('Atlas image dimensions do not match the index or hard limit.');
+  }
+  if (digest !== index.image.sha256 || digest !== report.imageSha256) {
+    throw new Error('Atlas PNG digest does not match the index and report.');
+  }
+  const allIds = Object.keys(index.sprites);
+  const publicIds = new Set(index.publicSpriteIds);
+  const internalIds = new Set(index.internalReviewSpriteIds);
+  if (
+    publicIds.size !== index.publicSpriteIds.length ||
+    internalIds.size !== index.internalReviewSpriteIds.length ||
+    [...publicIds].some((id) => internalIds.has(id)) ||
+    publicIds.size + internalIds.size !== allIds.length
+  ) {
+    throw new Error('Atlas public and internal sprite lists do not cover the index exactly once.');
+  }
+  for (const id of index.publicSpriteIds) {
+    if (index.sprites[id]?.visibility !== 'public') {
+      throw new Error(`Public atlas ID ${id} is missing or has the wrong visibility.`);
+    }
+    if (!manifest.publicIdPrefixes.some((prefix) => id.startsWith(prefix))) {
+      throw new Error(`Public atlas ID ${id} does not satisfy the manifest policy.`);
+    }
+  }
+  for (const id of index.internalReviewSpriteIds) {
+    if (index.sprites[id]?.visibility !== 'internal-review') {
+      throw new Error(`Internal atlas ID ${id} is missing or has the wrong visibility.`);
+    }
+  }
+  for (const [id, rectangle] of Object.entries(index.sprites)) {
+    if (
+      (rectangle.visibility === 'public' && !publicIds.has(id)) ||
+      (rectangle.visibility === 'internal-review' && !internalIds.has(id))
+    ) {
+      throw new Error(`Atlas cell ${id} is absent from its declared visibility list.`);
+    }
+    if (
+      rectangle.x < ATLAS_GUTTER || rectangle.y < ATLAS_GUTTER ||
+      rectangle.x + rectangle.width + ATLAS_GUTTER > decoded.width ||
+      rectangle.y + rectangle.height + ATLAS_GUTTER > decoded.height
+    ) {
+      throw new Error(`Atlas cell ${id} or its gutter is outside the image.`);
+    }
+  }
+  for (let offset = 0; offset < decoded.data.length; offset += 4) {
+    if (
+      decoded.data[offset + 3] === 0 &&
+      (decoded.data[offset] !== 0 || decoded.data[offset + 1] !== 0 || decoded.data[offset + 2] !== 0)
+    ) {
+      throw new Error('Atlas has uncontrolled RGB under a transparent pixel.');
+    }
+  }
 }
 
 export function writeAtlas(root = process.cwd()): void {
   const outputDirectory = resolve(root, 'assets/generated');
-  const { png, index } = buildAtlas(root);
+  const { png, index, report } = buildAtlas(root);
   mkdirSync(outputDirectory, { recursive: true });
-  writeFileSync(resolve(outputDirectory, 'world-atlas.png'), png);
-  writeFileSync(resolve(outputDirectory, 'atlas-index.json'), `${JSON.stringify(index, null, 2)}\n`);
+  const candidateId = `${process.pid}-${randomUUID()}`;
+  const candidates = {
+    png: resolve(outputDirectory, `.world-atlas.${candidateId}.tmp`),
+    index: resolve(outputDirectory, `.atlas-index.${candidateId}.tmp`),
+    report: resolve(outputDirectory, `.atlas-report.${candidateId}.tmp`),
+  };
+  try {
+    writeFileSync(candidates.png, png, { flush: true });
+    writeFileSync(candidates.index, `${JSON.stringify(index, null, 2)}\n`, { encoding: 'utf8', flush: true });
+    writeFileSync(candidates.report, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });
+    const candidatePng = readFileSync(candidates.png);
+    const candidateIndex = JSON.parse(readFileSync(candidates.index, 'utf8')) as AtlasIndex;
+    const candidateReport = JSON.parse(readFileSync(candidates.report, 'utf8')) as AtlasGenerationReport;
+    validateAtlasArtifacts(candidatePng, candidateIndex, candidateReport, root);
+    renameSync(candidates.png, resolve(outputDirectory, 'world-atlas.png'));
+    renameSync(candidates.report, resolve(outputDirectory, 'atlas-report.json'));
+    renameSync(candidates.index, resolve(outputDirectory, 'atlas-index.json'));
+  } finally {
+    Object.values(candidates).forEach((path) => rmSync(path, { force: true }));
+  }
   process.stdout.write(
-    `World atlas: ${index.image.width}x${index.image.height}, ${Object.keys(index.sprites).length} reachable RGBA cells.\n`,
+    `World atlas: ${index.image.width}x${index.image.height}, ${index.publicSpriteIds.length} public RGBA cells, ` +
+    `${(report.forecast.packedAreaRatio * 100).toFixed(1)}% forecast packed area.\n`,
   );
 }
 

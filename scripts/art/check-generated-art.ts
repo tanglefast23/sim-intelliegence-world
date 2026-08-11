@@ -1,32 +1,49 @@
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import pixelBaseline from '../../assets/source/art/revision-1-pixel-hashes.json';
+import { buildAtlas, type AtlasIndex } from './build-world-atlas';
 import { decodePng } from './png';
 
-const REQUIRED_TRACKED_ARTIFACTS = [
+const REQUIRED_GENERATED_ARTIFACTS = [
   'assets/generated/atlas-index.json',
+  'assets/generated/atlas-report.json',
   'assets/generated/world-atlas.png',
-  'artifacts/phase-04/atlas-review.png',
-  'artifacts/phase-19/atlas-preview.png',
-] as const;
-
-const DIFF_TARGETS = [
-  'assets/source/characters',
-  'assets/generated',
-  'artifacts/phase-04/atlas-review.png',
-  'artifacts/phase-19/atlas-preview.png',
+  'assets/source/art/manifest.json',
+  'assets/source/art/revision-1-pixel-hashes.json',
 ] as const;
 
 type AtlasRect = Readonly<{ x: number; y: number; width: number; height: number }>;
-type AtlasIndex = Readonly<{
-  sprites: Readonly<Record<string, AtlasRect>>;
-  characters: Readonly<Record<string, Readonly<{ frames: Readonly<Record<string, string>> }>>>;
-}>;
 
-function assertReadableFeet(root: string): void {
-  const index = JSON.parse(readFileSync(resolve(root, 'assets/generated/atlas-index.json'), 'utf8')) as AtlasIndex;
-  const atlas = decodePng(readFileSync(resolve(root, 'assets/generated/world-atlas.png')));
+function rectanglePixels(
+  atlas: ReturnType<typeof decodePng>,
+  rectangle: AtlasRect,
+): Buffer {
+  const result = Buffer.alloc(rectangle.width * rectangle.height * 4);
+  for (let row = 0; row < rectangle.height; row += 1) {
+    const sourceStart = ((rectangle.y + row) * atlas.width + rectangle.x) * 4;
+    atlas.data.copy(result, row * rectangle.width * 4, sourceStart, sourceStart + rectangle.width * 4);
+  }
+  return result;
+}
+
+function aggregatePublicCellHash(
+  atlas: ReturnType<typeof decodePng>,
+  index: AtlasIndex,
+): string {
+  const hash = createHash('sha256');
+  for (const id of [...index.publicSpriteIds].sort()) {
+    const rectangle = index.sprites[id];
+    if (!rectangle) throw new Error(`Missing public cell ${id}.`);
+    hash.update(`${id}\0${rectangle.width}x${rectangle.height}\0`);
+    hash.update(rectanglePixels(atlas, rectangle));
+  }
+  return hash.digest('hex');
+}
+
+function assertReadableFeet(index: AtlasIndex, atlas: ReturnType<typeof decodePng>): void {
   for (const [characterId, character] of Object.entries(index.characters)) {
     for (const direction of ['front', 'rear', 'left', 'right'] as const) {
       const first = index.sprites[character.frames[`${direction}-1`] as string];
@@ -40,8 +57,7 @@ function assertReadableFeet(root: string): void {
         for (let x = 0; x < 24; x += 1) {
           const firstOffset = ((first.y + y) * atlas.width + first.x + x) * 4;
           const secondOffset = ((second.y + y) * atlas.width + second.x + x) * 4;
-          const differs = [0, 1, 2, 3].some((channel) => atlas.data[firstOffset + channel] !== atlas.data[secondOffset + channel]);
-          if (differs) {
+          if ([0, 1, 2, 3].some((channel) => atlas.data[firstOffset + channel] !== atlas.data[secondOffset + channel])) {
             changedLowerPixels += 1;
             if (y >= 27) changedShoePixels += 1;
           }
@@ -55,21 +71,50 @@ function assertReadableFeet(root: string): void {
 }
 
 function main(root = process.cwd()): void {
-  for (const path of REQUIRED_TRACKED_ARTIFACTS) {
-    if (!existsSync(resolve(root, path))) {
-      throw new Error(`Required generated art artifact is missing: ${path}`);
-    }
+  for (const path of REQUIRED_GENERATED_ARTIFACTS) {
+    if (!existsSync(resolve(root, path))) throw new Error(`Required generated art artifact is missing: ${path}`);
   }
-  assertReadableFeet(root);
-  execFileSync('git', ['ls-files', '--error-unmatch', ...REQUIRED_TRACKED_ARTIFACTS], {
+  const built = buildAtlas(root);
+  const generatedPng = readFileSync(resolve(root, 'assets/generated/world-atlas.png'));
+  const generatedIndex = readFileSync(resolve(root, 'assets/generated/atlas-index.json'), 'utf8');
+  const generatedReport = readFileSync(resolve(root, 'assets/generated/atlas-report.json'), 'utf8');
+  if (!generatedPng.equals(built.png)) throw new Error('Generated atlas PNG does not match the deterministic builder.');
+  if (generatedIndex !== `${JSON.stringify(built.index, null, 2)}\n`) {
+    throw new Error('Generated atlas index does not match the deterministic builder.');
+  }
+  if (generatedReport !== `${JSON.stringify(built.report, null, 2)}\n`) {
+    throw new Error('Generated atlas report does not match the deterministic builder.');
+  }
+  if (pixelBaseline.artRevision !== built.index.artRevision) {
+    throw new Error('Revisioned pixel baseline does not match the atlas art revision.');
+  }
+  const atlas = decodePng(generatedPng);
+  if (aggregatePublicCellHash(atlas, built.index) !== pixelBaseline.allPublicCellsAggregateSha256) {
+    throw new Error('Public atlas inner pixels changed without a new art revision and aggregate baseline.');
+  }
+  for (const [id, expected] of Object.entries(pixelBaseline.cells)) {
+    const rectangle = built.index.sprites[id];
+    if (!rectangle) throw new Error(`Revisioned pixel baseline references missing cell ${id}.`);
+    const digest = createHash('sha256').update(rectanglePixels(atlas, rectangle)).digest('hex');
+    if (digest !== expected) throw new Error(`${id} changed without a new revisioned pixel baseline.`);
+  }
+  assertReadableFeet(built.index, atlas);
+  const generatedPaths = [
+    'assets/generated/world-atlas.png',
+    'assets/generated/atlas-index.json',
+    'assets/generated/atlas-report.json',
+  ];
+  execFileSync('git', ['ls-files', '--error-unmatch', ...generatedPaths], {
     cwd: root,
     stdio: 'ignore',
   });
-  execFileSync('git', ['diff', '--exit-code', '--', ...DIFF_TARGETS], {
+  execFileSync('git', ['diff', '--exit-code', '--', ...generatedPaths], {
     cwd: root,
     stdio: 'inherit',
   });
-  process.stdout.write('Generated art artifacts exist, are tracked, and match their deterministic builders.\n');
+  process.stdout.write(
+    `Generated art is deterministic and staged at revision ${built.index.artRevision}; historical evidence was not regenerated.\n`,
+  );
 }
 
 try {

@@ -6,6 +6,7 @@ coverage/
 
 # Platform output
 out/
+/output/
 /release/
 *.dmg
 *.exe

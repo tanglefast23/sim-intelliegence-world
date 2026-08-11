@@ -20,4 +20,16 @@ describe('desktop shell states', () => {
       headline: 'Unable to start safely.',
     });
   });
+
+  test('fails closed when atlas bytes do not match the revisioned index', async () => {
+    const source = new TextEncoder().encode('current atlas').buffer;
+    const expected = createHash('sha256').update(new Uint8Array(source)).digest('hex');
+    await expect(verifyAtlasDigest(source, expected)).resolves.toBeUndefined();
+    await expect(verifyAtlasDigest(source, '0'.repeat(64))).rejects.toThrow(
+      'does not match its revisioned index',
+    );
+  });
 });
+import { createHash } from 'node:crypto';
+
+import { verifyAtlasDigest } from '../atlas-integrity';

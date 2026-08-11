@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
+import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import {
   findPackagedExecutable,
   validateScreenshotBuffers,
@@ -101,8 +102,9 @@ const ResponsiveSmokeSchema = z.object({
   maximumLoad: MaximumLoadSchema.nullable(),
 }).strict();
 
-const highDpi = process.argv.includes('--high-dpi');
-const qualification = process.argv.includes('--qualification');
+const commandArguments = process.argv.slice(2);
+const highDpi = commandArguments.includes('--high-dpi');
+const qualification = commandArguments.includes('--qualification');
 const performanceFixture = PerformanceFixtureSchema.parse(
   JSON.parse(readFileSync(resolve('tests/fixtures/performance/phase-22.json'), 'utf8')) as unknown,
 );
@@ -140,14 +142,14 @@ function expectedResizedCenter(
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
   : join(process.cwd(), 'out');
-const evidenceArgument = process.argv.slice(2).find((argument) => !argument.startsWith('--'));
-const evidenceRoot = evidenceArgument
-  ? resolve(process.cwd(), evidenceArgument)
-  : join(process.cwd(), 'artifacts/phase-22', highDpi ? 'high-dpi' : 'responsive');
+const evidenceRoot = resolveEvidenceOutputRoot(commandArguments, {
+  allowedFlags: ['--high-dpi', '--qualification'],
+  defaultRelative: `output/verification/${qualification ? 'responsive-qualification' : highDpi ? 'responsive-high-dpi' : 'responsive'}`,
+});
 mkdirSync(evidenceRoot, { recursive: true });
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-responsive-smoke-'));
 const executable = findPackagedExecutable(outputRoot);
-const child = spawn(executable, [], {
+const child = spawn(executable, highDpi ? ['--force-device-scale-factor=2'] : [], {
   detached: false,
   env: {
     ...process.env,

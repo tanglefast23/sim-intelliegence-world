@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-import { buildAtlas } from '../build-world-atlas';
+import revisionPixelHashes from '../../../assets/source/art/revision-1-pixel-hashes.json';
+import { buildAtlas, validateAtlasArtifacts, writeAtlas } from '../build-world-atlas';
 import {
   composeFrontFrame,
   composePortrait,
@@ -34,18 +37,25 @@ function rectanglePixels(
   return result;
 }
 
-const LOCKED_GROUND_PIXEL_HASHES = {
-  'tile.warm-sand': 'c82ebb11f2f07bf9bc69ccd00ec5e92c7ec1f9da739fba7cba8163339a54c071',
-  'tile.dune-grass': '9dd3d52ada1aaa8ca87f23091b25cba4fd9f33af48ebe3235de0a21b805f2d3f',
-  'tile.villa-floor': 'c12ca3f56e41f1a83ec909ded5c1a5b8177b8f8c205538b8ffa2e2fff54381f7',
-  'tile.spa-stone': 'de5fa395f039a75981e07518aa980a5841bab72129d68ad7a2d9b8e0a4ee25a2',
-  'tile.plaza-paver': 'f2e83eb06ee2c5369f0b6f8db0efd95c1b8ebc077f11b557ea465c45f7e6a132',
-  'tile.boardwalk': '4af1ca85ae8ae8f086343f76de336691458b33d9f5d9ce86510aa13079cf30fe',
-  'tile.shallow-water': '745015a16e0967be417fa6c0d5ade243ac21db5e9fcf0e7177ccb320c5d6d704',
-  'tile.garden-soil': 'bc7db30e0a2de879d9db1ea0bc2fce738d5369caa3266101df76255ffb5ef973',
-  'tile.pale-concrete': 'e3974445102834d044a1255dc462b0eeae96ec3d7dedd5a4f44de48d805e7773',
-  'tile.dark-asphalt': '3288d056c58f872e36c6583767c6ec0ac9b827fe1b9f222f012ef73a01ea3ccd',
-} as const;
+function rgbaAt(bitmap: ReturnType<typeof decodePng>, x: number, y: number): readonly number[] {
+  const offset = (y * bitmap.width + x) * 4;
+  return [...bitmap.data.subarray(offset, offset + 4)];
+}
+
+function aggregatePublicCellHash(
+  bitmap: ReturnType<typeof decodePng>,
+  sprites: ReturnType<typeof buildAtlas>['index']['sprites'],
+  publicIds: readonly string[],
+): string {
+  const hash = createHash('sha256');
+  for (const id of [...publicIds].sort()) {
+    const rectangle = sprites[id];
+    if (!rectangle) throw new Error(`Missing public cell ${id}.`);
+    hash.update(`${id}\0${rectangle.width}x${rectangle.height}\0`);
+    hash.update(rectanglePixels(bitmap, rectangle));
+  }
+  return hash.digest('hex');
+}
 
 describe('deterministic SI World atlas generation', () => {
   test('produces a byte-identical RGBA atlas and stable index', () => {
@@ -53,14 +63,19 @@ describe('deterministic SI World atlas generation', () => {
     const second = buildAtlas();
     expect(first.png.equals(second.png)).toBe(true);
     expect(first.index).toEqual(second.index);
+    expect(first.report).toEqual(second.report);
     expect(first.png[25]).toBe(6);
-    expect(first.index.version).toBe(2);
+    expect(first.index.version).toBe(3);
+    expect(first.index.artRevision).toBe(1);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
     expect(Object.keys(first.index.sprites)).toHaveLength(187);
     expect(first.index.tiles).toHaveLength(97);
     expect(first.index.groundCells).toHaveLength(10);
     expect(first.index.transparentPartCells).toHaveLength(87);
-    expect(createHash('sha256').update(first.png).digest('hex')).toHaveLength(64);
+    expect(createHash('sha256').update(first.png).digest('hex')).toBe(first.index.image.sha256);
+    expect(first.index.publicSpriteIds).toEqual(Object.keys(first.index.sprites));
+    expect(first.index.internalReviewSpriteIds).toEqual([]);
+    expect(first.report.forecast).toMatchObject({ rawRectangleArea: 714_744, width: 1024 });
   });
 
   test('keeps all atlas cells inside the generated image', () => {
@@ -73,25 +88,60 @@ describe('deterministic SI World atlas generation', () => {
     }
   });
 
-  test('keeps one transparent pixel between every packed cell', () => {
+  test('extrudes every edge and corner without uncontrolled transparent RGB', () => {
     const { png, index } = buildAtlas();
     const bitmap = decodePng(png);
     for (const rectangle of Object.values(index.sprites)) {
-      for (let y = Math.max(0, rectangle.y - 1); y <= Math.min(bitmap.height - 1, rectangle.y + rectangle.height); y += 1) {
-        for (const x of [rectangle.x - 1, rectangle.x + rectangle.width]) {
-          if (x >= 0 && x < bitmap.width) {
-            expect(bitmap.data[(y * bitmap.width + x) * 4 + 3]).toBe(0);
-          }
-        }
+      for (let y = 0; y < rectangle.height; y += 1) {
+        expect(rgbaAt(bitmap, rectangle.x - 1, rectangle.y + y)).toEqual(rgbaAt(bitmap, rectangle.x, rectangle.y + y));
+        expect(rgbaAt(bitmap, rectangle.x + rectangle.width, rectangle.y + y)).toEqual(
+          rgbaAt(bitmap, rectangle.x + rectangle.width - 1, rectangle.y + y),
+        );
       }
-      for (let x = Math.max(0, rectangle.x - 1); x <= Math.min(bitmap.width - 1, rectangle.x + rectangle.width); x += 1) {
-        for (const y of [rectangle.y - 1, rectangle.y + rectangle.height]) {
-          if (y >= 0 && y < bitmap.height) {
-            expect(bitmap.data[(y * bitmap.width + x) * 4 + 3]).toBe(0);
-          }
-        }
+      for (let x = 0; x < rectangle.width; x += 1) {
+        expect(rgbaAt(bitmap, rectangle.x + x, rectangle.y - 1)).toEqual(rgbaAt(bitmap, rectangle.x + x, rectangle.y));
+        expect(rgbaAt(bitmap, rectangle.x + x, rectangle.y + rectangle.height)).toEqual(
+          rgbaAt(bitmap, rectangle.x + x, rectangle.y + rectangle.height - 1),
+        );
+      }
+      expect(rgbaAt(bitmap, rectangle.x - 1, rectangle.y - 1)).toEqual(rgbaAt(bitmap, rectangle.x, rectangle.y));
+      expect(rgbaAt(bitmap, rectangle.x + rectangle.width, rectangle.y + rectangle.height)).toEqual(
+        rgbaAt(bitmap, rectangle.x + rectangle.width - 1, rectangle.y + rectangle.height - 1),
+      );
+    }
+    for (let offset = 0; offset < bitmap.data.length; offset += 4) {
+      if (bitmap.data[offset + 3] === 0) {
+        expect([...bitmap.data.subarray(offset, offset + 3)]).toEqual([0, 0, 0]);
       }
     }
+  });
+
+  test('rejects a partial or stale candidate before replacement', () => {
+    const built = buildAtlas();
+    const staleIndex = JSON.parse(JSON.stringify(built.index)) as typeof built.index;
+    (staleIndex.image as { sha256: string }).sha256 = '0'.repeat(64);
+    expect(() => validateAtlasArtifacts(built.png, staleIndex, built.report)).toThrow('digest');
+    expect(() => validateAtlasArtifacts(Buffer.from('not png'), built.index, built.report)).toThrow();
+    const foreignVisibilityIndex = JSON.parse(JSON.stringify(built.index)) as typeof built.index;
+    (foreignVisibilityIndex.publicSpriteIds as string[])[0] = 'tile.foreign-id';
+    expect(() => validateAtlasArtifacts(built.png, foreignVisibilityIndex, built.report)).toThrow(
+      'missing or has the wrong visibility',
+    );
+  });
+
+  test('does not rewrite the ten authoritative character sources', () => {
+    const characterRoot = resolve(process.cwd(), 'assets/source/characters');
+    const before = Object.fromEntries(readdirSync(characterRoot).sort().map((name) => [
+      name,
+      createHash('sha256').update(readFileSync(resolve(characterRoot, name))).digest('hex'),
+    ]));
+    writeAtlas();
+    const after = Object.fromEntries(readdirSync(characterRoot).sort().map((name) => [
+      name,
+      createHash('sha256').update(readFileSync(resolve(characterRoot, name))).digest('hex'),
+    ]));
+    expect(Object.keys(after)).toHaveLength(10);
+    expect(after).toEqual(before);
   });
 
   test('builds ten distinct identities from the six named source layers', () => {
@@ -137,14 +187,18 @@ describe('deterministic SI World atlas generation', () => {
     }
   });
 
-  test('keeps ten original opaque 32x32 ground cells byte stable', () => {
+  test('keeps every public inner cell and ten opaque ground cells byte stable', () => {
     const tiles = loadTileSources();
     expect(tiles).toHaveLength(10);
     expect(new Set(tiles.map(({ id }) => id)).size).toBe(10);
     expect(tiles.every(({ cellClass }) => cellClass === 'ground')).toBe(true);
     const { png, index } = buildAtlas();
     const bitmap = decodePng(png);
-    for (const [name, expectedHash] of Object.entries(LOCKED_GROUND_PIXEL_HASHES)) {
+    expect(aggregatePublicCellHash(bitmap, index.sprites, index.publicSpriteIds)).toBe(
+      revisionPixelHashes.allPublicCellsAggregateSha256,
+    );
+    expect(revisionPixelHashes.artRevision).toBe(1);
+    for (const [name, expectedHash] of Object.entries(revisionPixelHashes.cells)) {
       const rectangle = index.sprites[name];
       expect(rectangle).toMatchObject({ kind: 'tile', cellClass: 'ground', wallAdjacencyMask: null });
       const pixels = rectanglePixels(bitmap, rectangle!);

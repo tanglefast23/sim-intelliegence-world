@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 1,
+  "toolVersion": "atlas-v3",
+  "indexVersion": 3,
+  "publicIdPrefixes": [
+    "tile.",
+    "character.",
+    "portrait."
+  ],
+  "limits": {
+    "maximumWidth": 1024,
+    "maximumHeight": 1024,
+    "maximumRawAreaRatio": 0.7,
+    "maximumPackedAreaRatio": 0.8,
+    "gutter": 1
+  },
+  "categories": {
+    "ground-base": { "maximumCount": 48, "width": 32, "height": 32 },
+    "ground-transition": { "maximumCount": 160, "width": 32, "height": 32 },
+    "ground-decal": { "maximumCount": 48, "width": 32, "height": 32 },
+    "wall-door": { "maximumCount": 80, "width": 32, "height": 32 },
+    "roof": { "maximumCount": 96, "width": 32, "height": 32 },
+    "object-landmark": { "maximumCount": 96, "width": 32, "height": 32 },
+    "world-character": { "maximumCount": 80, "width": 24, "height": 30 },
+    "portrait": { "maximumCount": 10, "width": 40, "height": 44 },
+    "effect-reserve": { "maximumCount": 16, "width": 32, "height": 32 }
+  }
+}

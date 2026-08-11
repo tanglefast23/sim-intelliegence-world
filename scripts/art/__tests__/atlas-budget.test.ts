@@ -1,0 +1,44 @@
+import { loadArtManifest } from '../art-manifest';
+import { createAtlasBudgetReport, type BudgetCell } from '../atlas-budget';
+
+function fullBudgetCells(): BudgetCell[] {
+  const manifest = loadArtManifest();
+  return Object.entries(manifest.categories).flatMap(([category, rule]) =>
+    Array.from({ length: rule.maximumCount }, (_unused, index) => ({
+      id: `${category}.${index}`,
+      category: category as BudgetCell['category'],
+      width: rule.width,
+      height: rule.height,
+    })),
+  );
+}
+
+describe('atlas category and forecast budget', () => {
+  test('runs all dimension-correct allowances through the real packer', () => {
+    const manifest = loadArtManifest();
+    const report = createAtlasBudgetReport([], manifest);
+    expect(report.forecast).toMatchObject({
+      cellCount: 634,
+      rawRectangleArea: 714_744,
+      width: 1024,
+    });
+    expect(report.forecast.height).toBeLessThanOrEqual(1024);
+    expect(report.forecast.rawAreaRatio).toBeLessThanOrEqual(0.7);
+    expect(report.forecast.packedAreaRatio).toBeLessThanOrEqual(0.8);
+  });
+
+  test('reports actual category counts without changing the fixed ceiling forecast', () => {
+    const manifest = loadArtManifest();
+    const cells: BudgetCell[] = [{ id: 'tile.warm-sand', category: 'ground-base', width: 32, height: 32 }];
+    const report = createAtlasBudgetReport(cells, manifest);
+    expect(report.categories['ground-base']).toMatchObject({ actualCount: 1, maximumCount: 48 });
+    expect(report.forecast.rawRectangleArea).toBe(714_744);
+  });
+
+  test('stops a category overrun with the required reduction action', () => {
+    const manifest = loadArtManifest();
+    const cells = fullBudgetCells();
+    cells.push({ id: 'extra-ground', category: 'ground-base', width: 32, height: 32 });
+    expect(() => createAtlasBudgetReport(cells, manifest)).toThrow('reduce it to 48 or fewer');
+  });
+});

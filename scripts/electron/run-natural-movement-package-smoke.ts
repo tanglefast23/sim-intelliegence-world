@@ -7,6 +7,7 @@ import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { buildDeterministicMovementTrace } from '../../src/render/movement-evidence';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveTestedCommit } from '../qualification/tested-commit';
+import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { findPackagedExecutable } from './package-smoke-utils';
 import {
   validateNaturalMovementReport,
@@ -16,9 +17,9 @@ import {
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
   : join(process.cwd(), 'out');
-const evidenceRoot = process.argv[2]
-  ? resolve(process.cwd(), process.argv[2])
-  : join(process.cwd(), 'artifacts/phase-23/natural-movement');
+const evidenceRoot = resolveEvidenceOutputRoot(process.argv.slice(2), {
+  defaultRelative: 'output/verification/natural-movement',
+});
 const profile = process.env.SI_WORLD_SMOKE_PROFILE ?? 'qualification';
 if (profile !== 'qualification' && profile !== 'platform-shell') {
   throw new Error(`Unknown natural-movement smoke profile: ${profile}.`);
