@@ -50,6 +50,7 @@
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
     "smoke:natural-movement": "tsx scripts/electron/run-natural-movement-package-smoke.ts",
     "smoke:art-quality": "tsx scripts/electron/run-art-quality-package-smoke.ts",
+    "smoke:procedural-vfx": "tsx scripts/electron/run-procedural-vfx-package-smoke.ts",
     "smoke:responsive": "tsx scripts/electron/run-responsive-package-smoke.ts",
     "smoke:responsive:high-dpi": "tsx scripts/electron/run-responsive-package-smoke.ts --high-dpi",
     "smoke:responsive:qualification": "tsx scripts/electron/run-responsive-package-smoke.ts --high-dpi --qualification",

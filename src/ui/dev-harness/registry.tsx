@@ -1,17 +1,24 @@
 import { useState, type ReactNode } from 'react';
 
 import { NewGameFlow } from '../../application/NewGameFlow';
-import { DEFAULT_PRESENTATION_PREFERENCES } from '../../application/presentation/preferences';
+import {
+  DEFAULT_PRESENTATION_PREFERENCES,
+  type PresentationPreferences,
+} from '../../application/presentation/preferences';
 import type { WorldState } from '../../domain/state/schema';
 import { ATLAS_INDEX, CHARACTER_IDS, type CharacterId } from '../../render/atlas';
-import type { ViewportSize } from '../../render/camera';
+import { centerCameraOnTile, type ViewportSize } from '../../render/camera';
+import { EXPECTED_VFX_ANCHORS } from '../../render/vfx/fixtures';
 import { WorldScene } from '../../render/WorldScene';
 import type { DevHarnessRoutableEntry } from './route';
 import {
   DEV_HARNESS_MAP_IDS,
   devHarnessLocationState,
   devHarnessQuestState,
+  devHarnessVfxState,
 } from './scenario-state';
+
+const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 
 export interface DevHarnessCase {
   readonly id: string;
@@ -28,25 +35,29 @@ export interface DevHarnessEntry extends DevHarnessRoutableEntry {
 
 type HarnessWorldProps = Readonly<{
   conversationFixtureId?: CharacterId;
+  feedback?: string;
   initialPanel?: 'journal' | 'relationships';
   newGame?: boolean;
+  presentationPreferences?: PresentationPreferences;
   state: WorldState;
   surface: ViewportSize;
 }>;
 
 function HarnessWorld({
   conversationFixtureId,
+  feedback = 'DEV HARNESS · DISPOSABLE STATE',
   initialPanel,
   newGame = false,
+  presentationPreferences = DEFAULT_PRESENTATION_PREFERENCES,
   state,
   surface,
 }: HarnessWorldProps) {
   return (
     <WorldScene
       initialConversationFixtureId={conversationFixtureId}
-      initialFeedback="DEV HARNESS · DISPOSABLE STATE"
+      initialFeedback={feedback}
       initialOpenPanel={initialPanel}
-      initialPresentationPreferences={DEFAULT_PRESENTATION_PREFERENCES}
+      initialPresentationPreferences={presentationPreferences}
       initialSaveGeneration={null}
       initialSaveStatus="DEV HARNESS · NO DISK SAVE"
       initialState={state}
@@ -96,6 +107,24 @@ const conversationCases = CHARACTER_IDS.map((characterId) => ({
   note: 'Open the real conversation panel in its authored art-review mode.',
 }));
 
+const vfxCases = EXPECTED_VFX_ANCHORS.map((anchor) => ({
+  id: anchor.id,
+  label: anchor.id.replaceAll('-', ' ').toUpperCase(),
+  note: `${ATLAS_MAP_NAMES[anchor.mapId]} · ${anchor.kind.toUpperCase()} · starts at 3× zoom.`,
+}));
+
+function vfxPresentationPreferences(
+  anchor: (typeof EXPECTED_VFX_ANCHORS)[number],
+  surface: ViewportSize,
+): PresentationPreferences {
+  const camera = centerCameraOnTile(anchor, 3, surface, MAP_PIXELS);
+  return {
+    ...DEFAULT_PRESENTATION_PREFERENCES,
+    worldZoom: 3,
+    camera: { mapId: anchor.mapId, x: camera.x, y: camera.y },
+  };
+}
+
 const welcomeEntry: DevHarnessEntry = {
   id: 'welcome',
   group: 'Start',
@@ -117,6 +146,26 @@ const locationsEntry: DevHarnessEntry = {
       surface={surface}
     />
   ),
+};
+
+const proceduralEffectsEntry: DevHarnessEntry = {
+  id: 'procedural-effects',
+  group: 'World',
+  title: 'Procedural Effects',
+  summary: 'Open every authored fire and sparkle in its real neighborhood.',
+  cases: vfxCases,
+  render: (caseId, surface) => {
+    const anchor = EXPECTED_VFX_ANCHORS.find(({ id }) => id === caseId);
+    if (!anchor) throw new Error(`Unknown dev harness VFX case ${caseId}.`);
+    return (
+      <HarnessWorld
+        feedback={`VFX HARNESS · ${anchor.id.toUpperCase()}`}
+        presentationPreferences={vfxPresentationPreferences(anchor, surface)}
+        state={devHarnessVfxState(anchor.mapId, anchor.id)}
+        surface={surface}
+      />
+    );
+  },
 };
 
 const conversationsEntry: DevHarnessEntry = {
@@ -171,6 +220,7 @@ const panelsEntry: DevHarnessEntry = {
 export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
+  proceduralEffectsEntry,
   conversationsEntry,
   panelsEntry,
 ]);

@@ -7,6 +7,7 @@ import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { responsiveSurface } from '../../src/render/responsive-layout';
+import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
 import { BundledConversationInference } from '../model/conversation-inference';
@@ -38,7 +39,10 @@ const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
 const fullCastPortraitSmokeMode = process.env.SI_WORLD_FULL_CAST_PORTRAIT_SMOKE === '1';
+const proceduralVfxSmokeMode = process.env.SI_WORLD_PROCEDURAL_VFX_SMOKE === '1';
+const proceduralVfxReducedMode = process.env.SI_WORLD_PROCEDURAL_VFX_REDUCED === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
+const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
@@ -76,7 +80,11 @@ if (responsiveArtMode !== undefined && (!responsiveSmokeMode || !['legacy', 'enh
   throw new Error('Art mode is available only to responsive smoke as legacy or enhanced.');
 }
 
-if (naturalMovementReducedMode) {
+if (smokeVfxMode !== undefined && (!smokeMode || !['circle', 'procedural'].includes(smokeVfxMode))) {
+  throw new Error('VFX mode is available only to smoke runs as circle or procedural.');
+}
+
+if (naturalMovementReducedMode || proceduralVfxReducedMode) {
   app.commandLine.appendSwitch('force-prefers-reduced-motion', 'reduce');
 }
 
@@ -300,6 +308,30 @@ async function responsiveEvidence(window: BrowserWindow): Promise<Record<string,
   ) as string;
   if (!label) throw new Error('Responsive evidence is missing.');
   return JSON.parse(label) as Record<string, unknown>;
+}
+
+async function vfxEvidence(window: BrowserWindow): Promise<Record<string, unknown>> {
+  const label = await window.webContents.executeJavaScript(
+    `document.querySelector('#world-vfx-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as string;
+  if (!label) throw new Error('VFX evidence is missing.');
+  return JSON.parse(label) as Record<string, unknown>;
+}
+
+async function waitForVfxEvidence(
+  window: BrowserWindow,
+  predicate: (evidence: Record<string, unknown>) => boolean,
+  timeoutMilliseconds = 10_000,
+): Promise<Record<string, unknown>> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let lastEvidence: Record<string, unknown> = {};
+  while (Date.now() < deadline) {
+    lastEvidence = await vfxEvidence(window);
+    if (predicate(lastEvidence)) return lastEvidence;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
+  throw new Error(`Timed out waiting for VFX evidence. Last evidence: ${JSON.stringify(lastEvidence)}`);
 }
 
 async function geometryEvidence(window: BrowserWindow): Promise<Readonly<{
@@ -1071,6 +1103,122 @@ async function captureResponsiveSmoke(
   };
 }
 
+async function captureProceduralVfxSmoke(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await startResponsiveSmokeGame(window);
+  await clickAriaButton(window, 'Set 1x time');
+  await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+  const mode = smokeVfxMode === 'circle' ? 'circle' : 'procedural';
+  const motionMode = proceduralVfxReducedMode ? 'reduced' : 'standard';
+  const anchorReports: Record<string, unknown>[] = [];
+
+  for (const anchor of EXPECTED_VFX_ANCHORS) {
+    await window.webContents.executeJavaScript(
+      `window.siWorldOpenVfxFixture?.(${JSON.stringify(anchor.mapId)}, ${JSON.stringify(anchor.id)})`,
+      true,
+    );
+    const fixtureEvidence = await waitForVfxEvidence(window, (candidate) => (
+      candidate.mapId === anchor.mapId &&
+      Array.isArray(candidate.visibleEmitterIds) &&
+      candidate.visibleEmitterIds.includes(anchor.id) &&
+      candidate.mode === mode &&
+      candidate.reducedMotion === proceduralVfxReducedMode
+    ));
+    const screenshots: string[] = [];
+    for (const zoom of [1, 2, 3] as const) {
+      await clickZoomButton(window, zoom);
+      await window.webContents.executeJavaScript(
+        `window.siWorldOpenVfxFixture?.(${JSON.stringify(anchor.mapId)}, ${JSON.stringify(anchor.id)})`,
+        true,
+      );
+      await waitForVfxEvidence(window, (candidate) => (
+        candidate.mapId === anchor.mapId &&
+        Array.isArray(candidate.visibleEmitterIds) &&
+        candidate.visibleEmitterIds.includes(anchor.id)
+      ));
+      await window.webContents.executeJavaScript('new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))', true);
+      const name = `${anchor.mapId}-${anchor.id}-${mode}-${motionMode}-${zoom}x.png`;
+      await captureSmokeScreenshot(window, join(directory, name));
+      screenshots.push(name);
+    }
+    anchorReports.push({
+      ...anchor,
+      fixtureEvidence,
+      camera: parseCameraLabel(await cameraLabel(window)),
+      screenshots,
+    });
+  }
+
+  const pauseAnchor = EXPECTED_VFX_ANCHORS.find(({ id }) => id === 'patio-fire');
+  if (!pauseAnchor) throw new Error('The patio-fire VFX fixture is missing.');
+  await clickZoomButton(window, 1);
+  await window.webContents.executeJavaScript(
+    `window.siWorldOpenVfxFixture?.(${JSON.stringify(pauseAnchor.mapId)}, ${JSON.stringify(pauseAnchor.id)})`,
+    true,
+  );
+  const activeBefore = await waitForVfxEvidence(window, (candidate) => candidate.mapId === pauseAnchor.mapId);
+  if (mode === 'procedural') {
+    await waitForVfxEvidence(window, (candidate) => (
+      candidate.mapId === pauseAnchor.mapId &&
+      Number(candidate.ageStep) > Number(activeBefore.ageStep)
+    ));
+  } else {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 450));
+  }
+  await clickAriaButton(window, 'Pause time');
+  await waitForWorldState(window, (state) => state.speed === 0, 10_000);
+  const pausedBefore = await vfxEvidence(window);
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 450));
+  const pausedAfter = await vfxEvidence(window);
+  if (pausedBefore.ageStep !== pausedAfter.ageStep) {
+    throw new Error(`VFX age advanced while paused: ${String(pausedBefore.ageStep)} to ${String(pausedAfter.ageStep)}.`);
+  }
+  const pausedScreenshot = `patio-fire-${mode}-${motionMode}-paused.png`;
+  await captureSmokeScreenshot(window, join(directory, pausedScreenshot));
+  await clickAriaButton(window, 'Set 1x time');
+  await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+  await window.webContents.executeJavaScript('new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))', true);
+  const resumedEvidence = await vfxEvidence(window);
+  const resumedScreenshot = `patio-fire-${mode}-${motionMode}-resumed.png`;
+  await captureSmokeScreenshot(window, join(directory, resumedScreenshot));
+
+  const rendererMeasurement = await measureRendererFps(window);
+  const roundedFps = Math.round(rendererMeasurement.rendererFps);
+  if (process.env.SI_WORLD_SMOKE_PROFILE === 'qualification' && roundedFps < 60) {
+    throw new Error(`Procedural VFX package smoke is below 60 rounded FPS: ${roundedFps}.`);
+  }
+
+  return {
+    schemaVersion: 1,
+    mode,
+    motionMode,
+    artPresentation: await window.webContents.executeJavaScript(
+      `document.querySelector('#world-art-presentation')?.getAttribute('aria-label') ?? ''`,
+      true,
+    ) as string,
+    contentSize: Object.freeze((() => {
+      const [width, height] = window.getContentSize();
+      return { width, height };
+    })()),
+    devicePixelRatio: await window.webContents.executeJavaScript('window.devicePixelRatio', true) as number,
+    anchors: anchorReports,
+    pause: {
+      frozen: true,
+      ageStep: pausedAfter.ageStep,
+      pausedScreenshot,
+      resumedAgeStep: resumedEvidence.ageStep,
+      resumedScreenshot,
+    },
+    maximumLoad: {
+      ...rendererMeasurement,
+      roundedFps,
+      evidence: resumedEvidence,
+    },
+  };
+}
+
 async function capturePresentationPreferenceSmoke(
   window: BrowserWindow,
   mode: 'seed' | 'restart',
@@ -1630,6 +1778,13 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     }
     await captureSmokeScreenshot(window, presentationScreenshot);
     process.stdout.write(`SI_WORLD_PRESENTATION_SMOKE_RESULT ${JSON.stringify(presentationResult)}\n`);
+  } else if (proceduralVfxSmokeMode) {
+    const vfxDirectory = process.env.SI_WORLD_PROCEDURAL_VFX_SCREENSHOT_DIR;
+    if (!vfxDirectory || !isAbsolute(vfxDirectory)) {
+      throw new Error('Procedural-VFX smoke screenshot directory must be absolute.');
+    }
+    const vfxResult = await captureProceduralVfxSmoke(window, vfxDirectory);
+    process.stdout.write(`SI_WORLD_PROCEDURAL_VFX_SMOKE_RESULT ${JSON.stringify(vfxResult)}\n`);
   } else if (naturalMovementSmokeMode) {
     const naturalMovementDirectory = process.env.SI_WORLD_NATURAL_MOVEMENT_SCREENSHOT_DIR;
     if (!naturalMovementDirectory || !isAbsolute(naturalMovementDirectory)) {
@@ -1699,6 +1854,7 @@ async function createMainWindow(): Promise<void> {
         ...(smokeMode ? [
           '--si-world-smoke-mode=1',
           ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
+          ...(smokeVfxMode ? [`--si-world-vfx-mode=${smokeVfxMode}`] : []),
         ] : []),
         ...(devHarnessMode ? ['--si-world-dev-harness=1'] : []),
       ],

@@ -57,6 +57,33 @@ export function devHarnessLocationState(
   }));
 }
 
+export function devHarnessVfxState(mapId: MapId, effectId: string): WorldState {
+  const map = WORLD_MAP_CATALOG[mapId];
+  const effect = map.source.effects.find(({ id }) => id === effectId);
+  if (!effect) throw new Error(`Dev harness VFX ${mapId}/${effectId} does not exist.`);
+  const nearbyTile = [
+    { x: effect.tile.x, y: effect.tile.y + 3 },
+    { x: effect.tile.x + 3, y: effect.tile.y },
+    { x: effect.tile.x, y: effect.tile.y - 3 },
+    { x: effect.tile.x - 3, y: effect.tile.y },
+  ].find((tile) => (
+    tile.x >= 0 && tile.x < map.source.width &&
+    tile.y >= 0 && tile.y < map.source.height &&
+    !map.blockedKeys.has(`${tile.x},${tile.y}`)
+  ));
+  if (!nearbyTile) throw new Error(`Dev harness VFX ${mapId}/${effectId} has no nearby player tile.`);
+  const state = devHarnessLocationState(mapId);
+  return parseWorldState({
+    ...state,
+    clock: { ...state.clock, selectedSpeed: 1 },
+    protagonist: {
+      ...state.protagonist,
+      locationId: mapId,
+      worldPosition: { mapId, tileX: nearbyTile.x, tileY: nearbyTile.y },
+    },
+  });
+}
+
 function nearLinda(state: WorldState): WorldState {
   const presence = state.npcs.linda?.presence;
   if (!presence || presence.kind !== 'active_local') {

@@ -1,0 +1,30 @@
+import { z } from 'zod';
+
+import { VFX_REVISION } from './types';
+
+const SortedIdListSchema = z.array(z.string().min(1)).readonly();
+
+export const VfxEvidenceSchema = z.object({
+  schemaVersion: z.literal(1),
+  mode: z.enum(['circle', 'procedural']),
+  mapId: z.string().min(1),
+  vfxRevision: z.literal(VFX_REVISION),
+  ageStep: z.number().int().nonnegative(),
+  reducedMotion: z.boolean(),
+  visibleEmitterIds: SortedIdListSchema,
+  culledEmitterIds: SortedIdListSchema,
+  fallbackEmitterIds: SortedIdListSchema,
+  primitiveCounts: z.object({
+    fire: z.number().int().nonnegative(),
+    sparkle: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  }).strict().readonly(),
+  renderNodeCount: z.number().int().nonnegative(),
+  updateRateHz: z.number().nonnegative().max(3),
+}).strict().readonly();
+
+export type VfxEvidence = z.infer<typeof VfxEvidenceSchema>;
+
+export function parseVfxEvidence(input: unknown): VfxEvidence {
+  return VfxEvidenceSchema.parse(input);
+}
