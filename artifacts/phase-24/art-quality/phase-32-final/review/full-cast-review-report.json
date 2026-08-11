@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 5,
+  "characters": [
+    "devon-price",
+    "elise-moreau",
+    "generic-resident",
+    "linda",
+    "mina-park",
+    "priya-nair",
+    "protagonist",
+    "rafael-cruz",
+    "sora-tan",
+    "tomas-reed"
+  ],
+  "directions": [
+    "front-1",
+    "front-2",
+    "rear-1",
+    "rear-2",
+    "left-1",
+    "left-2",
+    "right-1",
+    "right-2"
+  ],
+  "files": [
+    "full-cast-identity-1x.png",
+    "full-cast-identity-3x.png"
+  ],
+  "identityFeatures": {
+    "devon-price": [
+      {
+        "id": "compact-flat-top",
+        "description": "A compact flat-top remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "broad-epaulet-jacket",
+        "description": "A broad jacket with square epaulets changes the torso silhouette in every direction.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "elise-moreau": [
+      {
+        "id": "curled-side-hair",
+        "description": "Curled side hair remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "temple-ribbon",
+        "description": "An asymmetric temple ribbon remains visible from every direction.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "generic-resident": [
+      {
+        "id": "high-swept-quiff",
+        "description": "A high quiff remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "wide-glasses",
+        "description": "Wide glasses identify the resident from the front and sides.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "linda": [
+      {
+        "id": "long-side-hair",
+        "description": "Long hair falls beside the torso in every direction.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "paired-earrings",
+        "description": "Paired gold earrings frame the face from the front and sides.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "mina-park": [
+      {
+        "id": "straight-side-hair",
+        "description": "Straight side hair remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "right-side-bag",
+        "description": "A small bag changes the right torso edge in every direction.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "priya-nair": [
+      {
+        "id": "high-center-bun",
+        "description": "A high center bun remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "left-scarf-tail",
+        "description": "A scarf tail changes the left torso edge in every direction.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "protagonist": [
+      {
+        "id": "swept-side-hair",
+        "description": "A high swept fringe remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "diagonal-strap",
+        "description": "A diagonal chest strap identifies the protagonist from the front and sides.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "rafael-cruz": [
+      {
+        "id": "cropped-textured-hair",
+        "description": "Cropped textured hair remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "double-shoulder-band",
+        "description": "Two shoulder bands remain visible from every direction.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "sora-tan": [
+      {
+        "id": "rounded-bob-hair",
+        "description": "A rounded bob remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "paired-sleeve-tabs",
+        "description": "Paired sleeve tabs widen the torso from every direction.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "tomas-reed": [
+      {
+        "id": "low-side-part",
+        "description": "A low side-part remains visible around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "square-headphones",
+        "description": "Square headphones widen the head silhouette in every direction.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ]
+  },
+  "torsoSilhouetteCount": 4,
+  "pairwiseMinimumNonColorDifferences": 2,
+  "lateralThreeQuarterHeadRequired": false
+}

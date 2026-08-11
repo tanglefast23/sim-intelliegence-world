@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 5,
+  "districts": [
+    {
+      "mapId": "northeast_downtown",
+      "sourceSha256": "93d7ef5f585c88343b1a182a25e6aa29724f9fccca8a5b132f0c0e09edf0d9c2",
+      "layoutRevision": 1,
+      "wallFamily": "downtown",
+      "materials": [
+        "plaza-paver",
+        "boardwalk",
+        "dark-asphalt",
+        "warm-sand"
+      ],
+      "roofReview": {
+        "status": "not-applicable",
+        "reason": "The authoritative compiled Tier B map has zero roof groups; no roof geometry was added for art proof.",
+        "roofGroupCount": 0
+      }
+    },
+    {
+      "mapId": "southwest_commercial",
+      "sourceSha256": "fad27f9314305febf51b7ba549352b41e52e2a6b2c95576bc60f8b1f37bf194c",
+      "layoutRevision": 1,
+      "wallFamily": "commercial",
+      "materials": [
+        "warm-sand",
+        "boardwalk",
+        "pale-concrete",
+        "villa-floor"
+      ],
+      "roofReview": {
+        "status": "not-applicable",
+        "reason": "The authoritative compiled Tier B map has zero roof groups; no roof geometry was added for art proof.",
+        "roofGroupCount": 0
+      }
+    },
+    {
+      "mapId": "southeast_docks",
+      "sourceSha256": "2ec2a4988ba014f9f9d9333ba14cf448c9f3c5d3a7fe62671e549db9e1f20c60",
+      "layoutRevision": 1,
+      "wallFamily": "civic",
+      "materials": [
+        "pale-concrete",
+        "boardwalk",
+        "plaza-paver",
+        "shallow-water",
+        "spa-stone"
+      ],
+      "roofReview": {
+        "status": "not-applicable",
+        "reason": "The authoritative compiled Tier B map has zero roof groups; no roof geometry was added for art proof.",
+        "roofGroupCount": 0
+      }
+    }
+  ],
+  "objectSprites": [
+    "tile.counter-left",
+    "tile.sign-neon",
+    "tile.sign-market",
+    "tile.sign-civic",
+    "tile.fixture-lamp",
+    "tile.fixture-planter",
+    "tile.landmark-ferry-left",
+    "tile.landmark-ferry-right"
+  ],
+  "files": [
+    "tier-b-northeast_downtown-materials-1x.png",
+    "tier-b-northeast_downtown-materials-3x.png",
+    "tier-b-southwest_commercial-materials-1x.png",
+    "tier-b-southwest_commercial-materials-3x.png",
+    "tier-b-southeast_docks-materials-1x.png",
+    "tier-b-southeast_docks-materials-3x.png",
+    "tier-b-walls-1x.png",
+    "tier-b-walls-3x.png",
+    "tier-b-objects-landmark-1x.png",
+    "tier-b-objects-landmark-3x.png"
+  ]
+}

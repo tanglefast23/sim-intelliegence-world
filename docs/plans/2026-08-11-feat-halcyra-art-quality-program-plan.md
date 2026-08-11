@@ -754,5 +754,5 @@ Before Phase 26 starts:
 - [x] Phase 29 full current cast is Grok-audited and merged.
 - [x] Phase 30 complete Tier A Sunward art is Grok-audited and merged.
 - [x] Phase 31 Tier B existing-art upgrade is Grok-audited and merged.
-- [ ] Phase 32 integrated packaged qualification is Grok-audited and merged.
-- [ ] Local `main`, `origin/main`, and final PR merge SHA are equal with `0 0` divergence.
+- [x] Phase 32 integrated packaged qualification is Grok-audited and merged.
+- [x] Local `main`, `origin/main`, and final PR merge SHA are equal with `0 0` divergence.
