@@ -2,7 +2,7 @@
 title: "Original pixel-diorama art quality"
 type: specification
 date: 2026-08-11
-status: council-review-draft
+status: council-reviewed-final
 base_sha: bae2fb2a7b18490491ad53a7a2b3f9f58378969d
 ---
 
@@ -60,7 +60,7 @@ The following contracts do not change in this program:
 - `24×30` world-character cells.
 - Eight final world cells per character: front, rear, left, and right, with two walk frames each.
 - The existing rear-frame generation method.
-- Lateral cells made from two lateral leg shapes plus front head and torso layers.
+- Lateral cells use two lateral leg shapes plus the front head and torso layers by default. One mirrored three-quarter head and hair source is allowed only after the native-`1×` lateral proof fails.
 - Approximately `145 ms` per walk frame at world speed `1`.
 - Discrete `1×`, `2×`, and `3×` world zoom.
 - Nearest-neighbor sampling and integer final screen placement.
@@ -70,9 +70,18 @@ The following contracts do not change in this program:
 - Four `64×48` neighborhood maps.
 - Existing click movement, collision, door, object-footprint, roof-hide, depth, save, local-model, and responsive contracts.
 - Sunward Villas remains the fully authored prototype district.
-- The other three districts receive shared material and readability upgrades. This work does not silently turn them into fully authored story districts.
+- The other three districts receive the Tier B shared art upgrade defined below. This work does not silently turn them into fully authored story districts.
 
 An art-only change must not increment `layoutRevision`, change static solids, move a portal, move a spawn, change an approach cell, or require a save migration.
+
+### 3.1 District delivery tiers
+
+| Tier | District | Art work in this program | Work excluded from this program |
+|---|---|---|---|
+| A | Sunward Villas | Full quality prototype; material variants; transitions; decals; characters; existing walls, doors, roofs, objects, vegetation, and landmarks | New geometry, interactions, quests, or businesses |
+| B | Neon Crescent, Palm Exchange, Harbor Authority | Re-author existing material, wall, door, roof, sign, object, and landmark cells; add variants and edges only for materials already used by the map; apply the district palette to existing placements | New map objects, new render-part placements, new rooms, new wall runs, new interactions, new solids, new density, or authored story content |
+
+The Tier B maps receive full regression captures because shared renderer and atlas changes can break them. They do not receive the Tier A scene-content gate. The district detail lists in section 6 are art-bible direction. In Tier B, they apply only when a listed object or material already exists in the map.
 
 ## 4. Non-goals
 
@@ -152,6 +161,8 @@ The total color count is not a goal. A new color is allowed only when it creates
 
 ## 6. Neighborhood identity
 
+This section defines the visual identity of present and future art. Tier A can add the listed visual detail to existing placements. Tier B can re-author only existing cells and placements. It cannot add the example props as new map content.
+
 ### 6.1 Sunward Villas
 
 Use honey sand, pale limestone, terracotta, spa blue, teal water, and palm green. Detail is groomed: raked sand, shell paths, planters, towels, umbrellas, clean water edges, small flowers, and controlled wear.
@@ -191,14 +202,15 @@ The art source replaces a one-sprite concept with named material families. A fam
 - an edge mode;
 - an optional decal family;
 - a stable transition priority.
+- a stable authored `selectionSalt` used only for visual-variant distribution.
 
 The public base sprite IDs in existing maps remain valid. Generated variant and transition IDs are implementation details and cannot become simulation identifiers.
 
 ### 7.2 Stable visual selection
 
-Visual variation is selected by a pure presentation hash of:
+Visual variation starts with a stable candidate order from a non-commutative hash of the length-prefixed tuple:
 
-`mapId + tileX + tileY + materialId + artRevision`
+`(mapId, tileX, tileY, materialId, artRevision, selectionSalt)`
 
 The selector:
 
@@ -207,6 +219,12 @@ The selector:
 - returns the same output after resize, zoom, restart, save load, and map transition;
 - is not stored in the save;
 - is independent of device-pixel ratio and frame rate.
+
+The presentation compiler resolves tiles in row-major order. For each tile, it takes the first candidate that does not complete an all-identical `2×2` block with the already resolved left, upper-left, and upper tiles. If those three tiles are not all the same variant, it takes the first candidate. Because every family in this mode has at least two variants, the repair always has a valid choice.
+
+This is a deterministic constraint pass, not a runtime reroll. The material review build checks the canonical `12×12` board against the section 14.2 count band. If it fails, the build reports all variant counts and fails. The art author can change the versioned `selectionSalt`, change the variant set, or declare an approved coordinate-phase recipe. An identical source always returns identical output.
+
+A coordinate-phased structured material can use its authored phase rule instead, but the rule and expected variant shares must be declared in its source.
 
 `artRevision` is an art-build constant. Changing it can change presentation, but it cannot change collision, routes, schedules, or replay commands.
 
@@ -218,8 +236,8 @@ The selector:
 - No variant places a landmark-like mark often enough to become an obvious stamp.
 - No variant changes whether a tile appears walkable.
 - A continuous `12×12` board of a common material must use at least four variants.
-- No `2×2` block can contain four identical variants unless the material explicitly uses coordinate-phased structure.
-- The selector cannot produce a visible diagonal or checkerboard cycle.
+- No hash-resolved `2×2` block can contain four identical variants.
+- The tracked native-`1×` visual gate rejects a visible diagonal or checkerboard cycle. The selector itself guarantees only the tuple, row-order, count-band build check, and all-identical-`2×2` rules stated above.
 
 ### 7.4 Material edges
 
@@ -229,7 +247,9 @@ Every material family declares one of these edge modes:
 - `built`: aligned curb, trim, plank end, tile border, or road edge;
 - `hard`: a deliberate platform or authored boundary that needs no blend.
 
-The first implementation supplies sixteen orthogonal edge masks per soft or built family. It adds corner-aware masks only when the review board proves that an orthogonal mask leaves a visible rectangular defect.
+The first implementation supplies one sixteen-case, corner-aware marching-squares or equivalent quarter-Wang set per soft or built family. Its cases include straight runs, inner and outer corners, diagonal saddle cases, single-tile islands, and one-tile strips when neighboring cells are resolved together.
+
+At each shared vertex, the material with the higher transition priority owns the fringe. Equal priorities resolve by stable material ID. At a junction of three or more materials, the highest-priority present material owns the shared vertex and the remaining pairwise edges continue in stable priority order. The compiler emits one final transition cell per ground tile after this resolution. No runtime order or object iteration order can change it.
 
 An edge is presentation only. Neighbor checks can select an edge cell, but they cannot change terrain ownership or walkability. Every supported neighboring material pair must have one reviewed example. A hard rectangular seam is allowed only when the material declares `hard` or supplies a visible curb, wall, platform, or trim.
 
@@ -346,13 +366,19 @@ World cells and portraits can use different detail levels, but they cannot disag
 - Hair color alone does not count.
 - A named character cannot be only a palette and hair replacement of the generic resident.
 - The protagonist, Linda, and generic resident receive the first quality proof.
+- Each identity feature declares the directions in which it is visible.
+- Every named character has at least one non-color feature that survives front, rear, and lateral generation, such as body width, outfit silhouette, hat, hair mass, or back accessory.
+- A second feature can be front-specific, but it cannot be the only reason two named characters differ.
+- Rear generation preserves the declared hair, hat, outfit, and back-accessory silhouette. Lateral composition preserves the declared head, hair, eyewear, hat, torso, and held-item silhouette when that item is visible from the side.
 
 ### 10.3 Rendering rules
 
 - Keep the `24×30` cell and eight final world cells.
 - Keep two front leg frames and two lateral leg shapes.
 - Keep generated rear cells and composed lateral cells.
-- Add a generated one-pixel outer contour after layer composition.
+- Add a generated one-pixel outward contour into transparent pixels after layer composition. The contour never replaces a source fill pixel or changes body geometry.
+- Before contour generation, source color mass reserves at least one transparent pixel at the top, left, and right. A moving foot can reach the bottom row under the foot-open rule. The generator rejects a source that would require a clipped top or side contour.
+- The final contour stays inside the `24×30` cell. It can occupy a cell boundary when the source margin places it there.
 - Use separate three-value skin and hair ramps where their shapes touch.
 - Use at least two outfit values when the garment is large enough to show them.
 - Keep eyes, mouth, glasses, and small accessories readable without making the head larger.
@@ -397,6 +423,33 @@ The build must return byte-identical PNG and JSON output for identical sources a
 - Atlas overflow is a build failure.
 - A proposal to split atlases requires measured evidence and a new renderer review. It is not an automatic fallback.
 - Stable public sprite IDs remain reachable. Generated internal variant IDs can change only with the art build and its semantic tests.
+
+The full program uses this planning budget. Tile-cell area includes a one-pixel gutter on each side, so one `32×32` cell consumes a `34×34` packing rectangle. The table is raw source-rectangle area. It is a lower bound and does not claim that a real packer has no wasted space.
+
+| Category | Maximum count | Raw rectangle area |
+|---|---:|---:|
+| Ground base variants | 48 tile cells | `55,488 px` |
+| Ground transition cases | 160 tile cells | `184,960 px` |
+| Ground decals | 48 tile cells | `55,488 px` |
+| Walls and doors | 80 tile cells | `92,480 px` |
+| Roofs | 96 tile cells | `110,976 px` |
+| Objects and landmarks | 96 tile cells | `110,976 px` |
+| World-character cells | 80 `24×30` cells with gutters | `66,560 px` |
+| Portraits | 10 `40×44` cells with gutters | `19,320 px` |
+| Effects and reserve | 16 tile cells | `18,496 px` |
+| **Total ceiling** |  | **`714,744 px`, about `68.2%` of `1024×1024`** |
+
+The build reports category count, raw rectangle area, final packed dimensions, packed bounding-rectangle area, atlas occupancy, and largest cells. The section 16 prototype creates dimension-correct placeholders for all remaining category allowances and runs them through the real stable packer. Broad authoring cannot start unless raw rectangle area stays at or below `70%`, projected packed bounding-rectangle area stays at or below `80%`, both projected dimensions stay at or below `1024`, and actual prototype cells also pack successfully. This reserves at least `20%` of the atlas after measured packing waste.
+
+If a category exceeds its budget, reduce in this order:
+
+1. remove transition sets for materials that do not use `soft` or `built` edges;
+2. remove variants above the family minimum;
+3. remove optional micro-decals;
+4. reuse an existing roof or material recipe where it preserves district identity;
+5. stop for a measured atlas-split and renderer review.
+
+Public base IDs, the eight cells for each shipped character, portrait identity, gutters, and collision-readable art cannot be cut to solve overflow.
 
 ### 11.4 Runtime budget
 
@@ -446,6 +499,8 @@ Shared materials, walls, roofs, objects, and character rules remain consistent. 
 
 At `1×`, `2×`, and `3×`, all cells remain crisp with no atlas bleed, softened edge, gutter line, or fractional-screen wobble. Native `1×` is the strict quality gate. Enlarged views support inspection but cannot hide a `1×` failure.
 
+Select the protagonist and one NPC at each zoom. The selected actor and active interaction marker must remain the strongest local focus without hiding the actor's face or feet.
+
 ### 13.4 Walk
 
 New character art preserves continuous movement, direction selection, two-frame feet, bounce, lean, shadow movement, curve safety, reservation behavior, and stable depth. Large art does not disappear at viewport edges.
@@ -485,8 +540,9 @@ For every common material, generate a `12×12` board at `1×` and `3×`.
 
 - Common natural materials use at least four variants.
 - Structured materials use at least two variants or a coordinate-phased wear system.
-- No unapproved one-cell stamp dominates the board.
-- No visible checkerboard, diagonal cycle, or repeated `2×2` macroblock appears.
+- For `v` variants on a `144`-cell board, every variant appears between `floor(72 / v)` and `ceil(216 / v)` times unless an approved coordinate-phase rule declares a stricter expected ratio.
+- No hash-resolved `2×2` block is all one variant.
+- No visible checkerboard, diagonal cycle, or repeated macro-pattern appears in the tracked native-`1×` review.
 - The material still reads as one surface.
 
 An automated distribution test supports this gate. A tracked native-`1×` visual review is also required because a good count does not prove a good pattern.
@@ -494,6 +550,8 @@ An automated distribution test supports this gate. A tracked native-`1×` visual
 ### 14.3 Transitions
 
 - Every supported neighboring material pair appears on a transition board.
+- Every board includes a straight run, inner corner, outer corner, diagonal saddle, single-tile island, and one-tile strip.
+- Each edge mode includes one three-material junction with unequal priorities and one equal-priority tie.
 - A soft edge does not make a perfect rectangular line across the full cell.
 - A built edge has a continuous curb, trim, plank end, or road border.
 - A hard edge is explicitly declared and visually intentional.
@@ -505,12 +563,13 @@ An automated distribution test supports this gate. A tracked native-`1×` visual
 - All named character pairs differ by at least two documented non-color features.
 - At least three body or torso silhouettes exist across the ten current visual sources.
 - Front, rear, left, and right cells show the same identity.
+- The direction matrix records which declared identity feature survives in each direction.
 - Both walk cells preserve readable foot exchange.
 - Portrait and world matrices match hair shape, skin value, key facial feature, primary outfit, and accessory.
 
 ### 14.5 Scene hierarchy
 
-At native `1×` in each neighborhood:
+At native `1×` in Tier A Sunward Villas:
 
 - a reviewer can find the protagonist, nearest door, and active interaction without labels;
 - paths and open doorways remain visually open;
@@ -518,6 +577,24 @@ At native `1×` in each neighborhood:
 - solid objects explain their footprints;
 - the selected character remains the strongest local focus;
 - floors, walls, roofs, objects, and characters remain separable in grayscale.
+
+The Tier B maps use this reduced shared-upgrade gate:
+
+- existing paths, doors, portals, walls, solids, characters, and signs are no less readable than the Phase 22 baseline;
+- the district palette is distinct at `1×`;
+- shared variants and edges add no blur, seam, false blocker, or false interaction;
+- no new map object, part placement, room, wall, interaction, or solid is present.
+
+The fixed-camera Tier A review scores six pass-or-fail questions:
+
+1. Is the protagonist identifiable without a label?
+2. Is the nearest open doorway distinguishable from a closed wall?
+3. Are solid objects distinguishable from low-contrast ground detail?
+4. Are the protagonist, Linda, and generic resident distinguishable by shape, not only color?
+5. Does the ground avoid a dominant one-cell stamp or grid?
+6. Are floor, wall, roof, prop, and character layers separable in grayscale?
+
+Questions 1–3 are critical. The prototype passes only when all critical questions and at least five of six total questions pass in the tracked review.
 
 ### 14.6 Collision and depth
 
@@ -560,7 +637,7 @@ At native `1×` in each neighborhood:
 | Display density | DPR `1` and DPR `2` |
 | World zoom | `1×`, `2×`, `3×` |
 | Neighborhood | All four maps |
-| Character state | Idle, walk, talk |
+| Character state | Unselected idle, selected idle, walk, talk, active interaction |
 | Direction | Front, rear, left, right |
 | Walk cell | Cell 1 and cell 2 |
 | Building state | Outside, doorway, inside, roof restored |
@@ -588,6 +665,22 @@ The first production proof uses the existing Sunward start composition and inclu
 
 The prototype is successful only if it improves material depth and character identity at `1×` while keeping routes, collision, text, performance, and save behavior unchanged.
 
+This prototype is a hard expansion gate. It must pass this bounded checklist:
+
+1. Section 14.1 art-bible entries for the prototype families.
+2. Section 14.2 boards and automated count checks for warm sand, dune grass, villa floor, spa stone, and shallow water.
+3. Section 14.3 topology boards for the prototype soft and built transitions, using a third prototype material for the required junction cases, plus the section 8.2 prototype-roof base, edge, and corner board. Roof art does not use the terrain count-band rule.
+4. Section 14.4 identity, direction, foot, and portrait checks for the protagonist, Linda, and generic resident only.
+5. Section 14.5 six-question Tier A review for the fixed Sunward camera.
+6. Section 14.6 collision and depth checks for the prototype door, wall, sofa, table, planter, palm, lamp, and landmark.
+7. All section 14.7 atlas-integrity checks for the complete generated atlas.
+8. Section 14.8 packaged performance at the prototype and Phase 22 maximum-load cameras.
+9. Section 14.9 fresh-start, save-load, resize, zoom, map-transition, and restart checks with the prototype art enabled.
+10. The real-packer full-program projection in section 11.3.
+11. The phase Grok audit with every confirmed high- or medium-impact finding fixed.
+
+Full-cast, remaining-material, and Tier B acceptance checks run in their own later expansion phases before those phases merge. Work cannot expand to them until the prototype checklist passes. Direct user art feedback overrides an external reviewer preference.
+
 ## 17. Evidence contract
 
 New evidence goes under `artifacts/phase-24/art-quality/`. It cannot overwrite Phase 4, 19, 22, or 23 evidence.
@@ -602,7 +695,7 @@ Required evidence includes:
 - multi-tile object seam board;
 - wall, door, and roof board;
 - fixed-camera before and after images;
-- all four maps at `1×`, `2×`, and `3×`;
+- Tier A quality evidence and Tier B regression evidence for all four maps at `1×`, `2×`, and `3×`;
 - responsive and DPR matrix;
 - ordered movement frames;
 - roof hide and restore frames;
@@ -678,17 +771,14 @@ Old exact hashes that freeze the weak cells are replaced deliberately. New versi
 12. Exact hash tests protect old weak pixels instead of the new art contract.
 13. An art reference becomes imitation instead of an original design.
 
-## 21. Council questions
+## 21. Council disposition
 
-Fable 5, Opus 5, and Grok must review the same draft independently and answer:
+Fable 5, Opus 5, and Grok 4.5 reviewed the same committed draft independently. Codex verified and applied five normalized corrections:
 
-1. Is the warm-noir pixel-diorama direction distinct, achievable, and suitable for the game's dark comedy?
-2. Will the material-family, stable-variant, edge, and decal system remove visible tiling without creating runtime or memory problems?
-3. Is sixteen orthogonal masks the correct first step, or does the prototype require a different transition method?
-4. Do the character rules improve SI World toward HFM quality without requiring new cell size, side profiles, or runtime layers?
-5. Are the `1024×1024`, one-atlas, one-extra-batch, and performance limits realistic?
-6. Which acceptance gates are subjective, weak, contradictory, or missing?
-7. Which part of the scope should be removed, deferred, or prototyped before broad implementation?
-8. Can art-only changes remain fully separate from collision, saves, and deterministic simulation under this design?
+1. deterministic neighbor-aware variant repair and measurable distribution gates;
+2. corner-aware and multi-material transition resolution;
+3. an explicit atlas category, area, headroom, report, and reduction budget;
+4. separate Tier A quality and Tier B regression scope;
+5. directional character identity, bounded contour generation, selection proof, and a hard prototype gate.
 
-Codex will verify each proposed finding against the repository. The final specification will accept only findings that are correct, in scope, and supported by evidence.
+The review record is `audits/phase-24-art-quality-spec-council-audit.md`.
