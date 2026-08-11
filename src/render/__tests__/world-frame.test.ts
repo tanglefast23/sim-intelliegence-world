@@ -44,6 +44,30 @@ describe('authoritative world frame', () => {
     ]);
   });
 
+  test('uses independent continuous anchors, directions, and foot frames per actor', () => {
+    const frame = buildWorldFrameState(MAP, createInitialState(), {
+      linda: {
+        tile: { x: 23, y: 30 },
+        visualId: 'linda',
+        direction: 'left',
+        visualFoot: { x: 748.5, y: 988 },
+        walkFrame: 1,
+        moving: true,
+      },
+    }, 'up', 0, {
+      visualFoot: { x: 592, y: 606.5 },
+      walkFrame: 0,
+      moving: true,
+      reducedMotion: false,
+    });
+    const player = frame.characters.find(({ id }) => id === 'protagonist')!;
+    const linda = frame.characters.find(({ id }) => id === 'linda')!;
+    expect(player.sprite).toContain('.rear-1');
+    expect(linda.sprite).toContain('.left-2');
+    expect(player.worldY).not.toBe(Math.round(player.worldY));
+    expect(linda.worldX).not.toBe(Math.round(linda.worldX));
+  });
+
   test('save and reload inside reconstruct the byte-identical first frame', () => {
     const inside = walkTo({ x: 16, y: 23 });
     const savedBytes = JSON.stringify(inside.worldState);
@@ -65,16 +89,19 @@ describe('authoritative world frame', () => {
     expect(outsideFrame.visibleRoofGroupIds).toEqual(['protagonist-villa-roof']);
   });
 
-  test('every committed movement event is one cardinal tile and state-owned', () => {
+  test('every committed movement event is one adjacent tile and state-owned', () => {
     const result = walkTo({ x: 19, y: 20 });
     expect(result.worldState.protagonist.worldPosition).toEqual({
       mapId: 'northwest_residential', tileX: 19, tileY: 20,
     });
-    expect(result.worldState.eventLedger).toHaveLength(3);
+    expect(result.worldState.eventLedger).toHaveLength(2);
     for (const event of result.worldState.eventLedger) {
       expect(event.type).toBe('protagonist-moved');
       if (event.type === 'protagonist-moved') {
-        expect(Math.abs(event.toTileX - event.fromTileX) + Math.abs(event.toTileY - event.fromTileY)).toBe(1);
+        expect(Math.max(
+          Math.abs(event.toTileX - event.fromTileX),
+          Math.abs(event.toTileY - event.fromTileY),
+        )).toBe(1);
       }
     }
   });

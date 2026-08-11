@@ -1,4 +1,4 @@
-import { findCardinalPath } from '../pathfinding/astar';
+import { findPath } from '../pathfinding/astar';
 import type {
   CompiledDoorV2,
   CompiledInteractionV2,
@@ -300,7 +300,7 @@ function hasRoute(
   starts: readonly TilePoint[],
   targets: readonly TilePoint[],
 ): boolean {
-  return starts.some((start) => targets.some((target) => findCardinalPath({
+  return starts.some((start) => targets.some((target) => findPath({
     width: map.width,
     height: map.height,
     start,
@@ -601,7 +601,7 @@ export function selectInteractionApproach(
   const blockers = new Set([...map.blockedKeys, ...dynamicBlockers]);
   blockers.delete(tileKey(start));
   const candidates = interaction.approachTiles.flatMap((tile) => {
-    const path = findCardinalPath({
+    const path = findPath({
       width: map.source.width,
       height: map.source.height,
       start,
@@ -625,7 +625,7 @@ export function selectOwnerInteractionApproach(
   const candidates = [...map.interactionById.values()]
     .filter((interaction) => interaction.ownerId === ownerId)
     .flatMap((interaction) => interaction.approachTiles.flatMap((tile) => {
-      const path = findCardinalPath({
+      const path = findPath({
         width: map.source.width,
         height: map.source.height,
         start,

@@ -1,6 +1,6 @@
 import { roofGroupAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
 import { tileKey, type TilePoint } from '../world/maps/schema';
-import { findCardinalPath } from '../world/pathfinding/astar';
+import { findPath } from '../world/pathfinding/astar';
 
 type StableTile = Readonly<{ id: string; tile: TilePoint }>;
 
@@ -64,7 +64,7 @@ function nearestReachableExterior(map: CompiledMapV2, start: TilePoint): TilePoi
     return leftDistance - rightDistance || compareTile(left, right);
   });
   for (const candidate of candidates) {
-    const path = findCardinalPath({
+    const path = findPath({
       width: map.source.width,
       height: map.source.height,
       start,

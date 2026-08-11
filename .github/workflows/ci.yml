@@ -53,6 +53,12 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: xvfb-run -a npm run smoke:electron
 
+      - name: Verify Linux natural movement
+        env:
+          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: xvfb-run -a npm run smoke:natural-movement -- artifacts/phase-23/linux-x64/natural-movement
+
       - name: Verify Linux responsive matrix
         env:
           SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
@@ -105,6 +111,11 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- artifacts/phase-14/macos-x64/current
 
+      - name: Verify Intel macOS natural movement
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:natural-movement -- artifacts/phase-23/macos-x64/natural-movement
+
       - name: Verify Intel macOS responsive matrix
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
@@ -153,6 +164,11 @@ jobs:
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- artifacts/phase-14/windows-x64/current
+
+      - name: Verify Windows natural movement
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:natural-movement -- artifacts/phase-23/windows-x64/natural-movement
 
       - name: Verify Windows x64 responsive matrix
         env:

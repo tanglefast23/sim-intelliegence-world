@@ -31,6 +31,8 @@ registerAppSchemePrivileges(protocol);
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
+const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE === '1';
+const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED === '1';
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
@@ -58,6 +60,10 @@ if (smokeMode) {
 
 if (responsiveHighDpiMode) {
   app.commandLine.appendSwitch('force-device-scale-factor', '2');
+}
+
+if (naturalMovementReducedMode) {
+  app.commandLine.appendSwitch('force-prefers-reduced-motion', 'reduce');
 }
 
 if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
@@ -542,6 +548,210 @@ async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x:
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
+type MovementSmokeActor = Readonly<{
+  committed: Readonly<{ x: number; y: number }>;
+  visualFoot: Readonly<{ x: number; y: number }>;
+  direction: 'up' | 'down' | 'left' | 'right';
+  walkFrame: 0 | 1;
+  status: 'idle' | 'moving' | 'waiting' | 'unreachable';
+  target?: Readonly<{ x: number; y: number }> | null;
+  curveActive: boolean;
+}>;
+
+type MovementSmokeState = Readonly<{
+  reducedMotion: boolean;
+  player: MovementSmokeActor;
+  npcs: Readonly<Record<string, MovementSmokeActor>>;
+}>;
+
+type MovementSmokeSample = MovementSmokeState & Readonly<{
+  evidenceTag?: 'interruption';
+}>;
+
+async function movementSmokeState(window: BrowserWindow): Promise<MovementSmokeState> {
+  const label = await window.webContents.executeJavaScript(
+    `document.querySelector('#world-movement-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as string;
+  if (!label) throw new Error('Natural-movement smoke evidence is missing.');
+  const candidate = JSON.parse(label) as MovementSmokeState;
+  if (
+    !candidate.player || !candidate.npcs || typeof candidate.reducedMotion !== 'boolean' ||
+    !Number.isFinite(candidate.player.visualFoot?.x) || !Number.isFinite(candidate.player.visualFoot?.y)
+  ) throw new Error('Natural-movement smoke evidence is invalid.');
+  return candidate;
+}
+
+async function waitForMovementSmokeState(
+  window: BrowserWindow,
+  predicate: (state: MovementSmokeState) => boolean,
+  timeoutMilliseconds = 12_000,
+): Promise<MovementSmokeState> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let last: MovementSmokeState | undefined;
+  while (Date.now() < deadline) {
+    await waitForRendererPaint(window);
+    last = await movementSmokeState(window);
+    if (predicate(last)) return last;
+  }
+  throw new Error(`Natural-movement smoke state timed out. Last: ${JSON.stringify(last)}`);
+}
+
+async function collectFirstSegmentMovementStates(
+  window: BrowserWindow,
+  start: Readonly<{ x: number; y: number }>,
+): Promise<MovementSmokeState[]> {
+  return window.webContents.executeJavaScript(`new Promise((resolve, reject) => {
+    const samples = [];
+    const deadline = performance.now() + 2_000;
+    const frame = () => {
+      try {
+        const label = document.querySelector('#world-movement-state')?.getAttribute('aria-label') ?? '';
+        if (!label) throw new Error('Natural-movement state is missing during first-segment sampling.');
+        const state = JSON.parse(label);
+        samples.push(state);
+        const committed = state.player?.committed;
+        if (committed?.x !== ${start.x} || committed?.y !== ${start.y}) {
+          resolve(samples);
+          return;
+        }
+        if (performance.now() >= deadline) {
+          reject(new Error('First natural-movement segment did not commit before its deadline.'));
+          return;
+        }
+        requestAnimationFrame(frame);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    requestAnimationFrame(frame);
+  })`, true) as Promise<MovementSmokeState[]>;
+}
+
+async function captureMovementPass(
+  window: BrowserWindow,
+  directory: string,
+  mode: 'standard' | 'reduced',
+): Promise<Record<string, unknown>> {
+  await startResponsiveSmokeGame(window);
+  await clickZoomButton(window, 1);
+  await clickAriaButton(window, 'Set 1x time');
+  await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+
+  const start = { x: 18, y: 18 };
+  const target = { x: 22, y: 22 };
+  await clickWorldTile(window, target);
+  const samples: MovementSmokeSample[] = [];
+  const screenshotNames: string[] = [];
+  const screenshotBuffers: Buffer[] = [];
+  const firstSegmentPositions = new Set<string>();
+  const playerWalkFrames = new Set<0 | 1>();
+  const npcWalkFrames = new Set<0 | 1>();
+  let curveObserved = false;
+  const firstSegmentSamples = await collectFirstSegmentMovementStates(window, start);
+  for (const sample of firstSegmentSamples) {
+    samples.push(sample);
+    playerWalkFrames.add(sample.player.walkFrame);
+    for (const npc of Object.values(sample.npcs)) {
+      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
+    }
+    curveObserved ||= sample.player.curveActive;
+    if (sample.player.committed.x === start.x && sample.player.committed.y === start.y) {
+      firstSegmentPositions.add(`${sample.player.visualFoot.x},${sample.player.visualFoot.y}`);
+    }
+  }
+
+  const deadline = Date.now() + 15_000;
+  while (Date.now() < deadline) {
+    await waitForRendererPaint(window);
+    const sample = await movementSmokeState(window);
+    samples.push(sample);
+    playerWalkFrames.add(sample.player.walkFrame);
+    for (const npc of Object.values(sample.npcs)) {
+      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
+    }
+    curveObserved ||= sample.player.curveActive;
+    if (sample.player.status === 'moving' && screenshotNames.length < (mode === 'standard' ? 4 : 1)) {
+      const name = `${mode}-1x-frame-${String(screenshotNames.length + 1).padStart(2, '0')}.png`;
+      screenshotBuffers.push(await captureDistinctSmokeScreenshot(
+        window,
+        join(directory, name),
+        screenshotBuffers,
+        4_000,
+      ));
+      screenshotNames.push(name);
+    }
+    const atTarget = sample.player.committed.x === target.x && sample.player.committed.y === target.y;
+    if (atTarget && sample.player.status === 'idle') break;
+  }
+  if (samples.at(-1)?.player.committed.x !== target.x || samples.at(-1)?.player.committed.y !== target.y) {
+    throw new Error('Natural-movement package pass did not reach the diagonal target.');
+  }
+
+  let interruptionObserved = mode === 'reduced';
+  let rendererFps: number | null = null;
+  let displayRafFps: number | null = null;
+  if (mode === 'standard') {
+    for (const zoom of [2, 3] as const) {
+      await clickZoomButton(window, zoom);
+      const destination = zoom === 2 ? start : target;
+      await dispatchWorldTileClick(window, destination);
+      await waitForMovementSmokeState(window, (state) => state.player.status === 'moving');
+      const name = `standard-${zoom}x-moving.png`;
+      screenshotBuffers.push(await captureDistinctSmokeScreenshot(window, join(directory, name), screenshotBuffers, 4_000));
+      screenshotNames.push(name);
+      await waitForMovementSmokeState(window, (state) => (
+        state.player.status === 'idle' &&
+        state.player.committed.x === destination.x && state.player.committed.y === destination.y
+      ));
+    }
+
+    await dispatchWorldTileClick(window, start);
+    await waitForMovementSmokeState(window, (state) => state.player.status === 'moving');
+    await dispatchWorldTileClick(window, { x: 24, y: 22 });
+    const interrupted = await waitForMovementSmokeState(window, (state) => (
+      state.player.status === 'moving' && state.player.target?.x === 24 && state.player.target.y === 22
+    ));
+    samples.push({ ...interrupted, evidenceTag: 'interruption' });
+    interruptionObserved = interrupted.player.committed.x !== 24 || interrupted.player.committed.y !== 22;
+    const interruptName = 'standard-interruption.png';
+    screenshotBuffers.push(await captureDistinctSmokeScreenshot(window, join(directory, interruptName), screenshotBuffers, 4_000));
+    screenshotNames.push(interruptName);
+    await waitForMovementSmokeState(window, (state) => (
+      state.player.status === 'idle' && state.player.committed.x === 24 && state.player.committed.y === 22
+    ), 20_000);
+
+    await clickZoomButton(window, 1);
+    await dispatchWorldTileClick(window, { x: 40, y: 36 });
+    await waitForMovementSmokeState(window, (state) => state.player.status === 'moving');
+    const performance = await measureRendererFps(window, 2_000);
+    rendererFps = performance.rendererFps;
+    displayRafFps = performance.displayRafFps;
+    const crowdName = 'standard-crowd-performance.png';
+    screenshotBuffers.push(await captureDistinctSmokeScreenshot(window, join(directory, crowdName), screenshotBuffers, 4_000));
+    screenshotNames.push(crowdName);
+  }
+
+  return {
+    schemaVersion: 1,
+    mode,
+    samples: samples.map((sample) => ({
+      ...sample,
+      npcs: Object.fromEntries(
+        Object.entries(sample.npcs).filter(([, movement]) => movement.status === 'moving'),
+      ),
+    })),
+    firstSegmentUniquePositions: firstSegmentPositions.size,
+    curveObserved,
+    interruptionObserved,
+    playerWalkFrames: [...playerWalkFrames].sort(),
+    npcWalkFrames: [...npcWalkFrames].sort(),
+    rendererFps,
+    displayRafFps,
+    screenshotNames,
+  };
+}
+
 async function panWorld(window: BrowserWindow, deltaX: number, deltaY: number): Promise<void> {
   const bounds = await surfaceBounds(window);
   const start = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
@@ -902,7 +1112,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const afterCenter = await cameraLabel(window);
   const expectedCenteredCamera = {
     x: Math.round(19 * 32 + 16 - bounds.width / 2 / 2),
-    y: Math.round(20 * 32 + 16 - bounds.height / 2 / 2),
+    y: Math.round(20 * 32 + 29 - bounds.height / 2 / 2),
   };
   const centeredState = parseCameraLabel(afterCenter);
   const centerKey = afterCenter !== afterPan && centeredState.zoom === 2 &&
@@ -1320,6 +1530,14 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     }
     await captureSmokeScreenshot(window, presentationScreenshot);
     process.stdout.write(`SI_WORLD_PRESENTATION_SMOKE_RESULT ${JSON.stringify(presentationResult)}\n`);
+  } else if (naturalMovementSmokeMode) {
+    const naturalMovementDirectory = process.env.SI_WORLD_NATURAL_MOVEMENT_SCREENSHOT_DIR;
+    if (!naturalMovementDirectory || !isAbsolute(naturalMovementDirectory)) {
+      throw new Error('Natural-movement smoke screenshot directory must be absolute.');
+    }
+    const mode = naturalMovementReducedMode ? 'reduced' : 'standard';
+    const movementResult = await captureMovementPass(window, naturalMovementDirectory, mode);
+    process.stdout.write(`SI_WORLD_NATURAL_MOVEMENT_SMOKE_RESULT ${JSON.stringify(movementResult)}\n`);
   } else if (responsiveSmokeMode) {
     const responsiveDirectory = process.env.SI_WORLD_RESPONSIVE_SCREENSHOT_DIR;
     if (!responsiveDirectory || !isAbsolute(responsiveDirectory)) {

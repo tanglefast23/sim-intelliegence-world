@@ -25,6 +25,8 @@ export type WorldCharacterPlacement = Readonly<{
   tile: TilePoint;
   worldX: number;
   worldY: number;
+  shadowWorldX: number;
+  shadowWorldY: number;
 }>;
 
 export type WorldFrameState = Readonly<{
@@ -39,6 +41,10 @@ export type WorldActor = Readonly<{
   tile: TilePoint;
   visualId: CharacterId;
   direction?: MovementDirection;
+  visualFoot?: Readonly<{ x: number; y: number }>;
+  walkFrame?: 0 | 1;
+  moving?: boolean;
+  reducedMotion?: boolean;
 }>;
 
 export type WorldActors = Readonly<Record<string, WorldActor>>;
@@ -60,6 +66,12 @@ export function buildWorldFrameState(
   actors: WorldActors,
   direction: MovementDirection,
   frame: 0 | 1,
+  playerPresentation?: Readonly<{
+    visualFoot: Readonly<{ x: number; y: number }>;
+    walkFrame: 0 | 1;
+    moving: boolean;
+    reducedMotion: boolean;
+  }>,
 ): WorldFrameState {
   const playerPosition = state.protagonist.worldPosition;
   if (playerPosition.mapId !== map.source.id) {
@@ -71,26 +83,59 @@ export function buildWorldFrameState(
     visualId: CharacterId;
     tile: TilePoint;
     direction: MovementDirection;
+    visualFoot?: Readonly<{ x: number; y: number }>;
+    walkFrame: 0 | 1;
+    moving: boolean;
+    reducedMotion: boolean;
   }>[] = [
-    { id: 'protagonist', visualId: 'protagonist', tile: playerTile, direction },
+    {
+      id: 'protagonist',
+      visualId: 'protagonist',
+      tile: playerTile,
+      direction,
+      visualFoot: playerPresentation?.visualFoot,
+      walkFrame: playerPresentation?.walkFrame ?? frame,
+      moving: playerPresentation?.moving ?? frame === 1,
+      reducedMotion: playerPresentation?.reducedMotion ?? false,
+    },
     ...Object.entries(actors).sort(([left], [right]) => left.localeCompare(right, 'en')).map(([id, actor]) => ({
       id,
       visualId: actor.visualId,
       tile: actor.tile,
       direction: actor.direction ?? 'down',
+      visualFoot: actor.visualFoot,
+      walkFrame: actor.walkFrame ?? 0,
+      moving: actor.moving ?? false,
+      reducedMotion: actor.reducedMotion ?? false,
     })),
   ];
-  const characters = characterInputs.map(({ id, visualId, tile, direction: actorDirection }) => {
-    const presentation = movementPresentation(visualId, actorDirection, frame);
+  const characters = characterInputs.map(({
+    id,
+    visualId,
+    tile,
+    direction: actorDirection,
+    visualFoot,
+    walkFrame,
+    moving,
+    reducedMotion,
+  }) => {
+    const actorFrame = moving ? walkFrame : 0;
+    const presentation = movementPresentation(visualId, actorDirection, actorFrame);
+    const foot = visualFoot ?? { x: tile.x * TILE_SIZE + 16, y: tile.y * TILE_SIZE + 29 };
+    const leanX = reducedMotion ? 0 : presentation.leanX;
+    const bounceY = reducedMotion ? 0 : presentation.bounceY;
+    const shadowX = reducedMotion ? 0 : presentation.shadowX;
     return {
       id,
       visualId,
       sprite: presentation.sprite,
       tile: { ...tile },
-      worldX: tile.x * TILE_SIZE + 4 + presentation.leanX,
-      worldY: tile.y * TILE_SIZE + 2 + presentation.bounceY,
+      worldX: foot.x - 12 + leanX,
+      worldY: foot.y - 27 + bounceY,
+      shadowWorldX: foot.x - 7 + shadowX,
+      shadowWorldY: foot.y,
     };
-  }).sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.character, left, right));
+  }).sort((left, right) => left.shadowWorldY - right.shadowWorldY || left.id.localeCompare(right.id, 'en'));
   const hiddenRoofGroupId = roofGroupAtV2(map, playerTile);
   const visibleRoofGroupIds = map.source.roofGroups
     .filter(({ id }) => id !== hiddenRoofGroupId)

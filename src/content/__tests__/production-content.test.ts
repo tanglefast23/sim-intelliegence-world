@@ -17,7 +17,7 @@ import { createInitialState } from '../../domain/state/initial-state';
 import { ATLAS_INDEX, CHARACTER_IDS } from '../../render/atlas';
 import { buildWorldFrameState, type WorldActors } from '../../render/world-frame';
 import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
-import { findCardinalPath } from '../../world/pathfinding/astar';
+import { findPath } from '../../world/pathfinding/astar';
 import { tileKey } from '../../world/maps/schema';
 
 type ProductionBill = Readonly<{
@@ -173,7 +173,7 @@ describe('Phase 13 production content bill', () => {
       ];
       for (const target of targets) {
         expect(map.blockedKeys.has(tileKey(target))).toBe(false);
-        expect(findCardinalPath({
+        expect(findPath({
           width: map.source.width,
           height: map.source.height,
           start,

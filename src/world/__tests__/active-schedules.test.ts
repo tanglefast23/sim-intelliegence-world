@@ -73,7 +73,7 @@ describe('active resident schedules', () => {
     expect(worldState.eventLedger.at(-1)?.eventId).toMatch(/^event-move-npc-generic-resident-/u);
   });
 
-  test('an NPC retries an unreachable goal after a dynamic blocker moves', () => {
+  test('an NPC retries a dynamically blocked goal after the blocker moves', () => {
     let worldState = createInitialState();
     let movement = movementForNpc(worldState, 'generic_resident')!;
     ({ movement, worldState } = advanceActiveNpcMovement(
