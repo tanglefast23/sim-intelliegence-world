@@ -620,7 +620,7 @@ Prove the complete art program against every final-spec permutation from an exac
 11. Prove stable public IDs, atlas/index agreement, gutters, bounds, no bleed, multi-tile seams, portrait matches, and material boards.
 12. Prove no save-schema, `layoutRevision`, solid-owner, route, interaction, density, or simulation-randomness change.
 13. Require at least `60 FPS` and no more than `10%` median-frame-time regression from the same-package baseline on the same machine, camera, window, DPR, and zoom.
-14. Add art-quality packaged qualification to supported CI jobs. Linux validates deterministic build and static export. Intel macOS and Windows validate package launch and the supported smoke subset.
+14. Add art-quality packaged qualification to the supported Intel macOS and Windows CI jobs. Validate package launch and the supported smoke subset on both targets.
 15. Make no broad source change in this phase. A verified defect gets one narrow correction with affected regression and evidence rerun.
 
 ### 13.3 Evidence
