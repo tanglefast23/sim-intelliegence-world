@@ -1,8 +1,9 @@
 import type { TilePoint } from '../maps/schema';
 import { tileKey } from '../maps/schema';
+import { canTraverseDiagonal, isStaticMovementBlocked } from './walkability';
 
 export type PathResult =
-  | Readonly<{ status: 'found'; path: readonly TilePoint[]; visitedNodes: number }>
+  | Readonly<{ status: 'found'; path: readonly TilePoint[]; totalCost: number; visitedNodes: number }>
   | Readonly<{ status: 'unreachable'; reason: 'blocked-target' | 'no-route'; visitedNodes: number }>;
 
 type SearchNode = Readonly<{
@@ -13,11 +14,15 @@ type SearchNode = Readonly<{
   sequence: number;
 }>;
 
-const CARDINAL_DIRECTIONS: readonly TilePoint[] = [
-  { x: 0, y: -1 },
-  { x: -1, y: 0 },
-  { x: 1, y: 0 },
-  { x: 0, y: 1 },
+export const PATH_DIRECTIONS: readonly Readonly<TilePoint & { cost: 10 | 14 }>[] = [
+  { x: 0, y: -1, cost: 10 },
+  { x: -1, y: -1, cost: 14 },
+  { x: -1, y: 0, cost: 10 },
+  { x: -1, y: 1, cost: 14 },
+  { x: 0, y: 1, cost: 10 },
+  { x: 1, y: 1, cost: 14 },
+  { x: 1, y: 0, cost: 10 },
+  { x: 1, y: -1, cost: 14 },
 ];
 
 function compareNodes(left: SearchNode, right: SearchNode): number {
@@ -28,8 +33,11 @@ function compareNodes(left: SearchNode, right: SearchNode): number {
     left.sequence - right.sequence;
 }
 
-function manhattan(left: TilePoint, right: TilePoint): number {
-  return Math.abs(left.x - right.x) + Math.abs(left.y - right.y);
+export function octileDistance(left: TilePoint, right: TilePoint): number {
+  const deltaX = Math.abs(left.x - right.x);
+  const deltaY = Math.abs(left.y - right.y);
+  const diagonal = Math.min(deltaX, deltaY);
+  return diagonal * 14 + (Math.max(deltaX, deltaY) - diagonal) * 10;
 }
 
 function reconstructPath(
@@ -51,7 +59,7 @@ function reconstructPath(
   return path.reverse();
 }
 
-export function findCardinalPath(input: Readonly<{
+export function findPath(input: Readonly<{
   width: number;
   height: number;
   start: TilePoint;
@@ -61,10 +69,10 @@ export function findCardinalPath(input: Readonly<{
   const { width, height, start, target, blockedKeys } = input;
   const targetKey = tileKey(target);
   if (blockedKeys.has(targetKey)) return { status: 'unreachable', reason: 'blocked-target', visitedNodes: 0 };
-  if (tileKey(start) === targetKey) return { status: 'found', path: [], visitedNodes: 0 };
+  if (tileKey(start) === targetKey) return { status: 'found', path: [], totalCost: 0, visitedNodes: 0 };
 
   let sequence = 0;
-  const initialH = manhattan(start, target);
+  const initialH = octileDistance(start, target);
   const open: SearchNode[] = [{ tile: start, g: 0, h: initialH, f: initialH, sequence }];
   const bestCost = new Map<string, number>([[tileKey(start), 0]]);
   const parents = new Map<string, string>();
@@ -82,21 +90,23 @@ export function findCardinalPath(input: Readonly<{
       return {
         status: 'found',
         path: reconstructPath(parents, points, start, target),
+        totalCost: current.g,
         visitedNodes: closed.size,
       };
     }
 
-    for (const direction of CARDINAL_DIRECTIONS) {
+    for (const direction of PATH_DIRECTIONS) {
       const tile = { x: current.tile.x + direction.x, y: current.tile.y + direction.y };
-      if (tile.x < 0 || tile.y < 0 || tile.x >= width || tile.y >= height) continue;
+      const blockers = { width, height, blockedKeys };
+      if (isStaticMovementBlocked(blockers, tile) || !canTraverseDiagonal(blockers, current.tile, tile)) continue;
       const key = tileKey(tile);
-      if (blockedKeys.has(key) || closed.has(key)) continue;
-      const nextCost = current.g + 1;
+      if (closed.has(key)) continue;
+      const nextCost = current.g + direction.cost;
       if (nextCost >= (bestCost.get(key) ?? Number.POSITIVE_INFINITY)) continue;
       bestCost.set(key, nextCost);
       parents.set(key, currentKey);
       points.set(key, tile);
-      const h = manhattan(tile, target);
+      const h = octileDistance(tile, target);
       sequence += 1;
       open.push({ tile, g: nextCost, h, f: nextCost + h, sequence });
     }

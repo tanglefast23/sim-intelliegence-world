@@ -57,10 +57,19 @@ export function centerCameraOnTile(
   mapPixels: ViewportSize,
   tileSize = 32,
 ): CameraState {
+  return centerCameraOnWorld({ x: tile.x * tileSize + tileSize / 2, y: tile.y * tileSize + tileSize / 2 }, zoom, viewport, mapPixels);
+}
+
+export function centerCameraOnWorld(
+  point: Readonly<{ x: number; y: number }>,
+  zoom: ZoomLevel,
+  viewport: ViewportSize,
+  mapPixels: ViewportSize,
+): CameraState {
   return clampCamera({
     zoom,
-    x: tile.x * tileSize + tileSize / 2 - viewport.width / zoom / 2,
-    y: tile.y * tileSize + tileSize / 2 - viewport.height / zoom / 2,
+    x: point.x - viewport.width / zoom / 2,
+    y: point.y - viewport.height / zoom / 2,
   }, viewport, mapPixels);
 }
 

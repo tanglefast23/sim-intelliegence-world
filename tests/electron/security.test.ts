@@ -303,7 +303,7 @@ describe('secure Electron boundary', () => {
     expect(preload).toContain("process.argv.includes('--si-world-smoke-mode=1')");
   });
 
-  test('Phase 14 and Phase 22 CI package and verify platform shells', () => {
+  test('Phase 14, Phase 22, and Phase 23 CI package and verify platform shells', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
     expect(workflow).toContain('runs-on: macos-15-intel');
     expect(workflow).toContain('npm run package:mac:x64');
@@ -313,8 +313,11 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('npm run package:windows:x64');
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
     expect(workflow).toContain('artifacts/phase-14/windows-x64/current');
+    expect(workflow).toContain('artifacts/phase-23/linux-x64/natural-movement');
+    expect(workflow).toContain('artifacts/phase-23/macos-x64/natural-movement');
+    expect(workflow).toContain('artifacts/phase-23/windows-x64/natural-movement');
     expect(workflow).toContain('without model qualification claims');
-    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(6);
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(9);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
     expect(windowsSigner).toContain('Get-AuthenticodeSignature');

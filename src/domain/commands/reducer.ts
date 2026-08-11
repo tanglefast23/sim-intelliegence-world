@@ -349,11 +349,13 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
     }
     case 'move-protagonist': {
       const from = state.protagonist.worldPosition;
+      const deltaX = Math.abs(command.tileX - from.tileX);
+      const deltaY = Math.abs(command.tileY - from.tileY);
       if (
         command.mapId !== from.mapId ||
-        Math.abs(command.tileX - from.tileX) + Math.abs(command.tileY - from.tileY) !== 1
+        Math.max(deltaX, deltaY) !== 1
       ) {
-        throw new Error('Local protagonist movement must be one cardinal tile on the current map.');
+        throw new Error('Local protagonist movement must be one adjacent tile on the current map.');
       }
       const event: DomainEvent = {
         ...eventBase(state, command, state.clock.absoluteMinute),
@@ -448,8 +450,10 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
       if (!npc || npc.presence.kind !== 'active_local' || npc.presence.mapId !== command.mapId) {
         throw new Error('Only an active local NPC can move on its owned map.');
       }
-      if (Math.abs(command.tileX - npc.presence.tileX) + Math.abs(command.tileY - npc.presence.tileY) !== 1) {
-        throw new Error('Local NPC movement must be one cardinal tile.');
+      const deltaX = Math.abs(command.tileX - npc.presence.tileX);
+      const deltaY = Math.abs(command.tileY - npc.presence.tileY);
+      if (Math.max(deltaX, deltaY) !== 1) {
+        throw new Error('Local NPC movement must be one adjacent tile.');
       }
       const event: DomainEvent = {
         ...eventBase(state, command, state.clock.absoluteMinute),

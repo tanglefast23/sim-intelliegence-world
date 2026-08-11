@@ -46,15 +46,16 @@
     "test:electron:unit": "jest --runInBand --runTestsByPath tests/electron/security.test.ts tests/electron/package-smoke.test.ts tests/electron/conversation-ipc.test.ts",
     "test:model": "jest --runInBand --runTestsByPath src/ai/__tests__/spike-response.test.ts tests/electron/model-lifecycle.test.ts",
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
+    "smoke:natural-movement": "tsx scripts/electron/run-natural-movement-package-smoke.ts",
     "smoke:responsive": "tsx scripts/electron/run-responsive-package-smoke.ts",
     "smoke:responsive:high-dpi": "tsx scripts/electron/run-responsive-package-smoke.ts --high-dpi",
     "smoke:responsive:qualification": "tsx scripts/electron/run-responsive-package-smoke.ts --high-dpi --qualification",
     "smoke:presentation-restart": "tsx scripts/electron/run-presentation-restart-package-smoke.ts",
     "smoke:save-migration": "tsx scripts/electron/run-save-migration-package-smoke.ts",
     "verify:phase22:packaged": "npm run smoke:responsive && npm run smoke:responsive:qualification && npm run smoke:presentation-restart && npm run smoke:save-migration",
-    "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron",
+    "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement",
     "verify:ci-build": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron",
-    "verify": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron && npm run verify:phase22:packaged"
+    "verify": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement && npm run verify:phase22:packaged"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.8",

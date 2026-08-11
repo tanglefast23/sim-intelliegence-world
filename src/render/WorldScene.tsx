@@ -27,7 +27,7 @@ import { autosaveStableState } from '../application/runtime/autosave';
 import { WORLD_MAP_CATALOG } from '../application/runtime/map-catalog';
 import { setWorldSpeed, sleepWorld, tickWorld } from '../application/runtime/tick';
 import { canStartPortalTransition, transitionNeighborhood } from '../application/runtime/transitions';
-import { advanceWorldMovement } from '../application/runtime/world-runtime';
+import { advanceMovementFrame } from '../application/runtime/movement-frame';
 import { effectiveSpeed } from '../domain/clock/clock';
 import { reduceCommand } from '../domain/commands/reducer';
 import { DomainCommandSchema } from '../domain/commands/types';
@@ -56,19 +56,19 @@ import {
 } from '../world/pathfinding/movement';
 import {
   activeNpcTile,
-  advanceActiveNpcMovement,
   movementForNpc,
 } from '../world/schedules/active-movement';
 import {
   ATLAS_INDEX,
   CHARACTER_IDS,
-  WALK_FRAME_MILLISECONDS,
   ZOOM_LEVELS,
   atlasRectangle,
   type CharacterId,
   type ZoomLevel,
 } from './atlas';
+import { snapWorldPoint, tileFootPoint } from '../world/movement/motion-clock';
 import {
+  centerCameraOnWorld,
   centerCameraOnTile,
   clampCamera,
   isScreenPointInsideMap,
@@ -149,11 +149,29 @@ function visualIdForNpc(stateId: string, tier: 'full_ai' | 'ambient'): Character
   return CHARACTER_IDS.includes(candidate) ? candidate : 'generic-resident';
 }
 
-function actorTiles(state: WorldState, mapId: string): WorldActors {
+function actorTiles(
+  state: WorldState,
+  mapId: string,
+  movements: Readonly<Record<string, MovementState>>,
+  zoom: ZoomLevel,
+  dpr: number,
+  reducedMotion: boolean,
+): WorldActors {
   const output: Record<string, WorldActors[string]> = {};
   for (const [stateId, npc] of Object.entries(state.npcs)) {
     const tile = activeNpcTile(state, stateId, mapId);
-    if (tile) output[stateId] = { tile, visualId: visualIdForNpc(stateId, npc.tier) };
+    if (tile) {
+      const movement = movements[stateId];
+      output[stateId] = {
+        tile,
+        visualId: visualIdForNpc(stateId, npc.tier),
+        direction: movement?.direction ?? 'down',
+        visualFoot: snapWorldPoint(movement?.visualFoot ?? tileFootPoint(tile), zoom, dpr),
+        walkFrame: movement?.walkFrame ?? 0,
+        moving: movement?.status === 'moving',
+        reducedMotion,
+      };
+    }
   }
   return output;
 }
@@ -240,7 +258,6 @@ export function WorldScene({
   const [explicitWorldZoom, setExplicitWorldZoom] = useState(initialPresentationPreferences.worldZoom !== null);
   const [uiScale, setUiScale] = useState<UiScale>(() => initialPresentationPreferences.uiScale ?? automaticUiScale(surface));
   const [explicitUiScale, setExplicitUiScale] = useState(initialPresentationPreferences.uiScale !== null);
-  const [frame, setFrame] = useState<0 | 1>(0);
   const [selected, setSelected] = useState<string>('protagonist');
   const [saveStatus, setSaveStatus] = useState(initialSaveStatus);
   const [transitioning, setTransitioning] = useState(false);
@@ -250,6 +267,7 @@ export function WorldScene({
   const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
+  const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
   const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const handledSleepEventId = useRef<string | undefined>(undefined);
@@ -259,7 +277,15 @@ export function WorldScene({
   surfaceRef.current = surface;
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
-  const npcTiles = useMemo(() => actorTiles(runtime.worldState, mapId), [mapId, runtime.worldState]);
+  const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio;
+  const npcTiles = useMemo(() => actorTiles(
+    runtime.worldState,
+    mapId,
+    runtime.npcMovements,
+    camera.zoom,
+    dpr,
+    reducedMotion,
+  ), [camera.zoom, dpr, mapId, reducedMotion, runtime.npcMovements, runtime.worldState]);
   const speed = effectiveSpeed(runtime.worldState.clock);
   const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState));
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
@@ -326,15 +352,6 @@ export function WorldScene({
   }, []);
 
   useEffect(() => {
-    if (reducedMotion || runtime.movement.status !== 'moving' || speed === 0) {
-      setFrame(0);
-      return;
-    }
-    const timer = setInterval(() => setFrame((current) => current === 0 ? 1 : 0), WALK_FRAME_MILLISECONDS);
-    return () => clearInterval(timer);
-  }, [reducedMotion, runtime.movement.status, speed]);
-
-  useEffect(() => {
     const timer = setInterval(() => {
       setRuntime((current) => effectiveSpeed(current.worldState.clock) === 0
         ? current
@@ -344,46 +361,24 @@ export function WorldScene({
   }, []);
 
   useEffect(() => {
-    if (runtime.movement.status !== 'moving' || speed === 0 || transitioning) return;
-    const timer = setTimeout(() => {
-      setRuntime((current) => {
-        const result = advanceWorldMovement(
-          WORLD_MAP_CATALOG[current.worldState.protagonist.worldPosition.mapId as MapId],
-          current.movement,
-          current.worldState,
-          npcBlockers(current.worldState, current.worldState.protagonist.worldPosition.mapId),
-        );
-        return { ...current, movement: result.movement, worldState: result.worldState };
-      });
-    }, Math.round(WALK_FRAME_MILLISECONDS / speed));
-    return () => clearTimeout(timer);
-  }, [runtime.movement, speed, transitioning]);
-
-  useEffect(() => {
-    if (speed === 0 || transitioning) return;
-    const timer = setInterval(() => {
-      setRuntime((current) => {
-        const currentMapId = current.worldState.protagonist.worldPosition.mapId as MapId;
-        const currentMap = WORLD_MAP_CATALOG[currentMapId];
-        let state = current.worldState;
-        const movements = { ...current.npcMovements };
-        for (const stateId of Object.keys(state.npcs).sort()) {
-          const base = movements[stateId] ?? movementForNpc(state, stateId);
-          if (!base) {
-            delete movements[stateId];
-            continue;
-          }
-          const blockers = npcBlockers(state, currentMapId, stateId);
-          blockers.add(tileKey(current.movement.player));
-          const result = advanceActiveNpcMovement(currentMap, base, state, stateId, blockers);
-          movements[stateId] = result.movement;
-          state = result.worldState;
-        }
-        return { ...current, npcMovements: movements, worldState: state };
-      });
-    }, Math.round(WALK_FRAME_MILLISECONDS / speed));
-    return () => clearInterval(timer);
-  }, [speed, transitioning]);
+    if (speed === 0 || transitioning || conversationNpcId || openPanel) return;
+    let animationFrame = 0;
+    let previousTime: number | undefined;
+    const animate = (time: number) => {
+      const elapsedMs = previousTime === undefined ? 0 : time - previousTime;
+      previousTime = time;
+      if (elapsedMs > 0) {
+        setRuntime((current) => advanceMovementFrame(
+          current,
+          elapsedMs,
+          effectiveSpeed(current.worldState.clock),
+        ));
+      }
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [conversationNpcId, openPanel, speed, transitioning]);
 
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
@@ -439,6 +434,19 @@ export function WorldScene({
   const handlePrimary = useCallback((point: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
     if (!isScreenPointInsideMap(camera, point, MAP_PIXELS)) return;
+    const visibleNpc = Object.entries(npcTiles)
+      .sort(([left], [right]) => left.localeCompare(right, 'en'))
+      .find(([, actor]) => {
+        const foot = actor.visualFoot ?? tileFootPoint(actor.tile);
+        const screen = worldToScreen(camera, foot);
+        return point.x >= screen.x - 12 * camera.zoom && point.x <= screen.x + 12 * camera.zoom &&
+          point.y >= screen.y - 27 * camera.zoom && point.y <= screen.y + 3 * camera.zoom;
+      });
+    if (visibleNpc) {
+      setSelected(visibleNpc[0]);
+      setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
+      return;
+    }
     const tile = screenToTile(camera, point);
     if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
     const candidates = worldClickCandidates(
@@ -476,6 +484,16 @@ export function WorldScene({
     if (resolved.tile) requestTile(resolved.tile);
   }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile, runtime.movement.player, runtime.worldState]);
 
+  const requestedMarkerTarget = runtime.movement.status === 'unreachable'
+    ? undefined
+    : runtime.movement.pendingTarget ?? runtime.movement.target;
+  useEffect(() => {
+    if (!requestedMarkerTarget) return;
+    setDestinationMarker({ ...requestedMarkerTarget });
+    const timer = setTimeout(() => setDestinationMarker(undefined), 350);
+    return () => clearTimeout(timer);
+  }, [requestedMarkerTarget?.x, requestedMarkerTarget?.y]);
+
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
     setCamera((current) => panCamera(current, delta, surface, MAP_PIXELS));
@@ -491,8 +509,8 @@ export function WorldScene({
   }, [conversationNpcId, openPanel, surface]);
   const center = useCallback(() => {
     if (conversationNpcId || openPanel) return;
-    setCamera((current) => centerCameraOnTile(runtime.movement.player, current.zoom, surface, MAP_PIXELS));
-  }, [conversationNpcId, openPanel, runtime.movement.player, surface]);
+    setCamera((current) => centerCameraOnWorld(runtime.movement.visualFoot, current.zoom, surface, MAP_PIXELS));
+  }, [conversationNpcId, openPanel, runtime.movement.visualFoot, surface]);
   const selectWorldZoom = useCallback((zoom: ZoomLevel) => {
     setExplicitWorldZoom(true);
     setCamera((current) => zoomCameraAt(
@@ -691,9 +709,15 @@ export function WorldScene({
     visibility.minimumX,
     visibility.minimumY,
   ]);
+  const playerVisualFoot = snapWorldPoint(runtime.movement.visualFoot, camera.zoom, dpr);
   const worldFrame = useMemo(
-    () => buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, frame),
-    [frame, map, npcTiles, runtime.movement.direction, runtime.worldState],
+    () => buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, 0, {
+      visualFoot: playerVisualFoot,
+      walkFrame: runtime.movement.walkFrame,
+      moving: runtime.movement.status === 'moving',
+      reducedMotion,
+    }),
+    [map, npcTiles, playerVisualFoot, reducedMotion, runtime.movement.direction, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState],
   );
   const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
     visibility.maximumX,
@@ -750,13 +774,10 @@ export function WorldScene({
     () => map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map],
   );
-  const selectedCharacter = selected === 'protagonist'
-    ? runtime.movement.player
-    : npcTiles[selected]?.tile ?? runtime.movement.player;
-  const selectedScreen = worldToScreen(camera, {
-    x: selectedCharacter.x * TILE_SIZE + 16,
-    y: selectedCharacter.y * TILE_SIZE + 27,
-  });
+  const selectedFoot = selected === 'protagonist'
+    ? playerVisualFoot
+    : npcTiles[selected]?.visualFoot ?? tileFootPoint(npcTiles[selected]?.tile ?? runtime.movement.player);
+  const selectedScreen = worldToScreen(camera, selectedFoot);
   const feedbackScreen = runtime.movement.feedbackTile
     ? worldToScreen(camera, {
       x: runtime.movement.feedbackTile.x * TILE_SIZE + 16,
@@ -799,7 +820,7 @@ export function WorldScene({
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={propAtlas.sprites} transforms={propAtlas.transforms} /></Group>;
       case 'shadow':
         return characters.map((character) => {
-          const screen = worldToScreen(camera, { x: character.worldX + 5, y: character.worldY + 27 });
+          const screen = worldToScreen(camera, { x: character.shadowWorldX, y: character.shadowWorldY });
           return <RoundedRect color="#20191566" height={3 * camera.zoom} key={`shadow-${character.id}`} r={camera.zoom} width={14 * camera.zoom} x={screen.x} y={screen.y} />;
         });
       case 'character':
@@ -846,10 +867,10 @@ export function WorldScene({
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
             <Circle color="#f1c65b" cx={selectedScreen.x} cy={selectedScreen.y} r={10 * camera.zoom} style="stroke" strokeWidth={camera.zoom} />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
-            {runtime.movement.path.map((tile, index) => {
-              const screen = worldToScreen(camera, { x: tile.x * 32 + 16, y: tile.y * 32 + 16 });
-              return <Circle color="#f5dd9d88" cx={screen.x} cy={screen.y} key={`path-${index}`} r={Math.max(1, camera.zoom)} />;
-            })}
+            {destinationMarker ? (() => {
+              const screen = worldToScreen(camera, tileFootPoint(destinationMarker));
+              return <Circle color="#f5dd9d88" cx={screen.x} cy={screen.y} r={Math.max(2, camera.zoom * 2)} style="stroke" strokeWidth={camera.zoom} />;
+            })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
             {feedbackScreen ? (
               <>
@@ -905,6 +926,33 @@ export function WorldScene({
           pointerEvents="none"
           style={styles.proofState}
         />
+        {typeof window !== 'undefined' && window.siWorldSmokeMode === true ? (
+          <View
+            accessibilityLabel={JSON.stringify({
+              reducedMotion,
+              player: {
+                committed: runtime.movement.player,
+                visualFoot: runtime.movement.visualFoot,
+                direction: runtime.movement.direction,
+                walkFrame: runtime.movement.walkFrame,
+                status: runtime.movement.status,
+                target: runtime.movement.pendingTarget ?? runtime.movement.target ?? null,
+                curveActive: Boolean(runtime.movement.latchedTurnCurve),
+              },
+              npcs: Object.fromEntries(Object.entries(runtime.npcMovements).map(([id, movement]) => [id, {
+                committed: movement.player,
+                visualFoot: movement.visualFoot,
+                direction: movement.direction,
+                walkFrame: movement.walkFrame,
+                status: movement.status,
+                curveActive: Boolean(movement.latchedTurnCurve),
+              }])),
+            })}
+            nativeID="world-movement-state"
+            pointerEvents="none"
+            style={styles.proofState}
+          />
+        ) : null}
         <View
           accessibilityLabel={`Linda quest ${runtime.worldState.quests.linda_boyfriend_check?.status ?? 'missing'}; flags ${(runtime.worldState.quests.linda_boyfriend_check?.flagIds ?? []).join(',') || 'none'}; police ${runtime.worldState.policeAttention}; evidence ${Object.keys(runtime.worldState.evidence).length}`}
           nativeID="world-quest-state"

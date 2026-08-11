@@ -10,7 +10,7 @@ import { roofGroupAtV2 } from '../maps/compiled-v2';
 import { buildWorldMapV2Catalog } from '../maps/catalog';
 import { compileWorldMapV2 } from '../maps/compiler';
 import { pointsInRect, tileKey, type WorldMapV2 } from '../maps/schema';
-import { findCardinalPath } from '../pathfinding/astar';
+import { findPath } from '../pathfinding/astar';
 import { NEIGHBORHOOD_ROUTES } from '../transfers/routes';
 
 const KNOWN_SPRITES = new Set(ATLAS_INDEX.tiles);
@@ -52,7 +52,7 @@ describe('northwest world map v2', () => {
     for (const area of map.source.areas) {
       const target = pointsInRect(area.bounds).find((tile) => !map.blockedKeys.has(tileKey(tile)));
       expect(target).toBeDefined();
-      expect(findCardinalPath({
+      expect(findPath({
         width: map.source.width,
         height: map.source.height,
         start,
@@ -61,7 +61,7 @@ describe('northwest world map v2', () => {
       }).status).toBe('found');
     }
     for (const portal of map.source.portals) {
-      expect(findCardinalPath({
+      expect(findPath({
         width: map.source.width,
         height: map.source.height,
         start,
