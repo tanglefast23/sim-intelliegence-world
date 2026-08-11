@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "artRevision": 4,
+  "artRevision": 5,
   "materials": [
     {
       "publicBaseSprite": "tile.boardwalk",
@@ -8,6 +8,20 @@
         "tile.boardwalk",
         "tile.boardwalk-b"
       ],
+      "mapVariantSprites": {
+        "northeast_downtown": [
+          "tile.boardwalk-neon-a",
+          "tile.boardwalk-neon-b"
+        ],
+        "southwest_commercial": [
+          "tile.boardwalk-palm-a",
+          "tile.boardwalk-palm-b"
+        ],
+        "southeast_docks": [
+          "tile.boardwalk-harbor-a",
+          "tile.boardwalk-harbor-b"
+        ]
+      },
       "id": "boardwalk",
       "logicalVariants": [
         "boardwalk-a",
@@ -29,8 +43,9 @@
       "publicBaseSprite": "tile.dark-asphalt",
       "publicVariantSprites": [
         "tile.dark-asphalt",
-        "tile.dark-asphalt"
+        "tile.dark-asphalt-b"
       ],
+      "mapVariantSprites": {},
       "id": "dark-asphalt",
       "logicalVariants": [
         "dark-asphalt-a",
@@ -56,6 +71,7 @@
         "tile.dune-grass-c",
         "tile.dune-grass-d"
       ],
+      "mapVariantSprites": {},
       "id": "dune-grass",
       "logicalVariants": [
         "dune-grass-a",
@@ -83,6 +99,7 @@
         "tile.garden-soil",
         "tile.garden-soil"
       ],
+      "mapVariantSprites": {},
       "id": "garden-soil",
       "logicalVariants": [
         "garden-soil-a",
@@ -108,6 +125,16 @@
         "tile.pale-concrete",
         "tile.pale-concrete"
       ],
+      "mapVariantSprites": {
+        "southwest_commercial": [
+          "tile.pale-concrete-palm-a",
+          "tile.pale-concrete-palm-b"
+        ],
+        "southeast_docks": [
+          "tile.pale-concrete-harbor-a",
+          "tile.pale-concrete-harbor-b"
+        ]
+      },
       "id": "pale-concrete",
       "logicalVariants": [
         "pale-concrete-a",
@@ -131,6 +158,16 @@
         "tile.plaza-paver",
         "tile.plaza-paver-b"
       ],
+      "mapVariantSprites": {
+        "northeast_downtown": [
+          "tile.plaza-paver-neon-a",
+          "tile.plaza-paver-neon-b"
+        ],
+        "southeast_docks": [
+          "tile.plaza-paver-harbor-a",
+          "tile.plaza-paver-harbor-b"
+        ]
+      },
       "id": "plaza-paver",
       "logicalVariants": [
         "plaza-paver-a",
@@ -156,6 +193,7 @@
         "tile.shallow-water-c",
         "tile.shallow-water-d"
       ],
+      "mapVariantSprites": {},
       "id": "shallow-water",
       "logicalVariants": [
         "shallow-water-a",
@@ -181,6 +219,7 @@
         "tile.spa-stone",
         "tile.spa-stone-b"
       ],
+      "mapVariantSprites": {},
       "id": "spa-stone",
       "logicalVariants": [
         "spa-stone-a",
@@ -206,6 +245,7 @@
         "tile.villa-floor-c",
         "tile.villa-floor-d"
       ],
+      "mapVariantSprites": {},
       "id": "villa-floor",
       "logicalVariants": [
         "villa-floor-a",
@@ -233,6 +273,20 @@
         "tile.warm-sand-c",
         "tile.warm-sand-d"
       ],
+      "mapVariantSprites": {
+        "northeast_downtown": [
+          "tile.warm-sand-neon-a",
+          "tile.warm-sand-neon-b",
+          "tile.warm-sand-neon-c",
+          "tile.warm-sand-neon-d"
+        ],
+        "southwest_commercial": [
+          "tile.warm-sand-palm-a",
+          "tile.warm-sand-palm-b",
+          "tile.warm-sand-palm-c",
+          "tile.warm-sand-palm-d"
+        ]
+      },
       "id": "warm-sand",
       "logicalVariants": [
         "warm-sand-a",

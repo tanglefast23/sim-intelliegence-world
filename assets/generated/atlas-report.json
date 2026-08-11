@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "artRevision": 4,
+  "artRevision": 5,
   "categories": {
     "ground-base": {
-      "actualCount": 25,
+      "actualCount": 48,
       "maximumCount": 48,
-      "rawRectangleArea": 28900
+      "rawRectangleArea": 55488
     },
     "ground-transition": {
       "actualCount": 30,
@@ -49,12 +49,12 @@
     }
   },
   "actual": {
-    "cellCount": 240,
-    "rawRectangleArea": 259280,
+    "cellCount": 263,
+    "rawRectangleArea": 285868,
     "width": 512,
-    "height": 546,
-    "boundingRectangleArea": 279552,
-    "occupancy": 0.9274839743589743
+    "height": 582,
+    "boundingRectangleArea": 297984,
+    "occupancy": 0.9593400987972509
   },
   "forecast": {
     "cellCount": 634,
@@ -153,8 +153,8 @@
     }
   ],
   "indexVersion": 3,
-  "toolVersion": "atlas-v4-phase30",
-  "imageSha256": "59c9c56dd234e50df3113b1e7fcc8a2aeed6952d697f21712463e8357a7a8c2c",
-  "publicSpriteCount": 240,
+  "toolVersion": "atlas-v5-phase31",
+  "imageSha256": "383de3461c08997cbc46dce876ca1da59c8d919456036c1c4b7c15e77b31472b",
+  "publicSpriteCount": 263,
   "internalReviewSpriteCount": 0
 }

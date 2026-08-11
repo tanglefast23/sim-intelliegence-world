@@ -18,7 +18,7 @@ export type MovementDirection = typeof MOVEMENT_DIRECTIONS[number];
 export const ZOOM_LEVELS = [1, 2, 3] as const;
 export type ZoomLevel = typeof ZOOM_LEVELS[number];
 export const WALK_FRAME_MILLISECONDS = 145;
-export const ART_REVISION = 4;
+export const ART_REVISION = 5;
 
 export type AtlasRectangle = Readonly<{
   x: number;
@@ -162,7 +162,7 @@ const PROOF_PANELS: readonly Readonly<{
   columns: number;
   rows: number;
 }>[] = [
-  { x: 18, y: 18, scale: 1, columns: 8, rows: 5 },
+  { x: 18, y: 18, scale: 1, columns: 8, rows: 7 },
   { x: 310, y: 18, scale: 2, columns: 5, rows: 3 },
   { x: 680, y: 18, scale: 3, columns: 3, rows: 2 },
 ];
@@ -212,7 +212,7 @@ export function buildAtlasProofScene(frame: 0 | 1): Readonly<{
     sprites.push({
       sprite,
       x: 24 + (index % 9) * 62,
-      y: 235 + Math.floor(index / 9) * 86,
+      y: 267 + Math.floor(index / 9) * 86,
       scale: 2,
     });
   });

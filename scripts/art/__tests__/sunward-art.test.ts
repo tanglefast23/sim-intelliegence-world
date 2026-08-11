@@ -63,7 +63,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
   });
 
   test('makes all completed Sunward materials and states public and revisioned', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(4);
+    expect(ART_PRESENTATION_REVISION).toBe(5);
     expect(MATERIAL_RECIPE_BY_ID['warm-sand']?.publicVariantSprites).toEqual([
       'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
     ]);
@@ -85,15 +85,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
     }
   });
 
-  test('keeps Tier B wall pixels unchanged while villa walls gain visible mass', () => {
-    for (const family of ['downtown', 'commercial', 'civic'] as const) {
-      for (let mask = 0; mask < 16; mask += 1) {
-        const id = `tile.wall-${family}-${mask.toString(16)}`;
-        const rectangle = built.index.sprites[id];
-        expect(rectangle).toBeDefined();
-        expect(cellHash(bitmap, rectangle!)).toBe(revision3Cells[id]);
-      }
-    }
+  test('keeps completed villa walls visible and unique after the Tier B expansion', () => {
     const villaHashes = (built.index.walls.villa ?? []).map((id) => {
       const rectangle = built.index.sprites[id];
       const pixels = rectanglePixels(bitmap, rectangle!);

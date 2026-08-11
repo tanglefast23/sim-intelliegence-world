@@ -92,13 +92,15 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
     const y = Math.floor(offset / input.map.width);
     const recipe = MATERIAL_RECIPE_BY_ID[selection.materialId];
     if (!recipe) throw new Error(`Material ${selection.materialId} has no presentation recipe.`);
+    const variantSprites = recipe.mapVariantSprites[input.map.id] ?? recipe.publicVariantSprites;
+    const sprite = variantSprites[selection.variantIndex] as string;
     return Object.freeze({
       id: `ground-${x}-${y}`,
       tile: Object.freeze({ x, y }),
       materialId: selection.materialId,
       logicalVariantId: selection.logicalVariantId,
-      sprite: recipe.publicVariantSprites[selection.variantIndex] as string,
-      visualBounds: freezeBounds(input.visualBoundsBySprite?.[recipe.publicBaseSprite]),
+      sprite,
+      visualBounds: freezeBounds(input.visualBoundsBySprite?.[sprite] ?? input.visualBoundsBySprite?.[recipe.publicBaseSprite]),
     });
   }));
   const transitions = Object.freeze(compileMaterialTransitions({

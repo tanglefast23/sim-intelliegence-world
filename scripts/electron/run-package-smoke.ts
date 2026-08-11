@@ -51,6 +51,9 @@ const journalScreenshotPath = join(screenshotDirectory, 'world-journal.png');
 const questScreenshotPath = join(screenshotDirectory, 'world-linda-quest.png');
 const questOutcomeScreenshotPath = join(screenshotDirectory, 'world-linda-outcome.png');
 const policeScreenshotPath = join(screenshotDirectory, 'world-police.png');
+const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
+const tierBZoomPaths = ['downtown', 'commercial', 'ferry'].flatMap((label) =>
+  [1, 2, 3].map((zoom) => join(screenshotDirectory, `world-${label}-${zoom}x.png`)));
 mkdirSync(screenshotDirectory, { recursive: true });
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-smoke-'));
 rmSync(loadingScreenshotPath, { force: true });
@@ -68,6 +71,7 @@ rmSync(journalScreenshotPath, { force: true });
 rmSync(questScreenshotPath, { force: true });
 rmSync(questOutcomeScreenshotPath, { force: true });
 rmSync(policeScreenshotPath, { force: true });
+tierBZoomPaths.forEach((path) => rmSync(path, { force: true }));
 const child = spawn(executable, [], {
   detached: false,
   env: {
@@ -185,6 +189,12 @@ child.once('close', (code) => {
   validateScreenshotBuffers(readFileSync(journalScreenshotPath), readFileSync(questScreenshotPath));
   validateScreenshotBuffers(readFileSync(questScreenshotPath), readFileSync(questOutcomeScreenshotPath));
   validateScreenshotBuffers(readFileSync(questOutcomeScreenshotPath), readFileSync(policeScreenshotPath));
+  if (tierBArtSmokeMode) {
+    for (const label of ['downtown', 'commercial', 'ferry']) {
+      validateWorldZoomEvidence([1, 2, 3].map((zoom) =>
+        join(screenshotDirectory, `world-${label}-${zoom}x.png`)));
+    }
+  }
   const qualificationReportPath = process.env.SI_WORLD_QUALIFICATION_REPORT;
   if (qualificationReportPath) {
     if (!rendererFpsEvidence.thresholdRequired) {
