@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "evidenceSource": {
-    "baseCommit": "7436aab15a685429ff17b06b440c54c749c3eb43",
-    "sourceSha256": "c8ec98acefb1cc1f41d68adce0112beacb0b3d5377917225d137ae06afcb40d8",
+    "baseCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
+    "sourceSha256": "e5ec9e5c83da0fa1f05cbdd05c8994b450c6cda236522a8753dcd1a2790c4064",
     "sourcePaths": [
       "electron/main/index.ts",
       "electron/persistence/presentation-preferences.ts",
@@ -13,7 +13,7 @@
       "src/world/presentation/material-selection.ts"
     ]
   },
-  "testedCommit": "7436aab15a685429ff17b06b440c54c749c3eb43",
+  "testedCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
   "seed": {
     "mode": "seed",
     "evidence": {

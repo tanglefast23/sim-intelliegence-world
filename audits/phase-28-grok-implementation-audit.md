@@ -4,7 +4,7 @@
 
 - Branch: `codex/phase-28-art-prototype`
 - Base SHA: `63b59583dd0dda4e0ac50bbd51d545bac5c37fe2`
-- Packaged source SHA after corrections: `7436aab15a685429ff17b06b440c54c749c3eb43`
+- Packaged source SHA after corrections: `5dbe506956562a9e2720360df32177c33cee31bc`
 - Model: Grok 4.5
 - Reasoning effort: high
 - Access: subscription-backed, read-only audit wrapper
@@ -50,13 +50,24 @@ Verdict: `NO_CONFIRMED_FINDINGS`
 
 Grok rechecked all seven evidence defects against the corrected source and final artifacts. It confirmed subordinate schema parsing, complete commit and package provenance, fixed-camera equality, complete maximum-load inputs, FPS checks for both modes, and an exact `60 FPS` acceptance floor.
 
+## Hosted CI repair audit
+
+The first hosted run after GitHub runners became available exposed two additional defects:
+
+1. On Windows, npm removed the `--output-root` option name and forwarded only its value. All five Windows smoke steps now invoke the TypeScript entry points through `node --import tsx`, preserving the option and value exactly.
+2. Linux and Intel macOS could miss the short curve state because the main process sampled it intermittently. The packaged harness now records the complete first route through a renderer-side `requestAnimationFrame` sampler, capped at 900 samples and bounded by the existing route and process deadlines.
+
+The first post-CI Grok audit confirmed those repairs and found one medium evidence defect: reduced-motion mode claimed an interruption without running the tagged interruption scenario. Local verification confirmed the report had `interruptionObserved: true` and zero interruption tags. The correction initializes the claim as false and makes the validator re-derive all reduced summary fields from its recorded samples.
+
+The correction-only Grok audit returned `NO_CONFIRMED_FINDINGS`. The raw movement report exceeded the audit wrapper's 256 KiB per-file limit, so Grok reviewed the capture source, validator, and regression test. Codex separately schema-validated the complete generated report and confirmed standard interruption true from a tagged sample and reduced interruption false with zero tags.
+
 ## Verified packaged results
 
-- Source commit: `7436aab15a685429ff17b06b440c54c749c3eb43`
-- Packaged payload SHA-256: `5b0715f3f2111d92f4ff37d249a352f2fff732c7baada7617f55f97e24217999`
+- Source commit: `5dbe506956562a9e2720360df32177c33cee31bc`
+- Packaged payload SHA-256: `ae03b877cd978c7d90af0939fcee283e5ca9a63d647cffb7ff477927377a29b6`
 - Atlas SHA-256: `c940e82f2e32c9558983e80ea6915a23e4d81fccb746da59db3ff583f6de0c3d`
-- Legacy performance: `119.9 FPS`, `8.3 ms` median frame time
-- Enhanced performance: `119.9 FPS`, `8.3 ms` median frame time
+- Legacy performance: `119.86 FPS`, `8.3 ms` median frame time
+- Enhanced performance: `119.94 FPS`, `8.3 ms` median frame time
 - Enhanced-to-legacy ratio: `1.0`
 - Added enhanced presentation cost: one static batch
 - Full gate: `51` suites and `415` tests passed before the final evidence-only record update.
