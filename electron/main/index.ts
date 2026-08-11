@@ -685,7 +685,7 @@ async function captureMovementPass(
     }
   }
 
-  let interruptionObserved = mode === 'reduced';
+  let interruptionObserved = false;
   let rendererFps: number | null = null;
   let displayRafFps: number | null = null;
   if (mode === 'standard') {

@@ -99,6 +99,17 @@ describe('natural-movement packaged evidence', () => {
         },
       }, root))
         .not.toThrow();
+      expect(() => validateNaturalMovementReport({
+        ...report,
+        package: {
+          ...report.package,
+          standard: { ...report.package.standard, rendererFps: 55 },
+          reduced: {
+            ...report.package.reduced,
+            samples: report.package.reduced.samples.map(({ evidenceTag: _evidenceTag, ...sample }) => sample),
+          },
+        },
+      }, root)).toThrow('Reduced-motion movement summary does not match');
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

@@ -111,10 +111,16 @@ export function validateNaturalMovementReport(
   if (!packaged.reduced.samples.every(({ reducedMotion }) => reducedMotion)) {
     throw new Error('Reduced-motion package pass did not activate the reduced-motion policy.');
   }
-  if (reducedSummary.firstSegmentPositions.size < 5 ||
-      packaged.reduced.firstSegmentUniquePositions !== reducedSummary.firstSegmentPositions.size) {
+  if (reducedSummary.firstSegmentPositions.size < 5) {
     throw new Error('Reduced-motion movement was not continuous.');
   }
+  if (
+    packaged.reduced.firstSegmentUniquePositions !== reducedSummary.firstSegmentPositions.size ||
+    packaged.reduced.curveObserved !== reducedSummary.curveObserved ||
+    packaged.reduced.interruptionObserved !== reducedSummary.interruptionObserved ||
+    JSON.stringify(packaged.reduced.playerWalkFrames) !== JSON.stringify(reducedSummary.playerFrames) ||
+    JSON.stringify(packaged.reduced.npcWalkFrames) !== JSON.stringify(reducedSummary.npcFrames)
+  ) throw new Error('Reduced-motion movement summary does not match its recorded samples.');
   if ((packaged.standard.rendererFps ?? 0) < 55) {
     throw new Error(`Natural-movement packaged renderer FPS is below 55: ${String(packaged.standard.rendererFps)}.`);
   }
