@@ -10,6 +10,10 @@
     "X": "#f1c75b", "E": "#fff1d8"
   },
   "identityTokens": { "hair": "H", "clothing": "C", "skin": "S" },
+  "identityFeatures": [
+    { "id": "long-side-hair", "description": "Long hair falls beside the torso in every direction.", "layer": "hair", "visibleIn": ["front", "rear", "left", "right"] },
+    { "id": "paired-earrings", "description": "Paired gold earrings frame the face from the front and sides.", "layer": "accessory", "visibleIn": ["front", "left", "right"] }
+  ],
   "rearStyle": { "head": "H", "lower": "H", "clothing": "C", "torsoDetailTokens": ["A", "S", "s", "X"] },
   "sourceLayers": {
     "legs": {

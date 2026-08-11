@@ -18,7 +18,7 @@ describe('runtime atlas bill and movement contract', () => {
     const renderedNames = buildAtlasProofScene(0).sprites.map(({ sprite }) => sprite);
     expect(new Set(renderedNames)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
     expect(ATLAS_INDEX.version).toBe(3);
-    expect(ATLAS_INDEX.artRevision).toBe(2);
+    expect(ATLAS_INDEX.artRevision).toBe(3);
     expect(ATLAS_INDEX.publicSpriteIds).toEqual(Object.keys(ATLAS_INDEX.sprites));
     expect(ATLAS_INDEX.internalReviewSpriteIds).toEqual([]);
     expect(ATLAS_INDEX.tiles).toHaveLength(145);
@@ -67,11 +67,15 @@ describe('runtime atlas bill and movement contract', () => {
 
   test('uses one nearest-neighbor Skia Atlas and no runtime layer composition', () => {
     const proof = readFileSync(resolve(process.cwd(), 'src/render/AtlasProof.tsx'), 'utf8');
+    const portrait = readFileSync(resolve(process.cwd(), 'src/ui/CharacterPortrait.tsx'), 'utf8');
     const runtime = readFileSync(resolve(process.cwd(), 'src/render/atlas.ts'), 'utf8');
     expect(proof.match(/<Atlas\b/gu)).toHaveLength(1);
+    expect(portrait.match(/<Atlas\b/gu)).toHaveLength(1);
     expect(proof).toContain('FilterMode.Nearest');
     expect(proof).toContain('MipmapMode.None');
-    expect(`${proof}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
+    expect(portrait).toContain('FilterMode.Nearest');
+    expect(portrait).toContain('MipmapMode.None');
+    expect(`${proof}\n${portrait}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
   });
 
   test('uses one immutable presentation index and a bounded static ground-detail batch', () => {

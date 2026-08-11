@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 
 import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
@@ -35,6 +35,7 @@ const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE ===
 const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED === '1';
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
+const fullCastPortraitSmokeMode = process.env.SI_WORLD_FULL_CAST_PORTRAIT_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
@@ -769,6 +770,19 @@ const RESPONSIVE_SMOKE_TARGETS: readonly ResponsiveSmokeTarget[] = [
   { width: 1_600, height: 720 },
 ];
 
+const FULL_CAST_PORTRAIT_IDS = [
+  'devon-price',
+  'elise-moreau',
+  'generic-resident',
+  'linda',
+  'mina-park',
+  'priya-nair',
+  'protagonist',
+  'rafael-cruz',
+  'sora-tan',
+  'tomas-reed',
+] as const;
+
 function cameraCenter(camera: Readonly<{ x: number; y: number; zoom: number }>, bounds: SurfaceBounds) {
   return {
     x: Math.round((camera.x + bounds.width / camera.zoom / 2) * 100) / 100,
@@ -866,6 +880,62 @@ async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): P
   });
 }
 
+async function captureFullCastPortraitMatrix(
+  window: BrowserWindow,
+  directory: string,
+): Promise<readonly Record<string, unknown>[]> {
+  if (responsiveHighDpiMode) throw new Error('Full-cast portrait smoke must use the ordinary responsive shell.');
+  await resizeContentAndWait(window, 1_440, 900, 10_000);
+  const entries: Record<string, unknown>[] = [];
+  const portraitDirectory = join(directory, 'full-cast-portraits');
+  await mkdir(portraitDirectory, { recursive: true });
+
+  for (const uiScale of [1, 1.25, 1.5] as const) {
+    const percentage = uiScale === 1 ? 100 : uiScale === 1.25 ? 125 : 150;
+    await clickUiScaleButton(window, percentage);
+    await waitForResponsiveEvidence(window, (evidence) => evidence.uiScale === uiScale);
+    for (const characterId of FULL_CAST_PORTRAIT_IDS) {
+      await window.webContents.executeJavaScript(
+        `window.siWorldOpenConversationFixture?.(${JSON.stringify(characterId)})`,
+        true,
+      );
+      await waitForSelector(window, `#conversation-portrait-${characterId}`, 10_000);
+      await waitForSelector(window, `#conversation-portrait-${characterId}-ready`, 10_000);
+      await waitForRendererText(window, '#world-ui-conversation-panel', 'TIME PAUSED', 10_000);
+      await waitForRendererPaint(window);
+      await waitForRendererPaint(window);
+      const evidence = await waitForResponsiveEvidence(window, (candidate) => (
+        candidate.uiScale === uiScale &&
+        (candidate.activePanel as { id?: unknown } | null)?.id === 'world-ui-conversation-panel' &&
+        candidate.conversationInput !== null
+      ));
+      const geometry = await window.webContents.executeJavaScript(`(() => {
+        const portrait = document.querySelector(${JSON.stringify(`#conversation-portrait-${characterId}`)});
+        const input = document.querySelector('[aria-label="Conversation message"]');
+        const transcript = document.querySelector('#conversation-transcript');
+        if (!(portrait instanceof HTMLElement) || !(input instanceof HTMLElement) || !(transcript instanceof HTMLElement)) {
+          throw new Error('Full-cast portrait fixture is incomplete.');
+        }
+        const rectangle = (element) => {
+          const value = element.getBoundingClientRect();
+          return { x: value.x, y: value.y, width: value.width, height: value.height };
+        };
+        return {
+          portraitRect: rectangle(portrait),
+          inputRect: rectangle(input),
+          transcriptFontSize: Number.parseFloat(getComputedStyle(transcript).fontSize),
+        };
+      })()`, true) as Record<string, unknown>;
+      const screenshot = `full-cast-portraits/${percentage}-${characterId}.png`;
+      await captureSmokeScreenshot(window, join(directory, screenshot));
+      entries.push({ characterId, uiScale, screenshot, evidence, ...geometry });
+      await window.webContents.executeJavaScript('window.siWorldCloseConversationFixture?.()', true);
+      await waitForSelectorMissing(window, '#world-ui-conversation-panel');
+    }
+  }
+  return entries;
+}
+
 async function captureResponsiveSmoke(
   window: BrowserWindow,
   directory: string,
@@ -927,6 +997,10 @@ async function captureResponsiveSmoke(
     });
   }
 
+  const fullCastPortraitMatrix = fullCastPortraitSmokeMode
+    ? await captureFullCastPortraitMatrix(window, directory)
+    : null;
+
   let maximumLoad: Record<string, unknown> | null = null;
   if (responsiveHighDpiMode) {
     await clickZoomButton(window, 1);
@@ -974,6 +1048,7 @@ async function captureResponsiveSmoke(
     highDpi: responsiveHighDpiMode,
     geometry,
     targets: targetReports,
+    fullCastPortraitMatrix,
     maximumLoad,
   };
 }

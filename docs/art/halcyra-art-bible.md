@@ -1,6 +1,6 @@
 # Halcyra art bible
 
-Status: Phase 28 hard-prototype contract
+Status: Phase 29 full-cast contract
 
 ## 1. Style target
 
@@ -272,3 +272,22 @@ The soft transition uses broken triangular edge groups. The built transition use
 | Fountain landmark | pale stone square, teal basin, brass center | dark outer rim and lower band define the footprint | compose the `2x2` object, then split |
 
 The sofa, table, palm, lamp, and fountain are tall-prop review classes. Each needs player-in-front and player-behind proof. Contact shadows stay attached to the object. Ground decals never become solids or interactions.
+
+## 17. Phase 29 full-cast identity ledger
+
+All ten source files are authoritative. Each row has one shape that survives front, rear, left, and right generation. The second feature gives a separate non-color signal. Empty means the character has no hat or held item; do not add an item only to increase difference counts.
+
+| Character | All-direction identity feature | Second feature | Hair or hat | Glasses | Outfit or accessory | Held item |
+|---|---|---|---|---|---|---|
+| Devon Price | compact flat-top | broad epaulet jacket | all directions | none | jacket all directions | none |
+| Elise Moreau | curled side hair | asymmetric temple ribbon | all directions | front and lateral | ribbon all directions | none |
+| Generic resident | high swept quiff | wide glasses | all directions | front and lateral | blue shirt all directions | none |
+| Linda | long side hair | paired earrings | all directions | none | earrings front and lateral | none |
+| Mina Park | straight side hair | right-side bag | all directions | front and lateral | bag all directions | none |
+| Priya Nair | high center bun | left scarf tail | all directions | none | scarf all directions | none |
+| Protagonist | swept side hair | diagonal chest strap | all directions | none | strap front and lateral | none |
+| Rafael Cruz | cropped textured hair | double shoulder band | all directions | none | bands all directions | none |
+| Sora Tan | rounded bob | paired sleeve tabs | all directions | front and lateral | tabs all directions | none |
+| Tomas Reed | low side-part | square headphones | all directions | none | headphones all directions | none |
+
+The cast keeps the generated rear method and front-body lateral method. Phase 29 did not need the three-quarter-head fallback. Review `full-cast-identity-1x.png` before the scaled board. The `3x` board is inspection help, not proof of native clarity.

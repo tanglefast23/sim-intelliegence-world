@@ -9,12 +9,15 @@ import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
 import { authoredBeginFallback, conversationGenerationNote } from './conversation-feedback';
+import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
 
 type Line = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
 
 type ConversationPanelProps = Readonly<{
   npcId: string;
+  fixtureDisplayName?: string;
+  fixtureMode?: boolean;
   port: ConversationPort;
   state: WorldState;
   onPausedState: (state: WorldState) => void;
@@ -30,7 +33,8 @@ function idPart(source: string): string {
 }
 
 export function ConversationPanel({
-  npcId, port, state, onPausedState, onStableState, onDismiss, onVocalCue, surface, uiScale,
+  npcId, fixtureDisplayName, fixtureMode = false, port, state, onPausedState, onStableState,
+  onDismiss, onVocalCue, surface, uiScale,
 }: ConversationPanelProps) {
   const initialState = useRef(state);
   const reducedMotion = useReducedMotion();
@@ -53,6 +57,13 @@ export function ConversationPanel({
   const metrics = uiMetrics(uiScale);
 
   useEffect(() => {
+    if (fixtureMode) {
+      setDisplayName(fixtureDisplayName ?? npcId);
+      setLines([{ speaker: 'npc', text: 'Portrait and conversation readability fixture.' }]);
+      setGenerationNote('AUTHORED ART REVIEW FIXTURE');
+      setStatus('ready');
+      return undefined;
+    }
     let mounted = true;
     void port.beginConversation({ conversationId, npcId, state: initialState.current }).then((result) => {
       if (!mounted) {
@@ -87,7 +98,7 @@ export function ConversationPanel({
       if (revealTimer.current) clearInterval(revealTimer.current);
       if (active.current && !closing.current) void port.abortConversation({ conversationId });
     };
-  }, [conversationId, npcId, onPausedState, onVocalCue, port]);
+  }, [conversationId, fixtureDisplayName, fixtureMode, npcId, onPausedState, onVocalCue, port]);
 
   const sendMessage = async (message: string) => {
     if (!active.current || status !== 'ready' || !message) return;
@@ -168,9 +179,12 @@ export function ConversationPanel({
         style={[styles.panel, { height: panelLayout.height, padding: metrics.padding, width: panelLayout.width }]}
       >
         <View style={styles.header}>
-          <View style={styles.headerCopy}>
-            <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION · TIME PAUSED</Text>
-            <Text style={[styles.name, { fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
+          <View style={styles.headerIdentity}>
+            <CharacterPortrait displayName={displayName} npcId={npcId} />
+            <View style={styles.headerCopy}>
+              <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION · TIME PAUSED</Text>
+              <Text style={[styles.name, { fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
+            </View>
           </View>
           <Pressable accessibilityLabel="Cancel conversation" onPress={() => void close(false)} style={[styles.smallButton, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>CANCEL</Text>
@@ -262,7 +276,8 @@ const styles = StyleSheet.create({
   error: { color: '#ef725b', fontFamily: 'Silkscreen', fontSize: 10 },
   eyebrow: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 8 },
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
-  headerCopy: { flexShrink: 1 },
+  headerCopy: { flexShrink: 1, marginLeft: 12 },
+  headerIdentity: { alignItems: 'center', flexDirection: 'row', flexShrink: 1 },
   input: { backgroundColor: '#181512', borderColor: '#76573d', borderWidth: 1, color: '#fff0c7', flex: 1, fontFamily: 'Silkscreen', fontSize: 10, minHeight: 38, paddingHorizontal: 10 },
   inputRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
   name: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 18, marginTop: 3 },

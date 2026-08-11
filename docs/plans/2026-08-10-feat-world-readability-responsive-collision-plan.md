@@ -643,7 +643,7 @@ In one or more bounded packaged journeys, prove:
 ### Performance distinction
 
 - Local qualified baseline: rounded `60 FPS` is a release gate.
-- Hosted Linux, macOS Intel, and Windows package jobs: record platform-shell FPS and regressions, but do not claim that hosted values replace the qualified baseline.
+- Hosted macOS Intel and Windows package jobs: record platform-shell FPS and regressions, but do not claim that hosted values replace the qualified baseline.
 - If culling still constructs full-map depth metadata at maximum load, profile and correct that work before accepting the gate.
 
 ### Final gate
@@ -673,7 +673,7 @@ Apply this protocol to Phases 18, 19, 20, 21, and 22:
 8. Write the phase audit record with accepted, rejected, and fixed findings.
 9. Stage only phase files. Inspect `git diff --cached --stat` and `git diff --cached`.
 10. Commit, push, and open one focused pull request.
-11. Wait for Linux, macOS Intel, Windows x64, and repository-required checks.
+11. Wait for macOS Intel, Windows x64, and repository-required checks.
 12. If CI fails, inspect the exact failing log. Retry only a proven transient failure. Fix reproducible failures on the branch.
 13. Squash merge only after green CI.
 14. Synchronize local `main` and prove local SHA, `origin/main`, and the PR merge SHA are identical.

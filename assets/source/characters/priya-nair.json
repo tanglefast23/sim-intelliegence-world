@@ -30,6 +30,20 @@
     "clothing": "C",
     "skin": "S"
   },
+  "identityFeatures": [
+    {
+      "id": "high-center-bun",
+      "description": "A high center bun remains visible around the head.",
+      "layer": "hair",
+      "visibleIn": ["front", "rear", "left", "right"]
+    },
+    {
+      "id": "left-scarf-tail",
+      "description": "A scarf tail changes the left torso edge in every direction.",
+      "layer": "accessory",
+      "visibleIn": ["front", "rear", "left", "right"]
+    }
+  ],
   "rearStyle": {
     "head": "H",
     "lower": "S",
@@ -426,7 +440,7 @@
           "kind": "rect",
           "token": "K",
           "x": 10,
-          "y": 0,
+          "y": 1,
           "width": 5,
           "height": 4
         },
@@ -434,14 +448,16 @@
           "kind": "rect",
           "token": "H",
           "x": 11,
-          "y": 1,
+          "y": 2,
           "width": 3,
           "height": 3
         }
       ]
     },
     "accessory": {
-      "commands": []
+      "commands": [
+        { "kind": "rect", "token": "A", "x": 3, "y": 15, "width": 3, "height": 8 }
+      ]
     },
     "heldItem": {
       "commands": []
@@ -633,7 +649,7 @@
           "kind": "rect",
           "token": "K",
           "x": 16,
-          "y": 0,
+          "y": 1,
           "width": 9,
           "height": 8
         },
@@ -641,14 +657,16 @@
           "kind": "rect",
           "token": "H",
           "x": 18,
-          "y": 1,
+          "y": 2,
           "width": 5,
           "height": 6
         }
       ]
     },
     "accessory": {
-      "commands": []
+      "commands": [
+        { "kind": "rect", "token": "A", "x": 2, "y": 28, "width": 5, "height": 15 }
+      ]
     },
     "heldItem": {
       "commands": []

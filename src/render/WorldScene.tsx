@@ -266,6 +266,7 @@ export function WorldScene({
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
   const [conversationNpcId, setConversationNpcId] = useState<string>();
+  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId>();
   const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
@@ -322,6 +323,24 @@ export function WorldScene({
 
   useEffect(() => () => {
     if (captionTimer.current) clearTimeout(captionTimer.current);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.siWorldSmokeMode !== true) return undefined;
+    window.siWorldOpenConversationFixture = (characterId) => {
+      if (!CHARACTER_IDS.includes(characterId)) throw new Error(`Unknown conversation fixture ${characterId}.`);
+      setOpenPanel(undefined);
+      setConversationFixtureId(characterId);
+      setConversationNpcId(characterId);
+    };
+    window.siWorldCloseConversationFixture = () => {
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+    };
+    return () => {
+      delete window.siWorldOpenConversationFixture;
+      delete window.siWorldCloseConversationFixture;
+    };
   }, []);
 
   const requestAutosave = useCallback(async (
@@ -1125,8 +1144,13 @@ export function WorldScene({
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
         {conversationNpcId ? (
           <ConversationPanel
+            fixtureDisplayName={conversationFixtureId ? ATLAS_INDEX.characters[conversationFixtureId].displayName : undefined}
+            fixtureMode={conversationFixtureId === conversationNpcId}
             npcId={conversationNpcId}
-            onDismiss={() => setConversationNpcId(undefined)}
+            onDismiss={() => {
+              setConversationFixtureId(undefined);
+              setConversationNpcId(undefined);
+            }}
             onPausedState={applyConversationPause}
             onStableState={applyConversationStableState}
             onVocalCue={triggerVocalCue}

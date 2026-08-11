@@ -11,6 +11,7 @@ export const TILE_CELL = { width: 32, height: 32 } as const;
 
 const TokenSchema = z.string().regex(/^[A-Za-z0-9]$/u);
 const ColorSchema = z.string().regex(/^#[0-9a-f]{6}$/iu);
+const DirectionSchema = z.enum(['front', 'rear', 'left', 'right']);
 
 const RectCommandSchema = z.object({
   kind: z.literal('rect'),
@@ -61,6 +62,12 @@ export const CharacterSourceSchema = z.object({
   portraitCell: z.object({ width: z.literal(40), height: z.literal(44) }).strict(),
   palette: z.record(TokenSchema, ColorSchema),
   identityTokens: z.object({ hair: TokenSchema, clothing: TokenSchema, skin: TokenSchema }).strict(),
+  identityFeatures: z.array(z.object({
+    id: z.string().regex(/^[a-z][a-z0-9-]+$/u),
+    description: z.string().min(1).max(120),
+    layer: z.enum(['torsoAndClothing', 'hair', 'accessory', 'heldItem']),
+    visibleIn: z.array(DirectionSchema).min(1).max(4),
+  }).strict()).min(2).max(6),
   rearStyle: z.object({
     head: TokenSchema,
     lower: TokenSchema,
@@ -204,17 +211,30 @@ function validateCharacter(source: CharacterSource): CharacterSource {
       throw new Error(`${source.id} uses missing palette token ${command.token}.`);
     }
   }
-  if (['protagonist', 'linda', 'generic-resident'].includes(source.id)) {
-    for (const frameIndex of [0, 1] as const) {
-      const frame = composeFrontFrame(source, frameIndex);
-      if (
-        [...frame[0] as string].some((token) => token !== '.') ||
-        [...frame[WORLD_CELL.height - 1] as string].some((token) => token !== '.') ||
-        frame.some((row) => row[0] !== '.' || row[WORLD_CELL.width - 1] !== '.')
-      ) {
-        throw new Error(`${source.id} must keep top, left, right, and bottom-foot source margins open.`);
-      }
+  if (new Set(source.identityFeatures.map(({ id }) => id)).size !== source.identityFeatures.length) {
+    throw new Error(`${source.id} identity feature IDs must be unique.`);
+  }
+  if (!source.identityFeatures.some(({ visibleIn }) => (
+    ['front', 'rear', 'left', 'right'] as const
+  ).every((direction) => visibleIn.includes(direction)))) {
+    throw new Error(`${source.id} must document one identity feature in all four directions.`);
+  }
+  for (const frameIndex of [0, 1] as const) {
+    const frame = composeFrontFrame(source, frameIndex);
+    if (
+      [...frame[0] as string].some((token) => token !== '.') ||
+      [...frame[WORLD_CELL.height - 1] as string].some((token) => token !== '.') ||
+      frame.some((row) => row[0] !== '.' || row[WORLD_CELL.width - 1] !== '.')
+    ) {
+      throw new Error(`${source.id} must keep top, left, right, and bottom-foot source margins open.`);
     }
+  }
+  const portrait = composePortrait(source);
+  if (
+    [...portrait[0] as string].some((token) => token !== '.') ||
+    portrait.some((row) => row[0] !== '.' || row[PORTRAIT_CELL.width - 1] !== '.')
+  ) {
+    throw new Error(`${source.id} portrait must keep top, left, and right contour margins open.`);
   }
   return source;
 }

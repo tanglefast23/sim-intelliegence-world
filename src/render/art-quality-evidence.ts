@@ -40,11 +40,30 @@ const ResponsiveTargetSchema = z.object({
     conversation: RelativePathSchema,
   }).strict(),
 }).passthrough();
+const FullCastPortraitEntrySchema = z.object({
+  characterId: z.enum([
+    'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
+    'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
+  ]),
+  uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
+  screenshot: RelativePathSchema,
+  evidence: CaptureEvidenceSchema.extend({
+    uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
+  }),
+  portraitRect: z.object({
+    x: z.number(), y: z.number(), width: z.number().positive(), height: z.number().positive(),
+  }).strict(),
+  inputRect: z.object({
+    x: z.number(), y: z.number(), width: z.number().positive(), height: z.number().positive(),
+  }).strict(),
+  transcriptFontSize: z.number().positive(),
+}).strict();
 
 export const ArtQualityResponsiveReportSchema = z.object({
   schemaVersion: z.literal(1),
   highDpi: z.boolean(),
   targets: z.array(ResponsiveTargetSchema).min(1),
+  fullCastPortraitMatrix: z.array(FullCastPortraitEntrySchema).length(30).nullable().optional(),
   packageProvenance: PackageProvenanceSchema,
   testedCommit: CommitSchema,
 }).passthrough();
@@ -225,6 +244,41 @@ export function validateArtQualityEvidence(candidate: unknown, outputRoot: strin
   if (performanceReport.modes.legacy.roundedFps < minimumFps ||
       performanceReport.modes.enhanced.roundedFps < minimumFps) {
     throw new Error(`Art-quality performance report is below ${minimumFps} FPS.`);
+  }
+  if (report.artRevision >= 3) {
+    const matrix = enhancedReport.fullCastPortraitMatrix;
+    if (!matrix) throw new Error('Art-quality revision 3 requires the full-cast portrait matrix.');
+    const characterIds = [
+      'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
+      'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
+    ] as const;
+    const expected = [1, 1.25, 1.5].flatMap((uiScale) => (
+      characterIds.map((characterId) => ({ characterId, uiScale }))
+    ));
+    const actual = matrix.map(({ characterId, uiScale }) => ({ characterId, uiScale }));
+    if (stableValue(actual) !== stableValue(expected)) {
+      throw new Error('Art-quality full-cast portrait matrix is incomplete or out of order.');
+    }
+    if (new Set(matrix.map(({ screenshot }) => screenshot)).size !== matrix.length) {
+      throw new Error('Art-quality full-cast portrait matrix must use one screenshot per entry.');
+    }
+    for (const entry of matrix) {
+      if (entry.evidence.artMode !== 'enhanced' || entry.evidence.uiScale !== entry.uiScale) {
+        throw new Error(`Art-quality portrait ${entry.characterId} has mismatched presentation evidence.`);
+      }
+      if (entry.portraitRect.width < 80 || entry.portraitRect.height < 88 ||
+          entry.inputRect.width < 200 || entry.inputRect.height < 36 ||
+          entry.transcriptFontSize < 11) {
+        throw new Error(`Art-quality portrait ${entry.characterId} at ${entry.uiScale}x is not readable.`);
+      }
+      const relativePath = childEvidencePath(report.reports.enhancedResponsive, entry.screenshot);
+      const path = resolve(outputRoot, relativePath);
+      if (!existsSync(path)) throw new Error(`Art-quality evidence is missing ${relativePath}.`);
+      const dimensions = inspectPng(path);
+      if (dimensions.width < 1_280 || dimensions.height < 720 || dimensions.distinctPixels < 8) {
+        throw new Error(`Art-quality portrait frame ${relativePath} is incomplete.`);
+      }
+    }
   }
   return report;
 }

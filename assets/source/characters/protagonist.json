@@ -10,6 +10,10 @@
     "X": "#d8ad4f", "E": "#fff2d6"
   },
   "identityTokens": { "hair": "H", "clothing": "C", "skin": "S" },
+  "identityFeatures": [
+    { "id": "swept-side-hair", "description": "A high swept fringe remains visible around the head.", "layer": "hair", "visibleIn": ["front", "rear", "left", "right"] },
+    { "id": "diagonal-strap", "description": "A diagonal chest strap identifies the protagonist from the front and sides.", "layer": "accessory", "visibleIn": ["front", "left", "right"] }
+  ],
   "rearStyle": { "head": "H", "lower": "S", "clothing": "C", "torsoDetailTokens": ["A", "S", "s", "X"] },
   "sourceLayers": {
     "legs": {
