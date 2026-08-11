@@ -1,11 +1,19 @@
 {
   "schemaVersion": 1,
   "artRevision": 2,
-  "testedCommit": "5fdff8db5fab6b0b90505a567389866364bbf161",
+  "testedCommit": "7436aab15a685429ff17b06b440c54c749c3eb43",
+  "packageProvenance": {
+    "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
+    "sizeBytes": 33968,
+    "modifiedMilliseconds": 1786428713293,
+    "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+    "payloadSizeBytes": 16688541,
+    "payloadSha256": "5b0715f3f2111d92f4ff37d249a352f2fff732c7baada7617f55f97e24217999"
+  },
   "capturePolicy": {
     "stateBased": true,
     "minimumPaints": 2,
-    "absoluteDeadlineMilliseconds": 1786426485303,
+    "absoluteDeadlineMilliseconds": 1786429915106,
     "pngPixelValidation": true
   },
   "fixedCamera": [
@@ -49,11 +57,11 @@
     "performance": "performance/art-mode-comparison-report.json"
   },
   "hashes": {
-    "atlas": "0f4cd24485d819e1ca6d61749664e35088923a865361e6444aa87144f4c42294",
-    "index": "493bf0277dfaf7723f44fed9eddf49b5ce95ae0a94d8f52db2f8932fe2443e9c",
+    "atlas": "c940e82f2e32c9558983e80ea6915a23e4d81fccb746da59db3ff583f6de0c3d",
+    "index": "0f7bc744912a56e110bc6b674cb8a9826a8c45f1932941bbc7ce5d3973c1340f",
     "manifest": "ba8b8477129056cb6b46edc479988ab0d6370ca260f814113be69441688c9f27",
     "northwestMap": "a831fbbe8f3a9d379a15aaa5be81fb17b3c2248cfde697e4d6e9bd7867386982",
     "renderer": "7479abc4e1548bb68ae32fa791d1aace50f25bb929d4491ea60bcda3d1238c23",
-    "smoke": "3a1939470b27dcf25cb27a2a0828bac2581a63a0705bc26edc24ad65d6b66961"
+    "smoke": "de07c52388512f161b05b7ec395181b51092417c784f2e18451f5d6395128117"
   }
 }

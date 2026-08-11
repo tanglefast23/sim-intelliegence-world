@@ -13513,8 +13513,8 @@
         "surface": false
       }
     },
-    "rendererFps": 119.71,
-    "displayRafFps": 119.71,
+    "rendererFps": 119.87,
+    "displayRafFps": 119.87,
     "medianFrameTimeMilliseconds": 8.3,
     "sampledFrames": 241,
     "cameraChangeFrames": 240,
@@ -13524,8 +13524,8 @@
     "screenshot": "maximum-load.png"
   },
   "evidenceSource": {
-    "baseCommit": "5fdff8db5fab6b0b90505a567389866364bbf161",
-    "sourceSha256": "0bc710e4aa6e8868ac7057e4930eab2636c38c5441d0591f3c1eae4617928982",
+    "baseCommit": "7436aab15a685429ff17b06b440c54c749c3eb43",
+    "sourceSha256": "789d9f5871a61998010ebbe6af6b3ccd8dea675e6db1e01748d7ea4e0f19aaaf",
     "sourcePaths": [
       ".github/workflows/ci.yml",
       "assets/source/art/decal-recipes.json",
@@ -13549,10 +13549,10 @@
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786425274744,
+    "modifiedMilliseconds": 1786428713293,
     "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
-    "payloadSizeBytes": 16687333,
-    "payloadSha256": "65745e8fa54fcda99aafb09fd153e2dcdb04bb0a074ee9d4965c314bb8e10ab3"
+    "payloadSizeBytes": 16688541,
+    "payloadSha256": "5b0715f3f2111d92f4ff37d249a352f2fff732c7baada7617f55f97e24217999"
   },
-  "testedCommit": "5fdff8db5fab6b0b90505a567389866364bbf161"
+  "testedCommit": "7436aab15a685429ff17b06b440c54c749c3eb43"
 }

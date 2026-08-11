@@ -1,9 +1,9 @@
 # Phase 28 verification report
 
-- Tested source commit: `5fdff8db5fab6b0b90505a567389866364bbf161`
+- Tested source commit: `7436aab15a685429ff17b06b440c54c749c3eb43`
 - Art revision: `2`
-- Atlas SHA-256: `0f4cd24485d819e1ca6d61749664e35088923a865361e6444aa87144f4c42294`
-- Atlas size: `512x514`, RGBA, 234 public cells
+- Atlas SHA-256: `c940e82f2e32c9558983e80ea6915a23e4d81fccb746da59db3ff583f6de0c3d`
+- Atlas size: `512x514`, RGBA, 235 public cells
 - Full-program forecast: `1024x722`, 70.5 percent packed-area ratio
 - Art source: tracked character layers, tile commands, palette recipes, and deterministic generators
 
@@ -16,10 +16,10 @@
 5. Pass. `tier-a-review.md` records 6 of 6 scene-hierarchy questions as passed.
 6. Pass. `source-review/door-states-1x.png` covers open, closed-unlocked, and closed-locked fixtures. `source-review/tall-prop-depth-1x.png` covers the player in front of and behind every prototype tall-prop class. The multi-tile boards show the sofa, table, and fountain without internal seams. The packaged lifecycle images cover room entrance, roof restore, portals, and all four map transitions.
 7. Pass. Deterministic byte output, reachability, bounds, extruded gutters, transparent-RGB hygiene, revision matching, no-filter rendering, the `1024x1024` cap, and the 4 MiB decoded-memory cap pass.
-8. Pass. Legacy and enhanced maximum-load modes both measure 120 FPS and 8.3 ms median frame time. The median ratio is 1.0. Enhanced art adds one static batch.
+8. Pass. Legacy and enhanced maximum-load modes both measure 119.9 FPS and 8.3 ms median frame time. The median ratio is 1.0. Enhanced art adds one static batch. Both reports pin the same commit, package payload, map, camera, window, DPR, and zoom.
 9. Pass. Fresh start, save load, resize, all zooms, four map transitions, and restart pass. Restart preserves world zoom 3, UI scale 1.25, and the exact camera. No layout revision or save schema changed.
 10. Pass. The real-packer full-program projection and actual prototype pack remain inside their raw-area, packed-area, and dimension limits.
-11. Pending. The required Grok implementation audit follows this evidence commit.
+11. Pass. Grok 4.5 completed the required high-effort implementation and correction audits. The final correction audit returned `NO_CONFIRMED_FINDINGS`. See `audits/phase-28-grok-implementation-audit.md`.
 
 ## Commands that passed
 
@@ -28,7 +28,7 @@
 - `npm run validate:content`
 - `npm run check:boundaries`
 - `npm run typecheck`
-- `npm test -- --runInBand` with 51 suites and 412 tests
+- `npm test -- --runInBand` with 51 suites and 415 tests
 - `npm run package:electron`
 - `npm run smoke:art-quality -- --output-root artifacts/phase-24/art-quality/phase-28-prototype`
 - `npm run smoke:natural-movement -- --output-root artifacts/phase-24/art-quality/phase-28-prototype/movement`

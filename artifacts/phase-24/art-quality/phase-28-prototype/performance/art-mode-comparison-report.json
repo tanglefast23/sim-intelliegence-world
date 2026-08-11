@@ -3,14 +3,14 @@
   "compareArtModes": true,
   "includeMaximumLoad": true,
   "qualification": true,
-  "testedCommit": "5fdff8db5fab6b0b90505a567389866364bbf161",
+  "testedCommit": "7436aab15a685429ff17b06b440c54c749c3eb43",
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786425274744,
+    "modifiedMilliseconds": 1786428713293,
     "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
-    "payloadSizeBytes": 16687333,
-    "payloadSha256": "65745e8fa54fcda99aafb09fd153e2dcdb04bb0a074ee9d4965c314bb8e10ab3"
+    "payloadSizeBytes": 16688541,
+    "payloadSha256": "5b0715f3f2111d92f4ff37d249a352f2fff732c7baada7617f55f97e24217999"
   },
   "matchedInputs": {
     "geometry": {
@@ -13322,16 +13322,33 @@
       }
     ],
     "highDpi": true,
+    "mapId": "northwest_residential",
+    "content": {
+      "width": 2560,
+      "height": 1440
+    },
+    "surface": {
+      "x": 15,
+      "y": 15,
+      "width": 2530,
+      "height": 1410
+    },
     "devicePixelRatio": 2,
     "selectedWorldZoom": 1,
-    "testedCommit": "5fdff8db5fab6b0b90505a567389866364bbf161",
+    "camera": {
+      "x": -241,
+      "y": 126,
+      "zoom": 1
+    },
+    "uiScale": 1.5,
+    "testedCommit": "7436aab15a685429ff17b06b440c54c749c3eb43",
     "packageProvenance": {
       "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
       "sizeBytes": 33968,
-      "modifiedMilliseconds": 1786425274744,
+      "modifiedMilliseconds": 1786428713293,
       "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
-      "payloadSizeBytes": 16687333,
-      "payloadSha256": "65745e8fa54fcda99aafb09fd153e2dcdb04bb0a074ee9d4965c314bb8e10ab3"
+      "payloadSizeBytes": 16688541,
+      "payloadSha256": "5b0715f3f2111d92f4ff37d249a352f2fff732c7baada7617f55f97e24217999"
     }
   },
   "performanceAcceptance": {

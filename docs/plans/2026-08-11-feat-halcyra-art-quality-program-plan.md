@@ -750,7 +750,7 @@ Before Phase 26 starts:
 - [x] Phase 25 PR is squash-merged and synchronized.
 - [x] Phase 26 deterministic art foundation is Grok-audited and merged.
 - [x] Phase 27 pure presentation system is Grok-audited and merged.
-- [ ] Phase 28 hard Sunward prototype passes all eleven gates, is Grok-audited, and is merged.
+- [x] Phase 28 hard Sunward prototype passes all eleven gates, is Grok-audited, and is merged.
 - [ ] Phase 29 full current cast is Grok-audited and merged.
 - [ ] Phase 30 complete Tier A Sunward art is Grok-audited and merged.
 - [ ] Phase 31 Tier B existing-art upgrade is Grok-audited and merged.
