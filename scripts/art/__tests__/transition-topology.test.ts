@@ -39,6 +39,34 @@ describe('corner-aware material transition topology', () => {
     expect(selectTransitionOwner(recipe('zinc', 20), recipe('amber', 20)).id).toBe('amber');
   });
 
+  test('keeps opposite-edge strips distinct from fully surrounded islands', () => {
+    const sand = recipe('sand', 10);
+    const paver = recipe('paver', 20);
+    const verticalStrip = compileMaterialTransitions({
+      width: 3,
+      height: 3,
+      materialIds: [
+        'sand', 'paver', 'sand',
+        'sand', 'sand', 'sand',
+        'sand', 'paver', 'sand',
+      ],
+      recipesById: { sand, paver },
+    }).find(({ tileX, tileY }) => tileX === 1 && tileY === 1);
+    expect(verticalStrip).toMatchObject({ cornerMask: 15, edgeMask: 5, topology: 'strip' });
+
+    const island = compileMaterialTransitions({
+      width: 3,
+      height: 3,
+      materialIds: [
+        'paver', 'paver', 'paver',
+        'paver', 'sand', 'paver',
+        'paver', 'paver', 'paver',
+      ],
+      recipesById: { sand, paver },
+    }).find(({ tileX, tileY }) => tileX === 1 && tileY === 1);
+    expect(island).toMatchObject({ cornerMask: 15, edgeMask: 15, topology: 'island' });
+  });
+
   test('compiles strips, islands, saddles, and multi-material junctions in row-major order', () => {
     const sand = recipe('sand', 10);
     const paver = recipe('paver', 20);

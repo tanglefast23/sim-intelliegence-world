@@ -1,7 +1,8 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 import { PNG } from 'pngjs';
 import { z } from 'zod';
@@ -14,6 +15,7 @@ import {
   validateScreenshotBuffers,
   validateWorldZoomEvidence,
 } from './package-smoke-utils';
+import { validateArtModePerformance } from './art-mode-performance';
 
 const PointSchema = z.object({ x: z.number(), y: z.number() }).strict();
 const SizeSchema = z.object({ width: z.number().positive(), height: z.number().positive() }).strict();
@@ -177,10 +179,21 @@ const evidenceRoot = resolveEvidenceOutputRoot(commandArguments, {
 mkdirSync(evidenceRoot, { recursive: true });
 const executable = findPackagedExecutable(outputRoot);
 const executableStats = statSync(executable);
+const payloadCandidates = [
+  resolve(dirname(executable), '..', 'Resources', 'app.asar'),
+  resolve(dirname(executable), 'resources', 'app.asar'),
+  resolve(dirname(executable), '..', 'resources', 'app.asar'),
+];
+const payload = payloadCandidates.find((candidate) => existsSync(candidate));
+if (!payload) throw new Error('Packaged app payload app.asar is missing.');
+const payloadBytes = readFileSync(payload);
 const packageProvenance = Object.freeze({
   executable,
   sizeBytes: executableStats.size,
   modifiedMilliseconds: Math.round(executableStats.mtimeMs),
+  payload,
+  payloadSizeBytes: payloadBytes.length,
+  payloadSha256: createHash('sha256').update(payloadBytes).digest('hex'),
 });
 
 if (compareArtModes) {
@@ -230,11 +243,18 @@ if (compareArtModes) {
     if (!maximumLoad) throw new Error(`${mode} art mode did not emit maximum-load evidence.`);
     const evidence = maximumLoad.evidence as Record<string, unknown>;
     if (evidence.artMode !== mode) throw new Error(`${mode} art mode reported ${String(evidence.artMode)}.`);
+    const requiredNumber = (field: string): number => {
+      const value = maximumLoad[field];
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        throw new Error(`${mode} art mode has invalid ${field}.`);
+      }
+      return value;
+    };
     return {
-      rendererFps: maximumLoad.rendererFps,
-      displayRafFps: maximumLoad.displayRafFps,
-      medianFrameTimeMilliseconds: maximumLoad.medianFrameTimeMilliseconds,
-      roundedFps: maximumLoad.roundedFps,
+      rendererFps: requiredNumber('rendererFps'),
+      displayRafFps: requiredNumber('displayRafFps'),
+      medianFrameTimeMilliseconds: requiredNumber('medianFrameTimeMilliseconds'),
+      roundedFps: requiredNumber('roundedFps'),
       drawCounts: evidence.drawCounts,
       presentationHash: evidence.presentationHash,
       report: `${mode}/responsive-report.json`,
@@ -246,6 +266,11 @@ if (compareArtModes) {
   if (JSON.stringify(legacy.drawCounts) !== JSON.stringify(enhanced.drawCounts)) {
     throw new Error('Legacy and enhanced art modes did not preserve draw-count identity.');
   }
+  const performanceAcceptance = validateArtModePerformance(
+    legacy,
+    enhanced,
+    performanceFixture.maximumLoad.minimumRoundedFps,
+  );
   const comparisonPath = join(evidenceRoot, 'art-mode-comparison-report.json');
   writeFileSync(comparisonPath, `${JSON.stringify({
     schemaVersion: 1,
@@ -255,6 +280,7 @@ if (compareArtModes) {
     testedCommit: reports.legacy.testedCommit,
     packageProvenance,
     matchedInputs: inputRecord(reports.legacy),
+    performanceAcceptance,
     modes: { legacy, enhanced },
   }, null, 2)}\n`, { encoding: 'utf8', flush: true });
   process.stdout.write(`Responsive art-mode comparison: ${comparisonPath}\n`);
