@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "artRevision": 3,
-  "toolVersion": "atlas-v3-phase29",
+  "artRevision": 4,
+  "toolVersion": "atlas-v4-phase30",
   "indexVersion": 3,
   "publicIdPrefixes": [
     "tile.",

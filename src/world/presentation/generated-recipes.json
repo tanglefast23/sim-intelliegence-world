@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "artRevision": 3,
+  "artRevision": 4,
   "materials": [
     {
       "publicBaseSprite": "tile.boardwalk",
       "publicVariantSprites": [
         "tile.boardwalk",
-        "tile.boardwalk"
+        "tile.boardwalk-b"
       ],
       "id": "boardwalk",
       "logicalVariants": [
@@ -23,7 +23,7 @@
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 60,
-      "selectionSalt": "boardwalk-v1"
+      "selectionSalt": "boardwalk-v2"
     },
     {
       "publicBaseSprite": "tile.dark-asphalt",
@@ -129,7 +129,7 @@
       "publicBaseSprite": "tile.plaza-paver",
       "publicVariantSprites": [
         "tile.plaza-paver",
-        "tile.plaza-paver"
+        "tile.plaza-paver-b"
       ],
       "id": "plaza-paver",
       "logicalVariants": [
@@ -146,7 +146,7 @@
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 80,
-      "selectionSalt": "plaza-paver-v1"
+      "selectionSalt": "plaza-paver-v2"
     },
     {
       "publicBaseSprite": "tile.shallow-water",
@@ -202,12 +202,16 @@
       "publicBaseSprite": "tile.villa-floor",
       "publicVariantSprites": [
         "tile.villa-floor",
-        "tile.villa-floor-b"
+        "tile.villa-floor-b",
+        "tile.villa-floor-c",
+        "tile.villa-floor-d"
       ],
       "id": "villa-floor",
       "logicalVariants": [
         "villa-floor-a",
-        "villa-floor-b"
+        "villa-floor-b",
+        "villa-floor-c",
+        "villa-floor-d"
       ],
       "paletteRamp": [
         "#714833",
@@ -219,7 +223,7 @@
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 75,
-      "selectionSalt": "villa-floor-v1"
+      "selectionSalt": "villa-floor-v2"
     },
     {
       "publicBaseSprite": "tile.warm-sand",
@@ -246,7 +250,7 @@
       "edgeMode": "soft",
       "decalFamily": "sand-traces",
       "transitionPriority": 40,
-      "selectionSalt": "warm-sand-v1"
+      "selectionSalt": "warm-sand-v2"
     }
   ],
   "defaultRoof": {
@@ -257,7 +261,7 @@
     },
     "id": "sunward-terracotta-roof",
     "tint": "#ffffff00",
-    "selectionSalt": "roof-v2",
+    "selectionSalt": "roof-v3",
     "visualBounds": {
       "left": 0,
       "top": 0,
@@ -269,11 +273,12 @@
     {
       "publicSprites": [
         "tile.decal-sand-ripple",
-        "tile.decal-sand-pebbles"
+        "tile.decal-sand-pebbles",
+        "tile.decal-sand-shells"
       ],
       "id": "sand-traces",
-      "densityPerThousand": 95,
-      "selectionSalt": "sand-traces-v2"
+      "densityPerThousand": 140,
+      "selectionSalt": "sand-traces-v3"
     },
     {
       "publicSprites": [

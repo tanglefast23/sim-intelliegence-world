@@ -52,6 +52,16 @@ export function stableTupleHash(parts: readonly (string | number)[]): number {
   return hash;
 }
 
+function avalancheHash(hash: number): number {
+  let mixed = hash >>> 0;
+  mixed ^= mixed >>> 16;
+  mixed = Math.imul(mixed, 0x85ebca6b) >>> 0;
+  mixed ^= mixed >>> 13;
+  mixed = Math.imul(mixed, 0xc2b2ae35) >>> 0;
+  mixed ^= mixed >>> 16;
+  return mixed >>> 0;
+}
+
 function initialVariantIndex(
   recipe: MaterialRecipe,
   mapId: string,
@@ -66,7 +76,14 @@ function initialVariantIndex(
       artRevision,
       recipe.selectionSalt,
     ]);
-    return (phase + x + y) % recipe.logicalVariants.length;
+    const coordinatePhase = (
+      Math.imul(x + 1, 17) +
+      Math.imul(y + 1, 31) +
+      Math.imul(x + 1, y + 1) * 7 +
+      Math.floor(x / 2) * 11 +
+      Math.floor(y / 3) * 13
+    ) >>> 0;
+    return avalancheHash((phase + coordinatePhase) >>> 0) % recipe.logicalVariants.length;
   }
   const seed = stableTupleHash([
     mapId,
@@ -76,7 +93,7 @@ function initialVariantIndex(
     artRevision,
     recipe.selectionSalt,
   ]);
-  return seed % recipe.logicalVariants.length;
+  return avalancheHash(seed) % recipe.logicalVariants.length;
 }
 
 export function selectMaterialVariants(input: MaterialSelectionInput): readonly MaterialVariantSelection[] {

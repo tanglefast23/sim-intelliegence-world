@@ -23,7 +23,7 @@ const DIRECTIONS = ['front-1', 'front-2', 'rear-1', 'rear-2', 'left-1', 'left-2'
 const MATERIALS = [
   ['warm-sand', 4],
   ['dune-grass', 4],
-  ['villa-floor', 2],
+  ['villa-floor', 4],
   ['spa-stone', 2],
   ['shallow-water', 4],
 ] as const;

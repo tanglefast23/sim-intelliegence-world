@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "artRevision": 3,
+  "artRevision": 4,
   "materials": [
     {
       "id": "boardwalk",
       "publicBaseSprite": "tile.boardwalk",
       "logicalVariants": ["boardwalk-a", "boardwalk-b"],
-      "publicVariantSprites": ["tile.boardwalk", "tile.boardwalk"],
+      "publicVariantSprites": ["tile.boardwalk", "tile.boardwalk-b"],
       "paletteRamp": ["#5b3427", "#85523a", "#b57950"],
       "densityBand": "structured-medium",
       "seamMode": "coordinate-phase",
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 60,
-      "selectionSalt": "boardwalk-v1"
+      "selectionSalt": "boardwalk-v2"
     },
     {
       "id": "dark-asphalt",
@@ -71,14 +71,14 @@
       "id": "plaza-paver",
       "publicBaseSprite": "tile.plaza-paver",
       "logicalVariants": ["plaza-paver-a", "plaza-paver-b"],
-      "publicVariantSprites": ["tile.plaza-paver", "tile.plaza-paver"],
+      "publicVariantSprites": ["tile.plaza-paver", "tile.plaza-paver-b"],
       "paletteRamp": ["#725b4c", "#957664", "#b8957c"],
       "densityBand": "structured-medium",
       "seamMode": "coordinate-phase",
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 80,
-      "selectionSalt": "plaza-paver-v1"
+      "selectionSalt": "plaza-paver-v2"
     },
     {
       "id": "shallow-water",
@@ -109,15 +109,15 @@
     {
       "id": "villa-floor",
       "publicBaseSprite": "tile.villa-floor",
-      "logicalVariants": ["villa-floor-a", "villa-floor-b"],
-      "publicVariantSprites": ["tile.villa-floor", "tile.villa-floor-b"],
+      "logicalVariants": ["villa-floor-a", "villa-floor-b", "villa-floor-c", "villa-floor-d"],
+      "publicVariantSprites": ["tile.villa-floor", "tile.villa-floor-b", "tile.villa-floor-c", "tile.villa-floor-d"],
       "paletteRamp": ["#714833", "#9d6947", "#c79264"],
       "densityBand": "structured-medium",
       "seamMode": "coordinate-phase",
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 75,
-      "selectionSalt": "villa-floor-v1"
+      "selectionSalt": "villa-floor-v2"
     },
     {
       "id": "warm-sand",
@@ -130,7 +130,7 @@
       "edgeMode": "soft",
       "decalFamily": "sand-traces",
       "transitionPriority": 40,
-      "selectionSalt": "warm-sand-v1"
+      "selectionSalt": "warm-sand-v2"
     }
   ]
 }

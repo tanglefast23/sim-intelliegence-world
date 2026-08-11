@@ -21,6 +21,7 @@ const outputRoot = resolveEvidenceOutputRoot(argumentsValue, {
   allowedRootPrefixes: [
     'artifacts/phase-24/art-quality/phase-28-prototype',
     'artifacts/phase-24/art-quality/phase-29-full-cast',
+    'artifacts/phase-24/art-quality/phase-30-sunward',
   ],
 });
 mkdirSync(outputRoot, { recursive: true });
