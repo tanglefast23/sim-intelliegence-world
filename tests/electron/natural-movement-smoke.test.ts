@@ -6,7 +6,10 @@ import { PNG } from 'pngjs';
 
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { buildDeterministicMovementTrace } from '../../src/render/movement-evidence';
-import { validateNaturalMovementReport } from '../../scripts/electron/natural-movement-report';
+import {
+  evaluateNaturalMovementRendererFps,
+  validateNaturalMovementReport,
+} from '../../scripts/electron/natural-movement-report';
 
 function screenshot(path: string, fill: number): void {
   const png = new PNG({ width: 640, height: 360 });
@@ -72,7 +75,7 @@ describe('natural-movement packaged evidence', () => {
         displayRafFps: 60,
       };
       const report = {
-        schemaVersion: 1,
+        schemaVersion: 2,
         testedCommit: 'a'.repeat(40),
         evidenceSource: { baseCommit: 'a'.repeat(40), sourceSha256: 'b'.repeat(64), sourcePaths: ['source.ts'] },
         traceDeterministic: true,
@@ -88,15 +91,24 @@ describe('natural-movement packaged evidence', () => {
             screenshotNames: ['reduced.png'],
           },
         },
+        rendererFpsEvidence: {
+          measuredFps: 54,
+          profile: 'qualification',
+          thresholdFps: 55,
+          thresholdPassed: false,
+          thresholdRequired: true,
+        },
       };
       expect(() => validateNaturalMovementReport(report, root))
         .toThrow('below 55');
+      const qualifyingEvidence = evaluateNaturalMovementRendererFps(55, 'qualification');
       expect(() => validateNaturalMovementReport({
         ...report,
         package: {
           ...report.package,
           standard: { ...report.package.standard, rendererFps: 55 },
         },
+        rendererFpsEvidence: qualifyingEvidence,
       }, root))
         .not.toThrow();
       expect(() => validateNaturalMovementReport({
@@ -109,7 +121,30 @@ describe('natural-movement packaged evidence', () => {
             samples: report.package.reduced.samples.map(({ evidenceTag: _evidenceTag, ...sample }) => sample),
           },
         },
+        rendererFpsEvidence: qualifyingEvidence,
       }, root)).toThrow('Reduced-motion movement summary does not match');
+      const platformShellReport = {
+        ...report,
+        rendererFpsEvidence: evaluateNaturalMovementRendererFps(23.96, 'platform-shell'),
+        package: {
+          ...report.package,
+          standard: { ...report.package.standard, rendererFps: 23.96 },
+        },
+      };
+      expect(() => validateNaturalMovementReport(platformShellReport, root, {
+        requiredProfile: 'platform-shell',
+      })).not.toThrow();
+      expect(() => validateNaturalMovementReport(platformShellReport, root, {
+        requiredProfile: 'qualification',
+      })).toThrow('does not match required profile');
+      expect(() => validateNaturalMovementReport({
+        ...platformShellReport,
+        rendererFpsEvidence: {
+          ...platformShellReport.rendererFpsEvidence,
+          thresholdPassed: true,
+        },
+      }, root)).toThrow('does not match the measured package result');
+      expect(() => evaluateNaturalMovementRendererFps(60, 'weakened')).toThrow();
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

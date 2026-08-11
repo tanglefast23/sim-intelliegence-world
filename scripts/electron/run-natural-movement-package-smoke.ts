@@ -10,6 +10,7 @@ import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { findPackagedExecutable } from './package-smoke-utils';
 import {
+  evaluateNaturalMovementRendererFps,
   validateNaturalMovementReport,
   type NaturalMovementReport,
 } from './natural-movement-report';
@@ -115,7 +116,7 @@ async function main(): Promise<void> {
     'src/world/pathfinding/movement.ts',
   ]);
   const report: NaturalMovementReport = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     testedCommit: resolveTestedCommit(),
     evidenceSource: { ...evidenceSource, sourcePaths: [...evidenceSource.sourcePaths] },
     traceDeterministic: true,
@@ -124,9 +125,14 @@ async function main(): Promise<void> {
       standard: standard as NaturalMovementReport['package']['standard'],
       reduced: reduced as NaturalMovementReport['package']['reduced'],
     },
+    rendererFpsEvidence: evaluateNaturalMovementRendererFps(
+      (standard as NaturalMovementReport['package']['standard']).rendererFps,
+      profile,
+    ),
   };
   validateNaturalMovementReport(report, evidenceRoot, {
     validateScreenshots: true,
+    requiredProfile: profile,
   });
   const reportPath = join(evidenceRoot, 'natural-movement-report.json');
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });

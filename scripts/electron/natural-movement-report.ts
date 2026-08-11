@@ -37,8 +37,17 @@ const PackagePassSchema = z.object({
   screenshotNames: z.array(z.string().min(1)).min(1),
 }).strict();
 
+const NaturalMovementSmokeProfileSchema = z.enum(['qualification', 'platform-shell']);
+const NaturalMovementFpsEvidenceSchema = z.object({
+  measuredFps: z.number().positive(),
+  profile: NaturalMovementSmokeProfileSchema,
+  thresholdFps: z.literal(55),
+  thresholdPassed: z.boolean(),
+  thresholdRequired: z.boolean(),
+}).strict();
+
 export const NaturalMovementReportSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   testedCommit: z.string().regex(/^[a-f0-9]{40}$/u),
   evidenceSource: z.object({
     baseCommit: z.string().regex(/^[a-f0-9]{40}$/u),
@@ -48,14 +57,36 @@ export const NaturalMovementReportSchema = z.object({
   traceDeterministic: z.literal(true),
   trace: DeterministicMovementTraceSchema,
   package: z.object({ standard: PackagePassSchema, reduced: PackagePassSchema }).strict(),
+  rendererFpsEvidence: NaturalMovementFpsEvidenceSchema,
 }).strict();
 
 export type NaturalMovementReport = z.infer<typeof NaturalMovementReportSchema>;
 
+export function evaluateNaturalMovementRendererFps(
+  value: unknown,
+  requestedProfile: unknown,
+): NaturalMovementReport['rendererFpsEvidence'] {
+  const profile = NaturalMovementSmokeProfileSchema.parse(requestedProfile);
+  const measuredFps = Number(value);
+  if (!Number.isFinite(measuredFps) || measuredFps <= 0) {
+    throw new Error(`Natural-movement renderer FPS measurement is invalid: ${String(value)}.`);
+  }
+  const thresholdFps = 55 as const;
+  const thresholdPassed = measuredFps >= thresholdFps;
+  const thresholdRequired = profile === 'qualification';
+  if (thresholdRequired && !thresholdPassed) {
+    throw new Error(`Natural-movement packaged renderer FPS is below 55: ${String(value)}.`);
+  }
+  return { measuredFps, profile, thresholdFps, thresholdPassed, thresholdRequired };
+}
+
 export function validateNaturalMovementReport(
   candidate: unknown,
   evidenceRoot: string,
-  options: Readonly<{ validateScreenshots?: boolean }> = {},
+  options: Readonly<{
+    validateScreenshots?: boolean;
+    requiredProfile?: NaturalMovementReport['rendererFpsEvidence']['profile'];
+  }> = {},
 ): NaturalMovementReport {
   const report = NaturalMovementReportSchema.parse(candidate);
   const { trace, package: packaged } = report;
@@ -121,8 +152,17 @@ export function validateNaturalMovementReport(
     JSON.stringify(packaged.reduced.playerWalkFrames) !== JSON.stringify(reducedSummary.playerFrames) ||
     JSON.stringify(packaged.reduced.npcWalkFrames) !== JSON.stringify(reducedSummary.npcFrames)
   ) throw new Error('Reduced-motion movement summary does not match its recorded samples.');
-  if ((packaged.standard.rendererFps ?? 0) < 55) {
-    throw new Error(`Natural-movement packaged renderer FPS is below 55: ${String(packaged.standard.rendererFps)}.`);
+  const rendererFpsEvidence = evaluateNaturalMovementRendererFps(
+    packaged.standard.rendererFps,
+    report.rendererFpsEvidence.profile,
+  );
+  if (options.requiredProfile && rendererFpsEvidence.profile !== options.requiredProfile) {
+    throw new Error(
+      `Natural-movement report profile ${rendererFpsEvidence.profile} does not match required profile ${options.requiredProfile}.`,
+    );
+  }
+  if (JSON.stringify(report.rendererFpsEvidence) !== JSON.stringify(rendererFpsEvidence)) {
+    throw new Error('Natural-movement renderer FPS evidence does not match the measured package result.');
   }
   if (options.validateScreenshots !== false) {
     const names = [...packaged.standard.screenshotNames, ...packaged.reduced.screenshotNames];

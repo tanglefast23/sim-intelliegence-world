@@ -61,6 +61,14 @@ The first post-CI Grok audit confirmed those repairs and found one medium eviden
 
 The correction-only Grok audit returned `NO_CONFIRMED_FINDINGS`. The raw movement report exceeded the audit wrapper's 256 KiB per-file limit, so Grok reviewed the capture source, validator, and regression test. Codex separately schema-validated the complete generated report and confirmed standard interruption true from a tagged sample and reduced interruption false with zero tags.
 
+## Intel macOS platform-shell correction audit
+
+The next hosted run passed Linux and Windows, but the Intel macOS runner measured `23.96 FPS` and failed the movement report's unconditional `55 FPS` rule. The natural-movement specification applies that floor to the Phase 22 maximum-load qualification scene. The cross-platform specification requires hosted shells to record FPS without replacing local qualification.
+
+The report schema is now version 2 and records an explicit `qualification` or `platform-shell` FPS profile. Validation recomputes the threshold result from the packaged measurement, rejects unknown profiles and forged threshold fields, and lets a caller require the expected profile. A qualification report still fails below `55 FPS`; a platform-shell report records the same failure without claiming qualification.
+
+Grok audited the correction against the movement specification, cross-platform specification, CI workflow, source, and regression tests. Verdict: `NO_CONFIRMED_FINDINGS`. The audit used source and schema-validated summaries rather than the oversized raw sample dump.
+
 ## Verified packaged results
 
 - Source commit: `5dbe506956562a9e2720360df32177c33cee31bc`
