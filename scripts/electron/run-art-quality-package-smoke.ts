@@ -23,6 +23,7 @@ const outputRoot = resolveEvidenceOutputRoot(argumentsValue, {
     'artifacts/phase-24/art-quality/phase-29-full-cast',
     'artifacts/phase-24/art-quality/phase-30-sunward',
     'artifacts/phase-24/art-quality/phase-31-tier-b',
+    'artifacts/phase-24/art-quality/phase-32-final',
   ],
 });
 mkdirSync(outputRoot, { recursive: true });
