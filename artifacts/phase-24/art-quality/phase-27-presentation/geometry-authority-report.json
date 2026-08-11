@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "45d7b3916fe56e768df8e92d9670f4fc184b5d58",
+  "comparison": {
+    "legacyGeometryAuthority": "compiled-v2",
+    "enhancedGeometryAuthority": "compiled-v2",
+    "identical": true
+  },
+  "maps": [
+    {
+      "mapId": "northwest_residential",
+      "authoritySha256": "ff6bd75184862985965a1e1f4e55a5075a8271681705b512135b3e25eb38c2cd",
+      "presentationHash": "ee1361cd",
+      "groundCells": 3072,
+      "transitionCells": 384,
+      "decalCells": 0,
+      "roofCells": 324
+    },
+    {
+      "mapId": "northeast_downtown",
+      "authoritySha256": "24dd141bc7baea6381fa0588bc72d7ea7f8fd3aa01daf3f659a1da8cc2200318",
+      "presentationHash": "b9dc695b",
+      "groundCells": 3072,
+      "transitionCells": 586,
+      "decalCells": 0,
+      "roofCells": 0
+    },
+    {
+      "mapId": "southwest_commercial",
+      "authoritySha256": "45ed2437f5c77d15c7e92429bba54a366001df6be56ed3bdee4c7dc4926f4a76",
+      "presentationHash": "724c0463",
+      "groundCells": 3072,
+      "transitionCells": 558,
+      "decalCells": 0,
+      "roofCells": 0
+    },
+    {
+      "mapId": "southeast_docks",
+      "authoritySha256": "8c3b89d1807c4622184ad1c8d2e8da091b852072757d3f66f55ec159e83f6ef1",
+      "presentationHash": "2010a5ef",
+      "groundCells": 3072,
+      "transitionCells": 554,
+      "decalCells": 0,
+      "roofCells": 0
+    }
+  ]
+}
