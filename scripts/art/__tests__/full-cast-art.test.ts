@@ -5,6 +5,8 @@ import {
   composePortrait,
   drawTokenCommands,
   emptyTokenFrame,
+  getCharacterGeometryCommandSets,
+  getCharacterIdentityCommandSets,
   loadCharacterSources,
   type CharacterSource,
   type DrawCommand,
@@ -13,11 +15,8 @@ import {
 import { composeLateralFrame } from '../lateral-legs';
 import { parseHexColor } from '../png';
 import { deriveRearFrame } from '../rear-frame';
-
-const EXPECTED_IDS = [
-  'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
-  'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
-] as const;
+import { CHARACTER_LOOKS } from '../character-look-roster';
+import type { SecondaryFeature } from '../character-look-roster';
 
 function alphaSignature(commands: readonly DrawCommand[]): string {
   return JSON.stringify(commands.map((command) => command.kind === 'rect'
@@ -49,6 +48,17 @@ function layerFrame(commands: readonly DrawCommand[]): TokenFrame {
   return frame;
 }
 
+function commandFrame(commands: readonly DrawCommand[], width: number, height: number): TokenFrame {
+  const frame = emptyTokenFrame(width, height);
+  drawTokenCommands(frame, commands);
+  return frame;
+}
+
+function paintedWidth(row: string): number {
+  const columns = [...row].flatMap((token, x) => token === '.' ? [] : [x]);
+  return columns.length === 0 ? 0 : Math.max(...columns) - Math.min(...columns) + 1;
+}
+
 function luminance(hex: string): number {
   const [red, green, blue] = parseHexColor(hex);
   return red * 0.2126 + green * 0.7152 + blue * 0.0722;
@@ -58,26 +68,160 @@ function commandTokens(commands: readonly DrawCommand[]): Set<string> {
   return new Set(commands.map(({ token }) => token));
 }
 
-describe('Phase 29 full-cast character art', () => {
-  const sources = loadCharacterSources();
+function paintedRuns(row: string): number {
+  let runs = 0;
+  let painting = false;
+  for (const token of row) {
+    if (token !== '.' && !painting) runs += 1;
+    painting = token !== '.';
+  }
+  return runs;
+}
 
-  test('keeps exactly ten authoritative character sources', () => {
-    expect(sources.map(({ id }) => id)).toEqual(EXPECTED_IDS);
+describe('full-cast shared-source character art', () => {
+  const sources = loadCharacterSources();
+  const namedSources = sources.filter(({ kind }) => kind === 'named');
+
+  test('keeps one authoritative source for all thirty-five production people', () => {
+    expect(sources.map(({ id }) => id)).toEqual(CHARACTER_LOOKS.map(({ id }) => id).sort());
+    expect(sources).toHaveLength(35);
+    expect(namedSources).toHaveLength(9);
+    expect(new Set(sources.map(({ signatureOddity }) => signatureOddity.id)).size).toBe(35);
   });
 
-  test('gives every pair two non-color layer differences and three torso silhouettes', () => {
-    for (let left = 0; left < sources.length; left += 1) {
-      for (let right = left + 1; right < sources.length; right += 1) {
-        const leftSignatures = layerSignatures(sources[left] as CharacterSource);
-        const rightSignatures = layerSignatures(sources[right] as CharacterSource);
+  test('keeps the accepted protagonist eyes and Linda dress in production art', () => {
+    const protagonistLook = CHARACTER_LOOKS.find(({ id }) => id === 'protagonist')!;
+    const protagonist = sources.find(({ id }) => id === 'protagonist')!;
+    expect(protagonistLook.hairColor).toBe('ink');
+    expect('eyes' in protagonistLook ? protagonistLook.eyes : undefined).toBe('angled-small');
+    expect(protagonist.palette.H).toBe('#16121f');
+    const portrait = composePortrait(protagonist, 'rest');
+    for (const [x, y] of [[8, 8], [9, 9], [15, 8], [14, 9]] as const) {
+      expect(portrait[y]?.[x]).toBe('K');
+    }
+
+    const lindaLook = CHARACTER_LOOKS.find(({ id }) => id === 'linda')!;
+    expect(lindaLook.secondary).toBe('flared-dress');
+    const lindaDress = commandFrame(
+      getCharacterIdentityCommandSets(lindaLook).secondaryWorld,
+      WORLD_CELL.width,
+      WORLD_CELL.height,
+    );
+    expect(paintedWidth(lindaDress[19] as string)).toBeLessThan(paintedWidth(lindaDress[25] as string));
+  });
+
+  test('codes two fixed visual features for every production person', () => {
+    const secondaryKeywords: Readonly<Record<SecondaryFeature, string>> = {
+      'tiny-waist-jacket': 'jacket',
+      'shoulder-recorder': 'recorder',
+      'long-scarf': 'scarf',
+      'flared-dress': 'dress',
+      'towel-sleeve': 'towel',
+      'clinic-pockets': 'pockets',
+      'luggage-strap': 'strap',
+      'cook-apron-ladle': 'ladle',
+      'asymmetric-sleeves': 'sleeve',
+      'permit-pouch': 'pouch',
+      'bow-tie': 'bow tie',
+      'rain-cape': 'cape',
+      'big-black-boots': 'boots',
+      'bright-cuff': 'cuff',
+      'guitar-case': 'guitar case',
+      'short-jacket': 'jacket',
+      'double-braids': 'braids',
+      'flared-coat': 'coat',
+      'opposite-ponytail': 'ponytail',
+      'split-tunic': 'tunic',
+      'round-vest-button': 'vest',
+      'side-fastened-jacket': 'jacket',
+      'tiny-waist-belt': 'belt',
+      'charm-bracelet': 'bracelet',
+      'half-cape': 'cape',
+      'suspenders': 'suspenders',
+      'pearl-necklace': 'necklace',
+      'star-cuff': 'cuff',
+      'large-necklace': 'necklace',
+      'thin-ponytail': 'ponytail',
+    };
+    for (const source of sources) {
+      const look = CHARACTER_LOOKS.find(({ id }) => id === source.id);
+      expect(look).toBeDefined();
+      expect(source.identityFeatures.map(({ id }) => id)).toEqual([look?.oddity, look?.secondary]);
+      if (!look) continue;
+      const features = getCharacterIdentityCommandSets(look);
+      for (const commands of [
+        features.primaryWorld,
+        features.secondaryWorld,
+        features.primaryPortrait,
+        features.secondaryPortrait,
+      ]) {
+        const height = commands === features.primaryPortrait || commands === features.secondaryPortrait
+          ? PORTRAIT_CELL.height
+          : WORLD_CELL.height;
+        expect(painted(commandFrame(commands, WORLD_CELL.width, height)).size).toBeGreaterThanOrEqual(4);
+      }
+      expect(alphaSignature(features.primaryWorld)).not.toEqual(alphaSignature(features.secondaryWorld));
+      expect(look.supportingFeature.toLowerCase()).toContain(secondaryKeywords[look.secondary]);
+      const secondaryLayer = look?.secondaryLayer;
+      expect(secondaryLayer).toBeDefined();
+      if (secondaryLayer) {
+        expect(source.sourceLayers[secondaryLayer]?.commands.length ?? 0).toBeGreaterThan(0);
+        expect(source.portraitLayers[secondaryLayer]?.commands.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  test('locks the HFM shoulder, arm, leg, and foot grammar for all thirty-five people', () => {
+    for (const look of CHARACTER_LOOKS) {
+      const source = sources.find(({ id }) => id === look.id)!;
+      const geometry = getCharacterGeometryCommandSets(look);
+      const portrait = commandFrame(geometry.portraitBody, PORTRAIT_CELL.width, PORTRAIT_CELL.height);
+      const shoulderWidths = [16, 17, 18, 19, 20].map((row) => paintedWidth(portrait[row] as string));
+      expect(shoulderWidths[0]).toBeLessThan(shoulderWidths[1] as number);
+      expect(shoulderWidths[1]).toBeLessThan(shoulderWidths[2] as number);
+      expect(shoulderWidths[2]).toBeLessThan(shoulderWidths[3] as number);
+      expect(shoulderWidths[4]).toBeGreaterThanOrEqual(16);
+
+      const worldBody = commandFrame(geometry.worldBody, WORLD_CELL.width, WORLD_CELL.height);
+      expect(new Set([16, 17, 18, 19, 20, 21, 22, 23, 24].map(
+        (row) => paintedWidth(worldBody[row] as string),
+      )).size).toBeGreaterThanOrEqual(2);
+      expect(worldBody.slice(20, 23).join('').split('').filter((token) => token === 'S' || token === 's').length)
+        .toBeGreaterThanOrEqual(8);
+
+      for (const frameCommands of geometry.legs.frontFrames) {
+        const legs = commandFrame(frameCommands, WORLD_CELL.width, WORLD_CELL.height);
+        expect(paintedRuns(legs[24] as string)).toBe(2);
+        expect(paintedRuns(legs[29] as string)).toBe(2);
+      }
+      const firstFront = composeFrontFrame(source, 0).slice(27).join('\n');
+      const secondFront = composeFrontFrame(source, 1).slice(27).join('\n');
+      expect(firstFront).not.toBe(secondFront);
+    }
+  });
+
+  test('gives every named pair two non-color layer differences and varied torso silhouettes', () => {
+    for (let left = 0; left < namedSources.length; left += 1) {
+      for (let right = left + 1; right < namedSources.length; right += 1) {
+        const leftSignatures = layerSignatures(namedSources[left] as CharacterSource);
+        const rightSignatures = layerSignatures(namedSources[right] as CharacterSource);
         const differences = Object.keys(leftSignatures).filter(
           (layer) => leftSignatures[layer] !== rightSignatures[layer],
         );
         expect(differences.length).toBeGreaterThanOrEqual(2);
       }
     }
-    expect(new Set(sources.map((source) => layerSignatures(source).torsoAndClothing)).size).toBeGreaterThanOrEqual(3);
+    expect(new Set(namedSources.map((source) => layerSignatures(source).torsoAndClothing)).size).toBeGreaterThanOrEqual(7);
   });
+
+  test.each(namedSources.map((source) => [source.id, source] as const))(
+    '%s generates distinct rest, joy, and upset portraits',
+    (_id, source) => {
+      expect(composePortrait(source, 'rest')).not.toEqual(composePortrait(source, 'joy'));
+      expect(composePortrait(source, 'rest')).not.toEqual(composePortrait(source, 'upset'));
+      expect(composePortrait(source, 'joy')).not.toEqual(composePortrait(source, 'upset'));
+    },
+  );
 
   test.each(sources.map((source) => [source.id, source] as const))(
     '%s documents identity features that survive every direction',
@@ -126,7 +270,7 @@ describe('Phase 29 full-cast character art', () => {
   );
 
   test.each(sources.map((source) => [source.id, source] as const))(
-    '%s keeps stride, margins, portrait contour room, and hair value separation',
+    '%s keeps HFM stride, feet, margins, portrait contour room, and hair value separation',
     (_id, source) => {
       const frontOne = composeFrontFrame(source, 0);
       const frontTwo = composeFrontFrame(source, 1);
@@ -143,10 +287,11 @@ describe('Phase 29 full-cast character art', () => {
       ]) {
         expect(painted(frame).size).toBeGreaterThan(40);
         expect([...frame[0] as string].every((token) => token === '.')).toBe(true);
-        expect([...frame[WORLD_CELL.height - 1] as string].every((token) => token === '.')).toBe(true);
+        expect(paintedRuns(frame[WORLD_CELL.height - 1] as string)).toBeGreaterThanOrEqual(2);
         expect(frame.every((row) => row[0] === '.' && row[WORLD_CELL.width - 1] === '.')).toBe(true);
       }
       const portrait = composePortrait(source);
+      expect(source.portraitCell).toEqual({ width: 24, height: 29 });
       expect(painted(portrait).size).toBeGreaterThan(200);
       expect([...portrait[0] as string].every((token) => token === '.')).toBe(true);
       expect(portrait.every((row) => row[0] === '.' && row[PORTRAIT_CELL.width - 1] === '.')).toBe(true);

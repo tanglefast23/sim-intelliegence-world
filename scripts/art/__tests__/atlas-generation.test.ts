@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revisionPixelHashes from '../../../assets/source/art/revision-5-pixel-hashes.json';
+import revisionPixelHashes from '../../../assets/source/art/revision-6-pixel-hashes.json';
 import { buildAtlas, validateAtlasArtifacts, writeAtlas } from '../build-world-atlas';
 import {
   composeFrontFrame,
@@ -66,9 +66,9 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.report).toEqual(second.report);
     expect(first.png[25]).toBe(6);
     expect(first.index.version).toBe(3);
-    expect(first.index.artRevision).toBe(5);
+    expect(first.index.artRevision).toBe(6);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
-    expect(Object.keys(first.index.sprites)).toHaveLength(263);
+    expect(Object.keys(first.index.sprites)).toHaveLength(506);
     expect(first.index.tiles).toHaveLength(173);
     expect(first.index.groundCells).toHaveLength(48);
     expect(first.index.transparentPartCells).toHaveLength(88);
@@ -76,7 +76,7 @@ describe('deterministic SI World atlas generation', () => {
     expect(createHash('sha256').update(first.png).digest('hex')).toBe(first.index.image.sha256);
     expect(first.index.publicSpriteIds).toEqual(Object.keys(first.index.sprites));
     expect(first.index.internalReviewSpriteIds).toEqual([]);
-    expect(first.report.forecast).toMatchObject({ rawRectangleArea: 714_744, width: 1024 });
+    expect(first.report.forecast).toMatchObject({ rawRectangleArea: 636_350, width: 1024 });
   });
 
   test('keeps all atlas cells inside the generated image', () => {
@@ -130,23 +130,17 @@ describe('deterministic SI World atlas generation', () => {
     );
   });
 
-  test('does not rewrite the ten authoritative character sources', () => {
-    const characterRoot = resolve(process.cwd(), 'assets/source/characters');
-    const before = Object.fromEntries(readdirSync(characterRoot).sort().map((name) => [
-      name,
-      createHash('sha256').update(readFileSync(resolve(characterRoot, name))).digest('hex'),
-    ]));
+  test('does not rewrite the authoritative compact character roster', () => {
+    const rosterPath = resolve(process.cwd(), 'scripts/art/character-look-roster.ts');
+    const before = createHash('sha256').update(readFileSync(rosterPath)).digest('hex');
     writeAtlas();
-    const after = Object.fromEntries(readdirSync(characterRoot).sort().map((name) => [
-      name,
-      createHash('sha256').update(readFileSync(resolve(characterRoot, name))).digest('hex'),
-    ]));
-    expect(Object.keys(after)).toHaveLength(10);
+    const after = createHash('sha256').update(readFileSync(rosterPath)).digest('hex');
     expect(after).toEqual(before);
   });
 
-  test('builds ten distinct identities from the six named source layers', () => {
+  test('builds thirty-five distinct identities from the shared source layers', () => {
     const sources = loadCharacterSources();
+    expect(sources).toHaveLength(35);
     expect(sources.map(({ id }) => id).sort()).toEqual([...CHARACTER_IDS].sort());
     const silhouettes = new Set(sources.map((source) => alphaMask(composeFrontFrame(source, 0))));
     expect(silhouettes.size).toBeGreaterThanOrEqual(7);
@@ -179,12 +173,15 @@ describe('deterministic SI World atlas generation', () => {
 
   test('uses front billboard bodies with authored lateral legs', () => {
     for (const source of loadCharacterSources()) {
-      const left = composeLateralFrame(source, 'left', 0);
-      const right = composeLateralFrame(source, 'right', 0);
-      expect(left.slice(0, 21)).toEqual(right.slice(0, 21));
-      expect(left.slice(21)).not.toEqual(right.slice(21));
-      expect(left.flatMap((row) => [...row]).filter((token) => token === 'W').length).toBeGreaterThan(5);
-      expect(right.flatMap((row) => [...row]).filter((token) => token === 'W').length).toBeGreaterThan(5);
+      const leftOne = composeLateralFrame(source, 'left', 0);
+      const leftTwo = composeLateralFrame(source, 'left', 1);
+      const rightOne = composeLateralFrame(source, 'right', 0);
+      const rightTwo = composeLateralFrame(source, 'right', 1);
+      expect(leftOne.slice(0, 24)).toEqual(rightOne.slice(0, 24));
+      expect(leftOne.slice(24)).not.toEqual(leftTwo.slice(24));
+      expect(rightOne.slice(24)).not.toEqual(rightTwo.slice(24));
+      expect(leftOne.slice(28).flatMap((row) => [...row]).filter((token) => token !== '.').length).toBeGreaterThan(5);
+      expect(rightOne.slice(28).flatMap((row) => [...row]).filter((token) => token !== '.').length).toBeGreaterThan(5);
     }
   });
 
@@ -198,7 +195,7 @@ describe('deterministic SI World atlas generation', () => {
     expect(aggregatePublicCellHash(bitmap, index.sprites, index.publicSpriteIds)).toBe(
       revisionPixelHashes.allPublicCellsAggregateSha256,
     );
-    expect(revisionPixelHashes.artRevision).toBe(5);
+    expect(revisionPixelHashes.artRevision).toBe(6);
     for (const tile of tiles) {
       const name = `tile.${tile.id}`;
       const expectedHash = revisionPixelHashes.cells[name as keyof typeof revisionPixelHashes.cells];

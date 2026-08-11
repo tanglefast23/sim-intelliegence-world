@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "productionAtlasChanged": false,
+  "worldCell": {
+    "width": 24,
+    "height": 30
+  },
+  "portraitCell": {
+    "width": 24,
+    "height": 29
+  },
+  "characters": [
+    {
+      "id": "protagonist",
+      "name": "PROTAGONIST",
+      "feature": "prize-forelock",
+      "outfit": "traveler"
+    },
+    {
+      "id": "linda",
+      "name": "LINDA",
+      "feature": "cloud-hair",
+      "outfit": "socialite"
+    },
+    {
+      "id": "devon-price",
+      "name": "DEVON PRICE",
+      "feature": "tower-flat-top",
+      "outfit": "night-jacket"
+    },
+    {
+      "id": "mina-park",
+      "name": "MINA PARK",
+      "feature": "spa-stone-bun",
+      "outfit": "spa-robe"
+    },
+    {
+      "id": "rafael-cruz",
+      "name": "RAFAEL CRUZ",
+      "feature": "curl-moustache",
+      "outfit": "cook"
+    }
+  ],
+  "reference": "/Users/joemacprom5/Documents/Vibecode/Hero_Football_Manager/art/superhero-homage-preview.png",
+  "files": [
+    "si-hfm-pilot-contact-sheet.png",
+    "si-hfm-pilot-native-1x.png",
+    "hfm-vs-si-pilot.png"
+  ]
+}
