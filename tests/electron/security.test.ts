@@ -314,6 +314,15 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('runs-on: windows-2025');
     expect(workflow).toContain('npm run package:windows:x64');
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
+    expect(workflow).toContain(
+      'node --import tsx scripts/electron/run-package-smoke.ts --output-root output/verification/ci/windows-x64/package',
+    );
+    expect(workflow).toContain(
+      'node --import tsx scripts/electron/run-natural-movement-package-smoke.ts --output-root output/verification/ci/windows-x64/natural-movement',
+    );
+    expect(workflow).not.toContain(
+      'npm run smoke:electron -- --output-root output/verification/ci/windows-x64/package',
+    );
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/package');
     expect(workflow).toContain('--output-root output/verification/ci/linux/natural-movement');
     expect(workflow).toContain('--output-root output/verification/ci/macos-x64/natural-movement');

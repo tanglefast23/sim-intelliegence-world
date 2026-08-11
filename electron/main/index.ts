@@ -602,35 +602,31 @@ async function waitForMovementSmokeState(
   throw new Error(`Natural-movement smoke state timed out. Last: ${JSON.stringify(last)}`);
 }
 
-async function collectFirstSegmentMovementStates(
-  window: BrowserWindow,
-  start: Readonly<{ x: number; y: number }>,
-): Promise<MovementSmokeState[]> {
-  return window.webContents.executeJavaScript(`new Promise((resolve, reject) => {
-    const samples = [];
-    const deadline = performance.now() + 2_000;
+async function startMovementSmokeSampling(window: BrowserWindow): Promise<void> {
+  await window.webContents.executeJavaScript(`(() => {
+    if (globalThis.__siWorldMovementSampler?.active) {
+      throw new Error('Natural-movement sampling is already active.');
+    }
+    const sampler = { active: true, samples: [] };
+    globalThis.__siWorldMovementSampler = sampler;
     const frame = () => {
-      try {
-        const label = document.querySelector('#world-movement-state')?.getAttribute('aria-label') ?? '';
-        if (!label) throw new Error('Natural-movement state is missing during first-segment sampling.');
-        const state = JSON.parse(label);
-        samples.push(state);
-        const committed = state.player?.committed;
-        if (committed?.x !== ${start.x} || committed?.y !== ${start.y}) {
-          resolve(samples);
-          return;
-        }
-        if (performance.now() >= deadline) {
-          reject(new Error('First natural-movement segment did not commit before its deadline.'));
-          return;
-        }
-        requestAnimationFrame(frame);
-      } catch (error) {
-        reject(error);
-      }
+      if (!sampler.active) return;
+      const label = document.querySelector('#world-movement-state')?.getAttribute('aria-label') ?? '';
+      if (label && sampler.samples.length < 900) sampler.samples.push(JSON.parse(label));
+      requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
-  })`, true) as Promise<MovementSmokeState[]>;
+  })()`, true);
+}
+
+async function stopMovementSmokeSampling(window: BrowserWindow): Promise<MovementSmokeState[]> {
+  return window.webContents.executeJavaScript(`(() => {
+    const sampler = globalThis.__siWorldMovementSampler;
+    if (!sampler) throw new Error('Natural-movement sampling was not started.');
+    sampler.active = false;
+    delete globalThis.__siWorldMovementSampler;
+    return sampler.samples;
+  })()`, true) as Promise<MovementSmokeState[]>;
 }
 
 async function captureMovementPass(
@@ -645,6 +641,7 @@ async function captureMovementPass(
 
   const start = { x: 18, y: 18 };
   const target = { x: 22, y: 22 };
+  await startMovementSmokeSampling(window);
   await clickWorldTile(window, target);
   const samples: MovementSmokeSample[] = [];
   const screenshotNames: string[] = [];
@@ -653,29 +650,11 @@ async function captureMovementPass(
   const playerWalkFrames = new Set<0 | 1>();
   const npcWalkFrames = new Set<0 | 1>();
   let curveObserved = false;
-  const firstSegmentSamples = await collectFirstSegmentMovementStates(window, start);
-  for (const sample of firstSegmentSamples) {
-    samples.push(sample);
-    playerWalkFrames.add(sample.player.walkFrame);
-    for (const npc of Object.values(sample.npcs)) {
-      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
-    }
-    curveObserved ||= sample.player.curveActive;
-    if (sample.player.committed.x === start.x && sample.player.committed.y === start.y) {
-      firstSegmentPositions.add(`${sample.player.visualFoot.x},${sample.player.visualFoot.y}`);
-    }
-  }
 
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
     await waitForRendererPaint(window);
     const sample = await movementSmokeState(window);
-    samples.push(sample);
-    playerWalkFrames.add(sample.player.walkFrame);
-    for (const npc of Object.values(sample.npcs)) {
-      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
-    }
-    curveObserved ||= sample.player.curveActive;
     if (sample.player.status === 'moving' && screenshotNames.length < (mode === 'standard' ? 4 : 1)) {
       const name = `${mode}-1x-frame-${String(screenshotNames.length + 1).padStart(2, '0')}.png`;
       screenshotBuffers.push(await captureDistinctSmokeScreenshot(
@@ -689,8 +668,21 @@ async function captureMovementPass(
     const atTarget = sample.player.committed.x === target.x && sample.player.committed.y === target.y;
     if (atTarget && sample.player.status === 'idle') break;
   }
-  if (samples.at(-1)?.player.committed.x !== target.x || samples.at(-1)?.player.committed.y !== target.y) {
+  const lastRouteSample = await movementSmokeState(window);
+  if (lastRouteSample.player.committed.x !== target.x || lastRouteSample.player.committed.y !== target.y) {
     throw new Error('Natural-movement package pass did not reach the diagonal target.');
+  }
+  const routeSamples = await stopMovementSmokeSampling(window);
+  for (const sample of routeSamples) {
+    samples.push(sample);
+    playerWalkFrames.add(sample.player.walkFrame);
+    for (const npc of Object.values(sample.npcs)) {
+      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
+    }
+    curveObserved ||= sample.player.curveActive;
+    if (sample.player.committed.x === start.x && sample.player.committed.y === start.y) {
+      firstSegmentPositions.add(`${sample.player.visualFoot.x},${sample.player.visualFoot.y}`);
+    }
   }
 
   let interruptionObserved = mode === 'reduced';

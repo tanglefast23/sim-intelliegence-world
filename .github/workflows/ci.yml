@@ -163,20 +163,20 @@ jobs:
       - name: Smoke Windows x64 shell without model qualification claims
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:electron -- --output-root output/verification/ci/windows-x64/package
+        run: node --import tsx scripts/electron/run-package-smoke.ts --output-root output/verification/ci/windows-x64/package
 
       - name: Verify Windows natural movement
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:natural-movement -- --output-root output/verification/ci/windows-x64/natural-movement
+        run: node --import tsx scripts/electron/run-natural-movement-package-smoke.ts --output-root output/verification/ci/windows-x64/natural-movement
 
       - name: Verify Windows x64 responsive matrix
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:responsive -- --output-root output/verification/ci/windows-x64/responsive
+        run: node --import tsx scripts/electron/run-responsive-package-smoke.ts --output-root output/verification/ci/windows-x64/responsive
 
       - name: Verify Windows x64 presentation restart
-        run: npm run smoke:presentation-restart -- --output-root output/verification/ci/windows-x64/presentation-restart
+        run: node --import tsx scripts/electron/run-presentation-restart-package-smoke.ts --output-root output/verification/ci/windows-x64/presentation-restart
 
       - name: Verify Windows x64 v5 save migration and reload
-        run: npm run smoke:save-migration -- --output-root output/verification/ci/windows-x64/save-migration
+        run: node --import tsx scripts/electron/run-save-migration-package-smoke.ts --output-root output/verification/ci/windows-x64/save-migration
