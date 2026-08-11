@@ -276,6 +276,7 @@ Do not add internal sprite IDs to map JSON, state schemas, save fixtures, or dom
 13. Prove the presentation compiler cannot change `blockedKeys`, `staticSolidOwnerByTile`, doors, approaches, routes, density, layout revisions, save data, reservations, or the simulation PRNG state.
 14. Add a smoke-only switch that renders the legacy baseline path and the enhanced presentation path in the same package. It is unavailable in normal gameplay.
 15. Run the Phase 22 maximum-load camera against both modes with identical package, machine, camera, window, DPR, and zoom inputs.
+16. Extend the packaged performance runner with explicit `--compare-art-modes` and `--include-maximum-load` flags. Its validator requires both mode records, matching inputs, FPS, median frame time, draw counts, package provenance, and the tested source commit.
 
 ### 8.4 Tests first
 
@@ -312,12 +313,12 @@ npm run export:web
 npm run package:electron
 npm run smoke:electron -- --output-root artifacts/phase-24/art-quality/phase-27-presentation/world
 npm run smoke:presentation-restart -- --output-root artifacts/phase-24/art-quality/phase-27-presentation/restart
-npm run smoke:responsive:qualification -- --output-root artifacts/phase-24/art-quality/phase-27-presentation/performance
+npm run smoke:responsive:qualification -- --compare-art-modes --include-maximum-load --output-root artifacts/phase-24/art-quality/phase-27-presentation/performance
 ```
 
 ### 8.6 Stop and rollback
 
-Do not start visual authoring if any geometry hash changes, a presentation hash is unstable, batching exceeds the final-spec limit, the enhanced path falls below `60 FPS`, or median frame time regresses by more than `10%` against the same-package baseline. A failed material or transition recipe must fall back to its public base cell and still report a qualification failure.
+Do not start visual authoring if the dual-mode maximum-load report is absent or invalid, any geometry hash changes, a presentation hash is unstable, batching exceeds the final-spec limit, the enhanced path falls below `60 FPS`, or median frame time regresses by more than `10%` against the same-package baseline. A failed material or transition recipe must fall back to its public base cell and still report a qualification failure.
 
 ## 9. Phase 28: hard Sunward prototype
 
