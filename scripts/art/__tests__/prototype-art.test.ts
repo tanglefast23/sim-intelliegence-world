@@ -84,7 +84,7 @@ describe('Phase 28 hard Sunward prototype art', () => {
     }
   });
 
-  test('keeps eight reachable 24x30 cells, foot exchange, contour growth, and a 40x44 portrait per character', () => {
+  test('keeps eight reachable 24x30 cells, foot exchange, contour growth, and a 24x29 portrait per character', () => {
     const built = buildAtlas();
     const atlas = decodePng(built.png);
     const sources = new Map(loadCharacterSources().map((source) => [source.id, source]));
@@ -109,8 +109,8 @@ describe('Phase 28 hard Sunward prototype art', () => {
         expect(lowerAlphaSignature(first, 24, 30)).not.toBe(lowerAlphaSignature(second, 24, 30));
       }
       expect(built.index.sprites[`portrait.${characterId}`]).toMatchObject({
-        width: 40,
-        height: 44,
+        width: 24,
+        height: 29,
         visibility: 'public',
       });
     }

@@ -38,7 +38,7 @@ The current runtime architecture is suitable. The current source art is the limi
 - Each major ground material repeats one cell across large rectangular regions.
 - Ground regions identify one sprite. They have no visual-variant or material-transition contract.
 - Roofs use the boardwalk cell with a hard-coded color overlay instead of an authored roof material.
-- The current ten world-character sources use the same small command grammar. Several named residents are generated from one generic body with limited shape changes.
+- The superseded Phase 29 sources used ten small command records and sent all ambient residents through one generic body. Revision 5 replaces them with 35 compact shared look records.
 - Existing tests prove dimensions, bounds, reachability, and deterministic output. They do not prove material quality, repetition control, character identity, or scene hierarchy.
 
 The Phase 15 measurement remains authoritative: character-to-tile scale is already suitable. Enlarging characters does not fix repeated ground, weak materials, sparse local detail, or generic buildings.
@@ -344,6 +344,7 @@ Fountain, ferry, major signs, and civic fixtures use multi-tile composition, one
 
 One character source remains authoritative for both world cells and portrait. It owns:
 
+- stable look ID;
 - skin ramp;
 - face shape;
 - eye and brow set;
@@ -356,11 +357,17 @@ One character source remains authoritative for both world cells and portrait. It
 - body build or stance;
 - front legs and lateral leg shapes.
 
-World cells and portraits can use different detail levels, but they cannot disagree about hair shape, skin value, key facial feature, primary outfit, or accessory.
+World cells and portraits can use different detail levels, but they cannot disagree about head shape, hair shape, skin value, key facial feature, body build, primary outfit, or accessory. The build generates both forms from the same record. An independently designed portrait or world sprite is invalid.
 
 ### 10.2 Silhouette and identity
 
-- The ten current character visuals include at least three clear torso or body silhouettes.
+- Character art uses original expressive oddball chibi pixel art with hard logical pixels, upper-left light, and no gradients or anti-aliasing.
+- Every person has one special, unique, and slightly goofy signature oddity plus one coded supporting feature. Both read in the portrait or at native world `1×`.
+- A signature oddity can be a face, hair, facial-hair, clothing, accessory, posture, body-shape, or body-part-size choice.
+- The fictional setting permits stronger clothing and body exaggeration than HFM. A character is not limited to a uniform or to facial differences.
+- One main feature and one supporting hat, jewelry item, scarf, dress, cape, unusual sleeve, large boot shape, carried case, tool, bag, or body proportion carry the joke and the identity. Color alone does not count. Do not fill the sprite with unrelated noise.
+- The signature oddity must fit the person's role, habits, history, or attitude. Do not use a cruel stereotype.
+- The current character visuals include at least three clear torso or body silhouettes.
 - Each named character differs from every other named character by at least two non-color features at `1×`.
 - Valid features include head shape, hair silhouette, facial-hair silhouette, glasses, hat, accessory, torso width, outfit shape, or held-item silhouette.
 - Hair color alone does not count.
@@ -370,10 +377,14 @@ World cells and portraits can use different detail levels, but they cannot disag
 - Every named character has at least one non-color feature that survives front, rear, and lateral generation, such as body width, outfit silhouette, hat, hair mass, or back accessory.
 - A second feature can be front-specific, but it cannot be the only reason two named characters differ.
 - Rear generation preserves the declared hair, hat, outfit, and back-accessory silhouette. Lateral composition preserves the declared head, hair, eyewear, hat, torso, and held-item silhouette when that item is visible from the side.
+- The protagonist and each named person use one authored look record.
+- Each ambient resident receives a stable look ID from the stable person ID and an authored component pool. Collision resolution prevents duplicate complete looks in the active population.
+- `generic-resident` identifies the single prototype resident and can remain the unknown-ID development fallback. It is not assigned to other production ambient residents.
 
 ### 10.3 Rendering rules
 
 - Keep the `24×30` cell and eight final world cells.
+- Use HFM's cut-corner face box, fixed expression rows, stepped shoulders, arm and hand columns, two narrow legs, and shaped feet. Do not create a separate rectangular body system.
 - Keep two front leg frames and two lateral leg shapes.
 - Keep generated rear cells and composed lateral cells.
 - Add a generated one-pixel outward contour into transparent pixels after layer composition. The contour never replaces a source fill pixel or changes body geometry.
@@ -387,7 +398,9 @@ World cells and portraits can use different detail levels, but they cannot disag
 
 ### 10.4 Portraits
 
-Portraits remain `40×44`. They can show more face, hair, clothing, and expression detail than world cells. Portrait lighting and palette must match the world identity.
+Portraits use the HFM `24×29` cell. Portraits and world cells use the same head, eye, mouth, hair, and feature coordinates. A portrait can add small clothing or expression detail, but it cannot scale or replace the shared drawing. Portrait shoulders widen through the HFM neck and four shoulder steps before the lower bust. A solid rectangle that starts directly below the head is invalid. Portrait lighting and palette must match the world identity.
+
+Each new or rebuilt named source generates `rest`, `joy`, and `upset` portraits. Expression changes can edit eyes, brows, and mouth. They cannot change the signature oddity or the identity geometry. `rest` remains the default until the conversation UI selects expressions.
 
 The conversation panel tests the portrait against the current dark UI at every supported UI scale. Portrait quality cannot reduce transcript or input readability.
 
@@ -428,16 +441,16 @@ The full program uses this planning budget. Tile-cell area includes a one-pixel 
 
 | Category | Maximum count | Raw rectangle area |
 |---|---:|---:|
-| Ground base variants | 48 tile cells | `55,488 px` |
-| Ground transition cases | 160 tile cells | `184,960 px` |
-| Ground decals | 48 tile cells | `55,488 px` |
+| Ground base variants | 32 tile cells | `36,992 px` |
+| Ground transition cases | 64 tile cells | `73,984 px` |
+| Ground decals | 24 tile cells | `27,744 px` |
 | Walls and doors | 80 tile cells | `92,480 px` |
-| Roofs | 96 tile cells | `110,976 px` |
-| Objects and landmarks | 96 tile cells | `110,976 px` |
-| World-character cells | 80 `24×30` cells with gutters | `66,560 px` |
-| Portraits | 10 `40×44` cells with gutters | `19,320 px` |
+| Roofs | 32 tile cells | `36,992 px` |
+| Objects and landmarks | 48 tile cells | `55,488 px` |
+| World-character cells | 280 `24×30` cells with gutters | `232,960 px` |
+| Portraits | 53 `24×29` cells with gutters | `42,718 px` |
 | Effects and reserve | 16 tile cells | `18,496 px` |
-| **Total ceiling** |  | **`714,744 px`, about `68.2%` of `1024×1024`** |
+| **Total ceiling** |  | **`617,854 px`, about `58.9%` of `1024×1024`** |
 
 The build reports category count, raw rectangle area, final packed dimensions, packed bounding-rectangle area, atlas occupancy, and largest cells. The section 16 prototype creates dimension-correct placeholders for all remaining category allowances and runs them through the real stable packer. Broad authoring cannot start unless raw rectangle area stays at or below `70%`, projected packed bounding-rectangle area stays at or below `80%`, both projected dimensions stay at or below `1024`, and actual prototype cells also pack successfully. This reserves at least `20%` of the atlas after measured packing waste.
 
@@ -560,12 +573,16 @@ An automated distribution test supports this gate. A tracked native-`1×` visual
 ### 14.4 Character identity
 
 - The protagonist, Linda, and generic resident pass first at native `1×`.
+- Every production person has a documented signature oddity that is visible in the portrait and at native world `1×`.
+- No two production people have the same primary oddity or complete look.
 - All named character pairs differ by at least two documented non-color features.
-- At least three body or torso silhouettes exist across the ten current visual sources.
+- At least seven body or torso silhouettes exist across the 35 production visual sources.
 - Front, rear, left, and right cells show the same identity.
 - The direction matrix records which declared identity feature survives in each direction.
 - Both walk cells preserve readable foot exchange.
+- Each rebuilt named source has matching `rest`, `joy`, and `upset` portraits.
 - Portrait and world matrices match hair shape, skin value, key facial feature, primary outfit, and accessory.
+- Production ambient residents keep stable look IDs and do not all resolve to `generic-resident`.
 
 ### 14.5 Scene hierarchy
 
@@ -654,7 +671,7 @@ The first production proof uses the existing Sunward start composition and inclu
 - one generic resident;
 - one outfit each;
 - eight generated world cells each;
-- one `40×44` portrait each;
+- one `24×29` HFM-geometry portrait each;
 - warm sand, dune grass, villa floor, spa stone, shallow water, and one roof material;
 - one soft natural transition and one built transition;
 - villa wall and door art;

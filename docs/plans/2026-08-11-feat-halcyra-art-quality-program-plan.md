@@ -43,7 +43,7 @@ The repository already has:
 - one deterministic RGBA atlas;
 - batched Skia floor, prop, character, wall, roof, and effect layers;
 - `32x32` world tiles and `24x30` character cells;
-- eight generated walk cells and one `40x44` portrait per character;
+- eight generated walk cells and one `24x29` HFM-geometry portrait per character;
 - `145 ms` walk timing and the Phase 23 continuous movement proof;
 - four compiled `64x48` maps with one authority for solids, doors, approaches, roofs, routes, and density;
 - packaged responsive, restart, save, maximum-load, and natural-movement evidence.
@@ -70,7 +70,7 @@ Every phase preserves:
 - `32x32` world tiles;
 - `24x30` world-character cells;
 - exactly eight cells per character: two front, rear, left, and right frames;
-- one `40x44` portrait per current character;
+- one `24x29` HFM-geometry portrait per current character;
 - approximately `145 ms` per walk frame at world speed `1`;
 - discrete `1x`, `2x`, and `3x` world zoom;
 - nearest-neighbor sampling and integer final screen placement;
@@ -383,7 +383,7 @@ Phase 29 cannot start until all are true:
 1. Every prototype character, material, roof, wall, door, object, vegetation, and landmark family has its required section 14.1 art-bible entry.
 2. Warm sand, dune grass, villa floor, spa stone, and shallow water pass section 14.2 `12x12` boards, automated count checks, and native-`1x` review.
 3. The prototype soft and built transition families pass every section 14.3 topology case and junction, and the roof passes a base, edge, and corner board. Roof art does not use the terrain count band.
-4. The protagonist, Linda, and generic resident pass all section 14.4 identity, direction, foot, contour, portrait-match, and native-`1x` checks. Each has eight reachable `24x30` cells, a matching `40x44` portrait, and a readable conversation-panel fixture at UI scales `1`, `1.25`, and `1.5`.
+4. The protagonist, Linda, and generic resident pass all section 14.4 identity, direction, foot, contour, portrait-match, and native-`1x` checks. Each has eight reachable `24x30` cells, a matching `24x29` HFM-geometry portrait, and a readable conversation-panel fixture at UI scales `1`, `1.25`, and `1.5`.
 5. The fixed Sunward camera passes the section 14.5 six-question Tier A review: questions 1-3 and at least five of six total.
 6. The prototype door, wall, sofa, table, planter, palm, lamp, and landmark pass section 14.6 collision and depth checks. This includes open and fixture-only closed door states, room entrances, a portal with the new cells, player-in-front and player-behind frames for each tall-prop class, multi-tile seams, and the landmark depth anchor.
 7. The complete generated atlas passes every section 14.7 integrity check: identical bytes, public-ID reachability, bounds, extruded gutters, transparent-RGB hygiene, no bleed, matching versions and signature, `1024x1024` cap, decoded-memory cap, and no filtering at every supported zoom and DPR.

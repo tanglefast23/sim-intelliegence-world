@@ -18,7 +18,7 @@ describe('runtime atlas bill and movement contract', () => {
     const renderedNames = buildAtlasProofScene(0).sprites.map(({ sprite }) => sprite);
     expect(new Set(renderedNames)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
     expect(ATLAS_INDEX.version).toBe(3);
-    expect(ATLAS_INDEX.artRevision).toBe(5);
+    expect(ATLAS_INDEX.artRevision).toBe(6);
     expect(ATLAS_INDEX.publicSpriteIds).toEqual(Object.keys(ATLAS_INDEX.sprites));
     expect(ATLAS_INDEX.internalReviewSpriteIds).toEqual([]);
     expect(ATLAS_INDEX.tiles).toHaveLength(173);
@@ -43,7 +43,14 @@ describe('runtime atlas bill and movement contract', () => {
     for (const characterId of CHARACTER_IDS) {
       expect(Object.keys(ATLAS_INDEX.characters[characterId].frames)).toHaveLength(8);
       expect(ATLAS_INDEX.characters[characterId].portrait).toBe(`portrait.${characterId}`);
+      expect(ATLAS_INDEX.characters[characterId].portraits.rest).toBe(`portrait.${characterId}`);
     }
+    expect(ATLAS_INDEX.characters.protagonist.portraits).toEqual({
+      rest: 'portrait.protagonist',
+      joy: 'portrait.protagonist.joy',
+      upset: 'portrait.protagonist.upset',
+    });
+    expect(ATLAS_INDEX.characters['generic-resident'].portraits).toEqual({ rest: 'portrait.generic-resident' });
   });
 
   test('selects rear, front, left, and right pairs with no side-profile body', () => {

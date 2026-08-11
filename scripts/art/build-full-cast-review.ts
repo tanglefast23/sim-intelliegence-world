@@ -95,6 +95,7 @@ export type FullCastReviewReport = Readonly<{
   directions: typeof DIRECTIONS;
   files: readonly string[];
   identityFeatures: Readonly<Record<string, CharacterSource['identityFeatures']>>;
+  signatureOddities: Readonly<Record<string, CharacterSource['signatureOddity']>>;
   torsoSilhouetteCount: number;
   pairwiseMinimumNonColorDifferences: number;
   lateralThreeQuarterHeadRequired: false;
@@ -107,11 +108,11 @@ export function writeFullCastReview(outputRoot: string, root = process.cwd()): F
   const index = JSON.parse(readFileSync(resolve(generatedRoot, 'atlas-index.json'), 'utf8')) as AtlasIndex;
   const sources = loadCharacterSources(root);
   const rowHeight = 52;
-  const board = createBitmap(410, sources.length * rowHeight + 8, parseHexColor('#17151b'));
+  const board = createBitmap(510, sources.length * rowHeight + 8, parseHexColor('#17151b'));
 
   sources.forEach((source, row) => {
     const y = 6 + row * rowHeight;
-    fillRect(board, 4, y - 3, 402, rowHeight - 2, parseHexColor(row % 2 === 0 ? '#25232b' : '#e2d7bf'));
+    fillRect(board, 4, y - 3, 502, rowHeight - 2, parseHexColor(row % 2 === 0 ? '#25232b' : '#e2d7bf'));
     DIRECTIONS.forEach((direction, column) => {
       blit(sprite(atlas, index, `character.${source.id}.${direction}`), board, 8 + column * 28, y + 7);
     });
@@ -120,6 +121,9 @@ export function writeFullCastReview(outputRoot: string, root = process.cwd()): F
     blit(silhouette(front), board, 270, y + 7);
     blit(addOutwardContour(front, parseHexColor(source.palette.K as string), true), board, 302, y + 7);
     blit(sprite(atlas, index, `portrait.${source.id}`), board, 350, y);
+    const portraits = index.characters[source.id]?.portraits ?? {};
+    blit(sprite(atlas, index, portraits.joy ?? `portrait.${source.id}`), board, 397, y);
+    blit(sprite(atlas, index, portraits.upset ?? `portrait.${source.id}`), board, 444, y);
   });
 
   const files = ['full-cast-identity-1x.png', 'full-cast-identity-3x.png'] as const;
@@ -135,6 +139,7 @@ export function writeFullCastReview(outputRoot: string, root = process.cwd()): F
     directions: DIRECTIONS,
     files,
     identityFeatures: Object.freeze(Object.fromEntries(sources.map((source) => [source.id, source.identityFeatures]))),
+    signatureOddities: Object.freeze(Object.fromEntries(sources.map((source) => [source.id, source.signatureOddity]))),
     torsoSilhouetteCount: new Set(sources.map((source) => layerSignatures(source).torsoAndClothing)).size,
     pairwiseMinimumNonColorDifferences: pairwiseMinimumDifferences(sources),
     lateralThreeQuarterHeadRequired: false,

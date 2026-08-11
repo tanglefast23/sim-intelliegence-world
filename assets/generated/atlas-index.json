@@ -1,13 +1,13 @@
 {
   "version": 3,
-  "artRevision": 5,
-  "toolVersion": "atlas-v5-phase31",
+  "artRevision": 6,
+  "toolVersion": "atlas-v6-hfm-full-cast",
   "image": {
-    "width": 512,
-    "height": 582,
+    "width": 1024,
+    "height": 490,
     "colorType": "rgba",
     "gutter": 1,
-    "sha256": "383de3461c08997cbc46dce876ca1da59c8d919456036c1c4b7c15e77b31472b"
+    "sha256": "ce685b87d614a215a0d195d64fe58911ea6fe319c7b0ec7ddf7a5f5b5eb92fff"
   },
   "tileSize": 32,
   "worldCell": {
@@ -21,128 +21,8 @@
     3
   ],
   "sprites": {
-    "portrait.devon-price": {
-      "x": 1,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "devon-price",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.elise-moreau": {
-      "x": 43,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "elise-moreau",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.generic-resident": {
-      "x": 85,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "generic-resident",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.linda": {
-      "x": 127,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "linda",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.mina-park": {
-      "x": 169,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "mina-park",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.priya-nair": {
-      "x": 211,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "priya-nair",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.protagonist": {
-      "x": 253,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "protagonist",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.rafael-cruz": {
-      "x": 295,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "rafael-cruz",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.sora-tan": {
-      "x": 337,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "sora-tan",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
-    "portrait.tomas-reed": {
-      "x": 379,
-      "y": 1,
-      "width": 40,
-      "height": 44,
-      "kind": "portrait",
-      "category": "portrait",
-      "visibility": "public",
-      "sourceId": "tomas-reed",
-      "cellClass": null,
-      "wallAdjacencyMask": null
-    },
     "tile.bed-foot": {
-      "x": 421,
+      "x": 1,
       "y": 1,
       "width": 32,
       "height": 32,
@@ -154,7 +34,7 @@
       "wallAdjacencyMask": null
     },
     "tile.bed-head": {
-      "x": 455,
+      "x": 35,
       "y": 1,
       "width": 32,
       "height": 32,
@@ -166,8 +46,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk": {
-      "x": 1,
-      "y": 47,
+      "x": 69,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -178,8 +58,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-b": {
-      "x": 35,
-      "y": 47,
+      "x": 103,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -190,8 +70,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-harbor-a": {
-      "x": 69,
-      "y": 47,
+      "x": 137,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -202,8 +82,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-harbor-b": {
-      "x": 103,
-      "y": 47,
+      "x": 171,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -214,8 +94,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-neon-a": {
-      "x": 137,
-      "y": 47,
+      "x": 205,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -226,8 +106,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-neon-b": {
-      "x": 171,
-      "y": 47,
+      "x": 239,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -238,8 +118,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-palm-a": {
-      "x": 205,
-      "y": 47,
+      "x": 273,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -250,8 +130,8 @@
       "wallAdjacencyMask": null
     },
     "tile.boardwalk-palm-b": {
-      "x": 239,
-      "y": 47,
+      "x": 307,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -262,8 +142,8 @@
       "wallAdjacencyMask": null
     },
     "tile.closed-door": {
-      "x": 273,
-      "y": 47,
+      "x": 341,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -274,8 +154,8 @@
       "wallAdjacencyMask": null
     },
     "tile.closed-locked-door": {
-      "x": 307,
-      "y": 47,
+      "x": 375,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -286,8 +166,8 @@
       "wallAdjacencyMask": null
     },
     "tile.counter-left": {
-      "x": 341,
-      "y": 47,
+      "x": 409,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -298,8 +178,8 @@
       "wallAdjacencyMask": null
     },
     "tile.counter-right": {
-      "x": 375,
-      "y": 47,
+      "x": 443,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -310,8 +190,8 @@
       "wallAdjacencyMask": null
     },
     "tile.dark-asphalt": {
-      "x": 409,
-      "y": 47,
+      "x": 477,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -322,8 +202,8 @@
       "wallAdjacencyMask": null
     },
     "tile.dark-asphalt-b": {
-      "x": 443,
-      "y": 47,
+      "x": 511,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -334,8 +214,8 @@
       "wallAdjacencyMask": null
     },
     "tile.decal-grass-tuft": {
-      "x": 477,
-      "y": 47,
+      "x": 545,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -346,8 +226,8 @@
       "wallAdjacencyMask": null
     },
     "tile.decal-sand-pebbles": {
-      "x": 1,
-      "y": 81,
+      "x": 579,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -358,8 +238,8 @@
       "wallAdjacencyMask": null
     },
     "tile.decal-sand-ripple": {
-      "x": 35,
-      "y": 81,
+      "x": 613,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -370,8 +250,8 @@
       "wallAdjacencyMask": null
     },
     "tile.decal-sand-shells": {
-      "x": 69,
-      "y": 81,
+      "x": 647,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -382,8 +262,8 @@
       "wallAdjacencyMask": null
     },
     "tile.dune-grass": {
-      "x": 103,
-      "y": 81,
+      "x": 681,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -394,8 +274,8 @@
       "wallAdjacencyMask": null
     },
     "tile.dune-grass-b": {
-      "x": 137,
-      "y": 81,
+      "x": 715,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -406,8 +286,8 @@
       "wallAdjacencyMask": null
     },
     "tile.dune-grass-c": {
-      "x": 171,
-      "y": 81,
+      "x": 749,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -418,8 +298,8 @@
       "wallAdjacencyMask": null
     },
     "tile.dune-grass-d": {
-      "x": 205,
-      "y": 81,
+      "x": 783,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -430,8 +310,8 @@
       "wallAdjacencyMask": null
     },
     "tile.fixture-lamp": {
-      "x": 239,
-      "y": 81,
+      "x": 817,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -442,8 +322,8 @@
       "wallAdjacencyMask": null
     },
     "tile.fixture-planter": {
-      "x": 273,
-      "y": 81,
+      "x": 851,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -454,8 +334,8 @@
       "wallAdjacencyMask": null
     },
     "tile.garden-soil": {
-      "x": 307,
-      "y": 81,
+      "x": 885,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -466,8 +346,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-ferry-left": {
-      "x": 341,
-      "y": 81,
+      "x": 919,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -478,8 +358,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-ferry-right": {
-      "x": 375,
-      "y": 81,
+      "x": 953,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -490,8 +370,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-ne": {
-      "x": 409,
-      "y": 81,
+      "x": 987,
+      "y": 1,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -502,8 +382,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-nw": {
-      "x": 443,
-      "y": 81,
+      "x": 1,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -514,8 +394,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-se": {
-      "x": 477,
-      "y": 81,
+      "x": 35,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -526,8 +406,8 @@
       "wallAdjacencyMask": null
     },
     "tile.landmark-fountain-sw": {
-      "x": 1,
-      "y": 115,
+      "x": 69,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -538,8 +418,8 @@
       "wallAdjacencyMask": null
     },
     "tile.open-door": {
-      "x": 35,
-      "y": 115,
+      "x": 103,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -550,8 +430,8 @@
       "wallAdjacencyMask": null
     },
     "tile.pale-concrete": {
-      "x": 69,
-      "y": 115,
+      "x": 137,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -562,8 +442,8 @@
       "wallAdjacencyMask": null
     },
     "tile.pale-concrete-harbor-a": {
-      "x": 103,
-      "y": 115,
+      "x": 171,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -574,8 +454,8 @@
       "wallAdjacencyMask": null
     },
     "tile.pale-concrete-harbor-b": {
-      "x": 137,
-      "y": 115,
+      "x": 205,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -586,8 +466,8 @@
       "wallAdjacencyMask": null
     },
     "tile.pale-concrete-palm-a": {
-      "x": 171,
-      "y": 115,
+      "x": 239,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -598,8 +478,8 @@
       "wallAdjacencyMask": null
     },
     "tile.pale-concrete-palm-b": {
-      "x": 205,
-      "y": 115,
+      "x": 273,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -610,8 +490,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plant-palm": {
-      "x": 239,
-      "y": 115,
+      "x": 307,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -622,8 +502,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver": {
-      "x": 273,
-      "y": 115,
+      "x": 341,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -634,8 +514,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver-b": {
-      "x": 307,
-      "y": 115,
+      "x": 375,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -646,8 +526,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver-harbor-a": {
-      "x": 341,
-      "y": 115,
+      "x": 409,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -658,8 +538,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver-harbor-b": {
-      "x": 375,
-      "y": 115,
+      "x": 443,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -670,8 +550,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver-neon-a": {
-      "x": 409,
-      "y": 115,
+      "x": 477,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -682,8 +562,8 @@
       "wallAdjacencyMask": null
     },
     "tile.plaza-paver-neon-b": {
-      "x": 443,
-      "y": 115,
+      "x": 511,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -694,8 +574,8 @@
       "wallAdjacencyMask": null
     },
     "tile.roof-sunward-base": {
-      "x": 477,
-      "y": 115,
+      "x": 545,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -706,8 +586,8 @@
       "wallAdjacencyMask": null
     },
     "tile.roof-sunward-corner": {
-      "x": 1,
-      "y": 149,
+      "x": 579,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -718,8 +598,8 @@
       "wallAdjacencyMask": null
     },
     "tile.roof-sunward-edge": {
-      "x": 35,
-      "y": 149,
+      "x": 613,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -730,8 +610,8 @@
       "wallAdjacencyMask": null
     },
     "tile.shallow-water": {
-      "x": 69,
-      "y": 149,
+      "x": 647,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -742,8 +622,8 @@
       "wallAdjacencyMask": null
     },
     "tile.shallow-water-b": {
-      "x": 103,
-      "y": 149,
+      "x": 681,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -754,8 +634,8 @@
       "wallAdjacencyMask": null
     },
     "tile.shallow-water-c": {
-      "x": 137,
-      "y": 149,
+      "x": 715,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -766,8 +646,8 @@
       "wallAdjacencyMask": null
     },
     "tile.shallow-water-d": {
-      "x": 171,
-      "y": 149,
+      "x": 749,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -778,8 +658,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-civic": {
-      "x": 205,
-      "y": 149,
+      "x": 783,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -790,8 +670,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-market": {
-      "x": 239,
-      "y": 149,
+      "x": 817,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -802,8 +682,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-neon": {
-      "x": 273,
-      "y": 149,
+      "x": 851,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -814,8 +694,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sign-spa": {
-      "x": 307,
-      "y": 149,
+      "x": 885,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -826,8 +706,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sofa-left": {
-      "x": 341,
-      "y": 149,
+      "x": 919,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -838,8 +718,8 @@
       "wallAdjacencyMask": null
     },
     "tile.sofa-right": {
-      "x": 375,
-      "y": 149,
+      "x": 953,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -850,8 +730,8 @@
       "wallAdjacencyMask": null
     },
     "tile.spa-stone": {
-      "x": 409,
-      "y": 149,
+      "x": 987,
+      "y": 35,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -862,8 +742,8 @@
       "wallAdjacencyMask": null
     },
     "tile.spa-stone-b": {
-      "x": 443,
-      "y": 149,
+      "x": 1,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -874,8 +754,8 @@
       "wallAdjacencyMask": null
     },
     "tile.table-left": {
-      "x": 477,
-      "y": 149,
+      "x": 35,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -886,8 +766,8 @@
       "wallAdjacencyMask": null
     },
     "tile.table-right": {
-      "x": 1,
-      "y": 183,
+      "x": 69,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -898,8 +778,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-1": {
-      "x": 35,
-      "y": 183,
+      "x": 103,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -910,8 +790,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-2": {
-      "x": 69,
-      "y": 183,
+      "x": 137,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -922,8 +802,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-3": {
-      "x": 103,
-      "y": 183,
+      "x": 171,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -934,8 +814,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-4": {
-      "x": 137,
-      "y": 183,
+      "x": 205,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -946,8 +826,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-5": {
-      "x": 171,
-      "y": 183,
+      "x": 239,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -958,8 +838,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-6": {
-      "x": 205,
-      "y": 183,
+      "x": 273,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -970,8 +850,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-7": {
-      "x": 239,
-      "y": 183,
+      "x": 307,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -982,8 +862,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-8": {
-      "x": 273,
-      "y": 183,
+      "x": 341,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -994,8 +874,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-9": {
-      "x": 307,
-      "y": 183,
+      "x": 375,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1006,8 +886,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-a": {
-      "x": 341,
-      "y": 183,
+      "x": 409,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1018,8 +898,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-b": {
-      "x": 375,
-      "y": 183,
+      "x": 443,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1030,8 +910,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-c": {
-      "x": 409,
-      "y": 183,
+      "x": 477,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1042,8 +922,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-d": {
-      "x": 443,
-      "y": 183,
+      "x": 511,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1054,8 +934,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-e": {
-      "x": 477,
-      "y": 183,
+      "x": 545,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1066,8 +946,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-built-f": {
-      "x": 1,
-      "y": 217,
+      "x": 579,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1078,8 +958,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-1": {
-      "x": 35,
-      "y": 217,
+      "x": 613,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1090,8 +970,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-2": {
-      "x": 69,
-      "y": 217,
+      "x": 647,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1102,8 +982,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-3": {
-      "x": 103,
-      "y": 217,
+      "x": 681,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1114,8 +994,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-4": {
-      "x": 137,
-      "y": 217,
+      "x": 715,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1126,8 +1006,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-5": {
-      "x": 171,
-      "y": 217,
+      "x": 749,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1138,8 +1018,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-6": {
-      "x": 205,
-      "y": 217,
+      "x": 783,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1150,8 +1030,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-7": {
-      "x": 239,
-      "y": 217,
+      "x": 817,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1162,8 +1042,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-8": {
-      "x": 273,
-      "y": 217,
+      "x": 851,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1174,8 +1054,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-9": {
-      "x": 307,
-      "y": 217,
+      "x": 885,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1186,8 +1066,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-a": {
-      "x": 341,
-      "y": 217,
+      "x": 919,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1198,8 +1078,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-b": {
-      "x": 375,
-      "y": 217,
+      "x": 953,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1210,8 +1090,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-c": {
-      "x": 409,
-      "y": 217,
+      "x": 987,
+      "y": 69,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1222,8 +1102,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-d": {
-      "x": 443,
-      "y": 217,
+      "x": 1,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1234,8 +1114,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-e": {
-      "x": 477,
-      "y": 217,
+      "x": 35,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1246,8 +1126,8 @@
       "wallAdjacencyMask": null
     },
     "tile.transition-soft-f": {
-      "x": 1,
-      "y": 251,
+      "x": 69,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1258,8 +1138,8 @@
       "wallAdjacencyMask": null
     },
     "tile.villa-floor": {
-      "x": 35,
-      "y": 251,
+      "x": 103,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1270,8 +1150,8 @@
       "wallAdjacencyMask": null
     },
     "tile.villa-floor-b": {
-      "x": 69,
-      "y": 251,
+      "x": 137,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1282,8 +1162,8 @@
       "wallAdjacencyMask": null
     },
     "tile.villa-floor-c": {
-      "x": 103,
-      "y": 251,
+      "x": 171,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1294,8 +1174,8 @@
       "wallAdjacencyMask": null
     },
     "tile.villa-floor-d": {
-      "x": 137,
-      "y": 251,
+      "x": 205,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1306,8 +1186,8 @@
       "wallAdjacencyMask": null
     },
     "tile.wall-civic-0": {
-      "x": 171,
-      "y": 251,
+      "x": 239,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1318,8 +1198,8 @@
       "wallAdjacencyMask": 0
     },
     "tile.wall-civic-1": {
-      "x": 205,
-      "y": 251,
+      "x": 273,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1330,8 +1210,8 @@
       "wallAdjacencyMask": 1
     },
     "tile.wall-civic-2": {
-      "x": 239,
-      "y": 251,
+      "x": 307,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1342,8 +1222,8 @@
       "wallAdjacencyMask": 2
     },
     "tile.wall-civic-3": {
-      "x": 273,
-      "y": 251,
+      "x": 341,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1354,8 +1234,8 @@
       "wallAdjacencyMask": 3
     },
     "tile.wall-civic-4": {
-      "x": 307,
-      "y": 251,
+      "x": 375,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1366,8 +1246,8 @@
       "wallAdjacencyMask": 4
     },
     "tile.wall-civic-5": {
-      "x": 341,
-      "y": 251,
+      "x": 409,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1378,8 +1258,8 @@
       "wallAdjacencyMask": 5
     },
     "tile.wall-civic-6": {
-      "x": 375,
-      "y": 251,
+      "x": 443,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1390,8 +1270,8 @@
       "wallAdjacencyMask": 6
     },
     "tile.wall-civic-7": {
-      "x": 409,
-      "y": 251,
+      "x": 477,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1402,8 +1282,8 @@
       "wallAdjacencyMask": 7
     },
     "tile.wall-civic-8": {
-      "x": 443,
-      "y": 251,
+      "x": 511,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1414,8 +1294,8 @@
       "wallAdjacencyMask": 8
     },
     "tile.wall-civic-9": {
-      "x": 477,
-      "y": 251,
+      "x": 545,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1426,8 +1306,8 @@
       "wallAdjacencyMask": 9
     },
     "tile.wall-civic-a": {
-      "x": 1,
-      "y": 285,
+      "x": 579,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1438,8 +1318,8 @@
       "wallAdjacencyMask": 10
     },
     "tile.wall-civic-b": {
-      "x": 35,
-      "y": 285,
+      "x": 613,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1450,8 +1330,8 @@
       "wallAdjacencyMask": 11
     },
     "tile.wall-civic-c": {
-      "x": 69,
-      "y": 285,
+      "x": 647,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1462,8 +1342,8 @@
       "wallAdjacencyMask": 12
     },
     "tile.wall-civic-d": {
-      "x": 103,
-      "y": 285,
+      "x": 681,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1474,8 +1354,8 @@
       "wallAdjacencyMask": 13
     },
     "tile.wall-civic-e": {
-      "x": 137,
-      "y": 285,
+      "x": 715,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1486,8 +1366,8 @@
       "wallAdjacencyMask": 14
     },
     "tile.wall-civic-f": {
-      "x": 171,
-      "y": 285,
+      "x": 749,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1498,8 +1378,8 @@
       "wallAdjacencyMask": 15
     },
     "tile.wall-commercial-0": {
-      "x": 205,
-      "y": 285,
+      "x": 783,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1510,8 +1390,8 @@
       "wallAdjacencyMask": 0
     },
     "tile.wall-commercial-1": {
-      "x": 239,
-      "y": 285,
+      "x": 817,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1522,8 +1402,8 @@
       "wallAdjacencyMask": 1
     },
     "tile.wall-commercial-2": {
-      "x": 273,
-      "y": 285,
+      "x": 851,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1534,8 +1414,8 @@
       "wallAdjacencyMask": 2
     },
     "tile.wall-commercial-3": {
-      "x": 307,
-      "y": 285,
+      "x": 885,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1546,8 +1426,8 @@
       "wallAdjacencyMask": 3
     },
     "tile.wall-commercial-4": {
-      "x": 341,
-      "y": 285,
+      "x": 919,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1558,8 +1438,8 @@
       "wallAdjacencyMask": 4
     },
     "tile.wall-commercial-5": {
-      "x": 375,
-      "y": 285,
+      "x": 953,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1570,8 +1450,8 @@
       "wallAdjacencyMask": 5
     },
     "tile.wall-commercial-6": {
-      "x": 409,
-      "y": 285,
+      "x": 987,
+      "y": 103,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1582,8 +1462,8 @@
       "wallAdjacencyMask": 6
     },
     "tile.wall-commercial-7": {
-      "x": 443,
-      "y": 285,
+      "x": 1,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1594,8 +1474,8 @@
       "wallAdjacencyMask": 7
     },
     "tile.wall-commercial-8": {
-      "x": 477,
-      "y": 285,
+      "x": 35,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1606,8 +1486,8 @@
       "wallAdjacencyMask": 8
     },
     "tile.wall-commercial-9": {
-      "x": 1,
-      "y": 319,
+      "x": 69,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1618,8 +1498,8 @@
       "wallAdjacencyMask": 9
     },
     "tile.wall-commercial-a": {
-      "x": 35,
-      "y": 319,
+      "x": 103,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1630,8 +1510,8 @@
       "wallAdjacencyMask": 10
     },
     "tile.wall-commercial-b": {
-      "x": 69,
-      "y": 319,
+      "x": 137,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1642,8 +1522,8 @@
       "wallAdjacencyMask": 11
     },
     "tile.wall-commercial-c": {
-      "x": 103,
-      "y": 319,
+      "x": 171,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1654,8 +1534,8 @@
       "wallAdjacencyMask": 12
     },
     "tile.wall-commercial-d": {
-      "x": 137,
-      "y": 319,
+      "x": 205,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1666,8 +1546,8 @@
       "wallAdjacencyMask": 13
     },
     "tile.wall-commercial-e": {
-      "x": 171,
-      "y": 319,
+      "x": 239,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1678,8 +1558,8 @@
       "wallAdjacencyMask": 14
     },
     "tile.wall-commercial-f": {
-      "x": 205,
-      "y": 319,
+      "x": 273,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1690,8 +1570,8 @@
       "wallAdjacencyMask": 15
     },
     "tile.wall-downtown-0": {
-      "x": 239,
-      "y": 319,
+      "x": 307,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1702,8 +1582,8 @@
       "wallAdjacencyMask": 0
     },
     "tile.wall-downtown-1": {
-      "x": 273,
-      "y": 319,
+      "x": 341,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1714,8 +1594,8 @@
       "wallAdjacencyMask": 1
     },
     "tile.wall-downtown-2": {
-      "x": 307,
-      "y": 319,
+      "x": 375,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1726,8 +1606,8 @@
       "wallAdjacencyMask": 2
     },
     "tile.wall-downtown-3": {
-      "x": 341,
-      "y": 319,
+      "x": 409,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1738,8 +1618,8 @@
       "wallAdjacencyMask": 3
     },
     "tile.wall-downtown-4": {
-      "x": 375,
-      "y": 319,
+      "x": 443,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1750,8 +1630,8 @@
       "wallAdjacencyMask": 4
     },
     "tile.wall-downtown-5": {
-      "x": 409,
-      "y": 319,
+      "x": 477,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1762,8 +1642,8 @@
       "wallAdjacencyMask": 5
     },
     "tile.wall-downtown-6": {
-      "x": 443,
-      "y": 319,
+      "x": 511,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1774,8 +1654,8 @@
       "wallAdjacencyMask": 6
     },
     "tile.wall-downtown-7": {
-      "x": 477,
-      "y": 319,
+      "x": 545,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1786,8 +1666,8 @@
       "wallAdjacencyMask": 7
     },
     "tile.wall-downtown-8": {
-      "x": 1,
-      "y": 353,
+      "x": 579,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1798,8 +1678,8 @@
       "wallAdjacencyMask": 8
     },
     "tile.wall-downtown-9": {
-      "x": 35,
-      "y": 353,
+      "x": 613,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1810,8 +1690,8 @@
       "wallAdjacencyMask": 9
     },
     "tile.wall-downtown-a": {
-      "x": 69,
-      "y": 353,
+      "x": 647,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1822,8 +1702,8 @@
       "wallAdjacencyMask": 10
     },
     "tile.wall-downtown-b": {
-      "x": 103,
-      "y": 353,
+      "x": 681,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1834,8 +1714,8 @@
       "wallAdjacencyMask": 11
     },
     "tile.wall-downtown-c": {
-      "x": 137,
-      "y": 353,
+      "x": 715,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1846,8 +1726,8 @@
       "wallAdjacencyMask": 12
     },
     "tile.wall-downtown-d": {
-      "x": 171,
-      "y": 353,
+      "x": 749,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1858,8 +1738,8 @@
       "wallAdjacencyMask": 13
     },
     "tile.wall-downtown-e": {
-      "x": 205,
-      "y": 353,
+      "x": 783,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1870,8 +1750,8 @@
       "wallAdjacencyMask": 14
     },
     "tile.wall-downtown-f": {
-      "x": 239,
-      "y": 353,
+      "x": 817,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1882,8 +1762,8 @@
       "wallAdjacencyMask": 15
     },
     "tile.wall-villa-0": {
-      "x": 273,
-      "y": 353,
+      "x": 851,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1894,8 +1774,8 @@
       "wallAdjacencyMask": 0
     },
     "tile.wall-villa-1": {
-      "x": 307,
-      "y": 353,
+      "x": 885,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1906,8 +1786,8 @@
       "wallAdjacencyMask": 1
     },
     "tile.wall-villa-2": {
-      "x": 341,
-      "y": 353,
+      "x": 919,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1918,8 +1798,8 @@
       "wallAdjacencyMask": 2
     },
     "tile.wall-villa-3": {
-      "x": 375,
-      "y": 353,
+      "x": 953,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1930,8 +1810,8 @@
       "wallAdjacencyMask": 3
     },
     "tile.wall-villa-4": {
-      "x": 409,
-      "y": 353,
+      "x": 987,
+      "y": 137,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1942,8 +1822,8 @@
       "wallAdjacencyMask": 4
     },
     "tile.wall-villa-5": {
-      "x": 443,
-      "y": 353,
+      "x": 1,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1954,8 +1834,8 @@
       "wallAdjacencyMask": 5
     },
     "tile.wall-villa-6": {
-      "x": 477,
-      "y": 353,
+      "x": 35,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1966,8 +1846,8 @@
       "wallAdjacencyMask": 6
     },
     "tile.wall-villa-7": {
-      "x": 1,
-      "y": 387,
+      "x": 69,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1978,8 +1858,8 @@
       "wallAdjacencyMask": 7
     },
     "tile.wall-villa-8": {
-      "x": 35,
-      "y": 387,
+      "x": 103,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -1990,8 +1870,8 @@
       "wallAdjacencyMask": 8
     },
     "tile.wall-villa-9": {
-      "x": 69,
-      "y": 387,
+      "x": 137,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2002,8 +1882,8 @@
       "wallAdjacencyMask": 9
     },
     "tile.wall-villa-a": {
-      "x": 103,
-      "y": 387,
+      "x": 171,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2014,8 +1894,8 @@
       "wallAdjacencyMask": 10
     },
     "tile.wall-villa-b": {
-      "x": 137,
-      "y": 387,
+      "x": 205,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2026,8 +1906,8 @@
       "wallAdjacencyMask": 11
     },
     "tile.wall-villa-c": {
-      "x": 171,
-      "y": 387,
+      "x": 239,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2038,8 +1918,8 @@
       "wallAdjacencyMask": 12
     },
     "tile.wall-villa-d": {
-      "x": 205,
-      "y": 387,
+      "x": 273,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2050,8 +1930,8 @@
       "wallAdjacencyMask": 13
     },
     "tile.wall-villa-e": {
-      "x": 239,
-      "y": 387,
+      "x": 307,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2062,8 +1942,8 @@
       "wallAdjacencyMask": 14
     },
     "tile.wall-villa-f": {
-      "x": 273,
-      "y": 387,
+      "x": 341,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2074,8 +1954,8 @@
       "wallAdjacencyMask": 15
     },
     "tile.warm-sand": {
-      "x": 307,
-      "y": 387,
+      "x": 375,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2086,8 +1966,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-b": {
-      "x": 341,
-      "y": 387,
+      "x": 409,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2098,8 +1978,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-c": {
-      "x": 375,
-      "y": 387,
+      "x": 443,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2110,8 +1990,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-d": {
-      "x": 409,
-      "y": 387,
+      "x": 477,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2122,8 +2002,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-neon-a": {
-      "x": 443,
-      "y": 387,
+      "x": 511,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2134,8 +2014,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-neon-b": {
-      "x": 477,
-      "y": 387,
+      "x": 545,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2146,8 +2026,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-neon-c": {
-      "x": 1,
-      "y": 421,
+      "x": 579,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2158,8 +2038,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-neon-d": {
-      "x": 35,
-      "y": 421,
+      "x": 613,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2170,8 +2050,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-palm-a": {
-      "x": 69,
-      "y": 421,
+      "x": 647,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2182,8 +2062,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-palm-b": {
-      "x": 103,
-      "y": 421,
+      "x": 681,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2194,8 +2074,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-palm-c": {
-      "x": 137,
-      "y": 421,
+      "x": 715,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2206,8 +2086,8 @@
       "wallAdjacencyMask": null
     },
     "tile.warm-sand-palm-d": {
-      "x": 171,
-      "y": 421,
+      "x": 749,
+      "y": 171,
       "width": 32,
       "height": 32,
       "kind": "tile",
@@ -2218,8 +2098,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.front-1": {
-      "x": 205,
-      "y": 421,
+      "x": 783,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2230,8 +2110,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.front-2": {
-      "x": 231,
-      "y": 421,
+      "x": 809,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2242,8 +2122,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.left-1": {
-      "x": 257,
-      "y": 421,
+      "x": 835,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2254,8 +2134,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.left-2": {
-      "x": 283,
-      "y": 421,
+      "x": 861,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2266,8 +2146,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.rear-1": {
-      "x": 309,
-      "y": 421,
+      "x": 887,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2278,8 +2158,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.rear-2": {
-      "x": 335,
-      "y": 421,
+      "x": 913,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2290,8 +2170,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.right-1": {
-      "x": 361,
-      "y": 421,
+      "x": 939,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2302,8 +2182,8 @@
       "wallAdjacencyMask": null
     },
     "character.devon-price.right-2": {
-      "x": 387,
-      "y": 421,
+      "x": 965,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2314,8 +2194,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.front-1": {
-      "x": 413,
-      "y": 421,
+      "x": 991,
+      "y": 171,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2326,8 +2206,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.front-2": {
-      "x": 439,
-      "y": 421,
+      "x": 1,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2338,8 +2218,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.left-1": {
-      "x": 465,
-      "y": 421,
+      "x": 27,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2350,8 +2230,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.left-2": {
-      "x": 1,
-      "y": 455,
+      "x": 53,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2362,8 +2242,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.rear-1": {
-      "x": 27,
-      "y": 455,
+      "x": 79,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2374,8 +2254,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.rear-2": {
-      "x": 53,
-      "y": 455,
+      "x": 105,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2386,8 +2266,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.right-1": {
-      "x": 79,
-      "y": 455,
+      "x": 131,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2398,8 +2278,8 @@
       "wallAdjacencyMask": null
     },
     "character.elise-moreau.right-2": {
-      "x": 105,
-      "y": 455,
+      "x": 157,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2410,8 +2290,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.front-1": {
-      "x": 131,
-      "y": 455,
+      "x": 183,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2422,8 +2302,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.front-2": {
-      "x": 157,
-      "y": 455,
+      "x": 209,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2434,8 +2314,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.left-1": {
-      "x": 183,
-      "y": 455,
+      "x": 235,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2446,8 +2326,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.left-2": {
-      "x": 209,
-      "y": 455,
+      "x": 261,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2458,8 +2338,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.rear-1": {
-      "x": 235,
-      "y": 455,
+      "x": 287,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2470,8 +2350,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.rear-2": {
-      "x": 261,
-      "y": 455,
+      "x": 313,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2482,8 +2362,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.right-1": {
-      "x": 287,
-      "y": 455,
+      "x": 339,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2494,8 +2374,8 @@
       "wallAdjacencyMask": null
     },
     "character.generic-resident.right-2": {
-      "x": 313,
-      "y": 455,
+      "x": 365,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2505,9 +2385,105 @@
       "cellClass": null,
       "wallAdjacencyMask": null
     },
+    "character.linda-boyfriend.front-1": {
+      "x": 391,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.front-2": {
+      "x": 417,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.left-1": {
+      "x": 443,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.left-2": {
+      "x": 469,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.rear-1": {
+      "x": 495,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.rear-2": {
+      "x": 521,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.right-1": {
+      "x": 547,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.linda-boyfriend.right-2": {
+      "x": 573,
+      "y": 205,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
     "character.linda.front-1": {
-      "x": 339,
-      "y": 455,
+      "x": 599,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2518,8 +2494,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.front-2": {
-      "x": 365,
-      "y": 455,
+      "x": 625,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2530,8 +2506,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.left-1": {
-      "x": 391,
-      "y": 455,
+      "x": 651,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2542,8 +2518,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.left-2": {
-      "x": 417,
-      "y": 455,
+      "x": 677,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2554,8 +2530,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.rear-1": {
-      "x": 443,
-      "y": 455,
+      "x": 703,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2566,8 +2542,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.rear-2": {
-      "x": 469,
-      "y": 455,
+      "x": 729,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2578,8 +2554,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.right-1": {
-      "x": 1,
-      "y": 487,
+      "x": 755,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2590,8 +2566,8 @@
       "wallAdjacencyMask": null
     },
     "character.linda.right-2": {
-      "x": 27,
-      "y": 487,
+      "x": 781,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2602,8 +2578,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.front-1": {
-      "x": 53,
-      "y": 487,
+      "x": 807,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2614,8 +2590,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.front-2": {
-      "x": 79,
-      "y": 487,
+      "x": 833,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2626,8 +2602,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.left-1": {
-      "x": 105,
-      "y": 487,
+      "x": 859,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2638,8 +2614,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.left-2": {
-      "x": 131,
-      "y": 487,
+      "x": 885,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2650,8 +2626,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.rear-1": {
-      "x": 157,
-      "y": 487,
+      "x": 911,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2662,8 +2638,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.rear-2": {
-      "x": 183,
-      "y": 487,
+      "x": 937,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2674,8 +2650,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.right-1": {
-      "x": 209,
-      "y": 487,
+      "x": 963,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2686,8 +2662,8 @@
       "wallAdjacencyMask": null
     },
     "character.mina-park.right-2": {
-      "x": 235,
-      "y": 487,
+      "x": 989,
+      "y": 205,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2698,8 +2674,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.front-1": {
-      "x": 261,
-      "y": 487,
+      "x": 1,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2710,8 +2686,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.front-2": {
-      "x": 287,
-      "y": 487,
+      "x": 27,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2722,8 +2698,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.left-1": {
-      "x": 313,
-      "y": 487,
+      "x": 53,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2734,8 +2710,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.left-2": {
-      "x": 339,
-      "y": 487,
+      "x": 79,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2746,8 +2722,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.rear-1": {
-      "x": 365,
-      "y": 487,
+      "x": 105,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2758,8 +2734,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.rear-2": {
-      "x": 391,
-      "y": 487,
+      "x": 131,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2770,8 +2746,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.right-1": {
-      "x": 417,
-      "y": 487,
+      "x": 157,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2782,8 +2758,8 @@
       "wallAdjacencyMask": null
     },
     "character.priya-nair.right-2": {
-      "x": 443,
-      "y": 487,
+      "x": 183,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2794,8 +2770,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.front-1": {
-      "x": 469,
-      "y": 487,
+      "x": 209,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2806,8 +2782,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.front-2": {
-      "x": 1,
-      "y": 519,
+      "x": 235,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2818,8 +2794,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.left-1": {
-      "x": 27,
-      "y": 519,
+      "x": 261,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2830,8 +2806,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.left-2": {
-      "x": 53,
-      "y": 519,
+      "x": 287,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2842,8 +2818,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.rear-1": {
-      "x": 79,
-      "y": 519,
+      "x": 313,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2854,8 +2830,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.rear-2": {
-      "x": 105,
-      "y": 519,
+      "x": 339,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2866,8 +2842,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.right-1": {
-      "x": 131,
-      "y": 519,
+      "x": 365,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2878,8 +2854,8 @@
       "wallAdjacencyMask": null
     },
     "character.protagonist.right-2": {
-      "x": 157,
-      "y": 519,
+      "x": 391,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2890,8 +2866,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.front-1": {
-      "x": 183,
-      "y": 519,
+      "x": 417,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2902,8 +2878,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.front-2": {
-      "x": 209,
-      "y": 519,
+      "x": 443,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2914,8 +2890,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.left-1": {
-      "x": 235,
-      "y": 519,
+      "x": 469,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2926,8 +2902,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.left-2": {
-      "x": 261,
-      "y": 519,
+      "x": 495,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2938,8 +2914,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.rear-1": {
-      "x": 287,
-      "y": 519,
+      "x": 521,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2950,8 +2926,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.rear-2": {
-      "x": 313,
-      "y": 519,
+      "x": 547,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2962,8 +2938,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.right-1": {
-      "x": 339,
-      "y": 519,
+      "x": 573,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2974,8 +2950,8 @@
       "wallAdjacencyMask": null
     },
     "character.rafael-cruz.right-2": {
-      "x": 365,
-      "y": 519,
+      "x": 599,
+      "y": 237,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2985,9 +2961,2313 @@
       "cellClass": null,
       "wallAdjacencyMask": null
     },
-    "character.sora-tan.front-1": {
+    "character.resident-01.front-1": {
+      "x": 625,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.front-2": {
+      "x": 651,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.left-1": {
+      "x": 677,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.left-2": {
+      "x": 703,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.rear-1": {
+      "x": 729,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.rear-2": {
+      "x": 755,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.right-1": {
+      "x": 781,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-01.right-2": {
+      "x": 807,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.front-1": {
+      "x": 833,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.front-2": {
+      "x": 859,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.left-1": {
+      "x": 885,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.left-2": {
+      "x": 911,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.rear-1": {
+      "x": 937,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.rear-2": {
+      "x": 963,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.right-1": {
+      "x": 989,
+      "y": 237,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-02.right-2": {
+      "x": 1,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.front-1": {
+      "x": 27,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.front-2": {
+      "x": 53,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.left-1": {
+      "x": 79,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.left-2": {
+      "x": 105,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.rear-1": {
+      "x": 131,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.rear-2": {
+      "x": 157,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.right-1": {
+      "x": 183,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-03.right-2": {
+      "x": 209,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.front-1": {
+      "x": 235,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.front-2": {
+      "x": 261,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.left-1": {
+      "x": 287,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.left-2": {
+      "x": 313,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.rear-1": {
+      "x": 339,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.rear-2": {
+      "x": 365,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.right-1": {
       "x": 391,
-      "y": 519,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-04.right-2": {
+      "x": 417,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.front-1": {
+      "x": 443,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.front-2": {
+      "x": 469,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.left-1": {
+      "x": 495,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.left-2": {
+      "x": 521,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.rear-1": {
+      "x": 547,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.rear-2": {
+      "x": 573,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.right-1": {
+      "x": 599,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-05.right-2": {
+      "x": 625,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.front-1": {
+      "x": 651,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.front-2": {
+      "x": 677,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.left-1": {
+      "x": 703,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.left-2": {
+      "x": 729,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.rear-1": {
+      "x": 755,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.rear-2": {
+      "x": 781,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.right-1": {
+      "x": 807,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-06.right-2": {
+      "x": 833,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.front-1": {
+      "x": 859,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.front-2": {
+      "x": 885,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.left-1": {
+      "x": 911,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.left-2": {
+      "x": 937,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.rear-1": {
+      "x": 963,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.rear-2": {
+      "x": 989,
+      "y": 269,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.right-1": {
+      "x": 1,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-07.right-2": {
+      "x": 27,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.front-1": {
+      "x": 53,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.front-2": {
+      "x": 79,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.left-1": {
+      "x": 105,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.left-2": {
+      "x": 131,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.rear-1": {
+      "x": 157,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.rear-2": {
+      "x": 183,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.right-1": {
+      "x": 209,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-08.right-2": {
+      "x": 235,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.front-1": {
+      "x": 261,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.front-2": {
+      "x": 287,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.left-1": {
+      "x": 313,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.left-2": {
+      "x": 339,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.rear-1": {
+      "x": 365,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.rear-2": {
+      "x": 391,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.right-1": {
+      "x": 417,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-09.right-2": {
+      "x": 443,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.front-1": {
+      "x": 469,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.front-2": {
+      "x": 495,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.left-1": {
+      "x": 521,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.left-2": {
+      "x": 547,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.rear-1": {
+      "x": 573,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.rear-2": {
+      "x": 599,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.right-1": {
+      "x": 625,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-10.right-2": {
+      "x": 651,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.front-1": {
+      "x": 677,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.front-2": {
+      "x": 703,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.left-1": {
+      "x": 729,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.left-2": {
+      "x": 755,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.rear-1": {
+      "x": 781,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.rear-2": {
+      "x": 807,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.right-1": {
+      "x": 833,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-11.right-2": {
+      "x": 859,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.front-1": {
+      "x": 885,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.front-2": {
+      "x": 911,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.left-1": {
+      "x": 937,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.left-2": {
+      "x": 963,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.rear-1": {
+      "x": 989,
+      "y": 301,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.rear-2": {
+      "x": 1,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.right-1": {
+      "x": 27,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-12.right-2": {
+      "x": 53,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.front-1": {
+      "x": 79,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.front-2": {
+      "x": 105,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.left-1": {
+      "x": 131,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.left-2": {
+      "x": 157,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.rear-1": {
+      "x": 183,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.rear-2": {
+      "x": 209,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.right-1": {
+      "x": 235,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-13.right-2": {
+      "x": 261,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.front-1": {
+      "x": 287,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.front-2": {
+      "x": 313,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.left-1": {
+      "x": 339,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.left-2": {
+      "x": 365,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.rear-1": {
+      "x": 391,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.rear-2": {
+      "x": 417,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.right-1": {
+      "x": 443,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-14.right-2": {
+      "x": 469,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.front-1": {
+      "x": 495,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.front-2": {
+      "x": 521,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.left-1": {
+      "x": 547,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.left-2": {
+      "x": 573,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.rear-1": {
+      "x": 599,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.rear-2": {
+      "x": 625,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.right-1": {
+      "x": 651,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-15.right-2": {
+      "x": 677,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.front-1": {
+      "x": 703,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.front-2": {
+      "x": 729,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.left-1": {
+      "x": 755,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.left-2": {
+      "x": 781,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.rear-1": {
+      "x": 807,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.rear-2": {
+      "x": 833,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.right-1": {
+      "x": 859,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-16.right-2": {
+      "x": 885,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.front-1": {
+      "x": 911,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.front-2": {
+      "x": 937,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.left-1": {
+      "x": 963,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.left-2": {
+      "x": 989,
+      "y": 333,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.rear-1": {
+      "x": 1,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.rear-2": {
+      "x": 27,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.right-1": {
+      "x": 53,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-17.right-2": {
+      "x": 79,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.front-1": {
+      "x": 105,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.front-2": {
+      "x": 131,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.left-1": {
+      "x": 157,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.left-2": {
+      "x": 183,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.rear-1": {
+      "x": 209,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.rear-2": {
+      "x": 235,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.right-1": {
+      "x": 261,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-18.right-2": {
+      "x": 287,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.front-1": {
+      "x": 313,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.front-2": {
+      "x": 339,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.left-1": {
+      "x": 365,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.left-2": {
+      "x": 391,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.rear-1": {
+      "x": 417,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.rear-2": {
+      "x": 443,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.right-1": {
+      "x": 469,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-19.right-2": {
+      "x": 495,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.front-1": {
+      "x": 521,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.front-2": {
+      "x": 547,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.left-1": {
+      "x": 573,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.left-2": {
+      "x": 599,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.rear-1": {
+      "x": 625,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.rear-2": {
+      "x": 651,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.right-1": {
+      "x": 677,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-20.right-2": {
+      "x": 703,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.front-1": {
+      "x": 729,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.front-2": {
+      "x": 755,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.left-1": {
+      "x": 781,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.left-2": {
+      "x": 807,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.rear-1": {
+      "x": 833,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.rear-2": {
+      "x": 859,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.right-1": {
+      "x": 885,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-21.right-2": {
+      "x": 911,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.front-1": {
+      "x": 937,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.front-2": {
+      "x": 963,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.left-1": {
+      "x": 989,
+      "y": 365,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.left-2": {
+      "x": 1,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.rear-1": {
+      "x": 27,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.rear-2": {
+      "x": 53,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.right-1": {
+      "x": 79,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-22.right-2": {
+      "x": 105,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.front-1": {
+      "x": 131,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.front-2": {
+      "x": 157,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.left-1": {
+      "x": 183,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.left-2": {
+      "x": 209,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.rear-1": {
+      "x": 235,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.rear-2": {
+      "x": 261,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.right-1": {
+      "x": 287,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-23.right-2": {
+      "x": 313,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.front-1": {
+      "x": 339,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.front-2": {
+      "x": 365,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.left-1": {
+      "x": 391,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.left-2": {
+      "x": 417,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.rear-1": {
+      "x": 443,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.rear-2": {
+      "x": 469,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.right-1": {
+      "x": 495,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.resident-24.right-2": {
+      "x": 521,
+      "y": 397,
+      "width": 24,
+      "height": 30,
+      "kind": "world-character",
+      "category": "world-character",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "character.sora-tan.front-1": {
+      "x": 547,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -2998,8 +5278,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.front-2": {
-      "x": 417,
-      "y": 519,
+      "x": 573,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3010,8 +5290,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.left-1": {
-      "x": 443,
-      "y": 519,
+      "x": 599,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3022,8 +5302,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.left-2": {
-      "x": 469,
-      "y": 519,
+      "x": 625,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3034,8 +5314,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.rear-1": {
-      "x": 1,
-      "y": 551,
+      "x": 651,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3046,8 +5326,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.rear-2": {
-      "x": 27,
-      "y": 551,
+      "x": 677,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3058,8 +5338,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.right-1": {
-      "x": 53,
-      "y": 551,
+      "x": 703,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3070,8 +5350,8 @@
       "wallAdjacencyMask": null
     },
     "character.sora-tan.right-2": {
-      "x": 79,
-      "y": 551,
+      "x": 729,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3082,8 +5362,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.front-1": {
-      "x": 105,
-      "y": 551,
+      "x": 755,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3094,8 +5374,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.front-2": {
-      "x": 131,
-      "y": 551,
+      "x": 781,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3106,8 +5386,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.left-1": {
-      "x": 157,
-      "y": 551,
+      "x": 807,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3118,8 +5398,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.left-2": {
-      "x": 183,
-      "y": 551,
+      "x": 833,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3130,8 +5410,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.rear-1": {
-      "x": 209,
-      "y": 551,
+      "x": 859,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3142,8 +5422,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.rear-2": {
-      "x": 235,
-      "y": 551,
+      "x": 885,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3154,8 +5434,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.right-1": {
-      "x": 261,
-      "y": 551,
+      "x": 911,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3166,8 +5446,8 @@
       "wallAdjacencyMask": null
     },
     "character.tomas-reed.right-2": {
-      "x": 287,
-      "y": 551,
+      "x": 937,
+      "y": 397,
       "width": 24,
       "height": 30,
       "kind": "world-character",
@@ -3176,19 +5456,645 @@
       "sourceId": "tomas-reed",
       "cellClass": null,
       "wallAdjacencyMask": null
+    },
+    "portrait.devon-price": {
+      "x": 963,
+      "y": 397,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "devon-price",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.devon-price.joy": {
+      "x": 989,
+      "y": 397,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "devon-price",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.devon-price.upset": {
+      "x": 1,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "devon-price",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.elise-moreau": {
+      "x": 27,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "elise-moreau",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.elise-moreau.joy": {
+      "x": 53,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "elise-moreau",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.elise-moreau.upset": {
+      "x": 79,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "elise-moreau",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.generic-resident": {
+      "x": 105,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "generic-resident",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.linda": {
+      "x": 131,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "linda",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.linda-boyfriend": {
+      "x": 157,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "linda-boyfriend",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.linda.joy": {
+      "x": 183,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "linda",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.linda.upset": {
+      "x": 209,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "linda",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.mina-park": {
+      "x": 235,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "mina-park",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.mina-park.joy": {
+      "x": 261,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "mina-park",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.mina-park.upset": {
+      "x": 287,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "mina-park",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.priya-nair": {
+      "x": 313,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "priya-nair",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.priya-nair.joy": {
+      "x": 339,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "priya-nair",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.priya-nair.upset": {
+      "x": 365,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "priya-nair",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.protagonist": {
+      "x": 391,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "protagonist",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.protagonist.joy": {
+      "x": 417,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "protagonist",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.protagonist.upset": {
+      "x": 443,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "protagonist",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.rafael-cruz": {
+      "x": 469,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "rafael-cruz",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.rafael-cruz.joy": {
+      "x": 495,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "rafael-cruz",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.rafael-cruz.upset": {
+      "x": 521,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "rafael-cruz",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-01": {
+      "x": 547,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-01",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-02": {
+      "x": 573,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-02",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-03": {
+      "x": 599,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-03",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-04": {
+      "x": 625,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-04",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-05": {
+      "x": 651,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-05",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-06": {
+      "x": 677,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-06",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-07": {
+      "x": 703,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-07",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-08": {
+      "x": 729,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-08",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-09": {
+      "x": 755,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-09",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-10": {
+      "x": 781,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-10",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-11": {
+      "x": 807,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-11",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-12": {
+      "x": 833,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-12",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-13": {
+      "x": 859,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-13",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-14": {
+      "x": 885,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-14",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-15": {
+      "x": 911,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-15",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-16": {
+      "x": 937,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-16",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-17": {
+      "x": 963,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-17",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-18": {
+      "x": 989,
+      "y": 429,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-18",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-19": {
+      "x": 1,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-19",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-20": {
+      "x": 27,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-20",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-21": {
+      "x": 53,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-21",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-22": {
+      "x": 79,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-22",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-23": {
+      "x": 105,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-23",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.resident-24": {
+      "x": 131,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "resident-24",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.sora-tan": {
+      "x": 157,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "sora-tan",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.sora-tan.joy": {
+      "x": 183,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "sora-tan",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.sora-tan.upset": {
+      "x": 209,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "sora-tan",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.tomas-reed": {
+      "x": 235,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "tomas-reed",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.tomas-reed.joy": {
+      "x": 261,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "tomas-reed",
+      "cellClass": null,
+      "wallAdjacencyMask": null
+    },
+    "portrait.tomas-reed.upset": {
+      "x": 287,
+      "y": 460,
+      "width": 24,
+      "height": 29,
+      "kind": "portrait",
+      "category": "portrait",
+      "visibility": "public",
+      "sourceId": "tomas-reed",
+      "cellClass": null,
+      "wallAdjacencyMask": null
     }
   },
   "publicSpriteIds": [
-    "portrait.devon-price",
-    "portrait.elise-moreau",
-    "portrait.generic-resident",
-    "portrait.linda",
-    "portrait.mina-park",
-    "portrait.priya-nair",
-    "portrait.protagonist",
-    "portrait.rafael-cruz",
-    "portrait.sora-tan",
-    "portrait.tomas-reed",
     "tile.bed-foot",
     "tile.bed-head",
     "tile.boardwalk",
@@ -3386,6 +6292,14 @@
     "character.generic-resident.rear-2",
     "character.generic-resident.right-1",
     "character.generic-resident.right-2",
+    "character.linda-boyfriend.front-1",
+    "character.linda-boyfriend.front-2",
+    "character.linda-boyfriend.left-1",
+    "character.linda-boyfriend.left-2",
+    "character.linda-boyfriend.rear-1",
+    "character.linda-boyfriend.rear-2",
+    "character.linda-boyfriend.right-1",
+    "character.linda-boyfriend.right-2",
     "character.linda.front-1",
     "character.linda.front-2",
     "character.linda.left-1",
@@ -3426,6 +6340,198 @@
     "character.rafael-cruz.rear-2",
     "character.rafael-cruz.right-1",
     "character.rafael-cruz.right-2",
+    "character.resident-01.front-1",
+    "character.resident-01.front-2",
+    "character.resident-01.left-1",
+    "character.resident-01.left-2",
+    "character.resident-01.rear-1",
+    "character.resident-01.rear-2",
+    "character.resident-01.right-1",
+    "character.resident-01.right-2",
+    "character.resident-02.front-1",
+    "character.resident-02.front-2",
+    "character.resident-02.left-1",
+    "character.resident-02.left-2",
+    "character.resident-02.rear-1",
+    "character.resident-02.rear-2",
+    "character.resident-02.right-1",
+    "character.resident-02.right-2",
+    "character.resident-03.front-1",
+    "character.resident-03.front-2",
+    "character.resident-03.left-1",
+    "character.resident-03.left-2",
+    "character.resident-03.rear-1",
+    "character.resident-03.rear-2",
+    "character.resident-03.right-1",
+    "character.resident-03.right-2",
+    "character.resident-04.front-1",
+    "character.resident-04.front-2",
+    "character.resident-04.left-1",
+    "character.resident-04.left-2",
+    "character.resident-04.rear-1",
+    "character.resident-04.rear-2",
+    "character.resident-04.right-1",
+    "character.resident-04.right-2",
+    "character.resident-05.front-1",
+    "character.resident-05.front-2",
+    "character.resident-05.left-1",
+    "character.resident-05.left-2",
+    "character.resident-05.rear-1",
+    "character.resident-05.rear-2",
+    "character.resident-05.right-1",
+    "character.resident-05.right-2",
+    "character.resident-06.front-1",
+    "character.resident-06.front-2",
+    "character.resident-06.left-1",
+    "character.resident-06.left-2",
+    "character.resident-06.rear-1",
+    "character.resident-06.rear-2",
+    "character.resident-06.right-1",
+    "character.resident-06.right-2",
+    "character.resident-07.front-1",
+    "character.resident-07.front-2",
+    "character.resident-07.left-1",
+    "character.resident-07.left-2",
+    "character.resident-07.rear-1",
+    "character.resident-07.rear-2",
+    "character.resident-07.right-1",
+    "character.resident-07.right-2",
+    "character.resident-08.front-1",
+    "character.resident-08.front-2",
+    "character.resident-08.left-1",
+    "character.resident-08.left-2",
+    "character.resident-08.rear-1",
+    "character.resident-08.rear-2",
+    "character.resident-08.right-1",
+    "character.resident-08.right-2",
+    "character.resident-09.front-1",
+    "character.resident-09.front-2",
+    "character.resident-09.left-1",
+    "character.resident-09.left-2",
+    "character.resident-09.rear-1",
+    "character.resident-09.rear-2",
+    "character.resident-09.right-1",
+    "character.resident-09.right-2",
+    "character.resident-10.front-1",
+    "character.resident-10.front-2",
+    "character.resident-10.left-1",
+    "character.resident-10.left-2",
+    "character.resident-10.rear-1",
+    "character.resident-10.rear-2",
+    "character.resident-10.right-1",
+    "character.resident-10.right-2",
+    "character.resident-11.front-1",
+    "character.resident-11.front-2",
+    "character.resident-11.left-1",
+    "character.resident-11.left-2",
+    "character.resident-11.rear-1",
+    "character.resident-11.rear-2",
+    "character.resident-11.right-1",
+    "character.resident-11.right-2",
+    "character.resident-12.front-1",
+    "character.resident-12.front-2",
+    "character.resident-12.left-1",
+    "character.resident-12.left-2",
+    "character.resident-12.rear-1",
+    "character.resident-12.rear-2",
+    "character.resident-12.right-1",
+    "character.resident-12.right-2",
+    "character.resident-13.front-1",
+    "character.resident-13.front-2",
+    "character.resident-13.left-1",
+    "character.resident-13.left-2",
+    "character.resident-13.rear-1",
+    "character.resident-13.rear-2",
+    "character.resident-13.right-1",
+    "character.resident-13.right-2",
+    "character.resident-14.front-1",
+    "character.resident-14.front-2",
+    "character.resident-14.left-1",
+    "character.resident-14.left-2",
+    "character.resident-14.rear-1",
+    "character.resident-14.rear-2",
+    "character.resident-14.right-1",
+    "character.resident-14.right-2",
+    "character.resident-15.front-1",
+    "character.resident-15.front-2",
+    "character.resident-15.left-1",
+    "character.resident-15.left-2",
+    "character.resident-15.rear-1",
+    "character.resident-15.rear-2",
+    "character.resident-15.right-1",
+    "character.resident-15.right-2",
+    "character.resident-16.front-1",
+    "character.resident-16.front-2",
+    "character.resident-16.left-1",
+    "character.resident-16.left-2",
+    "character.resident-16.rear-1",
+    "character.resident-16.rear-2",
+    "character.resident-16.right-1",
+    "character.resident-16.right-2",
+    "character.resident-17.front-1",
+    "character.resident-17.front-2",
+    "character.resident-17.left-1",
+    "character.resident-17.left-2",
+    "character.resident-17.rear-1",
+    "character.resident-17.rear-2",
+    "character.resident-17.right-1",
+    "character.resident-17.right-2",
+    "character.resident-18.front-1",
+    "character.resident-18.front-2",
+    "character.resident-18.left-1",
+    "character.resident-18.left-2",
+    "character.resident-18.rear-1",
+    "character.resident-18.rear-2",
+    "character.resident-18.right-1",
+    "character.resident-18.right-2",
+    "character.resident-19.front-1",
+    "character.resident-19.front-2",
+    "character.resident-19.left-1",
+    "character.resident-19.left-2",
+    "character.resident-19.rear-1",
+    "character.resident-19.rear-2",
+    "character.resident-19.right-1",
+    "character.resident-19.right-2",
+    "character.resident-20.front-1",
+    "character.resident-20.front-2",
+    "character.resident-20.left-1",
+    "character.resident-20.left-2",
+    "character.resident-20.rear-1",
+    "character.resident-20.rear-2",
+    "character.resident-20.right-1",
+    "character.resident-20.right-2",
+    "character.resident-21.front-1",
+    "character.resident-21.front-2",
+    "character.resident-21.left-1",
+    "character.resident-21.left-2",
+    "character.resident-21.rear-1",
+    "character.resident-21.rear-2",
+    "character.resident-21.right-1",
+    "character.resident-21.right-2",
+    "character.resident-22.front-1",
+    "character.resident-22.front-2",
+    "character.resident-22.left-1",
+    "character.resident-22.left-2",
+    "character.resident-22.rear-1",
+    "character.resident-22.rear-2",
+    "character.resident-22.right-1",
+    "character.resident-22.right-2",
+    "character.resident-23.front-1",
+    "character.resident-23.front-2",
+    "character.resident-23.left-1",
+    "character.resident-23.left-2",
+    "character.resident-23.rear-1",
+    "character.resident-23.rear-2",
+    "character.resident-23.right-1",
+    "character.resident-23.right-2",
+    "character.resident-24.front-1",
+    "character.resident-24.front-2",
+    "character.resident-24.left-1",
+    "character.resident-24.left-2",
+    "character.resident-24.rear-1",
+    "character.resident-24.rear-2",
+    "character.resident-24.right-1",
+    "character.resident-24.right-2",
     "character.sora-tan.front-1",
     "character.sora-tan.front-2",
     "character.sora-tan.left-1",
@@ -3441,13 +6547,71 @@
     "character.tomas-reed.rear-1",
     "character.tomas-reed.rear-2",
     "character.tomas-reed.right-1",
-    "character.tomas-reed.right-2"
+    "character.tomas-reed.right-2",
+    "portrait.devon-price",
+    "portrait.devon-price.joy",
+    "portrait.devon-price.upset",
+    "portrait.elise-moreau",
+    "portrait.elise-moreau.joy",
+    "portrait.elise-moreau.upset",
+    "portrait.generic-resident",
+    "portrait.linda",
+    "portrait.linda-boyfriend",
+    "portrait.linda.joy",
+    "portrait.linda.upset",
+    "portrait.mina-park",
+    "portrait.mina-park.joy",
+    "portrait.mina-park.upset",
+    "portrait.priya-nair",
+    "portrait.priya-nair.joy",
+    "portrait.priya-nair.upset",
+    "portrait.protagonist",
+    "portrait.protagonist.joy",
+    "portrait.protagonist.upset",
+    "portrait.rafael-cruz",
+    "portrait.rafael-cruz.joy",
+    "portrait.rafael-cruz.upset",
+    "portrait.resident-01",
+    "portrait.resident-02",
+    "portrait.resident-03",
+    "portrait.resident-04",
+    "portrait.resident-05",
+    "portrait.resident-06",
+    "portrait.resident-07",
+    "portrait.resident-08",
+    "portrait.resident-09",
+    "portrait.resident-10",
+    "portrait.resident-11",
+    "portrait.resident-12",
+    "portrait.resident-13",
+    "portrait.resident-14",
+    "portrait.resident-15",
+    "portrait.resident-16",
+    "portrait.resident-17",
+    "portrait.resident-18",
+    "portrait.resident-19",
+    "portrait.resident-20",
+    "portrait.resident-21",
+    "portrait.resident-22",
+    "portrait.resident-23",
+    "portrait.resident-24",
+    "portrait.sora-tan",
+    "portrait.sora-tan.joy",
+    "portrait.sora-tan.upset",
+    "portrait.tomas-reed",
+    "portrait.tomas-reed.joy",
+    "portrait.tomas-reed.upset"
   ],
   "internalReviewSpriteIds": [],
   "characters": {
     "devon-price": {
       "displayName": "Devon Price",
       "portrait": "portrait.devon-price",
+      "portraits": {
+        "rest": "portrait.devon-price",
+        "joy": "portrait.devon-price.joy",
+        "upset": "portrait.devon-price.upset"
+      },
       "frames": {
         "front-1": "character.devon-price.front-1",
         "front-2": "character.devon-price.front-2",
@@ -3470,6 +6634,11 @@
     "elise-moreau": {
       "displayName": "Elise Moreau",
       "portrait": "portrait.elise-moreau",
+      "portraits": {
+        "rest": "portrait.elise-moreau",
+        "joy": "portrait.elise-moreau.joy",
+        "upset": "portrait.elise-moreau.upset"
+      },
       "frames": {
         "front-1": "character.elise-moreau.front-1",
         "front-2": "character.elise-moreau.front-2",
@@ -3492,6 +6661,9 @@
     "generic-resident": {
       "displayName": "Resident",
       "portrait": "portrait.generic-resident",
+      "portraits": {
+        "rest": "portrait.generic-resident"
+      },
       "frames": {
         "front-1": "character.generic-resident.front-1",
         "front-2": "character.generic-resident.front-2",
@@ -3514,6 +6686,11 @@
     "linda": {
       "displayName": "Linda",
       "portrait": "portrait.linda",
+      "portraits": {
+        "rest": "portrait.linda",
+        "joy": "portrait.linda.joy",
+        "upset": "portrait.linda.upset"
+      },
       "frames": {
         "front-1": "character.linda.front-1",
         "front-2": "character.linda.front-2",
@@ -3533,9 +6710,39 @@
         "held-item"
       ]
     },
+    "linda-boyfriend": {
+      "displayName": "Linda's Boyfriend",
+      "portrait": "portrait.linda-boyfriend",
+      "portraits": {
+        "rest": "portrait.linda-boyfriend"
+      },
+      "frames": {
+        "front-1": "character.linda-boyfriend.front-1",
+        "front-2": "character.linda-boyfriend.front-2",
+        "rear-1": "character.linda-boyfriend.rear-1",
+        "rear-2": "character.linda-boyfriend.rear-2",
+        "left-1": "character.linda-boyfriend.left-1",
+        "left-2": "character.linda-boyfriend.left-2",
+        "right-1": "character.linda-boyfriend.right-1",
+        "right-2": "character.linda-boyfriend.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
     "mina-park": {
       "displayName": "Mina Park",
       "portrait": "portrait.mina-park",
+      "portraits": {
+        "rest": "portrait.mina-park",
+        "joy": "portrait.mina-park.joy",
+        "upset": "portrait.mina-park.upset"
+      },
       "frames": {
         "front-1": "character.mina-park.front-1",
         "front-2": "character.mina-park.front-2",
@@ -3558,6 +6765,11 @@
     "priya-nair": {
       "displayName": "Priya Nair",
       "portrait": "portrait.priya-nair",
+      "portraits": {
+        "rest": "portrait.priya-nair",
+        "joy": "portrait.priya-nair.joy",
+        "upset": "portrait.priya-nair.upset"
+      },
       "frames": {
         "front-1": "character.priya-nair.front-1",
         "front-2": "character.priya-nair.front-2",
@@ -3580,6 +6792,11 @@
     "protagonist": {
       "displayName": "Protagonist",
       "portrait": "portrait.protagonist",
+      "portraits": {
+        "rest": "portrait.protagonist",
+        "joy": "portrait.protagonist.joy",
+        "upset": "portrait.protagonist.upset"
+      },
       "frames": {
         "front-1": "character.protagonist.front-1",
         "front-2": "character.protagonist.front-2",
@@ -3602,6 +6819,11 @@
     "rafael-cruz": {
       "displayName": "Rafael Cruz",
       "portrait": "portrait.rafael-cruz",
+      "portraits": {
+        "rest": "portrait.rafael-cruz",
+        "joy": "portrait.rafael-cruz.joy",
+        "upset": "portrait.rafael-cruz.upset"
+      },
       "frames": {
         "front-1": "character.rafael-cruz.front-1",
         "front-2": "character.rafael-cruz.front-2",
@@ -3621,9 +6843,614 @@
         "held-item"
       ]
     },
+    "resident-01": {
+      "displayName": "Resident 01",
+      "portrait": "portrait.resident-01",
+      "portraits": {
+        "rest": "portrait.resident-01"
+      },
+      "frames": {
+        "front-1": "character.resident-01.front-1",
+        "front-2": "character.resident-01.front-2",
+        "rear-1": "character.resident-01.rear-1",
+        "rear-2": "character.resident-01.rear-2",
+        "left-1": "character.resident-01.left-1",
+        "left-2": "character.resident-01.left-2",
+        "right-1": "character.resident-01.right-1",
+        "right-2": "character.resident-01.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-02": {
+      "displayName": "Resident 02",
+      "portrait": "portrait.resident-02",
+      "portraits": {
+        "rest": "portrait.resident-02"
+      },
+      "frames": {
+        "front-1": "character.resident-02.front-1",
+        "front-2": "character.resident-02.front-2",
+        "rear-1": "character.resident-02.rear-1",
+        "rear-2": "character.resident-02.rear-2",
+        "left-1": "character.resident-02.left-1",
+        "left-2": "character.resident-02.left-2",
+        "right-1": "character.resident-02.right-1",
+        "right-2": "character.resident-02.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-03": {
+      "displayName": "Resident 03",
+      "portrait": "portrait.resident-03",
+      "portraits": {
+        "rest": "portrait.resident-03"
+      },
+      "frames": {
+        "front-1": "character.resident-03.front-1",
+        "front-2": "character.resident-03.front-2",
+        "rear-1": "character.resident-03.rear-1",
+        "rear-2": "character.resident-03.rear-2",
+        "left-1": "character.resident-03.left-1",
+        "left-2": "character.resident-03.left-2",
+        "right-1": "character.resident-03.right-1",
+        "right-2": "character.resident-03.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-04": {
+      "displayName": "Resident 04",
+      "portrait": "portrait.resident-04",
+      "portraits": {
+        "rest": "portrait.resident-04"
+      },
+      "frames": {
+        "front-1": "character.resident-04.front-1",
+        "front-2": "character.resident-04.front-2",
+        "rear-1": "character.resident-04.rear-1",
+        "rear-2": "character.resident-04.rear-2",
+        "left-1": "character.resident-04.left-1",
+        "left-2": "character.resident-04.left-2",
+        "right-1": "character.resident-04.right-1",
+        "right-2": "character.resident-04.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-05": {
+      "displayName": "Resident 05",
+      "portrait": "portrait.resident-05",
+      "portraits": {
+        "rest": "portrait.resident-05"
+      },
+      "frames": {
+        "front-1": "character.resident-05.front-1",
+        "front-2": "character.resident-05.front-2",
+        "rear-1": "character.resident-05.rear-1",
+        "rear-2": "character.resident-05.rear-2",
+        "left-1": "character.resident-05.left-1",
+        "left-2": "character.resident-05.left-2",
+        "right-1": "character.resident-05.right-1",
+        "right-2": "character.resident-05.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-06": {
+      "displayName": "Resident 06",
+      "portrait": "portrait.resident-06",
+      "portraits": {
+        "rest": "portrait.resident-06"
+      },
+      "frames": {
+        "front-1": "character.resident-06.front-1",
+        "front-2": "character.resident-06.front-2",
+        "rear-1": "character.resident-06.rear-1",
+        "rear-2": "character.resident-06.rear-2",
+        "left-1": "character.resident-06.left-1",
+        "left-2": "character.resident-06.left-2",
+        "right-1": "character.resident-06.right-1",
+        "right-2": "character.resident-06.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-07": {
+      "displayName": "Resident 07",
+      "portrait": "portrait.resident-07",
+      "portraits": {
+        "rest": "portrait.resident-07"
+      },
+      "frames": {
+        "front-1": "character.resident-07.front-1",
+        "front-2": "character.resident-07.front-2",
+        "rear-1": "character.resident-07.rear-1",
+        "rear-2": "character.resident-07.rear-2",
+        "left-1": "character.resident-07.left-1",
+        "left-2": "character.resident-07.left-2",
+        "right-1": "character.resident-07.right-1",
+        "right-2": "character.resident-07.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-08": {
+      "displayName": "Resident 08",
+      "portrait": "portrait.resident-08",
+      "portraits": {
+        "rest": "portrait.resident-08"
+      },
+      "frames": {
+        "front-1": "character.resident-08.front-1",
+        "front-2": "character.resident-08.front-2",
+        "rear-1": "character.resident-08.rear-1",
+        "rear-2": "character.resident-08.rear-2",
+        "left-1": "character.resident-08.left-1",
+        "left-2": "character.resident-08.left-2",
+        "right-1": "character.resident-08.right-1",
+        "right-2": "character.resident-08.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-09": {
+      "displayName": "Resident 09",
+      "portrait": "portrait.resident-09",
+      "portraits": {
+        "rest": "portrait.resident-09"
+      },
+      "frames": {
+        "front-1": "character.resident-09.front-1",
+        "front-2": "character.resident-09.front-2",
+        "rear-1": "character.resident-09.rear-1",
+        "rear-2": "character.resident-09.rear-2",
+        "left-1": "character.resident-09.left-1",
+        "left-2": "character.resident-09.left-2",
+        "right-1": "character.resident-09.right-1",
+        "right-2": "character.resident-09.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-10": {
+      "displayName": "Resident 10",
+      "portrait": "portrait.resident-10",
+      "portraits": {
+        "rest": "portrait.resident-10"
+      },
+      "frames": {
+        "front-1": "character.resident-10.front-1",
+        "front-2": "character.resident-10.front-2",
+        "rear-1": "character.resident-10.rear-1",
+        "rear-2": "character.resident-10.rear-2",
+        "left-1": "character.resident-10.left-1",
+        "left-2": "character.resident-10.left-2",
+        "right-1": "character.resident-10.right-1",
+        "right-2": "character.resident-10.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-11": {
+      "displayName": "Resident 11",
+      "portrait": "portrait.resident-11",
+      "portraits": {
+        "rest": "portrait.resident-11"
+      },
+      "frames": {
+        "front-1": "character.resident-11.front-1",
+        "front-2": "character.resident-11.front-2",
+        "rear-1": "character.resident-11.rear-1",
+        "rear-2": "character.resident-11.rear-2",
+        "left-1": "character.resident-11.left-1",
+        "left-2": "character.resident-11.left-2",
+        "right-1": "character.resident-11.right-1",
+        "right-2": "character.resident-11.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-12": {
+      "displayName": "Resident 12",
+      "portrait": "portrait.resident-12",
+      "portraits": {
+        "rest": "portrait.resident-12"
+      },
+      "frames": {
+        "front-1": "character.resident-12.front-1",
+        "front-2": "character.resident-12.front-2",
+        "rear-1": "character.resident-12.rear-1",
+        "rear-2": "character.resident-12.rear-2",
+        "left-1": "character.resident-12.left-1",
+        "left-2": "character.resident-12.left-2",
+        "right-1": "character.resident-12.right-1",
+        "right-2": "character.resident-12.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-13": {
+      "displayName": "Resident 13",
+      "portrait": "portrait.resident-13",
+      "portraits": {
+        "rest": "portrait.resident-13"
+      },
+      "frames": {
+        "front-1": "character.resident-13.front-1",
+        "front-2": "character.resident-13.front-2",
+        "rear-1": "character.resident-13.rear-1",
+        "rear-2": "character.resident-13.rear-2",
+        "left-1": "character.resident-13.left-1",
+        "left-2": "character.resident-13.left-2",
+        "right-1": "character.resident-13.right-1",
+        "right-2": "character.resident-13.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-14": {
+      "displayName": "Resident 14",
+      "portrait": "portrait.resident-14",
+      "portraits": {
+        "rest": "portrait.resident-14"
+      },
+      "frames": {
+        "front-1": "character.resident-14.front-1",
+        "front-2": "character.resident-14.front-2",
+        "rear-1": "character.resident-14.rear-1",
+        "rear-2": "character.resident-14.rear-2",
+        "left-1": "character.resident-14.left-1",
+        "left-2": "character.resident-14.left-2",
+        "right-1": "character.resident-14.right-1",
+        "right-2": "character.resident-14.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-15": {
+      "displayName": "Resident 15",
+      "portrait": "portrait.resident-15",
+      "portraits": {
+        "rest": "portrait.resident-15"
+      },
+      "frames": {
+        "front-1": "character.resident-15.front-1",
+        "front-2": "character.resident-15.front-2",
+        "rear-1": "character.resident-15.rear-1",
+        "rear-2": "character.resident-15.rear-2",
+        "left-1": "character.resident-15.left-1",
+        "left-2": "character.resident-15.left-2",
+        "right-1": "character.resident-15.right-1",
+        "right-2": "character.resident-15.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-16": {
+      "displayName": "Resident 16",
+      "portrait": "portrait.resident-16",
+      "portraits": {
+        "rest": "portrait.resident-16"
+      },
+      "frames": {
+        "front-1": "character.resident-16.front-1",
+        "front-2": "character.resident-16.front-2",
+        "rear-1": "character.resident-16.rear-1",
+        "rear-2": "character.resident-16.rear-2",
+        "left-1": "character.resident-16.left-1",
+        "left-2": "character.resident-16.left-2",
+        "right-1": "character.resident-16.right-1",
+        "right-2": "character.resident-16.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-17": {
+      "displayName": "Resident 17",
+      "portrait": "portrait.resident-17",
+      "portraits": {
+        "rest": "portrait.resident-17"
+      },
+      "frames": {
+        "front-1": "character.resident-17.front-1",
+        "front-2": "character.resident-17.front-2",
+        "rear-1": "character.resident-17.rear-1",
+        "rear-2": "character.resident-17.rear-2",
+        "left-1": "character.resident-17.left-1",
+        "left-2": "character.resident-17.left-2",
+        "right-1": "character.resident-17.right-1",
+        "right-2": "character.resident-17.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-18": {
+      "displayName": "Resident 18",
+      "portrait": "portrait.resident-18",
+      "portraits": {
+        "rest": "portrait.resident-18"
+      },
+      "frames": {
+        "front-1": "character.resident-18.front-1",
+        "front-2": "character.resident-18.front-2",
+        "rear-1": "character.resident-18.rear-1",
+        "rear-2": "character.resident-18.rear-2",
+        "left-1": "character.resident-18.left-1",
+        "left-2": "character.resident-18.left-2",
+        "right-1": "character.resident-18.right-1",
+        "right-2": "character.resident-18.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-19": {
+      "displayName": "Resident 19",
+      "portrait": "portrait.resident-19",
+      "portraits": {
+        "rest": "portrait.resident-19"
+      },
+      "frames": {
+        "front-1": "character.resident-19.front-1",
+        "front-2": "character.resident-19.front-2",
+        "rear-1": "character.resident-19.rear-1",
+        "rear-2": "character.resident-19.rear-2",
+        "left-1": "character.resident-19.left-1",
+        "left-2": "character.resident-19.left-2",
+        "right-1": "character.resident-19.right-1",
+        "right-2": "character.resident-19.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-20": {
+      "displayName": "Resident 20",
+      "portrait": "portrait.resident-20",
+      "portraits": {
+        "rest": "portrait.resident-20"
+      },
+      "frames": {
+        "front-1": "character.resident-20.front-1",
+        "front-2": "character.resident-20.front-2",
+        "rear-1": "character.resident-20.rear-1",
+        "rear-2": "character.resident-20.rear-2",
+        "left-1": "character.resident-20.left-1",
+        "left-2": "character.resident-20.left-2",
+        "right-1": "character.resident-20.right-1",
+        "right-2": "character.resident-20.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-21": {
+      "displayName": "Resident 21",
+      "portrait": "portrait.resident-21",
+      "portraits": {
+        "rest": "portrait.resident-21"
+      },
+      "frames": {
+        "front-1": "character.resident-21.front-1",
+        "front-2": "character.resident-21.front-2",
+        "rear-1": "character.resident-21.rear-1",
+        "rear-2": "character.resident-21.rear-2",
+        "left-1": "character.resident-21.left-1",
+        "left-2": "character.resident-21.left-2",
+        "right-1": "character.resident-21.right-1",
+        "right-2": "character.resident-21.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-22": {
+      "displayName": "Resident 22",
+      "portrait": "portrait.resident-22",
+      "portraits": {
+        "rest": "portrait.resident-22"
+      },
+      "frames": {
+        "front-1": "character.resident-22.front-1",
+        "front-2": "character.resident-22.front-2",
+        "rear-1": "character.resident-22.rear-1",
+        "rear-2": "character.resident-22.rear-2",
+        "left-1": "character.resident-22.left-1",
+        "left-2": "character.resident-22.left-2",
+        "right-1": "character.resident-22.right-1",
+        "right-2": "character.resident-22.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-23": {
+      "displayName": "Resident 23",
+      "portrait": "portrait.resident-23",
+      "portraits": {
+        "rest": "portrait.resident-23"
+      },
+      "frames": {
+        "front-1": "character.resident-23.front-1",
+        "front-2": "character.resident-23.front-2",
+        "rear-1": "character.resident-23.rear-1",
+        "rear-2": "character.resident-23.rear-2",
+        "left-1": "character.resident-23.left-1",
+        "left-2": "character.resident-23.left-2",
+        "right-1": "character.resident-23.right-1",
+        "right-2": "character.resident-23.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
+    "resident-24": {
+      "displayName": "Resident 24",
+      "portrait": "portrait.resident-24",
+      "portraits": {
+        "rest": "portrait.resident-24"
+      },
+      "frames": {
+        "front-1": "character.resident-24.front-1",
+        "front-2": "character.resident-24.front-2",
+        "rear-1": "character.resident-24.rear-1",
+        "rear-2": "character.resident-24.rear-2",
+        "left-1": "character.resident-24.left-1",
+        "left-2": "character.resident-24.left-2",
+        "right-1": "character.resident-24.right-1",
+        "right-2": "character.resident-24.right-2"
+      },
+      "sourceLayers": [
+        "legs",
+        "torso-and-clothing",
+        "head-and-face",
+        "hair",
+        "accessory",
+        "held-item"
+      ]
+    },
     "sora-tan": {
       "displayName": "Sora Tan",
       "portrait": "portrait.sora-tan",
+      "portraits": {
+        "rest": "portrait.sora-tan",
+        "joy": "portrait.sora-tan.joy",
+        "upset": "portrait.sora-tan.upset"
+      },
       "frames": {
         "front-1": "character.sora-tan.front-1",
         "front-2": "character.sora-tan.front-2",
@@ -3646,6 +7473,11 @@
     "tomas-reed": {
       "displayName": "Tomas Reed",
       "portrait": "portrait.tomas-reed",
+      "portraits": {
+        "rest": "portrait.tomas-reed",
+        "joy": "portrait.tomas-reed.joy",
+        "upset": "portrait.tomas-reed.upset"
+      },
       "frames": {
         "front-1": "character.tomas-reed.front-1",
         "front-2": "character.tomas-reed.front-2",

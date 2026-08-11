@@ -18,8 +18,8 @@ describe('atlas category and forecast budget', () => {
     const manifest = loadArtManifest();
     const report = createAtlasBudgetReport([], manifest);
     expect(report.forecast).toMatchObject({
-      cellCount: 634,
-      rawRectangleArea: 714_744,
+      cellCount: 645,
+      rawRectangleArea: 636_350,
       width: 1024,
     });
     expect(report.forecast.height).toBeLessThanOrEqual(1024);
@@ -32,7 +32,7 @@ describe('atlas category and forecast budget', () => {
     const cells: BudgetCell[] = [{ id: 'tile.warm-sand', category: 'ground-base', width: 32, height: 32 }];
     const report = createAtlasBudgetReport(cells, manifest);
     expect(report.categories['ground-base']).toMatchObject({ actualCount: 1, maximumCount: 48 });
-    expect(report.forecast.rawRectangleArea).toBe(714_744);
+    expect(report.forecast.rawRectangleArea).toBe(636_350);
   });
 
   test('stops a category overrun with the required reduction action', () => {
