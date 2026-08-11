@@ -322,3 +322,35 @@ Villa wall source modules are local to the `villa` palette. Downtown, commercial
 Beds, sofas, tables, counters, spa signs, market signs, lamps, planters, and palms use the warm-noir resort palette. Each solid footprint offset must have a render part at the same offset with at least 128 visible pixels. Decorative overhangs can use transparent pixels, but they cannot add collision or close a walk lane.
 
 Review all changed cells on `sunward-architecture-1x.png` first. The `3x` board is only an inspection aid. Review the four material boards at native size before the scaled copies.
+
+## 19. Phase 31 Tier B district family ledger
+
+Phase 31 changes presentation only for cells already used by Neon Crescent, Palm Exchange, and Harbor Authority. The three authoritative map files keep layout revision `1`. Their placement, solid-owner, route, density, and interaction hashes must match `phase-31-content-authority-baseline.json` exactly.
+
+### 19.1 Map-specific shared materials
+
+| District | Shared material treatment | Unique material treatment | Native rule |
+|---|---|---|---|
+| Neon Crescent | purple-gray boardwalk, paver, and worn sand overrides | two charcoal asphalt cells with broken amber lane paint | neon stays in small cyan and magenta wear marks; it cannot wash the full ground |
+| Palm Exchange | cream-and-coral sand, boardwalk, and concrete overrides | the completed warm timber shop floor | warm commercial surfaces remain lighter than characters and doors |
+| Harbor Authority | salt-gray boardwalk, concrete, and paver overrides | navy water and sage-gray service stone | rust, navy, and safety amber stay sparse and cannot look interactive |
+
+Map overrides keep the stable public base material IDs in map data. The presentation compiler selects the district cell set from the map ID. Logical variant selection, collision, routes, saves, and simulation randomness do not change. Every structured override keeps its shared construction seams.
+
+### 19.2 Tier B wall structures
+
+| Wall family | Structural identity | Accent rule |
+|---|---|---|
+| Downtown | dark metal service panel with inset vents and thin edge rails | cyan and magenta are isolated status marks |
+| Commercial | cream storefront face with coral awning segments and green shop panels | stripes stay on the upper face and do not close an opening |
+| Civic | heavy salt-gray concrete face with a navy authority band | safety amber and rust stay below door and character contrast |
+
+All 16 adjacency masks are unique within each family. The three Tier B families differ by geometry and alpha silhouette, not only by palette. The compiled wall cells stay on their original one-cell footprints.
+
+### 19.3 Existing signs, fixtures, and landmark
+
+The existing neon sign uses a dark frame with two small light tubes. The market sign uses a striped coral-and-cream awning. The civic sign uses a navy panel and amber authority mark. The shared counter, sodium lamp, and planter gain contact mass and internal material separation without changing a render-part offset or solid footprint.
+
+The existing two-cell ferry is composed before it is split. Its navy cabin, pale windows, amber safety stripe, salt-gray hull, and rust wear cross the internal seam without adding a cell or interaction.
+
+The Tier B maps have no roof groups and no doors in their authoritative sources. Roof and door review is `N/A`; Phase 31 does not add fake geometry to create evidence. Review the native `1x` district material, wall, object, and fixed-camera boards before the `3x` inspection copies.

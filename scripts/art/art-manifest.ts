@@ -49,6 +49,7 @@ const MaterialRecipeFileSchema = z.object({
   materials: z.array(z.object({
     publicBaseSprite: z.string().min(1),
     publicVariantSprites: z.array(z.string().min(1)).min(2).max(8),
+    mapVariantSprites: z.record(z.string().min(1), z.array(z.string().min(1)).min(2).max(8)).default({}),
   }).passthrough()),
 }).passthrough();
 const RoofRecipeFileSchema = z.object({
@@ -103,6 +104,7 @@ export function loadArtPresentationRecipeManifest(root = process.cwd()): ArtPres
   const runtime = loadArtPresentationRuntimeRecipes(root);
   const publicSpriteIds = [
     ...runtime.materials.flatMap(({ publicVariantSprites }) => publicVariantSprites),
+    ...runtime.materials.flatMap(({ mapVariantSprites }) => Object.values(mapVariantSprites).flat()),
     ...Object.values(runtime.defaultRoof.publicSprites),
     ...runtime.decalFamilies.flatMap(({ publicSprites }) => publicSprites),
     ...runtime.transitionFamilies.flatMap(({ publicSpritePrefix }) =>

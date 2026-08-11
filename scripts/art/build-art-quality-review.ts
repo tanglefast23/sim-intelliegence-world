@@ -6,6 +6,7 @@ import { writeReviewSheet } from './build-review-sheet';
 import { writePrototypeReview } from './build-prototype-review';
 import { writeFullCastReview } from './build-full-cast-review';
 import { writeSunwardReview } from './build-sunward-review';
+import { writeTierBReview } from './build-tier-b-review';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 
 function main(root = process.cwd()): void {
@@ -17,6 +18,7 @@ function main(root = process.cwd()): void {
   const prototype = writePrototypeReview(outputRoot, root);
   const fullCast = writeFullCastReview(outputRoot, root);
   const sunward = writeSunwardReview(outputRoot, root);
+  const tierB = writeTierBReview(outputRoot, root);
   const report = JSON.parse(
     readFileSync(resolve(root, 'assets/generated/atlas-report.json'), 'utf8'),
   ) as AtlasGenerationReport;
@@ -34,6 +36,9 @@ function main(root = process.cwd()): void {
       'full-cast-review-report.json',
       ...sunward.files,
       'sunward-review-report.json',
+      ...tierB.files,
+      'tier-b-review-report.json',
+      'tier-b-content-authority-report.json',
       'atlas-report.json',
     ],
   }, null, 2)}\n`, { encoding: 'utf8', flush: true });

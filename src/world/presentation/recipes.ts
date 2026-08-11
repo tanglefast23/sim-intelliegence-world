@@ -20,6 +20,7 @@ export const MaterialRecipeSchema = z.object({
   publicBaseSprite: PublicSpriteSchema,
   logicalVariants: z.array(StableIdSchema).min(2).max(8),
   publicVariantSprites: z.array(PublicSpriteSchema).min(2).max(8),
+  mapVariantSprites: z.record(z.string().min(1), z.array(PublicSpriteSchema).min(2).max(8)).default({}),
   paletteRamp: z.array(HexColorSchema).min(3).max(8),
   densityBand: z.enum([
     'natural-low',
@@ -33,9 +34,18 @@ export const MaterialRecipeSchema = z.object({
   decalFamily: StableIdSchema.nullable(),
   transitionPriority: z.number().int().min(0).max(100),
   selectionSalt: StableIdSchema,
-}).strict().refine(({ logicalVariants, publicVariantSprites }) =>
-  logicalVariants.length === publicVariantSprites.length, {
-  message: 'Logical material variants and public sprite variants must have equal length.',
+}).strict().superRefine(({ logicalVariants, publicVariantSprites, mapVariantSprites }, context) => {
+  if (logicalVariants.length !== publicVariantSprites.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'Logical material variants and public sprite variants must have equal length.' });
+  }
+  for (const [mapId, sprites] of Object.entries(mapVariantSprites)) {
+    if (sprites.length !== logicalVariants.length) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Map material variants for ${mapId} must match the logical variant count.`,
+      });
+    }
+  }
 });
 
 export const RoofRecipeSchema = z.object({
@@ -80,9 +90,10 @@ type ParsedMaterialRecipe = z.infer<typeof MaterialRecipeSchema>;
 type ParsedDecalRecipe = z.infer<typeof DecalRecipeSchema>;
 type ParsedTransitionRecipe = z.infer<typeof TransitionRecipeSchema>;
 export type MaterialRecipe = Readonly<
-  Omit<ParsedMaterialRecipe, 'logicalVariants' | 'publicVariantSprites' | 'paletteRamp'> & {
+  Omit<ParsedMaterialRecipe, 'logicalVariants' | 'publicVariantSprites' | 'mapVariantSprites' | 'paletteRamp'> & {
     logicalVariants: readonly string[];
     publicVariantSprites: readonly string[];
+    mapVariantSprites: Readonly<Record<string, readonly string[]>>;
     paletteRamp: readonly string[];
   }
 >;
@@ -101,7 +112,10 @@ unique('Material recipes', runtimeRecipes.materials.map(({ id }) => id));
 unique('Material public base sprites', runtimeRecipes.materials.map(({ publicBaseSprite }) => publicBaseSprite));
 const spriteOwners = new Map<string, string>();
 for (const recipe of runtimeRecipes.materials) {
-  for (const sprite of recipe.publicVariantSprites) {
+  for (const sprite of [
+    ...recipe.publicVariantSprites,
+    ...Object.values(recipe.mapVariantSprites).flat(),
+  ]) {
     const owner = spriteOwners.get(sprite);
     if (owner && owner !== recipe.id) throw new Error(`Material sprite ${sprite} belongs to multiple recipes.`);
     spriteOwners.set(sprite, recipe.id);
@@ -114,11 +128,16 @@ export const MATERIAL_RECIPES = Object.freeze(runtimeRecipes.materials.map((reci
   ...recipe,
   logicalVariants: Object.freeze([...recipe.logicalVariants]),
   publicVariantSprites: Object.freeze([...recipe.publicVariantSprites]),
+  mapVariantSprites: Object.freeze(Object.fromEntries(Object.entries(recipe.mapVariantSprites).map(([mapId, sprites]) => [
+    mapId,
+    Object.freeze([...sprites]),
+  ]))),
   paletteRamp: Object.freeze([...recipe.paletteRamp]),
 })));
 export const MATERIAL_RECIPE_BY_SPRITE: Readonly<Record<string, MaterialRecipe>> = Object.freeze(
   Object.fromEntries(MATERIAL_RECIPES.flatMap((recipe) =>
-    recipe.publicVariantSprites.map((sprite) => [sprite, recipe] as const))),
+    [...recipe.publicVariantSprites, ...Object.values(recipe.mapVariantSprites).flat()]
+      .map((sprite) => [sprite, recipe] as const))),
 );
 export const MATERIAL_RECIPE_BY_ID: Readonly<Record<string, MaterialRecipe>> = Object.freeze(
   Object.fromEntries(MATERIAL_RECIPES.map((recipe) => [recipe.id, recipe])),

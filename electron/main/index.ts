@@ -41,6 +41,7 @@ const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
 const fullCastPortraitSmokeMode = process.env.SI_WORLD_FULL_CAST_PORTRAIT_SMOKE === '1';
 const proceduralVfxSmokeMode = process.env.SI_WORLD_PROCEDURAL_VFX_SMOKE === '1';
 const proceduralVfxReducedMode = process.env.SI_WORLD_PROCEDURAL_VFX_REDUCED === '1';
+const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
@@ -295,6 +296,27 @@ async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<
     button.click();
   })()`, true);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+}
+
+async function captureTierBMapZoomSet(
+  window: BrowserWindow,
+  directory: string,
+  label: 'downtown' | 'commercial' | 'ferry',
+  oneXBuffer: Buffer,
+): Promise<Buffer> {
+  await writeFile(join(directory, `world-${label}-1x.png`), oneXBuffer, { flush: true });
+  const buffers = [oneXBuffer];
+  for (const zoom of [2, 3] as const) {
+    await clickZoomButton(window, zoom);
+    buffers.push(await captureDistinctSmokeScreenshot(
+      window,
+      join(directory, `world-${label}-${zoom}x.png`),
+      buffers,
+      4_000,
+    ));
+  }
+  await clickZoomButton(window, 1);
+  return buffers.at(-1) as Buffer;
 }
 
 async function clickUiScaleButton(window: BrowserWindow, percentage: 100 | 125 | 150): Promise<void> {
@@ -1469,6 +1491,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-downtown.png'), [previousWorldBuffer],
   );
+  if (tierBArtSmokeMode) {
+    previousWorldBuffer = await captureTierBMapZoomSet(window, directory, 'downtown', previousWorldBuffer);
+  }
 
   await panWorld(window, 0, -500);
   await dispatchWorldTileClick(window, { x: 32, y: 47 });
@@ -1480,6 +1505,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-ferry.png'), [previousWorldBuffer],
   );
+  if (tierBArtSmokeMode) {
+    previousWorldBuffer = await captureTierBMapZoomSet(window, directory, 'ferry', previousWorldBuffer);
+  }
 
   await panWorld(window, 500, 0);
   await dispatchWorldTileClick(window, { x: 0, y: 24 });
@@ -1488,6 +1516,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-commercial.png'), [previousWorldBuffer],
   );
+  if (tierBArtSmokeMode) {
+    previousWorldBuffer = await captureTierBMapZoomSet(window, directory, 'commercial', previousWorldBuffer);
+  }
 
   await panWorld(window, 500, 500);
   await dispatchWorldTileClick(window, { x: 32, y: 0 });

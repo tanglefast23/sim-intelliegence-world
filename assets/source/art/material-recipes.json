@@ -1,12 +1,17 @@
 {
   "schemaVersion": 1,
-  "artRevision": 4,
+  "artRevision": 5,
   "materials": [
     {
       "id": "boardwalk",
       "publicBaseSprite": "tile.boardwalk",
       "logicalVariants": ["boardwalk-a", "boardwalk-b"],
       "publicVariantSprites": ["tile.boardwalk", "tile.boardwalk-b"],
+      "mapVariantSprites": {
+        "northeast_downtown": ["tile.boardwalk-neon-a", "tile.boardwalk-neon-b"],
+        "southwest_commercial": ["tile.boardwalk-palm-a", "tile.boardwalk-palm-b"],
+        "southeast_docks": ["tile.boardwalk-harbor-a", "tile.boardwalk-harbor-b"]
+      },
       "paletteRamp": ["#5b3427", "#85523a", "#b57950"],
       "densityBand": "structured-medium",
       "seamMode": "coordinate-phase",
@@ -19,7 +24,7 @@
       "id": "dark-asphalt",
       "publicBaseSprite": "tile.dark-asphalt",
       "logicalVariants": ["dark-asphalt-a", "dark-asphalt-b"],
-      "publicVariantSprites": ["tile.dark-asphalt", "tile.dark-asphalt"],
+      "publicVariantSprites": ["tile.dark-asphalt", "tile.dark-asphalt-b"],
       "paletteRamp": ["#242424", "#343434", "#4a4540"],
       "densityBand": "structured-low",
       "seamMode": "coordinate-phase",
@@ -59,6 +64,10 @@
       "publicBaseSprite": "tile.pale-concrete",
       "logicalVariants": ["pale-concrete-a", "pale-concrete-b"],
       "publicVariantSprites": ["tile.pale-concrete", "tile.pale-concrete"],
+      "mapVariantSprites": {
+        "southwest_commercial": ["tile.pale-concrete-palm-a", "tile.pale-concrete-palm-b"],
+        "southeast_docks": ["tile.pale-concrete-harbor-a", "tile.pale-concrete-harbor-b"]
+      },
       "paletteRamp": ["#8f8a7e", "#b5ad9d", "#d2c8b4"],
       "densityBand": "structured-low",
       "seamMode": "coordinate-phase",
@@ -72,6 +81,10 @@
       "publicBaseSprite": "tile.plaza-paver",
       "logicalVariants": ["plaza-paver-a", "plaza-paver-b"],
       "publicVariantSprites": ["tile.plaza-paver", "tile.plaza-paver-b"],
+      "mapVariantSprites": {
+        "northeast_downtown": ["tile.plaza-paver-neon-a", "tile.plaza-paver-neon-b"],
+        "southeast_docks": ["tile.plaza-paver-harbor-a", "tile.plaza-paver-harbor-b"]
+      },
       "paletteRamp": ["#725b4c", "#957664", "#b8957c"],
       "densityBand": "structured-medium",
       "seamMode": "coordinate-phase",
@@ -124,6 +137,14 @@
       "publicBaseSprite": "tile.warm-sand",
       "logicalVariants": ["warm-sand-a", "warm-sand-b", "warm-sand-c", "warm-sand-d"],
       "publicVariantSprites": ["tile.warm-sand", "tile.warm-sand-b", "tile.warm-sand-c", "tile.warm-sand-d"],
+      "mapVariantSprites": {
+        "northeast_downtown": [
+          "tile.warm-sand-neon-a", "tile.warm-sand-neon-b", "tile.warm-sand-neon-c", "tile.warm-sand-neon-d"
+        ],
+        "southwest_commercial": [
+          "tile.warm-sand-palm-a", "tile.warm-sand-palm-b", "tile.warm-sand-palm-c", "tile.warm-sand-palm-d"
+        ]
+      },
       "paletteRamp": ["#9f7141", "#c69356", "#e2b66c"],
       "densityBand": "natural-low",
       "seamMode": "hashed",

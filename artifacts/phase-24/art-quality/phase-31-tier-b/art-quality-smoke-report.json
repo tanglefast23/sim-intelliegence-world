@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 5,
+  "testedCommit": "3c823b7552f7eb9796cfeabfac74140eba63ad63",
+  "packageProvenance": {
+    "executable": "/Users/joemacprom5/.codex/worktrees/si-world-phase31-art/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
+    "sizeBytes": 33968,
+    "modifiedMilliseconds": 1786449366545,
+    "payload": "/Users/joemacprom5/.codex/worktrees/si-world-phase31-art/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+    "payloadSizeBytes": 16777151,
+    "payloadSha256": "5f48782458733746e7a8e225ac0e2510d8fd7568d1b5e86dc58f167aba451528"
+  },
+  "capturePolicy": {
+    "stateBased": true,
+    "minimumPaints": 2,
+    "absoluteDeadlineMilliseconds": 1786451191550,
+    "pngPixelValidation": true
+  },
+  "fixedCamera": [
+    {
+      "zoom": 1,
+      "legacy": "legacy/1920x1080-1x.png",
+      "enhanced": "enhanced/1920x1080-1x.png"
+    },
+    {
+      "zoom": 2,
+      "legacy": "legacy/1920x1080-2x.png",
+      "enhanced": "enhanced/1920x1080-2x.png"
+    },
+    {
+      "zoom": 3,
+      "legacy": "legacy/1920x1080-3x.png",
+      "enhanced": "enhanced/1920x1080-3x.png"
+    }
+  ],
+  "grayscaleFixedCamera": "fixed-camera-1x-grayscale.png",
+  "conversationFixtures": {
+    "1": "enhanced/1600x720-conversation.png",
+    "1.25": "enhanced/1920x1080-conversation.png",
+    "1.5": "enhanced/2560x1440-conversation.png"
+  },
+  "lifecycleFiles": [
+    "lifecycle/world-new-game.png",
+    "lifecycle/world-1x.png",
+    "lifecycle/world-2x.png",
+    "lifecycle/world-3x.png",
+    "lifecycle/world-roof-restored.png",
+    "lifecycle/world-downtown.png",
+    "lifecycle/world-commercial.png",
+    "lifecycle/world-ferry.png",
+    "lifecycle/world-loop-complete.png",
+    "lifecycle/world-conversation.png",
+    "lifecycle/world-downtown-1x.png",
+    "lifecycle/world-downtown-2x.png",
+    "lifecycle/world-downtown-3x.png",
+    "lifecycle/world-commercial-1x.png",
+    "lifecycle/world-commercial-2x.png",
+    "lifecycle/world-commercial-3x.png",
+    "lifecycle/world-ferry-1x.png",
+    "lifecycle/world-ferry-2x.png",
+    "lifecycle/world-ferry-3x.png"
+  ],
+  "reports": {
+    "legacyResponsive": "legacy/responsive-report.json",
+    "enhancedResponsive": "enhanced/responsive-report.json",
+    "performance": "performance/art-mode-comparison-report.json"
+  },
+  "hashes": {
+    "atlas": "383de3461c08997cbc46dce876ca1da59c8d919456036c1c4b7c15e77b31472b",
+    "index": "98376e07f16256d4e6509ec85ed8be94a5486c64775b35ba75b828a8ee589c20",
+    "manifest": "5394ca970acacd71a9a523822d2141c5ee1254ebb5fba2abc2844bf5c7995d48",
+    "northwestMap": "a831fbbe8f3a9d379a15aaa5be81fb17b3c2248cfde697e4d6e9bd7867386982",
+    "renderer": "47b92caf09eae38c0149fd5b2244844a1d24ae89e1878cd995feab396b8276e5",
+    "smoke": "9d20450842b5ad967f3faa96974558864cd570989766a738e152be3cb9397ee4"
+  }
+}

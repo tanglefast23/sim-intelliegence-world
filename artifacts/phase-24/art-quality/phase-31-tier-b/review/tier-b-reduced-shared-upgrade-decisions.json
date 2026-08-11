@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "phase": 31,
+  "reviewScope": "tier-b-reduced-shared-upgrade",
+  "testedCommit": "3c823b7552f7eb9796cfeabfac74140eba63ad63",
+  "decision": "pass",
+  "sharedEvidence": {
+    "contentAuthority": "tier-b-content-authority-report.json",
+    "artQualityPackage": "../art-quality-smoke-report.json",
+    "responsiveQualification": "../responsive/responsive-report.json",
+    "contentAuthorityBaselineMatch": true,
+    "presentationOnlyChange": true
+  },
+  "maps": [
+    {
+      "mapId": "northeast_downtown",
+      "authoritativeHash": "179d902a310dfdfce89f3d325b9c36771410cd83c245f80393df44f6c64c14fe",
+      "compiledFacts": {
+        "doors": 0,
+        "portals": 2,
+        "wallGroups": 1,
+        "objects": 2,
+        "spawns": 6,
+        "roofGroups": 0,
+        "terrainSolids": 0
+      },
+      "evidence": {
+        "nativeMaterialBoard": "tier-b-northeast_downtown-materials-1x.png",
+        "wallBoard": "tier-b-walls-1x.png",
+        "objectBoard": "tier-b-objects-landmark-1x.png",
+        "worldCaptures": [
+          "../lifecycle/world-downtown-1x.png",
+          "../lifecycle/world-downtown-2x.png",
+          "../lifecycle/world-downtown-3x.png"
+        ]
+      },
+      "checks": {
+        "existingPathsNoLessReadable": "pass",
+        "existingPortalsNoLessReadable": "pass",
+        "existingWallsNoLessReadable": "pass",
+        "existingSolidsNoLessReadable": "pass",
+        "existingCharactersNoLessReadable": "pass",
+        "existingSignsNoLessReadable": "pass",
+        "districtPaletteDistinctAtNative1x": "pass",
+        "noBlurOrAtlasSeam": "pass",
+        "noFalseBlockerOrInteraction": "pass",
+        "noContentPlacementOrGeometryAdded": "pass"
+      },
+      "notApplicable": {
+        "doors": "The authoritative map has zero doors.",
+        "roofs": "The authoritative map has zero roof groups."
+      }
+    },
+    {
+      "mapId": "southwest_commercial",
+      "authoritativeHash": "5f16c22f3551d0b996495425e36ee7eb8e292b80dac147ae2e7d22544c8e34eb",
+      "compiledFacts": {
+        "doors": 0,
+        "portals": 2,
+        "wallGroups": 1,
+        "objects": 2,
+        "spawns": 5,
+        "roofGroups": 0,
+        "terrainSolids": 0
+      },
+      "evidence": {
+        "nativeMaterialBoard": "tier-b-southwest_commercial-materials-1x.png",
+        "wallBoard": "tier-b-walls-1x.png",
+        "objectBoard": "tier-b-objects-landmark-1x.png",
+        "worldCaptures": [
+          "../lifecycle/world-commercial-1x.png",
+          "../lifecycle/world-commercial-2x.png",
+          "../lifecycle/world-commercial-3x.png"
+        ]
+      },
+      "checks": {
+        "existingPathsNoLessReadable": "pass",
+        "existingPortalsNoLessReadable": "pass",
+        "existingWallsNoLessReadable": "pass",
+        "existingSolidsNoLessReadable": "pass",
+        "existingCharactersNoLessReadable": "pass",
+        "existingSignsNoLessReadable": "pass",
+        "districtPaletteDistinctAtNative1x": "pass",
+        "noBlurOrAtlasSeam": "pass",
+        "noFalseBlockerOrInteraction": "pass",
+        "noContentPlacementOrGeometryAdded": "pass"
+      },
+      "notApplicable": {
+        "doors": "The authoritative map has zero doors.",
+        "roofs": "The authoritative map has zero roof groups."
+      }
+    },
+    {
+      "mapId": "southeast_docks",
+      "authoritativeHash": "a6dc3f7e7a97e4c5d5d6ed742c0a634624c1aed371a21bd83cbd1338947e04fb",
+      "compiledFacts": {
+        "doors": 0,
+        "portals": 2,
+        "wallGroups": 1,
+        "objects": 3,
+        "spawns": 4,
+        "roofGroups": 0,
+        "terrainSolids": 1
+      },
+      "evidence": {
+        "nativeMaterialBoard": "tier-b-southeast_docks-materials-1x.png",
+        "wallBoard": "tier-b-walls-1x.png",
+        "objectBoard": "tier-b-objects-landmark-1x.png",
+        "worldCaptures": [
+          "../lifecycle/world-ferry-1x.png",
+          "../lifecycle/world-ferry-2x.png",
+          "../lifecycle/world-ferry-3x.png"
+        ]
+      },
+      "checks": {
+        "existingPathsNoLessReadable": "pass",
+        "existingPortalsNoLessReadable": "pass",
+        "existingWallsNoLessReadable": "pass",
+        "existingSolidsNoLessReadable": "pass",
+        "existingCharactersNoLessReadable": "pass",
+        "existingSignsNoLessReadable": "pass",
+        "districtPaletteDistinctAtNative1x": "pass",
+        "noBlurOrAtlasSeam": "pass",
+        "noFalseBlockerOrInteraction": "pass",
+        "noContentPlacementOrGeometryAdded": "pass"
+      },
+      "notApplicable": {
+        "doors": "The authoritative map has zero doors.",
+        "roofs": "The authoritative map has zero roof groups."
+      }
+    }
+  ]
+}

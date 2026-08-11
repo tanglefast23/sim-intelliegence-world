@@ -22,6 +22,7 @@ const outputRoot = resolveEvidenceOutputRoot(argumentsValue, {
     'artifacts/phase-24/art-quality/phase-28-prototype',
     'artifacts/phase-24/art-quality/phase-29-full-cast',
     'artifacts/phase-24/art-quality/phase-30-sunward',
+    'artifacts/phase-24/art-quality/phase-31-tier-b',
   ],
 });
 mkdirSync(outputRoot, { recursive: true });
@@ -87,7 +88,10 @@ run('same-package-performance', 'scripts/electron/run-responsive-package-smoke.t
 ]);
 run('world-lifecycle', 'scripts/electron/run-package-smoke.ts', [
   '--output-root', join(outputRoot, 'lifecycle'),
-], { SI_WORLD_SMOKE_PROFILE: 'qualification' });
+], {
+  SI_WORLD_SMOKE_PROFILE: 'qualification',
+  ...(ATLAS_INDEX.artRevision >= 5 ? { SI_WORLD_TIER_B_ART_SMOKE: '1' } : {}),
+});
 
 const legacy = readResponsive('legacy');
 const enhanced = readResponsive('enhanced');
@@ -112,6 +116,10 @@ const lifecycleFiles = [
   'world-roof-restored.png', 'world-downtown.png', 'world-commercial.png',
   'world-ferry.png', 'world-loop-complete.png', 'world-conversation.png',
 ].map((name) => `lifecycle/${name}`);
+if (ATLAS_INDEX.artRevision >= 5) {
+  lifecycleFiles.push(...['downtown', 'commercial', 'ferry'].flatMap((label) =>
+    [1, 2, 3].map((zoom) => `lifecycle/world-${label}-${zoom}x.png`)));
+}
 
 const report: ArtQualityEvidence = {
   schemaVersion: 1,
