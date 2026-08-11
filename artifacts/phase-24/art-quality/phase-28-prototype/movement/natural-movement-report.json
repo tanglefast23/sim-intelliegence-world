@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 1,
-  "testedCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
+  "schemaVersion": 2,
+  "testedCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
   "evidenceSource": {
-    "baseCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
-    "sourceSha256": "620be372a965725c5cb7e2705f9791441c040ace45e26d22a152b57dd1e5d079",
+    "baseCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
+    "sourceSha256": "bcc94f2723c2b79c6e519be52df21e2960a47b89870a3ed89a2d92a5a71080cd",
     "sourcePaths": [
       ".github/workflows/ci.yml",
       "electron/main/index.ts",
@@ -2130,8 +2130,8 @@
                 "y": 33
               },
               "visualFoot": {
-                "x": 915.3717073170732,
-                "y": 1056.371707317073
+                "x": 914.0136585365854,
+                "y": 1055.0136585365854
               },
               "direction": "up",
               "walkFrame": 1,
@@ -2144,8 +2144,8 @@
                 "y": 28
               },
               "visualFoot": {
-                "x": 780.6282926829268,
-                "y": 953.6282926829268
+                "x": 781.9863414634146,
+                "y": 954.9863414634146
               },
               "direction": "down",
               "walkFrame": 1,
@@ -2162,8 +2162,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 593.2019512195122,
-              "y": 606.2019512195122
+              "x": 593.2956097560975,
+              "y": 606.2956097560975
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2181,8 +2181,8 @@
                 "y": 33
               },
               "visualFoot": {
-                "x": 914.1697560975609,
-                "y": 1055.169756097561
+                "x": 912.7180487804878,
+                "y": 1053.7180487804878
               },
               "direction": "up",
               "walkFrame": 1,
@@ -2195,8 +2195,8 @@
                 "y": 28
               },
               "visualFoot": {
-                "x": 781.8302439024391,
-                "y": 954.8302439024391
+                "x": 783.2819512195122,
+                "y": 956.2819512195122
               },
               "direction": "down",
               "walkFrame": 1,
@@ -2213,59 +2213,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 594.4663414634147,
-              "y": 607.4663414634147
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 29,
-                "y": 33
-              },
-              "visualFoot": {
-                "x": 912.9053658536585,
-                "y": 1053.9053658536586
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 23,
-                "y": 28
-              },
-              "visualFoot": {
-                "x": 783.0946341463415,
-                "y": 956.0946341463415
-              },
-              "direction": "down",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 18,
-              "y": 18
-            },
-            "visualFoot": {
-              "x": 595.9024390243902,
-              "y": 608.9024390243902
+              "x": 594.6068292682927,
+              "y": 607.6068292682927
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2315,8 +2264,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 597.1980487804879,
-              "y": 610.1980487804879
+              "x": 595.9024390243902,
+              "y": 608.9024390243902
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2366,8 +2315,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 598.5092682926829,
-              "y": 611.5092682926829
+              "x": 597.2136585365854,
+              "y": 610.2136585365854
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2417,8 +2366,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 599.8048780487804,
-              "y": 612.8048780487804
+              "x": 598.5092682926829,
+              "y": 611.5092682926829
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2468,8 +2417,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 601.1160975609756,
-              "y": 614.1160975609756
+              "x": 599.8204878048781,
+              "y": 612.8204878048781
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2519,8 +2468,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 602.4117073170731,
-              "y": 615.4117073170731
+              "x": 601.1160975609756,
+              "y": 614.1160975609756
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2570,8 +2519,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 603.7073170731708,
-              "y": 616.7073170731708
+              "x": 602.4273170731707,
+              "y": 615.4273170731707
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2589,8 +2538,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 904.1951219512196,
-                "y": 1045.1951219512196
+                "x": 904.179512195122,
+                "y": 1045.179512195122
               },
               "direction": "up",
               "walkFrame": 1,
@@ -2603,8 +2552,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 791.8048780487804,
-                "y": 964.8048780487804
+                "x": 791.820487804878,
+                "y": 964.820487804878
               },
               "direction": "down",
               "walkFrame": 1,
@@ -2621,8 +2570,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 605.0029268292683,
-              "y": 618.0029268292683
+              "x": 603.7073170731708,
+              "y": 616.7073170731708
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2672,8 +2621,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 606.3141463414635,
-              "y": 619.3141463414635
+              "x": 605.0185365853658,
+              "y": 618.0185365853658
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2723,8 +2672,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 607.6253658536585,
-              "y": 620.6253658536585
+              "x": 606.3141463414635,
+              "y": 619.3141463414635
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2742,8 +2691,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 900.2770731707317,
-                "y": 1041.2770731707317
+                "x": 900.2926829268292,
+                "y": 1041.2926829268292
               },
               "direction": "up",
               "walkFrame": 1,
@@ -2756,8 +2705,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 795.7229268292683,
-                "y": 968.7229268292683
+                "x": 795.7073170731708,
+                "y": 968.7073170731708
               },
               "direction": "down",
               "walkFrame": 1,
@@ -2774,8 +2723,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 608.920975609756,
-              "y": 621.920975609756
+              "x": 607.6253658536585,
+              "y": 620.6253658536585
             },
             "direction": "down",
             "walkFrame": 0,
@@ -2825,6 +2774,57 @@
               "y": 18
             },
             "visualFoot": {
+              "x": 608.9365853658537,
+              "y": 621.9365853658537
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 28,
+                "y": 32
+              },
+              "visualFoot": {
+                "x": 897.670243902439,
+                "y": 1038.670243902439
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 24,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 798.329756097561,
+                "y": 971.329756097561
+              },
+              "direction": "down",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 18,
+              "y": 18
+            },
+            "visualFoot": {
               "x": 610.2165853658537,
               "y": 623.2165853658537
             },
@@ -2844,8 +2844,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 897.6858536585365,
-                "y": 1038.6858536585366
+                "x": 896.390243902439,
+                "y": 1037.3902439024391
               },
               "direction": "up",
               "walkFrame": 0,
@@ -2858,8 +2858,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 798.3141463414635,
-                "y": 971.3141463414635
+                "x": 799.609756097561,
+                "y": 972.609756097561
               },
               "direction": "down",
               "walkFrame": 0,
@@ -2895,58 +2895,7 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 896.3746341463415,
-                "y": 1037.3746341463416
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 24,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 799.6253658536585,
-                "y": 972.6253658536585
-              },
-              "direction": "down",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 18,
-              "y": 18
-            },
-            "visualFoot": {
-              "x": 612.8234146341463,
-              "y": 625.8234146341463
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 28,
-                "y": 32
-              },
-              "visualFoot": {
-                "x": 895.079024390244,
+                "x": 895.0790243902438,
                 "y": 1036.0790243902438
               },
               "direction": "up",
@@ -2960,8 +2909,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 800.920975609756,
-                "y": 973.920975609756
+                "x": 800.9209756097562,
+                "y": 973.9209756097562
               },
               "direction": "down",
               "walkFrame": 0,
@@ -2978,8 +2927,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 614.1190243902439,
-              "y": 627.1190243902439
+              "x": 612.8234146341464,
+              "y": 625.8234146341464
             },
             "direction": "down",
             "walkFrame": 0,
@@ -3029,11 +2978,11 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 615.430243902439,
-              "y": 628.430243902439
+              "x": 614.1346341463415,
+              "y": 627.1346341463415
             },
             "direction": "down",
-            "walkFrame": 1,
+            "walkFrame": 0,
             "status": "moving",
             "target": {
               "x": 22,
@@ -3080,8 +3029,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 616.7258536585366,
-              "y": 629.7258536585366
+              "x": 615.4302439024391,
+              "y": 628.4302439024391
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3099,7 +3048,7 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 891.1765853658537,
+                "x": 891.1765853658536,
                 "y": 1032.1765853658537
               },
               "direction": "up",
@@ -3113,8 +3062,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 804.8234146341463,
-                "y": 977.8234146341463
+                "x": 804.8234146341464,
+                "y": 977.8234146341464
               },
               "direction": "down",
               "walkFrame": 0,
@@ -3131,8 +3080,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 618.0370731707317,
-              "y": 631.0370731707317
+              "x": 616.7414634146342,
+              "y": 629.7414634146342
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3182,8 +3131,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 619.3326829268293,
-              "y": 632.3326829268293
+              "x": 618.0370731707317,
+              "y": 631.0370731707317
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3233,8 +3182,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 620.6439024390244,
-              "y": 633.6439024390244
+              "x": 619.3326829268293,
+              "y": 632.3326829268293
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3252,8 +3201,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 887.2585365853658,
-                "y": 1028.2585365853658
+                "x": 887.2741463414634,
+                "y": 1028.2741463414634
               },
               "direction": "up",
               "walkFrame": 0,
@@ -3266,8 +3215,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 808.7414634146342,
-                "y": 981.7414634146342
+                "x": 808.7258536585366,
+                "y": 981.7258536585366
               },
               "direction": "down",
               "walkFrame": 0,
@@ -3284,8 +3233,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 621.9395121951219,
-              "y": 634.9395121951219
+              "x": 620.6439024390244,
+              "y": 633.6439024390244
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3335,6 +3284,57 @@
               "y": 18
             },
             "visualFoot": {
+              "x": 621.9551219512196,
+              "y": 634.9551219512196
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 28,
+                "y": 32
+              },
+              "visualFoot": {
+                "x": 884.6517073170731,
+                "y": 1025.6517073170733
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 24,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 811.3482926829269,
+                "y": 984.3482926829269
+              },
+              "direction": "down",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 18,
+              "y": 18
+            },
+            "visualFoot": {
               "x": 623.2351219512195,
               "y": 636.2351219512195
             },
@@ -3354,13 +3354,13 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 884.6673170731707,
-                "y": 1025.6673170731708
+                "x": 883.448679629913,
+                "y": 1024.384248889041
               },
               "direction": "up",
               "walkFrame": 0,
               "status": "moving",
-              "curveActive": false
+              "curveActive": true
             },
             "linda": {
               "committed": {
@@ -3368,13 +3368,13 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 811.3326829268293,
-                "y": 984.3326829268293
+                "x": 812.6157511109591,
+                "y": 985.551320370087
               },
               "direction": "down",
               "walkFrame": 0,
               "status": "moving",
-              "curveActive": false
+              "curveActive": true
             }
           }
         },
@@ -3388,57 +3388,6 @@
             "visualFoot": {
               "x": 624,
               "y": 637
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 28,
-                "y": 32
-              },
-              "visualFoot": {
-                "x": 883.4348995211483,
-                "y": 1024.368452778548
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": true
-            },
-            "linda": {
-              "committed": {
-                "x": 24,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 812.631547221452,
-                "y": 985.5651004788517
-              },
-              "direction": "down",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": true
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 19,
-              "y": 19
-            },
-            "visualFoot": {
-              "x": 625.2956097560975,
-              "y": 638.2956097560975
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3488,8 +3437,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 626.6068292682927,
-              "y": 639.6068292682927
+              "x": 625.2956097560975,
+              "y": 638.2956097560975
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3507,8 +3456,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 881.4842267068797,
-                "y": 1021.4730254437519
+                "x": 881.493724039335,
+                "y": 1021.4917125831936
               },
               "direction": "up",
               "walkFrame": 0,
@@ -3521,8 +3470,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 815.5269745562481,
-                "y": 987.5157732931203
+                "x": 815.5082874168064,
+                "y": 987.506275960665
               },
               "direction": "down",
               "walkFrame": 0,
@@ -3539,8 +3488,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 627.9024390243902,
-              "y": 640.9024390243902
+              "x": 626.6068292682927,
+              "y": 639.6068292682927
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3590,8 +3539,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 629.1980487804879,
-              "y": 642.1980487804879
+              "x": 627.9180487804879,
+              "y": 640.9180487804879
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3609,8 +3558,8 @@
                 "y": 31
               },
               "visualFoot": {
-                "x": 880.5049877779805,
-                "y": 1018.9138397646632
+                "x": 880.4995200202947,
+                "y": 1018.8936098143794
               },
               "direction": "up",
               "walkFrame": 0,
@@ -3623,8 +3572,8 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 818.0861602353368,
-                "y": 988.4950122220195
+                "x": 818.1063901856207,
+                "y": 988.5004799797052
               },
               "direction": "right",
               "walkFrame": 0,
@@ -3641,8 +3590,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 630.5092682926829,
-              "y": 643.5092682926829
+              "x": 629.2136585365854,
+              "y": 642.2136585365854
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3692,8 +3641,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 631.7268292682927,
-              "y": 644.7268292682927
+              "x": 630.5092682926829,
+              "y": 643.5092682926829
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3711,11 +3660,11 @@
                 "y": 31
               },
               "visualFoot": {
-                "x": 880.0125566555168,
-                "y": 1015.5630482239462
+                "x": 880.0102205335602,
+                "y": 1015.4582950660027
               },
               "direction": "up",
-              "walkFrame": 0,
+              "walkFrame": 1,
               "status": "moving",
               "curveActive": true
             },
@@ -3725,11 +3674,11 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 821.4369517760538,
-                "y": 988.9874433444832
+                "x": 821.5417049339973,
+                "y": 988.9897794664398
               },
               "direction": "right",
-              "walkFrame": 0,
+              "walkFrame": 1,
               "status": "moving",
               "curveActive": true
             }
@@ -3743,8 +3692,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 633.1160975609756,
-              "y": 646.1160975609756
+              "x": 631.8204878048781,
+              "y": 644.8204878048781
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3763,7 +3712,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 1013.6289655172415
+                "y": 1013.6289655172413
               },
               "direction": "up",
               "walkFrame": 1,
@@ -3776,7 +3725,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 823.3710344827585,
+                "x": 823.3710344827587,
                 "y": 989
               },
               "direction": "right",
@@ -3794,8 +3743,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 634.4117073170731,
-              "y": 647.4117073170731
+              "x": 633.1160975609756,
+              "y": 646.1160975609756
             },
             "direction": "down",
             "walkFrame": 1,
@@ -3845,6 +3794,57 @@
               "y": 19
             },
             "visualFoot": {
+              "x": 634.4273170731707,
+              "y": 647.4273170731707
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 31
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 1009.9434482758621
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 25,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 827.0565517241379,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 19,
+              "y": 19
+            },
+            "visualFoot": {
               "x": 635.7073170731708,
               "y": 648.7073170731708
             },
@@ -3865,7 +3865,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 1009.9655172413793
+                "y": 1008.1337931034483
               },
               "direction": "up",
               "walkFrame": 1,
@@ -3878,7 +3878,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 827.0344827586207,
+                "x": 828.8662068965517,
                 "y": 989
               },
               "direction": "right",
@@ -3901,57 +3901,6 @@
             },
             "direction": "down",
             "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 31
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 1008.1117241379311
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 25,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 828.8882758620689,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 19,
-              "y": 19
-            },
-            "visualFoot": {
-              "x": 638.3141463414635,
-              "y": 651.3141463414635
-            },
-            "direction": "down",
-            "walkFrame": 0,
             "status": "moving",
             "target": {
               "x": 22,
@@ -3998,8 +3947,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 639.609756097561,
-              "y": 652.609756097561
+              "x": 638.3141463414635,
+              "y": 651.3141463414635
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4049,8 +3998,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 640.8585365853659,
-              "y": 653.8585365853659
+              "x": 639.6253658536585,
+              "y": 652.6253658536585
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4069,7 +4018,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 1002.6827586206897
+                "y": 1002.5944827586206
               },
               "direction": "up",
               "walkFrame": 1,
@@ -4082,7 +4031,58 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 834.3172413793103,
+                "x": 834.4055172413794,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 19,
+              "y": 19
+            },
+            "visualFoot": {
+              "x": 640.9053658536585,
+              "y": 653.9053658536585
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 31
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 1000.7848275862069
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 25,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 836.2151724137931,
                 "y": 989
               },
               "direction": "right",
@@ -4120,7 +4120,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 1000.7406896551724
+                "y": 998.9089655172414
               },
               "direction": "up",
               "walkFrame": 1,
@@ -4133,7 +4133,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 836.2593103448276,
+                "x": 838.0910344827586,
                 "y": 989
               },
               "direction": "right",
@@ -4151,8 +4151,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 643.5121951219512,
-              "y": 656.5121951219512
+              "x": 643.5278048780488,
+              "y": 656.5278048780488
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4171,7 +4171,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 998.9310344827586
+                "y": 997.0772413793103
               },
               "direction": "up",
               "walkFrame": 1,
@@ -4184,7 +4184,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 838.0689655172414,
+                "x": 839.9227586206897,
                 "y": 989
               },
               "direction": "right",
@@ -4202,59 +4202,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 644.8234146341463,
-              "y": 657.8234146341463
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 31
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 997.0772413793104
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 25,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 839.9227586206896,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 19,
-              "y": 19
-            },
-            "visualFoot": {
-              "x": 646.1346341463415,
-              "y": 659.1346341463415
+              "x": 644.8390243902439,
+              "y": 657.8390243902439
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4304,8 +4253,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 647.3834146341463,
-              "y": 660.3834146341463
+              "x": 646.1346341463415,
+              "y": 659.1346341463415
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4324,7 +4273,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 993.4579310344827
+                "y": 993.3917241379311
               },
               "direction": "up",
               "walkFrame": 1,
@@ -4337,7 +4286,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 843.5420689655173,
+                "x": 843.6082758620689,
                 "y": 989
               },
               "direction": "right",
@@ -4355,8 +4304,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 648.7414634146342,
-              "y": 661.7414634146342
+              "x": 647.4302439024391,
+              "y": 660.4302439024391
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4375,7 +4324,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 991.5379310344828
+                "y": 991.56
               },
               "direction": "up",
               "walkFrame": 1,
@@ -4388,7 +4337,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 845.4620689655172,
+                "x": 845.44,
                 "y": 989
               },
               "direction": "right",
@@ -4406,8 +4355,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 650.0214634146341,
-              "y": 663.0214634146341
+              "x": 648.7258536585366,
+              "y": 661.7258536585366
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4457,8 +4406,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 651.3326829268293,
-              "y": 664.3326829268293
+              "x": 650.0370731707317,
+              "y": 663.0370731707317
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4508,8 +4457,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 652.6282926829268,
-              "y": 665.6282926829268
+              "x": 651.3482926829269,
+              "y": 664.3482926829269
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4528,7 +4477,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 987.168275862069
+                "y": 987.1462068965517
               },
               "direction": "up",
               "walkFrame": 1,
@@ -4545,8 +4494,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 653.9395121951219,
-              "y": 666.9395121951219
+              "x": 652.6439024390244,
+              "y": 665.6439024390244
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4582,8 +4531,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 655.2351219512195,
-              "y": 668.2351219512195
+              "x": 653.9551219512196,
+              "y": 666.9551219512196
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4602,7 +4551,44 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 983.4827586206897
+                "y": 983.4606896551724
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 19,
+              "y": 19
+            },
+            "visualFoot": {
+              "x": 655.1258536585366,
+              "y": 668.1258536585366
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 981.8055172413793
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4639,7 +4625,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 981.6289655172413
+                "y": 979.7972413793103
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4656,8 +4642,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 657.2956097560975,
-              "y": 670.2956097560975
+              "x": 657.2175609756098,
+              "y": 670.2175609756098
             },
             "direction": "down",
             "walkFrame": 0,
@@ -4676,7 +4662,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 979.7972413793103
+                "y": 978.0758620689655
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4713,43 +4699,6 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 977.943448275862
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 659.9024390243902,
-              "y": 672.9024390243902
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 880,
                 "y": 976.111724137931
               },
               "direction": "up",
@@ -4767,8 +4716,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 661.12,
-              "y": 674.12
+              "x": 659.9180487804879,
+              "y": 672.9180487804879
             },
             "direction": "down",
             "walkFrame": 1,
@@ -4787,7 +4736,44 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 974.3903448275862
+                "y": 974.2579310344827
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 661.1980487804879,
+              "y": 674.1980487804879
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 972.448275862069
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4824,43 +4810,6 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 972.4262068965517
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 663.8048780487804,
-              "y": 676.8048780487804
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 880,
                 "y": 970.5944827586206
               },
               "direction": "up",
@@ -4878,8 +4827,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 665.1160975609756,
-              "y": 678.1160975609756
+              "x": 663.7424390243903,
+              "y": 676.7424390243903
             },
             "direction": "down",
             "walkFrame": 1,
@@ -4898,7 +4847,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 968.7406896551724
+                "y": 968.8510344827586
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4915,8 +4864,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 666.3960975609756,
-              "y": 679.3960975609756
+              "x": 665.1004878048781,
+              "y": 678.1004878048781
             },
             "direction": "down",
             "walkFrame": 1,
@@ -4936,6 +4885,43 @@
               "visualFoot": {
                 "x": 880,
                 "y": 966.9310344827586
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 666.4273170731707,
+              "y": 679.4273170731707
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 965.0551724137931
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4972,7 +4958,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 965.0551724137931
+                "y": 963.223448275862
               },
               "direction": "up",
               "walkFrame": 0,
@@ -4989,8 +4975,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 669.0185365853658,
-              "y": 682.0185365853658
+              "x": 668.9560975609756,
+              "y": 681.9560975609756
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5009,7 +4995,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 963.2234482758621
+                "y": 961.48
               },
               "direction": "up",
               "walkFrame": 0,
@@ -5026,8 +5012,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 670.3141463414635,
-              "y": 683.3141463414635
+              "x": 670.329756097561,
+              "y": 683.329756097561
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5046,7 +5032,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 961.391724137931
+                "y": 959.5379310344828
               },
               "direction": "up",
               "walkFrame": 0,
@@ -5063,8 +5049,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 671.609756097561,
-              "y": 684.609756097561
+              "x": 671.6253658536585,
+              "y": 684.6253658536585
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5083,7 +5069,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 959.56
+                "y": 957.7062068965516
               },
               "direction": "up",
               "walkFrame": 0,
@@ -5116,43 +5102,6 @@
             "generic_resident": {
               "committed": {
                 "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 957.6841379310345
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 674.2165853658537,
-              "y": 687.2165853658537
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
                 "y": 29
               },
               "visualFoot": {
@@ -5170,7 +5119,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 849.8096551724138,
+                "x": 849.8537931034482,
                 "y": 989
               },
               "direction": "right",
@@ -5188,8 +5137,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 675.4653658536586,
-              "y": 688.4653658536586
+              "x": 674.2321951219512,
+              "y": 687.2321951219512
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5208,7 +5157,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 955.2344827586207
+                "y": 955.168275862069
               },
               "direction": "up",
               "walkFrame": 0,
@@ -5221,7 +5170,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 851.5751724137931,
+                "x": 851.6855172413792,
                 "y": 989
               },
               "direction": "right",
@@ -5239,8 +5188,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 676.6829268292682,
-              "y": 689.6829268292682
+              "x": 675.5278048780488,
+              "y": 688.5278048780488
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5259,7 +5208,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 953.5131034482758
+                "y": 953.3365517241378
               },
               "direction": "up",
               "walkFrame": 0,
@@ -5272,11 +5221,62 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 853.2965517241379,
+                "x": 853.5172413793103,
                 "y": 989
               },
               "direction": "right",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 676.8390243902439,
+              "y": 689.8390243902439
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 951.4827586206897
+              },
+              "direction": "up",
               "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 26,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 855.3710344827587,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 0,
               "status": "moving",
               "curveActive": false
             }
@@ -5310,7 +5310,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 951.4606896551725
+                "y": 949.6510344827586
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5323,7 +5323,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 855.3489655172414,
+                "x": 857.2027586206896,
                 "y": 989
               },
               "direction": "right",
@@ -5341,8 +5341,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 679.2897560975609,
-              "y": 692.2897560975609
+              "x": 679.4458536585366,
+              "y": 692.4458536585366
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5361,7 +5361,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 949.8275862068965
+                "y": 947.7972413793103
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5374,7 +5374,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 856.9820689655172,
+                "x": 859.0565517241379,
                 "y": 989
               },
               "direction": "right",
@@ -5392,8 +5392,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 680.6009756097561,
-              "y": 693.6009756097561
+              "x": 680.7414634146342,
+              "y": 693.7414634146342
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5412,7 +5412,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 947.9737931034482
+                "y": 945.9655172413793
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5425,7 +5425,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 858.8358620689655,
+                "x": 860.888275862069,
                 "y": 989
               },
               "direction": "right",
@@ -5443,8 +5443,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 681.9121951219512,
-              "y": 694.9121951219512
+              "x": 682.0526829268292,
+              "y": 695.0526829268292
             },
             "direction": "down",
             "walkFrame": 1,
@@ -5463,7 +5463,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 946.12
+                "y": 944.1117241379311
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5476,7 +5476,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 860.6896551724137,
+                "x": 862.7420689655172,
                 "y": 989
               },
               "direction": "right",
@@ -5494,8 +5494,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 683.3326829268293,
-              "y": 696.3326829268293
+              "x": 683.3482926829269,
+              "y": 696.3482926829269
             },
             "direction": "down",
             "walkFrame": 0,
@@ -5514,7 +5514,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 944.111724137931
+                "y": 942.28
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5527,7 +5527,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 862.6979310344827,
+                "x": 864.5737931034482,
                 "y": 989
               },
               "direction": "right",
@@ -5545,7 +5545,7 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 684.5651004788516,
+              "x": 684.5651004788517,
               "y": 697.631547221452
             },
             "direction": "down",
@@ -5565,7 +5565,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 942.2579310344828
+                "y": 940.448275862069
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5578,7 +5578,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 864.5517241379309,
+                "x": 866.4055172413794,
                 "y": 989
               },
               "direction": "right",
@@ -5596,8 +5596,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 685.6265219753583,
-              "y": 699.0087200922284
+              "x": 685.6378685609375,
+              "y": 699.0263457411518
             },
             "direction": "down",
             "walkFrame": 0,
@@ -5616,7 +5616,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 940.4262068965518
+                "y": 938.5944827586208
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5629,7 +5629,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 866.3834482758621,
+                "x": 868.2593103448276,
                 "y": 989
               },
               "direction": "right",
@@ -5647,8 +5647,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 686.506275960665,
-              "y": 700.5082874168064
+              "x": 686.5157732931203,
+              "y": 700.5269745562481
             },
             "direction": "down",
             "walkFrame": 0,
@@ -5667,7 +5667,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 938.5944827586206
+                "y": 936.7627586206896
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5680,7 +5680,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 868.2151724137931,
+                "x": 870.0910344827586,
                 "y": 989
               },
               "direction": "right",
@@ -5718,7 +5718,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 936.7406896551724
+                "y": 934.9310344827586
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5731,7 +5731,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 870.0689655172413,
+                "x": 871.9227586206897,
                 "y": 989
               },
               "direction": "right",
@@ -5769,7 +5769,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 934.9089655172414
+                "y": 933.0993103448276
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5782,7 +5782,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 871.9006896551724,
+                "x": 873.7544827586206,
                 "y": 989
               },
               "direction": "right",
@@ -5800,8 +5800,8 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 687.8196242125373,
-              "y": 704.6228746234179
+              "x": 687.8503771034167,
+              "y": 704.8089530691683
             },
             "direction": "down",
             "walkFrame": 0,
@@ -5820,7 +5820,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 933.2537931034483
+                "y": 931.2455172413793
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5833,7 +5833,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 873.5558620689656,
+                "x": 875.6082758620689,
                 "y": 989
               },
               "direction": "right",
@@ -5871,7 +5871,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 931.2234482758621
+                "y": 929.4137931034483
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5884,7 +5884,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 875.5862068965516,
+                "x": 877.44,
                 "y": 989
               },
               "direction": "right",
@@ -5903,7 +5903,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 708.3489655172414
+              "y": 708.3710344827585
             },
             "direction": "down",
             "walkFrame": 0,
@@ -5922,7 +5922,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 929.3917241379311
+                "y": 927.5600000000001
               },
               "direction": "up",
               "walkFrame": 1,
@@ -5935,7 +5935,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 877.4179310344828,
+                "x": 879.2937931034483,
                 "y": 989
               },
               "direction": "right",
@@ -5954,58 +5954,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 710.2027586206897
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 927.5379310344828
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 26,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 879.2717241379311,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
-              "x": 21,
-              "y": 21
-            },
-            "visualFoot": {
-              "x": 688,
-              "y": 712.0344827586207
+              "y": 710.2248275862069
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6056,7 +6005,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 713.888275862069
+              "y": 712.0344827586207
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6074,7 +6023,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 881.8537931034483,
+                "x": 881.8096551724138,
                 "y": 989
               },
               "direction": "right",
@@ -6093,7 +6042,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 715.6096551724139
+              "y": 713.8882758620689
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6111,7 +6060,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 883.5751724137932,
+                "x": 883.663448275862,
                 "y": 989
               },
               "direction": "right",
@@ -6130,7 +6079,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 717.5737931034483
+              "y": 715.7420689655172
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6148,7 +6097,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 885.5393103448276,
+                "x": 885.5172413793103,
                 "y": 989
               },
               "direction": "right",
@@ -6167,7 +6116,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 719.4055172413794
+              "y": 717.5737931034482
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6185,7 +6134,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 887.3710344827587,
+                "x": 887.3489655172414,
                 "y": 989
               },
               "direction": "right",
@@ -6204,7 +6153,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 721.2593103448277
+              "y": 719.4055172413792
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6222,7 +6171,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 889.224827586207,
+                "x": 889.1806896551724,
                 "y": 989
               },
               "direction": "right",
@@ -6241,7 +6190,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 723.0910344827587
+              "y": 721.2151724137931
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6259,7 +6208,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 891.056551724138,
+                "x": 890.9903448275862,
                 "y": 989
               },
               "direction": "right",
@@ -6278,7 +6227,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 724.9227586206897
+              "y": 723.1131034482759
             },
             "direction": "down",
             "walkFrame": 0,
@@ -6315,10 +6264,10 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 726.7544827586207
+              "y": 724.9227586206896
             },
             "direction": "down",
-            "walkFrame": 1,
+            "walkFrame": 0,
             "status": "moving",
             "target": {
               "x": 22,
@@ -6333,7 +6282,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 894.72,
+                "x": 894.6979310344827,
                 "y": 989
               },
               "direction": "right",
@@ -6351,8 +6300,45 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 688.0755266756648,
-              "y": 728.2300911980938
+              "x": 688,
+              "y": 726.7765517241379
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "linda": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 896.551724137931,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": false,
+          "player": {
+            "committed": {
+              "x": 21,
+              "y": 21
+            },
+            "visualFoot": {
+              "x": 688.0828960101625,
+              "y": 728.3013280982369
             },
             "direction": "down",
             "walkFrame": 1,
@@ -6370,7 +6356,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 896.4855172413794,
+                "x": 898.3834482758621,
                 "y": 989
               },
               "direction": "right",
@@ -6407,7 +6393,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 898.4275862068965,
+                "x": 900.2372413793104,
                 "y": 989
               },
               "direction": "right",
@@ -6425,8 +6411,8 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 689.1148524422699,
-              "y": 731.0524766463946
+              "x": 689.1249626924895,
+              "y": 731.0672531659461
             },
             "direction": "down",
             "walkFrame": 1,
@@ -6444,7 +6430,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 900.2372413793104,
+                "x": 902.0689655172414,
                 "y": 989
               },
               "direction": "right",
@@ -6481,7 +6467,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 902.0910344827587,
+                "x": 903.9006896551724,
                 "y": 989
               },
               "direction": "right",
@@ -6499,8 +6485,8 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 690.7114740050808,
-              "y": 732.3488673359948
+              "x": 690.7273341672472,
+              "y": 732.3571750399867
             },
             "direction": "right",
             "walkFrame": 1,
@@ -6518,7 +6504,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 903.9227586206897,
+                "x": 905.7544827586207,
                 "y": 989
               },
               "direction": "right",
@@ -6555,7 +6541,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 905.776551724138,
+                "x": 907.5862068965517,
                 "y": 989
               },
               "direction": "right",
@@ -6573,8 +6559,8 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 693.6264427852944,
-              "y": 732.9879497672675
+              "x": 693.6085478289014,
+              "y": 732.9873725106097
             },
             "direction": "right",
             "walkFrame": 1,
@@ -6592,7 +6578,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 907.6303448275862,
+                "x": 909.4179310344828,
                 "y": 989
               },
               "direction": "right",
@@ -6610,7 +6596,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 695.3710344827585,
+              "x": 695.3710344827587,
               "y": 733
             },
             "direction": "right",
@@ -6629,7 +6615,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 909.4620689655172,
+                "x": 911.2717241379311,
                 "y": 989
               },
               "direction": "right",
@@ -6647,7 +6633,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 697.2248275862069,
+              "x": 697.2027586206896,
               "y": 733
             },
             "direction": "right",
@@ -6659,22 +6645,7 @@
             },
             "curveActive": false
           },
-          "npcs": {
-            "linda": {
-              "committed": {
-                "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 911.3158620689655,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
+          "npcs": {}
         },
         {
           "reducedMotion": false,
@@ -6706,7 +6677,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 700.8882758620689,
+              "x": 700.888275862069,
               "y": 733
             },
             "direction": "right",
@@ -6750,7 +6721,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 704.4193103448275,
+              "x": 704.5737931034482,
               "y": 733
             },
             "direction": "right",
@@ -6772,7 +6743,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 706.4275862068965,
+              "x": 706.4055172413794,
               "y": 733
             },
             "direction": "right",
@@ -6794,7 +6765,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 708.2151724137931,
+              "x": 708.2593103448276,
               "y": 733
             },
             "direction": "right",
@@ -6838,7 +6809,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 711.7903448275862,
+              "x": 711.9227586206897,
               "y": 733
             },
             "direction": "right",
@@ -6860,7 +6831,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 713.5779310344827,
+              "x": 713.7986206896552,
               "y": 733
             },
             "direction": "right",
@@ -6882,7 +6853,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 715.4979310344827,
+              "x": 715.6082758620689,
               "y": 733
             },
             "direction": "right",
@@ -6944,31 +6915,12 @@
           "reducedMotion": false,
           "player": {
             "committed": {
-              "x": 22,
-              "y": 22
-            },
-            "visualFoot": {
-              "x": 720,
-              "y": 733
-            },
-            "direction": "right",
-            "walkFrame": 0,
-            "status": "idle",
-            "target": null,
-            "curveActive": false
-          },
-          "npcs": {}
-        },
-        {
-          "reducedMotion": false,
-          "player": {
-            "committed": {
               "x": 20,
               "y": 21
             },
             "visualFoot": {
-              "x": 662.3687804878049,
-              "y": 707.3687804878049
+              "x": 662.509268292683,
+              "y": 707.509268292683
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7024,11 +6976,8 @@
             },
             "direction": "down",
             "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
+            "status": "idle",
+            "target": null,
             "curveActive": false
           },
           "npcs": {
@@ -7038,8 +6987,8 @@
                 "y": 33
               },
               "visualFoot": {
-                "x": 915.4029268292683,
-                "y": 1056.4029268292684
+                "x": 917.9473170731708,
+                "y": 1058.9473170731708
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7052,8 +7001,8 @@
                 "y": 28
               },
               "visualFoot": {
-                "x": 780.5970731707317,
-                "y": 953.5970731707317
+                "x": 778.0526829268292,
+                "y": 951.0526829268292
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7070,8 +7019,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 593.2956097560976,
-              "y": 606.2956097560976
+              "x": 592,
+              "y": 605
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7089,8 +7038,8 @@
                 "y": 33
               },
               "visualFoot": {
-                "x": 914.1073170731707,
-                "y": 1055.1073170731706
+                "x": 916.6517073170731,
+                "y": 1057.6517073170733
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7103,8 +7052,8 @@
                 "y": 28
               },
               "visualFoot": {
-                "x": 781.8926829268293,
-                "y": 954.8926829268293
+                "x": 779.3482926829269,
+                "y": 952.3482926829269
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7121,8 +7070,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 594.5912195121952,
-              "y": 607.5912195121952
+              "x": 593.3112195121952,
+              "y": 606.3112195121952
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7140,8 +7089,8 @@
                 "y": 33
               },
               "visualFoot": {
-                "x": 912.8117073170731,
-                "y": 1053.8117073170731
+                "x": 915.3404878048781,
+                "y": 1056.340487804878
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7154,8 +7103,8 @@
                 "y": 28
               },
               "visualFoot": {
-                "x": 783.1882926829269,
-                "y": 956.1882926829269
+                "x": 780.6595121951219,
+                "y": 953.6595121951219
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7172,8 +7121,110 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 595.9024390243902,
-              "y": 608.9024390243902
+              "x": 593.3112195121952,
+              "y": 606.3112195121952
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 29,
+                "y": 33
+              },
+              "visualFoot": {
+                "x": 915.3404878048781,
+                "y": 1056.340487804878
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 23,
+                "y": 28
+              },
+              "visualFoot": {
+                "x": 780.6595121951219,
+                "y": 953.6595121951219
+              },
+              "direction": "down",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 18,
+              "y": 18
+            },
+            "visualFoot": {
+              "x": 595.9180487804879,
+              "y": 608.9180487804879
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 29,
+                "y": 33
+              },
+              "visualFoot": {
+                "x": 912.7336585365854,
+                "y": 1053.7336585365854
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 23,
+                "y": 28
+              },
+              "visualFoot": {
+                "x": 783.2663414634146,
+                "y": 956.2663414634146
+              },
+              "direction": "down",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 18,
+              "y": 18
+            },
+            "visualFoot": {
+              "x": 597.1980487804879,
+              "y": 610.1980487804879
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7223,8 +7274,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 597.1980487804879,
-              "y": 610.1980487804879
+              "x": 598.5092682926829,
+              "y": 611.5092682926829
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7242,8 +7293,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 910.7043902439024,
-                "y": 1051.7043902439025
+                "x": 910.6887804878048,
+                "y": 1051.688780487805
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7256,8 +7307,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 785.2956097560976,
-                "y": 958.2956097560976
+                "x": 785.3112195121952,
+                "y": 958.3112195121952
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7274,8 +7325,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 598.5092682926829,
-              "y": 611.5092682926829
+              "x": 599.8048780487804,
+              "y": 612.8048780487804
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7325,8 +7376,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 599.7892682926829,
-              "y": 612.7892682926829
+              "x": 601.1160975609756,
+              "y": 614.1160975609756
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7344,8 +7395,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 908.1131707317073,
-                "y": 1049.1131707317072
+                "x": 908.0819512195121,
+                "y": 1049.0819512195121
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7358,8 +7409,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 787.8868292682927,
-                "y": 960.8868292682927
+                "x": 787.9180487804879,
+                "y": 960.9180487804879
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7376,8 +7427,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 601.1160975609756,
-              "y": 614.1160975609756
+              "x": 602.4117073170731,
+              "y": 615.4117073170731
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7427,8 +7478,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 602.4117073170731,
-              "y": 615.4117073170731
+              "x": 603.7229268292683,
+              "y": 616.7229268292683
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7446,8 +7497,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 905.4907317073171,
-                "y": 1046.490731707317
+                "x": 905.4751219512195,
+                "y": 1046.4751219512195
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7460,59 +7511,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 790.5092682926829,
-                "y": 963.5092682926829
-              },
-              "direction": "down",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 18,
-              "y": 18
-            },
-            "visualFoot": {
-              "x": 603.7073170731708,
-              "y": 616.7073170731708
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 28,
-                "y": 32
-              },
-              "visualFoot": {
-                "x": 904.1951219512196,
-                "y": 1045.1951219512196
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 24,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 791.8048780487804,
-                "y": 964.8048780487804
+                "x": 790.5248780487805,
+                "y": 963.5248780487805
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7548,8 +7548,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 902.8839024390244,
-                "y": 1043.8839024390243
+                "x": 904.1795121951219,
+                "y": 1045.179512195122
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7562,8 +7562,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 793.1160975609756,
-                "y": 966.1160975609756
+                "x": 791.8204878048781,
+                "y": 964.8204878048781
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7580,8 +7580,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 606.2985365853659,
-              "y": 619.2985365853659
+              "x": 606.329756097561,
+              "y": 619.329756097561
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7599,8 +7599,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 901.6039024390244,
-                "y": 1042.6039024390243
+                "x": 902.8682926829268,
+                "y": 1043.8682926829267
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7613,8 +7613,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 794.3960975609756,
-                "y": 967.3960975609756
+                "x": 793.1317073170732,
+                "y": 966.1317073170732
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7631,8 +7631,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 607.609756097561,
-              "y": 620.609756097561
+              "x": 607.6253658536585,
+              "y": 620.6253658536585
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7650,8 +7650,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 900.2926829268292,
-                "y": 1041.2926829268292
+                "x": 901.5726829268292,
+                "y": 1042.5726829268292
               },
               "direction": "up",
               "walkFrame": 1,
@@ -7664,8 +7664,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 795.7073170731708,
-                "y": 968.7073170731708
+                "x": 794.4273170731708,
+                "y": 967.4273170731708
               },
               "direction": "down",
               "walkFrame": 1,
@@ -7684,6 +7684,57 @@
             "visualFoot": {
               "x": 608.9209756097562,
               "y": 621.9209756097562
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 28,
+                "y": 32
+              },
+              "visualFoot": {
+                "x": 900.2770731707317,
+                "y": 1041.2770731707317
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 24,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 795.7229268292683,
+                "y": 968.7229268292683
+              },
+              "direction": "down",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 18,
+              "y": 18
+            },
+            "visualFoot": {
+              "x": 610.2165853658537,
+              "y": 623.2165853658537
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7733,57 +7784,6 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 610.2165853658537,
-              "y": 623.2165853658537
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 28,
-                "y": 32
-              },
-              "visualFoot": {
-                "x": 897.6858536585365,
-                "y": 1038.6858536585366
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 24,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 798.3141463414635,
-                "y": 971.3141463414635
-              },
-              "direction": "down",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 18,
-              "y": 18
-            },
-            "visualFoot": {
               "x": 611.5278048780488,
               "y": 624.5278048780488
             },
@@ -7803,8 +7803,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 896.3746341463415,
-                "y": 1037.3746341463414
+                "x": 897.670243902439,
+                "y": 1038.670243902439
               },
               "direction": "up",
               "walkFrame": 0,
@@ -7817,8 +7817,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 799.6253658536585,
-                "y": 972.6253658536585
+                "x": 798.329756097561,
+                "y": 971.329756097561
               },
               "direction": "down",
               "walkFrame": 0,
@@ -7835,8 +7835,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 612.8078048780488,
-              "y": 625.8078048780488
+              "x": 612.8390243902439,
+              "y": 625.8390243902439
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7854,8 +7854,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 895.0946341463414,
-                "y": 1036.0946341463414
+                "x": 896.3590243902439,
+                "y": 1037.3590243902438
               },
               "direction": "up",
               "walkFrame": 0,
@@ -7868,8 +7868,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 800.9053658536586,
-                "y": 973.9053658536586
+                "x": 799.6409756097561,
+                "y": 972.6409756097561
               },
               "direction": "down",
               "walkFrame": 0,
@@ -7886,8 +7886,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 614.1190243902439,
-              "y": 627.1190243902439
+              "x": 614.1346341463415,
+              "y": 627.1346341463415
             },
             "direction": "down",
             "walkFrame": 0,
@@ -7905,8 +7905,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 893.7834146341463,
-                "y": 1034.7834146341463
+                "x": 895.0634146341463,
+                "y": 1036.0634146341463
               },
               "direction": "up",
               "walkFrame": 0,
@@ -7919,8 +7919,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 802.2165853658537,
-                "y": 975.2165853658537
+                "x": 800.9365853658537,
+                "y": 973.9365853658537
               },
               "direction": "down",
               "walkFrame": 0,
@@ -7939,6 +7939,57 @@
             "visualFoot": {
               "x": 615.4302439024391,
               "y": 628.4302439024391
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 28,
+                "y": 32
+              },
+              "visualFoot": {
+                "x": 893.7678048780488,
+                "y": 1034.7678048780488
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 24,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 802.2321951219512,
+                "y": 975.2321951219512
+              },
+              "direction": "down",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 18,
+              "y": 18
+            },
+            "visualFoot": {
+              "x": 616.7258536585366,
+              "y": 629.7258536585366
             },
             "direction": "down",
             "walkFrame": 1,
@@ -7988,8 +8039,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 616.7258536585366,
-              "y": 629.7258536585366
+              "x": 618.0370731707317,
+              "y": 631.0370731707317
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8007,8 +8058,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 891.1765853658536,
-                "y": 1032.1765853658537
+                "x": 891.1609756097561,
+                "y": 1032.1609756097562
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8021,8 +8072,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 804.8234146341464,
-                "y": 977.8234146341464
+                "x": 804.8390243902439,
+                "y": 977.8390243902439
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8039,8 +8090,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 618.0370731707318,
-              "y": 631.0370731707318
+              "x": 619.3482926829269,
+              "y": 632.3482926829269
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8058,8 +8109,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 889.8653658536585,
-                "y": 1030.8653658536584
+                "x": 889.849756097561,
+                "y": 1030.8497560975609
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8072,59 +8123,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 806.1346341463415,
-                "y": 979.1346341463415
-              },
-              "direction": "down",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 18,
-              "y": 18
-            },
-            "visualFoot": {
-              "x": 619.3326829268293,
-              "y": 632.3326829268293
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 28,
-                "y": 32
-              },
-              "visualFoot": {
-                "x": 888.5697560975609,
-                "y": 1029.569756097561
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 24,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 807.4302439024391,
-                "y": 980.4302439024391
+                "x": 806.150243902439,
+                "y": 979.150243902439
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8160,8 +8160,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 887.2585365853658,
-                "y": 1028.2585365853658
+                "x": 888.5541463414634,
+                "y": 1029.5541463414634
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8174,8 +8174,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 808.7414634146342,
-                "y": 981.7414634146342
+                "x": 807.4458536585366,
+                "y": 980.4458536585366
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8192,8 +8192,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 621.939512195122,
-              "y": 634.939512195122
+              "x": 621.9551219512196,
+              "y": 634.9551219512196
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8211,8 +8211,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 885.9629268292682,
-                "y": 1026.9629268292683
+                "x": 887.2429268292683,
+                "y": 1028.2429268292683
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8225,8 +8225,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 810.0370731707318,
-                "y": 983.0370731707318
+                "x": 808.7570731707317,
+                "y": 981.7570731707317
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8243,8 +8243,8 @@
               "y": 18
             },
             "visualFoot": {
-              "x": 623.2351219512195,
-              "y": 636.2351219512195
+              "x": 623.2507317073171,
+              "y": 636.2507317073171
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8262,8 +8262,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 884.6673170731707,
-                "y": 1025.6673170731708
+                "x": 885.9473170731707,
+                "y": 1026.9473170731708
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8276,8 +8276,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 811.3326829268293,
-                "y": 984.3326829268293
+                "x": 810.0526829268293,
+                "y": 983.0526829268293
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8313,13 +8313,13 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 883.4348995211483,
-                "y": 1024.368452778548
+                "x": 884.6360975609756,
+                "y": 1025.6360975609755
               },
               "direction": "up",
               "walkFrame": 0,
               "status": "moving",
-              "curveActive": true
+              "curveActive": false
             },
             "linda": {
               "committed": {
@@ -8327,13 +8327,13 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 812.631547221452,
-                "y": 985.5651004788517
+                "x": 811.3639024390244,
+                "y": 984.3639024390244
               },
               "direction": "down",
               "walkFrame": 0,
               "status": "moving",
-              "curveActive": true
+              "curveActive": false
             }
           }
         },
@@ -8345,8 +8345,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 625.2956097560976,
-              "y": 638.2956097560976
+              "x": 625.2956097560975,
+              "y": 638.2956097560975
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8364,8 +8364,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 882.3734780246417,
-                "y": 1022.9912799077716
+                "x": 883.4211194123835,
+                "y": 1024.352656668055
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8378,8 +8378,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 814.0087200922285,
-                "y": 986.6265219753582
+                "x": 812.6473433319451,
+                "y": 985.5788805876165
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8415,8 +8415,8 @@
                 "y": 32
               },
               "visualFoot": {
-                "x": 881.493724039335,
-                "y": 1021.4917125831936
+                "x": 882.3621314390624,
+                "y": 1022.9736542588482
               },
               "direction": "up",
               "walkFrame": 0,
@@ -8429,8 +8429,8 @@
                 "y": 29
               },
               "visualFoot": {
-                "x": 815.5082874168064,
-                "y": 987.506275960665
+                "x": 814.0263457411519,
+                "y": 986.6378685609375
               },
               "direction": "down",
               "walkFrame": 0,
@@ -8447,8 +8447,59 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 627.9024390243902,
-              "y": 640.9024390243902
+              "x": 627.8868292682927,
+              "y": 640.8868292682927
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 28,
+                "y": 32
+              },
+              "visualFoot": {
+                "x": 881.4842267068797,
+                "y": 1021.4730254437519
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": true
+            },
+            "linda": {
+              "committed": {
+                "x": 24,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 815.5269745562481,
+                "y": 987.5157732931203
+              },
+              "direction": "down",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": true
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 19,
+              "y": 19
+            },
+            "visualFoot": {
+              "x": 629.1980487804879,
+              "y": 642.1980487804879
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8498,8 +8549,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 629.1980487804879,
-              "y": 642.1980487804879
+              "x": 630.4936585365854,
+              "y": 643.4936585365854
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8531,7 +8582,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 818.0861602353369,
+                "x": 818.0861602353368,
                 "y": 988.4950122220195
               },
               "direction": "right",
@@ -8549,8 +8600,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 630.5092682926829,
-              "y": 643.5092682926829
+              "x": 631.8048780487804,
+              "y": 644.8048780487804
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8600,8 +8651,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 631.8048780487804,
-              "y": 644.8048780487804
+              "x": 633.1004878048781,
+              "y": 646.1004878048781
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8651,8 +8702,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 633.1004878048781,
-              "y": 646.1004878048781
+              "x": 634.3960975609756,
+              "y": 647.3960975609756
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8702,8 +8753,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 634.4117073170731,
-              "y": 647.4117073170731
+              "x": 635.7073170731708,
+              "y": 648.7073170731708
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8753,8 +8804,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 635.7073170731708,
-              "y": 648.7073170731708
+              "x": 636.9873170731707,
+              "y": 649.9873170731707
             },
             "direction": "down",
             "walkFrame": 1,
@@ -8773,7 +8824,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 1009.9655172413793
+                "y": 1009.9875862068966
               },
               "direction": "up",
               "walkFrame": 1,
@@ -8786,7 +8837,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 827.0344827586207,
+                "x": 827.0124137931034,
                 "y": 989
               },
               "direction": "right",
@@ -8804,11 +8855,11 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 637.0029268292683,
-              "y": 650.0029268292683
+              "x": 638.2985365853658,
+              "y": 651.2985365853658
             },
             "direction": "down",
-            "walkFrame": 1,
+            "walkFrame": 0,
             "status": "moving",
             "target": {
               "x": 22,
@@ -8855,8 +8906,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 638.3141463414635,
-              "y": 651.3141463414635
+              "x": 639.609756097561,
+              "y": 652.609756097561
             },
             "direction": "down",
             "walkFrame": 0,
@@ -8906,8 +8957,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 639.609756097561,
-              "y": 652.609756097561
+              "x": 640.9053658536585,
+              "y": 653.9053658536585
             },
             "direction": "down",
             "walkFrame": 0,
@@ -8957,8 +9008,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 640.9053658536586,
-              "y": 653.9053658536586
+              "x": 642.2165853658536,
+              "y": 655.2165853658536
             },
             "direction": "down",
             "walkFrame": 0,
@@ -8977,7 +9028,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 1002.6165517241379
+                "y": 1002.5944827586208
               },
               "direction": "up",
               "walkFrame": 1,
@@ -8990,7 +9041,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 834.3834482758621,
+                "x": 834.4055172413792,
                 "y": 989
               },
               "direction": "right",
@@ -9008,8 +9059,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 642.2165853658537,
-              "y": 655.2165853658537
+              "x": 643.5121951219512,
+              "y": 656.5121951219512
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9059,8 +9110,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 643.5278048780488,
-              "y": 656.5278048780488
+              "x": 644.6985365853658,
+              "y": 657.6985365853658
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9079,7 +9130,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 998.9089655172413
+                "y": 999.0855172413793
               },
               "direction": "up",
               "walkFrame": 1,
@@ -9092,58 +9143,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 838.0910344827587,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 19,
-              "y": 19
-            },
-            "visualFoot": {
-              "x": 644.8234146341464,
-              "y": 657.8234146341464
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 31
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 997.0772413793103
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 25,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 839.9227586206897,
+                "x": 837.9144827586207,
                 "y": 989
               },
               "direction": "right",
@@ -9181,7 +9181,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 995.223448275862
+                "y": 997.0551724137931
               },
               "direction": "up",
               "walkFrame": 1,
@@ -9194,7 +9194,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 841.776551724138,
+                "x": 839.9448275862069,
                 "y": 989
               },
               "direction": "right",
@@ -9232,7 +9232,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 993.4137931034483
+                "y": 995.2455172413793
               },
               "direction": "up",
               "walkFrame": 1,
@@ -9245,7 +9245,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 843.5862068965517,
+                "x": 841.7544827586207,
                 "y": 989
               },
               "direction": "right",
@@ -9283,7 +9283,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 991.56
+                "y": 993.3917241379311
               },
               "direction": "up",
               "walkFrame": 1,
@@ -9296,7 +9296,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 845.44,
+                "x": 843.6082758620689,
                 "y": 989
               },
               "direction": "right",
@@ -9314,8 +9314,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 650.0370731707318,
-              "y": 663.0370731707318
+              "x": 650.0214634146341,
+              "y": 663.0214634146341
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9334,7 +9334,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 989.7062068965516
+                "y": 991.5600000000001
               },
               "direction": "up",
               "walkFrame": 1,
@@ -9347,7 +9347,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 847.2937931034484,
+                "x": 845.4399999999999,
                 "y": 989
               },
               "direction": "right",
@@ -9365,8 +9365,59 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 651.3326829268293,
-              "y": 664.3326829268293
+              "x": 651.3170731707318,
+              "y": 664.3170731707318
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 31
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 989.7282758620689
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 25,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 847.2717241379311,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 19,
+              "y": 19
+            },
+            "visualFoot": {
+              "x": 652.6282926829268,
+              "y": 665.6282926829268
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9416,8 +9467,8 @@
               "y": 19
             },
             "visualFoot": {
-              "x": 652.6439024390244,
-              "y": 665.6439024390244
+              "x": 653.9395121951219,
+              "y": 666.9395121951219
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9436,44 +9487,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 987.1462068965518
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 19,
-              "y": 19
-            },
-            "visualFoot": {
-              "x": 653.939512195122,
-              "y": 666.939512195122
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 985.3144827586207
+                "y": 987.1462068965517
               },
               "direction": "up",
               "walkFrame": 1,
@@ -9510,10 +9524,10 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 983.4827586206897
+                "y": 985.3144827586207
               },
               "direction": "up",
-              "walkFrame": 0,
+              "walkFrame": 1,
               "status": "moving",
               "curveActive": false
             }
@@ -9547,7 +9561,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 981.6510344827586
+                "y": 983.4827586206897
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9564,8 +9578,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 657.3112195121952,
-              "y": 670.3112195121952
+              "x": 657.2331707317073,
+              "y": 670.2331707317073
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9584,7 +9598,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 979.7972413793103
+                "y": 981.7393103448276
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9601,8 +9615,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 658.6068292682927,
-              "y": 671.6068292682927
+              "x": 658.5443902439024,
+              "y": 671.5443902439024
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9621,7 +9635,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 977.9655172413793
+                "y": 979.8855172413794
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9638,8 +9652,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 659.84,
-              "y": 672.84
+              "x": 659.8556097560976,
+              "y": 672.8556097560976
             },
             "direction": "down",
             "walkFrame": 0,
@@ -9658,7 +9672,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 976.2220689655172
+                "y": 978.0317241379311
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9675,8 +9689,45 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 661.229268292683,
-              "y": 674.229268292683
+              "x": 661.2136585365854,
+              "y": 674.2136585365854
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 976.111724137931
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 662.5248780487805,
+              "y": 675.5248780487805
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9712,8 +9763,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 662.5092682926829,
-              "y": 675.5092682926829
+              "x": 663.8204878048781,
+              "y": 676.8204878048781
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9732,7 +9783,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 972.448275862069
+                "y": 972.4262068965517
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9749,8 +9800,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 663.820487804878,
-              "y": 676.820487804878
+              "x": 665.1160975609756,
+              "y": 678.1160975609756
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9769,7 +9820,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 970.5944827586208
+                "y": 970.5944827586206
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9786,8 +9837,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 665.1317073170732,
-              "y": 678.1317073170732
+              "x": 666.4117073170731,
+              "y": 679.4117073170731
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9806,7 +9857,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 968.7406896551724
+                "y": 968.7627586206896
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9823,8 +9874,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 666.4273170731707,
-              "y": 679.4273170731707
+              "x": 667.7229268292683,
+              "y": 680.7229268292683
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9843,44 +9894,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 966.9089655172414
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 667.7073170731708,
-              "y": 680.7073170731708
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 965.0993103448276
+                "y": 966.9089655172413
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9917,7 +9931,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 963.2234482758621
+                "y": 965.0551724137931
               },
               "direction": "up",
               "walkFrame": 0,
@@ -9934,8 +9948,45 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 670.3453658536586,
-              "y": 683.3453658536586
+              "x": 670.2048780487805,
+              "y": 683.2048780487805
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 963.4
+              },
+              "direction": "up",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 671.6409756097561,
+              "y": 684.6409756097561
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9971,8 +10022,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 671.6253658536585,
-              "y": 684.6253658536585
+              "x": 672.9365853658537,
+              "y": 685.9365853658537
             },
             "direction": "down",
             "walkFrame": 1,
@@ -9991,7 +10042,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 959.5600000000001
+                "y": 959.5379310344827
               },
               "direction": "up",
               "walkFrame": 0,
@@ -10008,8 +10059,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 672.9209756097562,
-              "y": 685.9209756097562
+              "x": 674.2321951219512,
+              "y": 687.2321951219512
             },
             "direction": "down",
             "walkFrame": 1,
@@ -10028,61 +10079,10 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 957.7282758620689
+                "y": 957.7062068965517
               },
               "direction": "up",
               "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 674.2478048780488,
-              "y": 687.2478048780488
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 957
-              },
-              "direction": "up",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 26,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 849.8758620689655,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 1,
               "status": "moving",
               "curveActive": false
             }
@@ -10116,7 +10116,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 955.168275862069
+                "y": 957
               },
               "direction": "up",
               "walkFrame": 0,
@@ -10129,7 +10129,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 851.7075862068965,
+                "x": 849.8537931034483,
                 "y": 989
               },
               "direction": "right",
@@ -10147,8 +10147,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 676.8390243902439,
-              "y": 689.8390243902439
+              "x": 676.8234146341463,
+              "y": 689.8234146341463
             },
             "direction": "down",
             "walkFrame": 1,
@@ -10167,7 +10167,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 953.336551724138
+                "y": 955.1903448275863
               },
               "direction": "up",
               "walkFrame": 0,
@@ -10180,11 +10180,11 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 853.5393103448275,
+                "x": 851.663448275862,
                 "y": 989
               },
               "direction": "right",
-              "walkFrame": 0,
+              "walkFrame": 1,
               "status": "moving",
               "curveActive": false
             }
@@ -10218,10 +10218,10 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 951.5048275862068
+                "y": 953.336551724138
               },
               "direction": "up",
-              "walkFrame": 1,
+              "walkFrame": 0,
               "status": "moving",
               "curveActive": false
             },
@@ -10231,7 +10231,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 855.3710344827587,
+                "x": 853.5172413793103,
                 "y": 989
               },
               "direction": "right",
@@ -10249,8 +10249,59 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 679.4458536585365,
-              "y": 692.4458536585365
+              "x": 679.4302439024391,
+              "y": 692.4302439024391
+            },
+            "direction": "down",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 951.5048275862068
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 26,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 855.3489655172414,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 680.7414634146342,
+              "y": 693.7414634146342
             },
             "direction": "down",
             "walkFrame": 1,
@@ -10282,7 +10333,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 857.2248275862069,
+                "x": 857.2027586206897,
                 "y": 989
               },
               "direction": "right",
@@ -10300,8 +10351,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 680.7570731707317,
-              "y": 693.7570731707317
+              "x": 682.0370731707317,
+              "y": 695.0370731707317
             },
             "direction": "down",
             "walkFrame": 1,
@@ -10320,7 +10371,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 947.7972413793104
+                "y": 947.8193103448276
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10333,58 +10384,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 859.0786206896552,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 682.0370731707318,
-              "y": 695.0370731707318
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 945.9875862068965
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 26,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 860.888275862069,
+                "x": 859.0344827586207,
                 "y": 989
               },
               "direction": "right",
@@ -10422,6 +10422,57 @@
               },
               "visualFoot": {
                 "x": 880,
+                "y": 945.9655172413793
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 26,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 860.888275862069,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 20,
+              "y": 20
+            },
+            "visualFoot": {
+              "x": 684.5651004788517,
+              "y": 697.631547221452
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": true
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 880,
                 "y": 944.1337931034483
               },
               "direction": "up",
@@ -10435,7 +10486,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 862.7420689655172,
+                "x": 862.72,
                 "y": 989
               },
               "direction": "right",
@@ -10453,8 +10504,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 684.5788805876165,
-              "y": 697.647343331945
+              "x": 685.5542655627578,
+              "y": 698.9058041356468
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10473,7 +10524,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 942.2800000000001
+                "y": 942.4344827586207
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10486,7 +10537,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 864.5958620689655,
+                "x": 864.4193103448276,
                 "y": 989
               },
               "direction": "right",
@@ -10504,8 +10555,8 @@
               "y": 20
             },
             "visualFoot": {
-              "x": 685.6378685609375,
-              "y": 699.0263457411518
+              "x": 686.5252706255756,
+              "y": 700.5456616956897
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10524,7 +10575,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 940.448275862069
+                "y": 940.4262068965518
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10538,57 +10589,6 @@
               },
               "visualFoot": {
                 "x": 866.4275862068965,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 0,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 20,
-              "y": 20
-            },
-            "visualFoot": {
-              "x": 686.5157732931203,
-              "y": 700.526974556248
-            },
-            "direction": "down",
-            "walkFrame": 0,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": true
-          },
-          "npcs": {
-            "generic_resident": {
-              "committed": {
-                "x": 27,
-                "y": 29
-              },
-              "visualFoot": {
-                "x": 880,
-                "y": 938.6165517241379
-              },
-              "direction": "up",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            },
-            "linda": {
-              "committed": {
-                "x": 26,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 868.2593103448276,
                 "y": 989
               },
               "direction": "right",
@@ -10626,7 +10626,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 936.7627586206897
+                "y": 938.6165517241379
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10639,7 +10639,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 870.1131034482759,
+                "x": 868.2372413793104,
                 "y": 989
               },
               "direction": "right",
@@ -10657,8 +10657,59 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 687.4950122220195,
-              "y": 703.0861602353368
+              "x": 687.5004799797053,
+              "y": 703.1063901856206
+            },
+            "direction": "down",
+            "walkFrame": 0,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": true
+          },
+          "npcs": {
+            "generic_resident": {
+              "committed": {
+                "x": 27,
+                "y": 29
+              },
+              "visualFoot": {
+                "x": 880,
+                "y": 936.7627586206897
+              },
+              "direction": "up",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            },
+            "linda": {
+              "committed": {
+                "x": 26,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 870.0910344827586,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 0,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 21,
+              "y": 21
+            },
+            "visualFoot": {
+              "x": 687.8503771034167,
+              "y": 704.8089530691683
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10690,7 +10741,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 871.9448275862069,
+                "x": 871.9227586206897,
                 "y": 989
               },
               "direction": "right",
@@ -10708,8 +10759,8 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 687.8503771034167,
-              "y": 704.8089530691684
+              "x": 687.9902466908311,
+              "y": 706.5626555655859
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10741,7 +10792,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 873.7986206896552,
+                "x": 873.776551724138,
                 "y": 989
               },
               "direction": "right",
@@ -10759,8 +10810,8 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 687.9897794664398,
-              "y": 706.5417049339973
+              "x": 688,
+              "y": 708.3710344827585
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10769,7 +10820,7 @@
               "x": 22,
               "y": 22
             },
-            "curveActive": true
+            "curveActive": false
           },
           "npcs": {
             "generic_resident": {
@@ -10792,7 +10843,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 875.6303448275862,
+                "x": 875.6082758620689,
                 "y": 989
               },
               "direction": "right",
@@ -10811,7 +10862,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 708.3489655172414
+              "y": 710.2248275862069
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10830,7 +10881,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 929.4137931034483
+                "y": 929.3917241379311
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10862,7 +10913,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 710.1144827586207
+              "y": 712.0344827586207
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10881,7 +10932,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 927.648275862069
+                "y": 927.5820689655172
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10894,7 +10945,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 879.2275862068966,
+                "x": 879.2717241379311,
                 "y": 989
               },
               "direction": "right",
@@ -10913,7 +10964,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 712.0565517241379
+              "y": 713.9103448275862
             },
             "direction": "down",
             "walkFrame": 0,
@@ -10932,7 +10983,7 @@
               },
               "visualFoot": {
                 "x": 880,
-                "y": 925.7062068965517
+                "y": 925.7062068965516
               },
               "direction": "up",
               "walkFrame": 1,
@@ -10964,7 +11015,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 713.888275862069
+              "y": 715.7420689655172
             },
             "direction": "down",
             "walkFrame": 0,
@@ -11001,7 +11052,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 715.72
+              "y": 717.5737931034482
             },
             "direction": "down",
             "walkFrame": 0,
@@ -11019,7 +11070,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 883.6634482758622,
+                "x": 883.663448275862,
                 "y": 989
               },
               "direction": "right",
@@ -11038,7 +11089,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 717.551724137931
+              "y": 719.4055172413792
             },
             "direction": "down",
             "walkFrame": 0,
@@ -11056,7 +11107,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 885.4951724137932,
+                "x": 885.4951724137931,
                 "y": 989
               },
               "direction": "right",
@@ -11075,7 +11126,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 719.4055172413794
+              "y": 721.2593103448276
             },
             "direction": "down",
             "walkFrame": 0,
@@ -11112,7 +11163,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 721.2372413793104
+              "y": 723.0910344827586
             },
             "direction": "down",
             "walkFrame": 0,
@@ -11130,7 +11181,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 889.1806896551725,
+                "x": 889.1806896551724,
                 "y": 989
               },
               "direction": "right",
@@ -11149,7 +11200,7 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 723.0910344827586
+              "y": 724.9448275862069
             },
             "direction": "down",
             "walkFrame": 0,
@@ -11186,10 +11237,10 @@
             },
             "visualFoot": {
               "x": 688,
-              "y": 724.9227586206897
+              "y": 726.7765517241379
             },
             "direction": "down",
-            "walkFrame": 0,
+            "walkFrame": 1,
             "status": "moving",
             "target": {
               "x": 22,
@@ -11222,45 +11273,8 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 688,
-              "y": 726.7544827586207
-            },
-            "direction": "down",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {
-            "linda": {
-              "committed": {
-                "x": 27,
-                "y": 30
-              },
-              "visualFoot": {
-                "x": 894.6979310344828,
-                "y": 989
-              },
-              "direction": "right",
-              "walkFrame": 1,
-              "status": "moving",
-              "curveActive": false
-            }
-          }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 21,
-              "y": 21
-            },
-            "visualFoot": {
-              "x": 688.0810536765381,
-              "y": 728.2835188732012
+              "x": 688.0828960101625,
+              "y": 728.3013280982369
             },
             "direction": "down",
             "walkFrame": 1,
@@ -11278,7 +11292,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 896.5296551724139,
+                "x": 894.6979310344827,
                 "y": 989
               },
               "direction": "right",
@@ -11315,7 +11329,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 898.4055172413794,
+                "x": 896.551724137931,
                 "y": 989
               },
               "direction": "right",
@@ -11333,8 +11347,8 @@
               "y": 21
             },
             "visualFoot": {
-              "x": 689.1148524422699,
-              "y": 731.0524766463946
+              "x": 689.1249626924895,
+              "y": 731.0672531659461
             },
             "direction": "down",
             "walkFrame": 1,
@@ -11352,7 +11366,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 900.2151724137932,
+                "x": 898.3834482758621,
                 "y": 989
               },
               "direction": "right",
@@ -11389,7 +11403,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 902.0689655172414,
+                "x": 900.2151724137931,
                 "y": 989
               },
               "direction": "right",
@@ -11426,7 +11440,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 903.9227586206897,
+                "x": 902.0689655172414,
                 "y": 989
               },
               "direction": "right",
@@ -11444,8 +11458,8 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 692.1165053182527,
-              "y": 732.817871355232
+              "x": 692.1517152005681,
+              "y": 732.8243917038089
             },
             "direction": "right",
             "walkFrame": 1,
@@ -11463,7 +11477,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 905.7324137931035,
+                "x": 903.9227586206896,
                 "y": 989
               },
               "direction": "right",
@@ -11481,8 +11495,8 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 693.6085478289014,
-              "y": 732.9873725106097
+              "x": 693.6264427852944,
+              "y": 732.9879497672675
             },
             "direction": "right",
             "walkFrame": 1,
@@ -11492,6 +11506,43 @@
               "y": 22
             },
             "curveActive": true
+          },
+          "npcs": {
+            "linda": {
+              "committed": {
+                "x": 27,
+                "y": 30
+              },
+              "visualFoot": {
+                "x": 905.7544827586206,
+                "y": 989
+              },
+              "direction": "right",
+              "walkFrame": 1,
+              "status": "moving",
+              "curveActive": false
+            }
+          }
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 21,
+              "y": 22
+            },
+            "visualFoot": {
+              "x": 695.3710344827587,
+              "y": 733
+            },
+            "direction": "right",
+            "walkFrame": 1,
+            "status": "moving",
+            "target": {
+              "x": 22,
+              "y": 22
+            },
+            "curveActive": false
           },
           "npcs": {
             "linda": {
@@ -11518,7 +11569,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 695.2827586206896,
+              "x": 697.2027586206896,
               "y": 733
             },
             "direction": "right",
@@ -11537,7 +11588,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 909.351724137931,
+                "x": 909.4179310344826,
                 "y": 989
               },
               "direction": "right",
@@ -11555,7 +11606,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 697.224827586207,
+              "x": 699.0565517241379,
               "y": 733
             },
             "direction": "right",
@@ -11574,7 +11625,7 @@
                 "y": 30
               },
               "visualFoot": {
-                "x": 911.2937931034484,
+                "x": 911.271724137931,
                 "y": 989
               },
               "direction": "right",
@@ -11583,28 +11634,6 @@
               "curveActive": false
             }
           }
-        },
-        {
-          "reducedMotion": true,
-          "player": {
-            "committed": {
-              "x": 21,
-              "y": 22
-            },
-            "visualFoot": {
-              "x": 699.0344827586207,
-              "y": 733
-            },
-            "direction": "right",
-            "walkFrame": 1,
-            "status": "moving",
-            "target": {
-              "x": 22,
-              "y": 22
-            },
-            "curveActive": false
-          },
-          "npcs": {}
         },
         {
           "reducedMotion": true,
@@ -11636,7 +11665,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 702.72,
+              "x": 702.7199999999999,
               "y": 733
             },
             "direction": "right",
@@ -11658,7 +11687,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 704.551724137931,
+              "x": 704.5958620689655,
               "y": 733
             },
             "direction": "right",
@@ -11702,7 +11731,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 708.2372413793104,
+              "x": 708.2593103448276,
               "y": 733
             },
             "direction": "right",
@@ -11724,7 +11753,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 710.0689655172414,
+              "x": 710.1131034482759,
               "y": 733
             },
             "direction": "right",
@@ -11746,7 +11775,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 711.7903448275863,
+              "x": 711.9227586206897,
               "y": 733
             },
             "direction": "right",
@@ -11768,7 +11797,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 713.776551724138,
+              "x": 713.7765517241379,
               "y": 733
             },
             "direction": "right",
@@ -11790,7 +11819,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 715.608275862069,
+              "x": 715.6082758620689,
               "y": 733
             },
             "direction": "right",
@@ -11834,7 +11863,7 @@
               "y": 22
             },
             "visualFoot": {
-              "x": 719.2937931034484,
+              "x": 719.2937931034483,
               "y": 733
             },
             "direction": "right",
@@ -11847,9 +11876,28 @@
             "curveActive": false
           },
           "npcs": {}
+        },
+        {
+          "reducedMotion": true,
+          "player": {
+            "committed": {
+              "x": 22,
+              "y": 22
+            },
+            "visualFoot": {
+              "x": 720,
+              "y": 733
+            },
+            "direction": "right",
+            "walkFrame": 0,
+            "status": "idle",
+            "target": null,
+            "curveActive": false
+          },
+          "npcs": {}
         }
       ],
-      "firstSegmentUniquePositions": 25,
+      "firstSegmentUniquePositions": 24,
       "curveObserved": true,
       "interruptionObserved": false,
       "playerWalkFrames": [
@@ -11866,5 +11914,12 @@
         "reduced-1x-frame-01.png"
       ]
     }
+  },
+  "rendererFpsEvidence": {
+    "measuredFps": 119.9,
+    "profile": "qualification",
+    "thresholdFps": 55,
+    "thresholdPassed": true,
+    "thresholdRequired": true
   }
 }

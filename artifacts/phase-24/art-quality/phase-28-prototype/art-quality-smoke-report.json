@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "artRevision": 2,
-  "testedCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
+  "testedCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786431468133,
+    "modifiedMilliseconds": 1786433155906,
     "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
     "payloadSizeBytes": 16688330,
     "payloadSha256": "ae03b877cd978c7d90af0939fcee283e5ca9a63d647cffb7ff477927377a29b6"
@@ -13,7 +13,7 @@
   "capturePolicy": {
     "stateBased": true,
     "minimumPaints": 2,
-    "absoluteDeadlineMilliseconds": 1786432669858,
+    "absoluteDeadlineMilliseconds": 1786434357618,
     "pngPixelValidation": true
   },
   "fixedCamera": [

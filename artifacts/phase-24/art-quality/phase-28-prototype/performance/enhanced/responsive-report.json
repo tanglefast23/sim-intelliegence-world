@@ -13513,8 +13513,8 @@
         "surface": false
       }
     },
-    "rendererFps": 119.94,
-    "displayRafFps": 119.94,
+    "rendererFps": 119.9,
+    "displayRafFps": 119.9,
     "medianFrameTimeMilliseconds": 8.3,
     "sampledFrames": 241,
     "cameraChangeFrames": 240,
@@ -13524,7 +13524,7 @@
     "screenshot": "maximum-load.png"
   },
   "evidenceSource": {
-    "baseCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
+    "baseCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
     "sourceSha256": "18fb8b513a592ebc66b17e68c273c144e6047947bf3a45d1bca03b3c0df4c955",
     "sourcePaths": [
       ".github/workflows/ci.yml",
@@ -13549,10 +13549,10 @@
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786431468133,
+    "modifiedMilliseconds": 1786433155906,
     "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
     "payloadSizeBytes": 16688330,
     "payloadSha256": "ae03b877cd978c7d90af0939fcee283e5ca9a63d647cffb7ff477927377a29b6"
   },
-  "testedCommit": "5dbe506956562a9e2720360df32177c33cee31bc"
+  "testedCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876"
 }

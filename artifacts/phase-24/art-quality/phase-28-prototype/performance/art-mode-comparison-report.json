@@ -3,11 +3,11 @@
   "compareArtModes": true,
   "includeMaximumLoad": true,
   "qualification": true,
-  "testedCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
+  "testedCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
   "packageProvenance": {
     "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
     "sizeBytes": 33968,
-    "modifiedMilliseconds": 1786431468133,
+    "modifiedMilliseconds": 1786433155906,
     "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
     "payloadSizeBytes": 16688330,
     "payloadSha256": "ae03b877cd978c7d90af0939fcee283e5ca9a63d647cffb7ff477927377a29b6"
@@ -13341,11 +13341,11 @@
       "zoom": 1
     },
     "uiScale": 1.5,
-    "testedCommit": "5dbe506956562a9e2720360df32177c33cee31bc",
+    "testedCommit": "d250cea41fe4ab19df1ad22a222952d8c548d876",
     "packageProvenance": {
       "executable": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
       "sizeBytes": 33968,
-      "modifiedMilliseconds": 1786431468133,
+      "modifiedMilliseconds": 1786433155906,
       "payload": "/Users/joemacprom5/Documents/Vibecode/Sim Intelliegence World/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
       "payloadSizeBytes": 16688330,
       "payloadSha256": "ae03b877cd978c7d90af0939fcee283e5ca9a63d647cffb7ff477927377a29b6"
@@ -13361,8 +13361,8 @@
   },
   "modes": {
     "legacy": {
-      "rendererFps": 119.86,
-      "displayRafFps": 119.86,
+      "rendererFps": 119.9,
+      "displayRafFps": 119.9,
       "medianFrameTimeMilliseconds": 8.3,
       "roundedFps": 120,
       "drawCounts": {
@@ -13381,8 +13381,8 @@
       "screenshot": "legacy/maximum-load.png"
     },
     "enhanced": {
-      "rendererFps": 119.94,
-      "displayRafFps": 119.94,
+      "rendererFps": 119.9,
+      "displayRafFps": 119.9,
       "medianFrameTimeMilliseconds": 8.3,
       "roundedFps": 120,
       "drawCounts": {

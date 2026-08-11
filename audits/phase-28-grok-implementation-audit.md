@@ -4,7 +4,7 @@
 
 - Branch: `codex/phase-28-art-prototype`
 - Base SHA: `63b59583dd0dda4e0ac50bbd51d545bac5c37fe2`
-- Packaged source SHA after corrections: `5dbe506956562a9e2720360df32177c33cee31bc`
+- Packaged source SHA after corrections: `d250cea41fe4ab19df1ad22a222952d8c548d876`
 - Model: Grok 4.5
 - Reasoning effort: high
 - Access: subscription-backed, read-only audit wrapper
@@ -71,11 +71,11 @@ Grok audited the correction against the movement specification, cross-platform s
 
 ## Verified packaged results
 
-- Source commit: `5dbe506956562a9e2720360df32177c33cee31bc`
+- Source commit: `d250cea41fe4ab19df1ad22a222952d8c548d876`
 - Packaged payload SHA-256: `ae03b877cd978c7d90af0939fcee283e5ca9a63d647cffb7ff477927377a29b6`
 - Atlas SHA-256: `c940e82f2e32c9558983e80ea6915a23e4d81fccb746da59db3ff583f6de0c3d`
-- Legacy performance: `119.86 FPS`, `8.3 ms` median frame time
-- Enhanced performance: `119.94 FPS`, `8.3 ms` median frame time
+- Legacy performance: `119.9 FPS`, `8.3 ms` median frame time
+- Enhanced performance: `119.9 FPS`, `8.3 ms` median frame time
 - Enhanced-to-legacy ratio: `1.0`
 - Added enhanced presentation cost: one static batch
 - Full gate: `51` suites and `415` tests passed before the final evidence-only record update.

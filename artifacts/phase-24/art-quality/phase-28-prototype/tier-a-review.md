@@ -2,7 +2,7 @@
 
 - Reviewer: Codex orchestrator
 - Review date: 2026-08-11
-- Tested source commit: `5dbe506956562a9e2720360df32177c33cee31bc`
+- Tested source commit: `d250cea41fe4ab19df1ad22a222952d8c548d876`
 - Native frame: `enhanced/1920x1080-1x.png`
 - Grayscale frame: `fixed-camera-1x-grayscale.png`
 - Result: pass, 6 of 6
