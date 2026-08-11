@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "phase": 30,
+  "artRevision": 4,
+  "testedCommit": "b962213e1aab506fdef70bc674d7f802cd0290f5",
+  "reviewer": "Codex native-size visual review, reconciled with Grok 4.5 high-effort correction audit",
+  "fullColorFrame": "enhanced/1920x1080-1x.png",
+  "grayscaleFrame": "fixed-camera-1x-grayscale.png",
+  "sourceReviewBoard": "review/sunward-architecture-1x.png",
+  "questions": [
+    {
+      "id": 1,
+      "critical": true,
+      "pass": true,
+      "question": "Is the protagonist identifiable without a label?",
+      "reason": "The swept hair, teal torso, dark outline, and diagonal strap separate the protagonist from nearby residents at native 1x."
+    },
+    {
+      "id": 2,
+      "critical": true,
+      "pass": true,
+      "question": "Is the nearest open doorway distinguishable from a closed wall?",
+      "reason": "The open cell has a pale opening and dark threshold. The adjacent wall keeps its stucco face, terracotta band, and dark core."
+    },
+    {
+      "id": 3,
+      "critical": true,
+      "pass": true,
+      "question": "Are solid objects distinguishable from low-contrast ground detail?",
+      "reason": "Furniture, signs, lamps, planters, and palms use dark contact edges and compact silhouettes. Sand ripples and shells stay thin and low contrast."
+    },
+    {
+      "id": 4,
+      "critical": false,
+      "pass": true,
+      "question": "Are the protagonist, Linda, and generic resident distinguishable by shape, not only color?",
+      "reason": "The protagonist has swept hair and a strap. Linda has long side hair and earrings. The resident has a high quiff and wide glasses."
+    },
+    {
+      "id": 5,
+      "critical": false,
+      "pass": true,
+      "question": "Does the ground avoid a dominant one-cell stamp or grid?",
+      "reason": "Four sand and floor variants remove repeated 2x2 blocks. The fixed sand board has no identical diagonal run longer than four cells."
+    },
+    {
+      "id": 6,
+      "critical": false,
+      "pass": true,
+      "question": "Are floor, wall, roof, prop, and character layers separable in grayscale?",
+      "reason": "The grayscale frame keeps dark walls and roofs, mid-value props and characters, and light exterior sand as separate value groups."
+    }
+  ],
+  "decision": {
+    "criticalPassed": 3,
+    "criticalRequired": 3,
+    "totalPassed": 6,
+    "totalRequired": 5,
+    "passed": true,
+    "userFeedbackOverride": null
+  }
+}
