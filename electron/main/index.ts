@@ -356,6 +356,10 @@ async function resizeContentAndWait(
   height: number,
   timeoutMilliseconds = 6_000,
 ): Promise<SurfaceBounds> {
+  if (window.isMaximized()) {
+    window.unmaximize();
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+  }
   window.setContentSize(width, height);
   const expected = responsiveSurface(width, height).surface;
   const deadline = Date.now() + timeoutMilliseconds;
@@ -955,7 +959,13 @@ async function captureResponsiveSmoke(
     const bounds = await resizeContentAndWait(window, target.width, target.height, 10_000);
     const afterResizeEvidence = await waitForResponsiveEvidence(window, (evidence) => {
       const content = evidence.content as { width?: unknown; height?: unknown } | undefined;
-      return content?.width === target.width && content.height === target.height;
+      const candidateSurface = evidence.surface as { width?: unknown; height?: unknown } | undefined;
+      const overflow = evidence.overflow as { body?: unknown; surface?: unknown } | undefined;
+      return content?.width === target.width && content.height === target.height &&
+        typeof candidateSurface?.width === 'number' && typeof candidateSurface.height === 'number' &&
+        Math.abs(candidateSurface.width - bounds.width) <= 1 &&
+        Math.abs(candidateSurface.height - bounds.height) <= 1 &&
+        overflow?.body === false && overflow.surface === false;
     }, 10_000);
     const afterCamera = parseCameraLabel(await cameraLabel(window));
     const centerAfter = cameraCenter(afterCamera, bounds);

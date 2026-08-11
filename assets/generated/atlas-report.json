@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "artRevision": 3,
+  "artRevision": 4,
   "categories": {
     "ground-base": {
-      "actualCount": 21,
+      "actualCount": 25,
       "maximumCount": 48,
-      "rawRectangleArea": 24276
+      "rawRectangleArea": 28900
     },
     "ground-transition": {
       "actualCount": 30,
@@ -13,9 +13,9 @@
       "rawRectangleArea": 34680
     },
     "ground-decal": {
-      "actualCount": 3,
+      "actualCount": 4,
       "maximumCount": 48,
-      "rawRectangleArea": 3468
+      "rawRectangleArea": 4624
     },
     "wall-door": {
       "actualCount": 67,
@@ -49,12 +49,12 @@
     }
   },
   "actual": {
-    "cellCount": 235,
-    "rawRectangleArea": 253500,
+    "cellCount": 240,
+    "rawRectangleArea": 259280,
     "width": 512,
-    "height": 514,
-    "boundingRectangleArea": 263168,
-    "occupancy": 0.9632630107003891
+    "height": 546,
+    "boundingRectangleArea": 279552,
+    "occupancy": 0.9274839743589743
   },
   "forecast": {
     "cellCount": 634,
@@ -153,8 +153,8 @@
     }
   ],
   "indexVersion": 3,
-  "toolVersion": "atlas-v3-phase29",
-  "imageSha256": "fd2dfda480c01384dfc7fbc8b7f19cdcdcacd9f99274c9e3b6483ae33f789be3",
-  "publicSpriteCount": 235,
+  "toolVersion": "atlas-v4-phase30",
+  "imageSha256": "59c9c56dd234e50df3113b1e7fcc8a2aeed6952d697f21712463e8357a7a8c2c",
+  "publicSpriteCount": 240,
   "internalReviewSpriteCount": 0
 }

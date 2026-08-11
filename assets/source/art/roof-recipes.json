@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "artRevision": 3,
+  "artRevision": 4,
   "defaultRecipe": {
     "id": "sunward-terracotta-roof",
     "publicSprites": {
@@ -9,7 +9,7 @@
       "corner": "tile.roof-sunward-corner"
     },
     "tint": "#ffffff00",
-    "selectionSalt": "roof-v2",
+    "selectionSalt": "roof-v3",
     "visualBounds": { "left": 0, "top": 0, "right": 32, "bottom": 32 }
   }
 }

@@ -24,6 +24,18 @@ function png(path: string, first: number, second: number): void {
 }
 
 describe('Phase 28 packaged art-quality evidence', () => {
+  test('restores a maximized smoke window before the next serial resize', () => {
+    const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
+    const resize = main.slice(
+      main.indexOf('async function resizeContentAndWait'),
+      main.indexOf('async function clickAriaButton'),
+    );
+    expect(resize).toContain('window.isMaximized()');
+    expect(resize.indexOf('window.unmaximize()')).toBeLessThan(resize.indexOf('window.setContentSize(width, height)'));
+    expect(main).toContain('Math.abs(candidateSurface.width - bounds.width) <= 1');
+    expect(main).toContain('overflow?.body === false && overflow.surface === false');
+  });
+
   test('requires distinct nonblank before and after frames, three UI scales, and lifecycle proof', () => {
     const root = join(tmpdir(), `si-world-art-quality-${process.pid}`);
     rmSync(root, { recursive: true, force: true });

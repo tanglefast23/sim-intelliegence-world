@@ -127,6 +127,7 @@ const WallModulesSchema = z.object({
 const WallPaletteSourceSchema = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]+$/u),
   palette: z.record(TokenSchema, ColorSchema),
+  modules: WallModulesSchema.optional(),
 }).strict();
 
 export type WallSource = Readonly<{
@@ -290,7 +291,7 @@ export function loadMultiTileCompositions(root = process.cwd()): MultiTileCompos
 
 export function loadWallSources(root = process.cwd()): WallSource[] {
   const sources = loadTileCollections(root).flatMap(({ wallModules, wallPalettes }) =>
-    wallPalettes.map(({ id, palette }) => ({ id, palette, modules: wallModules })),
+    wallPalettes.map(({ id, palette, modules }) => ({ id, palette, modules: modules ?? wallModules })),
   );
   assertUniqueSourceIds('Wall palette', sources.map(({ id }) => id));
   for (const source of sources) {

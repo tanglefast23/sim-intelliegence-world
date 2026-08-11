@@ -291,3 +291,34 @@ All ten source files are authoritative. Each row has one shape that survives fro
 | Tomas Reed | low side-part | square headphones | all directions | none | headphones all directions | none |
 
 The cast keeps the generated rear method and front-body lateral method. Phase 29 did not need the three-quarter-head fallback. Review `full-cast-identity-1x.png` before the scaled board. The `3x` board is inspection help, not proof of native clarity.
+
+## 18. Phase 30 complete Sunward family ledger
+
+Phase 30 completes only art that the authoritative `northwest_residential` map already uses. The map source SHA-256 stays `a831fbbe8f3a9d379a15aaa5be81fb17b3c2248cfde697e4d6e9bd7867386982`. No room, wall run, object placement, solid footprint, interaction, route, or story content changes.
+
+### 18.1 Materials and ground detail
+
+| Family | Public variants | Native rule | Reject |
+|---|---:|---|---|
+| Warm sand | 4 | short, irregular ripple groups with quiet space and rare pebbles | a dominant diagonal cycle, checker, or uniform noise |
+| Villa floor | 4 | warm horizontal plank groups with controlled board-length and highlight changes | square grid, broken seams, or texture that competes with a character |
+| Plaza paver | 2 | pale masonry courses with small, offset wear marks | one-cell stamp or high-contrast grout |
+| Boardwalk | 2 | aligned vertical boards with continuous horizontal construction seams | a variant that breaks a shared seam or creates a false blocker |
+
+The `sand-traces` presentation family can select the shell decal. All decals stay non-solid and non-interactive. Material selection uses a deterministic avalanche mix and rejects identical `2x2` blocks and diagonal runs longer than four cells on the fixed warm-sand review board.
+
+### 18.2 Villa shell and openings
+
+| Family | Required visual mass | Opening or state rule |
+|---|---|---|
+| Villa walls | pale stucco face, terracotta band, dark core, and lower contact shadow | all 16 unique adjacency cells keep one-cell geometry and show at least 600 opaque pixels |
+| Villa doors | timber panel, brass detail, and dark threshold | open, closed-unlocked, and closed-locked states use the same one-cell opening |
+| Sunward roof | grouped terracotta courses, pale fascia, and controlled wear | base, edge, and corner remain presentation-only and keep the existing roof group |
+
+Villa wall source modules are local to the `villa` palette. Downtown, commercial, and civic wall pixels stay at revision 3 until their Tier B phase.
+
+### 18.3 Existing props and signs
+
+Beds, sofas, tables, counters, spa signs, market signs, lamps, planters, and palms use the warm-noir resort palette. Each solid footprint offset must have a render part at the same offset with at least 128 visible pixels. Decorative overhangs can use transparent pixels, but they cannot add collision or close a walk lane.
+
+Review all changed cells on `sunward-architecture-1x.png` first. The `3x` board is only an inspection aid. Review the four material boards at native size before the scaled copies.

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "artRevision": 3,
+  "artRevision": 4,
   "families": [
     {
       "id": "sand-traces",
-      "publicSprites": ["tile.decal-sand-ripple", "tile.decal-sand-pebbles"],
-      "densityPerThousand": 95,
-      "selectionSalt": "sand-traces-v2"
+      "publicSprites": ["tile.decal-sand-ripple", "tile.decal-sand-pebbles", "tile.decal-sand-shells"],
+      "densityPerThousand": 140,
+      "selectionSalt": "sand-traces-v3"
     },
     {
       "id": "grass-tufts",
