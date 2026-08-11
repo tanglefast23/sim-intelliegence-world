@@ -230,8 +230,13 @@ if (compareArtModes) {
       geometry: report.geometry,
       requestedTargets: targets.map(({ requested }) => requested),
       highDpi: report.highDpi,
+      mapId: maximumLoad.evidence?.mapId,
+      content: maximumLoad.evidence?.content,
+      surface: maximumLoad.evidence?.surface,
       devicePixelRatio: maximumLoad.evidence?.devicePixelRatio,
       selectedWorldZoom: maximumLoad.evidence?.selectedWorldZoom,
+      camera: maximumLoad.evidence?.camera,
+      uiScale: maximumLoad.evidence?.uiScale,
       testedCommit: report.testedCommit,
       packageProvenance: report.packageProvenance,
     };

@@ -21,8 +21,10 @@ export function validateArtModePerformance(
   if (legacy.medianFrameTimeMilliseconds <= 0 || enhanced.medianFrameTimeMilliseconds <= 0) {
     throw new Error('Art-mode median frame times must be positive.');
   }
-  if (enhanced.roundedFps < minimumRoundedFps) {
-    throw new Error(`Enhanced art mode is below ${minimumRoundedFps} FPS: ${enhanced.roundedFps}.`);
+  if (legacy.roundedFps < minimumRoundedFps || enhanced.roundedFps < minimumRoundedFps) {
+    throw new Error(
+      `Art mode is below ${minimumRoundedFps} FPS: legacy ${legacy.roundedFps}, enhanced ${enhanced.roundedFps}.`,
+    );
   }
   const addedStaticBatches = enhanced.staticBatchCount - legacy.staticBatchCount;
   if (addedStaticBatches < 0 || addedStaticBatches > 1) {

@@ -7,19 +7,13 @@ import { PNG } from 'pngjs';
 
 import { ATLAS_INDEX } from '../../src/render/atlas';
 import {
+  ArtQualityResponsiveReportSchema,
   validateArtQualityEvidence,
   type ArtQualityEvidence,
+  type ArtQualityResponsiveReport,
 } from '../../src/render/art-quality-evidence';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
-
-type ResponsiveReport = Readonly<{
-  targets: readonly Readonly<{
-    requested: Readonly<{ width: number; height: number }>;
-    conversationEvidence: Readonly<{ uiScale: 1 | 1.25 | 1.5 }>;
-    screenshots: Readonly<{ zoom: readonly [string, string, string]; conversation: string }>;
-  }>[];
-}>;
 
 const argumentsValue = process.argv.slice(2);
 const outputRoot = resolveEvidenceOutputRoot(argumentsValue, {
@@ -52,8 +46,10 @@ function run(
   process.stderr.write(`ART_QUALITY_PROGRESS ${label}\n`);
 }
 
-function readResponsive(relativeDirectory: string): ResponsiveReport {
-  return JSON.parse(readFileSync(join(outputRoot, relativeDirectory, 'responsive-report.json'), 'utf8')) as ResponsiveReport;
+function readResponsive(relativeDirectory: string): ArtQualityResponsiveReport {
+  return ArtQualityResponsiveReportSchema.parse(JSON.parse(
+    readFileSync(join(outputRoot, relativeDirectory, 'responsive-report.json'), 'utf8'),
+  ) as unknown);
 }
 
 function sha256(relativePath: string): string {
@@ -117,6 +113,7 @@ const report: ArtQualityEvidence = {
   schemaVersion: 1,
   artRevision: ATLAS_INDEX.artRevision,
   testedCommit: resolveTestedCommit(),
+  packageProvenance: legacy.packageProvenance,
   capturePolicy: {
     stateBased: true,
     minimumPaints: 2,
