@@ -13,6 +13,7 @@ import {
 import { TILE_VISUAL_BOUNDS } from './visual-bounds';
 
 export type GroundPresentationCell = Readonly<{
+  compositionSize: 2 | 3;
   id: string;
   tile: TilePoint;
   materialId: string;
@@ -105,6 +106,7 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
     const variantSprites = recipe.mapVariantSprites[input.map.id] ?? recipe.publicVariantSprites;
     const sprite = variantSprites[selection.variantIndex] as string;
     return Object.freeze({
+      compositionSize: selection.compositionSize,
       id: `ground-${x}-${y}`,
       tile: Object.freeze({ x, y }),
       materialId: selection.materialId,

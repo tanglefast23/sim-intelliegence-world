@@ -12,7 +12,7 @@ import {
 } from '../../../src/world/presentation/recipes';
 import { selectMaterialVariants } from '../../../src/world/presentation/material-selection';
 
-const MAP_SOURCE_SHA256 = '01e3252302cd85b5e4bf7aec912ebbe201e462ec9dbbe0869dde4de32d983cb1';
+const MAP_SOURCE_SHA256 = '7a85af0939705eebe01ef2dad739cabe070eda1bef7cf2239ff757239c1e8fd1';
 const SUNWARD_SPRITES = [
   'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
   'tile.villa-floor', 'tile.villa-floor-b', 'tile.plaza-paver', 'tile.boardwalk',

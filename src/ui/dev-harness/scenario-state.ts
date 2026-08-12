@@ -65,6 +65,44 @@ export function devHarnessGoldenHourState(mapId: MapId = 'northwest_residential'
   });
 }
 
+export function devHarnessHeroSceneState(mapId: MapId): WorldState {
+  const state = devHarnessGoldenHourState(mapId);
+  const composition = WORLD_MAP_CATALOG[mapId].source.startComposition;
+  if (!composition) throw new Error(`Dev harness map ${mapId} has no hero composition.`);
+  if (WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${composition.cameraAnchor.x},${composition.cameraAnchor.y}`)) {
+    throw new Error(`Dev harness hero anchor ${mapId} is blocked.`);
+  }
+  const stagedIds = composition.requiredActorIds.filter((id) => id !== 'protagonist');
+  const localNpcs = Object.fromEntries(Object.entries(state.npcs).map(([id, npc]) => {
+    const index = stagedIds.indexOf(id);
+    if (index < 0) return [id, npc];
+    const tile = {
+      x: composition.cameraAnchor.x + (index === 0 ? -3 : 3),
+      y: composition.cameraAnchor.y + 2,
+    };
+    if (WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${tile.x},${tile.y}`)) {
+      throw new Error(`Dev harness hero actor tile ${mapId}/${id} is blocked.`);
+    }
+    return [id, {
+      ...npc,
+      presence: { kind: 'active_local', mapId, locationId: mapId, tileX: tile.x, tileY: tile.y },
+    }];
+  }));
+  return parseWorldState({
+    ...state,
+    protagonist: {
+      ...state.protagonist,
+      locationId: mapId,
+      worldPosition: {
+        mapId,
+        tileX: composition.cameraAnchor.x,
+        tileY: composition.cameraAnchor.y,
+      },
+    },
+    npcs: localNpcs,
+  });
+}
+
 const GROUNDING_TILES: Readonly<Record<MapId, Readonly<{ x: number; y: number }>>> = {
   northwest_residential: { x: 13, y: 11 },
   northeast_downtown: { x: 26, y: 15 },

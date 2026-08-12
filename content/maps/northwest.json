@@ -18,6 +18,14 @@
         "sprite": "tile.villa-floor"
       },
       {
+        "id": "sunward-patio-ground",
+        "x": 20,
+        "y": 25,
+        "width": 15,
+        "height": 6,
+        "sprite": "tile.plaza-paver"
+      },
+      {
         "id": "promenade-ground",
         "x": 37,
         "y": 8,
@@ -1209,6 +1217,38 @@
         },
         {
           "id": "sunward-patio-furniture-part-03",
+          "sprite": "tile.landmark-fountain-nw",
+          "offset": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-04",
+          "sprite": "tile.landmark-fountain-ne",
+          "offset": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-05",
+          "sprite": "tile.landmark-fountain-sw",
+          "offset": {
+            "x": 4,
+            "y": 4
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-06",
+          "sprite": "tile.landmark-fountain-se",
+          "offset": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-part-07",
           "sprite": "tile.sofa-left",
           "offset": {
             "x": 10,
@@ -1216,7 +1256,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-part-04",
+          "id": "sunward-patio-furniture-part-08",
           "sprite": "tile.sofa-right",
           "offset": {
             "x": 11,
@@ -1224,7 +1264,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-part-05",
+          "id": "sunward-patio-furniture-part-09",
           "sprite": "tile.fixture-lamp",
           "offset": {
             "x": 0,
@@ -1232,7 +1272,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-part-06",
+          "id": "sunward-patio-furniture-part-10",
           "sprite": "tile.fixture-planter",
           "offset": {
             "x": 3,
@@ -1240,7 +1280,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-part-07",
+          "id": "sunward-patio-furniture-part-11",
           "sprite": "tile.fixture-lamp",
           "offset": {
             "x": 6,
@@ -1248,7 +1288,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-part-08",
+          "id": "sunward-patio-furniture-part-12",
           "sprite": "tile.fixture-planter",
           "offset": {
             "x": 9,
@@ -1256,7 +1296,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-part-09",
+          "id": "sunward-patio-furniture-part-13",
           "sprite": "tile.fixture-lamp",
           "offset": {
             "x": 12,
@@ -1286,6 +1326,42 @@
         {
           "id": "sunward-patio-furniture-solid-03",
           "bounds": {
+            "x": 4,
+            "y": 3,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-04",
+          "bounds": {
+            "x": 5,
+            "y": 3,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunward-patio-furniture-solid-07",
+          "bounds": {
             "x": 10,
             "y": 1,
             "width": 1,
@@ -1293,7 +1369,7 @@
           }
         },
         {
-          "id": "sunward-patio-furniture-solid-04",
+          "id": "sunward-patio-furniture-solid-08",
           "bounds": {
             "x": 11,
             "y": 1,
@@ -2366,8 +2442,12 @@
       "social-details-part-02",
       "sunward-patio-furniture-part-01",
       "sunward-patio-furniture-part-02",
+      "sunward-patio-furniture-part-03",
+      "sunward-patio-furniture-part-04",
       "sunward-patio-furniture-part-05",
-      "sunward-patio-furniture-part-06"
+      "sunward-patio-furniture-part-06",
+      "sunward-patio-furniture-part-09",
+      "sunward-patio-furniture-part-10"
     ],
     "landmarkAreaIds": [
       "social",

@@ -96,6 +96,14 @@
         "width": 14,
         "height": 12,
         "sprite": "tile.dock-floor"
+      },
+      {
+        "id": "cargo-work-pad",
+        "x": 10,
+        "y": 29,
+        "width": 18,
+        "height": 13,
+        "sprite": "tile.harbor-concrete"
       }
     ]
   },
@@ -3345,5 +3353,28 @@
       "x": 41,
       "y": 34
     }
+  },
+  "startComposition": {
+    "cameraAnchor": {
+      "x": 20,
+      "y": 34
+    },
+    "requiredActorIds": [
+      "generic_resident",
+      "tomas_reed"
+    ],
+    "requiredDetailPartIds": [
+      "pallet-rack-west-part-01",
+      "pallet-rack-west-part-02",
+      "cargo-crane-part-01",
+      "cargo-crane-part-02",
+      "cargo-crane-part-03",
+      "cargo-crane-part-04",
+      "cargo-stack-04-part-01",
+      "cargo-stack-04-part-02"
+    ],
+    "landmarkAreaIds": [
+      "cargo-yard"
+    ]
   }
 }

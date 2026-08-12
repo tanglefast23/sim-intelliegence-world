@@ -292,6 +292,10 @@ function northwestMap(): WorldMapV2 {
     tiles: [
       { x: 21, y: 26, sprite: 'tile.table-left', solid: true },
       { x: 22, y: 26, sprite: 'tile.table-right', solid: true },
+      { x: 25, y: 29, sprite: 'tile.landmark-fountain-nw', solid: true },
+      { x: 26, y: 29, sprite: 'tile.landmark-fountain-ne', solid: true },
+      { x: 25, y: 30, sprite: 'tile.landmark-fountain-sw', solid: true },
+      { x: 26, y: 30, sprite: 'tile.landmark-fountain-se', solid: true },
       { x: 31, y: 27, sprite: 'tile.sofa-left', solid: true },
       { x: 32, y: 27, sprite: 'tile.sofa-right', solid: true },
       { x: 21, y: 31, sprite: 'tile.fixture-lamp' },
@@ -327,6 +331,7 @@ function northwestMap(): WorldMapV2 {
     id: 'northwest_residential', displayName: 'Sunward Villas', defaultSprite: 'tile.warm-sand',
     regions: [
       { id: 'villa-floor', x: 9, y: 8, width: 16, height: 16, sprite: 'tile.villa-floor' },
+      { id: 'sunward-patio-ground', x: 20, y: 25, width: 15, height: 6, sprite: 'tile.plaza-paver' },
       { id: 'promenade-ground', x: 37, y: 8, width: 20, height: 14, sprite: 'tile.plaza-paver' },
       { id: 'market-ground', x: 37, y: 25, width: 20, height: 10, sprite: 'tile.boardwalk' },
       { id: 'beach-ground', x: 35, y: 38, width: 24, height: 6, sprite: 'tile.warm-sand' },
@@ -411,7 +416,9 @@ function northwestMap(): WorldMapV2 {
       'social-sofa-part-01', 'social-sofa-part-02', 'social-tables-part-01', 'social-tables-part-02',
       'social-tables-part-03', 'social-tables-part-04', 'social-details-part-01', 'social-details-part-02',
       'sunward-patio-furniture-part-01', 'sunward-patio-furniture-part-02',
+      'sunward-patio-furniture-part-03', 'sunward-patio-furniture-part-04',
       'sunward-patio-furniture-part-05', 'sunward-patio-furniture-part-06',
+      'sunward-patio-furniture-part-09', 'sunward-patio-furniture-part-10',
     ],
     landmarkAreaIds: ['social', 'sunward-patio'],
   };
@@ -486,6 +493,7 @@ function northeastMap(): WorldMapV2 {
       { id: 'avenue', x: 32, y: 0, width: 5, height: 48, sprite: 'tile.dark-asphalt' },
       { id: 'market-street', x: 0, y: 44, width: 64, height: 4, sprite: 'tile.dark-asphalt' },
       { id: 'club-floor', x: 8, y: 7, width: 22, height: 13, sprite: 'tile.neon-floor' },
+      { id: 'club-dance-floor', x: 15, y: 14, width: 9, height: 6, sprite: 'tile.neon-paver' },
       { id: 'arcade-floor', x: 40, y: 7, width: 20, height: 13, sprite: 'tile.neon-floor' },
       { id: 'studio-floor', x: 7, y: 32, width: 20, height: 9, sprite: 'tile.neon-floor' },
       { id: 'market-floor', x: 39, y: 31, width: 18, height: 10, sprite: 'tile.neon-floor' },
@@ -517,6 +525,12 @@ function northeastMap(): WorldMapV2 {
       objectFromTiles({ id: 'club-east-table', kind: 'lounge-table', areaId: 'club-strip', tiles: [
         { x: 25, y: 14, sprite: 'tile.table-left', solid: true },
         { x: 26, y: 14, sprite: 'tile.table-right', solid: true },
+      ] }),
+      objectFromTiles({ id: 'club-neon-fountain', kind: 'neon-fountain', areaId: 'club-strip', tiles: [
+        { x: 18, y: 16, sprite: 'tile.landmark-fountain-nw', solid: true },
+        { x: 19, y: 16, sprite: 'tile.landmark-fountain-ne', solid: true },
+        { x: 18, y: 17, sprite: 'tile.landmark-fountain-sw', solid: true },
+        { x: 19, y: 17, sprite: 'tile.landmark-fountain-se', solid: true },
       ] }),
       arcade.object,
       objectFromTiles({ id: 'arcade-entrance-neon', kind: 'entrance-signage', areaId: 'arcade-row', tiles: [
@@ -572,6 +586,19 @@ function northeastMap(): WorldMapV2 {
     { id: 'studio-door', openingId: 'studio-row-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'market-door', openingId: 'night-market-entrance', initialState: 'open', sprite: 'tile.open-door' },
   ];
+  map.startComposition = {
+    cameraAnchor: { x: 19, y: 18 },
+    requiredActorIds: ['linda', 'devon_price'],
+    requiredDetailPartIds: [
+      'club-west-sofa-part-01', 'club-west-sofa-part-02',
+      'club-east-sofa-part-01', 'club-east-sofa-part-02',
+      'club-entrance-neon-part-03', 'club-entrance-neon-part-04',
+      'club-neon-fountain-part-01', 'club-neon-fountain-part-02',
+      'club-neon-fountain-part-03', 'club-neon-fountain-part-04',
+      'boulevard-car-02-part-01', 'boulevard-car-02-part-02',
+    ],
+    landmarkAreaIds: ['club-strip'],
+  };
   return map;
 }
 
@@ -713,10 +740,10 @@ function southwestMap(): WorldMapV2 {
       { id: 'courtyard-food-east', x: 19, y: 41, sprites: ['tile.food-stall-left', 'tile.food-stall-right'] },
     ].map(({ id, x, y, sprites }) => solidRow(id, 'market-stall', 'sunset-courtyard', x, y, 2, sprites)),
     objectFromTiles({ id: 'courtyard-fountain', kind: 'market-fountain', areaId: 'sunset-courtyard', tiles: [
-      { x: 22, y: 32, sprite: 'tile.sunset-fountain-nw', solid: true },
-      { x: 23, y: 32, sprite: 'tile.sunset-fountain-ne', solid: true },
-      { x: 22, y: 33, sprite: 'tile.sunset-fountain-sw', solid: true },
-      { x: 23, y: 33, sprite: 'tile.sunset-fountain-se', solid: true },
+      { x: 22, y: 32, sprite: 'tile.landmark-fountain-nw', solid: true },
+      { x: 23, y: 32, sprite: 'tile.landmark-fountain-ne', solid: true },
+      { x: 22, y: 33, sprite: 'tile.landmark-fountain-sw', solid: true },
+      { x: 23, y: 33, sprite: 'tile.landmark-fountain-se', solid: true },
     ] }),
     objectFromTiles({ id: 'courtyard-planters', kind: 'flowering-planter', areaId: 'sunset-courtyard', tiles: [
       { x: 4, y: 32, sprite: 'tile.flowering-market-planter', solid: true },
@@ -786,6 +813,7 @@ function southwestMap(): WorldMapV2 {
       { id: 'east-west-promenade', x: 0, y: 23, width: 64, height: 5, sprite: 'tile.sunset-promenade' },
       { id: 'north-south-promenade', x: 30, y: 0, width: 5, height: 48, sprite: 'tile.sunset-promenade' },
       { id: 'central-market-mosaic', x: 28, y: 21, width: 9, height: 9, sprite: 'tile.sunset-mosaic' },
+      { id: 'courtyard-market-rug', x: 11, y: 30, width: 15, height: 9, sprite: 'tile.sunset-mosaic' },
       { id: 'market-hall-floor', x: 6, y: 7, width: 22, height: 14, sprite: 'tile.sunset-floor' },
       { id: 'food-arcade-floor', x: 39, y: 7, width: 21, height: 14, sprite: 'tile.sunset-floor' },
       { id: 'restaurant-row-floor', x: 39, y: 32, width: 21, height: 12, sprite: 'tile.sunset-floor' },
@@ -809,6 +837,17 @@ function southwestMap(): WorldMapV2 {
     { id: 'food-arcade-door', openingId: 'food-arcade-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'restaurant-row-door', openingId: 'restaurant-row-entrance', initialState: 'open', sprite: 'tile.open-door' },
   ];
+  map.startComposition = {
+    cameraAnchor: { x: 16, y: 30 },
+    requiredActorIds: ['linda', 'generic_resident'],
+    requiredDetailPartIds: [
+      'courtyard-canopy-part-01', 'courtyard-canopy-part-02',
+      'courtyard-canopy-part-03', 'courtyard-canopy-part-04',
+      'courtyard-fountain-part-01', 'courtyard-fountain-part-02',
+      'courtyard-fountain-part-03', 'courtyard-fountain-part-04',
+    ],
+    landmarkAreaIds: ['market-hall', 'sunset-courtyard'],
+  };
   return map;
 }
 
@@ -872,6 +911,7 @@ function southeastMap(): WorldMapV2 {
       { id: 'government-floor', x: 7, y: 7, width: 20, height: 13, sprite: 'tile.dock-floor' },
       { id: 'warehouse-floor', x: 38, y: 7, width: 12, height: 13, sprite: 'tile.dock-floor' },
       { id: 'ferry-floor', x: 36, y: 29, width: 14, height: 12, sprite: 'tile.dock-floor' },
+      { id: 'cargo-work-pad', x: 10, y: 29, width: 18, height: 13, sprite: 'tile.harbor-concrete' },
     ],
     terrainSolids: [
       { id: 'deep-harbor-north', kind: 'water', bounds: { x: 52, y: 0, width: 12, height: 9 } },
@@ -1023,6 +1063,17 @@ function southeastMap(): WorldMapV2 {
     { id: 'warehouse-door', openingId: 'cargo-warehouse-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'ferry-door', openingId: 'ferry-terminal-entrance', initialState: 'open', sprite: 'tile.open-door' },
   ];
+  map.startComposition = {
+    cameraAnchor: { x: 20, y: 34 },
+    requiredActorIds: ['generic_resident', 'tomas_reed'],
+    requiredDetailPartIds: [
+      'pallet-rack-west-part-01', 'pallet-rack-west-part-02',
+      'cargo-crane-part-01', 'cargo-crane-part-02',
+      'cargo-crane-part-03', 'cargo-crane-part-04',
+      'cargo-stack-04-part-01', 'cargo-stack-04-part-02',
+    ],
+    landmarkAreaIds: ['cargo-yard'],
+  };
   return map;
 }
 

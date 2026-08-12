@@ -4,6 +4,7 @@ import {
   DEV_HARNESS_MAP_IDS,
   devHarnessGoldenHourState,
   devHarnessGroundingState,
+  devHarnessHeroSceneState,
   devHarnessLocationState,
   devHarnessQuestState,
   devHarnessVfxState,
@@ -23,6 +24,22 @@ describe('dev harness scenario states', () => {
     expect(state.clock.absoluteMinute).toBe(1_050);
     expect(position.mapId).toBe(mapId);
     expect(WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${position.tileX},${position.tileY}`)).toBe(false);
+  });
+
+  test.each(DEV_HARNESS_MAP_IDS)('stages the required actors in the %s hero scene', (mapId) => {
+    const state = devHarnessHeroSceneState(mapId);
+    const composition = WORLD_MAP_CATALOG[mapId].source.startComposition;
+    expect(composition).toBeDefined();
+    expect(state.protagonist.worldPosition).toMatchObject({
+      mapId,
+      tileX: composition?.cameraAnchor.x,
+      tileY: composition?.cameraAnchor.y,
+    });
+    for (const id of composition?.requiredActorIds ?? []) {
+      if (id === 'protagonist') continue;
+      const presence = state.npcs[id]?.presence;
+      expect(presence).toMatchObject({ kind: 'active_local', mapId });
+    }
   });
 
   test.each(DEV_HARNESS_MAP_IDS)('opens %s in a paused valid state', (mapId) => {

@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
 import { NewGameFlow } from '../../application/NewGameFlow';
+import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
 import {
   DEFAULT_PRESENTATION_PREFERENCES,
   type PresentationPreferences,
@@ -15,6 +16,7 @@ import {
   DEV_HARNESS_MAP_IDS,
   devHarnessGoldenHourState,
   devHarnessGroundingState,
+  devHarnessHeroSceneState,
   devHarnessLocationState,
   devHarnessQuestState,
   devHarnessVfxState,
@@ -137,6 +139,18 @@ function groundingPresentationPreferences(mapId: (typeof DEV_HARNESS_MAP_IDS)[nu
   };
 }
 
+function heroScenePresentationPreferences(mapId: (typeof DEV_HARNESS_MAP_IDS)[number], surface: ViewportSize): PresentationPreferences {
+  const anchor = WORLD_MAP_CATALOG[mapId].source.startComposition?.cameraAnchor;
+  if (!anchor) throw new Error(`Dev harness map ${mapId} has no hero composition.`);
+  const zoom = 1.5;
+  const camera = centerCameraOnTile(anchor, zoom, surface, MAP_PIXELS);
+  return {
+    ...DEFAULT_PRESENTATION_PREFERENCES,
+    worldZoom: zoom,
+    camera: { mapId, x: camera.x, y: camera.y },
+  };
+}
+
 const welcomeEntry: DevHarnessEntry = {
   id: 'welcome',
   group: 'Start',
@@ -172,6 +186,24 @@ const goldenHourEntry: DevHarnessEntry = {
       surface={surface}
     />
   ),
+};
+
+const heroScenesEntry: DevHarnessEntry = {
+  id: 'hero-scenes',
+  group: 'World',
+  title: 'Four-District Hero Scenes',
+  summary: 'Review each authored landmark, activity cluster, foreground edge, and color focal point.',
+  cases: mapCases,
+  render: (caseId, surface) => {
+    const mapId = caseId as (typeof DEV_HARNESS_MAP_IDS)[number];
+    return (
+      <HarnessWorld
+        presentationPreferences={heroScenePresentationPreferences(mapId, surface)}
+        state={devHarnessHeroSceneState(mapId)}
+        surface={surface}
+      />
+    );
+  },
 };
 
 const groundingEntry: DevHarnessEntry = {
@@ -280,6 +312,7 @@ export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
   goldenHourEntry,
+  heroScenesEntry,
   groundingEntry,
   characterTalkEntry,
   proceduralEffectsEntry,

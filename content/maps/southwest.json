@@ -66,6 +66,14 @@
         "sprite": "tile.sunset-mosaic"
       },
       {
+        "id": "courtyard-market-rug",
+        "x": 11,
+        "y": 30,
+        "width": 15,
+        "height": 9,
+        "sprite": "tile.sunset-mosaic"
+      },
+      {
         "id": "market-hall-floor",
         "x": 6,
         "y": 7,
@@ -2495,7 +2503,7 @@
       "renderParts": [
         {
           "id": "courtyard-fountain-part-01",
-          "sprite": "tile.sunset-fountain-nw",
+          "sprite": "tile.landmark-fountain-nw",
           "offset": {
             "x": 0,
             "y": 0
@@ -2503,7 +2511,7 @@
         },
         {
           "id": "courtyard-fountain-part-02",
-          "sprite": "tile.sunset-fountain-ne",
+          "sprite": "tile.landmark-fountain-ne",
           "offset": {
             "x": 1,
             "y": 0
@@ -2511,7 +2519,7 @@
         },
         {
           "id": "courtyard-fountain-part-03",
-          "sprite": "tile.sunset-fountain-sw",
+          "sprite": "tile.landmark-fountain-sw",
           "offset": {
             "x": 0,
             "y": 1
@@ -2519,7 +2527,7 @@
         },
         {
           "id": "courtyard-fountain-part-04",
-          "sprite": "tile.sunset-fountain-se",
+          "sprite": "tile.landmark-fountain-se",
           "offset": {
             "x": 1,
             "y": 1
@@ -3573,5 +3581,29 @@
       "x": 17,
       "y": 17
     }
+  },
+  "startComposition": {
+    "cameraAnchor": {
+      "x": 16,
+      "y": 30
+    },
+    "requiredActorIds": [
+      "linda",
+      "generic_resident"
+    ],
+    "requiredDetailPartIds": [
+      "courtyard-canopy-part-01",
+      "courtyard-canopy-part-02",
+      "courtyard-canopy-part-03",
+      "courtyard-canopy-part-04",
+      "courtyard-fountain-part-01",
+      "courtyard-fountain-part-02",
+      "courtyard-fountain-part-03",
+      "courtyard-fountain-part-04"
+    ],
+    "landmarkAreaIds": [
+      "market-hall",
+      "sunset-courtyard"
+    ]
   }
 }

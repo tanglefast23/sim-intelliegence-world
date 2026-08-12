@@ -115,7 +115,7 @@ const atlasImage = require('../../assets/generated/world-atlas.png') as number;
 const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
-type SpritePlacement = Readonly<{ id: string; sprite: string; worldX: number; worldY: number }>;
+type SpritePlacement = Readonly<{ id: string; scale?: number; sprite: string; worldX: number; worldY: number }>;
 type PropPlacement = SpritePlacement & Readonly<{ isDoor: boolean; objectId: string; tile: TilePoint }>;
 type PropShadow = Readonly<{ id: string; long: boolean; width: number; worldX: number; worldY: number }>;
 type GroundedVisual = Readonly<{
@@ -157,8 +157,8 @@ function atlasData(placements: readonly SpritePlacement[], zoom: number) {
       const source = atlasRectangle(sprite);
       return rect(source.x, source.y, source.width, source.height);
     }),
-    transforms: placements.map(({ worldX, worldY }) => {
-      return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
+    transforms: placements.map(({ scale = 1, worldX, worldY }) => {
+      return Skia.RSXform(zoom * scale, 0, worldX * zoom, worldY * zoom);
     }),
   };
 }
@@ -895,13 +895,35 @@ export function WorldScene({
   const visibility = visibleTileBounds(camera, surface);
   const visibleFloors = useMemo(() => {
     const placements: SpritePlacement[] = [];
+    const covered = new Set<string>();
     for (let y = 0; y < map.source.height; y += 1) {
       for (let x = 0; x < map.source.width; x += 1) {
+        if (covered.has(`${x},${y}`)) continue;
         const tile = { x, y };
         const cell = presentationGroundAt(map.presentation, tile, map.source.width);
-        if (visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility)) {
+        const size = artMode === 'legacy' ? 1 : cell.compositionSize;
+        const complete = x % size === 0 && y % size === 0 &&
+          x + size <= map.source.width && y + size <= map.source.height &&
+          Array.from({ length: size * size }, (_unused, offset) => {
+            const candidate = presentationGroundAt(map.presentation, {
+              x: x + offset % size,
+              y: y + Math.floor(offset / size),
+            }, map.source.width);
+            return candidate.materialId === cell.materialId && candidate.logicalVariantId === cell.logicalVariantId;
+          }).every(Boolean);
+        if (complete) {
+          for (let offsetY = 0; offsetY < size; offsetY += 1) {
+            for (let offsetX = 0; offsetX < size; offsetX += 1) covered.add(`${x + offsetX},${y + offsetY}`);
+          }
+        }
+        const visible = complete
+          ? x <= visibility.maximumX && x + size - 1 >= visibility.minimumX &&
+            y <= visibility.maximumY && y + size - 1 >= visibility.minimumY
+          : visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility);
+        if (visible) {
           placements.push({
             id: `floor-${x}-${y}`,
+            scale: complete ? size : 1,
             sprite: artMode === 'legacy' ? groundSpriteAtV2(map, tile) : cell.sprite,
             worldX: x * TILE_SIZE,
             worldY: y * TILE_SIZE,
@@ -1194,6 +1216,16 @@ export function WorldScene({
             {visibleGroundDetails.length > 0 ? (
               <Atlas image={image} sampling={NEAREST} sprites={groundDetailAtlas.sprites} transforms={groundDetailAtlas.transforms} />
             ) : null}
+            {visibleProps.filter(({ isDoor }) => isDoor).map((door) => {
+              const openingId = map.doorById.get(door.id)?.openingId;
+              const horizontal = map.wallOpeningById.get(openingId ?? '')?.orientation !== 'vertical';
+              return (
+                <Group key={`door-wear-${door.id}`}>
+                  <Line color="#2c26204f" p1={vec((door.worldX + (horizontal ? 5 : 24)) * camera.zoom, (door.worldY + (horizontal ? 29 : 6)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 15 : 27)) * camera.zoom, (door.worldY + (horizontal ? 31 : 16)) * camera.zoom)} strokeCap="round" strokeWidth={2 * camera.zoom} />
+                  <Line color="#f0c16a3d" p1={vec((door.worldX + (horizontal ? 17 : 27)) * camera.zoom, (door.worldY + (horizontal ? 28 : 18)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 25 : 25)) * camera.zoom, (door.worldY + (horizontal ? 30 : 26)) * camera.zoom)} strokeCap="round" strokeWidth={camera.zoom} />
+                </Group>
+              );
+            })}
           </Group>
         );
       case 'prop':
@@ -1386,19 +1418,6 @@ export function WorldScene({
               zoom={camera.zoom}
             />
           </View>
-        </View>
-        <View pointerEvents="none" style={styles.areaLabels}>
-          {(map.source.roofGroups.length === 0 || worldFrame.hiddenRoofGroupId ? map.source.areas : []).map((area) => {
-            const screen = worldToScreen(camera, {
-              x: (area.bounds.x + area.bounds.width / 2) * TILE_SIZE,
-              y: (area.bounds.y + area.bounds.height / 2) * TILE_SIZE,
-            });
-            return (
-              <Text key={area.id} style={[styles.areaLabel, { left: screen.x - 48, top: screen.y - 9 }]}>
-                {area.id.replaceAll('-', ' ').toUpperCase()}{area.id === 'ferry-terminal' ? ' · CLOSED' : ''}
-              </Text>
-            );
-          })}
         </View>
         <View
           accessibilityLabel={`Art mode ${artMode}; presentation ${map.presentation.hash}`}
@@ -1679,11 +1698,6 @@ export function WorldScene({
 }
 
 const styles = StyleSheet.create({
-  areaLabel: {
-    backgroundColor: '#211d1ac7', color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9,
-    paddingHorizontal: 4, paddingVertical: 2, position: 'absolute', textAlign: 'center', width: 96,
-  },
-  areaLabels: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
   audioCaption: { backgroundColor: '#181512dd', bottom: 48, color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, left: 12, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute' },
   bottomPlate: {
     alignItems: 'center', backgroundColor: '#181914e8', borderColor: '#ad7640', borderTopWidth: 2,

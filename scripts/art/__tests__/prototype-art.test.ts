@@ -45,7 +45,7 @@ function alphaCount(pixels: Buffer): number {
 }
 
 describe('Phase 28 hard Sunward prototype art', () => {
-  test('gives every prototype material real balanced variants without repeated 2x2 blocks', () => {
+  test('gives every prototype material real balanced 2x2 or 3x3 compositions', () => {
     for (const [materialId, expectedVariants] of MATERIALS) {
       const recipe = MATERIAL_RECIPE_BY_ID[materialId];
       expect(recipe).toBeDefined();
@@ -61,17 +61,8 @@ describe('Phase 28 hard Sunward prototype art', () => {
         artRevision: ART_PRESENTATION_REVISION,
         recipesById: { [materialId]: recipe! },
       });
-      for (let y = 1; y < 12; y += 1) {
-        for (let x = 1; x < 12; x += 1) {
-          const offset = y * 12 + x;
-          expect(new Set([
-            selected[offset]?.variantIndex,
-            selected[offset - 1]?.variantIndex,
-            selected[offset - 12]?.variantIndex,
-            selected[offset - 13]?.variantIndex,
-          ]).size).toBeGreaterThan(1);
-        }
-      }
+      expect(new Set(selected.map(({ variantIndex }) => variantIndex)).size).toBe(expectedVariants);
+      expect(new Set(selected.map(({ compositionSize }) => compositionSize)).size).toBe(1);
     }
   });
 

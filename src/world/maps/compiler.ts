@@ -109,7 +109,15 @@ function wallSprite(material: string, adjacencyMask: number): string {
 function buildGroundSprites(map: WorldMapV2): string[] {
   const sprites = Array.from({ length: map.width * map.height }, () => map.ground.defaultSprite);
   for (const region of map.ground.regions) {
-    for (const point of pointsInRect(region)) sprites[point.y * map.width + point.x] = region.sprite;
+    const shapeEdges = region.width >= 6 && region.height >= 6 && !/(?:floor|asphalt|road|route|water)/u.test(region.sprite);
+    for (const point of pointsInRect(region)) {
+      const localX = point.x - region.x;
+      const localY = point.y - region.y;
+      const edgeDistance = Math.min(localY, region.height - 1 - localY);
+      const cornerInset = edgeDistance === 0 ? 2 : edgeDistance === 1 ? 1 : 0;
+      const outsideShapedEdge = localX < cornerInset || localX >= region.width - cornerInset;
+      if (!shapeEdges || !outsideShapedEdge) sprites[point.y * map.width + point.x] = region.sprite;
+    }
   }
   return sprites;
 }
