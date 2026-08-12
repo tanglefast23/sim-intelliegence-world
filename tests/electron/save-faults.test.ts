@@ -186,6 +186,44 @@ describe('recoverable save repository', () => {
     expect([1, 2]).toContain(loaded.state.revision);
   });
 
+  test('a failed validated write can retry in the same repository', async () => {
+    const root = await temporaryRoot();
+    let failuresRemaining = 0;
+    const repository = new SaveRepository(root, (stage) => {
+      if (failuresRemaining > 0 && stage === 'after-validation') {
+        failuresRemaining -= 1;
+        throw new Error('Injected after-validation');
+      }
+    });
+    await repository.save(request(stateAtRevision(1), null));
+    failuresRemaining = 2;
+    await expect(repository.save(request(stateAtRevision(2), 1))).rejects.toThrow('Injected after-validation');
+    await expect(repository.save(request(stateAtRevision(3), 1))).rejects.toThrow('Injected after-validation');
+    await expect(repository.save(request(stateAtRevision(4), 1))).resolves.toEqual(
+      expect.objectContaining({ status: 'saved', saveGeneration: 4 }),
+    );
+    expect((await readdir(join(root, 'save-slots', 'slot-001')))
+      .filter((name) => name.startsWith('state.json.tmp-'))).toEqual([]);
+  });
+
+  test('a failed first save can retry without a known generation', async () => {
+    const root = await temporaryRoot();
+    let failuresRemaining = 2;
+    const repository = new SaveRepository(root, (stage) => {
+      if (failuresRemaining > 0 && stage === 'after-validation') {
+        failuresRemaining -= 1;
+        throw new Error('Injected after-validation');
+      }
+    });
+    await expect(repository.save(request(stateAtRevision(1), null))).rejects.toThrow('Injected after-validation');
+    await expect(repository.save(request(stateAtRevision(2), null))).rejects.toThrow('Injected after-validation');
+    await expect(repository.save(request(stateAtRevision(3), null))).resolves.toEqual(
+      expect.objectContaining({ status: 'saved', saveGeneration: 3 }),
+    );
+    expect((await readdir(join(root, 'save-slots', 'slot-001')))
+      .filter((name) => name.startsWith('state.json.tmp-'))).toEqual([]);
+  });
+
   test.each<Readonly<{ stage: SaveFaultStage; warning: string }>>([
     { stage: 'after-replacement', warning: 'post_commit_observer_failed' },
     { stage: 'before-autosave-maintenance', warning: 'autosave_maintenance_failed' },

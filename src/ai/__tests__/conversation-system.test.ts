@@ -25,12 +25,26 @@ const fixture = (name: string): string => readFileSync(resolve('tests/fixtures/a
 const policyAllow = JSON.stringify({ decision: 'allow', category: 'allowed_fictional_adult' });
 const writingStore = new FileCharacterWritingStore(resolve('content'));
 
-async function serviceWith(responses: readonly (string | Error | (() => Promise<string>))[]) {
+async function serviceWith(responses: readonly (string | Error | ((signal?: AbortSignal) => Promise<string>))[]) {
   const inference = new RecordedInferencePort(responses);
   return { inference, service: new ConversationService(inference, writingStore) };
 }
 
 describe('validated local conversation system', () => {
+  test('concurrent begins cannot open two conversations', async () => {
+    const linda = await writingStore.get('linda');
+    let releaseWriting: ((writing: CharacterWriting) => void) | undefined;
+    const pendingWriting = new Promise<CharacterWriting>((resolveWriting) => { releaseWriting = resolveWriting; });
+    const service = new ConversationService(new RecordedInferencePort([]), { get: () => pendingWriting });
+    const first = service.begin({ conversationId: 'conversation-race-1', npcId: 'linda', state: createInitialState() });
+    await expect(service.begin({
+      conversationId: 'conversation-race-2', npcId: 'linda', state: createInitialState(),
+    })).rejects.toThrow('Only one active conversation');
+    releaseWriting?.(linda);
+    await expect(first).resolves.toEqual(expect.objectContaining({ kind: 'active' }));
+    expect(service.activeSessionCount).toBe(1);
+  });
+
   test('closed response parsing rejects unknown, duplicate, oversized, and truncated JSON', () => {
     expect(parseConversationResponseJson(fixture('refusal.json')).intent).toBe('refuse');
     const valid = JSON.parse(fixture('refusal.json')) as Record<string, unknown>;
@@ -439,11 +453,11 @@ describe('validated local conversation system', () => {
     expect(deterministicPolicyDecision('fictional adult drugs and crime')).toBeUndefined();
   });
 
-  test('invalid policy classifier fails closed without staging validated candidates', async () => {
+  test('invalid policy classifier uses a neutral authored fallback without staging candidates', async () => {
     const { service } = await serviceWith([fixture('valid-cat.json'), '{"decision":"allow","category":"wrong"}']);
     await service.begin({ conversationId: 'conversation-policy-3', npcId: 'linda', state: createInitialState() });
     const result = await service.turn({ conversationId: 'conversation-policy-3', turnId: 'turn-linda-1', message: 'I have a cat' });
-    expect(result.source).toBe('policy-refusal');
+    expect(result.source).toBe('authored-fallback');
     expect(result.stagedChangeCount).toBe(0);
     expect(service.end('conversation-policy-3').npcs.linda?.knowledge).toEqual([]);
   });
@@ -471,6 +485,25 @@ describe('validated local conversation system', () => {
     const restored = service.abort('conversation-crash-1');
     expect(restored).toEqual(base);
     expect(restored.npcs.linda?.knowledge).toEqual([]);
+  });
+
+  test('aborting a conversation cancels its pending inference', async () => {
+    let inferenceSignal: AbortSignal | undefined;
+    const { service } = await serviceWith([(signal) => {
+      inferenceSignal = signal;
+      return new Promise<string>((_resolve, reject) => {
+        signal?.addEventListener('abort', () => reject(signal.reason), { once: true });
+      });
+    }]);
+    const base = createInitialState();
+    await service.begin({ conversationId: 'conversation-abort-1', npcId: 'linda', state: base });
+    const pending = service.turn({
+      conversationId: 'conversation-abort-1', turnId: 'turn-abort-1', message: 'Tell me about the island.',
+    });
+    await Promise.resolve();
+    expect(service.abort('conversation-abort-1')).toEqual(base);
+    await expect(pending).rejects.toBeDefined();
+    expect(inferenceSignal?.aborted).toBe(true);
   });
 
   test('structured relationship action records authored rejection only after atomic conversation commit', async () => {

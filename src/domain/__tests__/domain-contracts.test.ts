@@ -9,6 +9,7 @@ import { applyFactionDelta } from '../economy/faction';
 import { advanceClock } from '../clock/clock';
 import { createInitialState } from '../state/initial-state';
 import { generatePromptView } from '../state/prompt-view';
+import { EVENT_HISTORY_LIMIT, WorldStateSchema } from '../state/schema';
 
 function loadCommandStream(): DomainCommand[] {
   const path = resolve(process.cwd(), 'tests/fixtures/domain/command-stream.json');
@@ -44,6 +45,30 @@ describe('deterministic domain contracts', () => {
     expect(duplicate.event).toBeUndefined();
     expect(duplicate.state).toBe(first.state);
     expect(JSON.stringify(duplicate.state)).toBe(JSON.stringify(first.state));
+  });
+
+  test('event history stays bounded and valid', () => {
+    let state = createInitialState();
+    for (let index = 0; index <= EVENT_HISTORY_LIMIT; index += 1) {
+      state = reduceCommand(state, DomainCommandSchema.parse({
+        type: 'set-simulation-speed',
+        commandId: `command-speed-${index}`,
+        eventId: `event-speed-${index}`,
+        scheduledMinute: index,
+        priority: 0,
+        speed: index % 2 === 0 ? 1 : 2,
+      })).state;
+    }
+    expect(state.eventLedger).toHaveLength(EVENT_HISTORY_LIMIT);
+    expect(state.eventReceipts).toHaveLength(EVENT_HISTORY_LIMIT + 1);
+    expect(state.eventLedger[0]?.sequence).toBe(1);
+    expect(WorldStateSchema.parse(state)).toEqual(state);
+    const duplicate = reduceCommand(state, DomainCommandSchema.parse({
+      type: 'set-simulation-speed', commandId: 'command-speed-retry', eventId: 'event-speed-0',
+      scheduledMinute: 0, priority: 0, speed: 2,
+    }));
+    expect(duplicate.duplicate).toBe(true);
+    expect(duplicate.state).toBe(state);
   });
 
   test('one pause token cannot resume another pause token', () => {

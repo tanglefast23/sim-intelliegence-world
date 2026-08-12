@@ -90,8 +90,11 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     };
     const handleKey = (event: KeyboardEvent) => {
       const target = event.target;
-      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
-      if (event.key.toLowerCase() === 'f') handlersRef.current.onCenter();
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ||
+        (target instanceof HTMLElement && target.isContentEditable)) return;
+      if (!event.metaKey && !event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'f') {
+        handlersRef.current.onCenter();
+      }
       if (event.key === 'Escape') handlersRef.current.onCancel();
     };
     const preventMiddleClick = (event: MouseEvent) => {

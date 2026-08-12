@@ -10,6 +10,27 @@ import {
 } from '../movement/reservations';
 
 describe('movement reservations', () => {
+  test('an idle frame keeps the same state identity', () => {
+    const initial = createInitialState();
+    const worldState = parseWorldState({
+      ...initial,
+      npcs: Object.fromEntries(Object.entries(initial.npcs).map(([id, npc]) => [id, {
+        ...npc,
+        presence: { ...npc.presence, kind: 'inactive' },
+        scheduleGoal: undefined,
+      }])),
+    });
+    const frame: MovementFrameState = {
+      worldState,
+      movement: createMovementState({
+        x: worldState.protagonist.worldPosition.tileX,
+        y: worldState.protagonist.worldPosition.tileY,
+      }),
+      npcMovements: {},
+    };
+    expect(advanceMovementFrame(frame, 16, 1)).toBe(frame);
+  });
+
   test('detects one stable opposing edge pair', () => {
     const left = {
       ...createMovementState({ x: 1, y: 1 }),

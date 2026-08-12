@@ -331,6 +331,6 @@ export function cancelInvitation(invitationState: InvitationState, reasonId: str
     feedback: 'The invitation was cancelled. A new plan is required.',
     transferId: undefined,
     preparedAtMinute: undefined,
-    scheduledMinute: current.scheduledMinute ?? current.counterProposedMinute,
+    scheduledMinute: current.scheduledMinute ?? current.counterProposedMinute ?? current.proposedMinute,
   });
 }

@@ -6,7 +6,6 @@ import {
   Group,
   Line,
   MipmapMode,
-  Rect,
   RoundedRect,
   Skia,
   rect,
@@ -961,6 +960,7 @@ export function WorldScene({
   }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
   const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
   const vfxEvidence = useMemo(() => {
+    if (!smokeMode) return '';
     const geometries = vfxMode === 'procedural'
       ? vfxEmitters.valid.map((emitter) => sampleVfxGeometry(
         emitter,
@@ -996,10 +996,10 @@ export function WorldScene({
         : visibleEffects.length,
       updateRateHz: vfxMode === 'procedural' && !reducedMotion ? 1_000 / VFX_STEP_MILLISECONDS : 0,
     }));
-  }, [culledEffects, mapId, reducedMotion, vfxAgeStep, vfxEmitters, vfxMode, visibleEffects]);
+  }, [culledEffects, mapId, reducedMotion, smokeMode, vfxAgeStep, vfxEmitters, vfxMode, visibleEffects]);
   const smokeGeometry = useMemo(
-    () => map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
-    [map],
+    () => smokeMode && map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
+    [map, smokeMode],
   );
   const selectedFoot = selected === 'protagonist'
     ? playerVisualFoot
@@ -1019,7 +1019,7 @@ export function WorldScene({
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
 
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (!smokeMode || typeof document === 'undefined') return;
     let frameId = 0;
     const timer = setTimeout(() => {
       frameId = requestAnimationFrame(() => {
@@ -1040,7 +1040,7 @@ export function WorldScene({
       clearTimeout(timer);
       if (frameId) cancelAnimationFrame(frameId);
     };
-  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, staticBatchCount, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, smokeMode, staticBatchCount, surface, uiScale, worldFrame.hiddenRoofGroupId]);
 
   if (!image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
@@ -1060,10 +1060,13 @@ export function WorldScene({
       case 'prop':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={propAtlas.sprites} transforms={propAtlas.transforms} /></Group>;
       case 'shadow':
-        return characters.map((character) => {
-          const screen = worldToScreen(camera, { x: character.shadowWorldX, y: character.shadowWorldY });
-          return <RoundedRect color="#20191566" height={3 * camera.zoom} key={`shadow-${character.id}`} r={camera.zoom} width={14 * camera.zoom} x={screen.x} y={screen.y} />;
-        });
+        return (
+          <Group key={layer} transform={atlasCameraTransform}>
+            {characters.map((character) => (
+              <RoundedRect color="#20191566" height={3 * camera.zoom} key={`shadow-${character.id}`} r={camera.zoom} width={14 * camera.zoom} x={character.shadowWorldX * camera.zoom} y={character.shadowWorldY * camera.zoom} />
+            ))}
+          </Group>
+        );
       case 'character':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={characterAtlas.sprites} transforms={characterAtlas.transforms} /></Group>;
       case 'effect': {
@@ -1093,19 +1096,7 @@ export function WorldScene({
       case 'wall':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} /></Group>;
       case 'roof':
-        return (
-          <>
-            <Group transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} /></Group>
-            {map.source.roofGroups.filter(({ id }) => worldFrame.visibleRoofGroupIds.includes(id)).flatMap((roof) => (
-              roof.cells.map((cell, index) => {
-                const screen = worldToScreen(camera, { x: cell.x * 32, y: cell.y * 32 });
-                const tint = map.presentation.roofs.find(({ roofGroupId }) => roofGroupId === roof.id)?.tint;
-                if (!tint) throw new Error(`Roof ${roof.id} has no authored presentation tint.`);
-                return <Rect color={tint} height={cell.height * 32 * camera.zoom} key={`${roof.id}-${index}`} width={cell.width * 32 * camera.zoom} x={screen.x} y={screen.y} />;
-              })
-            ))}
-          </>
-        );
+        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} /></Group>;
     }
   };
 
@@ -1355,6 +1346,18 @@ export function WorldScene({
             </Pressable>
             <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={[styles.socialButton, { minHeight: metrics.pointerTarget }]}>
               <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text>
+            </Pressable>
+            <Pressable
+              accessibilityLabel="Save game"
+              disabled={transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0}
+              onPress={() => void requestAutosave(runtime.worldState, 'manual')}
+              style={[
+                styles.socialButton,
+                { minHeight: metrics.pointerTarget },
+                (transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0) && styles.zoomButtonDisabled,
+              ]}
+            >
+              <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SAVE</Text>
             </Pressable>
           </View>
         ) : null}
