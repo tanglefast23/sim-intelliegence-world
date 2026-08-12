@@ -304,7 +304,7 @@ export function WorldScene({
   const [explicitWorldZoom, setExplicitWorldZoom] = useState(initialPresentationPreferences.worldZoom !== null);
   const [uiScale, setUiScale] = useState<UiScale>(() => initialPresentationPreferences.uiScale ?? automaticUiScale(surface));
   const [explicitUiScale, setExplicitUiScale] = useState(initialPresentationPreferences.uiScale !== null);
-  const [selected, setSelected] = useState<string>('protagonist');
+  const [selected, setSelected] = useState<string>(initialConversationFixtureId ?? 'protagonist');
   const [reactionId, setReactionId] = useState<string>();
   const [poseFrame, setPoseFrame] = useState<0 | 1>(0);
   const [saveStatus, setSaveStatus] = useState(initialSaveStatus);
@@ -1367,6 +1367,7 @@ export function WorldScene({
           zoom={camera.zoom}
         />
         <SelectedCharacterCard
+          accent={lighting.accent}
           availableWidth={surface.width}
           onCenter={() => setCamera((current) => centerCameraOnWorld(selectedFoot, current.zoom, surface, MAP_PIXELS))}
           onTalk={stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel
