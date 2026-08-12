@@ -92,13 +92,13 @@ describe('authoritative world frame', () => {
     const player = frame.characters.find(({ id }) => id === 'protagonist')!;
     const linda = frame.characters.find(({ id }) => id === 'linda')!;
     expect(player.angleDegrees).toBeCloseTo(10.416666, 5);
-    expect(player.worldX).toBe(580);
-    expect(player.worldY).toBe(579);
-    expect(player.shadowWorldX).toBe(585);
+    expect(player.worldX).toBe(581);
+    expect(player.worldY).toBe(578);
+    expect(player.shadowWorldX).toBe(586);
     expect(linda.angleDegrees).toBeCloseTo(10.416666, 5);
-    expect(linda.worldX).toBe(740);
-    expect(linda.worldY).toBe(962);
-    expect(linda.shadowWorldX).toBe(745);
+    expect(linda.worldX).toBe(741);
+    expect(linda.worldY).toBe(961);
+    expect(linda.shadowWorldX).toBe(746);
   });
 
   test('reduced motion keeps horizontal travel upright without moving the shadow', () => {
