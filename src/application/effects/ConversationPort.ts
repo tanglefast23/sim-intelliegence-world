@@ -51,7 +51,7 @@ export const ConversationTurnRequestSchema = z.object({
 export const ConversationSocialOutcomeSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('home_invitation'),
-    status: z.enum(['accepted', 'rejected', 'countered', 'replan_required']),
+    status: z.enum(['accepted', 'rejected', 'countered', 'replan_required', 'completed', 'cancelled']),
     reasonId: StableIdSchema,
     scheduledMinute: z.number().int().nonnegative().optional(),
     counterProposedMinute: z.number().int().nonnegative().optional(),

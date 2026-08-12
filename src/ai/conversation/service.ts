@@ -59,6 +59,7 @@ export type ConversationTurnResult = Readonly<{
 }>;
 
 type ActiveConversation = {
+  abortController: AbortController;
   character: CharacterWriting;
   registry: ReturnType<typeof buildSceneRegistry>;
   transaction: ConversationTransaction;
@@ -130,23 +131,25 @@ function deterministicCatClaimTurn(
 
 const POSITIVE_SOCIAL_REPLY = /\b(?:yes|sure|gladly|absolutely|okay|ok|i(?:'d| would)\s+(?:like|love)\s+to|sounds\s+good)\b/iu;
 const NEGATIVE_SOCIAL_REPLY = /\b(?:no|not|cannot|can't|cant|won't|wont|unsafe|do\s+not|don't|dont)\b/iu;
+const LEADING_NEGATIVE_SOCIAL_REPLY = /^\s*(?:no|not|cannot|can't|cant|won't|wont|unsafe|do\s+not|don't|dont)\b/iu;
 const COUNTER_SOCIAL_REPLY = /\b(?:another|different|later|instead|schedule|time)\b/iu;
 
 function dialogueMatchesSocialOutcome(dialogue: string, outcome: ConversationSocialOutcome): boolean {
   if (outcome.kind === 'relationship_stage') {
     return outcome.accepted
-      ? POSITIVE_SOCIAL_REPLY.test(dialogue) && !NEGATIVE_SOCIAL_REPLY.test(dialogue)
+      ? POSITIVE_SOCIAL_REPLY.test(dialogue) && !LEADING_NEGATIVE_SOCIAL_REPLY.test(dialogue)
       : NEGATIVE_SOCIAL_REPLY.test(dialogue);
   }
-  if (outcome.status === 'accepted') {
-    return POSITIVE_SOCIAL_REPLY.test(dialogue) && !NEGATIVE_SOCIAL_REPLY.test(dialogue);
+  if (outcome.status === 'accepted' || outcome.status === 'completed') {
+    return POSITIVE_SOCIAL_REPLY.test(dialogue) && !LEADING_NEGATIVE_SOCIAL_REPLY.test(dialogue);
   }
-  if (outcome.status === 'countered') return COUNTER_SOCIAL_REPLY.test(dialogue);
+  if (outcome.status === 'countered' || outcome.status === 'replan_required') return COUNTER_SOCIAL_REPLY.test(dialogue);
   return NEGATIVE_SOCIAL_REPLY.test(dialogue);
 }
 
 export class ConversationService {
   readonly #sessions = new Map<string, ActiveConversation>();
+  #beginning = false;
 
   constructor(
     private readonly inference: InferencePort,
@@ -168,7 +171,7 @@ export class ConversationService {
     const npcId = StableIdSchema.parse(input.npcId);
     const state = parseWorldState(input.state);
     if (this.#sessions.has(conversationId)) throw new Error('Conversation ID is already active.');
-    if (this.#sessions.size > 0) throw new Error('Only one active conversation is permitted.');
+    if (this.#beginning || this.#sessions.size > 0) throw new Error('Only one active conversation is permitted.');
     const npc = state.npcs[npcId];
     if (!npc) throw new Error('Conversation NPC does not exist.');
     if (npc.tier === 'ambient') {
@@ -180,25 +183,31 @@ export class ConversationService {
         state,
       };
     }
-    const writing = await this.writing.get(npcId);
-    if (writing.npcId !== npcId) throw new Error('Character writing does not match the conversation NPC.');
-    const transaction = new ConversationTransaction(state, conversationId, npcId);
-    const registry = buildSceneRegistry(state, writing, input.sources ?? {
-      sceneObservationIds: [], npcReportIds: [], authoredEventIds: [],
-    });
-    this.#sessions.set(conversationId, {
-      character: writing,
-      registry,
-      transaction,
-      playerMessages: {},
-      recentTurns: [{ speaker: 'npc', text: writing.authoredGreeting }],
-      turnIds: new Set(),
-      structuredActionComplete: false,
-    });
-    return {
-      kind: 'active', conversationId, npcId, displayName: writing.displayName,
-      greeting: writing.authoredGreeting, pausedState: transaction.pausedState,
-    };
+    this.#beginning = true;
+    try {
+      const writing = await this.writing.get(npcId);
+      if (writing.npcId !== npcId) throw new Error('Character writing does not match the conversation NPC.');
+      const transaction = new ConversationTransaction(state, conversationId, npcId);
+      const registry = buildSceneRegistry(state, writing, input.sources ?? {
+        sceneObservationIds: [], npcReportIds: [], authoredEventIds: [],
+      });
+      this.#sessions.set(conversationId, {
+        abortController: new AbortController(),
+        character: writing,
+        registry,
+        transaction,
+        playerMessages: {},
+        recentTurns: [{ speaker: 'npc', text: writing.authoredGreeting }],
+        turnIds: new Set(),
+        structuredActionComplete: false,
+      });
+      return {
+        kind: 'active', conversationId, npcId, displayName: writing.displayName,
+        greeting: writing.authoredGreeting, pausedState: transaction.pausedState,
+      };
+    } finally {
+      this.#beginning = false;
+    }
   }
 
   async turn(input: Readonly<{
@@ -280,7 +289,7 @@ export class ConversationService {
             { sourceId: turnId, evidenceText: message },
           ),
           maxTokens: 256,
-        });
+        }, session.abortController.signal);
         const parsed = parseConversationResponseJson(source);
         const validated = validateConversationTurn(parsed, {
           state: session.transaction.baseState,
@@ -305,6 +314,7 @@ export class ConversationService {
         // Raw or rejected model text is intentionally neither returned nor logged.
       }
     }
+    session.abortController.signal.throwIfAborted();
     if (!approved && structuredAction) {
       const deterministic = deterministicCatClaimTurn(message, turnId, session, turnCandidates);
       session.transaction.stage(deterministic);
@@ -359,7 +369,12 @@ export class ConversationService {
       );
     }
 
-    const policy = await classifyApprovedDialogue(this.inference, approved.dialogue);
+    const policy = await classifyApprovedDialogue(this.inference, approved.dialogue, session.abortController.signal);
+    if (!policy) {
+      const fallback = session.character.authoredFallbacks[session.recentTurns.length % session.character.authoredFallbacks.length]
+        ?? authoredNoChangeConversationResponse.dialogue;
+      return this.#recordFallback(input.conversationId, session, fallback, 'authored-fallback');
+    }
     if (policy.decision !== 'allow') {
       this.onDiagnostic?.({
         stage: 'content-policy',
@@ -386,6 +401,7 @@ export class ConversationService {
 
   end(conversationId: string): WorldState {
     const session = this.#session(conversationId);
+    session.abortController.abort();
     const state = session.transaction.commit();
     this.#sessions.delete(conversationId);
     return state;
@@ -393,13 +409,17 @@ export class ConversationService {
 
   abort(conversationId: string): WorldState {
     const session = this.#session(conversationId);
+    session.abortController.abort();
     const state = session.transaction.discard();
     this.#sessions.delete(conversationId);
     return state;
   }
 
   abortAll(): void {
-    for (const session of this.#sessions.values()) session.transaction.discard();
+    for (const session of this.#sessions.values()) {
+      session.abortController.abort();
+      session.transaction.discard();
+    }
     this.#sessions.clear();
   }
 
@@ -509,7 +529,7 @@ export class ConversationService {
             { sourceId: turnId, evidenceText: message },
           ),
           maxTokens: 256,
-        });
+        }, session.abortController.signal);
         const approved = validateConversationTurn(parseConversationResponseJson(generated), {
           state: session.transaction.baseState,
           registry: session.registry,
@@ -519,8 +539,8 @@ export class ConversationService {
           staged: session.transaction.staged(),
         });
         if (approved.actionId !== actionId || !dialogueMatchesSocialOutcome(approved.dialogue, socialOutcome)) continue;
-        const policy = await classifyApprovedDialogue(this.inference, approved.dialogue);
-        if (policy.decision !== 'allow') break;
+        const policy = await classifyApprovedDialogue(this.inference, approved.dialogue, session.abortController.signal);
+        if (!policy || policy.decision !== 'allow') break;
         dialogue = approved.dialogue;
         emotion = approved.emotion;
         source = attempt === 1 ? 'model' : 'corrected-model';
@@ -534,6 +554,7 @@ export class ConversationService {
         // A structured state outcome remains authoritative when model phrasing fails.
       }
     }
+    session.abortController.signal.throwIfAborted();
     if (!playerAlreadyRecorded) session.recentTurns.push({ speaker: 'player', text: message });
     session.recentTurns.push({ speaker: 'npc', text: dialogue });
     return {

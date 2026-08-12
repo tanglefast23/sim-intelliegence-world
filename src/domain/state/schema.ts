@@ -25,6 +25,7 @@ export const STATE_SCHEMA_VERSION = 6 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
+export const EVENT_HISTORY_LIMIT = 512;
 
 const PrngStateSchema = z.object({
   version: z.literal(PRNG_VERSION),
@@ -87,16 +88,15 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
   if (new Set(eventIds).size !== eventIds.length) {
     context.addIssue({ code: 'custom', path: ['eventLedger'], message: 'Event ledger IDs must be unique.' });
   }
+  const firstEventSequence = state.eventLedger[0]?.sequence ?? 0;
   state.eventLedger.forEach((event, index) => {
-    if (event.sequence !== index) {
+    if (event.sequence !== firstEventSequence + index) {
       context.addIssue({ code: 'custom', path: ['eventLedger', index, 'sequence'], message: 'Event sequence must match ledger order.' });
     }
   });
-  if (
-    state.eventReceipts.length !== eventIds.length ||
-    state.eventReceipts.some((eventId, index) => eventId !== eventIds[index])
-  ) {
-    context.addIssue({ code: 'custom', path: ['eventReceipts'], message: 'Event receipts must match ledger order.' });
+  const ledgerReceipts = eventIds.length === 0 ? [] : state.eventReceipts.slice(-eventIds.length);
+  if (ledgerReceipts.length !== eventIds.length || ledgerReceipts.some((eventId, index) => eventId !== eventIds[index])) {
+    context.addIssue({ code: 'custom', path: ['eventReceipts'], message: 'Event receipts must end with ledger order.' });
   }
   for (const [id, npc] of Object.entries(state.npcs)) {
     if (npc.id !== id) context.addIssue({ code: 'custom', path: ['npcs', id], message: 'NPC record key must match its ID.' });

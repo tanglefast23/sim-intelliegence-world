@@ -24,7 +24,10 @@ export class FileCharacterWritingStore implements CharacterWritingStore {
   get(npcId: string): Promise<CharacterWriting> {
     const existing = this.#cache.get(npcId);
     if (existing) return existing;
-    const pending = this.#load(npcId);
+    const pending = this.#load(npcId).catch((error: unknown) => {
+      this.#cache.delete(npcId);
+      throw error;
+    });
     this.#cache.set(npcId, pending);
     return pending;
   }
@@ -66,7 +69,11 @@ export class FileCharacterWritingStore implements CharacterWritingStore {
 
   #loadWorldKnowledge(): Promise<WorldKnowledgeDocument> {
     this.#worldKnowledge ??= readFile(resolve(this.contentRoot, 'world', 'HalcyraIsland.md'), 'utf8')
-      .then(parseWorldKnowledgeMarkdown);
+      .then(parseWorldKnowledgeMarkdown)
+      .catch((error: unknown) => {
+        this.#worldKnowledge = undefined;
+        throw error;
+      });
     return this.#worldKnowledge;
   }
 }

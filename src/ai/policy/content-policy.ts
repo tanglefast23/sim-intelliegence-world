@@ -30,7 +30,8 @@ export function deterministicPolicyDecision(source: string): PolicyResponse | un
 export async function classifyApprovedDialogue(
   inference: InferencePort,
   dialogue: string,
-): Promise<PolicyResponse> {
+  signal?: AbortSignal,
+): Promise<PolicyResponse | undefined> {
   const deterministic = deterministicPolicyDecision(dialogue);
   if (deterministic) return deterministic;
   const prompt = [
@@ -51,13 +52,14 @@ export async function classifyApprovedDialogue(
       schemaName: 'si_world_content_policy',
       jsonSchema: policyResponseJsonSchema,
       maxTokens: 64,
-    });
+    }, signal);
     const result = parsePolicyResponseJson(source);
     if (result.decision === 'allow' && result.category !== 'allowed_fictional_adult') {
       throw new Error('Policy classifier returned an inconsistent allow decision.');
     }
     return result;
   } catch {
-    return { decision: 'refuse', category: 'explicit_sexual_detail' };
+    signal?.throwIfAborted();
+    return undefined;
   }
 }

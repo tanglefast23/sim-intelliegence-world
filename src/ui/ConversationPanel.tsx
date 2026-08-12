@@ -47,12 +47,16 @@ export function ConversationPanel({
   const [draft, setDraft] = useState('');
   const [status, setStatus] = useState<'opening' | 'ready' | 'generating' | 'revealing' | 'action-complete' | 'ambient' | 'failed'>('opening');
   const [reveal, setReveal] = useState('');
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [generationNote, setGenerationNote] = useState('LOCAL MODEL LOADING…');
   const [suggestions, setSuggestions] = useState(() => conversationPromptSuggestions(initialState.current, npcId));
   const turnNumber = useRef(0);
   const active = useRef(false);
   const closing = useRef(false);
   const revealTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const pendingReveal = useRef<Readonly<{ dialogue: string; nextStatus: 'ready' | 'action-complete' }> | undefined>(undefined);
+  const transcriptRef = useRef<ScrollView>(null);
+  const inputRef = useRef<TextInput>(null);
   const panelLayout = responsivePanelLayout(surface, uiScale);
   const metrics = uiMetrics(uiScale);
 
@@ -100,10 +104,26 @@ export function ConversationPanel({
     };
   }, [conversationId, fixtureDisplayName, fixtureMode, npcId, onPausedState, onVocalCue, port]);
 
+  useEffect(() => {
+    if (status === 'ready') inputRef.current?.focus();
+  }, [status]);
+
+  const finishReveal = () => {
+    const pending = pendingReveal.current;
+    if (!pending) return;
+    if (revealTimer.current) clearInterval(revealTimer.current);
+    revealTimer.current = undefined;
+    pendingReveal.current = undefined;
+    setLines((current) => [...current, { speaker: 'npc', text: pending.dialogue }]);
+    setReveal('');
+    setStatus(pending.nextStatus);
+  };
+
   const sendMessage = async (message: string) => {
     if (!active.current || status !== 'ready' || !message) return;
     turnNumber.current += 1;
     const turnId = `turn-${idPart(npcId)}-${turnNumber.current}`;
+    setConfirmDiscard(false);
     setDraft('');
     setLines((current) => [...current, { speaker: 'player', text: message }]);
     setStatus('generating');
@@ -123,18 +143,16 @@ export function ConversationPanel({
       }
       setStatus('revealing');
       setReveal('');
+      pendingReveal.current = {
+        dialogue: result.dialogue,
+        nextStatus: result.intent === 'end_conversation' ? 'action-complete' : 'ready',
+      };
       let index = 0;
       if (revealTimer.current) clearInterval(revealTimer.current);
       revealTimer.current = setInterval(() => {
         index += 1;
         setReveal(result.dialogue.slice(0, index));
-        if (index >= result.dialogue.length) {
-          if (revealTimer.current) clearInterval(revealTimer.current);
-          revealTimer.current = undefined;
-          setLines((current) => [...current, { speaker: 'npc', text: result.dialogue }]);
-          setReveal('');
-          setStatus(result.intent === 'end_conversation' ? 'action-complete' : 'ready');
-        }
+        if (index >= result.dialogue.length) finishReveal();
       }, 12);
     } catch {
       setLines((current) => [...current, { speaker: 'npc', text: 'I cannot talk right now.' }]);
@@ -158,6 +176,7 @@ export function ConversationPanel({
       clearInterval(revealTimer.current);
       revealTimer.current = undefined;
     }
+    pendingReveal.current = undefined;
     try {
       if (active.current) {
         const result = commit
@@ -171,6 +190,14 @@ export function ConversationPanel({
     }
   };
 
+  const cancel = () => {
+    if (active.current && turnNumber.current > 0 && !confirmDiscard) {
+      setConfirmDiscard(true);
+      return;
+    }
+    void close(false);
+  };
+
   return (
     <View nativeID="world-ui-conversation-overlay" style={styles.overlay}>
       <View
@@ -182,21 +209,23 @@ export function ConversationPanel({
           <View style={styles.headerIdentity}>
             <CharacterPortrait displayName={displayName} npcId={npcId} />
             <View style={styles.headerCopy}>
-              <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION · TIME PAUSED</Text>
+              <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION{active.current ? ' · TIME PAUSED' : ''}</Text>
               <Text style={[styles.name, { fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
             </View>
           </View>
-          <Pressable accessibilityLabel="Cancel conversation" onPress={() => void close(false)} style={[styles.smallButton, { minHeight: metrics.pointerTarget }]}>
-            <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>CANCEL</Text>
+          <Pressable accessibilityLabel="Cancel conversation" onPress={cancel} style={[styles.smallButton, { minHeight: metrics.pointerTarget }]}>
+            <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>{confirmDiscard ? 'DISCARD?' : 'CANCEL'}</Text>
           </Pressable>
         </View>
         <ScrollView
           contentContainerStyle={[styles.transcriptContent, { padding: metrics.padding }]}
           nativeID="conversation-transcript"
+          onContentSizeChange={() => transcriptRef.current?.scrollToEnd({ animated: false })}
+          ref={transcriptRef}
           style={styles.transcript}
         >
           <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={[styles.modelStatus, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>{generationNote}</Text>
-          {lines.slice(-6).map((line, index) => (
+          {lines.map((line, index) => (
             <Text
               key={`${line.speaker}-${index}`}
               style={[
@@ -208,7 +237,11 @@ export function ConversationPanel({
             </Text>
           ))}
           {status === 'generating' ? <Text accessibilityLabel="NPC is thinking" style={[styles.thinking, { fontSize: metrics.conversationText }]}>●  ●  ●</Text> : null}
-          {status === 'revealing' ? <Text style={[styles.npcLine, { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) }]}>{displayName}: {reveal}</Text> : null}
+          {status === 'revealing' ? (
+            <Pressable accessibilityLabel="Show full reply" onPress={finishReveal}>
+              <Text style={[styles.npcLine, { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) }]}>{displayName}: {reveal}</Text>
+            </Pressable>
+          ) : null}
           {status === 'failed' ? <Text style={[styles.error, { fontSize: metrics.panelText }]}>CONVERSATION COULD NOT START</Text> : null}
         </ScrollView>
         {status === 'ambient' || status === 'failed' ? (
@@ -232,7 +265,7 @@ export function ConversationPanel({
                     disabled={status !== 'ready'}
                     key={suggestion.id}
                     onPress={() => setDraft(suggestion.suggestedText)}
-                    style={[styles.actionButton, { minHeight: metrics.pointerTarget }]}
+                    style={[styles.actionButton, { minHeight: metrics.pointerTarget }, status !== 'ready' && styles.disabled]}
                   >
                     <Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>{suggestion.label}</Text>
                   </Pressable>
@@ -247,13 +280,14 @@ export function ConversationPanel({
                 onSubmitEditing={() => void send()}
                 placeholder="TYPE WHAT YOU WANT TO SAY…"
                 placeholderTextColor="#7e6f5b"
+                ref={inputRef}
                 style={[styles.input, { fontSize: metrics.conversationText, minHeight: metrics.primaryControl }]}
                 value={draft}
               />
-              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={[styles.sendButton, { minHeight: metrics.primaryControl }]}>
+              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={[styles.sendButton, { minHeight: metrics.primaryControl }, (status !== 'ready' || draft.trim().length === 0) && styles.disabled]}>
                 <Text style={[styles.sendText, { fontSize: metrics.persistentText }]}>SAY</Text>
               </Pressable>
-              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={[styles.endButton, { minHeight: metrics.primaryControl }]}>
+              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={[styles.endButton, { minHeight: metrics.primaryControl }, (status === 'generating' || status === 'revealing') && styles.disabled]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
               </View>
@@ -273,6 +307,7 @@ const styles = StyleSheet.create({
   actionText: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8 },
   endButton: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, justifyContent: 'center', minHeight: 38, paddingHorizontal: 14 },
   endText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
+  disabled: { opacity: 0.4 },
   error: { color: '#ef725b', fontFamily: 'Silkscreen', fontSize: 10 },
   eyebrow: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 8 },
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },

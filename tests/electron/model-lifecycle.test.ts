@@ -35,6 +35,11 @@ class FakeChild extends EventEmitter {
     this.exitCode = 1;
     this.emit('close', 1, null);
   }
+
+  signalCrash(): void {
+    this.signalCode = 'SIGKILL';
+    this.emit('close', null, 'SIGKILL');
+  }
 }
 
 class StubbornFakeChild extends FakeChild {
@@ -152,6 +157,26 @@ describe('local model runtime', () => {
       completionTokens: 4,
       predictedTokensPerSecond: 18.5,
     });
+  });
+
+  it('cancels a malformed model stream', async () => {
+    let cancelled = false;
+    const client = new ModelClient({
+      baseUrl: 'http://127.0.0.1:50001',
+      apiKey: 'b'.repeat(64),
+      fetchImplementation: (async () => new Response(new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode('data: {malformed}\n\n'));
+        },
+        cancel() {
+          cancelled = true;
+        },
+      }), { status: 200 })) as typeof fetch,
+    });
+    await expect(client.completeBufferedWithTimings({
+      messages: [{ role: 'user', content: 'Hello' }], schemaName: 'spike', jsonSchema: {},
+    })).rejects.toThrow();
+    expect(cancelled).toBe(true);
   });
 
   it('verifies artifact size and SHA-256 before use', async () => {
@@ -300,10 +325,10 @@ describe('local model runtime', () => {
     }
   });
 
-  it('retries a fresh reserved port when a child exits during startup', async () => {
+  it('retries fresh ports for close-only and exitCode-only startup deaths', async () => {
     const root = await mkdtemp(join(tmpdir(), 'si-world-port-retry-'));
     const children: FakeChild[] = [];
-    const reservedPorts = [50_006, 50_007];
+    const reservedPorts = [50_006, 50_007, 50_008];
     const supervisor = new ModelSupervisor(
       {
         executablePath: '/runtime/llama-server',
@@ -313,7 +338,7 @@ describe('local model runtime', () => {
       },
       {
         createClient: (_baseUrl) => ({
-          health: async () => children.length === 1 ? 'loading' as const : 'ready' as const,
+          health: async () => children.length < 3 ? 'loading' as const : 'ready' as const,
         }) as unknown as ModelClient,
         delay: async () => undefined,
         reservePort: async () => ({
@@ -324,7 +349,9 @@ describe('local model runtime', () => {
           const child = new FakeChild();
           children.push(child);
           if (children.length === 1) {
-            queueMicrotask(() => child.crash());
+            queueMicrotask(() => child.signalCrash());
+          } else if (children.length === 2) {
+            child.exitCode = 1;
           }
           return child;
         },
@@ -333,7 +360,7 @@ describe('local model runtime', () => {
 
     try {
       await supervisor.start();
-      expect(children).toHaveLength(2);
+      expect(children).toHaveLength(3);
       expect(supervisor.state).toBe('ready');
     } finally {
       await supervisor.stop();

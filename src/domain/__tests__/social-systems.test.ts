@@ -8,6 +8,8 @@ import { createInitialState } from '../state/initial-state';
 import { GENERATED_LAYOUT } from '../state/generated-layout';
 import { WorldStateSchema, type WorldState } from '../state/schema';
 import { simulateWorldInterval } from '../../world/schedules/simulation';
+import { cancelInvitation } from '../invitations/planner';
+import { InvitationStateSchema } from '../invitations/schema';
 
 const fixture = JSON.parse(readFileSync(resolve('tests/fixtures/social/phase-10.json'), 'utf8')) as {
   vagueLead: Record<string, unknown>;
@@ -46,6 +48,18 @@ function resolvedLindaState(): WorldState {
 }
 
 describe('Phase 10 social systems', () => {
+  test('a replan-required invitation can be cancelled without a scheduled minute', () => {
+    const invitation = InvitationStateSchema.parse({
+      id: 'invitation_replan_cancel', npcId: 'linda', sourceConversationId: 'conversation_replan_cancel',
+      actionId: 'invite_home', destinationLocationId: 'protagonist_villa', destinationMapId: 'northwest_residential',
+      proposedMinute: 900, durationMinutes: 120, status: 'replan_required', responseReasonId: 'travel_unavailable',
+      feedback: 'Replan after arrival.',
+    });
+    expect(cancelInvitation(invitation, 'player_cancelled')).toEqual(expect.objectContaining({
+      status: 'cancelled', scheduledMinute: 900,
+    }));
+  });
+
   test('relationship values change independently and one eligible next stage requires an authored action', () => {
     const initial = createInitialState();
     const changed = reduceCommand(initial, command(initial, 'apply-relationship-delta', {
@@ -588,6 +602,13 @@ describe('Phase 10 social systems', () => {
       state: prepared, toAbsoluteMinute: 600, toSubMinuteMilliseconds: 0, awake: true, frameMovement: false,
     }).state;
     expect(completed.invitations.invitation_local?.status).toBe('completed');
+    const replay = reduceCommand(completed, command(completed, 'respond-home-invitation', {
+      request: {
+        invitationId: 'invitation_local', npcId: 'linda', sourceConversationId: 'conversation_local',
+        proposedMinute: fixture.invitation.acceptedMinute, durationMinutes: fixture.invitation.durationMinutes,
+      },
+    }, 'invite-local-replay'));
+    expect(replay.event).toEqual(expect.objectContaining({ outcome: 'completed', changed: false }));
     const later = reduceCommand(completed, command(completed, 'respond-home-invitation', {
       request: {
         invitationId: 'invitation_after_completed', npcId: 'linda', sourceConversationId: 'conversation_after_completed',

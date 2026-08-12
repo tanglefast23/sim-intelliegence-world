@@ -54,7 +54,7 @@ export const DomainEventSchema = z.discriminatedUnion('type', [
     type: z.literal('home-invitation-responded'),
     invitationId: StableIdSchema,
     npcId: StableIdSchema,
-    outcome: z.enum(['accepted', 'rejected', 'countered', 'replan_required']),
+    outcome: z.enum(['accepted', 'rejected', 'countered', 'replan_required', 'completed', 'cancelled']),
     reasonId: StableIdSchema,
     changed: z.boolean(),
     transferId: StableIdSchema.optional(),

@@ -53,7 +53,7 @@ export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpe
             ]}
           >
             <Text style={[styles.speedText, { fontSize: metrics.secondaryText }, state.clock.selectedSpeed === speed && styles.speedTextActive]}>
-              {speed === 0 ? 'Ⅱ' : `${speed}×`}
+              {speed === 0 ? 'II' : `${speed}×`}
             </Text>
           </Pressable>
         ))}

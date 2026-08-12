@@ -100,7 +100,8 @@ const writing: CharacterWritingStore = {
 };
 
 class AuthoredBrowserInference implements InferencePort {
-  async complete(request: InferenceCompletionRequest): Promise<string> {
+  async complete(request: InferenceCompletionRequest, signal?: AbortSignal): Promise<string> {
+    signal?.throwIfAborted();
     if (request.schemaName === 'si_world_content_policy') {
       return JSON.stringify({ decision: 'allow', category: 'allowed_fictional_adult' });
     }

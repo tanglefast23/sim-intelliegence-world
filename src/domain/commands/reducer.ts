@@ -13,7 +13,7 @@ import {
 import { socialPurchase } from '../quests/purchases';
 import { upsertJournalEntry } from '../quests/journal';
 import { applyRelationshipDelta, requestRelationshipStage, resolveChangeableRejections } from '../relationships/relationship';
-import { parseWorldState, type WorldState } from '../state/schema';
+import { EVENT_HISTORY_LIMIT, type WorldState } from '../state/schema';
 import { DomainCommandSchema, type DomainCommand } from './types';
 import { simulateWorldInterval } from '../../world/schedules/simulation';
 import { advancePoliceAttention } from '../consequences/police';
@@ -43,13 +43,13 @@ function commitEvent(state: WorldState, event: DomainEvent, patch: Partial<World
       ),
     },
   ]));
-  const nextState = parseWorldState({
+  const nextState: WorldState = {
     ...candidate,
     relationships,
     revision: state.revision + 1,
     eventReceipts: [...state.eventReceipts, event.eventId],
-    eventLedger: [...state.eventLedger, event],
-  });
+    eventLedger: [...state.eventLedger, event].slice(-EVENT_HISTORY_LIMIT),
+  };
   return { state: nextState, event, duplicate: false };
 }
 
@@ -57,7 +57,7 @@ function eventBase(state: WorldState, command: DomainCommand, absoluteMinute: nu
   return {
     eventId: command.eventId,
     commandId: command.commandId,
-    sequence: state.eventLedger.length,
+    sequence: (state.eventLedger.at(-1)?.sequence ?? -1) + 1,
     absoluteMinute,
   } as const;
 }

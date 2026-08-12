@@ -194,5 +194,11 @@ export function advanceMovementFrame(
     state = result.worldState;
   }
 
+  const movementIds = Object.keys(movements);
+  if (
+    state === current.worldState && playerMovement === current.movement &&
+    movementIds.length === Object.keys(current.npcMovements).length &&
+    movementIds.every((id) => movements[id] === current.npcMovements[id])
+  ) return current;
   return { movement: playerMovement, npcMovements: movements, worldState: state };
 }

@@ -1,9 +1,9 @@
 import type { WorldState } from '../domain/state/schema';
 import { roofGroupAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
-import { pointsInRect, type TilePoint } from '../world/maps/schema';
+import type { TilePoint } from '../world/maps/schema';
 import type { MovementDirection } from '../world/pathfinding/movement';
 import { movementPresentation, type CharacterId } from './atlas';
-import { compareDepth, WORLD_DEPTH } from './depth';
+import { compareDepth } from './depth';
 import { protagonistWobbleDegrees } from './protagonist-wobble';
 
 const TILE_SIZE = 32;
@@ -37,7 +37,6 @@ export type WorldFrameState = Readonly<{
   hiddenRoofGroupId?: string;
   visibleRoofGroupIds: readonly string[];
   presentationHash: string;
-  signature: string;
 }>;
 
 export type WorldActor = Readonly<{
@@ -156,36 +155,11 @@ export function buildWorldFrameState(
     .filter(({ id }) => id !== hiddenRoofGroupId)
     .map(({ id }) => id);
 
-  const depthItems = [
-    ...map.source.ground.regions.map(({ id, y }) => ({ id: `floor-${id}`, layer: WORLD_DEPTH.floor, tileY: y })),
-    ...[...map.objectPartById.values()].map(({ id, depthAnchor }) => ({ id, layer: WORLD_DEPTH.prop, tileY: depthAnchor.y })),
-    ...[...map.doorById.values()].map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.prop, tileY: tile.y })),
-    ...characters.map(({ id, tile }) => ({ id: `shadow-${id}`, layer: WORLD_DEPTH.shadow, tileY: tile.y })),
-    ...characters.map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.character, tileY: tile.y })),
-    ...map.source.effects.map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.effect, tileY: tile.y })),
-    ...map.wallTiles.map(({ id, tile }) => ({ id, layer: WORLD_DEPTH.wall, tileY: tile.y })),
-    ...visibleRoofGroupIds.map((id) => ({
-      id,
-      layer: WORLD_DEPTH.roof,
-      tileY: Math.min(...(map.source.roofGroups.find((roof) => roof.id === id)?.cells
-        .flatMap(pointsInRect).map(({ y }) => y) ?? [0])),
-    })),
-  ].sort(compareDepth);
-  const signature = JSON.stringify({
-    mapId: map.source.id,
-    revision: state.revision,
-    playerTile,
-    characters,
-    hiddenRoofGroupId: hiddenRoofGroupId ?? null,
-    presentationHash: map.presentation.hash,
-    depthItems,
-  });
   return {
     layerOrder: WORLD_LAYER_ORDER,
     characters,
     hiddenRoofGroupId,
     visibleRoofGroupIds,
     presentationHash: map.presentation.hash,
-    signature,
   };
 }

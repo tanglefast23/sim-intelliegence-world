@@ -7,7 +7,6 @@ import {
   replanInvitationForTransfer,
 } from '../../domain/invitations/planner';
 import type { WorldState } from '../../domain/state/schema';
-import { WorldStateSchema } from '../../domain/state/schema';
 import { GENERATED_LAYOUT } from '../../domain/state/generated-layout';
 import { routeBetween } from '../transfers/routes';
 import { scheduleMilestonesBetween, type ScheduleMilestone } from './schedule';
@@ -66,8 +65,14 @@ function invitationOwnsNpcActivity(
   npc: WorldState['npcs'][string],
   minute: number,
 ): boolean {
-  return Object.values(invitations).some((invitation) => (
-    invitation.npcId === npc.id && invitation.status === 'accepted' && (
+  return Object.values(invitations).some((invitation) => {
+    if (invitation.npcId !== npc.id) return false;
+    if (invitation.status === 'completed') {
+      return invitation.scheduledMinute !== undefined &&
+        minute >= invitation.scheduledMinute &&
+        minute < invitation.scheduledMinute + invitation.durationMinutes;
+    }
+    return invitation.status === 'accepted' && (
       npc.scheduleGoal?.sourceInvitationId === invitation.id ||
       (invitation.transferId !== undefined && transfers[invitation.transferId]?.npcId === npc.id) ||
       (
@@ -76,8 +81,8 @@ function invitationOwnsNpcActivity(
           Math.max(0, invitation.scheduledMinute - PROTOTYPE_ECONOMY_POLICY.npcTravelMinutes) &&
         minute < invitation.scheduledMinute + invitation.durationMinutes
       )
-    )
-  ));
+    );
+  });
 }
 
 export function simulateWorldInterval(input: Readonly<{
@@ -87,7 +92,7 @@ export function simulateWorldInterval(input: Readonly<{
   awake: boolean;
   frameMovement: boolean;
 }>): SimulationIntervalResult {
-  const source = WorldStateSchema.parse(input.state);
+  const source = input.state;
   const fromMinute = source.clock.absoluteMinute;
   if (!Number.isSafeInteger(input.toAbsoluteMinute) || input.toAbsoluteMinute < fromMinute) {
     throw new RangeError('Simulation target minute must be a safe minute at or after the current clock.');
@@ -533,7 +538,7 @@ export function simulateWorldInterval(input: Readonly<{
     }
   }
 
-  const state = WorldStateSchema.parse({
+  const state: WorldState = {
     ...source,
     clock: {
       ...source.clock,
@@ -546,7 +551,7 @@ export function simulateWorldInterval(input: Readonly<{
     npcs,
     transfers,
     invitations,
-  });
+  };
   return {
     state,
     milestoneIds,

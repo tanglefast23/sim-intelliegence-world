@@ -122,7 +122,7 @@ describe('authoritative world frame', () => {
     const loaded = WorldStateSchema.parse(JSON.parse(savedBytes) as unknown);
     const before = buildWorldFrameState(MAP, inside.worldState, ACTORS, inside.movement.direction, 0);
     const after = buildWorldFrameState(MAP, loaded, ACTORS, inside.movement.direction, 0);
-    expect(after.signature).toBe(before.signature);
+    expect(after).toEqual(before);
     expect(after.hiddenRoofGroupId).toBe('protagonist-villa-roof');
     expect(loaded.protagonist.worldPosition).toEqual({ mapId: 'northwest_residential', tileX: 16, tileY: 23 });
   });

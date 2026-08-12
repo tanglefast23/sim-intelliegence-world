@@ -198,63 +198,66 @@ export class ModelClient {
     let completionTokens: number | null = null;
     let predictedTokensPerSecond: number | null = null;
 
-    const consumeLine = (line: string): void => {
-      if (!line.startsWith('data:')) return;
-      const data = line.slice(5).trim();
-      if (data === '' || data === '[DONE]') return;
-      const event = objectValue(JSON.parse(data) as unknown);
-      if (!event) throw new Error('Model stream event is not an object.');
-      const choices = Array.isArray(event.choices) ? event.choices : [];
-      const firstChoice = objectValue(choices[0]);
-      const delta = objectValue(firstChoice?.delta);
-      const fragment = typeof delta?.content === 'string' ? delta.content : '';
-      if (fragment !== '') {
-        firstContentAt ??= this.#now();
-        content += fragment;
-        if (new TextEncoder().encode(content).byteLength > MAX_HTTP_RESPONSE_BYTES) {
-          throw new Error('Model completion content exceeds the byte limit.');
+    try {
+      const consumeLine = (line: string): void => {
+        if (!line.startsWith('data:')) return;
+        const data = line.slice(5).trim();
+        if (data === '' || data === '[DONE]') return;
+        const event = objectValue(JSON.parse(data) as unknown);
+        if (!event) throw new Error('Model stream event is not an object.');
+        const choices = Array.isArray(event.choices) ? event.choices : [];
+        const firstChoice = objectValue(choices[0]);
+        const delta = objectValue(firstChoice?.delta);
+        const fragment = typeof delta?.content === 'string' ? delta.content : '';
+        if (fragment !== '') {
+          firstContentAt ??= this.#now();
+          content += fragment;
+          if (new TextEncoder().encode(content).byteLength > MAX_HTTP_RESPONSE_BYTES) {
+            throw new Error('Model completion content exceeds the byte limit.');
+          }
         }
-      }
-      const usage = objectValue(event.usage);
-      promptTokens = finiteMetric(usage?.prompt_tokens) ?? promptTokens;
-      completionTokens = finiteMetric(usage?.completion_tokens) ?? completionTokens;
-      const timings = objectValue(event.timings);
-      predictedTokensPerSecond = finiteMetric(timings?.predicted_per_second)
-        ?? predictedTokensPerSecond;
-      promptTokens = finiteMetric(timings?.prompt_n) ?? promptTokens;
-      completionTokens = finiteMetric(timings?.predicted_n) ?? completionTokens;
-    };
+        const usage = objectValue(event.usage);
+        promptTokens = finiteMetric(usage?.prompt_tokens) ?? promptTokens;
+        completionTokens = finiteMetric(usage?.completion_tokens) ?? completionTokens;
+        const timings = objectValue(event.timings);
+        predictedTokensPerSecond = finiteMetric(timings?.predicted_per_second)
+          ?? predictedTokensPerSecond;
+        promptTokens = finiteMetric(timings?.prompt_n) ?? promptTokens;
+        completionTokens = finiteMetric(timings?.predicted_n) ?? completionTokens;
+      };
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      responseBytes += value.byteLength;
-      if (responseBytes > MAX_STREAM_RESPONSE_BYTES) {
-        await reader.cancel();
-        throw new Error('Model stream exceeds the byte limit.');
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        responseBytes += value.byteLength;
+        if (responseBytes > MAX_STREAM_RESPONSE_BYTES) {
+          throw new Error('Model stream exceeds the byte limit.');
+        }
+        pending += decoder.decode(value, { stream: true });
+        const lines = pending.split(/\r?\n/u);
+        pending = lines.pop() ?? '';
+        lines.forEach(consumeLine);
       }
-      pending += decoder.decode(value, { stream: true });
-      const lines = pending.split(/\r?\n/u);
-      pending = lines.pop() ?? '';
-      lines.forEach(consumeLine);
+      pending += decoder.decode();
+      pending.split(/\r?\n/u).forEach(consumeLine);
+      if (content === '' || firstContentAt === undefined) {
+        throw new Error('Model stream did not contain completion content.');
+      }
+      const totalMilliseconds = this.#now() - startedAt;
+      const firstTokenMilliseconds = firstContentAt - startedAt;
+      const computedTokensPerSecond = completionTokens && totalMilliseconds > firstTokenMilliseconds
+        ? completionTokens / ((totalMilliseconds - firstTokenMilliseconds) / 1_000)
+        : null;
+      return {
+        content,
+        firstTokenMilliseconds,
+        totalMilliseconds,
+        promptTokens,
+        completionTokens,
+        predictedTokensPerSecond: predictedTokensPerSecond ?? computedTokensPerSecond,
+      };
+    } finally {
+      await reader.cancel().catch(() => undefined);
     }
-    pending += decoder.decode();
-    pending.split(/\r?\n/u).forEach(consumeLine);
-    if (content === '' || firstContentAt === undefined) {
-      throw new Error('Model stream did not contain completion content.');
-    }
-    const totalMilliseconds = this.#now() - startedAt;
-    const firstTokenMilliseconds = firstContentAt - startedAt;
-    const computedTokensPerSecond = completionTokens && totalMilliseconds > firstTokenMilliseconds
-      ? completionTokens / ((totalMilliseconds - firstTokenMilliseconds) / 1_000)
-      : null;
-    return {
-      content,
-      firstTokenMilliseconds,
-      totalMilliseconds,
-      promptTokens,
-      completionTokens,
-      predictedTokensPerSecond: predictedTokensPerSecond ?? computedTokensPerSecond,
-    };
   }
 }

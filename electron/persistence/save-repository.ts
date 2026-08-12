@@ -274,7 +274,10 @@ export class SaveRepository {
       throw new Error('No compatible save candidate exists; existing candidates were preserved.');
     }
     const currentGeneration = recovery.selected?.envelope.saveGeneration ?? null;
-    if (request.expectedSaveGeneration !== currentGeneration) {
+    const retryingRecoveredWrite = recovery.selected?.source === 'temporary' &&
+      (request.expectedSaveGeneration === null ||
+        recovery.selected.envelope.saveGeneration > request.expectedSaveGeneration);
+    if (request.expectedSaveGeneration !== currentGeneration && !retryingRecoveredWrite) {
       throw new Error(`Stale save writer: expected ${String(request.expectedSaveGeneration)}, current ${String(currentGeneration)}.`);
     }
     if (recovery.selected) {
@@ -294,45 +297,56 @@ export class SaveRepository {
     }
     const mainPath = join(slotPath, 'state.json');
     const temporaryPath = join(slotPath, `state.json.tmp-${String(saveGeneration).padStart(12, '0')}-${uniqueSuffix()}`);
+    let temporaryValidated = false;
 
-    await this.inject('before-write');
-    const handle = await open(temporaryPath, 'wx', 0o600);
     try {
-      await handle.writeFile(serialized, 'utf8');
-      await this.inject('after-write');
-      await handle.sync();
-      await this.inject('after-flush');
-    } finally {
-      await handle.close();
-    }
-    parseSaveEnvelope(JSON.parse(await readFile(temporaryPath, 'utf8')) as unknown);
-    await this.inject('after-validation');
-
-    const backupPath = join(slotPath, 'state.json.bak');
-    if (recovery.selected) {
-      if (await pathExists(backupPath)) {
-        const backup = await inspectSaveCandidate(backupPath, 'backup', request.slotId);
-        if (backup && !('envelope' in backup)) {
-          await archiveInvalidCandidate(slotPath, backupPath, 'backup');
-        }
-      }
-      const backupTemporary = join(slotPath, `state.json.bak.tmp-${uniqueSuffix()}`);
-      await copyFile(recovery.selected.path, backupTemporary);
-      const backupHandle = await open(backupTemporary, 'r+');
+      await this.inject('before-write');
+      const handle = await open(temporaryPath, 'wx', 0o600);
       try {
-        await backupHandle.sync();
+        await handle.writeFile(serialized, 'utf8');
+        await this.inject('after-write');
+        await handle.sync();
+        await this.inject('after-flush');
       } finally {
-        await backupHandle.close();
+        await handle.close();
       }
-      parseSupportedSaveEnvelope(JSON.parse(await readFile(backupTemporary, 'utf8')) as unknown);
-      await rename(backupTemporary, backupPath);
+      parseSaveEnvelope(JSON.parse(await readFile(temporaryPath, 'utf8')) as unknown);
+      temporaryValidated = true;
+      await this.inject('after-validation');
+
+      const backupPath = join(slotPath, 'state.json.bak');
+      if (recovery.selected) {
+        if (await pathExists(backupPath)) {
+          const backup = await inspectSaveCandidate(backupPath, 'backup', request.slotId);
+          if (backup && !('envelope' in backup)) {
+            await archiveInvalidCandidate(slotPath, backupPath, 'backup');
+          }
+        }
+        const backupTemporary = join(slotPath, `state.json.bak.tmp-${uniqueSuffix()}`);
+        await copyFile(recovery.selected.path, backupTemporary);
+        const backupHandle = await open(backupTemporary, 'r+');
+        try {
+          await backupHandle.sync();
+        } finally {
+          await backupHandle.close();
+        }
+        parseSupportedSaveEnvelope(JSON.parse(await readFile(backupTemporary, 'utf8')) as unknown);
+        await rename(backupTemporary, backupPath);
+      }
+      if (await pathExists(mainPath)) {
+        const main = await inspectSaveCandidate(mainPath, 'main', request.slotId);
+        if (main && !('envelope' in main)) await archiveInvalidCandidate(slotPath, mainPath, 'main');
+      }
+      await this.inject('after-backup');
+      await rename(temporaryPath, mainPath);
+    } catch (error) {
+      if (!temporaryValidated) {
+        await unlink(temporaryPath).catch((unlinkError: NodeJS.ErrnoException) => {
+          if (unlinkError.code !== 'ENOENT') throw unlinkError;
+        });
+      }
+      throw error;
     }
-    if (await pathExists(mainPath)) {
-      const main = await inspectSaveCandidate(mainPath, 'main', request.slotId);
-      if (main && !('envelope' in main)) await archiveInvalidCandidate(slotPath, mainPath, 'main');
-    }
-    await this.inject('after-backup');
-    await rename(temporaryPath, mainPath);
     const maintenanceWarnings: Array<
       | 'post_commit_observer_failed'
       | 'autosave_maintenance_failed'
@@ -340,6 +354,9 @@ export class SaveRepository {
     > = [];
     try {
       await this.inject('after-replacement');
+      await Promise.all(recovery.validCandidates
+        .filter(({ source }) => source === 'temporary')
+        .map(({ path }) => unlink(path)));
     } catch {
       maintenanceWarnings.push('post_commit_observer_failed');
     }

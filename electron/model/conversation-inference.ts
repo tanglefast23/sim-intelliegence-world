@@ -12,10 +12,10 @@ export class BundledConversationInference implements InferencePort {
 
   constructor(private readonly app: App, private readonly resourcesPath: string) {}
 
-  async complete(request: InferenceCompletionRequest): Promise<string> {
+  async complete(request: InferenceCompletionRequest, signal?: AbortSignal): Promise<string> {
     const supervisor = await this.#getSupervisor();
     await supervisor.start();
-    return supervisor.complete(request);
+    return supervisor.complete(request, signal);
   }
 
   async stop(): Promise<void> {
@@ -26,7 +26,12 @@ export class BundledConversationInference implements InferencePort {
   }
 
   async #getSupervisor(): Promise<ModelSupervisor> {
-    if (!this.#supervisorPromise) this.#supervisorPromise = this.#createSupervisor();
+    if (!this.#supervisorPromise) {
+      this.#supervisorPromise = this.#createSupervisor().catch((error: unknown) => {
+        this.#supervisorPromise = undefined;
+        throw error;
+      });
+    }
     return this.#supervisorPromise;
   }
 

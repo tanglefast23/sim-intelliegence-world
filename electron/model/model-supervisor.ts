@@ -128,6 +128,7 @@ export class ModelSupervisor {
   readonly #delay: (milliseconds: number) => Promise<void>;
   readonly #createClient: (baseUrl: string, apiKey: string) => ModelClient;
   readonly #restartTimes: number[] = [];
+  readonly #closedChildren = new WeakSet<RuntimeChild>();
   #state: ModelSupervisorState = 'stopped';
   #child: RuntimeChild | undefined;
   #client: ModelClient | undefined;
@@ -165,6 +166,10 @@ export class ModelSupervisor {
 
   get sawLoadingHealth(): boolean {
     return this.#sawLoadingHealth;
+  }
+
+  #hasClosed(child: RuntimeChild): boolean {
+    return child.exitCode !== null || this.#closedChildren.has(child);
   }
 
   async start(): Promise<void> {
@@ -250,10 +255,11 @@ export class ModelSupervisor {
       child.stderr.resume();
       child.once('error', (...details) => this.#captureLog(`process error: ${String(details[0])}`));
       child.once('close', () => {
+        this.#closedChildren.add(child);
         void this.#handleClose(child);
       });
       await this.#waitUntilReady(child, deadline);
-      if (child !== this.#child || child.exitCode !== null) {
+      if (child !== this.#child || this.#hasClosed(child)) {
         throw new Error('llama-server exited while completing startup.');
       }
       this.#state = 'ready';
@@ -271,7 +277,7 @@ export class ModelSupervisor {
   async #waitUntilReady(child: RuntimeChild, deadline: number): Promise<void> {
     let waitMilliseconds = 10;
     while (this.#now() < deadline) {
-      if (child.exitCode !== null) {
+      if (this.#hasClosed(child)) {
         throw new Error('llama-server exited before it became ready.');
       }
       try {
@@ -319,12 +325,13 @@ export class ModelSupervisor {
     return operation;
   }
 
-  complete(request: CompletionRequest): Promise<string> {
+  complete(request: CompletionRequest, signal?: AbortSignal): Promise<string> {
     const operation = this.#queue.then(async () => {
       if (this.#state !== 'ready' || !this.#client) {
         throw new Error('Local model runtime is not ready.');
       }
-      return this.#client.complete(request, AbortSignal.timeout(30_000));
+      const timeout = AbortSignal.timeout(30_000);
+      return this.#client.complete(request, signal ? AbortSignal.any([signal, timeout]) : timeout);
     });
     this.#queue = operation.then(
       () => undefined,
@@ -351,7 +358,7 @@ export class ModelSupervisor {
     if (!this.config.allowLifecycleFaultInjection) {
       throw new Error('Model lifecycle fault injection is disabled.');
     }
-    if (!this.#child || this.#child.exitCode !== null) {
+    if (!this.#child || this.#hasClosed(this.#child)) {
       throw new Error('No running llama-server process is available for fault injection.');
     }
     const verificationSignal: NodeJS.Signals = this.config.parentGuardPath ? 'SIGUSR1' : 'SIGKILL';
@@ -383,16 +390,16 @@ export class ModelSupervisor {
       return;
     }
     this.#child = undefined;
-    if (child.exitCode === null) {
+    if (!this.#hasClosed(child)) {
       child.kill('SIGTERM');
       const closed = await this.#waitForClose(
         child,
         this.config.stopTimeoutMilliseconds ?? DEFAULT_STOP_TIMEOUT,
       );
-      if (!closed && child.exitCode === null) {
+      if (!closed && !this.#hasClosed(child)) {
         child.kill('SIGKILL');
         const forcedClosed = await this.#waitForClose(child, 1_000);
-        if (!forcedClosed && child.exitCode === null) {
+        if (!forcedClosed && !this.#hasClosed(child)) {
           throw new Error('llama-server did not exit after the forced stop.');
         }
       }
@@ -400,7 +407,7 @@ export class ModelSupervisor {
   }
 
   async #waitForClose(child: RuntimeChild, timeoutMilliseconds: number): Promise<boolean> {
-    if (child.exitCode !== null) {
+    if (this.#hasClosed(child)) {
       return true;
     }
     return new Promise<boolean>((resolveClose) => {
