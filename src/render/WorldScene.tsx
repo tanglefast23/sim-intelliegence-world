@@ -92,6 +92,8 @@ import {
 import { WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
 import { AtmosphereOverlay } from './AtmosphereOverlay';
+import { DistrictLightingOverlay } from './DistrictLightingOverlay';
+import { districtLighting } from './district-lighting';
 import { journalMapMarkers } from './journal-markers';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
@@ -1063,6 +1065,8 @@ export function WorldScene({
   );
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
+  const lighting = districtLighting(mapId, runtime.worldState.clock.absoluteMinute);
+  const shelterCells = map.source.roofGroups.find(({ id }) => id === worldFrame.hiddenRoofGroupId)?.interiorCells ?? [];
 
   useEffect(() => {
     if (!smokeMode || typeof document === 'undefined') return;
@@ -1110,6 +1114,13 @@ export function WorldScene({
           <Group key={layer} transform={atlasCameraTransform}>
             {characters.map((character) => (
               <Group key={`shadow-${character.id}`}>
+                <Line
+                  color={lighting.shadow.color}
+                  p1={vec((character.shadowWorldX + 5) * camera.zoom, (character.shadowWorldY + 1) * camera.zoom)}
+                  p2={vec((character.shadowWorldX + lighting.shadow.x) * camera.zoom, (character.shadowWorldY + lighting.shadow.y) * camera.zoom)}
+                  strokeCap="round"
+                  strokeWidth={5 * camera.zoom}
+                />
                 <RoundedRect color="#14171170" height={5 * camera.zoom} r={2 * camera.zoom} width={18 * camera.zoom} x={(character.shadowWorldX - 2) * camera.zoom} y={(character.shadowWorldY - 1) * camera.zoom} />
                 <RoundedRect color="#2019158f" height={3 * camera.zoom} r={camera.zoom} width={12 * camera.zoom} x={(character.shadowWorldX + 1) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
               </Group>
@@ -1194,11 +1205,35 @@ export function WorldScene({
               </>
             ) : null}
             </Canvas>
+            {shelterCells.map((shelter) => {
+              const shelterScreen = worldToScreen(camera, { x: shelter.x * TILE_SIZE, y: shelter.y * TILE_SIZE });
+              return <View
+                key={`${shelter.x},${shelter.y}`}
+                pointerEvents="none"
+                style={[
+                  styles.shelterShade,
+                  { backgroundColor: lighting.shelterShade },
+                  {
+                    height: shelter.height * TILE_SIZE * camera.zoom,
+                    left: shelterScreen.x,
+                    top: shelterScreen.y,
+                    width: shelter.width * TILE_SIZE * camera.zoom,
+                  },
+                ]}
+              />;
+            })}
+            <DistrictLightingOverlay
+              absoluteMinute={runtime.worldState.clock.absoluteMinute}
+              camera={camera}
+              mapId={mapId}
+              surface={surface}
+            />
             <AtmosphereOverlay
               absoluteMinute={runtime.worldState.clock.absoluteMinute}
               reducedMotion={reducedMotion}
             />
             <SelectionMarker
+              color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}
               reducedMotion={reducedMotion}
               subtitle={selected === 'protagonist' ? undefined : selectedSubtitle}
@@ -1523,6 +1558,7 @@ const styles = StyleSheet.create({
   socialButton: { alignItems: 'center', backgroundColor: '#10130f', borderColor: '#665139', borderWidth: 1, justifyContent: 'center', minHeight: 29, paddingHorizontal: 9 },
   socialNav: { backgroundColor: '#181914f2', borderBottomColor: '#ad7640', borderBottomWidth: 2, flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 52 },
   socialText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
+  shelterShade: { position: 'absolute' },
   transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0 },
   transitionText: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 16 },
   talkButton: { alignItems: 'center', backgroundColor: '#f1c65b', justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 8 },

@@ -13,6 +13,7 @@ import { WorldScene } from '../../render/WorldScene';
 import type { DevHarnessRoutableEntry } from './route';
 import {
   DEV_HARNESS_MAP_IDS,
+  devHarnessGoldenHourState,
   devHarnessLocationState,
   devHarnessQuestState,
   devHarnessVfxState,
@@ -148,6 +149,20 @@ const locationsEntry: DevHarnessEntry = {
   ),
 };
 
+const goldenHourEntry: DevHarnessEntry = {
+  id: 'golden-hour',
+  group: 'World',
+  title: 'Four-District Golden Hour',
+  summary: 'Hold every district at the same approved art-review time.',
+  cases: mapCases,
+  render: (caseId, surface) => (
+    <HarnessWorld
+      state={devHarnessGoldenHourState(caseId as (typeof DEV_HARNESS_MAP_IDS)[number])}
+      surface={surface}
+    />
+  ),
+};
+
 const proceduralEffectsEntry: DevHarnessEntry = {
   id: 'procedural-effects',
   group: 'World',
@@ -220,6 +235,7 @@ const panelsEntry: DevHarnessEntry = {
 export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
+  goldenHourEntry,
   proceduralEffectsEntry,
   conversationsEntry,
   panelsEntry,
