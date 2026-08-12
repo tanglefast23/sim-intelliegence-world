@@ -24,19 +24,41 @@ type HudProps = Readonly<{
 
 export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpeed }: HudProps) {
   const metrics = uiMetrics(uiScale);
+  const energyWidth = `${Math.max(0, Math.min(100, state.protagonist.energy))}%` as `${number}%`;
+  const healthWidth = `${Math.max(0, Math.min(100, state.protagonist.health))}%` as `${number}%`;
   return (
     <>
       <View nativeID="world-ui-hud" style={[styles.hud, { padding: metrics.padding, width: Math.round(294 * uiScale) }]}>
-        <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>{mapName.toUpperCase()}</Text>
-        <Text style={[styles.area, { fontSize: metrics.titleText }]}>{areaName}</Text>
+        <View style={styles.locationRow}>
+          <View>
+            <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>{mapName.toUpperCase()}</Text>
+            <Text style={[styles.area, { fontSize: metrics.titleText }]}>{areaName}</Text>
+          </View>
+          <View style={styles.locationMark} />
+        </View>
         <View style={styles.row}>
           <Text style={[styles.clock, { fontSize: metrics.persistentText }]}>{clockLabel(state.clock.absoluteMinute)}</Text>
-          <Text style={[styles.zoom, { fontSize: metrics.secondaryText }]}>{Math.round(zoom * 100)}%</Text>
+          <Text style={[styles.money, { fontSize: metrics.persistentText }]}>${state.inventory.money}</Text>
         </View>
         <View style={[styles.meters, { gap: metrics.gap }]}>
-          <Text style={[styles.energy, { fontSize: metrics.secondaryText }]}>ENERGY {state.protagonist.energy}</Text>
-          <Text style={[styles.health, { fontSize: metrics.secondaryText }]}>HEALTH {state.protagonist.health}</Text>
-          <Text style={[styles.money, { fontSize: metrics.secondaryText }]}>$ {state.inventory.money}</Text>
+          <View style={styles.meter}>
+            <View style={styles.meterHeader}>
+              <Text style={[styles.meterLabel, { fontSize: metrics.secondaryText }]}>ENERGY</Text>
+              <Text style={[styles.meterValue, { fontSize: metrics.secondaryText }]}>{state.protagonist.energy}</Text>
+            </View>
+            <View style={styles.track}><View style={[styles.fillEnergy, { width: energyWidth }]} /></View>
+          </View>
+          <View style={styles.meter}>
+            <View style={styles.meterHeader}>
+              <Text style={[styles.meterLabel, { fontSize: metrics.secondaryText }]}>HEALTH</Text>
+              <Text style={[styles.meterValue, { fontSize: metrics.secondaryText }]}>{state.protagonist.health}</Text>
+            </View>
+            <View style={styles.track}><View style={[styles.fillHealth, { width: healthWidth }]} /></View>
+          </View>
+        </View>
+        <View style={styles.hudFooter}>
+          <Text style={[styles.resident, { fontSize: metrics.secondaryText }]}>{state.protagonist.displayName.toUpperCase()}</Text>
+          <Text style={[styles.zoom, { fontSize: metrics.secondaryText }]}>VIEW {Math.round(zoom * 100)}%</Text>
         </View>
       </View>
       <View nativeID="world-ui-speed" style={[styles.speedPlate, { right: 24 + metrics.pointerTarget * 3 + metrics.gap * 2 }]}>
@@ -66,25 +88,34 @@ export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpe
 }
 
 const styles = StyleSheet.create({
-  area: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 15, marginTop: 2 },
-  clock: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
-  energy: { color: '#efc05b', fontFamily: 'Silkscreen', fontSize: 9 },
-  eyebrow: { color: '#dfa85e', fontFamily: 'Silkscreen', fontSize: 9 },
-  health: { color: '#79b985', fontFamily: 'Silkscreen', fontSize: 9 },
+  area: { color: '#fff0c7', fontFamily: 'Georgia', fontWeight: '700', marginTop: 1 },
+  clock: { color: '#f1c65b', fontFamily: 'Silkscreen' },
+  eyebrow: { color: '#dfa85e', fontFamily: 'Silkscreen' },
+  fillEnergy: { backgroundColor: '#d9ad56', bottom: 0, left: 0, position: 'absolute', top: 0 },
+  fillHealth: { backgroundColor: '#74a97b', bottom: 0, left: 0, position: 'absolute', top: 0 },
   hud: {
-    backgroundColor: '#211d1aee', borderBottomColor: '#ad7640', borderBottomWidth: 2,
-    left: 14, paddingHorizontal: 13, paddingVertical: 9, position: 'absolute', top: 0, width: 294,
+    backgroundColor: '#181914f2', borderBottomColor: '#ad7640', borderBottomWidth: 2,
+    borderLeftColor: '#d3a04c', borderLeftWidth: 3, left: 14, position: 'absolute', top: 0,
   },
-  meters: { flexDirection: 'row', gap: 12, marginTop: 7 },
-  money: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  savePlate: { backgroundColor: '#211d1ac7', bottom: 42, left: 14, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute' },
-  saveText: { color: '#bda77e', fontFamily: 'Silkscreen', fontSize: 8 },
+  hudFooter: { borderTopColor: '#514838', borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 9, paddingTop: 6 },
+  locationMark: { backgroundColor: '#f1c65b', height: 4, marginTop: 4, width: 22 },
+  locationRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  meter: { flex: 1 },
+  meterHeader: { flexDirection: 'row', justifyContent: 'space-between' },
+  meterLabel: { color: '#bda77e', fontFamily: 'Silkscreen' },
+  meterValue: { color: '#fff0c7', fontFamily: 'Silkscreen' },
+  meters: { flexDirection: 'row', marginTop: 8 },
+  money: { color: '#fff0c7', fontFamily: 'Silkscreen' },
+  resident: { color: '#d6c19a', fontFamily: 'Silkscreen' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
+  savePlate: { backgroundColor: '#181914e8', borderLeftColor: '#ad7640', borderLeftWidth: 2, bottom: 42, left: 14, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute' },
+  saveText: { color: '#bda77e', fontFamily: 'Silkscreen' },
   speedActive: { backgroundColor: '#f1c65b', borderColor: '#fff0c7' },
-  speedButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, height: 29, justifyContent: 'center', width: 36 },
-  speedLabel: { color: '#dfa85e', fontFamily: 'Silkscreen', fontSize: 8, marginRight: 3 },
-  speedPlate: { alignItems: 'center', backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 154, top: 12 },
-  speedText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 10 },
+  speedButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
+  speedLabel: { color: '#dfa85e', fontFamily: 'Silkscreen', marginRight: 3 },
+  speedPlate: { alignItems: 'center', backgroundColor: '#181914f2', borderTopColor: '#ad7640', borderTopWidth: 2, flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', top: 12 },
+  speedText: { color: '#d6c19a', fontFamily: 'Silkscreen' },
   speedTextActive: { color: '#211d1a' },
-  zoom: { color: '#bda77e', fontFamily: 'Silkscreen', fontSize: 9 },
+  track: { backgroundColor: '#3b372d', height: 4, marginTop: 3, overflow: 'hidden' },
+  zoom: { color: '#bda77e', fontFamily: 'Silkscreen' },
 });

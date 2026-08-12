@@ -37,14 +37,23 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdv
         ? { label: 'Trigger wanted encounter', result: 'Attention becomes ARREST-ON-SIGHT.' }
         : undefined;
   const panelLayout = responsivePanelLayout(surface, uiScale);
+  const docked = !panelLayout.compact;
   const metrics = uiMetrics(uiScale);
   const bodyText = { fontSize: metrics.panelText, lineHeight: Math.round(metrics.panelText * 1.45) };
   return (
-    <View nativeID="world-ui-journal-overlay" style={styles.overlay}>
+    <View nativeID="world-ui-journal-overlay" style={[styles.overlay, docked && styles.overlayDocked]}>
       <View
         accessibilityLabel="Lead journal"
         nativeID="world-ui-journal-panel"
-        style={[styles.panel, { height: panelLayout.height, padding: metrics.padding, width: panelLayout.width }]}
+        style={[
+          styles.panel,
+          docked && styles.panelDocked,
+          {
+            height: docked ? surface.height - 28 : panelLayout.height,
+            padding: metrics.padding,
+            width: docked ? Math.round(430 * uiScale) : panelLayout.width,
+          },
+        ]}
       >
         <View style={styles.header}>
           <View>
@@ -54,6 +63,11 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdv
           <Pressable accessibilityLabel="Close journal" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.closeText, { fontSize: metrics.secondaryText }]}>CLOSE</Text>
           </Pressable>
+        </View>
+        <View style={styles.summary}>
+          <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{entries.length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>LEADS</Text></View>
+          <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{invitations.length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>VISITS</Text></View>
+          <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{Object.keys(state.evidence).length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>EVIDENCE</Text></View>
         </View>
         <ScrollView contentContainerStyle={styles.body} style={styles.bodyScroll}>
         <Text style={[styles.section, bodyText]}>LEADS</Text>
@@ -99,22 +113,28 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdv
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: '#1b1713', borderLeftColor: '#d3a04c', borderLeftWidth: 2, marginTop: 8, padding: 10 },
-  body: { paddingBottom: 4 },
+  card: { backgroundColor: '#10130f', borderLeftColor: '#d3a04c', borderLeftWidth: 2, marginTop: 8, padding: 10 },
+  body: { paddingBottom: 18 },
   bodyScroll: { flex: 1, minHeight: 0 },
   cardTitle: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
-  close: { borderColor: '#76573d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
+  close: { backgroundColor: '#10130f', borderColor: '#76573d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
   closeText: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 8 },
   detail: { color: '#bda77e', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 6 },
   eyebrow: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 8 },
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
-  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2 },
+  overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start', padding: 14 },
+  panel: { backgroundColor: '#181914f7', borderColor: '#c58b4b', borderWidth: 1 },
+  panelDocked: { borderLeftWidth: 3, shadowColor: '#070906', shadowOffset: { height: 8, width: -8 }, shadowOpacity: 0.65, shadowRadius: 0 },
   policeAction: { backgroundColor: '#4b2d2d', borderColor: '#d3765d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchase: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchaseDone: { backgroundColor: '#324a37' },
   purchaseText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 8 },
   section: { color: '#d3a04c', fontFamily: 'Silkscreen', fontSize: 9, marginTop: 16 },
+  summary: { backgroundColor: '#10130f', borderColor: '#514838', borderWidth: 1, flexDirection: 'row', marginTop: 14, paddingVertical: 8 },
+  summaryItem: { alignItems: 'center', flex: 1 },
+  summaryLabel: { color: '#8f826d', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 1 },
+  summaryValue: { color: '#fff0c7', fontFamily: 'Georgia', fontWeight: '700' },
   title: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 18, marginTop: 3 },
 });

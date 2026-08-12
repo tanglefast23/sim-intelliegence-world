@@ -1276,6 +1276,7 @@ export function WorldScene({
           zoom={camera.zoom}
         />
         <View nativeID="world-ui-zoom" style={styles.zoomPlate}>
+          <Text style={[styles.controlLabel, { fontSize: metrics.secondaryText }]}>VIEW</Text>
           <Pressable
             accessibilityLabel="Decrease world zoom"
             accessibilityState={{ disabled: camera.zoom <= MIN_WORLD_ZOOM }}
@@ -1320,6 +1321,7 @@ export function WorldScene({
           {`World zoom ${worldZoomPercentage(camera.zoom)} percent`}
         </Text>
         <View nativeID="world-ui-scale" style={[styles.uiScalePlate, { top: 22 + metrics.pointerTarget }]}>
+          <Text style={[styles.controlLabel, { fontSize: metrics.secondaryText }]}>UI</Text>
           {UI_SCALES.map((scale) => (
             <Pressable
               accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`}
@@ -1447,19 +1449,20 @@ const styles = StyleSheet.create({
   areaLabels: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
   audioCaption: { backgroundColor: '#181512dd', bottom: 48, color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, left: 12, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute' },
   bottomPlate: {
-    alignItems: 'center', backgroundColor: '#211d1adf', borderColor: '#ad7640', borderTopWidth: 2,
+    alignItems: 'center', backgroundColor: '#181914e8', borderColor: '#ad7640', borderTopWidth: 2,
     bottom: 0, flexDirection: 'row', gap: 16, left: 0, paddingHorizontal: 14, paddingVertical: 8,
     position: 'absolute', right: 0,
   },
   canvas: { backgroundColor: '#b77945' },
   canvasHost: { overflow: 'hidden' },
+  controlLabel: { color: '#dfa85e', fontFamily: 'Silkscreen', marginHorizontal: 3 },
   frame: { overflow: 'hidden', position: 'relative' },
   loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },
   status: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 9 },
   statusStrong: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
-  socialButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center', minHeight: 29, paddingHorizontal: 9 },
-  socialNav: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 52 },
+  socialButton: { alignItems: 'center', backgroundColor: '#10130f', borderColor: '#665139', borderWidth: 1, justifyContent: 'center', minHeight: 29, paddingHorizontal: 9 },
+  socialNav: { backgroundColor: '#181914f2', borderBottomColor: '#ad7640', borderBottomWidth: 2, flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 52 },
   socialText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
   transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0 },
   transitionText: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 16 },
@@ -1468,12 +1471,12 @@ const styles = StyleSheet.create({
   talkPlate: { alignItems: 'center', backgroundColor: '#211d1aee', bottom: 42, flexDirection: 'row', gap: 10, padding: 6, position: 'absolute', right: 14 },
   talkText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
   uiScaleButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
-  uiScalePlate: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12 },
+  uiScalePlate: { alignItems: 'center', backgroundColor: '#181914f2', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12 },
   viewport: { overflow: 'hidden' },
   zoomButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, height: 29, justifyContent: 'center', width: 36 },
   zoomButtonDisabled: { opacity: 0.35 },
   zoomButtonActive: { backgroundColor: '#f1c65b', borderColor: '#fff0c7' },
-  zoomPlate: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 12 },
+  zoomPlate: { alignItems: 'center', backgroundColor: '#181914f2', borderTopColor: '#ad7640', borderTopWidth: 2, flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 12 },
   zoomText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 10 },
   zoomTextActive: { color: '#211d1a' },
   zoomValue: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
