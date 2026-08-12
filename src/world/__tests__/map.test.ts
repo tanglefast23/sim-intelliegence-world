@@ -74,8 +74,8 @@ describe('northwest world map v2', () => {
   test('uses the compiled roof mask through its door and restores it outside', () => {
     const map = WORLD_MAP_CATALOG.northwest_residential;
     expect(roofGroupAtV2(map, { x: 18, y: 18 })).toBe('protagonist-villa-roof');
-    expect(roofGroupAtV2(map, { x: 15, y: 24 })).toBe('protagonist-villa-roof');
-    expect(roofGroupAtV2(map, { x: 15, y: 25 })).toBeUndefined();
+    expect(roofGroupAtV2(map, { x: 17, y: 24 })).toBe('protagonist-villa-roof');
+    expect(roofGroupAtV2(map, { x: 17, y: 25 })).toBeUndefined();
   });
 
   test('rejects blocked portals and unknown transparent-part sprites', () => {
@@ -86,6 +86,181 @@ describe('northwest world map v2', () => {
     const unknownSprite = structuredClone(northwestMapJson) as WorldMapV2;
     unknownSprite.objects[0]!.renderParts[0]!.sprite = 'tile.not-real';
     expect(() => compile(unknownSprite)).toThrow('unknown atlas sprite');
+  });
+});
+
+describe('northeast downtown city layout', () => {
+  test('binds the reviewed road, sidewalk, door, car, and street-light contract', () => {
+    const map = WORLD_MAP_CATALOG.northeast_downtown;
+    const regions = new Map(map.source.ground.regions.map((region) => [region.id, region]));
+    expect(map.source.ground.defaultSprite).toBe('tile.city-lot');
+    expect(regions.get('main-boulevard')).toMatchObject({ x: 0, y: 24, width: 64, height: 5, sprite: 'tile.dark-asphalt' });
+    expect(regions.get('club-sidewalk')).toMatchObject({ x: 5, y: 5, width: 27, height: 19, sprite: 'tile.neon-paver' });
+    expect(regions.get('arcade-sidewalk')).toMatchObject({ x: 37, y: 5, width: 27, height: 19, sprite: 'tile.neon-paver' });
+    expect(regions.get('studio-sidewalk')).toMatchObject({ x: 3, y: 29, width: 28, height: 15, sprite: 'tile.neon-paver' });
+    expect(regions.get('market-sidewalk')).toMatchObject({ x: 37, y: 29, width: 27, height: 15, sprite: 'tile.neon-paver' });
+
+    expect(map.source.ground.regions.some(({ sprite }) => /^tile\.road-(?:crosswalk|center)-/u.test(sprite))).toBe(false);
+
+    expect([...map.doorById.values()].map(({ id, sprite }) => ({ id, sprite })).sort((left, right) => left.id.localeCompare(right.id, 'en'))).toEqual([
+      { id: 'arcade-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'club-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'market-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'studio-door', sprite: 'tile.open-door-horizontal' },
+    ]);
+
+    const cars = map.source.objects.filter(({ kind }) => kind === 'parked-car');
+    expect(cars).toHaveLength(10);
+    expect(cars.every(({ solidFootprints, renderParts }) => solidFootprints.length === 2 && renderParts.length === 2)).toBe(true);
+    expect(cars.flatMap(({ renderParts }) => renderParts).every(({ sprite }) => /^tile\.parked-car-(?:cyan|coral)-(?:left|right)$/u.test(sprite))).toBe(true);
+
+    const frontageParts = map.source.objects
+      .filter(({ kind }) => kind === 'entrance-signage')
+      .flatMap(({ renderParts }) => renderParts);
+    expect(frontageParts.filter(({ sprite }) => sprite === 'tile.fixture-neon-lamp-cyan')).toHaveLength(8);
+    expect(frontageParts.filter(({ sprite }) => sprite === 'tile.fixture-neon-lamp-magenta')).toHaveLength(8);
+    expect(map.presentation.decals.every(({ solid }) => !solid)).toBe(true);
+
+    const clearSpines = [
+      { x: 5, y: 21, width: 27, height: 3 },
+      { x: 37, y: 21, width: 27, height: 3 },
+      { x: 3, y: 42, width: 28, height: 2 },
+      { x: 37, y: 42, width: 27, height: 2 },
+    ];
+    expect(clearSpines.flatMap(pointsInRect).every((tile) => !map.blockedKeys.has(tileKey(tile)))).toBe(true);
+    expect(findPath({
+      width: map.source.width,
+      height: map.source.height,
+      start: map.source.portals[0]!.tile,
+      target: map.source.portals[1]!.tile,
+      blockedKeys: map.blockedKeys,
+    }).status).toBe('found');
+  });
+});
+
+describe('southwest sunset-market layout', () => {
+  test('binds the audited promenades, mosaic, market life, collision, and door contract', () => {
+    const map = WORLD_MAP_CATALOG.southwest_commercial;
+    const regions = new Map(map.source.ground.regions.map((region) => [region.id, region]));
+    expect(map.source.displayName).toBe('Saffron Bazaar');
+    expect(map.source.ground.defaultSprite).toBe('tile.sunset-cobble');
+    expect(regions.get('east-west-promenade')).toMatchObject({ x: 0, y: 23, width: 64, height: 5, sprite: 'tile.sunset-promenade' });
+    expect(regions.get('north-south-promenade')).toMatchObject({ x: 30, y: 0, width: 5, height: 48, sprite: 'tile.sunset-promenade' });
+    expect(regions.get('central-market-mosaic')).toMatchObject({ x: 28, y: 21, width: 9, height: 9, sprite: 'tile.sunset-mosaic' });
+    expect(regions.get('market-hall-floor')).toMatchObject({ x: 6, y: 7, width: 22, height: 14, sprite: 'tile.sunset-floor' });
+    expect(regions.get('food-arcade-floor')).toMatchObject({ x: 39, y: 7, width: 21, height: 14, sprite: 'tile.sunset-floor' });
+    expect(regions.get('restaurant-row-floor')).toMatchObject({ x: 39, y: 32, width: 21, height: 12, sprite: 'tile.sunset-floor' });
+    expect(map.presentation.transitions.length).toBeGreaterThan(0);
+    expect(map.presentation.transitions.every(({ sprite }) => sprite === null)).toBe(true);
+
+    expect([...map.doorById.values()].map(({ id, sprite }) => ({ id, sprite })).sort((left, right) => left.id.localeCompare(right.id, 'en'))).toEqual([
+      { id: 'food-arcade-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'market-hall-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'restaurant-row-door', sprite: 'tile.open-door-horizontal' },
+    ]);
+    expect(map.source.objects.filter(({ kind }) => kind === 'market-canopy').flatMap(({ solidFootprints }) => solidFootprints)).toHaveLength(4);
+    expect(map.source.objects.filter(({ kind }) => kind === 'market-stall').flatMap(({ solidFootprints }) => solidFootprints)).toHaveLength(8);
+    expect(map.source.objects.filter(({ kind }) => kind === 'market-fountain').flatMap(({ solidFootprints }) => solidFootprints)).toHaveLength(4);
+    expect(map.source.objects
+      .filter(({ kind, areaId }) => kind === 'flowering-planter' && areaId === 'sunset-courtyard')
+      .flatMap(({ solidFootprints }) => solidFootprints)).toHaveLength(4);
+    expect(map.source.objects
+      .filter(({ kind, areaId }) => kind === 'market-bench' && areaId === 'sunset-courtyard')
+      .flatMap(({ solidFootprints }) => solidFootprints)).toHaveLength(4);
+    const authoredDetails = map.source.objects.find(({ id }) => id === 'courtyard-authored-details')!;
+    expect(authoredDetails.renderParts).toHaveLength(16);
+    expect(authoredDetails.solidFootprints).toHaveLength(0);
+    expect(map.presentation.decals.every(({ solid }) => !solid)).toBe(true);
+
+    const protectedRoutes = [
+      { x: 30, y: 0, width: 5, height: 7 },
+      { x: 57, y: 23, width: 7, height: 5 },
+      { x: 16, y: 21, width: 3, height: 9 },
+      { x: 48, y: 21, width: 3, height: 9 },
+      { x: 48, y: 44, width: 3, height: 4 },
+      { x: 27, y: 29, width: 3, height: 19 },
+      { x: 4, y: 29, width: 26, height: 3 },
+      { x: 60, y: 23, width: 4, height: 25 },
+      { x: 48, y: 46, width: 16, height: 2 },
+      { x: 28, y: 21, width: 9, height: 9 },
+    ];
+    expect(protectedRoutes.flatMap(pointsInRect).every((tile) => !map.blockedKeys.has(tileKey(tile)))).toBe(true);
+    expect([map.source.spawns.sora_tan, map.source.spawns.rafael_cruz, map.source.spawns.linda,
+      map.source.spawns['linda-shop'], map.source.spawns.generic_resident]
+      .every((tile) => tile && !map.blockedKeys.has(tileKey(tile)))).toBe(true);
+    expect(findPath({
+      width: map.source.width,
+      height: map.source.height,
+      start: map.source.portals[0]!.tile,
+      target: map.source.portals[1]!.tile,
+      blockedKeys: map.blockedKeys,
+    }).status).toBe('found');
+  });
+});
+
+describe('southeast docks working-harbor layout', () => {
+  test('binds the audited water, pier, route, collision, door, and harbor-life contract', () => {
+    const map = WORLD_MAP_CATALOG.southeast_docks;
+    const regions = new Map(map.source.ground.regions.map((region) => [region.id, region]));
+    expect(map.source.ground.defaultSprite).toBe('tile.harbor-yard');
+    expect(regions.get('main-service-road')).toMatchObject({ x: 0, y: 23, width: 52, height: 5, sprite: 'tile.dock-route' });
+    expect(regions.get('north-south-service-road')).toMatchObject({ x: 30, y: 0, width: 5, height: 48, sprite: 'tile.dock-route' });
+    expect(regions.get('harbor-water')).toMatchObject({ x: 52, y: 0, width: 12, height: 48, sprite: 'tile.harbor-water' });
+    expect(regions.get('north-pier')).toMatchObject({ x: 50, y: 9, width: 12, height: 3, sprite: 'tile.dock-boardwalk' });
+    expect(regions.get('ferry-pier')).toMatchObject({ x: 50, y: 33, width: 12, height: 3, sprite: 'tile.dock-boardwalk' });
+    expect(map.source.ground.regions.some(({ sprite }) => /^tile\.dock-(?:crosswalk|center)-/u.test(sprite))).toBe(false);
+    expect(map.presentation.transitions.length).toBeGreaterThan(0);
+    expect(map.presentation.transitions.every(({ sprite }) => sprite === null)).toBe(true);
+
+    expect(map.source.terrainSolids).toHaveLength(5);
+    expect(map.source.terrainSolids.map(({ bounds }) => bounds)).toEqual([
+      { x: 52, y: 0, width: 12, height: 9 },
+      { x: 62, y: 9, width: 2, height: 3 },
+      { x: 52, y: 12, width: 12, height: 21 },
+      { x: 62, y: 33, width: 2, height: 3 },
+      { x: 52, y: 36, width: 12, height: 12 },
+    ]);
+    for (const y of [10, 34]) {
+      expect(Array.from({ length: 12 }, (_unused, offset) => ({ x: 50 + offset, y }))
+        .every((tile) => !map.blockedKeys.has(tileKey(tile)))).toBe(true);
+    }
+
+    expect([...map.doorById.values()].map(({ id, sprite }) => ({ id, sprite })).sort((left, right) => left.id.localeCompare(right.id, 'en'))).toEqual([
+      { id: 'ferry-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'government-door', sprite: 'tile.open-door-horizontal' },
+      { id: 'warehouse-door', sprite: 'tile.open-door-horizontal' },
+    ]);
+    expect(map.source.objects.filter(({ kind }) => kind === 'cargo-stack')).toHaveLength(6);
+    expect(map.source.objects.filter(({ kind }) => kind === 'cargo-crane')).toHaveLength(1);
+    expect(map.source.objects.filter(({ kind }) => kind === 'mooring-bollard')).toHaveLength(8);
+    expect(map.source.objects.filter(({ kind }) => kind === 'warning-lamps').flatMap(({ solidFootprints }) => solidFootprints)).toHaveLength(2);
+    expect(map.presentation.decals.every(({ solid }) => !solid)).toBe(true);
+
+    expect(map.source.locationBindings).toEqual(expect.arrayContaining([
+      expect.objectContaining({ locationId: 'priya_clinic', areaIds: ['government-yard'] }),
+      expect.objectContaining({ locationId: 'tomas_marina', areaIds: ['government-yard'] }),
+      expect.objectContaining({ locationId: 'ferry_terminal', areaIds: ['ferry-terminal'] }),
+    ]));
+    expect(map.blockedKeys.has(tileKey(map.source.spawns.priya_nair!))).toBe(false);
+    expect(map.blockedKeys.has(tileKey(map.source.spawns.tomas_reed!))).toBe(false);
+
+    const protectedRoutes = [
+      { x: 30, y: 0, width: 5, height: 6 },
+      { x: 0, y: 20, width: 7, height: 9 },
+      { x: 16, y: 20, width: 3, height: 11 },
+      { x: 43, y: 20, width: 3, height: 9 },
+      { x: 42, y: 41, width: 3, height: 3 },
+      { x: 30, y: 41, width: 12, height: 3 },
+      { x: 28, y: 28, width: 2, height: 16 },
+    ];
+    expect(protectedRoutes.flatMap(pointsInRect).every((tile) => !map.blockedKeys.has(tileKey(tile)))).toBe(true);
+    expect(findPath({
+      width: map.source.width,
+      height: map.source.height,
+      start: map.source.portals[0]!.tile,
+      target: map.source.portals[1]!.tile,
+      blockedKeys: map.blockedKeys,
+    }).status).toBe('found');
   });
 });
 

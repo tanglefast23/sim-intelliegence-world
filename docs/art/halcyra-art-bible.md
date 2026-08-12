@@ -129,11 +129,12 @@ Each shipped material family needs:
 
 - Wall faces must show thickness and a stable lower contact edge.
 - Corners and joins use generated adjacency cases.
-- Doors must remain clear in open and closed states.
+- Doors must remain clear in open and closed states. Horizontal-wall doors use side-by-side panels. Vertical-wall doors use stacked panels. The dark doorway cavity touches both wall ends, but the door slab is inset from every jamb so no wall-colored band can read through the assembly.
+- Two door tiles must never share an edge. Keep at least one full wall tile between doors.
 - Roofs use district-specific material families. They must not all reuse boardwalk art.
 - Roof edges need one visible overhang or fascia line.
 - Interior floors must not visually merge with outside ground.
-- Collision remains simulation data. Art supports it but does not create it.
+- Collision remains deterministic map data. Large generated trees, palms, and bushes add a solid owner on their visible tile. Grass, flowers, leaf litter, and small stones stay passable.
 
 ## 8. Props and landmarks
 
@@ -240,7 +241,7 @@ Every person must have a special, unique, and slightly goofy look. This is a pro
 - A playable area must not look like an empty grid.
 - Use building mass, planted edges, paths, small material changes, and prop groups to form outdoor rooms.
 - Keep main routes wide enough for pathfinding and click targets.
-- Dense art cannot add a solid or an interaction without map data.
+- Dense art cannot add an interaction. Only the declared large-vegetation families can add deterministic collision.
 - Tier B districts receive art upgrades only on existing placements in this program.
 
 ## 12. Good sample rules
@@ -383,28 +384,28 @@ The cast keeps generated rear cells and the front-body lateral method. Named sou
 
 ## 18. Phase 30 complete Sunward family ledger
 
-Phase 30 completes only art that the authoritative `northwest_residential` map already uses. The map source SHA-256 stays `a831fbbe8f3a9d379a15aaa5be81fb17b3c2248cfde697e4d6e9bd7867386982`. No room, wall run, object placement, solid footprint, interaction, route, or story content changes.
+Revision 7 upgrades the authoritative `northwest_residential` environment. Door openings can move only to enforce the one-wall-tile spacing rule. Room ownership, interactions, portals, routes, and story content stay unchanged.
 
 ### 18.1 Materials and ground detail
 
 | Family | Public variants | Native rule | Reject |
 |---|---:|---|---|
 | Warm sand | 4 | short, irregular ripple groups with quiet space and rare pebbles | a dominant diagonal cycle, checker, or uniform noise |
-| Villa floor | 4 | warm horizontal plank groups with controlled board-length and highlight changes | square grid, broken seams, or texture that competes with a character |
+| Villa floor | 4 | dark square tiles with related dark grout and low-contrast generated surface texture | bright planks, broken seams, or texture that competes with a character |
 | Plaza paver | 2 | pale masonry courses with small, offset wear marks | one-cell stamp or high-contrast grout |
 | Boardwalk | 2 | aligned vertical boards with continuous horizontal construction seams | a variant that breaks a shared seam or creates a false blocker |
 
-The `sand-traces` presentation family can select the shell decal. All decals stay non-solid and non-interactive. Material selection uses a deterministic avalanche mix and rejects identical `2x2` blocks and diagonal runs longer than four cells on the fixed warm-sand review board.
+The `sand-traces` presentation family can select stones, grass, flowers, shrubs, saplings, and palms. Large bushes, saplings, and palms are solid. Grass, flowers, leaf litter, and small stones are passable. All decals stay non-interactive. Material selection and collision placement are deterministic.
 
 ### 18.2 Villa shell and openings
 
 | Family | Required visual mass | Opening or state rule |
 |---|---|---|
-| Villa walls | pale stucco face, terracotta band, dark core, and lower contact shadow | all 16 unique adjacency cells keep one-cell geometry and show at least 600 opaque pixels |
-| Villa doors | timber panel, brass detail, and dark threshold | open, closed-unlocked, and closed-locked states use the same one-cell opening |
+| Villa walls | continuous warm solid cap, dark core, brick outer face, and lower contact shadow | all 16 adjacency cells join without internal tile-end borders; corner caps stay continuous |
+| Villa doors | warm timber panels, dark contour, and restrained hardware | side-by-side panels in horizontal walls, stacked panels in vertical walls, and one wall tile between doors |
 | Sunward roof | grouped terracotta courses, pale fascia, and controlled wear | base, edge, and corner remain presentation-only and keep the existing roof group |
 
-Villa wall source modules are local to the `villa` palette. Downtown, commercial, and civic wall pixels stay at revision 3 until their Tier B phase.
+Villa wall source modules are local to the `villa` palette. The approved Northwest shell and door pass establishes the Tier B architecture grammar for later districts: continuous solid wall mass across all 16 joins, uninterrupted corners, exposed side-face detail, recessed doors, small rectangular handles, and no adjacent door openings. Downtown entered Tier B in revision 8. Civic and commercial walls enter Tier B only during their own district pass and must meet the same continuity and opening bar in their distinct palettes.
 
 ### 18.3 Existing props and signs
 

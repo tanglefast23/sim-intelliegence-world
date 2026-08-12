@@ -1,7 +1,32 @@
 {
   "schemaVersion": 1,
-  "artRevision": 6,
+  "artRevision": 11,
   "materials": [
+    {
+      "publicBaseSprite": "tile.city-lot",
+      "publicVariantSprites": [
+        "tile.city-lot",
+        "tile.city-lot-b",
+        "tile.city-lot-c"
+      ],
+      "id": "city-lot",
+      "logicalVariants": [
+        "city-lot-a",
+        "city-lot-b",
+        "city-lot-c"
+      ],
+      "paletteRamp": [
+        "#22252c",
+        "#383d47",
+        "#4f5661"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "hashed",
+      "edgeMode": "built",
+      "decalFamily": "neon-street-life",
+      "transitionPriority": 82,
+      "selectionSalt": "city-lot-v1"
+    },
     {
       "publicBaseSprite": "tile.boardwalk",
       "publicVariantSprites": [
@@ -29,12 +54,14 @@
       "publicBaseSprite": "tile.dark-asphalt",
       "publicVariantSprites": [
         "tile.dark-asphalt",
-        "tile.dark-asphalt"
+        "tile.dark-asphalt-b",
+        "tile.dark-asphalt-c"
       ],
       "id": "dark-asphalt",
       "logicalVariants": [
         "dark-asphalt-a",
-        "dark-asphalt-b"
+        "dark-asphalt-b",
+        "dark-asphalt-c"
       ],
       "paletteRamp": [
         "#242424",
@@ -44,9 +71,153 @@
       "densityBand": "structured-low",
       "seamMode": "coordinate-phase",
       "edgeMode": "hard",
-      "decalFamily": null,
+      "decalFamily": "neon-street-life",
       "transitionPriority": 90,
       "selectionSalt": "dark-asphalt-v1"
+    },
+    {
+      "publicBaseSprite": "tile.road-crosswalk-horizontal",
+      "publicVariantSprites": [
+        "tile.road-crosswalk-horizontal",
+        "tile.road-crosswalk-horizontal"
+      ],
+      "id": "road-crosswalk-horizontal",
+      "logicalVariants": [
+        "road-crosswalk-horizontal-a",
+        "road-crosswalk-horizontal-b"
+      ],
+      "paletteRamp": [
+        "#252832",
+        "#8c8b88",
+        "#d7d2c4"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "road-crosswalk-horizontal-v1"
+    },
+    {
+      "publicBaseSprite": "tile.road-crosswalk-vertical",
+      "publicVariantSprites": [
+        "tile.road-crosswalk-vertical",
+        "tile.road-crosswalk-vertical"
+      ],
+      "id": "road-crosswalk-vertical",
+      "logicalVariants": [
+        "road-crosswalk-vertical-a",
+        "road-crosswalk-vertical-b"
+      ],
+      "paletteRamp": [
+        "#252832",
+        "#8c8b88",
+        "#d7d2c4"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "road-crosswalk-vertical-v1"
+    },
+    {
+      "publicBaseSprite": "tile.road-center-horizontal",
+      "publicVariantSprites": [
+        "tile.road-center-horizontal",
+        "tile.road-center-horizontal"
+      ],
+      "id": "road-center-horizontal",
+      "logicalVariants": [
+        "road-center-horizontal-a",
+        "road-center-horizontal-b"
+      ],
+      "paletteRamp": [
+        "#252832",
+        "#b99955",
+        "#d6bf72"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "road-center-horizontal-v1"
+    },
+    {
+      "publicBaseSprite": "tile.road-center-vertical",
+      "publicVariantSprites": [
+        "tile.road-center-vertical",
+        "tile.road-center-vertical"
+      ],
+      "id": "road-center-vertical",
+      "logicalVariants": [
+        "road-center-vertical-a",
+        "road-center-vertical-b"
+      ],
+      "paletteRamp": [
+        "#252832",
+        "#b99955",
+        "#d6bf72"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "road-center-vertical-v1"
+    },
+    {
+      "publicBaseSprite": "tile.neon-floor",
+      "publicVariantSprites": [
+        "tile.neon-floor",
+        "tile.neon-floor-b",
+        "tile.neon-floor-c"
+      ],
+      "id": "neon-floor",
+      "logicalVariants": [
+        "neon-floor-a",
+        "neon-floor-b",
+        "neon-floor-c"
+      ],
+      "paletteRamp": [
+        "#191b23",
+        "#302a38",
+        "#493d52"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "built",
+      "decalFamily": "neon-interior-life",
+      "transitionPriority": 84,
+      "selectionSalt": "neon-floor-v1"
+    },
+    {
+      "publicBaseSprite": "tile.neon-paver",
+      "publicVariantSprites": [
+        "tile.neon-paver",
+        "tile.neon-paver-b",
+        "tile.neon-paver-c",
+        "tile.neon-paver-d"
+      ],
+      "id": "neon-paver",
+      "logicalVariants": [
+        "neon-paver-a",
+        "neon-paver-b",
+        "neon-paver-c",
+        "neon-paver-d"
+      ],
+      "paletteRamp": [
+        "#303540",
+        "#555b66",
+        "#717985"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "hashed",
+      "edgeMode": "built",
+      "decalFamily": "neon-street-life",
+      "transitionPriority": 95,
+      "selectionSalt": "neon-paver-v1"
     },
     {
       "publicBaseSprite": "tile.dune-grass",
@@ -64,9 +235,9 @@
         "dune-grass-d"
       ],
       "paletteRamp": [
-        "#556b2f",
-        "#78944a",
-        "#a6b85f"
+        "#3e5b38",
+        "#65834a",
+        "#aa955f"
       ],
       "densityBand": "natural-high",
       "seamMode": "hashed",
@@ -214,16 +385,392 @@
         "villa-floor-d"
       ],
       "paletteRamp": [
-        "#714833",
-        "#9d6947",
-        "#c79264"
+        "#282629",
+        "#51443e",
+        "#68574e"
       ],
       "densityBand": "structured-medium",
       "seamMode": "coordinate-phase",
       "edgeMode": "built",
       "decalFamily": null,
       "transitionPriority": 75,
-      "selectionSalt": "villa-floor-v2"
+      "selectionSalt": "villa-floor-v3"
+    },
+    {
+      "publicBaseSprite": "tile.harbor-yard",
+      "publicVariantSprites": [
+        "tile.harbor-yard",
+        "tile.harbor-yard-b",
+        "tile.harbor-yard-c"
+      ],
+      "id": "harbor-yard",
+      "logicalVariants": [
+        "harbor-yard-a",
+        "harbor-yard-b",
+        "harbor-yard-c"
+      ],
+      "paletteRamp": [
+        "#273034",
+        "#4b5557",
+        "#687477"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "hashed",
+      "edgeMode": "hard",
+      "decalFamily": "dock-surface-life",
+      "transitionPriority": 78,
+      "selectionSalt": "harbor-yard-v1"
+    },
+    {
+      "publicBaseSprite": "tile.harbor-concrete",
+      "publicVariantSprites": [
+        "tile.harbor-concrete",
+        "tile.harbor-concrete-b",
+        "tile.harbor-concrete-c"
+      ],
+      "id": "harbor-concrete",
+      "logicalVariants": [
+        "harbor-concrete-a",
+        "harbor-concrete-b",
+        "harbor-concrete-c"
+      ],
+      "paletteRamp": [
+        "#414b4f",
+        "#747e80",
+        "#929b9b"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "dock-surface-life",
+      "transitionPriority": 86,
+      "selectionSalt": "harbor-concrete-v1"
+    },
+    {
+      "publicBaseSprite": "tile.harbor-quay",
+      "publicVariantSprites": [
+        "tile.harbor-quay",
+        "tile.harbor-quay-b",
+        "tile.harbor-quay-c"
+      ],
+      "id": "harbor-quay",
+      "logicalVariants": [
+        "harbor-quay-a",
+        "harbor-quay-b",
+        "harbor-quay-c"
+      ],
+      "paletteRamp": [
+        "#293338",
+        "#5d696c",
+        "#7e8a8c"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "dock-surface-life",
+      "transitionPriority": 95,
+      "selectionSalt": "harbor-quay-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dock-route",
+      "publicVariantSprites": [
+        "tile.dock-route",
+        "tile.dock-route-b",
+        "tile.dock-route-c"
+      ],
+      "id": "dock-route",
+      "logicalVariants": [
+        "dock-route-a",
+        "dock-route-b",
+        "dock-route-c"
+      ],
+      "paletteRamp": [
+        "#171f24",
+        "#303a3f",
+        "#465157"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "dock-route-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dock-floor",
+      "publicVariantSprites": [
+        "tile.dock-floor",
+        "tile.dock-floor-b",
+        "tile.dock-floor-c"
+      ],
+      "id": "dock-floor",
+      "logicalVariants": [
+        "dock-floor-a",
+        "dock-floor-b",
+        "dock-floor-c"
+      ],
+      "paletteRamp": [
+        "#172126",
+        "#343d42",
+        "#485359"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 84,
+      "selectionSalt": "dock-floor-v1"
+    },
+    {
+      "publicBaseSprite": "tile.harbor-water",
+      "publicVariantSprites": [
+        "tile.harbor-water",
+        "tile.harbor-water-b",
+        "tile.harbor-water-c",
+        "tile.harbor-water-d"
+      ],
+      "id": "harbor-water",
+      "logicalVariants": [
+        "harbor-water-a",
+        "harbor-water-b",
+        "harbor-water-c",
+        "harbor-water-d"
+      ],
+      "paletteRamp": [
+        "#102b35",
+        "#214b54",
+        "#6f9698"
+      ],
+      "densityBand": "natural-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 8,
+      "selectionSalt": "harbor-water-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dock-boardwalk",
+      "publicVariantSprites": [
+        "tile.dock-boardwalk",
+        "tile.dock-boardwalk-b",
+        "tile.dock-boardwalk-c"
+      ],
+      "id": "dock-boardwalk",
+      "logicalVariants": [
+        "dock-boardwalk-a",
+        "dock-boardwalk-b",
+        "dock-boardwalk-c"
+      ],
+      "paletteRamp": [
+        "#302b2a",
+        "#68574d",
+        "#8a7767"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "dock-surface-life",
+      "transitionPriority": 96,
+      "selectionSalt": "dock-boardwalk-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dock-crosswalk-horizontal",
+      "publicVariantSprites": [
+        "tile.dock-crosswalk-horizontal",
+        "tile.dock-crosswalk-horizontal"
+      ],
+      "id": "dock-crosswalk-horizontal",
+      "logicalVariants": [
+        "dock-crosswalk-horizontal-a",
+        "dock-crosswalk-horizontal-b"
+      ],
+      "paletteRamp": [
+        "#303a3f",
+        "#879091",
+        "#bec5c2"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "dock-crosswalk-horizontal-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dock-center-horizontal",
+      "publicVariantSprites": [
+        "tile.dock-center-horizontal",
+        "tile.dock-center-horizontal"
+      ],
+      "id": "dock-center-horizontal",
+      "logicalVariants": [
+        "dock-center-horizontal-a",
+        "dock-center-horizontal-b"
+      ],
+      "paletteRamp": [
+        "#303a3f",
+        "#818b8d",
+        "#b7c0bd"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "dock-center-horizontal-v1"
+    },
+    {
+      "publicBaseSprite": "tile.dock-center-vertical",
+      "publicVariantSprites": [
+        "tile.dock-center-vertical",
+        "tile.dock-center-vertical"
+      ],
+      "id": "dock-center-vertical",
+      "logicalVariants": [
+        "dock-center-vertical-a",
+        "dock-center-vertical-b"
+      ],
+      "paletteRamp": [
+        "#303a3f",
+        "#818b8d",
+        "#b7c0bd"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 90,
+      "selectionSalt": "dock-center-vertical-v1"
+    },
+    {
+      "publicBaseSprite": "tile.sunset-cobble",
+      "publicVariantSprites": [
+        "tile.sunset-cobble",
+        "tile.sunset-cobble-b",
+        "tile.sunset-cobble-c"
+      ],
+      "id": "sunset-cobble",
+      "logicalVariants": [
+        "sunset-cobble-a",
+        "sunset-cobble-b",
+        "sunset-cobble-c"
+      ],
+      "paletteRamp": [
+        "#7f4037",
+        "#b85f4d",
+        "#dc9170",
+        "#f0c39a"
+      ],
+      "densityBand": "natural-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "sunset-market-life",
+      "transitionPriority": 80,
+      "selectionSalt": "sunset-cobble-v1"
+    },
+    {
+      "publicBaseSprite": "tile.sunset-paver",
+      "publicVariantSprites": [
+        "tile.sunset-paver",
+        "tile.sunset-paver-b",
+        "tile.sunset-paver-c"
+      ],
+      "id": "sunset-paver",
+      "logicalVariants": [
+        "sunset-paver-a",
+        "sunset-paver-b",
+        "sunset-paver-c"
+      ],
+      "paletteRamp": [
+        "#88483f",
+        "#b96957",
+        "#d89575",
+        "#edc2a1"
+      ],
+      "densityBand": "structured-medium",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "sunset-market-life",
+      "transitionPriority": 88,
+      "selectionSalt": "sunset-paver-v1"
+    },
+    {
+      "publicBaseSprite": "tile.sunset-promenade",
+      "publicVariantSprites": [
+        "tile.sunset-promenade",
+        "tile.sunset-promenade-b",
+        "tile.sunset-promenade-c"
+      ],
+      "id": "sunset-promenade",
+      "logicalVariants": [
+        "sunset-promenade-a",
+        "sunset-promenade-b",
+        "sunset-promenade-c"
+      ],
+      "paletteRamp": [
+        "#8e5548",
+        "#c47d61",
+        "#e7b77d",
+        "#f4d39f"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "sunset-route-wear",
+      "transitionPriority": 95,
+      "selectionSalt": "sunset-promenade-v1"
+    },
+    {
+      "publicBaseSprite": "tile.sunset-mosaic",
+      "publicVariantSprites": [
+        "tile.sunset-mosaic",
+        "tile.sunset-mosaic-b",
+        "tile.sunset-mosaic-c"
+      ],
+      "id": "sunset-mosaic",
+      "logicalVariants": [
+        "sunset-mosaic-a",
+        "sunset-mosaic-b",
+        "sunset-mosaic-c"
+      ],
+      "paletteRamp": [
+        "#87503e",
+        "#d38a55",
+        "#f0c36f",
+        "#fff0b2"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": "sunset-route-wear",
+      "transitionPriority": 97,
+      "selectionSalt": "sunset-mosaic-v1"
+    },
+    {
+      "publicBaseSprite": "tile.sunset-floor",
+      "publicVariantSprites": [
+        "tile.sunset-floor",
+        "tile.sunset-floor-b",
+        "tile.sunset-floor-c"
+      ],
+      "id": "sunset-floor",
+      "logicalVariants": [
+        "sunset-floor-a",
+        "sunset-floor-b",
+        "sunset-floor-c"
+      ],
+      "paletteRamp": [
+        "#3d2528",
+        "#593238",
+        "#78434a",
+        "#9a5d58"
+      ],
+      "densityBand": "structured-low",
+      "seamMode": "coordinate-phase",
+      "edgeMode": "hard",
+      "decalFamily": null,
+      "transitionPriority": 84,
+      "selectionSalt": "sunset-floor-v1"
     },
     {
       "publicBaseSprite": "tile.warm-sand",
@@ -241,9 +788,9 @@
         "warm-sand-d"
       ],
       "paletteRamp": [
-        "#9f7141",
-        "#c69356",
-        "#e2b66c"
+        "#594b3b",
+        "#a8895c",
+        "#c1a36f"
       ],
       "densityBand": "natural-low",
       "seamMode": "hashed",
@@ -274,19 +821,93 @@
       "publicSprites": [
         "tile.decal-sand-ripple",
         "tile.decal-sand-pebbles",
-        "tile.decal-sand-shells"
+        "tile.decal-sand-ripple",
+        "tile.decal-leaf-litter",
+        "tile.decal-sand-pebbles",
+        "tile.decal-sand-ripple",
+        "tile.decal-sand-shells",
+        "tile.decal-leaf-litter",
+        "tile.decal-sand-pebbles",
+        "tile.decal-sapling",
+        "tile.decal-canopy-tree",
+        "tile.decal-young-palm",
+        "tile.decal-canopy-tree",
+        "tile.decal-flowering-shrub"
       ],
       "id": "sand-traces",
-      "densityPerThousand": 140,
-      "selectionSalt": "sand-traces-v3"
+      "densityPerThousand": 150,
+      "selectionSalt": "sand-traces-v5"
     },
     {
       "publicSprites": [
         "tile.decal-grass-tuft"
       ],
       "id": "grass-tufts",
-      "densityPerThousand": 70,
-      "selectionSalt": "grass-tufts-v2"
+      "densityPerThousand": 260,
+      "selectionSalt": "grass-tufts-v4"
+    },
+    {
+      "publicSprites": [
+        "tile.decal-neon-litter",
+        "tile.decal-neon-puddle",
+        "tile.decal-neon-manhole",
+        "tile.decal-neon-light-cyan",
+        "tile.decal-neon-litter",
+        "tile.decal-neon-light-magenta",
+        "tile.decal-neon-puddle"
+      ],
+      "id": "neon-street-life",
+      "densityPerThousand": 300,
+      "selectionSalt": "neon-street-life-v1"
+    },
+    {
+      "publicSprites": [
+        "tile.decal-neon-litter"
+      ],
+      "id": "neon-interior-life",
+      "densityPerThousand": 0,
+      "selectionSalt": "neon-interior-life-v1"
+    },
+    {
+      "publicSprites": [
+        "tile.decal-dock-oil",
+        "tile.decal-dock-rope",
+        "tile.decal-dock-drain",
+        "tile.decal-dock-salt",
+        "tile.decal-dock-gull",
+        "tile.decal-dock-fog",
+        "tile.decal-dock-salt",
+        "tile.decal-dock-oil"
+      ],
+      "id": "dock-surface-life",
+      "densityPerThousand": 260,
+      "selectionSalt": "dock-surface-life-v1"
+    },
+    {
+      "publicSprites": [
+        "tile.decal-sunset-petals",
+        "tile.decal-sunset-herbs",
+        "tile.decal-sunset-leaves",
+        "tile.decal-sunset-chalk",
+        "tile.decal-sunset-paper",
+        "tile.decal-sunset-fruit-leaves",
+        "tile.decal-sunset-petals",
+        "tile.decal-sunset-herbs"
+      ],
+      "id": "sunset-market-life",
+      "densityPerThousand": 340,
+      "selectionSalt": "sunset-market-life-v1"
+    },
+    {
+      "publicSprites": [
+        "tile.decal-sunset-chalk",
+        "tile.decal-sunset-leaves",
+        "tile.decal-sunset-petals",
+        "tile.decal-sunset-paper"
+      ],
+      "id": "sunset-route-wear",
+      "densityPerThousand": 110,
+      "selectionSalt": "sunset-route-wear-v1"
     }
   ],
   "transitionFamilies": [

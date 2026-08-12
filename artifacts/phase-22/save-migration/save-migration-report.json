@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "evidenceSource": {
-    "baseCommit": "4209ce759d8837ea0a40cd03bc2ba85c369c078f",
-    "sourceSha256": "9cf9a879311abf6a7215cb7ce80ce2f439b67782d714fa3d6fedd4a2f1f61215",
+    "baseCommit": "b4b014397be82cdccee60cb3bed3ee3e9ef02ff1",
+    "sourceSha256": "8d2c1cb5f8ad8904a2300dd8881d51853f1c232fdc74f2e761278b4b7cd394bc",
     "sourcePaths": [
       "electron/main/index.ts",
       "electron/persistence/save-format.ts",
@@ -13,7 +13,7 @@
       "tests/fixtures/saves/valid-v5-envelope.json"
     ]
   },
-  "testedCommit": "4209ce759d8837ea0a40cd03bc2ba85c369c078f",
+  "testedCommit": "b4b014397be82cdccee60cb3bed3ee3e9ef02ff1",
   "migration": {
     "mode": "migration",
     "expectedSaveStatus": "MIGRATED GEN 8",

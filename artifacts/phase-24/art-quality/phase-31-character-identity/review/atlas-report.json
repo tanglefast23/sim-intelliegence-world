@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 5,
+  "categories": {
+    "ground-base": {
+      "actualCount": 25,
+      "maximumCount": 32,
+      "rawRectangleArea": 28900
+    },
+    "ground-transition": {
+      "actualCount": 30,
+      "maximumCount": 64,
+      "rawRectangleArea": 34680
+    },
+    "ground-decal": {
+      "actualCount": 4,
+      "maximumCount": 24,
+      "rawRectangleArea": 4624
+    },
+    "wall-door": {
+      "actualCount": 67,
+      "maximumCount": 80,
+      "rawRectangleArea": 77452
+    },
+    "roof": {
+      "actualCount": 3,
+      "maximumCount": 32,
+      "rawRectangleArea": 3468
+    },
+    "object-landmark": {
+      "actualCount": 21,
+      "maximumCount": 48,
+      "rawRectangleArea": 24276
+    },
+    "world-character": {
+      "actualCount": 280,
+      "maximumCount": 280,
+      "rawRectangleArea": 232960
+    },
+    "portrait": {
+      "actualCount": 53,
+      "maximumCount": 53,
+      "rawRectangleArea": 102396
+    },
+    "effect-reserve": {
+      "actualCount": 0,
+      "maximumCount": 16,
+      "rawRectangleArea": 0
+    }
+  },
+  "actual": {
+    "cellCount": 483,
+    "rawRectangleArea": 508756,
+    "width": 1024,
+    "height": 532,
+    "boundingRectangleArea": 544768,
+    "occupancy": 0.9338947955827067
+  },
+  "forecast": {
+    "cellCount": 629,
+    "rawRectangleArea": 677532,
+    "rawAreaRatio": 0.6461448669433594,
+    "width": 1024,
+    "height": 702,
+    "boundingRectangleArea": 718848,
+    "packedAreaRatio": 0.685546875,
+    "occupancy": 0.9425247061965812
+  },
+  "largestCells": [
+    {
+      "id": "portrait.devon-price",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.devon-price.joy",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.devon-price.upset",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.elise-moreau",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.elise-moreau.joy",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.elise-moreau.upset",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.generic-resident",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.linda",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.linda-boyfriend",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.linda.joy",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.linda.upset",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    },
+    {
+      "id": "portrait.mina-park",
+      "category": "portrait",
+      "width": 40,
+      "height": 44,
+      "rawRectangleArea": 1932
+    }
+  ],
+  "indexVersion": 3,
+  "toolVersion": "atlas-v5-character-identity",
+  "imageSha256": "40a1155401fff69eb1933496f38c779e2a9c01bf3c8b0dbd1ad17ed5ee823d0d",
+  "publicSpriteCount": 483,
+  "internalReviewSpriteCount": 0
+}

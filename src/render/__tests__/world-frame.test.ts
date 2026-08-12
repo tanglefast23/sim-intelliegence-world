@@ -59,6 +59,7 @@ describe('authoritative world frame', () => {
       walkFrame: 0,
       moving: true,
       reducedMotion: false,
+      horizontalRunDistance: 16,
     });
     const player = frame.characters.find(({ id }) => id === 'protagonist')!;
     const linda = frame.characters.find(({ id }) => id === 'linda')!;
@@ -66,6 +67,53 @@ describe('authoritative world frame', () => {
     expect(linda.sprite).toContain('.left-2');
     expect(player.worldY).not.toBe(Math.round(player.worldY));
     expect(linda.worldX).not.toBe(Math.round(linda.worldX));
+    expect(player.angleDegrees).toBe(0);
+    expect(linda.angleDegrees).toBe(0);
+  });
+
+  test('rotates every rounded character during a pure horizontal run', () => {
+    const frame = buildWorldFrameState(MAP, createInitialState(), {
+      linda: {
+        tile: { x: 23, y: 30 },
+        visualId: 'linda',
+        direction: 'right',
+        visualFoot: { x: 752, y: 989 },
+        walkFrame: 1,
+        moving: true,
+        horizontalRunDistance: 16,
+      },
+    }, 'right', 1, {
+      visualFoot: { x: 592, y: 606 },
+      walkFrame: 1,
+      moving: true,
+      reducedMotion: false,
+      horizontalRunDistance: 16,
+    });
+    const player = frame.characters.find(({ id }) => id === 'protagonist')!;
+    const linda = frame.characters.find(({ id }) => id === 'linda')!;
+    expect(player.angleDegrees).toBeCloseTo(10.416666, 5);
+    expect(player.worldX).toBe(580);
+    expect(player.worldY).toBe(579);
+    expect(player.shadowWorldX).toBe(585);
+    expect(linda.angleDegrees).toBeCloseTo(10.416666, 5);
+    expect(linda.worldX).toBe(740);
+    expect(linda.worldY).toBe(962);
+    expect(linda.shadowWorldX).toBe(745);
+  });
+
+  test('reduced motion keeps horizontal travel upright without moving the shadow', () => {
+    const frame = buildWorldFrameState(MAP, createInitialState(), {}, 'left', 0, {
+      visualFoot: { x: 584, y: 606 },
+      walkFrame: 0,
+      moving: true,
+      reducedMotion: true,
+      horizontalRunDistance: 16,
+    });
+    const player = frame.characters.find(({ id }) => id === 'protagonist')!;
+    expect(player.angleDegrees).toBe(0);
+    expect(player.worldX).toBe(572);
+    expect(player.worldY).toBe(579);
+    expect(player.shadowWorldX).toBe(577);
   });
 
   test('save and reload inside reconstruct the byte-identical first frame', () => {
@@ -80,10 +128,10 @@ describe('authoritative world frame', () => {
   });
 
   test('leaving through the pathfindable door restores the roof only outside', () => {
-    const doorway = walkTo({ x: 15, y: 24 });
+    const doorway = walkTo({ x: 17, y: 24 });
     expect(buildWorldFrameState(MAP, doorway.worldState, ACTORS, doorway.movement.direction, 0).hiddenRoofGroupId)
       .toBe('protagonist-villa-roof');
-    const outside = walkTo({ x: 15, y: 25 }, doorway.worldState);
+    const outside = walkTo({ x: 17, y: 25 }, doorway.worldState);
     const outsideFrame = buildWorldFrameState(MAP, outside.worldState, ACTORS, outside.movement.direction, 0);
     expect(outsideFrame.hiddenRoofGroupId).toBeUndefined();
     expect(outsideFrame.visibleRoofGroupIds).toEqual(['protagonist-villa-roof']);

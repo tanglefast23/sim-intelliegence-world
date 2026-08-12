@@ -8,6 +8,7 @@ import {
 import { createInitialState } from '../../src/domain/state/initial-state';
 import { buildProductionMaps } from './build-map-v2';
 import { buildSaveCutoverFixtures } from './build-save-cutover-fixtures';
+import { CHARACTER_LOOKS } from '../art/character-look-roster';
 
 const root = process.cwd();
 
@@ -256,7 +257,7 @@ async function buildWorldCatalog(): Promise<void> {
     ambientCount: PRODUCTION_AMBIENT_RESIDENTS.length + 2,
     fullAiNpcIds: ['linda', ...PRODUCTION_FULL_AI_CAST.map(({ id }) => id)],
     ambientNpcIds: ['generic_resident', 'linda_boyfriend', ...PRODUCTION_AMBIENT_RESIDENTS.map(({ id }) => id)],
-    visualIds: ['protagonist', 'linda', 'generic-resident', ...PRODUCTION_FULL_AI_CAST.map(({ visualId }) => visualId)].sort(),
+    visualIds: CHARACTER_LOOKS.map(({ id }) => id).sort(),
     scheduleIds: Object.keys(createInitialState().schedules).sort(),
     businessLocationIds: PRODUCTION_FULL_AI_CAST.map(({ homeLocationId }) => homeLocationId).sort(),
   });

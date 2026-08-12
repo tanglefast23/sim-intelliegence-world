@@ -12,10 +12,12 @@ import {
   loadTransparentPartSources,
   loadTileSources,
   loadWallSources,
+  renderDoorVariant,
   renderTile,
   renderWallVariant,
   tokenFrameToBitmap,
   type CharacterSource,
+  type TokenFrame,
 } from './character-source';
 import { buildPortraitEntries } from './build-portrait-atlas';
 import {
@@ -28,6 +30,7 @@ import {
 import { createAtlasBudgetReport, type AtlasBudgetReport } from './atlas-budget';
 import { packAtlasRectangles } from './atlas-pack';
 import { composeLateralFrame } from './lateral-legs';
+import { protagonistReferenceFrames, type ProtagonistReferenceFrameId } from './protagonist-reference';
 import {
   blit,
   blitWithExtrudedGutter,
@@ -113,17 +116,19 @@ export type AtlasGenerationReport = AtlasBudgetReport & Readonly<{
 }>;
 
 function worldEntries(source: CharacterSource): Entry[] {
-  const front = [composeFrontFrame(source, 0), composeFrontFrame(source, 1)] as const;
-  const tokenFrames = {
-    'front-1': front[0],
-    'front-2': front[1],
-    'rear-1': deriveRearFrame(front[0], source),
-    'rear-2': deriveRearFrame(front[1], source),
+  const front = composeFrontFrame(source, 0);
+  const generatedFrames: Readonly<Record<ProtagonistReferenceFrameId, TokenFrame>> = {
+    'front-1': front,
+    'front-2': front,
+    'rear-1': deriveRearFrame(front, source),
+    'rear-2': deriveRearFrame(front, source),
     'left-1': composeLateralFrame(source, 'left', 0),
-    'left-2': composeLateralFrame(source, 'left', 1),
+    'left-2': composeLateralFrame(source, 'left', 0),
     'right-1': composeLateralFrame(source, 'right', 0),
-    'right-2': composeLateralFrame(source, 'right', 1),
-  } as const;
+    'right-2': composeLateralFrame(source, 'right', 0),
+  };
+  const authoredFrames = protagonistReferenceFrames(source.id);
+  const tokenFrames = authoredFrames ?? generatedFrames;
   return Object.entries(tokenFrames).map(([frame, tokens]) => ({
     name: `character.${source.id}.${frame}`,
     sourceId: source.id,
@@ -132,11 +137,13 @@ function worldEntries(source: CharacterSource): Entry[] {
     visibility: 'public' as const,
     cellClass: null,
     wallAdjacencyMask: null,
-    bitmap: addOutwardContour(
-      tokenFrameToBitmap(tokens, source.palette),
-      parseHexColor(source.palette.K as string),
-      true,
-    ),
+    bitmap: authoredFrames
+      ? tokenFrameToBitmap(tokens, source.palette)
+      : addOutwardContour(
+        tokenFrameToBitmap(tokens, source.palette),
+        parseHexColor(source.palette.K as string),
+        true,
+      ),
   }));
 }
 
@@ -309,16 +316,25 @@ export function buildAtlas(root = process.cwd()): {
       bitmap: renderWallVariant(wall, adjacencyMask),
     })),
   );
-  const rawPartEntries: Entry[] = transparentParts.map((part) => ({
-    name: `tile.${part.id}`,
-    sourceId: part.id,
-    kind: 'tile' as const,
-    category: part.role === 'door' ? 'wall-door' as const : 'object-landmark' as const,
-    visibility: 'public' as const,
-    cellClass: 'transparent-part' as const,
-    wallAdjacencyMask: null,
-    bitmap: renderTile(part),
-  }));
+  const rawPartEntries: Entry[] = transparentParts.flatMap((part) => {
+    const variants = part.role === 'door'
+      ? [
+        { suffix: '', bitmap: renderDoorVariant(part, 'horizontal') },
+        { suffix: '-horizontal', bitmap: renderDoorVariant(part, 'horizontal') },
+        { suffix: '-vertical', bitmap: renderDoorVariant(part, 'vertical') },
+      ]
+      : [{ suffix: '', bitmap: renderTile(part) }];
+    return variants.map(({ suffix, bitmap }) => ({
+      name: `tile.${part.id}${suffix}`,
+      sourceId: part.id,
+      kind: 'tile' as const,
+      category: part.role === 'door' ? 'wall-door' as const : 'object-landmark' as const,
+      visibility: 'public' as const,
+      cellClass: 'transparent-part' as const,
+      wallAdjacencyMask: null,
+      bitmap,
+    }));
+  });
   const partEntries = composeAndSplitMultiTileEntries(rawPartEntries, multiTileCompositions);
   const authoredPresentationEntries: Entry[] = presentationCells.map((cell) => ({
     name: `tile.${cell.id}`,

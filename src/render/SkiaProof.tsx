@@ -5,6 +5,7 @@ import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } f
 import { GameScreen } from '../application/GameScreen';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererReadyReport } from '../application/RendererReadiness';
+import { DevHarnessScreen } from '../ui/dev-harness/DevHarnessScreen';
 import { coalescedResizeDelay, OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
 import type { ViewportSize } from './camera';
 
@@ -21,6 +22,12 @@ function hasNoNodeAccess(): boolean {
   );
 }
 
+function localhostDevHarnessMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  const localHost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+  return localHost && new URLSearchParams(window.location.search).get('devHarness') === '1';
+}
+
 type SkiaProofProps = Readonly<{
   assetsLoaded: boolean;
 }>;
@@ -35,6 +42,9 @@ async function afterTwoPaints(): Promise<void> {
 }
 
 export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
+  const devHarnessMode = typeof window !== 'undefined' && (
+    window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
+  );
   const windowDimensions = useWindowDimensions();
   const expectedSurface = useMemo(
     () => responsiveSurface(windowDimensions.width, windowDimensions.height).surface,
@@ -44,6 +54,10 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   const [runtime, setRuntime] = useState('Browser proof');
   const [gameReady, setGameReady] = useState(false);
   const markGameReady = useCallback(() => setGameReady(true), []);
+
+  useEffect(() => {
+    if (devHarnessMode) markGameReady();
+  }, [devHarnessMode, markGameReady]);
 
   useEffect(() => {
     if (!gameReady) {
@@ -106,7 +120,9 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
       </Canvas>
       <View style={styles.surfaceFrame}>
         <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
-          <GameScreen onReady={markGameReady} surface={surface} />
+          {devHarnessMode
+            ? <DevHarnessScreen surface={surface} />
+            : <GameScreen onReady={markGameReady} surface={surface} />}
         </View>
       </View>
       {__DEV__ ? <Text nativeID="development-runtime" style={styles.runtime}>{runtime}</Text> : null}

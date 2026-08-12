@@ -171,7 +171,7 @@ describe('full-cast shared-source character art', () => {
     }
   });
 
-  test('locks the HFM shoulder, arm, leg, and foot grammar for all thirty-five people', () => {
+  test('locks the rounded shoulder, arm, and weighted-base grammar for all thirty-five people', () => {
     for (const look of CHARACTER_LOOKS) {
       const geometry = getCharacterGeometryCommandSets(look);
       const portrait = commandFrame(geometry.portraitBody, PORTRAIT_CELL.width, PORTRAIT_CELL.height);
@@ -185,14 +185,16 @@ describe('full-cast shared-source character art', () => {
       expect(new Set([16, 17, 18, 19, 20, 21, 22, 23, 24].map(
         (row) => paintedWidth(worldBody[row] as string),
       )).size).toBeGreaterThanOrEqual(2);
-      expect(worldBody.slice(20, 23).join('').split('').filter((token) => token === 'S' || token === 's').length)
+      expect(worldBody.slice(22, 25).join('').split('').filter((token) => token === 'S' || token === 's').length)
         .toBeGreaterThanOrEqual(8);
 
       for (const frameCommands of geometry.legs.frontFrames) {
         const legs = commandFrame(frameCommands, WORLD_CELL.width, WORLD_CELL.height);
-        expect(paintedRuns(legs[24] as string)).toBe(2);
-        expect(paintedRuns(legs[29] as string)).toBe(2);
+        expect(paintedRuns(legs[28] as string)).toBe(1);
+        expect(paintedRuns(legs[29] as string)).toBe(1);
       }
+      expect(geometry.legs.frontFrames[1]).toEqual(geometry.legs.frontFrames[0]);
+      expect(geometry.legs.lateralFrames[1]).toEqual(geometry.legs.lateralFrames[0]);
     }
   });
 
@@ -266,11 +268,11 @@ describe('full-cast shared-source character art', () => {
   );
 
   test.each(sources.map((source) => [source.id, source] as const))(
-    '%s keeps HFM stride, feet, margins, portrait contour room, and hair value separation',
+    '%s keeps a stable rounded base, margins, portrait contour room, and hair value separation',
     (_id, source) => {
       const frontOne = composeFrontFrame(source, 0);
       const frontTwo = composeFrontFrame(source, 1);
-      expect(frontOne).not.toEqual(frontTwo);
+      expect(frontOne).toEqual(frontTwo);
       for (const frame of [
         frontOne,
         frontTwo,
@@ -283,7 +285,7 @@ describe('full-cast shared-source character art', () => {
       ]) {
         expect(painted(frame).size).toBeGreaterThan(40);
         expect([...frame[0] as string].every((token) => token === '.')).toBe(true);
-        expect(paintedRuns(frame[WORLD_CELL.height - 1] as string)).toBeGreaterThanOrEqual(2);
+        expect(paintedRuns(frame[WORLD_CELL.height - 1] as string)).toBe(1);
         expect(frame.every((row) => row[0] === '.' && row[WORLD_CELL.width - 1] === '.')).toBe(true);
       }
       const portrait = composePortrait(source);

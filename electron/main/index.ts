@@ -6,6 +6,7 @@ import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
+import { CHARACTER_IDS } from '../../src/render/atlas';
 import { responsiveSurface } from '../../src/render/responsive-layout';
 import { registerConversationIpc } from '../conversation/ipc';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
@@ -29,6 +30,8 @@ import { captureLoadingSmokeFrame, captureNonEmptySmokeFrame } from './smoke-cap
 registerAppSchemePrivileges(protocol);
 
 const smokeMode = process.env.SI_WORLD_SMOKE === '1';
+const devHarnessMode = process.env.SI_WORLD_DEV_HARNESS === '1';
+const devHarnessRoot = process.env.SI_WORLD_DEV_HARNESS_ROOT;
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
 const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE === '1';
@@ -41,6 +44,12 @@ const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE =
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
 const saveReloadSmokeMode = process.env.SI_WORLD_SAVE_RELOAD_SMOKE === '1';
+if (smokeMode && devHarnessMode) {
+  throw new Error('The developer harness and automated smoke mode cannot run together.');
+}
+if (devHarnessRoot && (!devHarnessMode || !isAbsolute(devHarnessRoot))) {
+  throw new Error('SI_WORLD_DEV_HARNESS_ROOT requires dev harness mode and an absolute path.');
+}
 const processStartedAt = performance.now();
 let smokeFinished = false;
 let activeMainWindow: BrowserWindow | undefined;
@@ -566,6 +575,8 @@ type MovementSmokeActor = Readonly<{
   status: 'idle' | 'moving' | 'waiting' | 'unreachable';
   target?: Readonly<{ x: number; y: number }> | null;
   curveActive: boolean;
+  horizontalRunDistance?: number;
+  protagonistWobbleDegrees?: number;
 }>;
 
 type MovementSmokeState = Readonly<{
@@ -735,7 +746,7 @@ async function captureMovementPass(
   }
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     mode,
     samples: samples.map((sample) => ({
       ...sample,
@@ -774,18 +785,7 @@ const RESPONSIVE_SMOKE_TARGETS: readonly ResponsiveSmokeTarget[] = [
   { width: 1_600, height: 720 },
 ];
 
-const FULL_CAST_PORTRAIT_IDS = [
-  'devon-price',
-  'elise-moreau',
-  'generic-resident',
-  'linda',
-  'mina-park',
-  'priya-nair',
-  'protagonist',
-  'rafael-cruz',
-  'sora-tan',
-  'tomas-reed',
-] as const;
+const FULL_CAST_PORTRAIT_IDS = CHARACTER_IDS;
 
 function cameraCenter(camera: Readonly<{ x: number; y: number; zoom: number }>, bounds: SurfaceBounds) {
   return {
@@ -1654,7 +1654,7 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
 }
 
 async function createMainWindow(): Promise<void> {
-  const applicationRoot = app.getAppPath();
+  const applicationRoot = devHarnessRoot ?? app.getAppPath();
   const distributionRoot = join(applicationRoot, 'dist');
   const preloadPath = join(applicationRoot, 'build/electron/preload/index.js');
 
@@ -1683,14 +1683,17 @@ async function createMainWindow(): Promise<void> {
     minHeight: 640,
     minWidth: 960,
     show: true,
-    title: 'SI World',
+    title: devHarnessMode ? 'SI World · Dev Harness' : 'SI World',
     useContentSize: true,
     webPreferences: {
       ...lockedWebPreferences(preloadPath),
-      additionalArguments: smokeMode ? [
-        '--si-world-smoke-mode=1',
-        ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
-      ] : [],
+      additionalArguments: [
+        ...(smokeMode ? [
+          '--si-world-smoke-mode=1',
+          ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
+        ] : []),
+        ...(devHarnessMode ? ['--si-world-dev-harness=1'] : []),
+      ],
     },
     width: initialPresentation.windowSize?.width ?? 1280,
   });
@@ -1719,7 +1722,7 @@ async function createMainWindow(): Promise<void> {
       });
     },
   );
-  const contentRoot = app.isPackaged ? join(process.resourcesPath, 'content') : join(app.getAppPath(), 'content');
+  const contentRoot = app.isPackaged ? join(process.resourcesPath, 'content') : join(applicationRoot, 'content');
   conversationInference = new BundledConversationInference(app, process.resourcesPath);
   conversationService = new ConversationService(
     conversationInference,
@@ -1761,6 +1764,14 @@ async function createMainWindow(): Promise<void> {
     }
   });
   window.webContents.on('did-finish-load', () => {
+    if (devHarnessMode) {
+      void window.webContents.executeJavaScript(`JSON.stringify({
+        enabled: window.siWorldDevHarnessMode === true,
+        hash: window.location.hash,
+      })`, true).then((proof) => {
+        process.stdout.write(`SI_WORLD_DEV_HARNESS_BOOT ${String(proof)}\n`);
+      });
+    }
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
       setTimeout(() => {
@@ -1772,7 +1783,7 @@ async function createMainWindow(): Promise<void> {
       }, 100);
     }
   });
-  await window.loadURL(APP_URL);
+  await window.loadURL(devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
 }
 
 app.on('web-contents-created', (_event, contents) => lockWebContents(contents));

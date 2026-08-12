@@ -10,6 +10,7 @@ import {
   createMovementState,
   requestMovement,
 } from '../world/pathfinding/movement';
+import { protagonistWobbleDegrees } from './protagonist-wobble';
 
 const TileSchema = z.object({ x: z.number().int(), y: z.number().int() }).strict();
 const PointSchema = z.object({ x: z.number(), y: z.number() }).strict();
@@ -24,12 +25,14 @@ export const MovementTraceSampleSchema = z.object({
   direction: z.enum(['up', 'down', 'left', 'right']),
   walkFrame: z.union([z.literal(0), z.literal(1)]),
   status: z.enum(['idle', 'moving', 'waiting', 'unreachable']),
+  horizontalRunDistance: z.number().nonnegative(),
+  protagonistWobbleDegrees: z.number(),
   curveActive: z.boolean(),
   reservedKeys: z.array(z.string()),
 }).strict();
 
 export const DeterministicMovementTraceSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   fixedStepMs: z.literal(16),
   start: TileSchema,
   target: TileSchema,
@@ -85,6 +88,13 @@ export function buildDeterministicMovementTrace(
       direction: movement.direction,
       walkFrame: movement.walkFrame,
       status: movement.status,
+      horizontalRunDistance: movement.horizontalRunDistance,
+      protagonistWobbleDegrees: protagonistWobbleDegrees({
+        direction: movement.direction,
+        status: movement.status,
+        horizontalRunDistance: movement.horizontalRunDistance,
+        reducedMotion: false,
+      }),
       curveActive: Boolean(movement.latchedTurnCurve),
       reservedKeys: [...reservedTileKeys(movement)],
     });
@@ -94,7 +104,7 @@ export function buildDeterministicMovementTrace(
     throw new Error('Natural-movement evidence trace did not reach its target within 512 fixed steps.');
   }
   return DeterministicMovementTraceSchema.parse({
-    schemaVersion: 1,
+    schemaVersion: 2,
     fixedStepMs: 16,
     start,
     target,

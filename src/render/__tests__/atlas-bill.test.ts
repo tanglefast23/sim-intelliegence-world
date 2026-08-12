@@ -18,13 +18,13 @@ describe('runtime atlas bill and movement contract', () => {
     const renderedNames = buildAtlasProofScene(0).sprites.map(({ sprite }) => sprite);
     expect(new Set(renderedNames)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
     expect(ATLAS_INDEX.version).toBe(3);
-    expect(ATLAS_INDEX.artRevision).toBe(6);
+    expect(ATLAS_INDEX.artRevision).toBe(11);
     expect(ATLAS_INDEX.publicSpriteIds).toEqual(Object.keys(ATLAS_INDEX.sprites));
     expect(ATLAS_INDEX.internalReviewSpriteIds).toEqual([]);
-    expect(ATLAS_INDEX.tiles).toHaveLength(150);
-    expect(ATLAS_INDEX.groundCells).toHaveLength(25);
-    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(88);
-    expect(ATLAS_INDEX.presentationCells).toHaveLength(37);
+    expect(ATLAS_INDEX.tiles).toHaveLength(276);
+    expect(ATLAS_INDEX.groundCells).toHaveLength(81);
+    expect(ATLAS_INDEX.transparentPartCells).toHaveLength(135);
+    expect(ATLAS_INDEX.presentationCells).toHaveLength(60);
     expect(new Set([
       ...ATLAS_INDEX.groundCells,
       ...ATLAS_INDEX.transparentPartCells,
@@ -57,10 +57,13 @@ describe('runtime atlas bill and movement contract', () => {
     expect(movementPresentation('protagonist', 'up', 0).sprite).toContain('.rear-1');
     expect(movementPresentation('protagonist', 'down', 1).sprite).toContain('.front-2');
     expect(movementPresentation('protagonist', 'left', 0)).toMatchObject({
-      sprite: 'character.protagonist.left-1', leanX: -1,
+      sprite: 'character.protagonist.left-1', leanX: 0, bounceY: 0, shadowX: 0,
     });
     expect(movementPresentation('protagonist', 'right', 1)).toMatchObject({
-      sprite: 'character.protagonist.right-2', leanX: 1, bounceY: -1, shadowX: 1,
+      sprite: 'character.protagonist.right-2', leanX: 0, bounceY: 0, shadowX: 0,
+    });
+    expect(movementPresentation('linda', 'right', 1)).toMatchObject({
+      sprite: 'character.linda.right-2', leanX: 0, bounceY: 0, shadowX: 0,
     });
     expect(WALK_FRAME_MILLISECONDS).toBeGreaterThanOrEqual(130);
     expect(WALK_FRAME_MILLISECONDS).toBeLessThanOrEqual(160);

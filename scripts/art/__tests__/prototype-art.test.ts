@@ -44,15 +44,6 @@ function alphaCount(pixels: Buffer): number {
   return [...pixels].filter((_value, offset) => offset % 4 === 3 && pixels[offset] !== 0).length;
 }
 
-function lowerAlphaSignature(pixels: Buffer, width: number, height: number): string {
-  const startRow = height - 8;
-  const values: number[] = [];
-  for (let y = startRow; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) values.push(pixels[(y * width + x) * 4 + 3] as number);
-  }
-  return Buffer.from(values).toString('hex');
-}
-
 describe('Phase 28 hard Sunward prototype art', () => {
   test('gives every prototype material real balanced variants without repeated 2x2 blocks', () => {
     for (const [materialId, expectedVariants] of MATERIALS) {
@@ -84,7 +75,7 @@ describe('Phase 28 hard Sunward prototype art', () => {
     }
   });
 
-  test('keeps eight reachable 24x30 cells, foot exchange, contour growth, and a 24x29 portrait per character', () => {
+  test('keeps eight reachable stable 24x30 cells, contour growth, and a 24x29 portrait per character', () => {
     const built = buildAtlas();
     const atlas = decodePng(built.png);
     const sources = new Map(loadCharacterSources().map((source) => [source.id, source]));
@@ -98,15 +89,17 @@ describe('Phase 28 hard Sunward prototype art', () => {
         expect(rectangle).toMatchObject({ width: 24, height: 30, visibility: 'public' });
         const pixels = cellPixels(atlas, rectangle!);
         expect(alphaCount(pixels)).toBeGreaterThan(0);
-        if (direction === 'front-1') {
+        if (direction === 'front-1' && characterId !== 'protagonist') {
           expect(alphaCount(pixels)).toBeGreaterThan(rawAlpha);
+          frontMasks.add([...pixels].filter((_value, offset) => offset % 4 === 3).join(','));
+        } else if (direction === 'front-1') {
           frontMasks.add([...pixels].filter((_value, offset) => offset % 4 === 3).join(','));
         }
       }
       for (const direction of ['front', 'rear', 'left', 'right'] as const) {
         const first = cellPixels(atlas, built.index.sprites[`character.${characterId}.${direction}-1`]!);
         const second = cellPixels(atlas, built.index.sprites[`character.${characterId}.${direction}-2`]!);
-        expect(lowerAlphaSignature(first, 24, 30)).not.toBe(lowerAlphaSignature(second, 24, 30));
+        expect(first).toEqual(second);
       }
       expect(built.index.sprites[`portrait.${characterId}`]).toMatchObject({
         width: 24,

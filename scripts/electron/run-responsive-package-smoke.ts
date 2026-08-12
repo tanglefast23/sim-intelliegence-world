@@ -7,6 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { PNG } from 'pngjs';
 import { z } from 'zod';
 
+import { CHARACTER_IDS } from '../../src/render/atlas';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
@@ -91,10 +92,7 @@ const MaximumLoadSchema = z.object({
   screenshot: z.string().min(1),
 }).strict();
 const FullCastPortraitEntrySchema = z.object({
-  characterId: z.enum([
-    'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
-    'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
-  ]),
+  characterId: z.enum(CHARACTER_IDS),
   uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
   screenshot: z.string().min(1),
   evidence: EvidenceSchema,
@@ -117,7 +115,7 @@ const ResponsiveSmokeSchema = z.object({
     roof: z.object({ id: z.string().min(1), interiorTile: PointSchema, exteriorTile: PointSchema }).strict(),
   }).passthrough(),
   targets: z.array(TargetReportSchema).min(1),
-  fullCastPortraitMatrix: z.array(FullCastPortraitEntrySchema).length(30).nullable(),
+  fullCastPortraitMatrix: z.array(FullCastPortraitEntrySchema).length(CHARACTER_IDS.length * 3).nullable(),
   maximumLoad: MaximumLoadSchema.nullable(),
 }).strict();
 
@@ -143,19 +141,11 @@ const performanceFixture = PerformanceFixtureSchema.parse(
 const evidenceSource = resolveEvidenceSource([
   '.github/workflows/ci.yml',
   'assets/generated/atlas-index.json',
-  'assets/source/characters/devon-price.json',
-  'assets/source/characters/elise-moreau.json',
-  'assets/source/characters/generic-resident.json',
-  'assets/source/characters/linda.json',
-  'assets/source/characters/mina-park.json',
-  'assets/source/characters/priya-nair.json',
-  'assets/source/characters/protagonist.json',
-  'assets/source/characters/rafael-cruz.json',
-  'assets/source/characters/sora-tan.json',
-  'assets/source/characters/tomas-reed.json',
   'assets/source/art/decal-recipes.json',
   'assets/source/art/material-recipes.json',
   'assets/source/art/roof-recipes.json',
+  'scripts/art/character-look-roster.ts',
+  'scripts/art/character-source.ts',
   'electron/main/index.ts',
   'electron/preload/index.ts',
   'forge.config.ts',
@@ -452,12 +442,8 @@ child.once('close', (code) => {
       throw new Error('Responsive full-cast portrait matrix mode did not match its request.');
     }
     if (report.fullCastPortraitMatrix) {
-      const characterIds = [
-        'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
-        'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
-      ] as const;
       const expected = [1, 1.25, 1.5].flatMap((uiScale) => (
-        characterIds.map((characterId) => ({ characterId, uiScale }))
+        CHARACTER_IDS.map((characterId) => ({ characterId, uiScale }))
       ));
       const actual = report.fullCastPortraitMatrix.map(({ characterId, uiScale }) => ({ characterId, uiScale }));
       if (JSON.stringify(actual) !== JSON.stringify(expected)) {

@@ -2,7 +2,7 @@ import { tileKey, type DensityProfile, type TilePoint, type WorldMapV2 } from '.
 import type { ArtPresentationIndex } from '../presentation/art-presentation';
 
 export type StaticSolidOwner = Readonly<{
-  kind: 'terrain' | 'wall' | 'door' | 'object';
+  kind: 'terrain' | 'wall' | 'door' | 'object' | 'environment';
   id: string;
 }>;
 
@@ -20,6 +20,7 @@ export type CompiledWallOpeningV2 = Readonly<{
   runId: string;
   material: string;
   tile: TilePoint;
+  orientation: 'horizontal' | 'vertical';
 }>;
 
 export type CompiledObjectPartV2 = Readonly<{

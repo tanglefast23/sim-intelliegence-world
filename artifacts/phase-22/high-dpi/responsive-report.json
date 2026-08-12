@@ -13504,8 +13504,8 @@
         "surface": false
       }
     },
-    "rendererFps": 119.95,
-    "displayRafFps": 119.95,
+    "rendererFps": 119.9,
+    "displayRafFps": 119.9,
     "sampledFrames": 241,
     "cameraChangeFrames": 240,
     "roundedFps": 120,
@@ -13514,8 +13514,8 @@
     "screenshot": "maximum-load.png"
   },
   "evidenceSource": {
-    "baseCommit": "4209ce759d8837ea0a40cd03bc2ba85c369c078f",
-    "sourceSha256": "8952239d90c92d6609dee82f4c4dd4618de3abbb9edf9e8887de6cacc268b067",
+    "baseCommit": "b4b014397be82cdccee60cb3bed3ee3e9ef02ff1",
+    "sourceSha256": "87e1e957703a267c2b7311fa0c695033b781dcafcf4d8d6fb76eaa46487036df",
     "sourcePaths": [
       ".github/workflows/ci.yml",
       "electron/main/index.ts",
@@ -13530,5 +13530,5 @@
       "tests/fixtures/performance/phase-22.json"
     ]
   },
-  "testedCommit": "4209ce759d8837ea0a40cd03bc2ba85c369c078f"
+  "testedCommit": "b4b014397be82cdccee60cb3bed3ee3e9ef02ff1"
 }

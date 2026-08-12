@@ -1,18 +1,94 @@
 {
   "schemaVersion": 1,
-  "artRevision": 6,
+  "artRevision": 11,
   "families": [
     {
       "id": "sand-traces",
-      "publicSprites": ["tile.decal-sand-ripple", "tile.decal-sand-pebbles", "tile.decal-sand-shells"],
-      "densityPerThousand": 140,
-      "selectionSalt": "sand-traces-v3"
+      "publicSprites": [
+        "tile.decal-sand-ripple",
+        "tile.decal-sand-pebbles",
+        "tile.decal-sand-ripple",
+        "tile.decal-leaf-litter",
+        "tile.decal-sand-pebbles",
+        "tile.decal-sand-ripple",
+        "tile.decal-sand-shells",
+        "tile.decal-leaf-litter",
+        "tile.decal-sand-pebbles",
+        "tile.decal-sapling",
+        "tile.decal-canopy-tree",
+        "tile.decal-young-palm",
+        "tile.decal-canopy-tree",
+        "tile.decal-flowering-shrub"
+      ],
+      "densityPerThousand": 150,
+      "selectionSalt": "sand-traces-v5"
     },
     {
       "id": "grass-tufts",
       "publicSprites": ["tile.decal-grass-tuft"],
-      "densityPerThousand": 70,
-      "selectionSalt": "grass-tufts-v2"
+      "densityPerThousand": 260,
+      "selectionSalt": "grass-tufts-v4"
+    },
+    {
+      "id": "neon-street-life",
+      "publicSprites": [
+        "tile.decal-neon-litter",
+        "tile.decal-neon-puddle",
+        "tile.decal-neon-manhole",
+        "tile.decal-neon-light-cyan",
+        "tile.decal-neon-litter",
+        "tile.decal-neon-light-magenta",
+        "tile.decal-neon-puddle"
+      ],
+      "densityPerThousand": 300,
+      "selectionSalt": "neon-street-life-v1"
+    },
+    {
+      "id": "neon-interior-life",
+      "publicSprites": ["tile.decal-neon-litter"],
+      "densityPerThousand": 0,
+      "selectionSalt": "neon-interior-life-v1"
+    },
+    {
+      "id": "dock-surface-life",
+      "publicSprites": [
+        "tile.decal-dock-oil",
+        "tile.decal-dock-rope",
+        "tile.decal-dock-drain",
+        "tile.decal-dock-salt",
+        "tile.decal-dock-gull",
+        "tile.decal-dock-fog",
+        "tile.decal-dock-salt",
+        "tile.decal-dock-oil"
+      ],
+      "densityPerThousand": 260,
+      "selectionSalt": "dock-surface-life-v1"
+    },
+    {
+      "id": "sunset-market-life",
+      "publicSprites": [
+        "tile.decal-sunset-petals",
+        "tile.decal-sunset-herbs",
+        "tile.decal-sunset-leaves",
+        "tile.decal-sunset-chalk",
+        "tile.decal-sunset-paper",
+        "tile.decal-sunset-fruit-leaves",
+        "tile.decal-sunset-petals",
+        "tile.decal-sunset-herbs"
+      ],
+      "densityPerThousand": 340,
+      "selectionSalt": "sunset-market-life-v1"
+    },
+    {
+      "id": "sunset-route-wear",
+      "publicSprites": [
+        "tile.decal-sunset-chalk",
+        "tile.decal-sunset-leaves",
+        "tile.decal-sunset-petals",
+        "tile.decal-sunset-paper"
+      ],
+      "densityPerThousand": 110,
+      "selectionSalt": "sunset-route-wear-v1"
     }
   ]
 }

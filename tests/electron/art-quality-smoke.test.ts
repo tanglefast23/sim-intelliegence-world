@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { PNG } from 'pngjs';
 
 import { validateArtQualityEvidence } from '../../src/render/art-quality-evidence';
+import { CHARACTER_IDS } from '../../src/render/atlas';
 
 function pngBuffer(width: number, height: number, first: number, second: number): Buffer {
   const image = new PNG({ width, height });
@@ -139,11 +140,7 @@ describe('Phase 28 packaged art-quality evidence', () => {
       expect(() => validateArtQualityEvidence({ ...report, artRevision: 3 }, root)).toThrow(
         'full-cast portrait matrix',
       );
-      const characterIds = [
-        'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
-        'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
-      ] as const;
-      const fullCastPortraitMatrix = [1, 1.25, 1.5].flatMap((uiScale) => characterIds.map((characterId) => ({
+      const fullCastPortraitMatrix = [1, 1.25, 1.5].flatMap((uiScale) => CHARACTER_IDS.map((characterId) => ({
         characterId,
         uiScale,
         screenshot: `portrait-${uiScale}-${characterId}.png`,

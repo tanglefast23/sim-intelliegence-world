@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 10,
+  "mapId": "northwest_residential",
+  "mapSourceSha256": "01e3252302cd85b5e4bf7aec912ebbe201e462ec9dbbe0869dde4de32d983cb1",
+  "sourceGeometryChanged": false,
+  "materials": {
+    "warm-sand": [
+      "tile.warm-sand",
+      "tile.warm-sand-b",
+      "tile.warm-sand-c",
+      "tile.warm-sand-d"
+    ],
+    "villa-floor": [
+      "tile.villa-floor",
+      "tile.villa-floor-b",
+      "tile.villa-floor-c",
+      "tile.villa-floor-d"
+    ],
+    "plaza-paver": [
+      "tile.plaza-paver",
+      "tile.plaza-paver-b"
+    ],
+    "boardwalk": [
+      "tile.boardwalk",
+      "tile.boardwalk-b"
+    ]
+  },
+  "architectureSprites": [
+    "tile.wall-villa-0",
+    "tile.wall-villa-1",
+    "tile.wall-villa-2",
+    "tile.wall-villa-3",
+    "tile.wall-villa-4",
+    "tile.wall-villa-5",
+    "tile.wall-villa-6",
+    "tile.wall-villa-7",
+    "tile.wall-villa-8",
+    "tile.wall-villa-9",
+    "tile.wall-villa-a",
+    "tile.wall-villa-b",
+    "tile.wall-villa-c",
+    "tile.wall-villa-d",
+    "tile.wall-villa-e",
+    "tile.wall-villa-f",
+    "tile.open-door",
+    "tile.closed-door",
+    "tile.closed-locked-door",
+    "tile.roof-sunward-base",
+    "tile.roof-sunward-edge",
+    "tile.roof-sunward-corner",
+    "tile.bed-head",
+    "tile.bed-foot",
+    "tile.sofa-left",
+    "tile.sofa-right",
+    "tile.table-left",
+    "tile.table-right",
+    "tile.counter-left",
+    "tile.counter-right",
+    "tile.sign-spa",
+    "tile.sign-market",
+    "tile.fixture-lamp",
+    "tile.fixture-planter",
+    "tile.plant-palm",
+    "tile.decal-sand-shells"
+  ],
+  "files": [
+    "sunward-material-warm-sand-1x.png",
+    "sunward-material-warm-sand-3x.png",
+    "sunward-material-villa-floor-1x.png",
+    "sunward-material-villa-floor-3x.png",
+    "sunward-material-plaza-paver-1x.png",
+    "sunward-material-plaza-paver-3x.png",
+    "sunward-material-boardwalk-1x.png",
+    "sunward-material-boardwalk-3x.png",
+    "sunward-architecture-1x.png",
+    "sunward-architecture-3x.png"
+  ]
+}

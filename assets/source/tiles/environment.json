@@ -140,13 +140,160 @@
     {
       "id": "dark-asphalt",
       "cellClass": "ground",
-      "palette": { "B": "#4a4c50", "L": "#62656a", "D": "#35373b", "Y": "#d6b452" },
+      "palette": { "B": "#252832", "L": "#353a48", "D": "#191c24" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "dark-asphalt-b",
+      "cellClass": "ground",
+      "palette": { "B": "#272a34", "L": "#373c4a", "D": "#1a1d25" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "dark-asphalt-c",
+      "cellClass": "ground",
+      "palette": { "B": "#232630", "L": "#333844", "D": "#181b22" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "neon-paver",
+      "cellClass": "ground",
+      "palette": { "B": "#393343", "L": "#54485f", "D": "#2c2936", "K": "#211f2a" },
       "backgroundToken": "B",
       "commands": [
-        { "kind": "pixels", "token": "L", "points": [[4,4],[11,8],[27,5],[7,22],[18,26],[29,19]] },
-        { "kind": "pixels", "token": "D", "points": [[8,13],[21,10],[13,29],[25,24]] },
-        { "kind": "rect", "token": "Y", "x": 15, "y": 3, "width": 2, "height": 8 },
-        { "kind": "rect", "token": "Y", "x": 15, "y": 21, "width": 2, "height": 8 }
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 1, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 1, "height": 32 },
+        { "kind": "pixels", "token": "L", "points": [[8,7],[24,19],[15,27]] }
+      ]
+    },
+    {
+      "id": "neon-paver-b",
+      "cellClass": "ground",
+      "palette": { "B": "#3c3547", "L": "#584c63", "D": "#2e2a38", "K": "#211f2a" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 1, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 1, "height": 32 },
+        { "kind": "pixels", "token": "L", "points": [[5,22],[18,9],[27,26]] }
+      ]
+    },
+    {
+      "id": "neon-paver-c",
+      "cellClass": "ground",
+      "palette": { "B": "#373240", "L": "#50475a", "D": "#2a2733", "K": "#201e28" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 1, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 1, "height": 32 },
+        { "kind": "pixels", "token": "L", "points": [[4,11],[21,6],[26,23]] }
+      ]
+    },
+    {
+      "id": "neon-paver-d",
+      "cellClass": "ground",
+      "palette": { "B": "#40374a", "L": "#5b4e66", "D": "#302b3b", "K": "#221f2b" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 0, "y": 1, "width": 32, "height": 1 },
+        { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 1, "height": 32 },
+        { "kind": "pixels", "token": "L", "points": [[11,5],[7,25],[25,14]] }
+      ]
+    },
+    {
+      "id": "neon-floor",
+      "cellClass": "ground",
+      "palette": { "B": "#302a38", "L": "#44394d", "D": "#24232d", "K": "#191b23" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "neon-floor-b",
+      "cellClass": "ground",
+      "palette": { "B": "#332c3b", "L": "#493d52", "D": "#26242f", "K": "#191b23" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "neon-floor-c",
+      "cellClass": "ground",
+      "palette": { "B": "#2d2936", "L": "#41374a", "D": "#22212b", "K": "#181a22" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "city-lot",
+      "cellClass": "ground",
+      "palette": { "B": "#383d47", "L": "#4b515d", "D": "#2c3038", "K": "#22252c" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "city-lot-b",
+      "cellClass": "ground",
+      "palette": { "B": "#3b404a", "L": "#4f5661", "D": "#2d323a", "K": "#22252c" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "city-lot-c",
+      "cellClass": "ground",
+      "palette": { "B": "#353a44", "L": "#48505a", "D": "#2a2e36", "K": "#20242a" },
+      "backgroundToken": "B",
+      "commands": []
+    },
+    {
+      "id": "road-crosswalk-horizontal",
+      "cellClass": "ground",
+      "palette": { "B": "#252832", "T": "#353a48", "D": "#8c8b88", "L": "#d7d2c4" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "T", "points": [[4,4],[26,13],[9,29]] },
+        { "kind": "rect", "token": "D", "x": 3, "y": 6, "width": 26, "height": 5 },
+        { "kind": "rect", "token": "L", "x": 3, "y": 6, "width": 26, "height": 3 },
+        { "kind": "rect", "token": "D", "x": 3, "y": 21, "width": 26, "height": 5 },
+        { "kind": "rect", "token": "L", "x": 3, "y": 21, "width": 26, "height": 3 }
+      ]
+    },
+    {
+      "id": "road-crosswalk-vertical",
+      "cellClass": "ground",
+      "palette": { "B": "#252832", "T": "#353a48", "D": "#8c8b88", "L": "#d7d2c4" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "T", "points": [[4,4],[26,13],[9,29]] },
+        { "kind": "rect", "token": "D", "x": 6, "y": 3, "width": 5, "height": 26 },
+        { "kind": "rect", "token": "L", "x": 6, "y": 3, "width": 3, "height": 26 },
+        { "kind": "rect", "token": "D", "x": 21, "y": 3, "width": 5, "height": 26 },
+        { "kind": "rect", "token": "L", "x": 21, "y": 3, "width": 3, "height": 26 }
+      ]
+    },
+    {
+      "id": "road-center-horizontal",
+      "cellClass": "ground",
+      "palette": { "B": "#252832", "T": "#353a48", "Y": "#b99955", "L": "#d6bf72" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "T", "points": [[4,4],[26,13],[9,29]] },
+        { "kind": "rect", "token": "Y", "x": 5, "y": 15, "width": 22, "height": 3 },
+        { "kind": "rect", "token": "L", "x": 7, "y": 15, "width": 18, "height": 1 }
+      ]
+    },
+    {
+      "id": "road-center-vertical",
+      "cellClass": "ground",
+      "palette": { "B": "#252832", "T": "#353a48", "Y": "#b99955", "L": "#d6bf72" },
+      "backgroundToken": "B",
+      "commands": [
+        { "kind": "pixels", "token": "T", "points": [[4,4],[26,13],[9,29]] },
+        { "kind": "rect", "token": "Y", "x": 15, "y": 5, "width": 3, "height": 22 },
+        { "kind": "rect", "token": "L", "x": 15, "y": 7, "width": 1, "height": 18 }
       ]
     },
     {
@@ -565,6 +712,66 @@
       ]
     },
     {
+      "id": "parked-car-cyan-left",
+      "cellClass": "transparent-part",
+      "role": "fixture",
+      "palette": { "K": "#151a22", "D": "#2d6670", "B": "#3fa4aa", "L": "#7cd6d2", "W": "#263746", "A": "#e6d772" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 2, "y": 5, "width": 30, "height": 23 },
+        { "kind": "rect", "token": "B", "x": 4, "y": 7, "width": 28, "height": 18 },
+        { "kind": "rect", "token": "L", "x": 5, "y": 8, "width": 26, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 19, "y": 10, "width": 13, "height": 12 },
+        { "kind": "rect", "token": "D", "x": 5, "y": 12, "width": 11, "height": 9 },
+        { "kind": "rect", "token": "A", "x": 3, "y": 10, "width": 3, "height": 4 },
+        { "kind": "rect", "token": "A", "x": 3, "y": 19, "width": 3, "height": 4 }
+      ]
+    },
+    {
+      "id": "parked-car-cyan-right",
+      "cellClass": "transparent-part",
+      "role": "fixture",
+      "palette": { "K": "#151a22", "D": "#2d6670", "B": "#3fa4aa", "L": "#7cd6d2", "W": "#263746", "A": "#d65c6a" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 0, "y": 5, "width": 30, "height": 23 },
+        { "kind": "rect", "token": "B", "x": 0, "y": 7, "width": 28, "height": 18 },
+        { "kind": "rect", "token": "L", "x": 1, "y": 8, "width": 26, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 0, "y": 10, "width": 13, "height": 12 },
+        { "kind": "rect", "token": "D", "x": 16, "y": 12, "width": 10, "height": 9 },
+        { "kind": "rect", "token": "A", "x": 26, "y": 10, "width": 3, "height": 4 },
+        { "kind": "rect", "token": "A", "x": 26, "y": 19, "width": 3, "height": 4 }
+      ]
+    },
+    {
+      "id": "parked-car-coral-left",
+      "cellClass": "transparent-part",
+      "role": "fixture",
+      "palette": { "K": "#1c1720", "D": "#7d3d56", "B": "#c45470", "L": "#ee8493", "W": "#303449", "A": "#f0d87c" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 2, "y": 5, "width": 30, "height": 23 },
+        { "kind": "rect", "token": "B", "x": 4, "y": 7, "width": 28, "height": 18 },
+        { "kind": "rect", "token": "L", "x": 5, "y": 8, "width": 26, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 19, "y": 10, "width": 13, "height": 12 },
+        { "kind": "rect", "token": "D", "x": 5, "y": 12, "width": 11, "height": 9 },
+        { "kind": "rect", "token": "A", "x": 3, "y": 10, "width": 3, "height": 4 },
+        { "kind": "rect", "token": "A", "x": 3, "y": 19, "width": 3, "height": 4 }
+      ]
+    },
+    {
+      "id": "parked-car-coral-right",
+      "cellClass": "transparent-part",
+      "role": "fixture",
+      "palette": { "K": "#1c1720", "D": "#7d3d56", "B": "#c45470", "L": "#ee8493", "W": "#303449", "A": "#d55a6a" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 0, "y": 5, "width": 30, "height": 23 },
+        { "kind": "rect", "token": "B", "x": 0, "y": 7, "width": 28, "height": 18 },
+        { "kind": "rect", "token": "L", "x": 1, "y": 8, "width": 26, "height": 2 },
+        { "kind": "rect", "token": "W", "x": 0, "y": 10, "width": 13, "height": 12 },
+        { "kind": "rect", "token": "D", "x": 16, "y": 12, "width": 10, "height": 9 },
+        { "kind": "rect", "token": "A", "x": 26, "y": 10, "width": 3, "height": 4 },
+        { "kind": "rect", "token": "A", "x": 26, "y": 19, "width": 3, "height": 4 }
+      ]
+    },
+    {
       "id": "sign-market",
       "cellClass": "transparent-part",
       "role": "sign",
@@ -601,6 +808,32 @@
         { "kind": "pixels", "token": "W", "points": [[15,6],[16,6],[15,7]] },
         { "kind": "rect", "token": "L", "x": 15, "y": 5, "width": 2, "height": 2 },
         { "kind": "rect", "token": "D", "x": 14, "y": 13, "width": 4, "height": 16 },
+        { "kind": "rect", "token": "K", "x": 9, "y": 29, "width": 14, "height": 3 }
+      ]
+    },
+    {
+      "id": "fixture-neon-lamp-cyan",
+      "cellClass": "transparent-part",
+      "role": "fixture",
+      "palette": { "K": "#171923", "D": "#42465b", "L": "#6f7891", "A": "#28d8dc", "W": "#b8ffff" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 10, "y": 3, "width": 12, "height": 10 },
+        { "kind": "rect", "token": "A", "x": 12, "y": 5, "width": 8, "height": 5 },
+        { "kind": "rect", "token": "W", "x": 13, "y": 5, "width": 5, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 15, "y": 13, "width": 3, "height": 16 },
+        { "kind": "rect", "token": "K", "x": 9, "y": 29, "width": 14, "height": 3 }
+      ]
+    },
+    {
+      "id": "fixture-neon-lamp-magenta",
+      "cellClass": "transparent-part",
+      "role": "fixture",
+      "palette": { "K": "#171923", "D": "#42465b", "L": "#6f7891", "A": "#f05ad7", "W": "#ffd0f7" },
+      "commands": [
+        { "kind": "rect", "token": "K", "x": 10, "y": 3, "width": 12, "height": 10 },
+        { "kind": "rect", "token": "A", "x": 12, "y": 5, "width": 8, "height": 5 },
+        { "kind": "rect", "token": "W", "x": 13, "y": 5, "width": 5, "height": 1 },
+        { "kind": "rect", "token": "D", "x": 15, "y": 13, "width": 3, "height": 16 },
         { "kind": "rect", "token": "K", "x": 9, "y": 29, "width": 14, "height": 3 }
       ]
     },
@@ -806,6 +1039,91 @@
         { "kind": "pixels", "token": "G", "points": [[14,20],[15,17],[16,20],[17,16],[18,20]] },
         { "kind": "pixels", "token": "g", "points": [[15,21],[16,21],[17,21]] }
       ]
+    },
+    {
+      "id": "decal-leaf-litter",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#6f4b32" },
+      "commands": [
+        { "kind": "pixels", "token": "D", "points": [[16,20]] }
+      ]
+    },
+    {
+      "id": "decal-sapling",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#36543a" },
+      "commands": [
+        { "kind": "pixels", "token": "D", "points": [[16,16]] }
+      ]
+    },
+    {
+      "id": "decal-young-palm",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#3e673f" },
+      "commands": [
+        { "kind": "pixels", "token": "D", "points": [[17,14]] }
+      ]
+    },
+    {
+      "id": "decal-flowering-shrub",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#4f7445" },
+      "commands": [
+        { "kind": "pixels", "token": "D", "points": [[16,18]] }
+      ]
+    },
+    {
+      "id": "decal-neon-light-cyan",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#28d8dc" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,20]] }]
+    },
+    {
+      "id": "decal-neon-light-magenta",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#f05ad7" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,20]] }]
+    },
+    {
+      "id": "decal-neon-litter",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#ab86b8" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,20]] }]
+    },
+    {
+      "id": "decal-neon-puddle",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#47556a" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,20]] }]
+    },
+    {
+      "id": "decal-neon-manhole",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#303542" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,20]] }]
+    },
+    {
+      "id": "decal-neon-planter",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#4c3b62" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,20]] }]
+    },
+    {
+      "id": "decal-canopy-tree",
+      "cellClass": "presentation",
+      "role": "decal",
+      "palette": { "D": "#36543a" },
+      "commands": [{ "kind": "pixels", "token": "D", "points": [[16,16]] }]
     }
   ],
   "multiTileCompositions": [
@@ -818,6 +1136,8 @@
       "partIds": ["landmark-fountain-nw", "landmark-fountain-ne", "landmark-fountain-sw", "landmark-fountain-se"]
     },
     { "id": "harbor-ferry", "columns": 2, "rows": 1, "partIds": ["landmark-ferry-left", "landmark-ferry-right"] }
+    ,{ "id": "parked-car-cyan", "columns": 2, "rows": 1, "partIds": ["parked-car-cyan-left", "parked-car-cyan-right"] }
+    ,{ "id": "parked-car-coral", "columns": 2, "rows": 1, "partIds": ["parked-car-coral-left", "parked-car-coral-right"] }
   ],
   "wallModules": {
     "north": [

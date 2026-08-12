@@ -7,22 +7,86 @@
   "height": 48,
   "tileSize": 32,
   "ground": {
-    "defaultSprite": "tile.plaza-paver",
+    "defaultSprite": "tile.city-lot",
     "regions": [
       {
-        "id": "cross-street",
+        "id": "club-sidewalk",
+        "x": 5,
+        "y": 5,
+        "width": 27,
+        "height": 19,
+        "sprite": "tile.neon-paver"
+      },
+      {
+        "id": "arcade-sidewalk",
+        "x": 37,
+        "y": 5,
+        "width": 27,
+        "height": 19,
+        "sprite": "tile.neon-paver"
+      },
+      {
+        "id": "south-boulevard-walk",
         "x": 0,
-        "y": 22,
+        "y": 29,
+        "width": 32,
+        "height": 2,
+        "sprite": "tile.neon-paver"
+      },
+      {
+        "id": "studio-sidewalk",
+        "x": 3,
+        "y": 29,
+        "width": 28,
+        "height": 15,
+        "sprite": "tile.neon-paver"
+      },
+      {
+        "id": "market-sidewalk",
+        "x": 37,
+        "y": 29,
+        "width": 27,
+        "height": 15,
+        "sprite": "tile.neon-paver"
+      },
+      {
+        "id": "west-portal-walk",
+        "x": 0,
+        "y": 20,
+        "width": 8,
+        "height": 4,
+        "sprite": "tile.neon-paver"
+      },
+      {
+        "id": "north-street",
+        "x": 0,
+        "y": 0,
         "width": 64,
         "height": 5,
         "sprite": "tile.dark-asphalt"
       },
       {
-        "id": "south-street",
-        "x": 30,
-        "y": 22,
+        "id": "main-boulevard",
+        "x": 0,
+        "y": 24,
+        "width": 64,
+        "height": 5,
+        "sprite": "tile.dark-asphalt"
+      },
+      {
+        "id": "avenue",
+        "x": 32,
+        "y": 0,
         "width": 5,
-        "height": 26,
+        "height": 48,
+        "sprite": "tile.dark-asphalt"
+      },
+      {
+        "id": "market-street",
+        "x": 0,
+        "y": 44,
+        "width": 64,
+        "height": 4,
         "sprite": "tile.dark-asphalt"
       },
       {
@@ -31,15 +95,31 @@
         "y": 7,
         "width": 22,
         "height": 13,
-        "sprite": "tile.boardwalk"
+        "sprite": "tile.neon-floor"
+      },
+      {
+        "id": "arcade-floor",
+        "x": 40,
+        "y": 7,
+        "width": 20,
+        "height": 13,
+        "sprite": "tile.neon-floor"
+      },
+      {
+        "id": "studio-floor",
+        "x": 7,
+        "y": 32,
+        "width": 20,
+        "height": 9,
+        "sprite": "tile.neon-floor"
       },
       {
         "id": "market-floor",
-        "x": 38,
-        "y": 29,
+        "x": 39,
+        "y": 31,
         "width": 18,
-        "height": 11,
-        "sprite": "tile.warm-sand"
+        "height": 10,
+        "sprite": "tile.neon-floor"
       }
     ]
   },
@@ -99,11 +179,115 @@
         "openings": []
       },
       {
+        "id": "arcade-row-north",
+        "material": "downtown",
+        "bounds": {
+          "x": 40,
+          "y": 7,
+          "width": 20,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "arcade-row-south",
+        "material": "downtown",
+        "bounds": {
+          "x": 40,
+          "y": 19,
+          "width": 20,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "arcade-row-entrance",
+            "tile": {
+              "x": 50,
+              "y": 19
+            }
+          }
+        ]
+      },
+      {
+        "id": "arcade-row-west",
+        "material": "downtown",
+        "bounds": {
+          "x": 40,
+          "y": 8,
+          "width": 1,
+          "height": 11
+        },
+        "openings": []
+      },
+      {
+        "id": "arcade-row-east",
+        "material": "downtown",
+        "bounds": {
+          "x": 59,
+          "y": 8,
+          "width": 1,
+          "height": 11
+        },
+        "openings": []
+      },
+      {
+        "id": "studio-row-north",
+        "material": "downtown",
+        "bounds": {
+          "x": 7,
+          "y": 32,
+          "width": 20,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "studio-row-south",
+        "material": "downtown",
+        "bounds": {
+          "x": 7,
+          "y": 40,
+          "width": 20,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "studio-row-entrance",
+            "tile": {
+              "x": 17,
+              "y": 40
+            }
+          }
+        ]
+      },
+      {
+        "id": "studio-row-west",
+        "material": "downtown",
+        "bounds": {
+          "x": 7,
+          "y": 33,
+          "width": 1,
+          "height": 7
+        },
+        "openings": []
+      },
+      {
+        "id": "studio-row-east",
+        "material": "downtown",
+        "bounds": {
+          "x": 26,
+          "y": 33,
+          "width": 1,
+          "height": 7
+        },
+        "openings": []
+      },
+      {
         "id": "night-market-north",
         "material": "downtown",
         "bounds": {
-          "x": 38,
-          "y": 29,
+          "x": 39,
+          "y": 31,
           "width": 18,
           "height": 1
         },
@@ -113,8 +297,8 @@
         "id": "night-market-south",
         "material": "downtown",
         "bounds": {
-          "x": 38,
-          "y": 39,
+          "x": 39,
+          "y": 40,
           "width": 18,
           "height": 1
         },
@@ -122,8 +306,8 @@
           {
             "id": "night-market-entrance",
             "tile": {
-              "x": 47,
-              "y": 39
+              "x": 48,
+              "y": 40
             }
           }
         ]
@@ -132,10 +316,10 @@
         "id": "night-market-west",
         "material": "downtown",
         "bounds": {
-          "x": 38,
-          "y": 30,
+          "x": 39,
+          "y": 32,
           "width": 1,
-          "height": 9
+          "height": 8
         },
         "openings": []
       },
@@ -143,16 +327,41 @@
         "id": "night-market-east",
         "material": "downtown",
         "bounds": {
-          "x": 55,
-          "y": 30,
+          "x": 56,
+          "y": 32,
           "width": 1,
-          "height": 9
+          "height": 8
         },
         "openings": []
       }
     ]
   },
-  "doors": [],
+  "doors": [
+    {
+      "id": "club-door",
+      "openingId": "club-strip-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "arcade-door",
+      "openingId": "arcade-row-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "studio-door",
+      "openingId": "studio-row-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "market-door",
+      "openingId": "night-market-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    }
+  ],
   "objects": [
     {
       "id": "club-strip-fixtures",
@@ -177,7 +386,7 @@
         },
         {
           "id": "club-strip-fixtures-part-02",
-          "sprite": "tile.fixture-lamp",
+          "sprite": "tile.fixture-neon-lamp-cyan",
           "offset": {
             "x": 1,
             "y": 0
@@ -209,7 +418,7 @@
         },
         {
           "id": "club-strip-fixtures-part-06",
-          "sprite": "tile.fixture-lamp",
+          "sprite": "tile.fixture-neon-lamp-magenta",
           "offset": {
             "x": 15,
             "y": 7
@@ -291,16 +500,856 @@
       "interactions": []
     },
     {
+      "id": "club-entrance-neon",
+      "kind": "entrance-signage",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 11,
+        "y": 20
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "club-entrance-neon-part-01",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-entrance-neon-part-02",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-entrance-neon-part-03",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-entrance-neon-part-04",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 10,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-entrance-neon-part-05",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 12,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-entrance-neon-part-06",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 16,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "club-entrance-neon-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-entrance-neon-solid-02",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-entrance-neon-solid-03",
+          "bounds": {
+            "x": 6,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-entrance-neon-solid-04",
+          "bounds": {
+            "x": 10,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-entrance-neon-solid-05",
+          "bounds": {
+            "x": 12,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-entrance-neon-solid-06",
+          "bounds": {
+            "x": 16,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "club-west-sofa",
+      "kind": "lounge-sofa",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 10,
+        "y": 14
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "club-west-sofa-part-01",
+          "sprite": "tile.sofa-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-west-sofa-part-02",
+          "sprite": "tile.sofa-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "club-west-sofa-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-west-sofa-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "club-west-table",
+      "kind": "lounge-table",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 10,
+        "y": 16
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "club-west-table-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-west-table-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "club-west-table-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-west-table-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "club-east-sofa",
+      "kind": "lounge-sofa",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 25,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "club-east-sofa-part-01",
+          "sprite": "tile.sofa-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-east-sofa-part-02",
+          "sprite": "tile.sofa-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "club-east-sofa-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-east-sofa-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "club-east-table",
+      "kind": "lounge-table",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 25,
+        "y": 14
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "club-east-table-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-east-table-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "club-east-table-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-east-table-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "arcade-row-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "arcade-row",
+      "anchor": {
+        "x": 42,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 15,
+        "y": 7
+      },
+      "renderParts": [
+        {
+          "id": "arcade-row-fixtures-part-01",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-02",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-05",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 12,
+            "y": 7
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-06",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 13,
+            "y": 7
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 14,
+            "y": 7
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-part-08",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 15,
+            "y": 7
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "arcade-row-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-solid-05",
+          "bounds": {
+            "x": 12,
+            "y": 7,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-row-fixtures-solid-06",
+          "bounds": {
+            "x": 13,
+            "y": 7,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "arcade-entrance-neon",
+      "kind": "entrance-signage",
+      "areaId": "arcade-row",
+      "anchor": {
+        "x": 41,
+        "y": 20
+      },
+      "depthAnchorOffset": {
+        "x": 18,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "arcade-entrance-neon-part-01",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-part-02",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-part-03",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 7,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-part-04",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 11,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-part-05",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 14,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-part-06",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 18,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "arcade-entrance-neon-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-solid-02",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-solid-03",
+          "bounds": {
+            "x": 7,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-solid-04",
+          "bounds": {
+            "x": 11,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-solid-05",
+          "bounds": {
+            "x": 14,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-entrance-neon-solid-06",
+          "bounds": {
+            "x": 18,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "studio-row-fixtures",
+      "kind": "development-fixtures",
+      "areaId": "studio-row",
+      "anchor": {
+        "x": 9,
+        "y": 34
+      },
+      "depthAnchorOffset": {
+        "x": 15,
+        "y": 3
+      },
+      "renderParts": [
+        {
+          "id": "studio-row-fixtures-part-01",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-02",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-03",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-04",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-05",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 12,
+            "y": 3
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-06",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 13,
+            "y": 3
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-07",
+          "sprite": "tile.fixture-planter",
+          "offset": {
+            "x": 14,
+            "y": 3
+          }
+        },
+        {
+          "id": "studio-row-fixtures-part-08",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 15,
+            "y": 3
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "studio-row-fixtures-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-row-fixtures-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-row-fixtures-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-row-fixtures-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-row-fixtures-solid-05",
+          "bounds": {
+            "x": 12,
+            "y": 3,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-row-fixtures-solid-06",
+          "bounds": {
+            "x": 13,
+            "y": 3,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "studio-entrance-neon",
+      "kind": "entrance-signage",
+      "areaId": "studio-row",
+      "anchor": {
+        "x": 9,
+        "y": 41
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "studio-entrance-neon-part-01",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-entrance-neon-part-02",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-entrance-neon-part-03",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-entrance-neon-part-04",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 10,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-entrance-neon-part-05",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 13,
+            "y": 0
+          }
+        },
+        {
+          "id": "studio-entrance-neon-part-06",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 16,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "studio-entrance-neon-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-entrance-neon-solid-02",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-entrance-neon-solid-03",
+          "bounds": {
+            "x": 6,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-entrance-neon-solid-04",
+          "bounds": {
+            "x": 10,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-entrance-neon-solid-05",
+          "bounds": {
+            "x": 13,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "studio-entrance-neon-solid-06",
+          "bounds": {
+            "x": 16,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
       "id": "night-market-fixtures",
       "kind": "development-fixtures",
       "areaId": "night-market",
       "anchor": {
-        "x": 40,
-        "y": 31
+        "x": 41,
+        "y": 33
       },
       "depthAnchorOffset": {
         "x": 13,
-        "y": 5
+        "y": 4
       },
       "renderParts": [
         {
@@ -313,7 +1362,7 @@
         },
         {
           "id": "night-market-fixtures-part-02",
-          "sprite": "tile.fixture-lamp",
+          "sprite": "tile.fixture-neon-lamp-magenta",
           "offset": {
             "x": 1,
             "y": 0
@@ -340,15 +1389,15 @@
           "sprite": "tile.sign-market",
           "offset": {
             "x": 10,
-            "y": 5
+            "y": 4
           }
         },
         {
           "id": "night-market-fixtures-part-06",
-          "sprite": "tile.fixture-lamp",
+          "sprite": "tile.fixture-neon-lamp-cyan",
           "offset": {
             "x": 11,
-            "y": 5
+            "y": 4
           }
         },
         {
@@ -356,7 +1405,7 @@
           "sprite": "tile.fixture-planter",
           "offset": {
             "x": 12,
-            "y": 5
+            "y": 4
           }
         },
         {
@@ -364,7 +1413,7 @@
           "sprite": "tile.counter-left",
           "offset": {
             "x": 13,
-            "y": 5
+            "y": 4
           }
         }
       ],
@@ -409,7 +1458,7 @@
           "id": "night-market-fixtures-solid-05",
           "bounds": {
             "x": 10,
-            "y": 5,
+            "y": 4,
             "width": 1,
             "height": 1
           }
@@ -418,7 +1467,751 @@
           "id": "night-market-fixtures-solid-06",
           "bounds": {
             "x": 11,
-            "y": 5,
+            "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "market-entrance-neon",
+      "kind": "entrance-signage",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 40,
+        "y": 41
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "market-entrance-neon-part-01",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-entrance-neon-part-02",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-entrance-neon-part-03",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-entrance-neon-part-04",
+          "sprite": "tile.sign-market",
+          "offset": {
+            "x": 10,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-entrance-neon-part-05",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 13,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-entrance-neon-part-06",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 16,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "market-entrance-neon-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-entrance-neon-solid-02",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-entrance-neon-solid-03",
+          "bounds": {
+            "x": 6,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-entrance-neon-solid-04",
+          "bounds": {
+            "x": 10,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-entrance-neon-solid-05",
+          "bounds": {
+            "x": 13,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-entrance-neon-solid-06",
+          "bounds": {
+            "x": 16,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "market-west-counter",
+      "kind": "market-counter",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 41,
+        "y": 36
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "market-west-counter-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-west-counter-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "market-west-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-west-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "market-east-counter",
+      "kind": "market-counter",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 52,
+        "y": 34
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "market-east-counter-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-east-counter-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "market-east-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-east-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-01",
+      "kind": "parked-car",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 7,
+        "y": 24
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-01-part-01",
+          "sprite": "tile.parked-car-cyan-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-01-part-02",
+          "sprite": "tile.parked-car-cyan-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-01-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-01-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-02",
+      "kind": "parked-car",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 24,
+        "y": 24
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-02-part-01",
+          "sprite": "tile.parked-car-coral-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-02-part-02",
+          "sprite": "tile.parked-car-coral-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-02-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-02-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-03",
+      "kind": "parked-car",
+      "areaId": "arcade-row",
+      "anchor": {
+        "x": 40,
+        "y": 24
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-03-part-01",
+          "sprite": "tile.parked-car-cyan-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-03-part-02",
+          "sprite": "tile.parked-car-cyan-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-03-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-03-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-04",
+      "kind": "parked-car",
+      "areaId": "arcade-row",
+      "anchor": {
+        "x": 55,
+        "y": 24
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-04-part-01",
+          "sprite": "tile.parked-car-coral-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-04-part-02",
+          "sprite": "tile.parked-car-coral-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-04-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-04-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-05",
+      "kind": "parked-car",
+      "areaId": "studio-row",
+      "anchor": {
+        "x": 9,
+        "y": 28
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-05-part-01",
+          "sprite": "tile.parked-car-coral-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-05-part-02",
+          "sprite": "tile.parked-car-coral-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-05-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-05-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-06",
+      "kind": "parked-car",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 40,
+        "y": 28
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-06-part-01",
+          "sprite": "tile.parked-car-cyan-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-06-part-02",
+          "sprite": "tile.parked-car-cyan-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-06-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-06-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "boulevard-car-07",
+      "kind": "parked-car",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 55,
+        "y": 28
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "boulevard-car-07-part-01",
+          "sprite": "tile.parked-car-coral-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "boulevard-car-07-part-02",
+          "sprite": "tile.parked-car-coral-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "boulevard-car-07-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "boulevard-car-07-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "market-street-car-01",
+      "kind": "parked-car",
+      "areaId": "studio-row",
+      "anchor": {
+        "x": 7,
+        "y": 44
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "market-street-car-01-part-01",
+          "sprite": "tile.parked-car-cyan-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-street-car-01-part-02",
+          "sprite": "tile.parked-car-cyan-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "market-street-car-01-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-street-car-01-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "market-street-car-02",
+      "kind": "parked-car",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 39,
+        "y": 44
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "market-street-car-02-part-01",
+          "sprite": "tile.parked-car-coral-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-street-car-02-part-02",
+          "sprite": "tile.parked-car-coral-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "market-street-car-02-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-street-car-02-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "market-street-car-03",
+      "kind": "parked-car",
+      "areaId": "night-market",
+      "anchor": {
+        "x": 54,
+        "y": 44
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "market-street-car-03-part-01",
+          "sprite": "tile.parked-car-cyan-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "market-street-car-03-part-02",
+          "sprite": "tile.parked-car-cyan-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "market-street-car-03-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "market-street-car-03-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -437,8 +2230,8 @@
       }
     },
     {
-      "id": "bar-fire",
-      "kind": "fire",
+      "id": "market-sparkle",
+      "kind": "sparkle",
       "tile": {
         "x": 45,
         "y": 34
@@ -467,19 +2260,57 @@
       "requiredPortalIds": []
     },
     {
-      "id": "night-market",
+      "id": "arcade-row",
       "bounds": {
-        "x": 38,
-        "y": 29,
-        "width": 18,
-        "height": 11
+        "x": 40,
+        "y": 7,
+        "width": 20,
+        "height": 13
       },
       "densityProfile": "structural-placeholder",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
-          "x": 47,
-          "y": 38
+          "x": 50,
+          "y": 18
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    },
+    {
+      "id": "studio-row",
+      "bounds": {
+        "x": 7,
+        "y": 32,
+        "width": 20,
+        "height": 9
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 17,
+          "y": 39
+        }
+      ],
+      "primaryRoutes": [],
+      "requiredPortalIds": []
+    },
+    {
+      "id": "night-market",
+      "bounds": {
+        "x": 39,
+        "y": 31,
+        "width": 18,
+        "height": 10
+      },
+      "densityProfile": "structural-placeholder",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 48,
+          "y": 39
         }
       ],
       "primaryRoutes": [],

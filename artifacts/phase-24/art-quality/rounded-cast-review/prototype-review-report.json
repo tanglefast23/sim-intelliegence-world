@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 10,
+  "files": [
+    "prototype-characters-1x.png",
+    "prototype-characters-3x.png",
+    "material-warm-sand-12x12-1x.png",
+    "material-warm-sand-12x12-3x.png",
+    "material-dune-grass-12x12-1x.png",
+    "material-dune-grass-12x12-3x.png",
+    "material-villa-floor-12x12-1x.png",
+    "material-villa-floor-12x12-3x.png",
+    "material-spa-stone-12x12-1x.png",
+    "material-spa-stone-12x12-3x.png",
+    "material-shallow-water-12x12-1x.png",
+    "material-shallow-water-12x12-3x.png",
+    "transition-topology-1x.png",
+    "transition-topology-3x.png",
+    "transition-junctions-1x.png",
+    "transition-junctions-3x.png",
+    "architecture-objects-1x.png",
+    "architecture-objects-3x.png",
+    "door-states-1x.png",
+    "door-states-3x.png",
+    "tall-prop-depth-1x.png",
+    "tall-prop-depth-3x.png",
+    "multi-sunward-sofa-1x.png",
+    "multi-sunward-sofa-3x.png",
+    "multi-sunward-table-1x.png",
+    "multi-sunward-table-3x.png",
+    "multi-sunward-fountain-1x.png",
+    "multi-sunward-fountain-3x.png",
+    "multi-harbor-ferry-1x.png",
+    "multi-harbor-ferry-3x.png",
+    "multi-parked-car-cyan-1x.png",
+    "multi-parked-car-cyan-3x.png",
+    "multi-parked-car-coral-1x.png",
+    "multi-parked-car-coral-3x.png",
+    "multi-harbor-cargo-crane-1x.png",
+    "multi-harbor-cargo-crane-3x.png",
+    "multi-harbor-cargo-stack-1x.png",
+    "multi-harbor-cargo-stack-3x.png",
+    "multi-harbor-pallet-rack-1x.png",
+    "multi-harbor-pallet-rack-3x.png",
+    "multi-sunset-market-canopy-1x.png",
+    "multi-sunset-market-canopy-3x.png",
+    "multi-sunset-produce-stall-1x.png",
+    "multi-sunset-produce-stall-3x.png",
+    "multi-sunset-food-stall-1x.png",
+    "multi-sunset-food-stall-3x.png",
+    "multi-sunset-market-fountain-1x.png",
+    "multi-sunset-market-fountain-3x.png"
+  ],
+  "materials": [
+    {
+      "materialId": "warm-sand",
+      "width": 12,
+      "height": 12,
+      "expectedPerVariant": 36,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
+      "counts": {
+        "warm-sand-a": 48,
+        "warm-sand-b": 34,
+        "warm-sand-c": 24,
+        "warm-sand-d": 38
+      },
+      "passed": true
+    },
+    {
+      "materialId": "dune-grass",
+      "width": 12,
+      "height": 12,
+      "expectedPerVariant": 36,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
+      "counts": {
+        "dune-grass-a": 35,
+        "dune-grass-b": 40,
+        "dune-grass-c": 29,
+        "dune-grass-d": 40
+      },
+      "passed": true
+    },
+    {
+      "materialId": "villa-floor",
+      "width": 12,
+      "height": 12,
+      "expectedPerVariant": 36,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
+      "counts": {
+        "villa-floor-a": 29,
+        "villa-floor-b": 36,
+        "villa-floor-c": 41,
+        "villa-floor-d": 38
+      },
+      "passed": true
+    },
+    {
+      "materialId": "spa-stone",
+      "width": 12,
+      "height": 12,
+      "expectedPerVariant": 72,
+      "minimumAllowed": 36,
+      "maximumAllowed": 108,
+      "counts": {
+        "spa-stone-a": 77,
+        "spa-stone-b": 67
+      },
+      "passed": true
+    },
+    {
+      "materialId": "shallow-water",
+      "width": 12,
+      "height": 12,
+      "expectedPerVariant": 36,
+      "minimumAllowed": 18,
+      "maximumAllowed": 54,
+      "counts": {
+        "shallow-water-a": 38,
+        "shallow-water-b": 37,
+        "shallow-water-c": 32,
+        "shallow-water-d": 37
+      },
+      "passed": true
+    }
+  ],
+  "characters": [
+    "protagonist",
+    "linda",
+    "generic-resident"
+  ],
+  "lateralThreeQuarterHeadRequired": false,
+  "transitionCases": [
+    "unequal-priority-junction",
+    "equal-priority-tie"
+  ],
+  "doorStates": [
+    "open",
+    "closed-unlocked",
+    "closed-locked"
+  ],
+  "tallPropClasses": [
+    "sofa",
+    "table",
+    "planter",
+    "palm",
+    "lamp",
+    "fountain"
+  ],
+  "multiTileGroups": {
+    "sunward-sofa": [
+      "sofa-left",
+      "sofa-right"
+    ],
+    "sunward-table": [
+      "table-left",
+      "table-right"
+    ],
+    "sunward-fountain": [
+      "landmark-fountain-nw",
+      "landmark-fountain-ne",
+      "landmark-fountain-sw",
+      "landmark-fountain-se"
+    ],
+    "harbor-ferry": [
+      "landmark-ferry-left",
+      "landmark-ferry-right"
+    ],
+    "parked-car-cyan": [
+      "parked-car-cyan-left",
+      "parked-car-cyan-right"
+    ],
+    "parked-car-coral": [
+      "parked-car-coral-left",
+      "parked-car-coral-right"
+    ],
+    "harbor-cargo-crane": [
+      "cargo-crane-nw",
+      "cargo-crane-ne",
+      "cargo-crane-sw",
+      "cargo-crane-se"
+    ],
+    "harbor-cargo-stack": [
+      "cargo-stack-left",
+      "cargo-stack-right"
+    ],
+    "harbor-pallet-rack": [
+      "pallet-rack-nw",
+      "pallet-rack-ne",
+      "pallet-rack-sw",
+      "pallet-rack-se"
+    ],
+    "sunset-market-canopy": [
+      "market-canopy-nw",
+      "market-canopy-ne",
+      "market-canopy-sw",
+      "market-canopy-se"
+    ],
+    "sunset-produce-stall": [
+      "produce-stall-left",
+      "produce-stall-right"
+    ],
+    "sunset-food-stall": [
+      "food-stall-left",
+      "food-stall-right"
+    ],
+    "sunset-market-fountain": [
+      "sunset-fountain-nw",
+      "sunset-fountain-ne",
+      "sunset-fountain-sw",
+      "sunset-fountain-se"
+    ]
+  }
+}

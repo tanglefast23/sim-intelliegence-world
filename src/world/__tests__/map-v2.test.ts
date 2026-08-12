@@ -171,6 +171,18 @@ describe('map v2 compiler authority', () => {
     expect(() => compile(partlyBlocked)).toThrow('approach is blocked at 11,12');
   });
 
+  test('rejects doors that touch along a tile edge', () => {
+    const map = baseMap();
+    map.walls.runs[0]!.openings.push({ id: 'touching-opening', tile: { x: 16, y: 10 } });
+    map.doors.push({
+      id: 'touching-door',
+      openingId: 'touching-opening',
+      initialState: 'open',
+      sprite: 'tile.open-door',
+    });
+    expect(() => compile(map)).toThrow('cannot touch along a tile edge');
+  });
+
   test('derives every orthogonal wall mask from neighboring cells', () => {
     const map = baseMap();
     map.walls.runs = [];

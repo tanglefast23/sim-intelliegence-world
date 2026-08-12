@@ -41,6 +41,7 @@ import { ContextActionMenu } from '../ui/ContextActionMenu';
 import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
+import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
 import { uiMetrics } from '../ui/ui-metrics';
 import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
@@ -86,10 +87,13 @@ import { WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
+import { journalMapMarkers } from './journal-markers';
+import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wobble';
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
   type WorldActors,
+  type WorldCharacterPlacement,
   type WorldLayer,
 } from './world-frame';
 
@@ -137,6 +141,20 @@ function atlasData(placements: readonly SpritePlacement[], zoom: ZoomLevel) {
   };
 }
 
+function characterAtlasData(placements: readonly WorldCharacterPlacement[], zoom: ZoomLevel) {
+  return {
+    sprites: placements.map(({ sprite }) => {
+      const source = atlasRectangle(sprite);
+      return rect(source.x, source.y, source.width, source.height);
+    }),
+    transforms: placements.map(({ worldX, worldY, angleDegrees = 0 }) => {
+      if (angleDegrees === 0) return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
+      const transform = bottomPivotTransform({ worldX, worldY, zoom, angleDegrees });
+      return Skia.RSXform(transform.scos, transform.ssin, transform.tx, transform.ty);
+    }),
+  };
+}
+
 function areaName(map: CompiledMapV2, tile: TilePoint): string {
   const area = map.source.areas.find(({ bounds }) => (
     tile.x >= bounds.x && tile.x < bounds.x + bounds.width &&
@@ -145,8 +163,7 @@ function areaName(map: CompiledMapV2, tile: TilePoint): string {
   return (area?.id ?? map.source.displayName).replaceAll('-', ' ').toUpperCase();
 }
 
-function visualIdForNpc(stateId: string, tier: 'full_ai' | 'ambient'): CharacterId {
-  if (tier === 'ambient') return 'generic-resident';
+function visualIdForNpc(stateId: string, _tier: 'full_ai' | 'ambient'): CharacterId {
   const candidate = stateId.replaceAll('_', '-') as CharacterId;
   return CHARACTER_IDS.includes(candidate) ? candidate : 'generic-resident';
 }
@@ -172,6 +189,7 @@ function actorTiles(
         walkFrame: movement?.walkFrame ?? 0,
         moving: movement?.status === 'moving',
         reducedMotion,
+        horizontalRunDistance: movement?.horizontalRunDistance ?? 0,
       };
     }
   }
@@ -213,24 +231,30 @@ function npcLabel(selectedId: string, actors: WorldActors): string {
 }
 
 type WorldSceneProps = Readonly<{
+  initialConversationFixtureId?: CharacterId;
   initialFeedback: string;
+  initialOpenPanel?: 'journal' | 'relationships';
   initialPresentationPreferences: PresentationPreferences;
   initialSaveGeneration: number | null;
   initialSaveStatus: string;
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  persistenceDisabled?: boolean;
   surface: ViewportSize;
 }>;
 
 export function WorldScene({
+  initialConversationFixtureId,
   initialFeedback,
+  initialOpenPanel,
   initialPresentationPreferences,
   initialSaveGeneration,
   initialSaveStatus,
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  persistenceDisabled = false,
   surface,
 }: WorldSceneProps) {
   const image = useImage(atlasImage);
@@ -265,13 +289,16 @@ export function WorldScene({
   const [transitioning, setTransitioning] = useState(false);
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
-  const [conversationNpcId, setConversationNpcId] = useState<string>();
-  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId>();
-  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships'>();
+  const [conversationNpcId, setConversationNpcId] = useState<string | undefined>(initialConversationFixtureId);
+  const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId | undefined>(initialConversationFixtureId);
+  const [openPanel, setOpenPanel] = useState<'journal' | 'relationships' | undefined>(initialOpenPanel);
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
-  const conversationPort = useMemo(() => getDesktopBridge() ?? createBrowserConversationPort(), []);
+  const conversationPort = useMemo(
+    () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
+    [persistenceDisabled],
+  );
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -347,6 +374,10 @@ export function WorldScene({
     state: WorldState,
     trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
   ) => {
+    if (persistenceDisabled) {
+      setSaveStatus('DEV HARNESS · NO DISK SAVE');
+      return;
+    }
     const bridge = getDesktopBridge();
     if (!bridge) {
       setSaveStatus('BROWSER · NO DISK SAVE');
@@ -373,7 +404,7 @@ export function WorldScene({
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, []);
+  }, [persistenceDisabled]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -685,7 +716,7 @@ export function WorldScene({
     const event = runtime.worldState.eventLedger.at(-1);
     if (!event || event.type !== 'sleep-completed' || handledSleepEventId.current === event.eventId) return;
     handledSleepEventId.current = event.eventId;
-    setWorldFeedback(event.mode === 'nap' ? 'NAP COMPLETE · +25 ENERGY' : 'RESTED UNTIL 08:00 · +80 ENERGY');
+    setWorldFeedback(sleepCompletionFeedback(event));
     if (event.mode === 'overnight') void requestAutosave(runtime.worldState, 'sleep');
   }, [requestAutosave, runtime.worldState]);
 
@@ -713,11 +744,15 @@ export function WorldScene({
     const details = [
       ...map.presentation.transitions.flatMap((transition) => transition.sprite ? [{
         id: transition.id,
+        offsetX: 0,
+        offsetY: 0,
         sprite: transition.sprite,
         tile: transition.tile,
       }] : []),
       ...map.presentation.decals.map((decal) => ({
         id: decal.id,
+        offsetX: decal.offsetX,
+        offsetY: decal.offsetY,
         sprite: decal.sprite,
         tile: decal.tile,
       })),
@@ -729,8 +764,8 @@ export function WorldScene({
     )).map((detail) => ({
       id: detail.id,
       sprite: detail.sprite,
-      worldX: detail.tile.x * TILE_SIZE,
-      worldY: detail.tile.y * TILE_SIZE,
+      worldX: detail.tile.x * TILE_SIZE + detail.offsetX,
+      worldY: detail.tile.y * TILE_SIZE + detail.offsetY,
     }));
   }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
   const visibleProps = useMemo(() => [
@@ -779,8 +814,9 @@ export function WorldScene({
       walkFrame: runtime.movement.walkFrame,
       moving: runtime.movement.status === 'moving',
       reducedMotion,
+      horizontalRunDistance: runtime.movement.horizontalRunDistance,
     }),
-    [map, npcTiles, playerVisualFoot, reducedMotion, runtime.movement.direction, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState],
+    [map, npcTiles, playerVisualFoot, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState],
   );
   const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
     visibility.maximumX,
@@ -792,7 +828,7 @@ export function WorldScene({
   const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
   const groundDetailAtlas = useMemo(() => atlasData(visibleGroundDetails, camera.zoom), [camera.zoom, visibleGroundDetails]);
   const propAtlas = useMemo(() => atlasData(visibleProps, camera.zoom), [camera.zoom, visibleProps]);
-  const characterAtlas = useMemo(() => atlasData(characters, camera.zoom), [camera.zoom, characters]);
+  const characterAtlas = useMemo(() => characterAtlasData(characters, camera.zoom), [camera.zoom, characters]);
   const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
   const visibleRoofTiles = useMemo(() => map.presentation.roofs
     .filter(({ roofGroupId }) => worldFrame.visibleRoofGroupIds.includes(roofGroupId))
@@ -849,6 +885,10 @@ export function WorldScene({
       y: runtime.movement.feedbackTile.y * TILE_SIZE + 16,
     })
     : undefined;
+  const journalMarkers = useMemo(
+    () => journalMapMarkers(runtime.worldState.journal, map),
+    [map, runtime.worldState.journal],
+  );
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
 
@@ -949,6 +989,20 @@ export function WorldScene({
               return <Circle color="#f5dd9d88" cx={screen.x} cy={screen.y} r={Math.max(2, camera.zoom * 2)} style="stroke" strokeWidth={camera.zoom} />;
             })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
+            {journalMarkers.map((marker) => {
+              const foot = worldToScreen(camera, tileFootPoint(marker.tile));
+              const centerX = foot.x - 10 * camera.zoom;
+              const centerY = foot.y - 30 * camera.zoom;
+              return (
+                <Group key={`journal-marker-${marker.journalEntryId}`}>
+                  <Line color="#201915" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
+                  <Line color="#f1c65b" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
+                  <Circle color="#201915" cx={centerX} cy={centerY} r={7 * camera.zoom} />
+                  <Circle color="#f1c65b" cx={centerX} cy={centerY} r={5 * camera.zoom} />
+                  <Circle color="#201915" cx={centerX} cy={centerY} r={2 * camera.zoom} />
+                </Group>
+              );
+            })}
             {feedbackScreen ? (
               <>
                 <Line color="#ef5b43" p1={vec(feedbackScreen.x - 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x + 7, feedbackScreen.y + 7)} strokeWidth={3} />
@@ -1021,6 +1075,13 @@ export function WorldScene({
                 status: runtime.movement.status,
                 target: runtime.movement.pendingTarget ?? runtime.movement.target ?? null,
                 curveActive: Boolean(runtime.movement.latchedTurnCurve),
+                horizontalRunDistance: runtime.movement.horizontalRunDistance,
+                protagonistWobbleDegrees: protagonistWobbleDegrees({
+                  direction: runtime.movement.direction,
+                  status: runtime.movement.status,
+                  horizontalRunDistance: runtime.movement.horizontalRunDistance,
+                  reducedMotion,
+                }),
               },
               npcs: Object.fromEntries(Object.entries(runtime.npcMovements).map(([id, movement]) => [id, {
                 committed: movement.player,
@@ -1029,6 +1090,13 @@ export function WorldScene({
                 walkFrame: movement.walkFrame,
                 status: movement.status,
                 curveActive: Boolean(movement.latchedTurnCurve),
+                horizontalRunDistance: movement.horizontalRunDistance,
+                wobbleDegrees: protagonistWobbleDegrees({
+                  direction: movement.direction,
+                  status: movement.status,
+                  horizontalRunDistance: movement.horizontalRunDistance,
+                  reducedMotion,
+                }),
               }])),
             })}
             nativeID="world-movement-state"

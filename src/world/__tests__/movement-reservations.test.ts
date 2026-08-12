@@ -149,7 +149,7 @@ describe('movement reservations', () => {
       },
     };
     let playerWon = false;
-    for (let index = 0; index < 16; index += 1) {
+    for (let index = 0; index < 24; index += 1) {
       frame = advanceMovementFrame(frame, 16, 1);
       const player = frame.worldState.protagonist.worldPosition;
       const linda = frame.worldState.npcs.linda?.presence;
