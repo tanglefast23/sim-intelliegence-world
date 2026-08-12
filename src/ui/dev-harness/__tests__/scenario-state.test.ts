@@ -3,6 +3,7 @@ import { parseWorldState } from '../../../domain/state/schema';
 import {
   DEV_HARNESS_MAP_IDS,
   devHarnessGoldenHourState,
+  devHarnessGroundingState,
   devHarnessLocationState,
   devHarnessQuestState,
   devHarnessVfxState,
@@ -14,6 +15,14 @@ describe('dev harness scenario states', () => {
     const state = devHarnessGoldenHourState(mapId);
     expect(state.clock).toMatchObject({ absoluteMinute: 1_050, selectedSpeed: 0 });
     expect(state.protagonist.worldPosition.mapId).toBe(mapId);
+  });
+
+  test.each(DEV_HARNESS_MAP_IDS)('opens %s at an unblocked grounding close-up', (mapId) => {
+    const state = devHarnessGroundingState(mapId);
+    const position = state.protagonist.worldPosition;
+    expect(state.clock.absoluteMinute).toBe(1_050);
+    expect(position.mapId).toBe(mapId);
+    expect(WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${position.tileX},${position.tileY}`)).toBe(false);
   });
 
   test.each(DEV_HARNESS_MAP_IDS)('opens %s in a paused valid state', (mapId) => {

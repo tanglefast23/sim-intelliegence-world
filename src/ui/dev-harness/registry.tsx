@@ -14,6 +14,7 @@ import type { DevHarnessRoutableEntry } from './route';
 import {
   DEV_HARNESS_MAP_IDS,
   devHarnessGoldenHourState,
+  devHarnessGroundingState,
   devHarnessLocationState,
   devHarnessQuestState,
   devHarnessVfxState,
@@ -126,6 +127,16 @@ function vfxPresentationPreferences(
   };
 }
 
+function groundingPresentationPreferences(mapId: (typeof DEV_HARNESS_MAP_IDS)[number], surface: ViewportSize): PresentationPreferences {
+  const position = devHarnessGroundingState(mapId).protagonist.worldPosition;
+  const camera = centerCameraOnTile({ x: position.tileX, y: position.tileY }, 3, surface, MAP_PIXELS);
+  return {
+    ...DEFAULT_PRESENTATION_PREFERENCES,
+    worldZoom: 3,
+    camera: { mapId, x: camera.x, y: camera.y },
+  };
+}
+
 const welcomeEntry: DevHarnessEntry = {
   id: 'welcome',
   group: 'Start',
@@ -161,6 +172,24 @@ const goldenHourEntry: DevHarnessEntry = {
       surface={surface}
     />
   ),
+};
+
+const groundingEntry: DevHarnessEntry = {
+  id: 'grounding',
+  group: 'World',
+  title: 'Four-District Grounding',
+  summary: 'Inspect character overlap, contact shadows, and thresholds at close range.',
+  cases: mapCases,
+  render: (caseId, surface) => {
+    const mapId = caseId as (typeof DEV_HARNESS_MAP_IDS)[number];
+    return (
+      <HarnessWorld
+        presentationPreferences={groundingPresentationPreferences(mapId, surface)}
+        state={devHarnessGroundingState(mapId)}
+        surface={surface}
+      />
+    );
+  },
 };
 
 const characterTalkEntry: DevHarnessEntry = {
@@ -251,6 +280,7 @@ export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
   goldenHourEntry,
+  groundingEntry,
   characterTalkEntry,
   proceduralEffectsEntry,
   conversationsEntry,

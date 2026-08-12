@@ -3,7 +3,7 @@ import { createInitialState } from '../../domain/state/initial-state';
 import { WorldStateSchema } from '../../domain/state/schema';
 import { createMovementState, requestMovement } from '../../world/pathfinding/movement';
 import { advanceWorldMovement } from '../../application/runtime/world-runtime';
-import { WORLD_DEPTH } from '../depth';
+import { compareGroundedDepth, WORLD_DEPTH } from '../depth';
 import { buildWorldFrameState, WORLD_LAYER_ORDER } from '../world-frame';
 
 const MAP = WORLD_MAP_CATALOG.northwest_residential;
@@ -29,6 +29,15 @@ function walkTo(target: { x: number; y: number }, initialState = createInitialSt
 }
 
 describe('authoritative world frame', () => {
+  test('sorts props and characters by their ground contact point', () => {
+    const order = [
+      { groundY: 64, id: 'front-prop', kind: 'prop' as const },
+      { groundY: 32, id: 'back-prop', kind: 'prop' as const },
+      { groundY: 64, id: 'actor', kind: 'character' as const },
+    ].sort(compareGroundedDepth);
+    expect(order.map(({ id }) => id)).toEqual(['back-prop', 'actor', 'front-prop']);
+  });
+
   test('uses the explicit floor-to-roof depth contract', () => {
     expect(WORLD_LAYER_ORDER.map((name) => WORLD_DEPTH[name])).toEqual([10, 20, 30, 40, 50, 60, 70]);
     expect(buildWorldFrameState(MAP, createInitialState(), ACTORS, 'down', 0).layerOrder).toEqual(WORLD_LAYER_ORDER);
