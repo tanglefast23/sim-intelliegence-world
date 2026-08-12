@@ -89,7 +89,7 @@ import {
   type CameraState,
   type ViewportSize,
 } from './camera';
-import { WORLD_DEPTH } from './depth';
+import { compareGroundedDepth, WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
 import { AtmosphereOverlay } from './AtmosphereOverlay';
 import { DistrictLightingOverlay } from './DistrictLightingOverlay';
@@ -116,6 +116,14 @@ const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
 type SpritePlacement = Readonly<{ id: string; sprite: string; worldX: number; worldY: number }>;
+type PropPlacement = SpritePlacement & Readonly<{ isDoor: boolean; objectId: string; tile: TilePoint }>;
+type PropShadow = Readonly<{ id: string; long: boolean; width: number; worldX: number; worldY: number }>;
+type GroundedVisual = Readonly<{
+  groundY: number;
+  id: string;
+  kind: 'character' | 'prop';
+  placement: PropPlacement | WorldCharacterPlacement;
+}>;
 type RuntimeViewState = Readonly<{
   movement: MovementState;
   npcMovements: Readonly<Record<string, MovementState>>;
@@ -167,6 +175,64 @@ function characterAtlasData(placements: readonly WorldCharacterPlacement[], zoom
       return Skia.RSXform(transform.scos, transform.ssin, transform.tx, transform.ty);
     }),
   };
+}
+
+function groundedBatches(visuals: readonly GroundedVisual[]): readonly GroundedVisual[][] {
+  return visuals.reduce<GroundedVisual[][]>((batches, visual) => {
+    const batch = batches.at(-1);
+    if (batch?.[0]?.kind === visual.kind) batch.push(visual);
+    else batches.push([visual]);
+    return batches;
+  }, []);
+}
+
+function propShadowWidth(sprite: string): number {
+  if (/(counter|sofa|table|stall|bench|rack|cargo|ferry|crane|canopy|car)/u.test(sprite)) return 26;
+  if (sprite.includes('flowering-market-planter')) return 18;
+  if (/(lamp|sign|palm|planter|bollard)/u.test(sprite)) return 12;
+  return 18;
+}
+
+function propShadows(props: readonly PropPlacement[]): readonly PropShadow[] {
+  const groups = new Map<string, PropPlacement[]>();
+  for (const prop of props) {
+    if (prop.isDoor) continue;
+    const parts = groups.get(prop.objectId);
+    if (parts) parts.push(prop);
+    else groups.set(prop.objectId, [prop]);
+  }
+  return [...groups].flatMap(([id, parts]) => {
+    const remaining = new Set(parts);
+    const clusters: PropPlacement[][] = [];
+    while (remaining.size > 0) {
+      const seed = remaining.values().next().value as PropPlacement;
+      const cluster = [seed];
+      remaining.delete(seed);
+      for (let index = 0; index < cluster.length; index += 1) {
+        const current = cluster[index]!;
+        for (const candidate of remaining) {
+          if (Math.abs(current.worldX - candidate.worldX) <= TILE_SIZE && Math.abs(current.worldY - candidate.worldY) <= TILE_SIZE) {
+            cluster.push(candidate);
+            remaining.delete(candidate);
+          }
+        }
+      }
+      clusters.push(cluster);
+    }
+    return clusters.map((cluster, index) => {
+      const bottom = Math.max(...cluster.map(({ worldY }) => worldY));
+      const feet = cluster.filter(({ worldY }) => worldY === bottom);
+      const left = Math.min(...feet.map(({ worldX }) => worldX));
+      const right = Math.max(...feet.map(({ sprite, worldX }) => worldX + propShadowWidth(sprite)));
+      return {
+        id: `${id}-${index}`,
+        long: cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
+        width: right - left,
+        worldX: left,
+        worldY: bottom + 25,
+      };
+    });
+  });
 }
 
 function areaName(map: CompiledMapV2, tile: TilePoint): string {
@@ -874,15 +940,17 @@ export function WorldScene({
       worldY: detail.tile.y * TILE_SIZE + detail.offsetY,
     }));
   }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
-  const visibleProps = useMemo(() => [
+  const visibleProps = useMemo<readonly PropPlacement[]>(() => [
     ...[...map.objectPartById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
       tile,
       map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
       visibility,
     )).map((part) => ({
       id: part.id,
+      isDoor: false,
+      objectId: part.objectId,
       sprite: part.sprite,
-      tile: part.depthAnchor,
+      tile: part.tile,
       worldX: part.tile.x * TILE_SIZE,
       worldY: part.tile.y * TILE_SIZE,
     })),
@@ -892,6 +960,8 @@ export function WorldScene({
       visibility,
     )).map((door) => ({
       id: door.id,
+      isDoor: true,
+      objectId: door.id,
       sprite: door.sprite,
       tile: door.tile,
       worldX: door.tile.x * TILE_SIZE,
@@ -906,7 +976,13 @@ export function WorldScene({
   ]);
   const visibleWalls = useMemo(() => map.wallTiles.filter(({ tile }) => isVisible(tile, visibility))
     .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
-    .map((wall) => ({ id: wall.id, sprite: wall.sprite, worldX: wall.tile.x * TILE_SIZE, worldY: wall.tile.y * TILE_SIZE })), [
+    .map((wall) => ({
+      id: wall.id,
+      exposedBase: !map.wallTiles.some(({ tile }) => tile.x === wall.tile.x && tile.y === wall.tile.y + 1),
+      sprite: wall.sprite,
+      worldX: wall.tile.x * TILE_SIZE,
+      worldY: wall.tile.y * TILE_SIZE,
+    })), [
     map,
     visibility.maximumX,
     visibility.maximumY,
@@ -935,8 +1011,21 @@ export function WorldScene({
   ]);
   const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
   const groundDetailAtlas = useMemo(() => atlasData(visibleGroundDetails, camera.zoom), [camera.zoom, visibleGroundDetails]);
-  const propAtlas = useMemo(() => atlasData(visibleProps, camera.zoom), [camera.zoom, visibleProps]);
-  const characterAtlas = useMemo(() => characterAtlasData(characters, camera.zoom), [camera.zoom, characters]);
+  const groundBatches = useMemo(() => groundedBatches([
+    ...visibleProps.filter(({ isDoor }) => !isDoor).map((placement) => ({
+      groundY: (placement.tile.y + 1) * TILE_SIZE,
+      id: placement.id,
+      kind: 'prop' as const,
+      placement,
+    })),
+    ...characters.map((placement) => ({
+      groundY: placement.shadowWorldY,
+      id: placement.id,
+      kind: 'character' as const,
+      placement,
+    })),
+  ].sort(compareGroundedDepth)), [characters, visibleProps]);
+  const visiblePropShadows = useMemo(() => propShadows(visibleProps), [visibleProps]);
   const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
   const visibleRoofTiles = useMemo(() => map.presentation.roofs
     .filter(({ roofGroupId }) => worldFrame.visibleRoofGroupIds.includes(roofGroupId))
@@ -1108,10 +1197,44 @@ export function WorldScene({
           </Group>
         );
       case 'prop':
-        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={propAtlas.sprites} transforms={propAtlas.transforms} /></Group>;
+        return (
+          <Group key={layer} transform={atlasCameraTransform}>
+            {(() => {
+              const doors = atlasData(visibleProps.filter(({ isDoor }) => isDoor), camera.zoom);
+              return <Atlas image={image} sampling={NEAREST} sprites={doors.sprites} transforms={doors.transforms} />;
+            })()}
+          </Group>
+        );
       case 'shadow':
         return (
           <Group key={layer} transform={atlasCameraTransform}>
+            {visiblePropShadows.map((shadow) => (
+              <Group key={`prop-shadow-${shadow.id}`}>
+                {shadow.long ? (
+                  <Line
+                    color={lighting.shadow.color}
+                    p1={vec((shadow.worldX + shadow.width / 2) * camera.zoom, shadow.worldY * camera.zoom)}
+                    p2={vec((shadow.worldX + shadow.width / 2 + lighting.shadow.x) * camera.zoom, (shadow.worldY + lighting.shadow.y) * camera.zoom)}
+                    strokeCap="round"
+                    strokeWidth={4 * camera.zoom}
+                  />
+                ) : null}
+                <RoundedRect
+                  color={lighting.shadow.color}
+                  height={4 * camera.zoom}
+                  r={2 * camera.zoom}
+                  width={shadow.width * camera.zoom}
+                  x={shadow.worldX * camera.zoom}
+                  y={shadow.worldY * camera.zoom}
+                />
+              </Group>
+            ))}
+            {visibleProps.filter(({ isDoor }) => isDoor).map((door) => (
+              <Group key={`threshold-${door.id}`}>
+                <RoundedRect color="#15120f8c" height={5 * camera.zoom} r={camera.zoom} width={26 * camera.zoom} x={(door.worldX + 3) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
+                <RoundedRect color={`${lighting.accent}8c`} height={camera.zoom} r={camera.zoom / 2} width={20 * camera.zoom} x={(door.worldX + 6) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
+              </Group>
+            ))}
             {characters.map((character) => (
               <Group key={`shadow-${character.id}`}>
                 <Line
@@ -1121,14 +1244,24 @@ export function WorldScene({
                   strokeCap="round"
                   strokeWidth={5 * camera.zoom}
                 />
-                <RoundedRect color="#14171170" height={5 * camera.zoom} r={2 * camera.zoom} width={18 * camera.zoom} x={(character.shadowWorldX - 2) * camera.zoom} y={(character.shadowWorldY - 1) * camera.zoom} />
-                <RoundedRect color="#2019158f" height={3 * camera.zoom} r={camera.zoom} width={12 * camera.zoom} x={(character.shadowWorldX + 1) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
+                <RoundedRect color={lighting.shadow.color} height={4 * camera.zoom} r={2 * camera.zoom} width={17 * camera.zoom} x={(character.shadowWorldX - 2) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
               </Group>
             ))}
           </Group>
         );
       case 'character':
-        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={characterAtlas.sprites} transforms={characterAtlas.transforms} /></Group>;
+        return (
+          <Group key={layer} transform={atlasCameraTransform}>
+            {groundBatches.map((batch, index) => {
+              const kind = batch[0]?.kind;
+              if (!kind) return null;
+              const data = kind === 'prop'
+                ? atlasData(batch.map(({ placement }) => placement as PropPlacement), camera.zoom)
+                : characterAtlasData(batch.map(({ placement }) => placement as WorldCharacterPlacement), camera.zoom);
+              return <Atlas image={image} key={`${kind}-${index}`} sampling={NEAREST} sprites={data.sprites} transforms={data.transforms} />;
+            })}
+          </Group>
+        );
       case 'effect': {
         const circleEffects: readonly AuthoredMapEffect[] = vfxMode === 'circle'
           ? visibleEffects
@@ -1154,7 +1287,17 @@ export function WorldScene({
         );
       }
       case 'wall':
-        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} /></Group>;
+        return (
+          <Group key={layer} transform={atlasCameraTransform}>
+            <Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} />
+            {visibleWalls.filter(({ exposedBase }) => exposedBase).map((wall) => (
+              <Group key={`wall-base-${wall.id}`}>
+                <RoundedRect color="#1714109c" height={5 * camera.zoom} r={camera.zoom} width={30 * camera.zoom} x={(wall.worldX + 1) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
+                <RoundedRect color={`${lighting.accent}52`} height={camera.zoom} r={camera.zoom / 2} width={26 * camera.zoom} x={(wall.worldX + 3) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
+              </Group>
+            ))}
+          </Group>
+        );
       case 'roof':
         return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} /></Group>;
     }

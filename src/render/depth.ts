@@ -9,6 +9,7 @@ export const WORLD_DEPTH = Object.freeze({
 });
 
 export type DepthItem = Readonly<{ id: string; layer: number; tileY: number }>;
+export type GroundedDepthItem = Readonly<{ groundY: number; id: string; kind: 'character' | 'prop' }>;
 
 function compareAscii(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -16,4 +17,9 @@ function compareAscii(left: string, right: string): number {
 
 export function compareDepth(left: DepthItem, right: DepthItem): number {
   return left.layer - right.layer || left.tileY - right.tileY || compareAscii(left.id, right.id);
+}
+
+export function compareGroundedDepth(left: GroundedDepthItem, right: GroundedDepthItem): number {
+  return left.groundY - right.groundY ||
+    (left.kind === right.kind ? compareAscii(left.id, right.id) : left.kind === 'character' ? -1 : 1);
 }

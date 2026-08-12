@@ -65,6 +65,28 @@ export function devHarnessGoldenHourState(mapId: MapId = 'northwest_residential'
   });
 }
 
+const GROUNDING_TILES: Readonly<Record<MapId, Readonly<{ x: number; y: number }>>> = {
+  northwest_residential: { x: 13, y: 11 },
+  northeast_downtown: { x: 26, y: 15 },
+  southwest_commercial: { x: 8, y: 11 },
+  southeast_docks: { x: 20, y: 31 },
+};
+
+export function devHarnessGroundingState(mapId: MapId): WorldState {
+  const state = devHarnessGoldenHourState(mapId);
+  const tile = GROUNDING_TILES[mapId];
+  if (WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${tile.x},${tile.y}`)) {
+    throw new Error(`Dev harness grounding tile ${mapId}/${tile.x},${tile.y} is blocked.`);
+  }
+  return parseWorldState({
+    ...state,
+    protagonist: {
+      ...state.protagonist,
+      worldPosition: { mapId, tileX: tile.x, tileY: tile.y },
+    },
+  });
+}
+
 export function devHarnessVfxState(mapId: MapId, effectId: string): WorldState {
   const map = WORLD_MAP_CATALOG[mapId];
   const effect = map.source.effects.find(({ id }) => id === effectId);
