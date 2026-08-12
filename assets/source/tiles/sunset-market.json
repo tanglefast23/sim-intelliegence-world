@@ -1,0 +1,267 @@
+{
+  "version": 2,
+  "tiles": [
+    { "id": "sunset-cobble", "cellClass": "ground", "palette": { "B": "#b46153", "L": "#dc9170", "D": "#7f4037", "K": "#5e302e" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 2, "y": 7, "width": 15, "height": 3 },
+      { "kind": "rect", "token": "K", "x": 6, "y": 10, "width": 9, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 19, "y": 22, "width": 10, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[4,22],[5,21],[6,21],[7,20],[23,7],[24,8],[25,8]] }
+    ] },
+    { "id": "sunset-cobble-b", "cellClass": "ground", "palette": { "B": "#b46153", "L": "#e09976", "D": "#84443a", "K": "#60312f" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 16, "y": 4, "width": 13, "height": 4 },
+      { "kind": "rect", "token": "K", "x": 19, "y": 8, "width": 8, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 3, "y": 23, "width": 11, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[5,6],[6,6],[7,7],[8,8],[24,19],[23,20],[22,20]] }
+    ] },
+    { "id": "sunset-cobble-c", "cellClass": "ground", "palette": { "B": "#b46153", "L": "#d38769", "D": "#783d35", "K": "#572d2c" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 1, "y": 14, "width": 12, "height": 4 },
+      { "kind": "rect", "token": "K", "x": 4, "y": 18, "width": 7, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 19, "y": 4, "width": 10, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[18,24],[19,24],[20,23],[21,22],[8,28],[9,27]] }
+    ] },
+
+    { "id": "sunset-paver", "cellClass": "ground", "palette": { "B": "#b96857", "L": "#d89575", "D": "#88483f", "K": "#633633" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 3, "y": 7, "width": 14, "height": 4 },
+      { "kind": "rect", "token": "K", "x": 6, "y": 11, "width": 8, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 20, "y": 22, "width": 9, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[4,22],[5,21],[6,21],[7,20],[23,7],[24,8],[25,8]] }
+    ] },
+    { "id": "sunset-paver-b", "cellClass": "ground", "palette": { "B": "#b96857", "L": "#dda07e", "D": "#8d4c42", "K": "#673936" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 17, "y": 4, "width": 12, "height": 5 },
+      { "kind": "rect", "token": "K", "x": 20, "y": 9, "width": 7, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 2, "y": 23, "width": 11, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[6,5],[7,6],[8,6],[9,7],[24,19],[23,20],[22,20]] }
+    ] },
+    { "id": "sunset-paver-c", "cellClass": "ground", "palette": { "B": "#b96857", "L": "#d18b6d", "D": "#82453d", "K": "#5d3331" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 1, "y": 14, "width": 12, "height": 4 },
+      { "kind": "rect", "token": "K", "x": 4, "y": 18, "width": 6, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 19, "y": 4, "width": 10, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[18,24],[19,24],[20,23],[21,22],[8,28],[9,27]] }
+    ] },
+
+    { "id": "sunset-promenade", "cellClass": "ground", "palette": { "B": "#c27c61", "L": "#e7b77d", "D": "#8e5548", "K": "#663b37" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 4, "y": 6, "width": 17, "height": 4 },
+      { "kind": "rect", "token": "K", "x": 7, "y": 10, "width": 11, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 19, "y": 22, "width": 10, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[5,26],[6,25],[23,8],[24,9],[25,9]] }
+    ] },
+    { "id": "sunset-promenade-b", "cellClass": "ground", "palette": { "B": "#c27c61", "L": "#edc087", "D": "#955a4b", "K": "#6b3e39" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 16, "y": 4, "width": 13, "height": 5 },
+      { "kind": "rect", "token": "K", "x": 19, "y": 9, "width": 7, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 2, "y": 23, "width": 11, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[4,7],[5,7],[12,17],[13,17],[24,28]] }
+    ] },
+    { "id": "sunset-promenade-c", "cellClass": "ground", "palette": { "B": "#c27c61", "L": "#dcae78", "D": "#865045", "K": "#603936" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "D", "x": 1, "y": 15, "width": 14, "height": 4 },
+      { "kind": "rect", "token": "K", "x": 4, "y": 19, "width": 8, "height": 1 },
+      { "kind": "rect", "token": "L", "x": 19, "y": 5, "width": 10, "height": 3 },
+      { "kind": "pixels", "token": "K", "points": [[7,28],[8,28],[18,22],[19,22],[27,14]] }
+    ] },
+
+    { "id": "sunset-mosaic", "cellClass": "ground", "palette": { "B": "#d38a55", "L": "#fff0b2", "D": "#87503e", "K": "#60352f", "G": "#f0c36f" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "G", "x": 4, "y": 14, "width": 24, "height": 4 },
+      { "kind": "rect", "token": "G", "x": 8, "y": 10, "width": 16, "height": 12 },
+      { "kind": "rect", "token": "G", "x": 12, "y": 6, "width": 8, "height": 20 },
+      { "kind": "rect", "token": "L", "x": 12, "y": 12, "width": 8, "height": 8 },
+      { "kind": "rect", "token": "D", "x": 15, "y": 15, "width": 2, "height": 2 }
+    ] },
+    { "id": "sunset-mosaic-b", "cellClass": "ground", "palette": { "B": "#d68e58", "L": "#fff2b8", "D": "#8b5340", "K": "#633832", "G": "#f3c873" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "G", "x": 4, "y": 14, "width": 24, "height": 4 },
+      { "kind": "rect", "token": "G", "x": 8, "y": 10, "width": 16, "height": 12 },
+      { "kind": "rect", "token": "G", "x": 12, "y": 6, "width": 8, "height": 20 },
+      { "kind": "rect", "token": "L", "x": 12, "y": 12, "width": 8, "height": 8 },
+      { "kind": "rect", "token": "D", "x": 15, "y": 15, "width": 2, "height": 2 }
+    ] },
+    { "id": "sunset-mosaic-c", "cellClass": "ground", "palette": { "B": "#cf8451", "L": "#fcebac", "D": "#814c3b", "K": "#5c332e", "G": "#ebbb68" }, "backgroundToken": "B", "commands": [
+      { "kind": "rect", "token": "G", "x": 4, "y": 14, "width": 24, "height": 4 },
+      { "kind": "rect", "token": "G", "x": 8, "y": 10, "width": 16, "height": 12 },
+      { "kind": "rect", "token": "G", "x": 12, "y": 6, "width": 8, "height": 20 },
+      { "kind": "rect", "token": "L", "x": 12, "y": 12, "width": 8, "height": 8 },
+      { "kind": "rect", "token": "D", "x": 15, "y": 15, "width": 2, "height": 2 }
+    ] },
+
+    { "id": "sunset-floor", "cellClass": "ground", "palette": { "B": "#593238", "L": "#78434a", "D": "#3d2528", "K": "#241b20" }, "backgroundToken": "B", "commands": [] },
+    { "id": "sunset-floor-b", "cellClass": "ground", "palette": { "B": "#5e353c", "L": "#7e4850", "D": "#41282c", "K": "#261c21" }, "backgroundToken": "B", "commands": [] },
+    { "id": "sunset-floor-c", "cellClass": "ground", "palette": { "B": "#533036", "L": "#724048", "D": "#392327", "K": "#221a1f" }, "backgroundToken": "B", "commands": [] }
+  ],
+  "parts": [
+    { "id": "market-canopy-nw", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#4b2930", "D": "#9d4c55", "B": "#df6f67", "L": "#ffd28f", "P": "#f4b85f" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 3, "y": 5, "width": 29, "height": 21 },
+      { "kind": "rect", "token": "B", "x": 5, "y": 7, "width": 27, "height": 15 },
+      { "kind": "rect", "token": "L", "x": 6, "y": 8, "width": 26, "height": 3 },
+      { "kind": "rect", "token": "P", "x": 17, "y": 7, "width": 8, "height": 15 },
+      { "kind": "rect", "token": "K", "x": 7, "y": 22, "width": 4, "height": 10 }
+    ] },
+    { "id": "market-canopy-ne", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#4b2930", "D": "#9d4c55", "B": "#df6f67", "L": "#ffd28f", "P": "#f4b85f" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 0, "y": 5, "width": 29, "height": 21 },
+      { "kind": "rect", "token": "B", "x": 0, "y": 7, "width": 27, "height": 15 },
+      { "kind": "rect", "token": "L", "x": 0, "y": 8, "width": 26, "height": 3 },
+      { "kind": "rect", "token": "P", "x": 7, "y": 7, "width": 8, "height": 15 },
+      { "kind": "rect", "token": "K", "x": 21, "y": 22, "width": 4, "height": 10 }
+    ] },
+    { "id": "market-canopy-sw", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#4b2930", "D": "#9d4c55", "B": "#c85b59", "L": "#f6b96b", "P": "#e89c4e" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 3, "y": 0, "width": 29, "height": 24 },
+      { "kind": "rect", "token": "D", "x": 5, "y": 0, "width": 27, "height": 19 },
+      { "kind": "rect", "token": "B", "x": 6, "y": 3, "width": 26, "height": 13 },
+      { "kind": "rect", "token": "P", "x": 17, "y": 3, "width": 8, "height": 13 },
+      { "kind": "rect", "token": "K", "x": 7, "y": 19, "width": 4, "height": 13 }
+    ] },
+    { "id": "market-canopy-se", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#4b2930", "D": "#9d4c55", "B": "#c85b59", "L": "#f6b96b", "P": "#e89c4e" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 29, "height": 24 },
+      { "kind": "rect", "token": "D", "x": 0, "y": 0, "width": 27, "height": 19 },
+      { "kind": "rect", "token": "B", "x": 0, "y": 3, "width": 26, "height": 13 },
+      { "kind": "rect", "token": "P", "x": 7, "y": 3, "width": 8, "height": 13 },
+      { "kind": "rect", "token": "K", "x": 21, "y": 19, "width": 4, "height": 13 }
+    ] },
+
+    { "id": "produce-stall-left", "cellClass": "transparent-part", "role": "furniture", "palette": { "K": "#3a2725", "D": "#744135", "B": "#bd6a43", "L": "#eeb55d", "G": "#5c873f", "R": "#cf4f45" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 3, "y": 8, "width": 29, "height": 22 },
+      { "kind": "rect", "token": "B", "x": 5, "y": 10, "width": 27, "height": 7 },
+      { "kind": "rect", "token": "D", "x": 4, "y": 21, "width": 28, "height": 8 },
+      { "kind": "rect", "token": "G", "x": 7, "y": 18, "width": 8, "height": 5 },
+      { "kind": "rect", "token": "R", "x": 18, "y": 18, "width": 8, "height": 5 },
+      { "kind": "rect", "token": "L", "x": 6, "y": 10, "width": 26, "height": 2 }
+    ] },
+    { "id": "produce-stall-right", "cellClass": "transparent-part", "role": "furniture", "palette": { "K": "#3a2725", "D": "#744135", "B": "#bd6a43", "L": "#eeb55d", "G": "#5c873f", "R": "#cf4f45" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 0, "y": 8, "width": 29, "height": 22 },
+      { "kind": "rect", "token": "B", "x": 0, "y": 10, "width": 27, "height": 7 },
+      { "kind": "rect", "token": "D", "x": 0, "y": 21, "width": 28, "height": 8 },
+      { "kind": "rect", "token": "R", "x": 5, "y": 18, "width": 8, "height": 5 },
+      { "kind": "rect", "token": "G", "x": 17, "y": 18, "width": 8, "height": 5 },
+      { "kind": "rect", "token": "L", "x": 0, "y": 10, "width": 26, "height": 2 }
+    ] },
+    { "id": "food-stall-left", "cellClass": "transparent-part", "role": "furniture", "palette": { "K": "#352629", "D": "#683b45", "B": "#a94e60", "L": "#f1a260", "C": "#f4d27d" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 3, "y": 7, "width": 29, "height": 23 },
+      { "kind": "rect", "token": "B", "x": 5, "y": 9, "width": 27, "height": 8 },
+      { "kind": "rect", "token": "C", "x": 7, "y": 11, "width": 10, "height": 4 },
+      { "kind": "rect", "token": "D", "x": 4, "y": 21, "width": 28, "height": 8 },
+      { "kind": "rect", "token": "L", "x": 18, "y": 19, "width": 9, "height": 4 }
+    ] },
+    { "id": "food-stall-right", "cellClass": "transparent-part", "role": "furniture", "palette": { "K": "#352629", "D": "#683b45", "B": "#a94e60", "L": "#f1a260", "C": "#f4d27d" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 0, "y": 7, "width": 29, "height": 23 },
+      { "kind": "rect", "token": "B", "x": 0, "y": 9, "width": 27, "height": 8 },
+      { "kind": "rect", "token": "C", "x": 15, "y": 11, "width": 10, "height": 4 },
+      { "kind": "rect", "token": "D", "x": 0, "y": 21, "width": 28, "height": 8 },
+      { "kind": "rect", "token": "L", "x": 4, "y": 19, "width": 9, "height": 4 }
+    ] },
+
+    { "id": "sunset-fountain-nw", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#443132", "D": "#8e6658", "B": "#c99b75", "L": "#f3d4a4", "W": "#65bbb6" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 4, "y": 7, "width": 28, "height": 25 },
+      { "kind": "rect", "token": "B", "x": 6, "y": 9, "width": 26, "height": 21 },
+      { "kind": "rect", "token": "W", "x": 9, "y": 12, "width": 23, "height": 14 },
+      { "kind": "rect", "token": "L", "x": 10, "y": 13, "width": 22, "height": 2 }
+    ] },
+    { "id": "sunset-fountain-ne", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#443132", "D": "#8e6658", "B": "#c99b75", "L": "#f3d4a4", "W": "#65bbb6" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 0, "y": 7, "width": 28, "height": 25 },
+      { "kind": "rect", "token": "B", "x": 0, "y": 9, "width": 26, "height": 21 },
+      { "kind": "rect", "token": "W", "x": 0, "y": 12, "width": 23, "height": 14 },
+      { "kind": "rect", "token": "L", "x": 0, "y": 13, "width": 22, "height": 2 }
+    ] },
+    { "id": "sunset-fountain-sw", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#443132", "D": "#8e6658", "B": "#b98969", "L": "#e9c798", "W": "#4d9999" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 4, "y": 0, "width": 28, "height": 29 },
+      { "kind": "rect", "token": "D", "x": 6, "y": 0, "width": 26, "height": 25 },
+      { "kind": "rect", "token": "B", "x": 8, "y": 3, "width": 24, "height": 18 },
+      { "kind": "rect", "token": "K", "x": 4, "y": 25, "width": 28, "height": 7 }
+    ] },
+    { "id": "sunset-fountain-se", "cellClass": "transparent-part", "role": "landmark", "palette": { "K": "#443132", "D": "#8e6658", "B": "#b98969", "L": "#e9c798", "W": "#4d9999" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 0, "y": 0, "width": 28, "height": 29 },
+      { "kind": "rect", "token": "D", "x": 0, "y": 0, "width": 26, "height": 25 },
+      { "kind": "rect", "token": "B", "x": 0, "y": 3, "width": 24, "height": 18 },
+      { "kind": "rect", "token": "K", "x": 0, "y": 25, "width": 28, "height": 7 }
+    ] },
+
+    { "id": "flowering-market-planter", "cellClass": "transparent-part", "role": "plant", "palette": { "K": "#39282a", "D": "#79453c", "B": "#b8664d", "G": "#376244", "L": "#69a057", "F": "#ffd06b", "R": "#ef7270" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 5, "y": 20, "width": 22, "height": 11 },
+      { "kind": "rect", "token": "B", "x": 7, "y": 22, "width": 18, "height": 7 },
+      { "kind": "rect", "token": "G", "x": 7, "y": 13, "width": 18, "height": 10 },
+      { "kind": "rect", "token": "L", "x": 11, "y": 9, "width": 10, "height": 10 },
+      { "kind": "pixels", "token": "F", "points": [[10,12],[16,8],[23,14]] },
+      { "kind": "pixels", "token": "R", "points": [[13,15],[20,10],[25,17]] }
+    ] },
+    { "id": "fixture-festival-lantern", "cellClass": "transparent-part", "role": "fixture", "palette": { "K": "#3b2929", "D": "#755040", "B": "#b46c43", "A": "#f3a84e", "L": "#fff0a2" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 10, "y": 3, "width": 12, "height": 12 },
+      { "kind": "rect", "token": "A", "x": 12, "y": 5, "width": 8, "height": 7 },
+      { "kind": "rect", "token": "L", "x": 14, "y": 5, "width": 4, "height": 2 },
+      { "kind": "rect", "token": "D", "x": 15, "y": 15, "width": 3, "height": 14 },
+      { "kind": "rect", "token": "K", "x": 8, "y": 29, "width": 16, "height": 3 }
+    ] },
+    { "id": "sunset-market-bench", "cellClass": "transparent-part", "role": "furniture", "palette": { "K": "#3b2b2c", "D": "#74473a", "B": "#a96d48", "L": "#dda76a", "M": "#5f4b45" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 3, "y": 13, "width": 26, "height": 13 },
+      { "kind": "rect", "token": "B", "x": 5, "y": 15, "width": 22, "height": 4 },
+      { "kind": "rect", "token": "L", "x": 6, "y": 15, "width": 20, "height": 1 },
+      { "kind": "rect", "token": "B", "x": 5, "y": 21, "width": 22, "height": 4 },
+      { "kind": "rect", "token": "M", "x": 7, "y": 25, "width": 4, "height": 7 },
+      { "kind": "rect", "token": "M", "x": 21, "y": 25, "width": 4, "height": 7 }
+    ] },
+    { "id": "sign-sunset-market", "cellClass": "transparent-part", "role": "sign", "palette": { "K": "#3d292d", "D": "#844754", "B": "#ca6d63", "L": "#ffd78a", "G": "#4f8061" }, "commands": [
+      { "kind": "rect", "token": "K", "x": 4, "y": 4, "width": 24, "height": 18 },
+      { "kind": "rect", "token": "B", "x": 6, "y": 6, "width": 20, "height": 14 },
+      { "kind": "rect", "token": "L", "x": 8, "y": 8, "width": 16, "height": 2 },
+      { "kind": "rect", "token": "G", "x": 10, "y": 14, "width": 12, "height": 3 },
+      { "kind": "rect", "token": "D", "x": 14, "y": 22, "width": 4, "height": 10 }
+    ] },
+    { "id": "market-detail-petals", "cellClass": "transparent-part", "role": "fixture", "palette": { "R": "#f27b76", "L": "#ffd26f", "P": "#e69aba" }, "commands": [
+      { "kind": "pixels", "token": "R", "points": [[6,24],[8,22],[19,26],[25,18]] },
+      { "kind": "pixels", "token": "L", "points": [[12,27],[21,20]] },
+      { "kind": "pixels", "token": "P", "points": [[15,23],[28,27]] }
+    ] },
+    { "id": "market-detail-herbs", "cellClass": "transparent-part", "role": "fixture", "palette": { "D": "#36583d", "G": "#5d8b4c", "L": "#8dbd62" }, "commands": [
+      { "kind": "rect", "token": "D", "x": 8, "y": 22, "width": 16, "height": 3 },
+      { "kind": "pixels", "token": "G", "points": [[8,20],[11,17],[14,21],[18,16],[21,20],[24,18]] },
+      { "kind": "pixels", "token": "L", "points": [[11,16],[18,15],[24,17]] }
+    ] },
+    { "id": "market-detail-chalk", "cellClass": "transparent-part", "role": "fixture", "palette": { "C": "#f1d7a9", "L": "#fff0cc" }, "commands": [
+      { "kind": "rect", "token": "C", "x": 5, "y": 21, "width": 9, "height": 2 },
+      { "kind": "rect", "token": "C", "x": 12, "y": 17, "width": 2, "height": 6 },
+      { "kind": "rect", "token": "L", "x": 18, "y": 24, "width": 10, "height": 1 },
+      { "kind": "pixels", "token": "L", "points": [[20,20],[22,18],[24,20]] }
+    ] },
+    { "id": "market-detail-paper", "cellClass": "transparent-part", "role": "fixture", "palette": { "D": "#b98670", "B": "#efd6a4", "L": "#fff1c9" }, "commands": [
+      { "kind": "rect", "token": "D", "x": 7, "y": 21, "width": 8, "height": 5 },
+      { "kind": "rect", "token": "B", "x": 8, "y": 20, "width": 8, "height": 5 },
+      { "kind": "rect", "token": "L", "x": 9, "y": 20, "width": 5, "height": 1 },
+      { "kind": "rect", "token": "D", "x": 20, "y": 24, "width": 6, "height": 4 }
+    ] }
+  ],
+  "presentationCells": [
+    { "id": "decal-sunset-petals", "cellClass": "presentation", "role": "decal", "palette": { "R": "#ef7771", "P": "#e79ab9", "L": "#ffd36b" }, "commands": [
+      { "kind": "pixels", "token": "R", "points": [[6,23],[9,20],[20,25],[27,17]] },
+      { "kind": "pixels", "token": "P", "points": [[14,26],[24,22]] },
+      { "kind": "pixels", "token": "L", "points": [[18,18],[28,27]] }
+    ] },
+    { "id": "decal-sunset-herbs", "cellClass": "presentation", "role": "decal", "palette": { "D": "#36583d", "G": "#5d8b4c", "L": "#8dbd62" }, "commands": [
+      { "kind": "pixels", "token": "D", "points": [[7,25],[11,22],[16,26],[22,21],[27,25]] },
+      { "kind": "pixels", "token": "G", "points": [[8,23],[12,20],[23,19],[28,23]] },
+      { "kind": "pixels", "token": "L", "points": [[12,19],[23,18]] }
+    ] },
+    { "id": "decal-sunset-leaves", "cellClass": "presentation", "role": "decal", "palette": { "D": "#72503a", "B": "#a96d42", "L": "#d49b55" }, "commands": [
+      { "kind": "pixels", "token": "D", "points": [[5,24],[11,18],[18,25],[26,20]] },
+      { "kind": "pixels", "token": "B", "points": [[7,23],[14,21],[22,27],[28,16]] },
+      { "kind": "pixels", "token": "L", "points": [[12,17],[27,19]] }
+    ] },
+    { "id": "decal-sunset-chalk", "cellClass": "presentation", "role": "decal", "palette": { "C": "#f0d4a4", "L": "#fff0c7" }, "commands": [
+      { "kind": "rect", "token": "C", "x": 5, "y": 22, "width": 9, "height": 1 },
+      { "kind": "rect", "token": "C", "x": 13, "y": 18, "width": 1, "height": 5 },
+      { "kind": "rect", "token": "L", "x": 19, "y": 25, "width": 9, "height": 1 }
+    ] },
+    { "id": "decal-sunset-paper", "cellClass": "presentation", "role": "decal", "palette": { "D": "#b9826c", "B": "#ead2a2", "L": "#fff1ca" }, "commands": [
+      { "kind": "rect", "token": "D", "x": 8, "y": 21, "width": 7, "height": 4 },
+      { "kind": "rect", "token": "B", "x": 9, "y": 20, "width": 7, "height": 4 },
+      { "kind": "rect", "token": "L", "x": 10, "y": 20, "width": 4, "height": 1 }
+    ] },
+    { "id": "decal-sunset-fruit-leaves", "cellClass": "presentation", "role": "decal", "palette": { "G": "#4f7d45", "L": "#82a957", "R": "#d76652", "Y": "#e9aa4d" }, "commands": [
+      { "kind": "pixels", "token": "G", "points": [[6,23],[10,21],[17,26],[23,19],[27,24]] },
+      { "kind": "pixels", "token": "L", "points": [[11,20],[24,18]] },
+      { "kind": "pixels", "token": "R", "points": [[15,24],[28,22]] },
+      { "kind": "pixels", "token": "Y", "points": [[20,27]] }
+    ] }
+  ],
+  "multiTileCompositions": [
+    { "id": "sunset-market-canopy", "columns": 2, "rows": 2, "partIds": ["market-canopy-nw", "market-canopy-ne", "market-canopy-sw", "market-canopy-se"] },
+    { "id": "sunset-produce-stall", "columns": 2, "rows": 1, "partIds": ["produce-stall-left", "produce-stall-right"] },
+    { "id": "sunset-food-stall", "columns": 2, "rows": 1, "partIds": ["food-stall-left", "food-stall-right"] },
+    { "id": "sunset-market-fountain", "columns": 2, "rows": 2, "partIds": ["sunset-fountain-nw", "sunset-fountain-ne", "sunset-fountain-sw", "sunset-fountain-se"] }
+  ],
+  "wallModules": { "north": [], "east": [], "south": [], "west": [], "core": [] },
+  "wallPalettes": []
+}

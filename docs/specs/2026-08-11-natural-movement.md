@@ -207,13 +207,15 @@ Keep exactly eight world cells per character. Do not add full side profiles, dia
 
 ### 6.2 Generated-art checks
 
-For each character and direction pair:
+For each character and direction pair, except the protagonist during the weighted-wobble trial defined in `2026-08-12-protagonist-weighted-wobble.md`:
 
 - both cells must exist and be `24×30` RGBA cells;
 - the lower leg-and-shoe region, rows `21–29`, must differ between frames;
 - at least one shoe edge must change horizontal or vertical position;
 - the two cells must remain inside their atlas bounds and gutter;
 - the generated rear method and lateral-leg composition method remain the source of truth.
+
+The weighted-wobble protagonist keeps all eight `24×30` cells, but each same-direction pair is byte-identical so its rounded body floats without a false leg step. This exception applies only to `characterId === 'protagonist'`; every NPC keeps the difference gate above.
 
 If a character's foot difference is not readable at `1x`, adjust only its source leg commands. Do not redraw the full body.
 
@@ -301,7 +303,7 @@ Depth sorting uses the snapped visual foot-anchor Y and then stable actor ID. Ro
 ### 10.2 Art and frame tests
 
 - All production characters keep eight reachable cells.
-- Both frames differ in the lower leg-and-shoe region for all four directions.
+- Both frames differ in the lower leg-and-shoe region for all four directions, except the byte-identical protagonist pairs used by the weighted-wobble trial.
 - Idle uses frame 1.
 - Player and NPC frames can differ in the same rendered frame.
 - NPC facing is not forced to front while moving.

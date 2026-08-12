@@ -403,7 +403,7 @@ describe('Phase 10 social systems', () => {
         ...ready.npcs,
         linda: {
           ...ready.npcs.linda,
-          presence: { kind: 'inactive', mapId: 'southwest_commercial', locationId: 'southwest_commercial', tileX: 15, tileY: 16 },
+          presence: { kind: 'inactive', mapId: 'southwest_commercial', locationId: 'southwest_commercial', tileX: 17, tileY: 17 },
         },
       },
     });

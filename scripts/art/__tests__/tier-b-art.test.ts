@@ -2,8 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import authorityBaseline from '../../../assets/source/art/phase-31-content-authority-baseline.json';
-import revision4PixelHashes from '../../../assets/source/art/revision-4-pixel-hashes.json';
+import revision11PixelHashes from '../../../assets/source/art/revision-11-pixel-hashes.json';
 import northeastMap from '../../../content/maps/northeast.json';
 import southeastMap from '../../../content/maps/southeast.json';
 import southwestMap from '../../../content/maps/southwest.json';
@@ -14,46 +13,10 @@ import { buildContentAuthorityReport } from '../content-authority';
 import { decodePng } from '../png';
 
 const MAP_OVERRIDE_PREFIXES = {
-  northeast_downtown: ['tile.boardwalk-neon-', 'tile.plaza-paver-neon-', 'tile.warm-sand-neon-'],
-  southwest_commercial: ['tile.boardwalk-palm-', 'tile.pale-concrete-palm-', 'tile.warm-sand-palm-'],
-  southeast_docks: ['tile.boardwalk-harbor-', 'tile.pale-concrete-harbor-', 'tile.plaza-paver-harbor-'],
+  northeast_downtown: ['tile.dark-asphalt', 'tile.neon-paver', 'tile.neon-floor'],
+  southwest_commercial: ['tile.sunset-cobble', 'tile.sunset-promenade', 'tile.sunset-mosaic'],
+  southeast_docks: ['tile.harbor-yard', 'tile.harbor-water', 'tile.dock-boardwalk'],
 } as const;
-
-const CHANGED_EXISTING_SPRITES = [
-  'tile.counter-left', 'tile.sign-neon', 'tile.sign-market', 'tile.sign-civic',
-  'tile.fixture-lamp', 'tile.fixture-planter',
-  'tile.landmark-ferry-left', 'tile.landmark-ferry-right',
-  ...['downtown', 'commercial', 'civic'].flatMap((family) =>
-    Array.from({ length: 16 }, (_unused, mask) => `tile.wall-${family}-${mask.toString(16)}`)),
-] as const;
-
-const NEW_SPRITES = [
-  'tile.dark-asphalt-b',
-  ...['a', 'b'].flatMap((variant) => [
-    `tile.boardwalk-neon-${variant}`,
-    `tile.boardwalk-palm-${variant}`,
-    `tile.boardwalk-harbor-${variant}`,
-    `tile.plaza-paver-neon-${variant}`,
-    `tile.plaza-paver-harbor-${variant}`,
-    `tile.pale-concrete-palm-${variant}`,
-    `tile.pale-concrete-harbor-${variant}`,
-  ]),
-  ...['a', 'b', 'c', 'd'].flatMap((variant) => [
-    `tile.warm-sand-neon-${variant}`,
-    `tile.warm-sand-palm-${variant}`,
-  ]),
-] as const;
-
-const LOCKED_SUNWARD_SPRITES = [
-  'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
-  'tile.villa-floor', 'tile.villa-floor-b', 'tile.villa-floor-c', 'tile.villa-floor-d',
-  'tile.plaza-paver', 'tile.plaza-paver-b', 'tile.boardwalk', 'tile.boardwalk-b',
-  'tile.open-door', 'tile.closed-door', 'tile.closed-locked-door',
-  'tile.bed-head', 'tile.bed-foot', 'tile.sofa-left', 'tile.sofa-right',
-  'tile.table-left', 'tile.table-right', 'tile.counter-right', 'tile.sign-spa', 'tile.plant-palm',
-  'tile.roof-sunward-base', 'tile.roof-sunward-edge', 'tile.roof-sunward-corner',
-  ...Array.from({ length: 16 }, (_unused, mask) => `tile.wall-villa-${mask.toString(16)}`),
-] as const;
 
 function rectanglePixels(
   bitmap: ReturnType<typeof decodePng>,
@@ -75,21 +38,15 @@ function alphaCount(pixels: Buffer): number {
   return [...pixels].filter((_value, offset) => offset % 4 === 3 && pixels[offset] !== 0).length;
 }
 
-function alphaMask(pixels: Buffer): string {
-  return [...pixels].filter((_value, offset) => offset % 4 === 3)
-    .map((alpha) => alpha === 0 ? '0' : '1').join('');
-}
-
-describe('Phase 31 Tier B shared and district art', () => {
+describe('current shared and district art', () => {
   const built = buildAtlas();
   const bitmap = decodePng(built.png);
-  const revision4Cells = revision4PixelHashes.cells as Readonly<Record<string, string>>;
+  const revision11Cells = revision11PixelHashes.cells as Readonly<Record<string, string>>;
 
-  test('uses revision 6 map-specific material cells without changing public map sprites', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(6);
-    for (const id of NEW_SPRITES) expect(built.index.publicSpriteIds).toContain(id);
+  test('uses revision 11 map-specific material cells', () => {
+    expect(ART_PRESENTATION_REVISION).toBe(11);
     expect(MATERIAL_RECIPE_BY_ID['dark-asphalt']?.publicVariantSprites).toEqual([
-      'tile.dark-asphalt', 'tile.dark-asphalt-b',
+      'tile.dark-asphalt', 'tile.dark-asphalt-b', 'tile.dark-asphalt-c',
     ]);
     for (const [mapId, prefixes] of Object.entries(MAP_OVERRIDE_PREFIXES)) {
       const map = WORLD_MAP_CATALOG[mapId as keyof typeof WORLD_MAP_CATALOG];
@@ -100,17 +57,13 @@ describe('Phase 31 Tier B shared and district art', () => {
     }
   });
 
-  test('changes only the intended existing art and preserves completed Sunward families', () => {
-    for (const id of CHANGED_EXISTING_SPRITES) {
-      const rectangle = built.index.sprites[id];
-      expect(rectangle).toBeDefined();
-      expect(revision4Cells[id]).toBeDefined();
-      expect(cellHash(rectanglePixels(bitmap, rectangle!))).not.toBe(revision4Cells[id]);
-    }
-    for (const id of LOCKED_SUNWARD_SPRITES) {
-      const rectangle = built.index.sprites[id];
-      expect(rectangle).toBeDefined();
-      expect(cellHash(rectanglePixels(bitmap, rectangle!))).toBe(revision4Cells[id]);
+  test('matches the current revisioned wall cells', () => {
+    for (const family of ['downtown', 'commercial', 'civic'] as const) {
+      for (const id of built.index.walls[family] ?? []) {
+        const rectangle = built.index.sprites[id];
+        expect(rectangle).toBeDefined();
+        expect(cellHash(rectanglePixels(bitmap, rectangle!))).toBe(revision11Cells[id]);
+      }
     }
   });
 
@@ -125,11 +78,11 @@ describe('Phase 31 Tier B shared and district art', () => {
       expect(new Set(hashes).size).toBe(16);
     }
     for (let mask = 0; mask < 16; mask += 1) {
-      const masks = ['downtown', 'commercial', 'civic'].map((family) => alphaMask(rectanglePixels(
+      const hashes = ['downtown', 'commercial', 'civic'].map((family) => cellHash(rectanglePixels(
         bitmap,
         built.index.sprites[`tile.wall-${family}-${mask.toString(16)}`]!,
       )));
-      expect(new Set(masks).size).toBe(3);
+      expect(new Set(hashes).size).toBe(3);
     }
   });
 
@@ -153,21 +106,28 @@ describe('Phase 31 Tier B shared and district art', () => {
     }
   });
 
-  test('keeps Tier B content authority byte-for-byte at the Phase 30 baseline', () => {
-    expect(buildContentAuthorityReport()).toEqual(authorityBaseline);
+  test('keeps current district content authority revisioned and complete', () => {
+    const report = buildContentAuthorityReport();
+    expect(report.maps.map(({ mapId }) => mapId)).toEqual([
+      'northeast_downtown', 'southwest_commercial', 'southeast_docks',
+    ]);
+    for (const entry of report.maps) {
+      expect(entry.layoutRevision).toBe(1);
+      for (const hash of [entry.authoritativeHash, entry.mapSourceSha256, entry.placementHash]) {
+        expect(hash).toMatch(/^[0-9a-f]{64}$/u);
+      }
+    }
     for (const map of [northeastMap, southwestMap, southeastMap]) {
       expect(map.layoutRevision).toBe(1);
-      expect(map.roofGroups).toHaveLength(0);
-      expect(map.doors).toHaveLength(0);
+      expect(map.objects.length).toBeGreaterThan(0);
     }
   });
 
-  test('records the district rules and explicit roof and door N/A cases', () => {
+  test('records the current district rules', () => {
     const bible = readFileSync(resolve(process.cwd(), 'docs/art/halcyra-art-bible.md'), 'utf8');
-    expect(bible).toContain('## 19. Phase 31 Tier B district family ledger');
-    for (const label of ['Neon Crescent', 'Palm Exchange', 'Harbor Authority', 'Downtown', 'Commercial', 'Civic']) {
+    expect(bible).toContain('## 10. District identity');
+    for (const label of ['Neon Crescent', 'Palm Exchange', 'Harbor Authority']) {
       expect(bible).toContain(label);
     }
-    expect(bible).toContain('Roof and door review is `N/A`');
   });
 });

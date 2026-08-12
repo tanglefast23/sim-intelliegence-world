@@ -68,13 +68,13 @@ const LOCATION_DEFAULTS: Readonly<Record<string, Readonly<{ mapId: string; tileX
   northwest_residential: { mapId: 'northwest_residential', tileX: 29, tileY: 33 },
   protagonist_villa: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
   southeast_docks: { mapId: 'southeast_docks', tileX: 39, tileY: 27 },
-  southwest_commercial: { mapId: 'southwest_commercial', tileX: 15, tileY: 16 },
+  southwest_commercial: { mapId: 'southwest_commercial', tileX: 17, tileY: 17 },
 };
 
 const SCHEDULE_BLOCK_DEFAULTS: Readonly<Record<string, Readonly<{ mapId: string; tileX: number; tileY: number }>>> = {
   'linda_villa:sleep': { mapId: 'northwest_residential', tileX: 23, tileY: 28 },
   'northwest_residential:relax': { mapId: 'northwest_residential', tileX: 28, tileY: 30 },
-  'southwest_commercial:shop': { mapId: 'southwest_commercial', tileX: 15, tileY: 16 },
+  'southwest_commercial:shop': { mapId: 'southwest_commercial', tileX: 17, tileY: 17 },
   'linda_villa:home': { mapId: 'northwest_residential', tileX: 23, tileY: 28 },
   'northwest_residential:sleep': { mapId: 'northwest_residential', tileX: 29, tileY: 33 },
   'northwest_residential:work': { mapId: 'northwest_residential', tileX: 27, tileY: 28 },

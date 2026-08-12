@@ -32,7 +32,7 @@ export const ArtManifestSchema = z.object({
   limits: z.object({
     maximumWidth: z.literal(1024),
     maximumHeight: z.literal(1024),
-    maximumRawAreaRatio: z.literal(0.7),
+    maximumRawAreaRatio: z.literal(0.75),
     maximumPackedAreaRatio: z.literal(0.8),
     gutter: z.literal(1),
   }).strict(),

@@ -8,7 +8,7 @@ import {
   type CharacterLook,
   type PortraitExpression,
 } from './character-look-roster';
-import { createBitmap, parseHexColor, setPixel, type Bitmap, type Rgba } from './png';
+import { createBitmap, decodePng, fillRect, parseHexColor, setPixel, type Bitmap, type Rgba } from './png';
 
 export const WORLD_CELL = { width: 24, height: 30 } as const;
 export const PORTRAIT_CELL = { width: 24, height: 29 } as const;
@@ -156,12 +156,12 @@ export type TileSource = GroundCellSource | TransparentPartSource | Presentation
 
 const TileCollectionSchema = z.object({
   version: z.literal(2),
-  tiles: z.array(GroundCellSourceSchema).min(8).max(48),
+  tiles: z.array(GroundCellSourceSchema).min(8).max(96),
   parts: z.array(TransparentPartSourceSchema).min(1),
-  presentationCells: z.array(PresentationCellSourceSchema).max(48).default([]),
+  presentationCells: z.array(PresentationCellSourceSchema).max(96).default([]),
   multiTileCompositions: z.array(MultiTileCompositionSchema).max(16).default([]),
   wallModules: WallModulesSchema,
-  wallPalettes: z.array(WallPaletteSourceSchema).min(1),
+  wallPalettes: z.array(WallPaletteSourceSchema).default([]),
 }).strict();
 
 type TileCollection = z.infer<typeof TileCollectionSchema>;
@@ -281,7 +281,7 @@ function characterPalette(look: CharacterLook): Record<string, string> {
     c: clothing[1],
     A: accent[0],
     a: accent[1],
-    W: look.secondary === 'big-black-boots' ? '#211c27' : '#f5eee0',
+    W: '#f5eee0',
     D: '#494052',
   };
 }
@@ -293,11 +293,11 @@ function headBounds(look: CharacterLook): Readonly<{
   bottom: number;
 }> {
   switch (look.head) {
-    case 'round': return { left: 6, right: 17, top: 4, bottom: 14 };
-    case 'square': return { left: 5, right: 18, top: 5, bottom: 14 };
-    case 'long': return { left: 6, right: 17, top: 3, bottom: 15 };
-    case 'wide': return { left: 5, right: 18, top: 5, bottom: 14 };
-    case 'pear': return { left: 6, right: 17, top: 4, bottom: 15 };
+    case 'round': return { left: 5, right: 18, top: 4, bottom: 15 };
+    case 'square': return { left: 4, right: 19, top: 4, bottom: 15 };
+    case 'long': return { left: 5, right: 18, top: 2, bottom: 15 };
+    case 'wide': return { left: 4, right: 19, top: 4, bottom: 15 };
+    case 'pear': return { left: 5, right: 18, top: 3, bottom: 15 };
   }
 }
 
@@ -397,44 +397,39 @@ function worldHairCommands(look: CharacterLook): DrawCommand[] {
 }
 
 function worldBodyCommands(look: CharacterLook): DrawCommand[] {
-  const body = (() => {
+  const bodyRows = (() => {
     switch (look.build) {
-      case 'tiny': return [rectCommand('C', 9, 16, 6, 1), rectCommand('C', 8, 17, 8, 7)];
-      case 'slim': return [rectCommand('C', 9, 16, 6, 1), rectCommand('C', 8, 17, 8, 2), rectCommand('C', 7, 19, 10, 5)];
-      case 'normal': return [rectCommand('C', 9, 16, 6, 1), rectCommand('C', 7, 17, 10, 2), rectCommand('C', 6, 19, 12, 5)];
-      case 'wide': return [rectCommand('C', 8, 16, 8, 1), rectCommand('C', 6, 17, 12, 2), rectCommand('C', 5, 19, 14, 5)];
-      case 'round': return [rectCommand('C', 8, 16, 8, 1), rectCommand('C', 6, 17, 12, 2), rectCommand('C', 4, 19, 16, 5), rectCommand('C', 6, 24, 12, 1)];
-      case 'top-heavy': return [rectCommand('C', 8, 16, 8, 1), rectCommand('C', 4, 17, 16, 3), rectCommand('C', 6, 20, 12, 2), rectCommand('C', 7, 22, 10, 3)];
-      case 'pear': return [rectCommand('C', 9, 16, 6, 1), rectCommand('C', 8, 17, 8, 2), rectCommand('C', 6, 19, 12, 3), rectCommand('C', 5, 22, 14, 3)];
+      case 'tiny': return [6, 10, 12, 14, 14, 14, 14, 14, 12, 10, 8, 6] as const;
+      case 'slim': return [6, 10, 12, 14, 16, 16, 16, 16, 14, 12, 10, 8] as const;
+      case 'normal': return [6, 10, 14, 16, 18, 18, 18, 18, 16, 14, 12, 10] as const;
+      case 'wide': return [8, 12, 16, 18, 20, 20, 20, 20, 18, 16, 14, 12] as const;
+      case 'round': return [8, 12, 16, 18, 20, 20, 20, 20, 18, 16, 14, 12] as const;
+      case 'top-heavy': return [8, 14, 18, 20, 20, 18, 18, 16, 14, 12, 10, 8] as const;
+      case 'pear': return [6, 10, 12, 14, 16, 18, 20, 20, 18, 16, 14, 12] as const;
     }
   })();
-  const armBounds = (() => {
-    switch (look.build) {
-      case 'tiny': return [7, 16] as const;
-      case 'slim': return [6, 17] as const;
-      case 'normal': return [5, 18] as const;
-      case 'wide': return [4, 19] as const;
-      case 'round': return [3, 20] as const;
-      case 'top-heavy': return [3, 20] as const;
-      case 'pear': return [5, 18] as const;
-    }
-  })();
+  const body = bodyRows.map((width, offset) => rectCommand('C', (24 - width) / 2, 16 + offset, width, 1));
+  const maximumWidth = Math.max(...bodyRows);
+  const bodyLeft = (24 - maximumWidth) / 2;
+  const bodyRight = bodyLeft + maximumWidth - 1;
+  const armLeft = Math.max(1, bodyLeft - 1);
+  const armRight = Math.min(21, bodyRight);
   const arms = [
-    rectCommand('C', armBounds[0], 17, 2, 3),
-    rectCommand('C', armBounds[1], 17, 2, 3),
-    rectCommand('S', armBounds[0], 20, 2, 3),
-    rectCommand('S', armBounds[1], 20, 2, 3),
-    rectCommand('s', armBounds[0], 22, 2, 1),
-    rectCommand('s', armBounds[1], 22, 2, 1),
+    rectCommand('C', armLeft, 18, 2, 4),
+    rectCommand('C', armRight, 18, 2, 4),
+    rectCommand('S', armLeft, 22, 2, 3),
+    rectCommand('S', armRight, 22, 2, 3),
+    rectCommand('s', armLeft, 24, 2, 1),
+    rectCommand('s', armRight, 24, 2, 1),
     pixelsCommand('c', [[9, 16], [14, 16]]),
   ];
   const patterns: DrawCommand[][] = [
-    [rectCommand('c', 8, 17, 8, 2), pixelsCommand('A', [[11, 20], [12, 20]])],
-    [pixelsCommand('A', [[7, 17], [8, 18], [9, 19], [10, 20], [11, 21], [12, 22], [13, 23]])],
+    [rectCommand('c', 7, 18, 10, 3), pixelsCommand('A', [[11, 23], [12, 23]])],
+    [pixelsCommand('A', [[7, 17], [8, 18], [9, 19], [10, 20], [11, 21], [12, 22], [13, 23], [14, 24], [15, 25]])],
     [rectCommand('A', 10, 16, 4, 2), pixelsCommand('a', [[11, 18], [12, 18]])],
-    [rectCommand('c', 6, 22, 12, 2), rectCommand('A', 8, 18, 3, 4), rectCommand('A', 13, 18, 3, 4)],
-    [rectCommand('A', 5, 17, 3, 6), rectCommand('c', 16, 17, 3, 6)],
-    [rectCommand('c', 5, 16, 14, 3), pixelsCommand('A', [[6, 16], [17, 16], [11, 21], [12, 21]])],
+    [rectCommand('c', 6, 24, 12, 2), rectCommand('A', 7, 19, 4, 5), rectCommand('A', 13, 19, 4, 5)],
+    [rectCommand('A', 4, 18, 4, 7), rectCommand('c', 16, 18, 4, 7)],
+    [rectCommand('c', 5, 17, 14, 4), pixelsCommand('A', [[6, 17], [17, 17], [11, 23], [12, 23]])],
   ];
   return [...body, ...(patterns[look.outfitPattern] as DrawCommand[]), ...arms];
 }
@@ -476,15 +471,14 @@ function portraitBodyCommands(look: CharacterLook): DrawCommand[] {
 }
 
 function worldLegCommands(): CharacterSource['sourceLayers']['legs'] {
+  const roundedBase = [
+    rectCommand('D', 6, 28, 12, 1),
+    rectCommand('K', 7, 29, 10, 1),
+    pixelsCommand('D', [[7, 27], [16, 27]]),
+  ];
   return {
-    frontFrames: [
-      [rectCommand('D', 9, 24, 2, 4), rectCommand('D', 13, 24, 2, 4), rectCommand('W', 8, 28, 3, 2), rectCommand('W', 13, 28, 3, 2)],
-      [rectCommand('D', 9, 24, 2, 4), rectCommand('D', 14, 24, 2, 4), rectCommand('W', 8, 28, 3, 2), rectCommand('W', 14, 28, 3, 2)],
-    ],
-    lateralFrames: [
-      [rectCommand('D', 9, 24, 2, 4), rectCommand('D', 13, 24, 2, 4), rectCommand('W', 8, 28, 3, 2), rectCommand('W', 13, 28, 4, 2)],
-      [rectCommand('D', 8, 24, 2, 4), rectCommand('D', 14, 24, 2, 4), rectCommand('W', 7, 28, 4, 2), rectCommand('W', 14, 28, 3, 2)],
-    ],
+    frontFrames: [[...roundedBase], [...roundedBase]],
+    lateralFrames: [[...roundedBase], [...roundedBase]],
   };
 }
 
@@ -543,7 +537,7 @@ function secondaryWorldCommands(look: CharacterLook): DrawCommand[] {
     case 'permit-pouch': return [pixelsCommand('A', [[7, 16], [9, 18], [11, 20], [13, 22]]), rectCommand('A', 14, 20, 6, 6), rectCommand('K', 16, 21, 2, 1)];
     case 'bow-tie': return [pixelsCommand('A', [[8, 16], [9, 15], [11, 17], [12, 16], [13, 17], [15, 15], [16, 16]]), rectCommand('a', 11, 16, 3, 2)];
     case 'rain-cape': return [rectCommand('C', 5, 17, 14, 3), rectCommand('C', 4, 20, 16, 4), rectCommand('C', 3, 24, 18, 2), rectCommand('c', 4, 25, 16, 1)];
-    case 'big-black-boots': return [rectCommand('D', 7, 25, 5, 3), rectCommand('D', 13, 25, 5, 3)];
+    case 'big-black-boots': return [rectCommand('D', 5, 25, 14, 3), rectCommand('K', 6, 28, 12, 1), rectCommand('K', 7, 29, 10, 1), pixelsCommand('A', [[7, 26], [16, 26]])];
     case 'bright-cuff': return [rectCommand('A', 4, 20, 3, 3), pixelsCommand('a', [[5, 21]]), rectCommand('C', 18, 18, 2, 5)];
     case 'guitar-case': return [pixelsCommand('A', [[6, 16], [8, 17], [10, 19], [12, 21], [14, 23]]), rectCommand('D', 17, 15, 4, 13), rectCommand('K', 16, 18, 6, 7), rectCommand('A', 18, 16, 2, 2)];
     case 'short-jacket': return [rectCommand('c', 6, 17, 12, 5), rectCommand('A', 7, 21, 10, 1), pixelsCommand('a', [[11, 18], [12, 18]])];
@@ -946,28 +940,634 @@ export function composePortrait(
   return frame;
 }
 
+const ENVIRONMENT_PALETTES: Readonly<Record<string, Readonly<Record<string, string>>>> = Object.freeze({
+  'warm-sand': Object.freeze({ B: '#789657', L: '#9ab96c', D: '#587444', P: '#3f5638' }),
+  'dune-grass': Object.freeze({ B: '#927d50', L: '#aa955f', G: '#65834a', g: '#3e5b38', D: '#6b5c40' }),
+  'villa-floor': Object.freeze({ B: '#51443e', L: '#68574e', D: '#3b3431', K: '#282629' }),
+  'spa-stone': Object.freeze({ B: '#68645c', L: '#858077', D: '#514e49', K: '#393837' }),
+  'plaza-paver': Object.freeze({ B: '#6c5a50', L: '#887267', D: '#54463f', K: '#3b3331' }),
+  boardwalk: Object.freeze({ B: '#674c3d', L: '#876650', D: '#49372f', K: '#2d2523' }),
+  'shallow-water': Object.freeze({ B: '#355f63', L: '#507b79', W: '#91aaa0', D: '#29494f' }),
+  'garden-soil': Object.freeze({ B: '#514238', L: '#6b5748', D: '#38322f', G: '#5c6947', g: '#3c4735' }),
+  'pale-concrete': Object.freeze({ B: '#8d877d', L: '#a39d91', D: '#716d66', K: '#5d5a56' }),
+  'dark-asphalt': Object.freeze({ B: '#252832', L: '#353a48', D: '#191c24', Y: '#b99955' }),
+  'neon-paver': Object.freeze({ B: '#555b66', L: '#717985', D: '#424852', K: '#303540' }),
+  'neon-floor': Object.freeze({ B: '#302a38', L: '#44394d', D: '#24232d', K: '#191b23' }),
+  'city-lot': Object.freeze({ B: '#383d47', L: '#4f5661', D: '#2c3038', K: '#22252c' }),
+});
+
+let terrainDetailTextureCache: Bitmap | undefined;
+
+function terrainDetailTexture(): Bitmap {
+  terrainDetailTextureCache ??= decodePng(readFileSync(resolve(
+    process.cwd(),
+    'assets/source/art/terrain-detail-source.png',
+  )));
+  return terrainDetailTextureCache;
+}
+
+function sampledTerrainLuminance(sourceId: string, x: number, y: number): number {
+  const texture = terrainDetailTexture();
+  const seed = stableArtSeed(`generated-terrain:${sourceId}`);
+  const sampleStride = 5;
+  const sampleSpan = TILE_CELL.width * sampleStride + 2;
+  const startX = seed % Math.max(1, texture.width - sampleSpan);
+  const startY = (seed >>> 12) % Math.max(1, texture.height - sampleSpan);
+  let luminance = 0;
+  for (let sampleY = 0; sampleY < 2; sampleY += 1) {
+    for (let sampleX = 0; sampleX < 2; sampleX += 1) {
+      const textureX = startX + x * sampleStride + sampleX;
+      const textureY = startY + y * sampleStride + sampleY;
+      const offset = (textureY * texture.width + textureX) * 4;
+      luminance +=
+        (texture.data[offset] as number) * 0.2126 +
+        (texture.data[offset + 1] as number) * 0.7152 +
+        (texture.data[offset + 2] as number) * 0.0722;
+    }
+  }
+  return luminance / 4;
+}
+
+function sourceFamily(sourceId: string): string {
+  return sourceId.replace(/-[b-d]$/u, '');
+}
+
+function stableArtSeed(value: string): number {
+  let hash = 2166136261;
+  for (const character of value) {
+    hash ^= character.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function noiseHash(seed: number, x: number, y: number): number {
+  let value = seed ^ Math.imul(x + 0x9e37, 0x85ebca6b) ^ Math.imul(y + 0x7f4a, 0xc2b2ae35);
+  value ^= value >>> 16;
+  value = Math.imul(value, 0x7feb352d);
+  value ^= value >>> 15;
+  value = Math.imul(value, 0x846ca68b);
+  return (value ^ (value >>> 16)) >>> 0;
+}
+
+function clampChannel(value: number): number {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+function shiftColor(color: Rgba, amount: number): Rgba {
+  return [
+    clampChannel(color[0] + amount),
+    clampChannel(color[1] + amount * 0.92),
+    clampChannel(color[2] + amount * 0.78),
+    color[3],
+  ];
+}
+
+function paletteForTile(source: TileSource): Readonly<Record<string, string>> {
+  if (source.cellClass !== 'ground') return source.palette;
+  const override = ENVIRONMENT_PALETTES[sourceFamily(source.id)];
+  return override ? Object.freeze({ ...source.palette, ...override }) : source.palette;
+}
+
+function addGroundMaterialTexture(
+  bitmap: Bitmap,
+  source: GroundCellSource,
+  palette: Readonly<Record<string, string>>,
+): Bitmap {
+  const base = parseHexColor(palette[source.backgroundToken] as string);
+  const seed = stableArtSeed(`ground:${source.id}`);
+  const natural = [
+    'warm-sand', 'dune-grass', 'garden-soil', 'sunset-cobble', 'sunset-paver',
+  ].includes(sourceFamily(source.id));
+  const roughExterior = [
+    'neon-paver', 'dark-asphalt', 'city-lot', 'harbor-yard', 'harbor-concrete',
+    'harbor-quay', 'dock-route', 'dock-boardwalk', 'sunset-cobble', 'sunset-paver',
+    'sunset-promenade', 'sunset-mosaic',
+  ].includes(sourceFamily(source.id));
+  for (let y = 0; y < bitmap.height; y += 1) {
+    for (let x = 0; x < bitmap.width; x += 1) {
+      const offset = (y * bitmap.width + x) * 4;
+      if (
+        bitmap.data[offset] !== base[0] || bitmap.data[offset + 1] !== base[1] ||
+        bitmap.data[offset + 2] !== base[2] || bitmap.data[offset + 3] !== 255
+      ) continue;
+      const broad = (noiseHash(seed, Math.floor(x / 5), Math.floor(y / 5)) % 17) - 8;
+      const fine = (noiseHash(seed ^ 0x5bd1e995, x, y) % 9) - 4;
+      const grainRoll = noiseHash(seed ^ 0x27d4eb2d, x, y) % 100;
+      const grain = natural && grainRoll < 13
+        ? (grainRoll % 2 === 0 ? -11 : 8)
+        : roughExterior && grainRoll < 10
+          ? (grainRoll % 2 === 0 ? -8 : 6)
+          : 0;
+      let mottle = 0;
+      if (natural || roughExterior) {
+        for (let patch = 0; patch < 3; patch += 1) {
+          const patchSeed = seed ^ Math.imul(patch + 1, 0x45d9f3b);
+          const centerX = 5 + (noiseHash(patchSeed, 1, 0) % 23);
+          const centerY = 5 + (noiseHash(patchSeed, 0, 1) % 23);
+          const radiusX = 8 + (noiseHash(patchSeed, 2, 0) % 8);
+          const radiusY = 7 + (noiseHash(patchSeed, 0, 2) % 9);
+          const distance = ((x - centerX) / radiusX) ** 2 + ((y - centerY) / radiusY) ** 2;
+          if (distance < 1) {
+            const direction = (noiseHash(patchSeed, 3, 3) & 1) === 0 ? -1 : 1;
+            mottle += direction * (1 - distance) * (natural ? 5 + patch * 2 : 4 + patch);
+          }
+        }
+      }
+      const edgeFade = 0.55 + Math.min(0.45, Math.max(0, Math.min(x, y, 31 - x, 31 - y) / 7));
+      const interiorTile = ['villa-floor', 'neon-floor', 'dock-floor', 'sunset-floor'].includes(sourceFamily(source.id));
+      const generatedDetail = (sampledTerrainLuminance(source.id, x, y) - 155.9) *
+        (natural ? 0.44 : interiorTile ? 0.2 : roughExterior ? 0.34 : 0.11);
+      setPixel(bitmap, x, y, shiftColor(
+        base,
+        broad * 0.7 + fine * 0.55 + grain * 0.8 +
+          (mottle * (natural ? 1.15 : 0.95) + generatedDetail) * edgeFade,
+      ));
+    }
+  }
+  return bitmap;
+}
+
+function addInteriorTileGrid(
+  bitmap: Bitmap,
+  palette: Readonly<Record<string, string>>,
+): Bitmap {
+  const grout = parseHexColor(palette.K as string);
+  const innerEdge = parseHexColor(palette.D as string);
+  for (let coordinate = 0; coordinate < TILE_CELL.width; coordinate += 1) {
+    setPixel(bitmap, coordinate, 0, grout);
+    setPixel(bitmap, 0, coordinate, grout);
+  }
+  for (let coordinate = 2; coordinate < TILE_CELL.width; coordinate += 1) {
+    setPixel(bitmap, coordinate, 1, innerEdge);
+    setPixel(bitmap, 1, coordinate, innerEdge);
+  }
+  return bitmap;
+}
+
+function paintEllipse(
+  bitmap: Bitmap,
+  centerX: number,
+  centerY: number,
+  radiusX: number,
+  radiusY: number,
+  color: Rgba,
+  seed = 0,
+): void {
+  const left = Math.max(0, Math.floor(centerX - radiusX));
+  const right = Math.min(bitmap.width - 1, Math.ceil(centerX + radiusX));
+  const top = Math.max(0, Math.floor(centerY - radiusY));
+  const bottom = Math.min(bitmap.height - 1, Math.ceil(centerY + radiusY));
+  for (let y = top; y <= bottom; y += 1) {
+    for (let x = left; x <= right; x += 1) {
+      const normalizedX = (x - centerX) / Math.max(1, radiusX);
+      const normalizedY = (y - centerY) / Math.max(1, radiusY);
+      const edgeJitter = ((noiseHash(seed, x, y) % 9) - 4) / 45;
+      if (normalizedX * normalizedX + normalizedY * normalizedY <= 1 + edgeJitter) {
+        setPixel(bitmap, x, y, color);
+      }
+    }
+  }
+}
+
+function paintLine(
+  bitmap: Bitmap,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  color: Rgba,
+  thickness = 1,
+): void {
+  const steps = Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY), 1);
+  for (let step = 0; step <= steps; step += 1) {
+    const x = Math.round(fromX + ((toX - fromX) * step) / steps);
+    const y = Math.round(fromY + ((toY - fromY) * step) / steps);
+    for (let offsetY = 0; offsetY < thickness; offsetY += 1) {
+      for (let offsetX = 0; offsetX < thickness; offsetX += 1) {
+        if (x + offsetX < bitmap.width && y + offsetY < bitmap.height) {
+          setPixel(bitmap, x + offsetX, y + offsetY, color);
+        }
+      }
+    }
+  }
+}
+
+function renderEnvironmentDecal(sourceId: string): Bitmap | undefined {
+  const bitmap = createBitmap(TILE_CELL.width, TILE_CELL.height);
+  const shadow: Rgba = [35, 31, 27, 105];
+  if (sourceId === 'decal-sand-ripple') {
+    paintEllipse(bitmap, 16, 22, 15, 10, [76, 67, 48, 34], 0);
+    paintEllipse(bitmap, 16, 25, 11, 3, shadow, 1);
+    const dark = parseHexColor('#435c38');
+    const mid = parseHexColor('#64804a');
+    const light = parseHexColor('#8fa15b');
+    [[7, 24, 10, 12], [11, 25, 13, 9], [15, 25, 17, 10], [19, 25, 23, 13], [23, 25, 26, 15]]
+      .forEach(([x1, y1, x2, y2]) => paintLine(bitmap, x1!, y1!, x2!, y2!, dark));
+    [[9, 24, 12, 15], [14, 25, 15, 13], [18, 25, 20, 14], [22, 25, 24, 17]]
+      .forEach(([x1, y1, x2, y2]) => paintLine(bitmap, x1!, y1!, x2!, y2!, mid));
+    paintLine(bitmap, 15, 22, 17, 13, light);
+    return bitmap;
+  }
+  if (sourceId === 'decal-sand-pebbles') {
+    const stones = [
+      { x: 8, y: 22, rx: 4, ry: 3 }, { x: 16, y: 17, rx: 3, ry: 2 },
+      { x: 23, y: 23, rx: 5, ry: 3 }, { x: 26, y: 14, rx: 2, ry: 2 },
+    ];
+    for (const [index, stone] of stones.entries()) {
+      paintEllipse(bitmap, stone.x + 1, stone.y + 2, stone.rx + 1, stone.ry, shadow, 10 + index);
+      paintEllipse(bitmap, stone.x, stone.y, stone.rx, stone.ry, parseHexColor('#62584c'), 20 + index);
+      paintEllipse(bitmap, stone.x - 1, stone.y - 1, Math.max(1, stone.rx - 2), 1, parseHexColor('#968570'), 30 + index);
+    }
+    return bitmap;
+  }
+  if (sourceId === 'decal-sand-shells') {
+    paintEllipse(bitmap, 16, 22, 15, 9, [65, 62, 41, 32], 39);
+    paintEllipse(bitmap, 16, 24, 12, 4, shadow, 40);
+    const dark = parseHexColor('#2c5038');
+    const mid = parseHexColor('#4f7448');
+    const light = parseHexColor('#7e9a59');
+    [[8, 20, 6, 5], [13, 17, 7, 6], [19, 19, 8, 6], [24, 16, 5, 5], [16, 22, 9, 6]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 50 + index));
+    [[10, 18, 5, 4], [17, 16, 6, 5], [23, 18, 5, 4], [15, 22, 6, 4]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 60 + index));
+    [[11, 16, 3, 2], [18, 14, 3, 2], [24, 17, 2, 2]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, light, 70 + index));
+    return bitmap;
+  }
+  if (sourceId === 'decal-grass-tuft') {
+    paintEllipse(bitmap, 16, 26, 12, 3, shadow, 80);
+    const dark = parseHexColor('#334333');
+    const mid = parseHexColor('#566748');
+    const light = parseHexColor('#78805a');
+    for (let index = 0; index < 13; index += 1) {
+      const rootX = 6 + index * 2;
+      const tipX = rootX + ((index % 3) - 1) * 3;
+      const tipY = 10 + (index * 7) % 9;
+      paintLine(bitmap, rootX, 26, tipX, tipY, index % 4 === 0 ? light : index % 2 === 0 ? mid : dark);
+    }
+    return bitmap;
+  }
+  if (sourceId === 'decal-leaf-litter') {
+    paintEllipse(bitmap, 16, 23, 14, 6, [70, 55, 39, 25], 170);
+    const leaves = [
+      { x: 6, y: 20, color: '#7e5335' }, { x: 11, y: 25, color: '#a16b3e' },
+      { x: 16, y: 18, color: '#6f713f' }, { x: 20, y: 24, color: '#b07b45' },
+      { x: 26, y: 19, color: '#80543a' }, { x: 29, y: 25, color: '#697243' },
+      { x: 4, y: 27, color: '#a77b4c' }, { x: 22, y: 15, color: '#8e623b' },
+    ];
+    leaves.forEach((leaf, index) => {
+      paintEllipse(bitmap, leaf.x + 1, leaf.y + 1, 3, 2, [42, 35, 29, 90], 180 + index);
+      paintEllipse(bitmap, leaf.x, leaf.y, 2, 2, parseHexColor(leaf.color), 190 + index);
+      setPixel(bitmap, leaf.x, Math.max(0, leaf.y - 1), parseHexColor('#c29a5b'));
+    });
+    return bitmap;
+  }
+  if (sourceId === 'decal-sapling') {
+    paintEllipse(bitmap, 16, 29, 10, 3, shadow, 200);
+    paintLine(bitmap, 14, 29, 17, 14, parseHexColor('#3d2e29'), 4);
+    paintLine(bitmap, 16, 29, 18, 14, parseHexColor('#75533a'), 2);
+    const dark = parseHexColor('#294b36');
+    const mid = parseHexColor('#4d7548');
+    const light = parseHexColor('#7f9f5b');
+    [[8, 13, 7, 6], [14, 8, 8, 7], [21, 11, 8, 7], [16, 16, 10, 6]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 210 + index));
+    [[10, 11, 4, 4], [16, 6, 5, 4], [22, 10, 5, 4], [16, 14, 6, 4]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 220 + index));
+    [[15, 5, 3, 2], [22, 8, 3, 2], [11, 9, 2, 2]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, light, 230 + index));
+    return bitmap;
+  }
+  if (sourceId === 'decal-young-palm') {
+    paintEllipse(bitmap, 17, 29, 10, 3, shadow, 240);
+    paintLine(bitmap, 14, 29, 17, 12, parseHexColor('#3d2e29'), 4);
+    paintLine(bitmap, 16, 29, 18, 12, parseHexColor('#80573a'), 2);
+    const dark = parseHexColor('#285039');
+    const mid = parseHexColor('#4f7d48');
+    const light = parseHexColor('#88a557');
+    const fronds = [[17, 12, 2, 7], [17, 12, 6, 3], [17, 12, 12, 5], [17, 12, 28, 8], [17, 12, 30, 13], [17, 12, 26, 18], [17, 12, 8, 18], [17, 12, 3, 14]];
+    fronds.forEach(([x1, y1, x2, y2], index) => {
+      paintLine(bitmap, x1!, y1!, x2!, y2!, dark, 3);
+      paintLine(bitmap, x1!, y1!, x2!, y2!, index % 3 === 0 ? light : mid, 1);
+    });
+    paintEllipse(bitmap, 17, 12, 4, 3, mid, 250);
+    return bitmap;
+  }
+  if (sourceId === 'decal-flowering-shrub') {
+    paintEllipse(bitmap, 16, 26, 12, 4, shadow, 260);
+    const dark = parseHexColor('#2b5038');
+    const mid = parseHexColor('#527a49');
+    const light = parseHexColor('#83a25b');
+    [[7, 21, 7, 5], [13, 17, 8, 7], [20, 18, 8, 7], [25, 22, 6, 5], [16, 23, 10, 6]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 270 + index));
+    [[10, 18, 5, 4], [17, 15, 6, 5], [23, 19, 5, 4], [16, 22, 7, 4]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 280 + index));
+    [[11, 17], [16, 13], [21, 18], [25, 21], [14, 22], [19, 23]].forEach(([x, y], index) => {
+      const flower = parseHexColor(index % 2 === 0 ? '#efb04e' : '#df6f62');
+      paintEllipse(bitmap, x!, y!, 2, 2, flower, 290 + index);
+      setPixel(bitmap, x!, Math.max(0, y! - 1), parseHexColor('#ffe09a'));
+    });
+    paintEllipse(bitmap, 12, 16, 3, 2, light, 300);
+    return bitmap;
+  }
+  if (sourceId === 'decal-canopy-tree') {
+    paintEllipse(bitmap, 17, 29, 13, 3, shadow, 301);
+    paintLine(bitmap, 13, 30, 16, 13, parseHexColor('#3b2d29'), 6);
+    paintLine(bitmap, 16, 30, 18, 13, parseHexColor('#79543b'), 3);
+    paintLine(bitmap, 17, 17, 9, 12, parseHexColor('#5d4134'), 2);
+    paintLine(bitmap, 17, 16, 25, 11, parseHexColor('#5d4134'), 2);
+    const deep = parseHexColor('#244432');
+    const dark = parseHexColor('#31583a');
+    const mid = parseHexColor('#4f7847');
+    const light = parseHexColor('#80a158');
+    [[5, 13, 9, 7], [10, 7, 10, 8], [18, 6, 11, 9], [27, 11, 8, 7], [14, 15, 12, 8], [23, 16, 10, 7]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, deep, 302 + index));
+    [[7, 11, 7, 5], [13, 6, 8, 6], [21, 7, 9, 6], [26, 12, 6, 5], [16, 14, 9, 6]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 312 + index));
+    [[11, 7, 5, 4], [18, 5, 6, 4], [24, 9, 5, 4], [14, 12, 6, 4]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 322 + index));
+    paintEllipse(bitmap, 17, 4, 4, 2, light, 332);
+    paintEllipse(bitmap, 9, 9, 3, 2, light, 333);
+    return bitmap;
+  }
+  if (sourceId === 'decal-neon-light-cyan' || sourceId === 'decal-neon-light-magenta') {
+    const cyan = sourceId.endsWith('cyan');
+    const glow: Rgba = cyan ? [40, 216, 220, 42] : [240, 90, 215, 42];
+    const bright = parseHexColor(cyan ? '#68f6f3' : '#ff8bea');
+    paintEllipse(bitmap, 16, 21, 15, 9, glow, 310);
+    paintEllipse(bitmap, 16, 22, 10, 5, [glow[0], glow[1], glow[2], 30], 311);
+    paintLine(bitmap, 8, 24, 23, 20, [bright[0], bright[1], bright[2], 120]);
+    return bitmap;
+  }
+  if (sourceId === 'decal-neon-litter') {
+    const colors = ['#e86dce', '#61d8d6', '#d5b85e', '#77718d'];
+    [[6, 22], [12, 17], [20, 24], [26, 14], [28, 27]].forEach(([x, y], index) => {
+      const color = parseHexColor(colors[index % colors.length]!);
+      fillRect(bitmap, x!, y!, index % 2 === 0 ? 3 : 2, 2, color);
+      setPixel(bitmap, x! + 1, Math.max(0, y! - 1), shiftColor(color, 25));
+    });
+    return bitmap;
+  }
+  if (sourceId === 'decal-neon-puddle') {
+    paintEllipse(bitmap, 16, 23, 14, 6, [18, 23, 36, 115], 320);
+    paintEllipse(bitmap, 14, 21, 9, 3, [62, 92, 119, 90], 321);
+    paintLine(bitmap, 8, 20, 18, 19, [73, 220, 218, 135]);
+    paintLine(bitmap, 19, 24, 26, 23, [229, 87, 205, 110]);
+    return bitmap;
+  }
+  if (sourceId === 'decal-neon-manhole') {
+    paintEllipse(bitmap, 16, 22, 11, 7, [19, 20, 28, 150], 330);
+    paintEllipse(bitmap, 16, 20, 10, 7, parseHexColor('#303542'), 331);
+    paintEllipse(bitmap, 16, 19, 7, 4, parseHexColor('#4b5161'), 332);
+    for (let x = 11; x <= 21; x += 5) paintLine(bitmap, x, 16, x, 23, parseHexColor('#242833'));
+    paintLine(bitmap, 9, 19, 23, 19, parseHexColor('#242833'));
+    return bitmap;
+  }
+  if (sourceId === 'decal-neon-planter') {
+    paintEllipse(bitmap, 16, 29, 12, 3, shadow, 340);
+    fillRect(bitmap, 6, 21, 20, 9, parseHexColor('#211d2b'));
+    fillRect(bitmap, 8, 22, 16, 6, parseHexColor('#5a376a'));
+    fillRect(bitmap, 9, 22, 14, 1, parseHexColor('#a253a7'));
+    const dark = parseHexColor('#254d4d');
+    const mid = parseHexColor('#3f7972');
+    const light = parseHexColor('#65c2aa');
+    [[8, 18, 7, 5], [14, 13, 8, 7], [21, 16, 8, 6], [17, 20, 10, 5]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 350 + index));
+    [[11, 15, 5, 4], [17, 11, 5, 4], [23, 15, 5, 4]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 360 + index));
+    paintEllipse(bitmap, 16, 10, 3, 2, light, 370);
+    setPixel(bitmap, 12, 14, parseHexColor('#6ff5ed'));
+    setPixel(bitmap, 21, 14, parseHexColor('#ff75df'));
+    return bitmap;
+  }
+  return undefined;
+}
+
+function renderOrganicPlant(sourceId: string): Bitmap | undefined {
+  if (sourceId !== 'plant-palm' && sourceId !== 'fixture-planter') return undefined;
+  const bitmap = createBitmap(TILE_CELL.width, TILE_CELL.height);
+  const shadow: Rgba = [28, 25, 23, 125];
+  if (sourceId === 'plant-palm') {
+    paintEllipse(bitmap, 17, 28, 11, 3, shadow, 90);
+    paintLine(bitmap, 14, 29, 17, 10, parseHexColor('#3e3029'), 5);
+    paintLine(bitmap, 16, 29, 18, 10, parseHexColor('#74543a'), 2);
+    const dark = parseHexColor('#294a35');
+    const mid = parseHexColor('#4b7548');
+    const light = parseHexColor('#7e9e59');
+    [[5, 9, 10, 5], [9, 4, 9, 6], [16, 5, 11, 7], [24, 9, 8, 5], [12, 12, 10, 6], [21, 13, 9, 5]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 100 + index));
+    [[7, 7, 7, 3], [13, 3, 7, 4], [20, 6, 8, 4], [25, 10, 5, 3], [14, 11, 7, 4]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 110 + index));
+    [[10, 5, 4, 2], [18, 5, 4, 2], [23, 8, 3, 2]]
+      .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, light, 120 + index));
+    return bitmap;
+  }
+  paintEllipse(bitmap, 16, 29, 12, 3, shadow, 130);
+  const outline = parseHexColor('#332926');
+  for (let y = 18; y < 31; y += 1) {
+    const inset = Math.floor((y - 18) / 5);
+    for (let x = 5 + inset; x < 27 - inset; x += 1) setPixel(bitmap, x, y, outline);
+  }
+  for (let y = 20; y < 28; y += 1) {
+    for (let x = 7; x < 25; x += 1) setPixel(bitmap, x, y, parseHexColor('#6b4436'));
+  }
+  paintLine(bitmap, 8, 20, 24, 20, parseHexColor('#9a6750'), 2);
+  const dark = parseHexColor('#294c36');
+  const mid = parseHexColor('#4e7549');
+  const light = parseHexColor('#7e9c5b');
+  [[8, 16, 7, 7], [14, 11, 8, 9], [21, 15, 8, 7], [17, 18, 9, 6]]
+    .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, dark, 140 + index));
+  [[10, 13, 5, 5], [16, 9, 5, 6], [22, 13, 5, 5]]
+    .forEach(([x, y, rx, ry], index) => paintEllipse(bitmap, x!, y!, rx!, ry!, mid, 150 + index));
+  paintEllipse(bitmap, 15, 7, 3, 3, light, 160);
+  return bitmap;
+}
+
 export function renderTile(source: TileSource): Bitmap {
+  const organicPlant = source.cellClass === 'transparent-part' ? renderOrganicPlant(source.id) : undefined;
+  if (organicPlant) return organicPlant;
+  const environmentalDecal = source.cellClass === 'presentation' ? renderEnvironmentDecal(source.id) : undefined;
+  if (environmentalDecal) return environmentalDecal;
   const backgroundToken = source.cellClass === 'ground'
     ? source.backgroundToken
     : source.cellClass === 'presentation'
       ? source.backgroundToken
       : undefined;
+  const palette = paletteForTile(source);
   const frame = backgroundToken
     ? Array.from({ length: TILE_CELL.height }, () => backgroundToken.repeat(TILE_CELL.width))
     : emptyTokenFrame(TILE_CELL.width, TILE_CELL.height);
-  drawTokenCommands(frame, source.commands);
-  return tokenFrameToBitmap(frame, source.palette);
+  const naturalGround = source.cellClass === 'ground' && [
+    'warm-sand', 'dune-grass', 'garden-soil', 'sunset-cobble', 'sunset-paver',
+  ].includes(sourceFamily(source.id));
+  const interiorTile = source.cellClass === 'ground' && [
+    'villa-floor', 'neon-floor', 'dock-floor', 'sunset-floor',
+  ].includes(sourceFamily(source.id));
+  const proceduralAsphalt = source.cellClass === 'ground' && sourceFamily(source.id) === 'dark-asphalt';
+  const proceduralExterior = source.cellClass === 'ground' && [
+    'neon-paver', 'city-lot', 'sunset-promenade', 'sunset-mosaic', 'harbor-yard', 'harbor-concrete',
+    'harbor-quay', 'dock-route',
+  ].includes(sourceFamily(source.id));
+  if (!naturalGround && !interiorTile && !proceduralAsphalt && !proceduralExterior) {
+    drawTokenCommands(frame, source.commands);
+  }
+  const bitmap = tokenFrameToBitmap(frame, palette);
+  if (source.cellClass !== 'ground') return bitmap;
+  const textured = addGroundMaterialTexture(bitmap, source, palette);
+  return interiorTile ? addInteriorTileGrid(textured, palette) : textured;
+}
+
+export type DoorOrientation = 'horizontal' | 'vertical';
+
+export function renderDoorVariant(
+  source: TransparentPartSource,
+  orientation: DoorOrientation,
+): Bitmap {
+  if (source.role !== 'door') throw new Error(`${source.id} is not a door source.`);
+  const bitmap = createBitmap(TILE_CELL.width, TILE_CELL.height);
+  const outline = parseHexColor('#261c1d');
+  const cavity = parseHexColor('#312629');
+  const recess = parseHexColor('#493431');
+  const panel = parseHexColor('#765043');
+  const cap = parseHexColor('#9b6b56');
+  const highlight = parseHexColor('#bd8a67');
+  const hardware = parseHexColor(source.id === 'closed-locked-door' ? '#d6b45d' : '#2c2325');
+  const open = source.id === 'open-door';
+  const seed = stableArtSeed(`door:${source.id}:${orientation}`);
+  if (orientation === 'horizontal') {
+    // The cavity touches both wall ends. The door slabs do not: they sit inside
+    // the opening so the assembly reads as a recessed fixture, not painted wall.
+    fillRect(bitmap, 0, 4, 32, 24, outline);
+    fillRect(bitmap, 1, 6, 30, 20, cavity);
+    fillRect(bitmap, 1, 6, 3, 20, recess);
+    fillRect(bitmap, 28, 6, 3, 20, recess);
+    fillRect(bitmap, 2, 7, 1, 17, cap);
+    fillRect(bitmap, 29, 7, 1, 17, cap);
+    fillRect(bitmap, 4, 7, 24, 2, outline);
+    fillRect(bitmap, 4, 26, 24, 2, outline);
+    const leftPanel = { x: 5, width: 11 };
+    const rightPanel = { x: 15, width: 12 };
+    for (const doorPanel of [leftPanel, rightPanel]) {
+      fillRect(bitmap, doorPanel.x, 9, doorPanel.width, 17, outline);
+      fillRect(bitmap, doorPanel.x + 1, 11, doorPanel.width - 2, 13, panel);
+      fillRect(bitmap, doorPanel.x + 2, 12, doorPanel.width - 4, 2, cap);
+      fillRect(bitmap, doorPanel.x + 1, 24, doorPanel.width - 2, 1, recess);
+    }
+    fillRect(bitmap, 13, 16, 1, 4, hardware);
+    fillRect(bitmap, 17, 16, 1, 4, hardware);
+    fillRect(bitmap, 2, 28, 28, 2, [outline[0], outline[1], outline[2], 135]);
+  } else {
+    fillRect(bitmap, 4, 0, 24, 32, outline);
+    fillRect(bitmap, 6, 1, 20, 30, cavity);
+    fillRect(bitmap, 6, 1, 20, 3, recess);
+    fillRect(bitmap, 6, 28, 20, 3, recess);
+    fillRect(bitmap, 7, 2, 17, 1, cap);
+    fillRect(bitmap, 7, 29, 17, 1, cap);
+    fillRect(bitmap, 7, 4, 2, 24, outline);
+    fillRect(bitmap, 24, 4, 2, 24, outline);
+    const topPanel = { y: 5, height: 11 };
+    const bottomPanel = { y: 15, height: 12 };
+    for (const doorPanel of [topPanel, bottomPanel]) {
+      fillRect(bitmap, 9, doorPanel.y, 15, doorPanel.height, outline);
+      fillRect(bitmap, 10, doorPanel.y + 1, 13, doorPanel.height - 2, panel);
+      fillRect(bitmap, 11, doorPanel.y + 2, 11, 2, cap);
+      fillRect(bitmap, 22, doorPanel.y + 1, 1, doorPanel.height - 2, recess);
+    }
+    fillRect(bitmap, 14, 13, 5, 1, hardware);
+    fillRect(bitmap, 14, 17, 5, 1, hardware);
+    fillRect(bitmap, 28, 2, 2, 28, [outline[0], outline[1], outline[2], 135]);
+  }
+  for (let y = 0; y < bitmap.height; y += 1) {
+    for (let x = 0; x < bitmap.width; x += 1) {
+      const offset = (y * bitmap.width + x) * 4;
+      if (bitmap.data[offset + 3] !== 255) continue;
+      const color: Rgba = [
+        bitmap.data[offset] as number,
+        bitmap.data[offset + 1] as number,
+        bitmap.data[offset + 2] as number,
+        255,
+      ];
+      setPixel(bitmap, x, y, shiftColor(color, ((noiseHash(seed, x, y) % 5) - 2) * 0.45));
+    }
+  }
+  return bitmap;
 }
 
 export function renderWallVariant(source: WallSource, adjacencyMask: number): Bitmap {
   if (!Number.isInteger(adjacencyMask) || adjacencyMask < 0 || adjacencyMask > 15) {
     throw new Error('Wall adjacency mask must be an integer from 0 through 15.');
   }
-  const frame = emptyTokenFrame(TILE_CELL.width, TILE_CELL.height);
-  if ((adjacencyMask & 1) !== 0) drawTokenCommands(frame, source.modules.north);
-  if ((adjacencyMask & 2) !== 0) drawTokenCommands(frame, source.modules.east);
-  if ((adjacencyMask & 4) !== 0) drawTokenCommands(frame, source.modules.south);
-  if ((adjacencyMask & 8) !== 0) drawTokenCommands(frame, source.modules.west);
-  drawTokenCommands(frame, source.modules.core);
-  return tokenFrameToBitmap(frame, source.palette);
+  const ramps = {
+    villa: ['#261c1d', '#47302d', '#6b483d', '#936552', '#bd8a67'],
+    downtown: ['#14151e', '#28263a', '#423851', '#624466', '#d069d5'],
+    commercial: ['#211d1b', '#3c3028', '#5b4737', '#80654b', '#a18562'],
+    civic: ['#192027', '#2d3942', '#465761', '#667985', '#8e9ba0'],
+  } as const;
+  const [outline, shadowColor, faceColor, capColor, highlightColor] = ramps[source.id as keyof typeof ramps] ?? ramps.villa;
+  const shape = Array.from({ length: TILE_CELL.height }, () => Array.from({ length: TILE_CELL.width }, () => false));
+  const mark = (x: number, y: number, width: number, height: number): void => {
+    for (let row = y; row < y + height; row += 1) {
+      for (let column = x; column < x + width; column += 1) shape[row]![column] = true;
+    }
+  };
+  mark(4, 4, 24, 24);
+  if ((adjacencyMask & 1) !== 0) mark(4, 0, 24, 17);
+  if ((adjacencyMask & 2) !== 0) mark(15, 4, 17, 24);
+  if ((adjacencyMask & 4) !== 0) mark(4, 15, 24, 17);
+  if ((adjacencyMask & 8) !== 0) mark(0, 4, 17, 24);
+  const connectedShape = (x: number, y: number): boolean => {
+    if (x >= 0 && x < TILE_CELL.width && y >= 0 && y < TILE_CELL.height) return shape[y]![x] ?? false;
+    if (y < 0) return (adjacencyMask & 1) !== 0 && x >= 4 && x < 28;
+    if (x >= TILE_CELL.width) return (adjacencyMask & 2) !== 0 && y >= 4 && y < 28;
+    if (y >= TILE_CELL.height) return (adjacencyMask & 4) !== 0 && x >= 4 && x < 28;
+    if (x < 0) return (adjacencyMask & 8) !== 0 && y >= 4 && y < 28;
+    return false;
+  };
+
+  const bitmap = createBitmap(TILE_CELL.width, TILE_CELL.height);
+  const seed = stableArtSeed(`wall:${source.id}:${adjacencyMask}`);
+  for (let y = 0; y < TILE_CELL.height; y += 1) {
+    for (let x = 0; x < TILE_CELL.width; x += 1) {
+      if (!shape[y]![x]) continue;
+      const shadowX = x + 2;
+      const shadowY = y + 3;
+      if (shadowX < TILE_CELL.width && shadowY < TILE_CELL.height && !shape[shadowY]![shadowX]) {
+        const shadow = parseHexColor(outline);
+        setPixel(bitmap, shadowX, shadowY, [shadow[0], shadow[1], shadow[2], 150]);
+      }
+    }
+  }
+  for (let y = 0; y < TILE_CELL.height; y += 1) {
+    for (let x = 0; x < TILE_CELL.width; x += 1) {
+      if (!shape[y]![x]) continue;
+      const boundary = !connectedShape(x, y - 1) || !connectedShape(x, y + 1) ||
+        !connectedShape(x - 1, y) || !connectedShape(x + 1, y);
+      if (boundary) {
+        setPixel(bitmap, x, y, parseHexColor(outline));
+        continue;
+      }
+      const hasHorizontalRun = (adjacencyMask & 10) !== 0;
+      const hasVerticalRun = (adjacencyMask & 5) !== 0;
+      const southFace = (hasHorizontalRun || !hasVerticalRun) && y >= 13;
+      const eastFace = hasVerticalRun && x >= 19;
+      const face = southFace || eastFace;
+      const southMortarRow = southFace && (y === 19 || y === 25);
+      const southBrickRow = y < 19 ? 0 : y < 25 ? 1 : 2;
+      const southMortarColumn = southFace && !southMortarRow &&
+        (x + (southBrickRow % 2) * 6) % 12 === 7;
+      const eastMortar = eastFace && !southFace && x === 19;
+      const mortar = southMortarRow || southMortarColumn || eastMortar;
+      const base = parseHexColor(mortar ? shadowColor : face ? faceColor : capColor);
+      const texture = ((noiseHash(seed, x, y) % 9) - 4) * (face ? 0.9 : 0.55);
+      setPixel(bitmap, x, y, shiftColor(base, texture));
+      const capHighlight = !face && (
+        ((hasHorizontalRun || !hasVerticalRun) && y === 6) ||
+        (hasVerticalRun && x === 6)
+      );
+      if (capHighlight && (x + y + seed) % 7 !== 0) {
+        setPixel(bitmap, x, y, parseHexColor(highlightColor));
+      }
+    }
+  }
+  return bitmap;
 }

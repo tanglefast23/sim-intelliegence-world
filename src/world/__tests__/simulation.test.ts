@@ -100,7 +100,7 @@ describe('world simulation', () => {
     const arrived = tickWorld(loaded, 30_000);
     expect(arrived.transfers).toEqual({});
     expect(arrived.npcs.linda?.presence).toEqual({
-      kind: 'inactive', mapId: 'southwest_commercial', locationId: 'southwest_commercial', tileX: 15, tileY: 16,
+      kind: 'inactive', mapId: 'southwest_commercial', locationId: 'southwest_commercial', tileX: 17, tileY: 17,
     });
   });
 

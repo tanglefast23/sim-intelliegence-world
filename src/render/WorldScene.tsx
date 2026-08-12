@@ -97,10 +97,12 @@ import { ProceduralMapEffects, PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/Pr
 import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
 import { partitionVfxEmitters } from './vfx/seed';
 import { VFX_REVISION, VFX_STEP_MILLISECONDS, type AuthoredMapEffect } from './vfx/types';
+import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wobble';
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
   type WorldActors,
+  type WorldCharacterPlacement,
   type WorldLayer,
 } from './world-frame';
 
@@ -148,6 +150,20 @@ function atlasData(placements: readonly SpritePlacement[], zoom: number) {
   };
 }
 
+function characterAtlasData(placements: readonly WorldCharacterPlacement[], zoom: number) {
+  return {
+    sprites: placements.map(({ sprite }) => {
+      const source = atlasRectangle(sprite);
+      return rect(source.x, source.y, source.width, source.height);
+    }),
+    transforms: placements.map(({ worldX, worldY, angleDegrees = 0 }) => {
+      if (angleDegrees === 0) return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
+      const transform = bottomPivotTransform({ worldX, worldY, zoom, angleDegrees });
+      return Skia.RSXform(transform.scos, transform.ssin, transform.tx, transform.ty);
+    }),
+  };
+}
+
 function areaName(map: CompiledMapV2, tile: TilePoint): string {
   const area = map.source.areas.find(({ bounds }) => (
     tile.x >= bounds.x && tile.x < bounds.x + bounds.width &&
@@ -156,8 +172,7 @@ function areaName(map: CompiledMapV2, tile: TilePoint): string {
   return (area?.id ?? map.source.displayName).replaceAll('-', ' ').toUpperCase();
 }
 
-function visualIdForNpc(stateId: string, tier: 'full_ai' | 'ambient'): CharacterId {
-  if (tier === 'ambient') return 'generic-resident';
+function visualIdForNpc(stateId: string, _tier: 'full_ai' | 'ambient'): CharacterId {
   const candidate = stateId.replaceAll('_', '-') as CharacterId;
   return CHARACTER_IDS.includes(candidate) ? candidate : 'generic-resident';
 }
@@ -183,6 +198,7 @@ function actorTiles(
         walkFrame: movement?.walkFrame ?? 0,
         moving: movement?.status === 'moving',
         reducedMotion,
+        horizontalRunDistance: movement?.horizontalRunDistance ?? 0,
       };
     }
   }
@@ -802,11 +818,15 @@ export function WorldScene({
     const details = [
       ...map.presentation.transitions.flatMap((transition) => transition.sprite ? [{
         id: transition.id,
+        offsetX: 0,
+        offsetY: 0,
         sprite: transition.sprite,
         tile: transition.tile,
       }] : []),
       ...map.presentation.decals.map((decal) => ({
         id: decal.id,
+        offsetX: decal.offsetX,
+        offsetY: decal.offsetY,
         sprite: decal.sprite,
         tile: decal.tile,
       })),
@@ -818,8 +838,8 @@ export function WorldScene({
     )).map((detail) => ({
       id: detail.id,
       sprite: detail.sprite,
-      worldX: detail.tile.x * TILE_SIZE,
-      worldY: detail.tile.y * TILE_SIZE,
+      worldX: detail.tile.x * TILE_SIZE + detail.offsetX,
+      worldY: detail.tile.y * TILE_SIZE + detail.offsetY,
     }));
   }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
   const visibleProps = useMemo(() => [
@@ -868,8 +888,9 @@ export function WorldScene({
       walkFrame: runtime.movement.walkFrame,
       moving: runtime.movement.status === 'moving',
       reducedMotion,
+      horizontalRunDistance: runtime.movement.horizontalRunDistance,
     }),
-    [map, npcTiles, playerVisualFoot, reducedMotion, runtime.movement.direction, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState],
+    [map, npcTiles, playerVisualFoot, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState],
   );
   const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
     visibility.maximumX,
@@ -881,7 +902,7 @@ export function WorldScene({
   const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
   const groundDetailAtlas = useMemo(() => atlasData(visibleGroundDetails, camera.zoom), [camera.zoom, visibleGroundDetails]);
   const propAtlas = useMemo(() => atlasData(visibleProps, camera.zoom), [camera.zoom, visibleProps]);
-  const characterAtlas = useMemo(() => atlasData(characters, camera.zoom), [camera.zoom, characters]);
+  const characterAtlas = useMemo(() => characterAtlasData(characters, camera.zoom), [camera.zoom, characters]);
   const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
   const visibleRoofTiles = useMemo(() => map.presentation.roofs
     .filter(({ roofGroupId }) => worldFrame.visibleRoofGroupIds.includes(roofGroupId))
@@ -1205,6 +1226,13 @@ export function WorldScene({
                 status: runtime.movement.status,
                 target: runtime.movement.pendingTarget ?? runtime.movement.target ?? null,
                 curveActive: Boolean(runtime.movement.latchedTurnCurve),
+                horizontalRunDistance: runtime.movement.horizontalRunDistance,
+                protagonistWobbleDegrees: protagonistWobbleDegrees({
+                  direction: runtime.movement.direction,
+                  status: runtime.movement.status,
+                  horizontalRunDistance: runtime.movement.horizontalRunDistance,
+                  reducedMotion,
+                }),
               },
               npcs: Object.fromEntries(Object.entries(runtime.npcMovements).map(([id, movement]) => [id, {
                 committed: movement.player,
@@ -1213,6 +1241,13 @@ export function WorldScene({
                 walkFrame: movement.walkFrame,
                 status: movement.status,
                 curveActive: Boolean(movement.latchedTurnCurve),
+                horizontalRunDistance: movement.horizontalRunDistance,
+                wobbleDegrees: protagonistWobbleDegrees({
+                  direction: movement.direction,
+                  status: movement.status,
+                  horizontalRunDistance: movement.horizontalRunDistance,
+                  reducedMotion,
+                }),
               }])),
             })}
             nativeID="world-movement-state"

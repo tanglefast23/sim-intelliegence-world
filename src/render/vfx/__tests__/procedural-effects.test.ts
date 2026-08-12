@@ -17,7 +17,7 @@ const SPARKLE = { id: 'beach-sparkle', kind: 'sparkle', tile: { x: 50, y: 40 } }
 const SAMPLE_AGES = [0, 50, 250, 500, 1_000] as const;
 
 describe('procedural fire and sparkle contracts', () => {
-  test('matches the exact six authored catalogue anchors without changing map schema', () => {
+  test('matches every authored catalogue anchor without changing map schema', () => {
     expect(catalogueVfxAnchors(WORLD_MAP_CATALOG)).toEqual(EXPECTED_VFX_ANCHORS);
     expect(Object.keys(WORLD_MAP_CATALOG.northwest_residential.source.effects[0] ?? {}).sort())
       .toEqual(['id', 'kind', 'tile']);

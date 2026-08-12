@@ -17,8 +17,8 @@ Halcyra uses an original warm-noir pixel-diorama style.
 - One world tile is `32x32` pixels.
 - One world character cell is `24x30` pixels.
 - One portrait cell is `24x29` pixels.
-- Player world zoom ranges from `100%` through `300%` in `5%` increments.
-- `1x`, `2x`, and `3x` are the canonical whole-screen-pixel art review scales.
+- World zoom runs from `100%` to `300%` in `5%` steps.
+- All final placement is on whole screen pixels.
 - Runtime sampling is nearest neighbor.
 - Source layers compile into flat atlas cells before play.
 
@@ -129,11 +129,12 @@ Each shipped material family needs:
 
 - Wall faces must show thickness and a stable lower contact edge.
 - Corners and joins use generated adjacency cases.
-- Doors must remain clear in open and closed states.
+- Doors must remain clear in open and closed states. Horizontal-wall doors use side-by-side panels. Vertical-wall doors use stacked panels. The dark doorway cavity touches both wall ends, but the door slab is inset from every jamb so no wall-colored band can read through the assembly.
+- Two door tiles must never share an edge. Keep at least one full wall tile between doors.
 - Roofs use district-specific material families. They must not all reuse boardwalk art.
 - Roof edges need one visible overhang or fascia line.
 - Interior floors must not visually merge with outside ground.
-- Collision remains simulation data. Art supports it but does not create it.
+- Collision remains deterministic map data. Large generated trees, palms, and bushes add a solid owner on their visible tile. Grass, flowers, leaf litter, and small stones stay passable.
 
 ## 8. Props and landmarks
 
@@ -240,7 +241,7 @@ Every person must have a special, unique, and slightly goofy look. This is a pro
 - A playable area must not look like an empty grid.
 - Use building mass, planted edges, paths, small material changes, and prop groups to form outdoor rooms.
 - Keep main routes wide enough for pathfinding and click targets.
-- Dense art cannot add a solid or an interaction without map data.
+- Dense art cannot add an interaction. Only the declared large-vegetation families can add deterministic collision.
 - Tier B districts receive art upgrades only on existing placements in this program.
 
 ## 12. Good sample rules
@@ -383,63 +384,31 @@ The cast keeps generated rear cells and the front-body lateral method. Named sou
 
 ## 18. Phase 30 complete Sunward family ledger
 
-Phase 30 completes only art that the authoritative `northwest_residential` map already uses. The map source SHA-256 stays `a831fbbe8f3a9d379a15aaa5be81fb17b3c2248cfde697e4d6e9bd7867386982`. No room, wall run, object placement, solid footprint, interaction, route, or story content changes.
+Revision 7 upgrades the authoritative `northwest_residential` environment. Door openings can move only to enforce the one-wall-tile spacing rule. Room ownership, interactions, portals, routes, and story content stay unchanged.
 
 ### 18.1 Materials and ground detail
 
 | Family | Public variants | Native rule | Reject |
 |---|---:|---|---|
 | Warm sand | 4 | short, irregular ripple groups with quiet space and rare pebbles | a dominant diagonal cycle, checker, or uniform noise |
-| Villa floor | 4 | warm horizontal plank groups with controlled board-length and highlight changes | square grid, broken seams, or texture that competes with a character |
+| Villa floor | 4 | dark square tiles with related dark grout and low-contrast generated surface texture | bright planks, broken seams, or texture that competes with a character |
 | Plaza paver | 2 | pale masonry courses with small, offset wear marks | one-cell stamp or high-contrast grout |
 | Boardwalk | 2 | aligned vertical boards with continuous horizontal construction seams | a variant that breaks a shared seam or creates a false blocker |
 
-The `sand-traces` presentation family can select the shell decal. All decals stay non-solid and non-interactive. Material selection uses a deterministic avalanche mix and rejects identical `2x2` blocks and diagonal runs longer than four cells on the fixed warm-sand review board.
+The `sand-traces` presentation family can select stones, grass, flowers, shrubs, saplings, and palms. Large bushes, saplings, and palms are solid. Grass, flowers, leaf litter, and small stones are passable. All decals stay non-interactive. Material selection and collision placement are deterministic.
 
 ### 18.2 Villa shell and openings
 
 | Family | Required visual mass | Opening or state rule |
 |---|---|---|
-| Villa walls | pale stucco face, terracotta band, dark core, and lower contact shadow | all 16 unique adjacency cells keep one-cell geometry and show at least 600 opaque pixels |
-| Villa doors | timber panel, brass detail, and dark threshold | open, closed-unlocked, and closed-locked states use the same one-cell opening |
+| Villa walls | continuous warm solid cap, dark core, brick outer face, and lower contact shadow | all 16 adjacency cells join without internal tile-end borders; corner caps stay continuous |
+| Villa doors | warm timber panels, dark contour, and restrained hardware | side-by-side panels in horizontal walls, stacked panels in vertical walls, and one wall tile between doors |
 | Sunward roof | grouped terracotta courses, pale fascia, and controlled wear | base, edge, and corner remain presentation-only and keep the existing roof group |
 
-Villa wall source modules are local to the `villa` palette. Downtown, commercial, and civic wall pixels stay at revision 3 until their Tier B phase.
+Villa wall source modules are local to the `villa` palette. The approved Northwest shell and door pass establishes the Tier B architecture grammar for later districts: continuous solid wall mass across all 16 joins, uninterrupted corners, exposed side-face detail, recessed doors, small rectangular handles, and no adjacent door openings. Downtown entered Tier B in revision 8. Civic and commercial walls enter Tier B only during their own district pass and must meet the same continuity and opening bar in their distinct palettes.
 
 ### 18.3 Existing props and signs
 
 Beds, sofas, tables, counters, spa signs, market signs, lamps, planters, and palms use the warm-noir resort palette. Each solid footprint offset must have a render part at the same offset with at least 128 visible pixels. Decorative overhangs can use transparent pixels, but they cannot add collision or close a walk lane.
 
 Review all changed cells on `sunward-architecture-1x.png` first. The `3x` board is only an inspection aid. Review the four material boards at native size before the scaled copies.
-
-## 19. Phase 31 Tier B district family ledger
-
-Phase 31 changes presentation only for cells already used by Neon Crescent, Palm Exchange, and Harbor Authority. The three authoritative map files keep layout revision `1`. Their placement, solid-owner, route, density, and interaction hashes must match `phase-31-content-authority-baseline.json` exactly.
-
-### 19.1 Map-specific shared materials
-
-| District | Shared material treatment | Unique material treatment | Native rule |
-|---|---|---|---|
-| Neon Crescent | purple-gray boardwalk, paver, and worn sand overrides | two charcoal asphalt cells with broken amber lane paint | neon stays in small cyan and magenta wear marks; it cannot wash the full ground |
-| Palm Exchange | cream-and-coral sand, boardwalk, and concrete overrides | the completed warm timber shop floor | warm commercial surfaces remain lighter than characters and doors |
-| Harbor Authority | salt-gray boardwalk, concrete, and paver overrides | navy water and sage-gray service stone | rust, navy, and safety amber stay sparse and cannot look interactive |
-
-Map overrides keep the stable public base material IDs in map data. The presentation compiler selects the district cell set from the map ID. Logical variant selection, collision, routes, saves, and simulation randomness do not change. Every structured override keeps its shared construction seams.
-
-### 19.2 Tier B wall structures
-
-| Wall family | Structural identity | Accent rule |
-|---|---|---|
-| Downtown | dark metal service panel with inset vents and thin edge rails | cyan and magenta are isolated status marks |
-| Commercial | cream storefront face with coral awning segments and green shop panels | stripes stay on the upper face and do not close an opening |
-| Civic | heavy salt-gray concrete face with a navy authority band | safety amber and rust stay below door and character contrast |
-
-All 16 adjacency masks are unique within each family. The three Tier B families differ by geometry and alpha silhouette, not only by palette. The compiled wall cells stay on their original one-cell footprints.
-
-### 19.3 Existing signs, fixtures, and landmark
-
-The existing neon sign uses a dark frame with two small light tubes. The market sign uses a striped coral-and-cream awning. The civic sign uses a navy panel and amber authority mark. The shared counter, sodium lamp, and planter gain contact mass and internal material separation without changing a render-part offset or solid footprint.
-
-The existing two-cell ferry is composed before it is split. Its navy cabin, pale windows, amber safety stripe, salt-gray hull, and rust wear cross the internal seam without adding a cell or interaction.
-
-The Tier B maps have no roof groups and no doors in their authoritative sources. Roof and door review is `N/A`; Phase 31 does not add fake geometry to create evidence. Review the native `1x` district material, wall, object, and fixed-camera boards before the `3x` inspection copies.

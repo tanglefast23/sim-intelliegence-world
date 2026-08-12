@@ -2,28 +2,52 @@
   "schemaVersion": 2,
   "layoutRevision": 1,
   "id": "southeast_docks",
-  "displayName": "Harbor Authority",
+  "displayName": "Greywake Harbor",
   "width": 64,
   "height": 48,
   "tileSize": 32,
   "ground": {
-    "defaultSprite": "tile.pale-concrete",
+    "defaultSprite": "tile.harbor-yard",
     "regions": [
       {
-        "id": "north-road",
+        "id": "government-apron",
+        "x": 4,
+        "y": 5,
+        "width": 26,
+        "height": 18,
+        "sprite": "tile.harbor-concrete"
+      },
+      {
+        "id": "quay-apron",
+        "x": 35,
+        "y": 0,
+        "width": 17,
+        "height": 48,
+        "sprite": "tile.harbor-quay"
+      },
+      {
+        "id": "west-portal-walk",
+        "x": 0,
+        "y": 20,
+        "width": 7,
+        "height": 3,
+        "sprite": "tile.harbor-concrete"
+      },
+      {
+        "id": "main-service-road",
+        "x": 0,
+        "y": 23,
+        "width": 52,
+        "height": 5,
+        "sprite": "tile.dock-route"
+      },
+      {
+        "id": "north-south-service-road",
         "x": 30,
         "y": 0,
         "width": 5,
         "height": 48,
-        "sprite": "tile.plaza-paver"
-      },
-      {
-        "id": "west-road",
-        "x": 0,
-        "y": 22,
-        "width": 35,
-        "height": 5,
-        "sprite": "tile.plaza-paver"
+        "sprite": "tile.dock-route"
       },
       {
         "id": "harbor-water",
@@ -31,35 +55,99 @@
         "y": 0,
         "width": 12,
         "height": 48,
-        "sprite": "tile.shallow-water"
+        "sprite": "tile.harbor-water"
       },
       {
-        "id": "government-ground",
-        "x": 7,
-        "y": 8,
-        "width": 20,
-        "height": 14,
-        "sprite": "tile.spa-stone"
+        "id": "north-pier",
+        "x": 50,
+        "y": 9,
+        "width": 12,
+        "height": 3,
+        "sprite": "tile.dock-boardwalk"
       },
       {
         "id": "ferry-pier",
-        "x": 34,
-        "y": 27,
-        "width": 18,
-        "height": 10,
-        "sprite": "tile.boardwalk"
+        "x": 50,
+        "y": 33,
+        "width": 12,
+        "height": 3,
+        "sprite": "tile.dock-boardwalk"
+      },
+      {
+        "id": "government-floor",
+        "x": 7,
+        "y": 7,
+        "width": 20,
+        "height": 13,
+        "sprite": "tile.dock-floor"
+      },
+      {
+        "id": "warehouse-floor",
+        "x": 38,
+        "y": 7,
+        "width": 12,
+        "height": 13,
+        "sprite": "tile.dock-floor"
+      },
+      {
+        "id": "ferry-floor",
+        "x": 36,
+        "y": 29,
+        "width": 14,
+        "height": 12,
+        "sprite": "tile.dock-floor"
       }
     ]
   },
   "terrainSolids": [
     {
-      "id": "deep-harbor",
+      "id": "deep-harbor-north",
       "kind": "water",
       "bounds": {
         "x": 52,
         "y": 0,
         "width": 12,
-        "height": 48
+        "height": 9
+      }
+    },
+    {
+      "id": "deep-harbor-north-edge",
+      "kind": "water",
+      "bounds": {
+        "x": 62,
+        "y": 9,
+        "width": 2,
+        "height": 3
+      }
+    },
+    {
+      "id": "deep-harbor-middle",
+      "kind": "water",
+      "bounds": {
+        "x": 52,
+        "y": 12,
+        "width": 12,
+        "height": 21
+      }
+    },
+    {
+      "id": "deep-harbor-ferry-edge",
+      "kind": "water",
+      "bounds": {
+        "x": 62,
+        "y": 33,
+        "width": 2,
+        "height": 3
+      }
+    },
+    {
+      "id": "deep-harbor-south",
+      "kind": "water",
+      "bounds": {
+        "x": 52,
+        "y": 36,
+        "width": 12,
+        "height": 12
       }
     }
   ],
@@ -70,7 +158,7 @@
         "material": "civic",
         "bounds": {
           "x": 7,
-          "y": 8,
+          "y": 7,
           "width": 20,
           "height": 1
         },
@@ -81,7 +169,7 @@
         "material": "civic",
         "bounds": {
           "x": 7,
-          "y": 21,
+          "y": 19,
           "width": 20,
           "height": 1
         },
@@ -90,7 +178,7 @@
             "id": "government-yard-entrance",
             "tile": {
               "x": 17,
-              "y": 21
+              "y": 19
             }
           }
         ]
@@ -100,9 +188,9 @@
         "material": "civic",
         "bounds": {
           "x": 7,
-          "y": 9,
+          "y": 8,
           "width": 1,
-          "height": 12
+          "height": 11
         },
         "openings": []
       },
@@ -111,9 +199,61 @@
         "material": "civic",
         "bounds": {
           "x": 26,
-          "y": 9,
+          "y": 8,
           "width": 1,
-          "height": 12
+          "height": 11
+        },
+        "openings": []
+      },
+      {
+        "id": "cargo-warehouse-north",
+        "material": "civic",
+        "bounds": {
+          "x": 38,
+          "y": 7,
+          "width": 12,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "cargo-warehouse-south",
+        "material": "civic",
+        "bounds": {
+          "x": 38,
+          "y": 19,
+          "width": 12,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "cargo-warehouse-entrance",
+            "tile": {
+              "x": 44,
+              "y": 19
+            }
+          }
+        ]
+      },
+      {
+        "id": "cargo-warehouse-west",
+        "material": "civic",
+        "bounds": {
+          "x": 38,
+          "y": 8,
+          "width": 1,
+          "height": 11
+        },
+        "openings": []
+      },
+      {
+        "id": "cargo-warehouse-east",
+        "material": "civic",
+        "bounds": {
+          "x": 49,
+          "y": 8,
+          "width": 1,
+          "height": 11
         },
         "openings": []
       },
@@ -121,9 +261,9 @@
         "id": "ferry-terminal-north",
         "material": "civic",
         "bounds": {
-          "x": 34,
-          "y": 27,
-          "width": 18,
+          "x": 36,
+          "y": 29,
+          "width": 14,
           "height": 1
         },
         "openings": []
@@ -132,9 +272,9 @@
         "id": "ferry-terminal-south",
         "material": "civic",
         "bounds": {
-          "x": 34,
-          "y": 36,
-          "width": 18,
+          "x": 36,
+          "y": 40,
+          "width": 14,
           "height": 1
         },
         "openings": [
@@ -142,7 +282,7 @@
             "id": "ferry-terminal-entrance",
             "tile": {
               "x": 43,
-              "y": 36
+              "y": 40
             }
           }
         ]
@@ -151,10 +291,10 @@
         "id": "ferry-terminal-west",
         "material": "civic",
         "bounds": {
-          "x": 34,
-          "y": 28,
+          "x": 36,
+          "y": 30,
           "width": 1,
-          "height": 8
+          "height": 10
         },
         "openings": []
       },
@@ -162,98 +302,2172 @@
         "id": "ferry-terminal-east",
         "material": "civic",
         "bounds": {
-          "x": 51,
-          "y": 28,
+          "x": 49,
+          "y": 30,
           "width": 1,
-          "height": 8
+          "height": 10
         },
         "openings": []
       }
     ]
   },
-  "doors": [],
+  "doors": [
+    {
+      "id": "government-door",
+      "openingId": "government-yard-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "warehouse-door",
+      "openingId": "cargo-warehouse-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "ferry-door",
+      "openingId": "ferry-terminal-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    }
+  ],
   "objects": [
     {
-      "id": "government-yard-fixtures",
-      "kind": "development-fixtures",
+      "id": "government-west-counter",
+      "kind": "office-counter",
       "areaId": "government-yard",
       "anchor": {
         "x": 9,
         "y": 10
       },
       "depthAnchorOffset": {
-        "x": 15,
-        "y": 8
+        "x": 5,
+        "y": 0
       },
       "renderParts": [
         {
-          "id": "government-yard-fixtures-part-01",
-          "sprite": "tile.sign-civic",
+          "id": "government-west-counter-part-01",
+          "sprite": "tile.counter-left",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "government-yard-fixtures-part-02",
-          "sprite": "tile.fixture-lamp",
+          "id": "government-west-counter-part-02",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 1,
             "y": 0
           }
         },
         {
-          "id": "government-yard-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
+          "id": "government-west-counter-part-03",
+          "sprite": "tile.counter-left",
           "offset": {
             "x": 2,
             "y": 0
           }
         },
         {
-          "id": "government-yard-fixtures-part-04",
-          "sprite": "tile.counter-left",
+          "id": "government-west-counter-part-04",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 3,
             "y": 0
           }
         },
         {
-          "id": "government-yard-fixtures-part-05",
-          "sprite": "tile.sign-civic",
-          "offset": {
-            "x": 12,
-            "y": 8
-          }
-        },
-        {
-          "id": "government-yard-fixtures-part-06",
-          "sprite": "tile.fixture-lamp",
-          "offset": {
-            "x": 13,
-            "y": 8
-          }
-        },
-        {
-          "id": "government-yard-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 14,
-            "y": 8
-          }
-        },
-        {
-          "id": "government-yard-fixtures-part-08",
+          "id": "government-west-counter-part-05",
           "sprite": "tile.counter-left",
           "offset": {
-            "x": 15,
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-west-counter-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-west-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-west-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-west-counter-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-west-counter-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-west-counter-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-west-counter-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "government-east-counter",
+      "kind": "office-counter",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 19,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "government-east-counter-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-counter-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-counter-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-counter-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-counter-part-05",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-counter-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-east-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-counter-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-counter-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-counter-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-counter-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "government-west-desk",
+      "kind": "office-desk",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 9,
+        "y": 15
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "government-west-desk-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-west-desk-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-west-desk-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-west-desk-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "government-east-desk",
+      "kind": "office-desk",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 23,
+        "y": 15
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "government-east-desk-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-desk-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-east-desk-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-desk-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "government-waiting-bench",
+      "kind": "waiting-bench",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 11,
+        "y": 17
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "government-waiting-bench-part-01",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-waiting-bench-part-02",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-waiting-bench-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-waiting-bench-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "government-east-bench",
+      "kind": "waiting-bench",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 21,
+        "y": 17
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "government-east-bench-part-01",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-bench-part-02",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-east-bench-part-03",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-east-bench-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-bench-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-east-bench-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "government-frontage",
+      "kind": "harbor-frontage",
+      "areaId": "government-yard",
+      "anchor": {
+        "x": 16,
+        "y": 19
+      },
+      "depthAnchorOffset": {
+        "x": 4,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "government-frontage-part-01",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-frontage-part-02",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "government-frontage-part-03",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": -2,
+            "y": 1
+          }
+        },
+        {
+          "id": "government-frontage-part-04",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 4,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "government-frontage-solid-03",
+          "bounds": {
+            "x": -2,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "government-frontage-solid-04",
+          "bounds": {
+            "x": 4,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-northwest-cargo",
+      "kind": "warehouse-cargo",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 39,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-northwest-cargo-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-northwest-cargo-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-northwest-cargo-part-03",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-northwest-cargo-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-northwest-cargo-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-northwest-cargo-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-northeast-cargo",
+      "kind": "warehouse-cargo",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 46,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-northeast-cargo-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-northeast-cargo-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-northeast-cargo-part-03",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-northeast-cargo-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-northeast-cargo-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-northeast-cargo-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-southwest-cargo",
+      "kind": "warehouse-cargo",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 39,
+        "y": 14
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-southwest-cargo-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-southwest-cargo-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-southwest-cargo-part-03",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-southwest-cargo-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-southwest-cargo-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-southwest-cargo-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-southeast-cargo",
+      "kind": "warehouse-cargo",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 46,
+        "y": 14
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-southeast-cargo-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-southeast-cargo-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-southeast-cargo-part-03",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-southeast-cargo-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-southeast-cargo-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-southeast-cargo-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-west-lockers",
+      "kind": "warehouse-lockers",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 39,
+        "y": 17
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-west-lockers-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-west-lockers-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-west-lockers-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-west-lockers-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-east-lockers",
+      "kind": "warehouse-lockers",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 47,
+        "y": 17
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-east-lockers-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-east-lockers-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-east-lockers-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-east-lockers-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "warehouse-frontage",
+      "kind": "harbor-frontage",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 43,
+        "y": 19
+      },
+      "depthAnchorOffset": {
+        "x": 4,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "warehouse-frontage-part-01",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-frontage-part-02",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "warehouse-frontage-part-03",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": -2,
+            "y": 1
+          }
+        },
+        {
+          "id": "warehouse-frontage-part-04",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 4,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "warehouse-frontage-solid-03",
+          "bounds": {
+            "x": -2,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "warehouse-frontage-solid-04",
+          "bounds": {
+            "x": 4,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-west-bench",
+      "kind": "waiting-bench",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 37,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "ferry-west-bench-part-01",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-west-bench-part-02",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-west-bench-part-03",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-west-bench-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-west-bench-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-west-bench-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-east-bench",
+      "kind": "waiting-bench",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 46,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "ferry-east-bench-part-01",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-east-bench-part-02",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-east-bench-part-03",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-east-bench-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-east-bench-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-east-bench-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-south-bench",
+      "kind": "waiting-bench",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 37,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "ferry-south-bench-part-01",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-south-bench-part-02",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-south-bench-part-03",
+          "sprite": "tile.dock-bench",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-south-bench-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-south-bench-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-south-bench-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-counter",
+      "kind": "ticket-counter",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 37,
+        "y": 37
+      },
+      "depthAnchorOffset": {
+        "x": 3,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "ferry-counter-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-counter-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-counter-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-counter-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-counter-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-counter-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-counter-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-counter-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-kiosk",
+      "kind": "ticket-kiosk",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 48,
+        "y": 37
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "ferry-kiosk-part-01",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-kiosk-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-frontage",
+      "kind": "harbor-frontage",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 42,
+        "y": 40
+      },
+      "depthAnchorOffset": {
+        "x": 6,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "ferry-frontage-part-01",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-frontage-part-02",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-frontage-part-03",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 4,
+            "y": 1
+          }
+        },
+        {
+          "id": "ferry-frontage-part-04",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 6,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "ferry-frontage-solid-03",
+          "bounds": {
+            "x": 4,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "ferry-frontage-solid-04",
+          "bounds": {
+            "x": 6,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-crane",
+      "kind": "cargo-crane",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 20,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "cargo-crane-part-01",
+          "sprite": "tile.cargo-crane-nw",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-crane-part-02",
+          "sprite": "tile.cargo-crane-ne",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-crane-part-03",
+          "sprite": "tile.cargo-crane-sw",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "cargo-crane-part-04",
+          "sprite": "tile.cargo-crane-se",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-crane-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-crane-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-crane-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-crane-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-stack-01",
+      "kind": "cargo-stack",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 5,
+        "y": 31
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "cargo-stack-01-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-stack-01-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-stack-01-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-stack-01-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-stack-02",
+      "kind": "cargo-stack",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 10,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "cargo-stack-02-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-stack-02-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-stack-02-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-stack-02-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-stack-03",
+      "kind": "cargo-stack",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 5,
+        "y": 39
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "cargo-stack-03-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-stack-03-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-stack-03-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-stack-03-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-stack-04",
+      "kind": "cargo-stack",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 23,
+        "y": 37
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "cargo-stack-04-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-stack-04-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-stack-04-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-stack-04-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-stack-05",
+      "kind": "cargo-stack",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 38,
+        "y": 3
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "cargo-stack-05-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-stack-05-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-stack-05-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-stack-05-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-stack-06",
+      "kind": "cargo-stack",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 47,
+        "y": 22
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "cargo-stack-06-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-stack-06-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "cargo-stack-06-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "cargo-stack-06-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "pallet-rack-west",
+      "kind": "pallet-rack",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 13,
+        "y": 31
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "pallet-rack-west-part-01",
+          "sprite": "tile.pallet-rack-nw",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "pallet-rack-west-part-02",
+          "sprite": "tile.pallet-rack-ne",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "pallet-rack-west-part-03",
+          "sprite": "tile.pallet-rack-sw",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "pallet-rack-west-part-04",
+          "sprite": "tile.pallet-rack-se",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "pallet-rack-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "pallet-rack-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "pallet-rack-west-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "pallet-rack-west-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "pallet-rack-south",
+      "kind": "pallet-rack",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 16,
+        "y": 38
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "pallet-rack-south-part-01",
+          "sprite": "tile.pallet-rack-nw",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "pallet-rack-south-part-02",
+          "sprite": "tile.pallet-rack-ne",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "pallet-rack-south-part-03",
+          "sprite": "tile.pallet-rack-sw",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "pallet-rack-south-part-04",
+          "sprite": "tile.pallet-rack-se",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "pallet-rack-south-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "pallet-rack-south-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "pallet-rack-south-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "pallet-rack-south-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "yard-supplies-northwest",
+      "kind": "yard-supplies",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 9,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "yard-supplies-northwest-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "yard-supplies-northwest-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "yard-supplies-northwest-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "yard-supplies-northwest-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "yard-supplies-south",
+      "kind": "yard-supplies",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 20,
+        "y": 39
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "yard-supplies-south-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "yard-supplies-south-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "yard-supplies-south-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "yard-supplies-south-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "yard-supplies-west",
+      "kind": "yard-supplies",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 8,
+        "y": 42
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "yard-supplies-west-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "yard-supplies-west-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "yard-supplies-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "yard-supplies-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "cargo-warning-lamps",
+      "kind": "warning-lamps",
+      "areaId": "cargo-yard",
+      "anchor": {
+        "x": 27,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 8
+      },
+      "renderParts": [
+        {
+          "id": "cargo-warning-lamps-part-01",
+          "sprite": "tile.fixture-dock-lamp-amber",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "cargo-warning-lamps-part-02",
+          "sprite": "tile.fixture-dock-lamp-amber",
+          "offset": {
+            "x": 0,
             "y": 8
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "government-yard-fixtures-solid-01",
+          "id": "cargo-warning-lamps-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -262,45 +2476,9 @@
           }
         },
         {
-          "id": "government-yard-fixtures-solid-02",
+          "id": "cargo-warning-lamps-solid-02",
           "bounds": {
-            "x": 1,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "government-yard-fixtures-solid-03",
-          "bounds": {
-            "x": 2,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "government-yard-fixtures-solid-04",
-          "bounds": {
-            "x": 3,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "government-yard-fixtures-solid-05",
-          "bounds": {
-            "x": 12,
-            "y": 8,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "government-yard-fixtures-solid-06",
-          "bounds": {
-            "x": 13,
+            "x": 0,
             "y": 8,
             "width": 1,
             "height": 1
@@ -310,86 +2488,455 @@
       "interactions": []
     },
     {
-      "id": "ferry-terminal-fixtures",
-      "kind": "development-fixtures",
-      "areaId": "ferry-terminal",
+      "id": "cargo-surface-detail",
+      "kind": "surface-detail",
+      "areaId": "cargo-yard",
       "anchor": {
-        "x": 36,
+        "x": 8,
         "y": 29
       },
       "depthAnchorOffset": {
-        "x": 13,
-        "y": 4
+        "x": 17,
+        "y": 12
       },
       "renderParts": [
         {
-          "id": "ferry-terminal-fixtures-part-01",
-          "sprite": "tile.sign-civic",
+          "id": "cargo-surface-detail-part-01",
+          "sprite": "tile.decal-dock-oil",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "ferry-terminal-fixtures-part-02",
-          "sprite": "tile.fixture-lamp",
+          "id": "cargo-surface-detail-part-02",
+          "sprite": "tile.decal-dock-rope",
           "offset": {
-            "x": 1,
-            "y": 0
+            "x": 4,
+            "y": 1
           }
         },
         {
-          "id": "ferry-terminal-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 2,
-            "y": 0
-          }
-        },
-        {
-          "id": "ferry-terminal-fixtures-part-04",
-          "sprite": "tile.counter-left",
-          "offset": {
-            "x": 3,
-            "y": 0
-          }
-        },
-        {
-          "id": "ferry-terminal-fixtures-part-05",
-          "sprite": "tile.sign-civic",
+          "id": "cargo-surface-detail-part-03",
+          "sprite": "tile.decal-dock-drain",
           "offset": {
             "x": 10,
-            "y": 4
+            "y": 2
           }
         },
         {
-          "id": "ferry-terminal-fixtures-part-06",
-          "sprite": "tile.fixture-lamp",
+          "id": "cargo-surface-detail-part-04",
+          "sprite": "tile.decal-dock-salt",
           "offset": {
-            "x": 11,
-            "y": 4
+            "x": 17,
+            "y": 2
           }
         },
         {
-          "id": "ferry-terminal-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
+          "id": "cargo-surface-detail-part-05",
+          "sprite": "tile.decal-dock-gull",
+          "offset": {
+            "x": -1,
+            "y": 5
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-06",
+          "sprite": "tile.decal-dock-fog",
+          "offset": {
+            "x": 7,
+            "y": 5
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-07",
+          "sprite": "tile.decal-dock-oil",
+          "offset": {
+            "x": 16,
+            "y": 5
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-08",
+          "sprite": "tile.decal-dock-rope",
+          "offset": {
+            "x": 0,
+            "y": 9
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-09",
+          "sprite": "tile.decal-dock-drain",
+          "offset": {
+            "x": 10,
+            "y": 7
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-10",
+          "sprite": "tile.decal-dock-salt",
+          "offset": {
+            "x": 18,
+            "y": 8
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-11",
+          "sprite": "tile.decal-dock-gull",
+          "offset": {
+            "x": 4,
+            "y": 12
+          }
+        },
+        {
+          "id": "cargo-surface-detail-part-12",
+          "sprite": "tile.decal-dock-fog",
           "offset": {
             "x": 12,
-            "y": 4
+            "y": 13
           }
         },
         {
-          "id": "ferry-terminal-fixtures-part-08",
-          "sprite": "tile.counter-left",
+          "id": "cargo-surface-detail-part-13",
+          "sprite": "tile.decal-dock-oil",
           "offset": {
-            "x": 13,
-            "y": 4
+            "x": 17,
+            "y": 12
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-01",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 51,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-01-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "ferry-terminal-fixtures-solid-01",
+          "id": "mooring-bollard-01-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-02",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 51,
+        "y": 11
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-02-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-02-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-03",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 59,
+        "y": 9
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-03-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-03-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-04",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 59,
+        "y": 11
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-04-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-04-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-05",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 51,
+        "y": 33
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-05-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-05-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-06",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 51,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-06-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-06-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-07",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 59,
+        "y": 33
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-07-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-07-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "mooring-bollard-08",
+      "kind": "mooring-bollard",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 59,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "mooring-bollard-08-part-01",
+          "sprite": "tile.mooring-bollard",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "mooring-bollard-08-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "quay-cold-lamps",
+      "kind": "dock-lamps",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 50,
+        "y": 4
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 38
+      },
+      "renderParts": [
+        {
+          "id": "quay-cold-lamps-part-01",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "quay-cold-lamps-part-02",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 0,
+            "y": 12
+          }
+        },
+        {
+          "id": "quay-cold-lamps-part-03",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 0,
+            "y": 25
+          }
+        },
+        {
+          "id": "quay-cold-lamps-part-04",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 0,
+            "y": 38
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "quay-cold-lamps-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -398,7 +2945,145 @@
           }
         },
         {
-          "id": "ferry-terminal-fixtures-solid-02",
+          "id": "quay-cold-lamps-solid-02",
+          "bounds": {
+            "x": 0,
+            "y": 12,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "quay-cold-lamps-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 25,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "quay-cold-lamps-solid-04",
+          "bounds": {
+            "x": 0,
+            "y": 38,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "quay-north-supplies",
+      "kind": "quay-supplies",
+      "areaId": "cargo-warehouse",
+      "anchor": {
+        "x": 43,
+        "y": 3
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "quay-north-supplies-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "quay-north-supplies-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "quay-north-supplies-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "quay-north-supplies-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "quay-south-supplies",
+      "kind": "quay-supplies",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 38,
+        "y": 45
+      },
+      "depthAnchorOffset": {
+        "x": 3,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "quay-south-supplies-part-01",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "quay-south-supplies-part-02",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "quay-south-supplies-part-03",
+          "sprite": "tile.cargo-stack-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "quay-south-supplies-part-04",
+          "sprite": "tile.cargo-stack-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "quay-south-supplies-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "quay-south-supplies-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -407,7 +3092,7 @@
           }
         },
         {
-          "id": "ferry-terminal-fixtures-solid-03",
+          "id": "quay-south-supplies-solid-03",
           "bounds": {
             "x": 2,
             "y": 0,
@@ -416,28 +3101,10 @@
           }
         },
         {
-          "id": "ferry-terminal-fixtures-solid-04",
+          "id": "quay-south-supplies-solid-04",
           "bounds": {
             "x": 3,
             "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "ferry-terminal-fixtures-solid-05",
-          "bounds": {
-            "x": 10,
-            "y": 4,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "ferry-terminal-fixtures-solid-06",
-          "bounds": {
-            "x": 11,
-            "y": 4,
             "width": 1,
             "height": 1
           }
@@ -450,8 +3117,8 @@
       "kind": "ferry",
       "areaId": "ferry-terminal",
       "anchor": {
-        "x": 47,
-        "y": 34
+        "x": 56,
+        "y": 36
       },
       "depthAnchorOffset": {
         "x": 1,
@@ -479,55 +3146,130 @@
       "interactions": []
     }
   ],
-  "effects": [
-    {
-      "id": "harbor-light",
-      "kind": "sparkle",
-      "tile": {
-        "x": 42,
-        "y": 29
-      }
-    }
-  ],
+  "effects": [],
   "roofGroups": [],
   "areas": [
     {
       "id": "government-yard",
       "bounds": {
         "x": 7,
-        "y": 8,
+        "y": 7,
         "width": 20,
-        "height": 14
+        "height": 13
       },
-      "densityProfile": "structural-placeholder",
+      "densityProfile": "active-public",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
           "x": 17,
-          "y": 20
+          "y": 19
         }
       ],
-      "primaryRoutes": [],
-      "requiredPortalIds": []
+      "primaryRoutes": [
+        {
+          "x": 16,
+          "y": 9,
+          "width": 3,
+          "height": 10
+        }
+      ],
+      "requiredPortalIds": [
+        "from-downtown",
+        "from-commercial"
+      ]
+    },
+    {
+      "id": "cargo-warehouse",
+      "bounds": {
+        "x": 38,
+        "y": 7,
+        "width": 12,
+        "height": 13
+      },
+      "densityProfile": "service-docks",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 44,
+          "y": 19
+        }
+      ],
+      "primaryRoutes": [
+        {
+          "x": 43,
+          "y": 9,
+          "width": 3,
+          "height": 10
+        }
+      ],
+      "requiredPortalIds": [
+        "from-downtown",
+        "from-commercial"
+      ]
     },
     {
       "id": "ferry-terminal",
       "bounds": {
-        "x": 34,
-        "y": 27,
-        "width": 18,
-        "height": 10
+        "x": 36,
+        "y": 29,
+        "width": 14,
+        "height": 12
       },
-      "densityProfile": "structural-placeholder",
+      "densityProfile": "active-public",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
           "x": 43,
-          "y": 35
+          "y": 40
         }
       ],
-      "primaryRoutes": [],
-      "requiredPortalIds": []
+      "primaryRoutes": [
+        {
+          "x": 42,
+          "y": 31,
+          "width": 3,
+          "height": 9
+        }
+      ],
+      "requiredPortalIds": [
+        "from-downtown",
+        "from-commercial"
+      ]
+    },
+    {
+      "id": "cargo-yard",
+      "bounds": {
+        "x": 3,
+        "y": 28,
+        "width": 27,
+        "height": 16
+      },
+      "densityProfile": "service-docks",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 28,
+          "y": 28
+        }
+      ],
+      "primaryRoutes": [
+        {
+          "x": 28,
+          "y": 28,
+          "width": 2,
+          "height": 16
+        },
+        {
+          "x": 16,
+          "y": 28,
+          "width": 14,
+          "height": 3
+        }
+      ],
+      "requiredPortalIds": [
+        "from-downtown",
+        "from-commercial"
+      ]
     }
   ],
   "buildings": [],
@@ -596,12 +3338,12 @@
       "y": 34
     },
     "priya_nair": {
-      "x": 18,
-      "y": 15
+      "x": 12,
+      "y": 12
     },
     "tomas_reed": {
-      "x": 42,
-      "y": 33
+      "x": 41,
+      "y": 34
     }
   }
 }

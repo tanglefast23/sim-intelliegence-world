@@ -136,7 +136,12 @@ function compileWalls(
       if (!isInside(opening.tile, run.bounds)) throw new Error(`Wall opening ${opening.id} is outside run ${run.id}.`);
       if (openingById.has(opening.id)) throw new Error(`Wall opening IDs must be unique: ${opening.id}`);
       openingKeys.add(tileKey(opening.tile));
-      openingById.set(opening.id, { ...opening, runId: run.id, material: run.material });
+      openingById.set(opening.id, {
+        ...opening,
+        runId: run.id,
+        material: run.material,
+        orientation: run.bounds.width > 1 ? 'horizontal' : 'vertical',
+      });
     }
     pointsInRect(run.bounds).forEach((tile, index) => {
       if (openingKeys.has(tileKey(tile))) return;
@@ -145,11 +150,16 @@ function compileWalls(
     });
   }
   const wallKeys = new Set(rawCells.map(({ tile }) => tileKey(tile)));
+  const doorOpeningIds = new Set(map.doors.map(({ openingId }) => openingId));
+  const wallConnectionKeys = new Set(wallKeys);
+  for (const [openingId, opening] of openingById) {
+    if (doorOpeningIds.has(openingId)) wallConnectionKeys.add(tileKey(opening.tile));
+  }
   const wallTiles = rawCells.map((cell) => {
-    const north = wallKeys.has(`${cell.tile.x},${cell.tile.y - 1}`) ? 1 : 0;
-    const east = wallKeys.has(`${cell.tile.x + 1},${cell.tile.y}`) ? 2 : 0;
-    const south = wallKeys.has(`${cell.tile.x},${cell.tile.y + 1}`) ? 4 : 0;
-    const west = wallKeys.has(`${cell.tile.x - 1},${cell.tile.y}`) ? 8 : 0;
+    const north = wallConnectionKeys.has(`${cell.tile.x},${cell.tile.y - 1}`) ? 1 : 0;
+    const east = wallConnectionKeys.has(`${cell.tile.x + 1},${cell.tile.y}`) ? 2 : 0;
+    const south = wallConnectionKeys.has(`${cell.tile.x},${cell.tile.y + 1}`) ? 4 : 0;
+    const west = wallConnectionKeys.has(`${cell.tile.x - 1},${cell.tile.y}`) ? 8 : 0;
     const adjacencyMask = north | east | south | west;
     return { ...cell, adjacencyMask, sprite: wallSprite(cell.material, adjacencyMask) };
   }).sort((left, right) => tileOrder(left.tile, right.tile) || compareAscii(left.id, right.id));
@@ -257,11 +267,22 @@ function compileDoors(input: Readonly<{
   const doorById = new Map<string, CompiledDoorV2>();
   const interactions: CompiledInteractionV2[] = [];
   const usedOpenings = new Set<string>();
+  const orientedDoorSprite = (sprite: string, orientation: CompiledWallOpeningV2['orientation']): string => (
+    /^tile\.(?:open-door|closed-door|closed-locked-door)$/u.test(sprite)
+      ? `${sprite}-${orientation}`
+      : sprite
+  );
   for (const door of [...map.doors].sort((left, right) => compareAscii(left.id, right.id))) {
     if (doorById.has(door.id)) throw new Error(`Door IDs must be unique: ${door.id}`);
     if (usedOpenings.has(door.openingId)) throw new Error(`Wall opening ${door.openingId} has more than one door.`);
     const opening = openings.get(door.openingId);
     if (!opening) throw new Error(`Door ${door.id} references unknown opening ${door.openingId}.`);
+    const touchingDoor = [...doorById.values()].find(({ tile }) => (
+      Math.abs(tile.x - opening.tile.x) + Math.abs(tile.y - opening.tile.y) === 1
+    ));
+    if (touchingDoor) {
+      throw new Error(`Doors ${touchingDoor.id} and ${door.id} cannot touch along a tile edge.`);
+    }
     if (door.roofGroupId && !roofs.has(door.roofGroupId)) {
       throw new Error(`Door ${door.id} references unknown roof group ${door.roofGroupId}.`);
     }
@@ -289,7 +310,7 @@ function compileDoors(input: Readonly<{
       openingId: door.openingId,
       tile: opening.tile,
       initialState: door.initialState,
-      sprite: door.sprite,
+      sprite: orientedDoorSprite(door.sprite, opening.orientation),
       roofGroupId: door.roofGroupId,
       interactionId: door.interaction?.id,
     });
@@ -498,6 +519,7 @@ function validateAreasAndRoutes(
 function assertKnownSprites(
   map: WorldMapV2,
   wallTiles: readonly CompiledWallCellV2[],
+  doors: readonly CompiledDoorV2[],
   knownSprites: ReadonlySet<string>,
 ): void {
   const sprites = [
@@ -505,6 +527,7 @@ function assertKnownSprites(
     ...map.ground.regions.map(({ sprite }) => sprite),
     ...map.objects.flatMap(({ renderParts }) => renderParts.map(({ sprite }) => sprite)),
     ...map.doors.map(({ sprite }) => sprite),
+    ...doors.map(({ sprite }) => sprite),
     ...wallTiles.map(({ sprite }) => sprite),
   ];
   for (const sprite of sprites) {
@@ -546,6 +569,15 @@ export function compileWorldMapV2(candidate: unknown, options: CompileWorldMapV2
   const interactionById = new Map([...compiledObjects.interactions, ...compiledDoors.interactions]
     .sort((left, right) => compareAscii(left.id, right.id))
     .map((interaction) => [interaction.id, interaction]));
+  const groundSprites = buildGroundSprites(map);
+  const presentation = compileArtPresentation({
+    map,
+    groundSprites,
+    visualBoundsBySprite: options.visualBoundsBySprite,
+  });
+  for (const decal of presentation.decals.filter(({ solid }) => solid)) {
+    addOwner(owners, decal.tile, { kind: 'environment', id: decal.id });
+  }
   const blockedKeys = new Set(owners.keys());
 
   for (const staging of map.stagingTiles) {
@@ -572,14 +604,9 @@ export function compileWorldMapV2(candidate: unknown, options: CompileWorldMapV2
   const densityByAreaId = options.validateDensity === false
     ? new Map()
     : measureAndValidateDensity({ map, staticSolidOwnerByTile: owners, objectParts: compiledObjects.parts });
-  if (options.knownSprites) assertKnownSprites(map, wallTiles, options.knownSprites);
-
-  const groundSprites = buildGroundSprites(map);
-  const presentation = compileArtPresentation({
-    map,
-    groundSprites,
-    visualBoundsBySprite: options.visualBoundsBySprite,
-  });
+  if (options.knownSprites) {
+    assertKnownSprites(map, wallTiles, [...compiledDoors.doorById.values()], options.knownSprites);
+  }
 
   return {
     source: map,

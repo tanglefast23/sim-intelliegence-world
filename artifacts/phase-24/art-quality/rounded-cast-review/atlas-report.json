@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 10,
+  "categories": {
+    "ground-base": {
+      "actualCount": 81,
+      "maximumCount": 96,
+      "rawRectangleArea": 93636
+    },
+    "ground-transition": {
+      "actualCount": 30,
+      "maximumCount": 64,
+      "rawRectangleArea": 34680
+    },
+    "ground-decal": {
+      "actualCount": 27,
+      "maximumCount": 64,
+      "rawRectangleArea": 31212
+    },
+    "wall-door": {
+      "actualCount": 73,
+      "maximumCount": 80,
+      "rawRectangleArea": 84388
+    },
+    "roof": {
+      "actualCount": 3,
+      "maximumCount": 32,
+      "rawRectangleArea": 3468
+    },
+    "object-landmark": {
+      "actualCount": 62,
+      "maximumCount": 64,
+      "rawRectangleArea": 71672
+    },
+    "world-character": {
+      "actualCount": 280,
+      "maximumCount": 280,
+      "rawRectangleArea": 232960
+    },
+    "portrait": {
+      "actualCount": 53,
+      "maximumCount": 53,
+      "rawRectangleArea": 42718
+    },
+    "effect-reserve": {
+      "actualCount": 0,
+      "maximumCount": 16,
+      "rawRectangleArea": 0
+    }
+  },
+  "actual": {
+    "cellCount": 609,
+    "rawRectangleArea": 594734,
+    "width": 1024,
+    "height": 595,
+    "boundingRectangleArea": 609280,
+    "occupancy": 0.976125919117647
+  },
+  "forecast": {
+    "cellCount": 749,
+    "rawRectangleArea": 756574,
+    "rawAreaRatio": 0.7215251922607422,
+    "width": 1024,
+    "height": 763,
+    "boundingRectangleArea": 781312,
+    "packedAreaRatio": 0.7451171875,
+    "occupancy": 0.968337872706422
+  },
+  "largestCells": [
+    {
+      "id": "tile.bed-foot",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.bed-head",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.boardwalk",
+      "category": "ground-base",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.boardwalk-b",
+      "category": "ground-base",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.cargo-crane-ne",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.cargo-crane-nw",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.cargo-crane-se",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.cargo-crane-sw",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.cargo-stack-left",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.cargo-stack-right",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.city-lot",
+      "category": "ground-base",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.city-lot-b",
+      "category": "ground-base",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    }
+  ],
+  "indexVersion": 3,
+  "toolVersion": "atlas-v6-hfm-full-cast",
+  "imageSha256": "b9320121c39a335933f08708cefc36cb08d72c21ae46720730e54b92e2c6ac79",
+  "publicSpriteCount": 609,
+  "internalReviewSpriteCount": 0
+}

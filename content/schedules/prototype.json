@@ -24,8 +24,8 @@
         "locationId": "southwest_commercial",
         "activityId": "shop",
         "mapId": "southwest_commercial",
-        "tileX": 15,
-        "tileY": 16
+        "tileX": 17,
+        "tileY": 17
       },
       {
         "startMinuteOfDay": 1080,

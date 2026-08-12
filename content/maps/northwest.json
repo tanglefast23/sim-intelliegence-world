@@ -70,7 +70,7 @@
           {
             "id": "villa-front-opening",
             "tile": {
-              "x": 15,
+              "x": 17,
               "y": 24
             }
           }
@@ -111,7 +111,7 @@
           {
             "id": "bedroom-opening",
             "tile": {
-              "x": 17,
+              "x": 16,
               "y": 14
             }
           },
@@ -254,11 +254,11 @@
         "areaId": "social",
         "approachTiles": [
           {
-            "x": 16,
+            "x": 17,
             "y": 23
           },
           {
-            "x": 16,
+            "x": 17,
             "y": 25
           }
         ]

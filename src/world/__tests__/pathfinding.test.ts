@@ -1,6 +1,7 @@
 import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
 import { resolveClickTarget } from '../maps/hit-testing';
 import { tileKey, type TilePoint } from '../maps/schema';
+import { CARDINAL_SEGMENT_MS } from '../movement/motion-clock';
 import { findPath } from '../pathfinding/astar';
 import {
   advanceMovement,
@@ -150,9 +151,13 @@ describe('deterministic natural movement', () => {
       path: [{ x: 18, y: 19 }, { x: 19, y: 19 }],
       status: 'moving' as const,
     };
-    movement = advanceMovement(map, movement, 50).movement;
-    movement = advanceMovement(map, movement, 50).movement;
-    movement = advanceMovement(map, movement, 20).movement;
+    let elapsed = 0;
+    const curveSampleTime = CARDINAL_SEGMENT_MS - 27;
+    while (elapsed < curveSampleTime) {
+      const delta = Math.min(20, curveSampleTime - elapsed);
+      movement = advanceMovement(map, movement, delta).movement;
+      elapsed += delta;
+    }
     expect(movement.latchedTurnCurve).toBeDefined();
     const beforeClickX = movement.visualFoot.x;
     movement = requestMovement(map, movement, { x: 17, y: 19 });

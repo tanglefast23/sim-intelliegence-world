@@ -17,14 +17,22 @@ const ActorSchema = z.object({
   target: TileSchema.nullable().optional(),
   curveActive: z.boolean(),
 }).strict();
+const PlayerActorSchema = ActorSchema.extend({
+  horizontalRunDistance: z.number().nonnegative(),
+  protagonistWobbleDegrees: z.number(),
+}).strict();
+const NpcActorSchema = ActorSchema.omit({ target: true }).extend({
+  horizontalRunDistance: z.number().nonnegative(),
+  wobbleDegrees: z.number(),
+}).strict();
 const PackageSampleSchema = z.object({
-  player: ActorSchema,
-  npcs: z.record(z.string(), ActorSchema.omit({ target: true })),
+  player: PlayerActorSchema,
+  npcs: z.record(z.string(), NpcActorSchema),
   reducedMotion: z.boolean(),
   evidenceTag: z.literal('interruption').optional(),
 }).strict();
 const PackagePassSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   mode: z.enum(['standard', 'reduced']),
   samples: z.array(PackageSampleSchema).min(2),
   firstSegmentUniquePositions: z.number().int().nonnegative(),
@@ -47,7 +55,7 @@ const NaturalMovementFpsEvidenceSchema = z.object({
 }).strict();
 
 export const NaturalMovementReportSchema = z.object({
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   testedCommit: z.string().regex(/^[a-f0-9]{40}$/u),
   evidenceSource: z.object({
     baseCommit: z.string().regex(/^[a-f0-9]{40}$/u),
@@ -134,6 +142,26 @@ export function validateNaturalMovementReport(
   };
   const standardSummary = packageSummary(packaged.standard.samples);
   const reducedSummary = packageSummary(packaged.reduced.samples);
+  if (!packaged.standard.samples.some(({ player }) => player.protagonistWobbleDegrees !== 0)) {
+    throw new Error('Packaged protagonist never showed a horizontal wobble angle.');
+  }
+  if (!packaged.reduced.samples.every(({ player }) => player.protagonistWobbleDegrees === 0)) {
+    throw new Error('Reduced-motion protagonist did not remain upright.');
+  }
+  if (!packaged.reduced.samples.every(({ npcs }) => (
+    Object.values(npcs).every(({ wobbleDegrees }) => wobbleDegrees === 0)
+  ))) throw new Error('Reduced-motion NPC did not remain upright.');
+  for (const sample of [...packaged.standard.samples, ...packaged.reduced.samples]) {
+    if (
+      [0, 32, 64, 96].includes(sample.player.horizontalRunDistance) &&
+      sample.player.protagonistWobbleDegrees !== 0
+    ) throw new Error('Packaged protagonist was not exactly upright at a horizontal tile boundary.');
+    for (const npc of Object.values(sample.npcs)) {
+      if ([0, 32, 64, 96].includes(npc.horizontalRunDistance) && npc.wobbleDegrees !== 0) {
+        throw new Error('Packaged NPC was not exactly upright at a horizontal tile boundary.');
+      }
+    }
+  }
   if (standardSummary.firstSegmentPositions.size < 5) {
     throw new Error('Packaged movement has fewer than five first-segment positions.');
   }

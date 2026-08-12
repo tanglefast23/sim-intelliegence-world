@@ -29,6 +29,9 @@ describe('natural-movement packaged evidence', () => {
     })).toBe(true);
     expect(first.samples.some(({ curveActive }) => curveActive)).toBe(true);
     expect(new Set(first.samples.map(({ walkFrame }) => walkFrame)).size).toBe(2);
+    expect(first.samples.every(({ horizontalRunDistance, protagonistWobbleDegrees }) => (
+      Number.isFinite(horizontalRunDistance) && Number.isFinite(protagonistWobbleDegrees)
+    ))).toBe(true);
   });
 
   test('rejects a package report that weakens the performance gate', () => {
@@ -43,8 +46,10 @@ describe('natural-movement packaged evidence', () => {
       );
       const actor = {
         committed: { x: 18, y: 18 }, visualFoot: { x: 592, y: 605 },
-        direction: 'down' as const, walkFrame: 0 as const, status: 'moving' as const,
+        direction: 'right' as const, walkFrame: 0 as const, status: 'moving' as const,
         target: { x: 22, y: 22 }, curveActive: true,
+        horizontalRunDistance: 0,
+        protagonistWobbleDegrees: 0,
       };
       const npcActor = {
         committed: actor.committed,
@@ -53,14 +58,18 @@ describe('natural-movement packaged evidence', () => {
         walkFrame: actor.walkFrame,
         status: actor.status,
         curveActive: actor.curveActive,
+        horizontalRunDistance: 0,
+        wobbleDegrees: 0,
       };
       const pass = {
-        schemaVersion: 1 as const,
+        schemaVersion: 2 as const,
         samples: Array.from({ length: 5 }, (_, index) => ({
           player: {
             ...actor,
             visualFoot: { x: actor.visualFoot.x + index, y: actor.visualFoot.y + index },
             walkFrame: index % 2 as 0 | 1,
+            horizontalRunDistance: index * 8,
+            protagonistWobbleDegrees: index === 0 || index === 4 ? 0 : [4, 6.944444, 4][index - 1]!,
           },
           npcs: {
             resident: {
@@ -81,7 +90,7 @@ describe('natural-movement packaged evidence', () => {
         displayRafFps: 60,
       };
       const report = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         testedCommit: 'a'.repeat(40),
         evidenceSource: { baseCommit: 'a'.repeat(40), sourceSha256: 'b'.repeat(64), sourcePaths: ['source.ts'] },
         traceDeterministic: true,
@@ -93,7 +102,15 @@ describe('natural-movement packaged evidence', () => {
             mode: 'reduced',
             rendererFps: null,
             displayRafFps: null,
-            samples: pass.samples.map((sample) => ({ ...sample, reducedMotion: true })),
+            samples: pass.samples.map((sample) => ({
+              ...sample,
+              reducedMotion: true,
+              player: { ...sample.player, protagonistWobbleDegrees: 0 },
+              npcs: Object.fromEntries(Object.entries(sample.npcs).map(([id, npc]) => [id, {
+                ...npc,
+                wobbleDegrees: 0,
+              }])),
+            })),
             screenshotNames: ['reduced.png'],
           },
         },

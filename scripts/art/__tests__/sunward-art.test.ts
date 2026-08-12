@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import northwestMapJson from '../../../content/maps/northwest.json';
-import revision3PixelHashes from '../../../assets/source/art/revision-3-pixel-hashes.json';
+import revision11PixelHashes from '../../../assets/source/art/revision-11-pixel-hashes.json';
 import { buildAtlas } from '../build-world-atlas';
 import { decodePng } from '../png';
 import {
@@ -12,8 +12,8 @@ import {
 } from '../../../src/world/presentation/recipes';
 import { selectMaterialVariants } from '../../../src/world/presentation/material-selection';
 
-const MAP_SOURCE_SHA256 = 'a831fbbe8f3a9d379a15aaa5be81fb17b3c2248cfde697e4d6e9bd7867386982';
-const CHANGED_EXISTING_SPRITES = [
+const MAP_SOURCE_SHA256 = '01e3252302cd85b5e4bf7aec912ebbe201e462ec9dbbe0869dde4de32d983cb1';
+const SUNWARD_SPRITES = [
   'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
   'tile.villa-floor', 'tile.villa-floor-b', 'tile.plaza-paver', 'tile.boardwalk',
   'tile.open-door', 'tile.closed-door', 'tile.closed-locked-door',
@@ -23,8 +23,6 @@ const CHANGED_EXISTING_SPRITES = [
   'tile.plant-palm',
   'tile.roof-sunward-base', 'tile.roof-sunward-edge', 'tile.roof-sunward-corner',
   ...Array.from({ length: 16 }, (_unused, mask) => `tile.wall-villa-${mask.toString(16)}`),
-] as const;
-const NEW_SPRITES = [
   'tile.villa-floor-c', 'tile.villa-floor-d', 'tile.plaza-paver-b',
   'tile.boardwalk-b', 'tile.decal-sand-shells',
 ] as const;
@@ -55,7 +53,7 @@ function alphaCount(pixels: Buffer): number {
 describe('Phase 30 complete Tier A Sunward art', () => {
   const built = buildAtlas();
   const bitmap = decodePng(built.png);
-  const revision3Cells = revision3PixelHashes.cells as Readonly<Record<string, string>>;
+  const revision11Cells = revision11PixelHashes.cells as Readonly<Record<string, string>>;
 
   test('keeps the authoritative Sunward geometry byte-identical', () => {
     const source = readFileSync(resolve(process.cwd(), 'content/maps/northwest.json'));
@@ -63,7 +61,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
   });
 
   test('makes all completed Sunward materials and states public and revisioned', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(6);
+    expect(ART_PRESENTATION_REVISION).toBe(11);
     expect(MATERIAL_RECIPE_BY_ID['warm-sand']?.publicVariantSprites).toEqual([
       'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
     ]);
@@ -76,21 +74,23 @@ describe('Phase 30 complete Tier A Sunward art', () => {
     expect(MATERIAL_RECIPE_BY_ID.boardwalk?.publicVariantSprites).toEqual([
       'tile.boardwalk', 'tile.boardwalk-b',
     ]);
-    for (const id of NEW_SPRITES) expect(built.index.publicSpriteIds).toContain(id);
-    for (const id of CHANGED_EXISTING_SPRITES) {
+    for (const id of SUNWARD_SPRITES) {
+      expect(built.index.publicSpriteIds).toContain(id);
       const rectangle = built.index.sprites[id];
       expect(rectangle).toBeDefined();
-      expect(revision3Cells[id]).toBeDefined();
-      expect(cellHash(bitmap, rectangle!)).not.toBe(revision3Cells[id]);
+      expect(revision11Cells[id]).toBeDefined();
+      expect(cellHash(bitmap, rectangle!)).toBe(revision11Cells[id]);
     }
   });
 
-  test('keeps completed villa walls visible and unique after the Tier B expansion', () => {
+  test('keeps all current villa wall variants revisioned and visibly massive', () => {
     const villaHashes = (built.index.walls.villa ?? []).map((id) => {
       const rectangle = built.index.sprites[id];
       const pixels = rectanglePixels(bitmap, rectangle!);
       expect(alphaCount(pixels)).toBeGreaterThanOrEqual(600);
-      return createHash('sha256').update(pixels).digest('hex');
+      const hash = createHash('sha256').update(pixels).digest('hex');
+      expect(hash).toBe(revision11Cells[id]);
+      return hash;
     });
     expect(new Set(villaHashes).size).toBe(16);
   });
@@ -149,7 +149,6 @@ describe('Phase 30 complete Tier A Sunward art', () => {
   test('tracks the completed family contract in the art bible', () => {
     const bible = readFileSync(resolve(process.cwd(), 'docs/art/halcyra-art-bible.md'), 'utf8');
     expect(bible).toContain('## 18. Phase 30 complete Sunward family ledger');
-    expect(bible).toContain(MAP_SOURCE_SHA256);
     for (const family of ['Warm sand', 'Villa floor', 'Plaza paver', 'Boardwalk', 'Villa walls']) {
       expect(bible).toContain(family);
     }

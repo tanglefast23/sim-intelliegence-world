@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revisionPixelHashes from '../../../assets/source/art/revision-6-pixel-hashes.json';
+import revisionPixelHashes from '../../../assets/source/art/revision-11-pixel-hashes.json';
 import { buildAtlas, validateAtlasArtifacts, writeAtlas } from '../build-world-atlas';
 import {
   composeFrontFrame,
@@ -11,6 +11,7 @@ import {
   loadTransparentPartSources,
   loadTileSources,
   loadWallSources,
+  renderDoorVariant,
   tokenFrameToBitmap,
 } from '../character-source';
 import { composeLateralFrame } from '../lateral-legs';
@@ -66,17 +67,17 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.report).toEqual(second.report);
     expect(first.png[25]).toBe(6);
     expect(first.index.version).toBe(3);
-    expect(first.index.artRevision).toBe(6);
+    expect(first.index.artRevision).toBe(11);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
-    expect(Object.keys(first.index.sprites)).toHaveLength(506);
-    expect(first.index.tiles).toHaveLength(173);
-    expect(first.index.groundCells).toHaveLength(48);
-    expect(first.index.transparentPartCells).toHaveLength(88);
-    expect(first.index.presentationCells).toHaveLength(37);
+    expect(Object.keys(first.index.sprites)).toHaveLength(609);
+    expect(first.index.tiles).toHaveLength(276);
+    expect(first.index.groundCells).toHaveLength(81);
+    expect(first.index.transparentPartCells).toHaveLength(135);
+    expect(first.index.presentationCells).toHaveLength(60);
     expect(createHash('sha256').update(first.png).digest('hex')).toBe(first.index.image.sha256);
     expect(first.index.publicSpriteIds).toEqual(Object.keys(first.index.sprites));
     expect(first.index.internalReviewSpriteIds).toEqual([]);
-    expect(first.report.forecast).toMatchObject({ rawRectangleArea: 636_350, width: 1024 });
+    expect(first.report.forecast).toMatchObject({ rawRectangleArea: 756_574, width: 1024 });
   });
 
   test('keeps all atlas cells inside the generated image', () => {
@@ -148,7 +149,7 @@ describe('deterministic SI World atlas generation', () => {
       expect(Object.keys(source.sourceLayers)).toEqual([
         'legs', 'torsoAndClothing', 'headAndFace', 'hair', 'accessory', 'heldItem',
       ]);
-      expect(composeFrontFrame(source, 0)).not.toEqual(composeFrontFrame(source, 1));
+      expect(composeFrontFrame(source, 0)).toEqual(composeFrontFrame(source, 1));
       const frontBitmap = tokenFrameToBitmap(composeFrontFrame(source, 0), source.palette);
       const portraitBitmap = tokenFrameToBitmap(composePortrait(source), source.palette);
       const colors = new Set(Array.from({ length: frontBitmap.width * frontBitmap.height }, (_unused, pixel) =>
@@ -171,15 +172,16 @@ describe('deterministic SI World atlas generation', () => {
     }
   });
 
-  test('uses front billboard bodies with authored lateral legs', () => {
+  test('uses front billboard bodies with stable rounded lateral bases', () => {
     for (const source of loadCharacterSources()) {
       const leftOne = composeLateralFrame(source, 'left', 0);
       const leftTwo = composeLateralFrame(source, 'left', 1);
       const rightOne = composeLateralFrame(source, 'right', 0);
       const rightTwo = composeLateralFrame(source, 'right', 1);
-      expect(leftOne.slice(0, 24)).toEqual(rightOne.slice(0, 24));
-      expect(leftOne.slice(24)).not.toEqual(leftTwo.slice(24));
-      expect(rightOne.slice(24)).not.toEqual(rightTwo.slice(24));
+      expect(alphaMask(leftOne).split('\n').map((row) => [...row].reverse().join('')).join('\n'))
+        .toBe(alphaMask(rightOne));
+      expect(leftOne).toEqual(leftTwo);
+      expect(rightOne).toEqual(rightTwo);
       expect(leftOne.slice(28).flatMap((row) => [...row]).filter((token) => token !== '.').length).toBeGreaterThan(5);
       expect(rightOne.slice(28).flatMap((row) => [...row]).filter((token) => token !== '.').length).toBeGreaterThan(5);
     }
@@ -187,15 +189,15 @@ describe('deterministic SI World atlas generation', () => {
 
   test('keeps every public inner cell and all opaque ground cells byte stable', () => {
     const tiles = loadTileSources();
-    expect(tiles).toHaveLength(48);
-    expect(new Set(tiles.map(({ id }) => id)).size).toBe(48);
+    expect(tiles).toHaveLength(81);
+    expect(new Set(tiles.map(({ id }) => id)).size).toBe(81);
     expect(tiles.every(({ cellClass }) => cellClass === 'ground')).toBe(true);
     const { png, index } = buildAtlas();
     const bitmap = decodePng(png);
     expect(aggregatePublicCellHash(bitmap, index.sprites, index.publicSpriteIds)).toBe(
       revisionPixelHashes.allPublicCellsAggregateSha256,
     );
-    expect(revisionPixelHashes.artRevision).toBe(6);
+    expect(revisionPixelHashes.artRevision).toBe(11);
     for (const tile of tiles) {
       const name = `tile.${tile.id}`;
       const expectedHash = revisionPixelHashes.cells[name as keyof typeof revisionPixelHashes.cells];
@@ -227,6 +229,23 @@ describe('deterministic SI World atlas generation', () => {
       expect(alphas).toContain(0);
       expect(alphas).toContain(255);
     }
+  });
+
+  test('insets both door orientations inside a wall-touching recessed cavity', () => {
+    const source = loadTransparentPartSources().find(({ id }) => id === 'closed-door');
+    expect(source).toBeDefined();
+    const horizontal = renderDoorVariant(source!, 'horizontal');
+    const vertical = renderDoorVariant(source!, 'vertical');
+
+    expect(rgbaAt(horizontal, 0, 4)[3]).toBe(255);
+    expect(rgbaAt(horizontal, 31, 4)[3]).toBe(255);
+    expect(rgbaAt(horizontal, 4, 14)).not.toEqual(rgbaAt(horizontal, 6, 14));
+    expect(rgbaAt(horizontal, 27, 14)).not.toEqual(rgbaAt(horizontal, 25, 14));
+
+    expect(rgbaAt(vertical, 4, 0)[3]).toBe(255);
+    expect(rgbaAt(vertical, 4, 31)[3]).toBe(255);
+    expect(rgbaAt(vertical, 12, 4)).not.toEqual(rgbaAt(vertical, 12, 6));
+    expect(rgbaAt(vertical, 12, 27)).not.toEqual(rgbaAt(vertical, 12, 25));
   });
 
   test('maps every orthogonal wall mask to a generated transparent cell', () => {

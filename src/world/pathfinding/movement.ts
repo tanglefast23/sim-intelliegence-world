@@ -3,7 +3,8 @@ import type { TilePoint } from '../maps/schema';
 import { tileKey } from '../maps/schema';
 import {
   MAX_MOVEMENT_FRAME_MS,
-  sampleSegment,
+  routeMotionProgress,
+  sampleSegmentAtProgress,
   segmentDuration,
   segmentLength,
   tileFootPoint,
@@ -31,6 +32,7 @@ export type MovementState = Readonly<{
   visualFoot: WorldPoint;
   direction: MovementDirection;
   travelDistance: number;
+  horizontalRunDistance: number;
   walkFrame: 0 | 1;
   blockedTileKey?: string;
   blockedElapsedMs: number;
@@ -50,6 +52,7 @@ export function createMovementState(player: TilePoint): MovementState {
     visualFoot: tileFootPoint(player),
     direction: 'down',
     travelDistance: 0,
+    horizontalRunDistance: 0,
     walkFrame: 0,
     blockedElapsedMs: 0,
     blockedReplanAttempted: false,
@@ -84,7 +87,14 @@ export function requestMovement(
     blockedKeys: blockers,
   });
   if (result.status === 'unreachable') {
-    return { ...state, target, path: [], status: 'unreachable', feedbackTile: { ...target } };
+    return {
+      ...state,
+      target,
+      path: [],
+      horizontalRunDistance: 0,
+      status: 'unreachable',
+      feedbackTile: { ...target },
+    };
   }
   return {
     ...state,
@@ -95,6 +105,7 @@ export function requestMovement(
     segment: undefined,
     visualFoot: tileFootPoint(state.player),
     travelDistance: 0,
+    horizontalRunDistance: 0,
     walkFrame: 0,
     status: result.path.length === 0 ? 'idle' : 'moving',
     stopAfterSegment: false,
@@ -121,6 +132,7 @@ export function cancelMovement(state: MovementState): MovementState {
     segment: undefined,
     visualFoot: tileFootPoint(state.player),
     travelDistance: 0,
+    horizontalRunDistance: 0,
     walkFrame: 0,
     blockedTileKey: undefined,
     blockedElapsedMs: 0,
@@ -149,21 +161,36 @@ function movementDirection(from: TilePoint, to: TilePoint, previous: MovementDir
   return previous;
 }
 
+function isHorizontalDirection(direction: MovementDirection): direction is 'left' | 'right' {
+  return direction === 'left' || direction === 'right';
+}
+
 function beginSegment(
   map: CompiledMapV2,
   state: MovementState,
   dynamicBlockers: ReadonlySet<string>,
 ): MovementState {
   const next = state.path[0];
-  if (!next) return { ...state, target: undefined, status: 'idle', walkFrame: 0 };
+  if (!next) return {
+    ...state,
+    target: undefined,
+    horizontalRunDistance: 0,
+    status: 'idle',
+    walkFrame: 0,
+  };
   if (dynamicBlockers.has(tileKey(next))) {
-    return { ...state, status: 'waiting' };
+    return { ...state, horizontalRunDistance: 0, status: 'waiting' };
   }
   const segment = { from: state.player, to: next, elapsedMs: 0, durationMs: segmentDuration(state.player, next) };
+  const direction = movementDirection(state.player, next, state.direction);
+  const horizontalRunDistance = isHorizontalDirection(direction) && state.direction === direction
+    ? state.horizontalRunDistance
+    : 0;
   return {
     ...state,
     segment,
-    direction: movementDirection(state.player, next, state.direction),
+    direction,
+    horizontalRunDistance,
     status: 'moving',
     blockedTileKey: undefined,
     blockedElapsedMs: 0,
@@ -210,7 +237,12 @@ function waitOrReplan(
   dynamicBlockers: ReadonlySet<string>,
 ): MovementState {
   const blockedTile = state.path[0];
-  if (!blockedTile) return { ...state, status: 'idle', target: undefined };
+  if (!blockedTile) return {
+    ...state,
+    status: 'idle',
+    target: undefined,
+    horizontalRunDistance: 0,
+  };
   const blockedTileKey = tileKey(blockedTile);
   const sameBlocker = state.blockedTileKey === blockedTileKey;
   const blockedElapsedMs = (sameBlocker ? state.blockedElapsedMs : 0) + submittedMs;
@@ -223,6 +255,7 @@ function waitOrReplan(
     return {
       ...state,
       status: 'waiting',
+      horizontalRunDistance: 0,
       blockedTileKey,
       blockedElapsedMs,
       blockedReplanAttempted: replanAttempted,
@@ -230,7 +263,7 @@ function waitOrReplan(
     };
   }
   const target = state.target;
-  if (!target) return { ...state, status: 'idle', path: [] };
+  if (!target) return { ...state, status: 'idle', path: [], horizontalRunDistance: 0 };
   const blockers = new Set([...map.blockedKeys, ...dynamicBlockers]);
   blockers.delete(tileKey(state.player));
   const result = findPath({
@@ -268,6 +301,7 @@ function waitOrReplan(
   return {
     ...state,
     status: 'waiting',
+    horizontalRunDistance: 0,
     blockedTileKey,
     blockedElapsedMs,
     blockedReplanAttempted: true,
@@ -288,7 +322,11 @@ function sampleVisualFoot(
   dynamicBlockers: ReadonlySet<string>,
 ): VisualSample {
   const length = segmentLength(segment.from, segment.to);
-  const distance = length * Math.max(0, Math.min(1, segment.elapsedMs / segment.durationMs));
+  const progress = Math.max(0, Math.min(1, segment.elapsedMs / segment.durationMs));
+  const easeIn = state.travelDistance < length;
+  const easeOut = state.path.length === 1 && !state.pendingTarget && !state.resumeTarget;
+  const easedProgress = routeMotionProgress(progress, easeIn, easeOut);
+  const distance = length * easedProgress;
   const fromKey = tileKey(segment.from);
   const toKey = tileKey(segment.to);
   const latchedCornerKey = state.latchedTurnCorner ? tileKey(state.latchedTurnCorner) : undefined;
@@ -309,7 +347,9 @@ function sampleVisualFoot(
       latchedTurnCorner: state.latchedTurnCorner,
     };
   }
-  if (state.pendingTarget || state.stopAfterSegment) return { visualFoot: sampleSegment(segment) };
+  if (state.pendingTarget || state.stopAfterSegment) {
+    return { visualFoot: sampleSegmentAtProgress(segment, easedProgress) };
+  }
   const next = state.path[1];
   if (next && distance >= length - TURN_RADIUS) {
     const curve = buildTurnCurve(map, segment.from, segment.to, next, dynamicBlockers);
@@ -319,7 +359,7 @@ function sampleVisualFoot(
       latchedTurnCorner: segment.to,
     };
   }
-  return { visualFoot: sampleSegment(segment) };
+  return { visualFoot: sampleSegmentAtProgress(segment, easedProgress) };
 }
 
 export function advanceMovement(
@@ -344,6 +384,12 @@ export function advanceMovement(
   const distance = segmentLength(current.segment.from, current.segment.to) * (consumed / current.segment.durationMs);
   const segment = { ...current.segment, elapsedMs: current.segment.elapsedMs + consumed };
   const travelDistance = current.travelDistance + distance;
+  const rawHorizontalRunDistance = isHorizontalDirection(current.direction)
+    ? current.horizontalRunDistance + distance
+    : 0;
+  const horizontalRunDistance = isHorizontalDirection(current.direction) && segment.elapsedMs >= segment.durationMs
+    ? Math.round(rawHorizontalRunDistance / segmentLength(segment.from, segment.to)) * segmentLength(segment.from, segment.to)
+    : rawHorizontalRunDistance;
   const visualSample = sampleVisualFoot(map, current, segment, dynamicBlockers);
   current = {
     ...current,
@@ -352,6 +398,7 @@ export function advanceMovement(
     latchedTurnCurve: visualSample.latchedTurnCurve,
     latchedTurnCorner: visualSample.latchedTurnCorner,
     travelDistance,
+    horizontalRunDistance,
     walkFrame: Math.floor(travelDistance / 32) % 2 as 0 | 1,
   };
   if (segment.elapsedMs < segment.durationMs) return { movement: current, committedTiles: [] };
@@ -362,6 +409,7 @@ export function advanceMovement(
         segment: undefined,
         visualFoot: tileFootPoint(current.player),
         status: 'waiting',
+        horizontalRunDistance: 0,
         walkFrame: 0,
       },
       committedTiles: [],
@@ -381,7 +429,16 @@ export function advanceMovement(
   if (current.stopAfterSegment) completed = cancelMovement({ ...completed, stopAfterSegment: false });
   else if (current.pendingTarget) {
     const pending = current.pendingTarget;
-    completed = requestMovement(map, { ...completed, pendingTarget: undefined }, pending, dynamicBlockers);
+    const completedDirection = completed.direction;
+    const completedRunDistance = completed.horizontalRunDistance;
+    const replanned = requestMovement(map, { ...completed, pendingTarget: undefined }, pending, dynamicBlockers);
+    const next = replanned.path[0];
+    const nextDirection = next
+      ? movementDirection(replanned.player, next, replanned.direction)
+      : undefined;
+    completed = isHorizontalDirection(completedDirection) && nextDirection === completedDirection
+      ? { ...replanned, horizontalRunDistance: completedRunDistance }
+      : replanned;
   } else if (path.length === 0 && current.resumeTarget) {
     completed = requestMovement(
       map,
@@ -394,6 +451,7 @@ export function advanceMovement(
       ...completed,
       target: undefined,
       travelDistance: 0,
+      horizontalRunDistance: 0,
       walkFrame: 0,
       latchedTurnCurve: undefined,
       latchedTurnCorner: undefined,

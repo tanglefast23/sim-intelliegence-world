@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artRevision": 6,
-  "imageSha256": "ce685b87d614a215a0d195d64fe58911ea6fe319c7b0ec7ddf7a5f5b5eb92fff",
+  "imageSha256": "6c2acdb9da7c52c7e21186b6c0ae191f06d640a9cccb54658ccd85d61ae5aa39",
   "files": [
     "characters-3x.png",
     "atlas-cells-1x-3x.png",
@@ -50,18 +50,6 @@
     "sunward-architecture-1x.png",
     "sunward-architecture-3x.png",
     "sunward-review-report.json",
-    "tier-b-northeast_downtown-materials-1x.png",
-    "tier-b-northeast_downtown-materials-3x.png",
-    "tier-b-southwest_commercial-materials-1x.png",
-    "tier-b-southwest_commercial-materials-3x.png",
-    "tier-b-southeast_docks-materials-1x.png",
-    "tier-b-southeast_docks-materials-3x.png",
-    "tier-b-walls-1x.png",
-    "tier-b-walls-3x.png",
-    "tier-b-objects-landmark-1x.png",
-    "tier-b-objects-landmark-3x.png",
-    "tier-b-review-report.json",
-    "tier-b-content-authority-report.json",
     "atlas-report.json"
   ]
 }

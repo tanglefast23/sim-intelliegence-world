@@ -6,6 +6,7 @@ import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron';
 import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
+import { CHARACTER_IDS } from '../../src/render/atlas';
 import { responsiveSurface } from '../../src/render/responsive-layout';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
@@ -636,6 +637,8 @@ type MovementSmokeActor = Readonly<{
   status: 'idle' | 'moving' | 'waiting' | 'unreachable';
   target?: Readonly<{ x: number; y: number }> | null;
   curveActive: boolean;
+  horizontalRunDistance?: number;
+  protagonistWobbleDegrees?: number;
 }>;
 
 type MovementSmokeState = Readonly<{
@@ -805,7 +808,7 @@ async function captureMovementPass(
   }
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     mode,
     samples: samples.map((sample) => ({
       ...sample,
@@ -844,18 +847,7 @@ const RESPONSIVE_SMOKE_TARGETS: readonly ResponsiveSmokeTarget[] = [
   { width: 1_600, height: 720 },
 ];
 
-const FULL_CAST_PORTRAIT_IDS = [
-  'devon-price',
-  'elise-moreau',
-  'generic-resident',
-  'linda',
-  'mina-park',
-  'priya-nair',
-  'protagonist',
-  'rafael-cruz',
-  'sora-tan',
-  'tomas-reed',
-] as const;
+const FULL_CAST_PORTRAIT_IDS = CHARACTER_IDS;
 
 function cameraCenter(camera: Readonly<{ x: number; y: number; zoom: number }>, bounds: SurfaceBounds) {
   return {

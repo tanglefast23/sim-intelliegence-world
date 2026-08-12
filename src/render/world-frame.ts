@@ -4,6 +4,7 @@ import { pointsInRect, type TilePoint } from '../world/maps/schema';
 import type { MovementDirection } from '../world/pathfinding/movement';
 import { movementPresentation, type CharacterId } from './atlas';
 import { compareDepth, WORLD_DEPTH } from './depth';
+import { protagonistWobbleDegrees } from './protagonist-wobble';
 
 const TILE_SIZE = 32;
 
@@ -27,6 +28,7 @@ export type WorldCharacterPlacement = Readonly<{
   worldY: number;
   shadowWorldX: number;
   shadowWorldY: number;
+  angleDegrees?: number;
 }>;
 
 export type WorldFrameState = Readonly<{
@@ -46,6 +48,7 @@ export type WorldActor = Readonly<{
   walkFrame?: 0 | 1;
   moving?: boolean;
   reducedMotion?: boolean;
+  horizontalRunDistance?: number;
 }>;
 
 export type WorldActors = Readonly<Record<string, WorldActor>>;
@@ -72,6 +75,7 @@ export function buildWorldFrameState(
     walkFrame: 0 | 1;
     moving: boolean;
     reducedMotion: boolean;
+    horizontalRunDistance?: number;
   }>,
 ): WorldFrameState {
   const playerPosition = state.protagonist.worldPosition;
@@ -88,6 +92,7 @@ export function buildWorldFrameState(
     walkFrame: 0 | 1;
     moving: boolean;
     reducedMotion: boolean;
+    horizontalRunDistance: number;
   }>[] = [
     {
       id: 'protagonist',
@@ -98,6 +103,7 @@ export function buildWorldFrameState(
       walkFrame: playerPresentation?.walkFrame ?? frame,
       moving: playerPresentation?.moving ?? frame === 1,
       reducedMotion: playerPresentation?.reducedMotion ?? false,
+      horizontalRunDistance: playerPresentation?.horizontalRunDistance ?? 0,
     },
     ...Object.entries(actors).sort(([left], [right]) => left.localeCompare(right, 'en')).map(([id, actor]) => ({
       id,
@@ -108,6 +114,7 @@ export function buildWorldFrameState(
       walkFrame: actor.walkFrame ?? 0,
       moving: actor.moving ?? false,
       reducedMotion: actor.reducedMotion ?? false,
+      horizontalRunDistance: actor.horizontalRunDistance ?? 0,
     })),
   ];
   const characters = characterInputs.map(({
@@ -119,6 +126,7 @@ export function buildWorldFrameState(
     walkFrame,
     moving,
     reducedMotion,
+    horizontalRunDistance,
   }) => {
     const actorFrame = moving ? walkFrame : 0;
     const presentation = movementPresentation(visualId, actorDirection, actorFrame);
@@ -135,6 +143,12 @@ export function buildWorldFrameState(
       worldY: foot.y - 27 + bounceY,
       shadowWorldX: foot.x - 7 + shadowX,
       shadowWorldY: foot.y,
+      angleDegrees: protagonistWobbleDegrees({
+        direction: actorDirection,
+        status: moving ? 'moving' : 'idle',
+        horizontalRunDistance,
+        reducedMotion,
+      }),
     };
   }).sort((left, right) => left.shadowWorldY - right.shadowWorldY || left.id.localeCompare(right.id, 'en'));
   const hiddenRoofGroupId = roofGroupAtV2(map, playerTile);

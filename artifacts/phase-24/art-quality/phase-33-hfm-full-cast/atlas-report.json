@@ -3,9 +3,9 @@
   "artRevision": 6,
   "categories": {
     "ground-base": {
-      "actualCount": 48,
-      "maximumCount": 48,
-      "rawRectangleArea": 55488
+      "actualCount": 25,
+      "maximumCount": 32,
+      "rawRectangleArea": 28900
     },
     "ground-transition": {
       "actualCount": 30,
@@ -49,22 +49,22 @@
     }
   },
   "actual": {
-    "cellCount": 506,
-    "rawRectangleArea": 475666,
-    "width": 1024,
-    "height": 490,
-    "boundingRectangleArea": 501760,
-    "occupancy": 0.9479950573979592
+    "cellCount": 483,
+    "rawRectangleArea": 449078,
+    "width": 512,
+    "height": 913,
+    "boundingRectangleArea": 467456,
+    "occupancy": 0.9606850698247535
   },
   "forecast": {
-    "cellCount": 645,
-    "rawRectangleArea": 636350,
-    "rawAreaRatio": 0.6068706512451172,
+    "cellCount": 629,
+    "rawRectangleArea": 617854,
+    "rawAreaRatio": 0.5892314910888672,
     "width": 1024,
-    "height": 629,
-    "boundingRectangleArea": 644096,
-    "packedAreaRatio": 0.6142578125,
-    "occupancy": 0.9879738424085851
+    "height": 627,
+    "boundingRectangleArea": 642048,
+    "packedAreaRatio": 0.6123046875,
+    "occupancy": 0.9623174591307815
   },
   "largestCells": [
     {
@@ -96,48 +96,6 @@
       "rawRectangleArea": 1156
     },
     {
-      "id": "tile.boardwalk-harbor-a",
-      "category": "ground-base",
-      "width": 32,
-      "height": 32,
-      "rawRectangleArea": 1156
-    },
-    {
-      "id": "tile.boardwalk-harbor-b",
-      "category": "ground-base",
-      "width": 32,
-      "height": 32,
-      "rawRectangleArea": 1156
-    },
-    {
-      "id": "tile.boardwalk-neon-a",
-      "category": "ground-base",
-      "width": 32,
-      "height": 32,
-      "rawRectangleArea": 1156
-    },
-    {
-      "id": "tile.boardwalk-neon-b",
-      "category": "ground-base",
-      "width": 32,
-      "height": 32,
-      "rawRectangleArea": 1156
-    },
-    {
-      "id": "tile.boardwalk-palm-a",
-      "category": "ground-base",
-      "width": 32,
-      "height": 32,
-      "rawRectangleArea": 1156
-    },
-    {
-      "id": "tile.boardwalk-palm-b",
-      "category": "ground-base",
-      "width": 32,
-      "height": 32,
-      "rawRectangleArea": 1156
-    },
-    {
       "id": "tile.closed-door",
       "category": "wall-door",
       "width": 32,
@@ -150,11 +108,53 @@
       "width": 32,
       "height": 32,
       "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.counter-left",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.counter-right",
+      "category": "object-landmark",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.dark-asphalt",
+      "category": "ground-base",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.decal-grass-tuft",
+      "category": "ground-decal",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.decal-sand-pebbles",
+      "category": "ground-decal",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
+    },
+    {
+      "id": "tile.decal-sand-ripple",
+      "category": "ground-decal",
+      "width": 32,
+      "height": 32,
+      "rawRectangleArea": 1156
     }
   ],
   "indexVersion": 3,
   "toolVersion": "atlas-v6-hfm-full-cast",
-  "imageSha256": "ce685b87d614a215a0d195d64fe58911ea6fe319c7b0ec7ddf7a5f5b5eb92fff",
-  "publicSpriteCount": 506,
+  "imageSha256": "6c2acdb9da7c52c7e21186b6c0ae191f06d640a9cccb54658ccd85d61ae5aa39",
+  "publicSpriteCount": 483,
   "internalReviewSpriteCount": 0
 }

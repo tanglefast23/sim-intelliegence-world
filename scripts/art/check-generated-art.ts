@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import pixelBaseline from '../../assets/source/art/revision-6-pixel-hashes.json';
+import pixelBaseline from '../../assets/source/art/revision-11-pixel-hashes.json';
 import { buildAtlas, type AtlasIndex } from './build-world-atlas';
 import { decodePng } from './png';
 
@@ -17,7 +17,7 @@ const REQUIRED_GENERATED_ARTIFACTS = [
   'assets/source/art/roof-recipes.json',
   'assets/source/art/decal-recipes.json',
   'assets/source/art/transition-recipes.json',
-  'assets/source/art/revision-6-pixel-hashes.json',
+  'assets/source/art/revision-11-pixel-hashes.json',
 ] as const;
 
 type AtlasRect = Readonly<{ x: number; y: number; width: number; height: number }>;
@@ -48,7 +48,7 @@ function aggregatePublicCellHash(
   return hash.digest('hex');
 }
 
-function assertReadableFeet(index: AtlasIndex, atlas: ReturnType<typeof decodePng>): void {
+function assertStableRoundedCells(index: AtlasIndex, atlas: ReturnType<typeof decodePng>): void {
   for (const [characterId, character] of Object.entries(index.characters)) {
     for (const direction of ['front', 'rear', 'left', 'right'] as const) {
       const first = index.sprites[character.frames[`${direction}-1`] as string];
@@ -56,20 +56,8 @@ function assertReadableFeet(index: AtlasIndex, atlas: ReturnType<typeof decodePn
       if (!first || !second || first.width !== 24 || first.height !== 30 || second.width !== 24 || second.height !== 30) {
         throw new Error(`${characterId} ${direction} must have two 24x30 atlas cells.`);
       }
-      let changedLowerPixels = 0;
-      let changedShoePixels = 0;
-      for (let y = 21; y < 30; y += 1) {
-        for (let x = 0; x < 24; x += 1) {
-          const firstOffset = ((first.y + y) * atlas.width + first.x + x) * 4;
-          const secondOffset = ((second.y + y) * atlas.width + second.x + x) * 4;
-          if ([0, 1, 2, 3].some((channel) => atlas.data[firstOffset + channel] !== atlas.data[secondOffset + channel])) {
-            changedLowerPixels += 1;
-            if (y >= 27) changedShoePixels += 1;
-          }
-        }
-      }
-      if (changedLowerPixels === 0 || changedShoePixels === 0) {
-        throw new Error(`${characterId} ${direction} walking cells do not show a readable lower-leg and shoe change.`);
+      if (!rectanglePixels(atlas, first).equals(rectanglePixels(atlas, second))) {
+        throw new Error(`${characterId} ${direction} cells must be byte-identical for rounded floating movement.`);
       }
     }
   }
@@ -107,7 +95,7 @@ function main(root = process.cwd()): void {
     const digest = createHash('sha256').update(rectanglePixels(atlas, rectangle)).digest('hex');
     if (digest !== expected) throw new Error(`${id} changed without a new revisioned pixel baseline.`);
   }
-  assertReadableFeet(built.index, atlas);
+  assertStableRoundedCells(built.index, atlas);
   const generatedPaths = [
     'assets/generated/world-atlas.png',
     'assets/generated/atlas-index.json',

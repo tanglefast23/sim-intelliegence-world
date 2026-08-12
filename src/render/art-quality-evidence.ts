@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 import { PNG } from 'pngjs';
 import { z } from 'zod';
 
+import { CHARACTER_IDS } from './atlas';
+
 const RelativePathSchema = z.string().min(1).refine((path) => !path.startsWith('/') && !path.includes('..'), {
   message: 'Evidence paths must stay inside the output root.',
 });
@@ -41,10 +43,7 @@ const ResponsiveTargetSchema = z.object({
   }).strict(),
 }).passthrough();
 const FullCastPortraitEntrySchema = z.object({
-  characterId: z.enum([
-    'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
-    'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
-  ]),
+  characterId: z.enum(CHARACTER_IDS),
   uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
   screenshot: RelativePathSchema,
   evidence: CaptureEvidenceSchema.extend({
@@ -63,7 +62,7 @@ export const ArtQualityResponsiveReportSchema = z.object({
   schemaVersion: z.literal(1),
   highDpi: z.boolean(),
   targets: z.array(ResponsiveTargetSchema).min(1),
-  fullCastPortraitMatrix: z.array(FullCastPortraitEntrySchema).length(30).nullable().optional(),
+  fullCastPortraitMatrix: z.array(FullCastPortraitEntrySchema).length(CHARACTER_IDS.length * 3).nullable().optional(),
   packageProvenance: PackageProvenanceSchema,
   testedCommit: CommitSchema,
 }).passthrough();
@@ -248,12 +247,8 @@ export function validateArtQualityEvidence(candidate: unknown, outputRoot: strin
   if (report.artRevision >= 3) {
     const matrix = enhancedReport.fullCastPortraitMatrix;
     if (!matrix) throw new Error('Art-quality revision 3 requires the full-cast portrait matrix.');
-    const characterIds = [
-      'devon-price', 'elise-moreau', 'generic-resident', 'linda', 'mina-park',
-      'priya-nair', 'protagonist', 'rafael-cruz', 'sora-tan', 'tomas-reed',
-    ] as const;
     const expected = [1, 1.25, 1.5].flatMap((uiScale) => (
-      characterIds.map((characterId) => ({ characterId, uiScale }))
+      CHARACTER_IDS.map((characterId) => ({ characterId, uiScale }))
     ));
     const actual = matrix.map(({ characterId, uiScale }) => ({ characterId, uiScale }));
     if (stableValue(actual) !== stableValue(expected)) {

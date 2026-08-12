@@ -199,9 +199,9 @@ describe('Phase 13 production content bill', () => {
     for (const [id, npc] of Object.entries(state.npcs)) {
       if (npc.presence.kind !== 'active_local' || npc.presence.mapId !== 'northwest_residential') continue;
       const candidate = id.replaceAll('_', '-');
-      const visualId = npc.tier === 'ambient' || !CHARACTER_IDS.includes(candidate as typeof CHARACTER_IDS[number])
-        ? 'generic-resident'
-        : candidate as typeof CHARACTER_IDS[number];
+      const visualId = CHARACTER_IDS.includes(candidate as typeof CHARACTER_IDS[number])
+        ? candidate as typeof CHARACTER_IDS[number]
+        : 'generic-resident';
       actors[id] = { tile: { x: npc.presence.tileX, y: npc.presence.tileY }, visualId };
     }
     const start = performance.now();

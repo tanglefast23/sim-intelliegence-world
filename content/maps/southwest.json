@@ -2,44 +2,92 @@
   "schemaVersion": 2,
   "layoutRevision": 1,
   "id": "southwest_commercial",
-  "displayName": "Palm Exchange",
+  "displayName": "Saffron Bazaar",
   "width": 64,
   "height": 48,
   "tileSize": 32,
   "ground": {
-    "defaultSprite": "tile.warm-sand",
+    "defaultSprite": "tile.sunset-cobble",
     "regions": [
       {
-        "id": "north-road",
+        "id": "northwest-market-apron",
+        "x": 3,
+        "y": 4,
+        "width": 27,
+        "height": 19,
+        "sprite": "tile.sunset-paver"
+      },
+      {
+        "id": "northeast-food-apron",
+        "x": 35,
+        "y": 4,
+        "width": 29,
+        "height": 19,
+        "sprite": "tile.sunset-paver"
+      },
+      {
+        "id": "southwest-courtyard-apron",
+        "x": 3,
+        "y": 28,
+        "width": 27,
+        "height": 20,
+        "sprite": "tile.sunset-paver"
+      },
+      {
+        "id": "southeast-restaurant-apron",
+        "x": 35,
+        "y": 28,
+        "width": 29,
+        "height": 20,
+        "sprite": "tile.sunset-paver"
+      },
+      {
+        "id": "east-west-promenade",
+        "x": 0,
+        "y": 23,
+        "width": 64,
+        "height": 5,
+        "sprite": "tile.sunset-promenade"
+      },
+      {
+        "id": "north-south-promenade",
         "x": 30,
         "y": 0,
         "width": 5,
         "height": 48,
-        "sprite": "tile.pale-concrete"
+        "sprite": "tile.sunset-promenade"
       },
       {
-        "id": "east-road",
-        "x": 30,
-        "y": 22,
-        "width": 34,
-        "height": 5,
-        "sprite": "tile.pale-concrete"
+        "id": "central-market-mosaic",
+        "x": 28,
+        "y": 21,
+        "width": 9,
+        "height": 9,
+        "sprite": "tile.sunset-mosaic"
       },
       {
-        "id": "mall-floor",
-        "x": 7,
-        "y": 9,
-        "width": 20,
-        "height": 15,
-        "sprite": "tile.villa-floor"
+        "id": "market-hall-floor",
+        "x": 6,
+        "y": 7,
+        "width": 22,
+        "height": 14,
+        "sprite": "tile.sunset-floor"
       },
       {
-        "id": "restaurant-floor",
-        "x": 38,
-        "y": 31,
-        "width": 20,
-        "height": 10,
-        "sprite": "tile.boardwalk"
+        "id": "food-arcade-floor",
+        "x": 39,
+        "y": 7,
+        "width": 21,
+        "height": 14,
+        "sprite": "tile.sunset-floor"
+      },
+      {
+        "id": "restaurant-row-floor",
+        "x": 39,
+        "y": 32,
+        "width": 21,
+        "height": 12,
+        "sprite": "tile.sunset-floor"
       }
     ]
   },
@@ -47,54 +95,106 @@
   "walls": {
     "runs": [
       {
-        "id": "shopping-mall-north",
+        "id": "market-hall-north",
         "material": "commercial",
         "bounds": {
-          "x": 7,
-          "y": 9,
-          "width": 20,
+          "x": 6,
+          "y": 7,
+          "width": 22,
           "height": 1
         },
         "openings": []
       },
       {
-        "id": "shopping-mall-south",
+        "id": "market-hall-south",
         "material": "commercial",
         "bounds": {
-          "x": 7,
-          "y": 23,
-          "width": 20,
+          "x": 6,
+          "y": 20,
+          "width": 22,
           "height": 1
         },
         "openings": [
           {
-            "id": "shopping-mall-entrance",
+            "id": "market-hall-entrance",
             "tile": {
               "x": 17,
-              "y": 23
+              "y": 20
             }
           }
         ]
       },
       {
-        "id": "shopping-mall-west",
+        "id": "market-hall-west",
         "material": "commercial",
         "bounds": {
-          "x": 7,
-          "y": 10,
+          "x": 6,
+          "y": 8,
           "width": 1,
-          "height": 13
+          "height": 12
         },
         "openings": []
       },
       {
-        "id": "shopping-mall-east",
+        "id": "market-hall-east",
         "material": "commercial",
         "bounds": {
-          "x": 26,
-          "y": 10,
+          "x": 27,
+          "y": 8,
           "width": 1,
-          "height": 13
+          "height": 12
+        },
+        "openings": []
+      },
+      {
+        "id": "food-arcade-north",
+        "material": "commercial",
+        "bounds": {
+          "x": 39,
+          "y": 7,
+          "width": 21,
+          "height": 1
+        },
+        "openings": []
+      },
+      {
+        "id": "food-arcade-south",
+        "material": "commercial",
+        "bounds": {
+          "x": 39,
+          "y": 20,
+          "width": 21,
+          "height": 1
+        },
+        "openings": [
+          {
+            "id": "food-arcade-entrance",
+            "tile": {
+              "x": 49,
+              "y": 20
+            }
+          }
+        ]
+      },
+      {
+        "id": "food-arcade-west",
+        "material": "commercial",
+        "bounds": {
+          "x": 39,
+          "y": 8,
+          "width": 1,
+          "height": 12
+        },
+        "openings": []
+      },
+      {
+        "id": "food-arcade-east",
+        "material": "commercial",
+        "bounds": {
+          "x": 59,
+          "y": 8,
+          "width": 1,
+          "height": 12
         },
         "openings": []
       },
@@ -102,9 +202,9 @@
         "id": "restaurant-row-north",
         "material": "commercial",
         "bounds": {
-          "x": 38,
-          "y": 31,
-          "width": 20,
+          "x": 39,
+          "y": 32,
+          "width": 21,
           "height": 1
         },
         "openings": []
@@ -113,17 +213,17 @@
         "id": "restaurant-row-south",
         "material": "commercial",
         "bounds": {
-          "x": 38,
-          "y": 40,
-          "width": 20,
+          "x": 39,
+          "y": 43,
+          "width": 21,
           "height": 1
         },
         "openings": [
           {
             "id": "restaurant-row-entrance",
             "tile": {
-              "x": 48,
-              "y": 40
+              "x": 49,
+              "y": 43
             }
           }
         ]
@@ -132,10 +232,10 @@
         "id": "restaurant-row-west",
         "material": "commercial",
         "bounds": {
-          "x": 38,
-          "y": 32,
+          "x": 39,
+          "y": 33,
           "width": 1,
-          "height": 8
+          "height": 10
         },
         "openings": []
       },
@@ -143,98 +243,101 @@
         "id": "restaurant-row-east",
         "material": "commercial",
         "bounds": {
-          "x": 57,
-          "y": 32,
+          "x": 59,
+          "y": 33,
           "width": 1,
-          "height": 8
+          "height": 10
         },
         "openings": []
       }
     ]
   },
-  "doors": [],
+  "doors": [
+    {
+      "id": "market-hall-door",
+      "openingId": "market-hall-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "food-arcade-door",
+      "openingId": "food-arcade-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "restaurant-row-door",
+      "openingId": "restaurant-row-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    }
+  ],
   "objects": [
     {
-      "id": "shopping-mall-fixtures",
-      "kind": "development-fixtures",
-      "areaId": "shopping-mall",
+      "id": "hall-counter-west",
+      "kind": "market-counter",
+      "areaId": "market-hall",
       "anchor": {
-        "x": 9,
-        "y": 11
+        "x": 8,
+        "y": 10
       },
       "depthAnchorOffset": {
-        "x": 15,
-        "y": 9
+        "x": 5,
+        "y": 0
       },
       "renderParts": [
         {
-          "id": "shopping-mall-fixtures-part-01",
-          "sprite": "tile.sign-market",
+          "id": "hall-counter-west-part-01",
+          "sprite": "tile.counter-left",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "shopping-mall-fixtures-part-02",
-          "sprite": "tile.fixture-lamp",
+          "id": "hall-counter-west-part-02",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 1,
             "y": 0
           }
         },
         {
-          "id": "shopping-mall-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
+          "id": "hall-counter-west-part-03",
+          "sprite": "tile.counter-left",
           "offset": {
             "x": 2,
             "y": 0
           }
         },
         {
-          "id": "shopping-mall-fixtures-part-04",
-          "sprite": "tile.counter-left",
+          "id": "hall-counter-west-part-04",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 3,
             "y": 0
           }
         },
         {
-          "id": "shopping-mall-fixtures-part-05",
-          "sprite": "tile.sign-market",
-          "offset": {
-            "x": 12,
-            "y": 9
-          }
-        },
-        {
-          "id": "shopping-mall-fixtures-part-06",
-          "sprite": "tile.fixture-lamp",
-          "offset": {
-            "x": 13,
-            "y": 9
-          }
-        },
-        {
-          "id": "shopping-mall-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 14,
-            "y": 9
-          }
-        },
-        {
-          "id": "shopping-mall-fixtures-part-08",
+          "id": "hall-counter-west-part-05",
           "sprite": "tile.counter-left",
           "offset": {
-            "x": 15,
-            "y": 9
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-counter-west-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "shopping-mall-fixtures-solid-01",
+          "id": "hall-counter-west-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -243,7 +346,7 @@
           }
         },
         {
-          "id": "shopping-mall-fixtures-solid-02",
+          "id": "hall-counter-west-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -252,7 +355,7 @@
           }
         },
         {
-          "id": "shopping-mall-fixtures-solid-03",
+          "id": "hall-counter-west-solid-03",
           "bounds": {
             "x": 2,
             "y": 0,
@@ -261,7 +364,7 @@
           }
         },
         {
-          "id": "shopping-mall-fixtures-solid-04",
+          "id": "hall-counter-west-solid-04",
           "bounds": {
             "x": 3,
             "y": 0,
@@ -270,19 +373,19 @@
           }
         },
         {
-          "id": "shopping-mall-fixtures-solid-05",
+          "id": "hall-counter-west-solid-05",
           "bounds": {
-            "x": 12,
-            "y": 9,
+            "x": 4,
+            "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "shopping-mall-fixtures-solid-06",
+          "id": "hall-counter-west-solid-06",
           "bounds": {
-            "x": 13,
-            "y": 9,
+            "x": 5,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -291,86 +394,2625 @@
       "interactions": []
     },
     {
-      "id": "restaurant-row-fixtures",
-      "kind": "development-fixtures",
+      "id": "hall-counter-east",
+      "kind": "market-counter",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 20,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "hall-counter-east-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-counter-east-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-counter-east-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-counter-east-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-counter-east-part-05",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-counter-east-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "hall-counter-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-counter-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-counter-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-counter-east-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-counter-east-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-counter-east-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "hall-display-west",
+      "kind": "produce-display",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 8,
+        "y": 15
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "hall-display-west-part-01",
+          "sprite": "tile.produce-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-display-west-part-02",
+          "sprite": "tile.produce-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-display-west-part-03",
+          "sprite": "tile.produce-stall-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "hall-display-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-display-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-display-west-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "hall-display-east",
+      "kind": "produce-display",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 23,
+        "y": 15
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "hall-display-east-part-01",
+          "sprite": "tile.produce-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-display-east-part-02",
+          "sprite": "tile.produce-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-display-east-part-03",
+          "sprite": "tile.produce-stall-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "hall-display-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-display-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-display-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "hall-bench-west",
+      "kind": "market-bench",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 10,
+        "y": 18
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "hall-bench-west-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-bench-west-part-02",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-bench-west-part-03",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "hall-bench-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-bench-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-bench-west-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "hall-bench-east",
+      "kind": "market-bench",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 21,
+        "y": 18
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "hall-bench-east-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-bench-east-part-02",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-bench-east-part-03",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "hall-bench-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-bench-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-bench-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "hall-flowering-planters",
+      "kind": "flowering-planter",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 8,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 17,
+        "y": 5
+      },
+      "renderParts": [
+        {
+          "id": "hall-flowering-planters-part-01",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-flowering-planters-part-02",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 17,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-flowering-planters-part-03",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "id": "hall-flowering-planters-part-04",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 17,
+            "y": 5
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "hall-flowering-planters-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-flowering-planters-solid-02",
+          "bounds": {
+            "x": 17,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-flowering-planters-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 5,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "hall-flowering-planters-solid-04",
+          "bounds": {
+            "x": 17,
+            "y": 5,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "hall-authored-details",
+      "kind": "passable-market-life",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 12,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 12,
+        "y": 7
+      },
+      "renderParts": [
+        {
+          "id": "hall-authored-details-part-01",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-authored-details-part-02",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": 10,
+            "y": 0
+          }
+        },
+        {
+          "id": "hall-authored-details-part-03",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "id": "hall-authored-details-part-04",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": 10,
+            "y": 4
+          }
+        },
+        {
+          "id": "hall-authored-details-part-05",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": -3,
+            "y": 1
+          }
+        },
+        {
+          "id": "hall-authored-details-part-06",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 12,
+            "y": 1
+          }
+        },
+        {
+          "id": "hall-authored-details-part-07",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": -3,
+            "y": 7
+          }
+        },
+        {
+          "id": "hall-authored-details-part-08",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 12,
+            "y": 7
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "food-counter-west",
+      "kind": "food-counter",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 41,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "food-counter-west-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-west-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-west-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-west-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-west-part-05",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-west-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-counter-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-west-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-west-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-west-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-west-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-counter-east",
+      "kind": "food-counter",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 52,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "food-counter-east-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-east-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-east-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-east-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-east-part-05",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-counter-east-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-counter-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-east-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-east-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-counter-east-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-stall-west",
+      "kind": "food-stall",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 41,
+        "y": 15
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "food-stall-west-part-01",
+          "sprite": "tile.food-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-stall-west-part-02",
+          "sprite": "tile.food-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-stall-west-part-03",
+          "sprite": "tile.food-stall-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-stall-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-stall-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-stall-west-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-stall-east",
+      "kind": "food-stall",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 54,
+        "y": 15
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "food-stall-east-part-01",
+          "sprite": "tile.food-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-stall-east-part-02",
+          "sprite": "tile.food-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-stall-east-part-03",
+          "sprite": "tile.food-stall-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-stall-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-stall-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-stall-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-bench-west",
+      "kind": "market-bench",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 42,
+        "y": 18
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "food-bench-west-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-bench-west-part-02",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-bench-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-bench-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-bench-east",
+      "kind": "market-bench",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 55,
+        "y": 18
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "food-bench-east-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-bench-east-part-02",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-bench-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-bench-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-flowering-planters",
+      "kind": "flowering-planter",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 41,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 5
+      },
+      "renderParts": [
+        {
+          "id": "food-flowering-planters-part-01",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-flowering-planters-part-02",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 16,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-flowering-planters-part-03",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "id": "food-flowering-planters-part-04",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 16,
+            "y": 5
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "food-flowering-planters-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-flowering-planters-solid-02",
+          "bounds": {
+            "x": 16,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-flowering-planters-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 5,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "food-flowering-planters-solid-04",
+          "bounds": {
+            "x": 16,
+            "y": 5,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "food-authored-details",
+      "kind": "passable-market-life",
+      "areaId": "food-arcade",
+      "anchor": {
+        "x": 44,
+        "y": 12
+      },
+      "depthAnchorOffset": {
+        "x": 12,
+        "y": 7
+      },
+      "renderParts": [
+        {
+          "id": "food-authored-details-part-01",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-authored-details-part-02",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": 10,
+            "y": 0
+          }
+        },
+        {
+          "id": "food-authored-details-part-03",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "id": "food-authored-details-part-04",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": 10,
+            "y": 4
+          }
+        },
+        {
+          "id": "food-authored-details-part-05",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": -2,
+            "y": 1
+          }
+        },
+        {
+          "id": "food-authored-details-part-06",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 12,
+            "y": 1
+          }
+        },
+        {
+          "id": "food-authored-details-part-07",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": -2,
+            "y": 7
+          }
+        },
+        {
+          "id": "food-authored-details-part-08",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 12,
+            "y": 7
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-counter-west",
+      "kind": "restaurant-counter",
       "areaId": "restaurant-row",
       "anchor": {
-        "x": 40,
+        "x": 41,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-counter-west-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-west-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-west-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-west-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-west-part-05",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-west-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-counter-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-west-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-west-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-west-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-west-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-counter-east",
+      "kind": "restaurant-counter",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 52,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 5,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-counter-east-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-east-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-east-part-03",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-east-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-east-part-05",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-counter-east-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-counter-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-east-solid-04",
+          "bounds": {
+            "x": 3,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-east-solid-05",
+          "bounds": {
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-counter-east-solid-06",
+          "bounds": {
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-table-west",
+      "kind": "restaurant-table",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 41,
+        "y": 39
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-table-west-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-table-west-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-table-west-part-03",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-table-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-table-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-table-west-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-table-east",
+      "kind": "restaurant-table",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 54,
+        "y": 39
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-table-east-part-01",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-table-east-part-02",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-table-east-part-03",
+          "sprite": "tile.table-left",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-table-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-table-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-table-east-solid-03",
+          "bounds": {
+            "x": 2,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-bench-west",
+      "kind": "market-bench",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 42,
+        "y": 41
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-bench-west-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-bench-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-bench-east",
+      "kind": "market-bench",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 56,
+        "y": 41
+      },
+      "depthAnchorOffset": {
+        "x": 0,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-bench-east-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-bench-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-flowering-planters",
+      "kind": "flowering-planter",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 41,
+        "y": 37
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-flowering-planters-part-01",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-flowering-planters-part-02",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 16,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "restaurant-flowering-planters-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "restaurant-flowering-planters-solid-02",
+          "bounds": {
+            "x": 16,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "restaurant-authored-details",
+      "kind": "passable-market-life",
+      "areaId": "restaurant-row",
+      "anchor": {
+        "x": 44,
+        "y": 37
+      },
+      "depthAnchorOffset": {
+        "x": 8,
+        "y": 3
+      },
+      "renderParts": [
+        {
+          "id": "restaurant-authored-details-part-01",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-02",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": 10,
+            "y": 0
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-03",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-04",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": 10,
+            "y": 1
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-05",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": -3,
+            "y": 5
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-06",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 13,
+            "y": 5
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-07",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "id": "restaurant-authored-details-part-08",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 8,
+            "y": 3
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-canopy",
+      "kind": "market-canopy",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 7,
         "y": 33
       },
       "depthAnchorOffset": {
-        "x": 15,
+        "x": 1,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-canopy-part-01",
+          "sprite": "tile.market-canopy-nw",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-canopy-part-02",
+          "sprite": "tile.market-canopy-ne",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-canopy-part-03",
+          "sprite": "tile.market-canopy-sw",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "courtyard-canopy-part-04",
+          "sprite": "tile.market-canopy-se",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-canopy-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-canopy-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-canopy-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-canopy-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-produce-west",
+      "kind": "market-stall",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 12,
+        "y": 34
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-produce-west-part-01",
+          "sprite": "tile.produce-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-produce-west-part-02",
+          "sprite": "tile.produce-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-produce-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-produce-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-produce-east",
+      "kind": "market-stall",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 19,
+        "y": 36
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-produce-east-part-01",
+          "sprite": "tile.produce-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-produce-east-part-02",
+          "sprite": "tile.produce-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-produce-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-produce-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-food-west",
+      "kind": "market-stall",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 7,
+        "y": 39
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-food-west-part-01",
+          "sprite": "tile.food-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-food-west-part-02",
+          "sprite": "tile.food-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-food-west-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-food-west-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-food-east",
+      "kind": "market-stall",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 19,
+        "y": 41
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-food-east-part-01",
+          "sprite": "tile.food-stall-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-food-east-part-02",
+          "sprite": "tile.food-stall-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-food-east-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-food-east-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-fountain",
+      "kind": "market-fountain",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 22,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-fountain-part-01",
+          "sprite": "tile.sunset-fountain-nw",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-fountain-part-02",
+          "sprite": "tile.sunset-fountain-ne",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-fountain-part-03",
+          "sprite": "tile.sunset-fountain-sw",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "courtyard-fountain-part-04",
+          "sprite": "tile.sunset-fountain-se",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-fountain-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-fountain-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-fountain-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-fountain-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-planters",
+      "kind": "flowering-planter",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 4,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 21,
+        "y": 12
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-planters-part-01",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-planters-part-02",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 21,
+            "y": 3
+          }
+        },
+        {
+          "id": "courtyard-planters-part-03",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 11
+          }
+        },
+        {
+          "id": "courtyard-planters-part-04",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 21,
+            "y": 12
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-planters-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-planters-solid-02",
+          "bounds": {
+            "x": 21,
+            "y": 3,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-planters-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 11,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-planters-solid-04",
+          "bounds": {
+            "x": 21,
+            "y": 12,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-benches",
+      "kind": "market-bench",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 10,
+        "y": 42
+      },
+      "depthAnchorOffset": {
+        "x": 13,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-benches-part-01",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-benches-part-02",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 4,
+            "y": -4
+          }
+        },
+        {
+          "id": "courtyard-benches-part-03",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 13,
+            "y": -4
+          }
+        },
+        {
+          "id": "courtyard-benches-part-04",
+          "sprite": "tile.sunset-market-bench",
+          "offset": {
+            "x": 13,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-benches-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-benches-solid-02",
+          "bounds": {
+            "x": 4,
+            "y": -4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-benches-solid-03",
+          "bounds": {
+            "x": 13,
+            "y": -4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-benches-solid-04",
+          "bounds": {
+            "x": 13,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-authored-details",
+      "kind": "passable-market-life",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 6,
+        "y": 35
+      },
+      "depthAnchorOffset": {
+        "x": 9,
         "y": 4
       },
       "renderParts": [
         {
-          "id": "restaurant-row-fixtures-part-01",
-          "sprite": "tile.sign-market",
+          "id": "courtyard-authored-details-part-01",
+          "sprite": "tile.market-detail-petals",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "restaurant-row-fixtures-part-02",
-          "sprite": "tile.fixture-lamp",
-          "offset": {
-            "x": 1,
-            "y": 0
-          }
-        },
-        {
-          "id": "restaurant-row-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 2,
-            "y": 0
-          }
-        },
-        {
-          "id": "restaurant-row-fixtures-part-04",
-          "sprite": "tile.counter-left",
+          "id": "courtyard-authored-details-part-02",
+          "sprite": "tile.market-detail-chalk",
           "offset": {
             "x": 3,
             "y": 0
           }
         },
         {
-          "id": "restaurant-row-fixtures-part-05",
-          "sprite": "tile.sign-market",
+          "id": "courtyard-authored-details-part-03",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 5,
+            "y": -2
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-04",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 8,
+            "y": 0
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-05",
+          "sprite": "tile.market-detail-petals",
           "offset": {
             "x": 12,
-            "y": 4
+            "y": 0
           }
         },
         {
-          "id": "restaurant-row-fixtures-part-06",
-          "sprite": "tile.fixture-lamp",
-          "offset": {
-            "x": 13,
-            "y": 4
-          }
-        },
-        {
-          "id": "restaurant-row-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 14,
-            "y": 4
-          }
-        },
-        {
-          "id": "restaurant-row-fixtures-part-08",
-          "sprite": "tile.counter-left",
+          "id": "courtyard-authored-details-part-06",
+          "sprite": "tile.market-detail-herbs",
           "offset": {
             "x": 15,
+            "y": 2
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-07",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-08",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": 3,
+            "y": 5
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-09",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": 12,
+            "y": 7
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-10",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 15,
+            "y": 7
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-11",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": -1,
+            "y": -2
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-12",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 18,
+            "y": -1
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-13",
+          "sprite": "tile.market-detail-paper",
+          "offset": {
+            "x": -1,
+            "y": 9
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-14",
+          "sprite": "tile.market-detail-chalk",
+          "offset": {
+            "x": 18,
+            "y": 10
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-15",
+          "sprite": "tile.market-detail-petals",
+          "offset": {
+            "x": 6,
+            "y": 8
+          }
+        },
+        {
+          "id": "courtyard-authored-details-part-16",
+          "sprite": "tile.market-detail-herbs",
+          "offset": {
+            "x": 9,
             "y": 4
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "sunset-frontage-signs",
+      "kind": "market-signage",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 16,
+        "y": 20
+      },
+      "depthAnchorOffset": {
+        "x": 34,
+        "y": 23
+      },
+      "renderParts": [
+        {
+          "id": "sunset-frontage-signs-part-01",
+          "sprite": "tile.sign-sunset-market",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-frontage-signs-part-02",
+          "sprite": "tile.sign-sunset-market",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-frontage-signs-part-03",
+          "sprite": "tile.sign-sunset-market",
+          "offset": {
+            "x": 32,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-frontage-signs-part-04",
+          "sprite": "tile.sign-sunset-market",
+          "offset": {
+            "x": 34,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-frontage-signs-part-05",
+          "sprite": "tile.sign-sunset-market",
+          "offset": {
+            "x": 32,
+            "y": 23
+          }
+        },
+        {
+          "id": "sunset-frontage-signs-part-06",
+          "sprite": "tile.sign-sunset-market",
+          "offset": {
+            "x": 34,
+            "y": 23
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "sunset-doorway-lanterns",
+      "kind": "festival-lantern",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 14,
+        "y": 21
+      },
+      "depthAnchorOffset": {
+        "x": 38,
+        "y": 23
+      },
+      "renderParts": [
+        {
+          "id": "sunset-doorway-lanterns-part-01",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-doorway-lanterns-part-02",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-doorway-lanterns-part-03",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 32,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-doorway-lanterns-part-04",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 38,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-doorway-lanterns-part-05",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 32,
+            "y": 23
+          }
+        },
+        {
+          "id": "sunset-doorway-lanterns-part-06",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 38,
+            "y": 23
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "restaurant-row-fixtures-solid-01",
+          "id": "sunset-doorway-lanterns-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -379,46 +3021,354 @@
           }
         },
         {
-          "id": "restaurant-row-fixtures-solid-02",
+          "id": "sunset-doorway-lanterns-solid-02",
           "bounds": {
-            "x": 1,
+            "x": 6,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "restaurant-row-fixtures-solid-03",
+          "id": "sunset-doorway-lanterns-solid-03",
           "bounds": {
-            "x": 2,
+            "x": 32,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "restaurant-row-fixtures-solid-04",
+          "id": "sunset-doorway-lanterns-solid-04",
           "bounds": {
-            "x": 3,
+            "x": 38,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "restaurant-row-fixtures-solid-05",
+          "id": "sunset-doorway-lanterns-solid-05",
           "bounds": {
-            "x": 12,
-            "y": 4,
+            "x": 32,
+            "y": 23,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "restaurant-row-fixtures-solid-06",
+          "id": "sunset-doorway-lanterns-solid-06",
           "bounds": {
-            "x": 13,
-            "y": 4,
+            "x": 38,
+            "y": 23,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "sunset-promenade-lanterns",
+      "kind": "festival-lantern",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 28,
+        "y": 6
+      },
+      "depthAnchorOffset": {
+        "x": 26,
+        "y": 22
+      },
+      "renderParts": [
+        {
+          "id": "sunset-promenade-lanterns-part-01",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-02",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 7,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-03",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 0,
+            "y": 12
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-04",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 7,
+            "y": 12
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-05",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": -16,
+            "y": 16
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-06",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": -6,
+            "y": 16
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-07",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 14,
+            "y": 16
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-08",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 26,
+            "y": 16
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-09",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": -16,
+            "y": 22
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-10",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": -6,
+            "y": 22
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-11",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 14,
+            "y": 22
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-part-12",
+          "sprite": "tile.fixture-festival-lantern",
+          "offset": {
+            "x": 26,
+            "y": 22
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "sunset-promenade-lanterns-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-02",
+          "bounds": {
+            "x": 7,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 12,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-04",
+          "bounds": {
+            "x": 7,
+            "y": 12,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-05",
+          "bounds": {
+            "x": -16,
+            "y": 16,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-06",
+          "bounds": {
+            "x": -6,
+            "y": 16,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-07",
+          "bounds": {
+            "x": 14,
+            "y": 16,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-08",
+          "bounds": {
+            "x": 26,
+            "y": 16,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-09",
+          "bounds": {
+            "x": -16,
+            "y": 22,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-10",
+          "bounds": {
+            "x": -6,
+            "y": 22,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-11",
+          "bounds": {
+            "x": 14,
+            "y": 22,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-promenade-lanterns-solid-12",
+          "bounds": {
+            "x": 26,
+            "y": 22,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "sunset-flowering-palms",
+      "kind": "large-flowering-palm",
+      "areaId": "market-hall",
+      "anchor": {
+        "x": 4,
+        "y": 5
+      },
+      "depthAnchorOffset": {
+        "x": 58,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "sunset-flowering-palms-part-01",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-flowering-palms-part-02",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 24,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-flowering-palms-part-03",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 32,
+            "y": 0
+          }
+        },
+        {
+          "id": "sunset-flowering-palms-part-04",
+          "sprite": "tile.plant-palm",
+          "offset": {
+            "x": 58,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "sunset-flowering-palms-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-flowering-palms-solid-02",
+          "bounds": {
+            "x": 24,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-flowering-palms-solid-03",
+          "bounds": {
+            "x": 32,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "sunset-flowering-palms-solid-04",
+          "bounds": {
+            "x": 58,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -427,55 +3377,130 @@
       "interactions": []
     }
   ],
-  "effects": [
-    {
-      "id": "mall-sparkle",
-      "kind": "sparkle",
-      "tile": {
-        "x": 17,
-        "y": 16
-      }
-    }
-  ],
+  "effects": [],
   "roofGroups": [],
   "areas": [
     {
-      "id": "shopping-mall",
+      "id": "market-hall",
       "bounds": {
-        "x": 7,
-        "y": 9,
-        "width": 20,
-        "height": 15
+        "x": 6,
+        "y": 7,
+        "width": 22,
+        "height": 14
       },
-      "densityProfile": "structural-placeholder",
+      "densityProfile": "active-public",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
           "x": 17,
-          "y": 22
+          "y": 20
         }
       ],
-      "primaryRoutes": [],
-      "requiredPortalIds": []
+      "primaryRoutes": [
+        {
+          "x": 16,
+          "y": 9,
+          "width": 3,
+          "height": 11
+        }
+      ],
+      "requiredPortalIds": [
+        "from-residential",
+        "to-docks"
+      ]
+    },
+    {
+      "id": "food-arcade",
+      "bounds": {
+        "x": 39,
+        "y": 7,
+        "width": 21,
+        "height": 14
+      },
+      "densityProfile": "active-public",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 49,
+          "y": 20
+        }
+      ],
+      "primaryRoutes": [
+        {
+          "x": 48,
+          "y": 9,
+          "width": 3,
+          "height": 11
+        }
+      ],
+      "requiredPortalIds": [
+        "from-residential",
+        "to-docks"
+      ]
     },
     {
       "id": "restaurant-row",
       "bounds": {
-        "x": 38,
-        "y": 31,
-        "width": 20,
-        "height": 10
+        "x": 39,
+        "y": 32,
+        "width": 21,
+        "height": 12
       },
-      "densityProfile": "structural-placeholder",
+      "densityProfile": "active-public",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
-          "x": 48,
-          "y": 39
+          "x": 49,
+          "y": 43
         }
       ],
-      "primaryRoutes": [],
-      "requiredPortalIds": []
+      "primaryRoutes": [
+        {
+          "x": 48,
+          "y": 33,
+          "width": 3,
+          "height": 10
+        }
+      ],
+      "requiredPortalIds": [
+        "from-residential",
+        "to-docks"
+      ]
+    },
+    {
+      "id": "sunset-courtyard",
+      "bounds": {
+        "x": 4,
+        "y": 29,
+        "width": 26,
+        "height": 19
+      },
+      "densityProfile": "active-public",
+      "intentionalOpenAreas": [],
+      "entranceTiles": [
+        {
+          "x": 28,
+          "y": 29
+        }
+      ],
+      "primaryRoutes": [
+        {
+          "x": 27,
+          "y": 29,
+          "width": 3,
+          "height": 19
+        },
+        {
+          "x": 4,
+          "y": 29,
+          "width": 26,
+          "height": 3
+        }
+      ],
+      "requiredPortalIds": [
+        "from-residential",
+        "to-docks"
+      ]
     }
   ],
   "buildings": [],
@@ -483,7 +3508,7 @@
     {
       "locationId": "sora_boutique",
       "areaIds": [
-        "shopping-mall"
+        "market-hall"
       ],
       "preferredInteractionIds": []
     },
@@ -529,24 +3554,24 @@
   ],
   "spawns": {
     "linda": {
-      "x": 15,
+      "x": 17,
       "y": 16
     },
     "generic_resident": {
-      "x": 45,
-      "y": 35
+      "x": 44,
+      "y": 34
     },
     "sora_tan": {
-      "x": 20,
-      "y": 16
+      "x": 14,
+      "y": 14
     },
     "rafael_cruz": {
-      "x": 46,
+      "x": 44,
       "y": 36
     },
     "linda-shop": {
-      "x": 15,
-      "y": 16
+      "x": 17,
+      "y": 17
     }
   }
 }

@@ -1076,7 +1076,10 @@ Each gate belongs to the earliest milestone that must prove it. Later milestones
 
 - **ART-01:** A test scene uses `32×32`-pixel tiles and renders the protagonist, Linda, and one generic resident in `24×30` world cells.
 - **ART-02:** Each of those three characters has eight generated walking atlas cells: two front, two rear, two left, and two right.
-- **ART-03:** Each character has one outfit and one HFM-style conversation portrait; the scene uses approximately `8–12` original environment tiles.
+- **ART-03:** Each character has one shared identity source that generates the world cells and HFM-disciplined conversation portrait; the scene uses approximately `8–12` original environment tiles.
+- **ART-03A:** Every production person has one unique, slightly goofy signature oddity that changes the silhouette. The feature can use the face, hair, clothing, accessory, body shape, or one exaggerated body part. Color alone does not count.
+- **ART-03B:** The protagonist and every named person use an authored look record. Each ambient resident receives a stable look ID, and two people in the active population cannot use the same complete look. `generic-resident` identifies the single prototype resident and can remain the unknown-ID development fallback; it is not shared by other production residents.
+- **ART-03C:** Each new or rebuilt named source generates matching `rest`, `joy`, and `upset` portraits. Expression changes do not change the person's signature oddity or world identity.
 - **ART-04:** Front-facing horizontal movement remains readable at native `1×` through lateral legs, lean, shadow shift, and bounce. If it fails, the mirrored three-quarter head/hair fallback is tested before any full side body.
 - **ART-05:** Walking uses `130–160 ms` frame timing and nearest-neighbor scaling throughout the `100%`–`300%` range. Canonical `1×`, `2×`, and `3×` captures remain free of smoothing and atlas bleed.
 - **ART-06:** The spike adds no sitting, combat, romance, or job animation.

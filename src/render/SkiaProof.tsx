@@ -22,6 +22,12 @@ function hasNoNodeAccess(): boolean {
   );
 }
 
+function localhostDevHarnessMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  const localHost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+  return localHost && new URLSearchParams(window.location.search).get('devHarness') === '1';
+}
+
 type SkiaProofProps = Readonly<{
   assetsLoaded: boolean;
 }>;
@@ -36,7 +42,9 @@ async function afterTwoPaints(): Promise<void> {
 }
 
 export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
-  const devHarnessMode = typeof window !== 'undefined' && window.siWorldDevHarnessMode === true;
+  const devHarnessMode = typeof window !== 'undefined' && (
+    window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
+  );
   const windowDimensions = useWindowDimensions();
   const expectedSurface = useMemo(
     () => responsiveSurface(windowDimensions.width, windowDimensions.height).surface,

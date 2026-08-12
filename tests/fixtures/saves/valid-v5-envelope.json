@@ -3,8 +3,8 @@
   "slotId": "slot-001",
   "saveGeneration": 7,
   "trigger": "manual",
-  "stateChecksum": "08d97be88dfafa47ab494103e624a9a52cb0ccf46df0cfb387525ee4c66e4c4c",
-  "payloadChecksum": "a74f27eda8dcffb16246ee9c447fb25aaababa0c94966bbf52f0482348931a63",
+  "stateChecksum": "02eb51d876e305cd13cbd1ee7304a841f2457988e9b499cc8cc7887b4899b621",
+  "payloadChecksum": "49109acb6c264abd0d67e3c31cc10ee14c346a63fba5a5ecf2127bb3a74bea39",
   "state": {
     "engineVersion": "si-world-0.1.0",
     "contentVersion": "content-0.1.0",
@@ -1012,8 +1012,8 @@
             "locationId": "southwest_commercial",
             "activityId": "shop",
             "mapId": "southwest_commercial",
-            "tileX": 15,
-            "tileY": 16
+            "tileX": 17,
+            "tileY": 17
           },
           {
             "startMinuteOfDay": 1080,

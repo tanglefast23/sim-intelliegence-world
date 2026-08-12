@@ -26,7 +26,9 @@ export type DecalPresentationCell = Readonly<{
   tile: TilePoint;
   familyId: string;
   sprite: string;
-  solid: false;
+  offsetX: number;
+  offsetY: number;
+  solid: boolean;
   interactive: false;
 }>;
 
@@ -72,6 +74,14 @@ function freezeBounds(bounds: VisualBounds | undefined): VisualBounds {
 function presentationDigest(value: unknown): string {
   return stableTupleHash([JSON.stringify(value)]).toString(16).padStart(8, '0');
 }
+
+const SOLID_ENVIRONMENT_SPRITES = new Set([
+  'tile.decal-sand-shells',
+  'tile.decal-sapling',
+  'tile.decal-young-palm',
+  'tile.decal-canopy-tree',
+  'tile.decal-neon-planter',
+]);
 
 export function compileArtPresentation(input: ArtPresentationCompileInput): ArtPresentationIndex {
   const materialIds = input.groundSprites.map((sprite) => {
@@ -146,6 +156,37 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
   }
   input.map.roofGroups.flatMap(({ cells }) => cells.flatMap(pointsInRect))
     .forEach((tile) => decalBlockedTiles.add(tileKey(tile)));
+  const solidDecalBlockedTiles = new Set(decalBlockedTiles);
+  for (const run of input.map.walls.runs) {
+    const sideOffsets = run.bounds.width > 1
+      ? [{ x: 0, y: -1 }, { x: 0, y: 1 }]
+      : [{ x: -1, y: 0 }, { x: 1, y: 0 }];
+    for (const opening of run.openings) {
+      solidDecalBlockedTiles.add(tileKey(opening.tile));
+      sideOffsets.forEach((offset) => solidDecalBlockedTiles.add(tileKey({
+        x: opening.tile.x + offset.x,
+        y: opening.tile.y + offset.y,
+      })));
+    }
+  }
+  input.map.stagingTiles.forEach((tile) => solidDecalBlockedTiles.add(tileKey(tile)));
+  Object.values(input.map.spawns).forEach((tile) => solidDecalBlockedTiles.add(tileKey(tile)));
+  input.map.portals.forEach(({ tile }) => solidDecalBlockedTiles.add(tileKey(tile)));
+  for (const area of input.map.areas) {
+    area.entranceTiles.forEach((tile) => solidDecalBlockedTiles.add(tileKey(tile)));
+    area.primaryRoutes.flatMap(pointsInRect).forEach((tile) => solidDecalBlockedTiles.add(tileKey(tile)));
+  }
+  for (const door of input.map.doors) {
+    door.interaction?.approachTiles.forEach((tile) => solidDecalBlockedTiles.add(tileKey(tile)));
+  }
+  for (const object of input.map.objects) {
+    for (const interaction of object.interactions) {
+      interaction.approachOffsets.forEach((offset) => solidDecalBlockedTiles.add(tileKey({
+        x: object.anchor.x + offset.x,
+        y: object.anchor.y + offset.y,
+      })));
+    }
+  }
   for (const cell of ground) {
     const material = MATERIAL_RECIPE_BY_ID[cell.materialId];
     const family = material?.decalFamily ? DECAL_RECIPE_BY_ID[material.decalFamily] : undefined;
@@ -158,14 +199,35 @@ export function compileArtPresentation(input: ArtPresentationCompileInput): ArtP
       ART_PRESENTATION_REVISION,
       family.selectionSalt,
     ]) % 1_000;
-    if (roll >= family.densityPerThousand) continue;
+    const patchRoll = stableTupleHash([
+      input.map.id,
+      Math.floor(cell.tile.x / 7),
+      Math.floor(cell.tile.y / 5),
+      family.id,
+      ART_PRESENTATION_REVISION,
+      family.selectionSalt,
+      'environment-patch',
+    ]) % 1_000;
+    const densityBias = patchRoll < 300 ? 260 : patchRoll > 620 ? -300 : -120;
+    const clusteredDensity = Math.max(0, Math.min(1_000, family.densityPerThousand + densityBias));
+    if (roll >= clusteredDensity) continue;
     const sprite = family.publicSprites[roll % family.publicSprites.length] as string;
+    const solid = SOLID_ENVIRONMENT_SPRITES.has(sprite);
+    if (solid && solidDecalBlockedTiles.has(tileKey(cell.tile))) continue;
+    const offsetX = (stableTupleHash([
+      input.map.id, cell.tile.x, cell.tile.y, family.id, family.selectionSalt, 'offset-x',
+    ]) % 15) - 7;
+    const offsetY = (stableTupleHash([
+      input.map.id, cell.tile.x, cell.tile.y, family.id, family.selectionSalt, 'offset-y',
+    ]) % 11) - 5;
     decals.push(Object.freeze({
       id: `decal-${cell.tile.x}-${cell.tile.y}`,
       tile: cell.tile,
       familyId: family.id,
       sprite,
-      solid: false,
+      offsetX,
+      offsetY,
+      solid,
       interactive: false,
     }));
   }

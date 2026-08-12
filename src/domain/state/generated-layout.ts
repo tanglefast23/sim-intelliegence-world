@@ -234,8 +234,8 @@ export const GENERATED_LAYOUT = {
     "linda_shop": {
       "mapId": "southwest_commercial",
       "locationId": "southwest_commercial",
-      "x": 15,
-      "y": 16
+      "x": 17,
+      "y": 17
     },
     "generic_home": {
       "mapId": "northwest_residential",
@@ -272,14 +272,14 @@ export const GENERATED_LAYOUT = {
     "rafael_cruz": {
       "mapId": "southwest_commercial",
       "locationId": "rafael_cafe",
-      "x": 46,
+      "x": 44,
       "y": 36
     },
     "sora_tan": {
       "mapId": "southwest_commercial",
       "locationId": "sora_boutique",
-      "x": 20,
-      "y": 16
+      "x": 14,
+      "y": 14
     },
     "devon_price": {
       "mapId": "northeast_downtown",
@@ -290,14 +290,14 @@ export const GENERATED_LAYOUT = {
     "priya_nair": {
       "mapId": "southeast_docks",
       "locationId": "priya_clinic",
-      "x": 18,
-      "y": 15
+      "x": 12,
+      "y": 12
     },
     "tomas_reed": {
       "mapId": "southeast_docks",
       "locationId": "tomas_marina",
-      "x": 42,
-      "y": 33
+      "x": 41,
+      "y": 34
     },
     "elise_moreau": {
       "mapId": "northeast_downtown",

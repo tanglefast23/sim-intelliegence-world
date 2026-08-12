@@ -54,10 +54,19 @@ describe('immutable art presentation index', () => {
     }
   });
 
-  test('keeps decals presentation-only and outside collision and interaction owners', () => {
+  test('keeps small decals passable and gives large vegetation matching collision owners', () => {
     const compiled = compile();
-    expect(compiled.presentation.decals.every(({ solid, interactive }) => !solid && !interactive)).toBe(true);
-    expect(compiled.presentation.decals.every(({ tile }) => !compiled.staticSolidOwnerByTile.has(tileKey(tile)))).toBe(true);
+    expect(compiled.presentation.decals.every(({ interactive }) => !interactive)).toBe(true);
+    expect(compiled.presentation.decals.some(({ solid }) => solid)).toBe(true);
+    expect(compiled.presentation.decals.every(({ id, tile, solid }) => (
+      solid
+        ? compiled.staticSolidOwnerByTile.get(tileKey(tile))?.id === id
+        : !compiled.staticSolidOwnerByTile.has(tileKey(tile))
+    ))).toBe(true);
+    expect(compiled.presentation.decals.filter(({ solid }) => solid).every(({ sprite }) => [
+      'tile.decal-sand-shells', 'tile.decal-sapling', 'tile.decal-young-palm',
+      'tile.decal-canopy-tree', 'tile.decal-neon-planter',
+    ].includes(sprite))).toBe(true);
     expect(compiled.presentation.transitions.every(({ solid, interactive }) => !solid && !interactive)).toBe(true);
     expect(compiled.presentation.transitions.every(({ ownerMaterialId, sprite }) => (
       sprite === null
