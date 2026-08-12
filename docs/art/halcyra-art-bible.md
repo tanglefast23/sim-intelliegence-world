@@ -6,6 +6,9 @@ Status: Canonical art contract. The Phase 33 HFM-geometry full-cast rebuild foll
 
 Halcyra uses an original warm-noir pixel-diorama style.
 
+- The game always stays 2D.
+- Keep the scene minimal. Favor RimWorld-like simulation clarity over decorative detail.
+- Never replace readable sprites and flat diorama layers with 3D rendering or high-detail painted art.
 - The island looks attractive at first sight.
 - Warm sun, clean water, and inviting businesses sell the public image.
 - Deep shade, worn service routes, guarded doors, and selective neon show the hidden vice economy.

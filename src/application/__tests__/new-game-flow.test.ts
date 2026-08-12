@@ -1,4 +1,4 @@
-import { normalizePlayerName } from '../NewGameFlow';
+import { normalizePlayerName } from '../new-game-name';
 
 describe('new game flow', () => {
   test.each([
