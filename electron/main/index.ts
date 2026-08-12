@@ -299,8 +299,8 @@ async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<
     if (!Number.isFinite(currentPercentage)) throw new Error('World zoom value is invalid.');
     const label = targetPercentage > currentPercentage ? 'Increase world zoom' : 'Decrease world zoom';
     const button = document.querySelector('[aria-label="' + label + '"]');
-    const clicks = Math.abs(targetPercentage - currentPercentage) / 5;
-    if (!Number.isInteger(clicks)) throw new Error('World zoom is not on a five-percent step.');
+    const clicks = Math.abs(targetPercentage - currentPercentage) / 10;
+    if (!Number.isInteger(clicks)) throw new Error('World zoom cannot reach the requested ten-percent step.');
     if (clicks > 0 && !(button instanceof HTMLElement)) throw new Error(label + ' button is missing.');
     for (let index = 0; index < clicks; index += 1) button.click();
   })()`, true);
@@ -1403,13 +1403,13 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     }));
   })()`, true);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
-  const wheelZoom = (await cameraLabel(window)).endsWith('at 2.05x');
+  const wheelZoom = (await cameraLabel(window)).endsWith('at 2.1x');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 300));
   const presentationAfterWheel = await window.webContents.executeJavaScript(
     'window.siWorldDesktop?.loadPresentationPreferences()',
     true,
   ) as Readonly<{ worldZoom?: number }>;
-  const gradualZoomPersistence = presentationAfterWheel.worldZoom === 2.05;
+  const gradualZoomPersistence = presentationAfterWheel.worldZoom === 2.1;
 
   await clickZoomButton(window, 2);
   sendKey(window, 'F');

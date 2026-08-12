@@ -15,11 +15,12 @@ describe('world zoom', () => {
     expect(() => assertWorldZoom(1.53)).toThrow('5% increments');
   });
 
-  test('steps predictably without floating-point drift or leaving the range', () => {
+  test('jumps by ten percent without floating-point drift or leaving the range', () => {
     expect(stepWorldZoom(1, -1)).toBe(MIN_WORLD_ZOOM);
-    expect(stepWorldZoom(1, 1)).toBe(1.05);
-    expect(stepWorldZoom(1.1, 1)).toBe(1.15);
+    expect(stepWorldZoom(1, 1)).toBe(1.1);
+    expect(stepWorldZoom(1.1, 1)).toBe(1.2);
+    expect(stepWorldZoom(1.55, 1)).toBe(1.65);
     expect(stepWorldZoom(3, 1)).toBe(MAX_WORLD_ZOOM);
-    expect(worldZoomPercentage(stepWorldZoom(1.5, 1))).toBe(155);
+    expect(worldZoomPercentage(stepWorldZoom(1.5, 1))).toBe(160);
   });
 });

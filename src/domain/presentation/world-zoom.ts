@@ -1,8 +1,9 @@
 export const MIN_WORLD_ZOOM = 1;
 export const MAX_WORLD_ZOOM = 3;
-export const WORLD_ZOOM_STEP = 0.05;
+export const WORLD_ZOOM_STEP = 0.1;
 
-const ZOOM_STEPS_PER_UNIT = Math.round(1 / WORLD_ZOOM_STEP);
+const SAVED_WORLD_ZOOM_STEP = 0.05;
+const ZOOM_STEPS_PER_UNIT = Math.round(1 / SAVED_WORLD_ZOOM_STEP);
 const FLOAT_TOLERANCE = 1e-8;
 
 export function isWorldZoom(candidate: unknown): candidate is number {
