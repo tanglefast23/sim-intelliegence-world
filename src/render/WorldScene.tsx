@@ -40,7 +40,9 @@ import { ContextActionMenu } from '../ui/ContextActionMenu';
 import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
+import { SelectedCharacterCard } from '../ui/SelectedCharacterCard';
 import { SelectionMarker } from '../ui/SelectionMarker';
+import { selectedCharacterSummary } from '../ui/selected-character';
 import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
 import { uiMetrics } from '../ui/ui-metrics';
@@ -185,6 +187,10 @@ function actorTiles(
   zoom: number,
   dpr: number,
   reducedMotion: boolean,
+  selectedId: string,
+  conversationNpcId: string | undefined,
+  reactionId: string | undefined,
+  poseFrame: 0 | 1,
 ): WorldActors {
   const output: Record<string, WorldActors[string]> = {};
   for (const [stateId, npc] of Object.entries(state.npcs)) {
@@ -200,6 +206,8 @@ function actorTiles(
         moving: movement?.status === 'moving',
         reducedMotion,
         horizontalRunDistance: movement?.horizontalRunDistance ?? 0,
+        pose: stateId === reactionId ? 'reaction' : stateId === conversationNpcId ? 'talk' : 'idle',
+        poseFrame: stateId === selectedId || stateId === conversationNpcId ? poseFrame : 0,
       };
     }
   }
@@ -295,6 +303,8 @@ export function WorldScene({
   const [uiScale, setUiScale] = useState<UiScale>(() => initialPresentationPreferences.uiScale ?? automaticUiScale(surface));
   const [explicitUiScale, setExplicitUiScale] = useState(initialPresentationPreferences.uiScale !== null);
   const [selected, setSelected] = useState<string>('protagonist');
+  const [reactionId, setReactionId] = useState<string>();
+  const [poseFrame, setPoseFrame] = useState<0 | 1>(0);
   const [saveStatus, setSaveStatus] = useState(initialSaveStatus);
   const [transitioning, setTransitioning] = useState(false);
   const [arrivalLock, setArrivalLock] = useState<string>();
@@ -333,12 +343,31 @@ export function WorldScene({
     camera.zoom,
     dpr,
     reducedMotion,
-  ), [camera.zoom, dpr, mapId, reducedMotion, runtime.npcMovements, runtime.worldState]);
+    selected,
+    conversationNpcId,
+    reactionId,
+    poseFrame,
+  ), [camera.zoom, conversationNpcId, dpr, mapId, poseFrame, reactionId, reducedMotion, runtime.npcMovements, runtime.worldState, selected]);
   const speed = effectiveSpeed(runtime.worldState.clock);
   const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState));
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
 
   useEffect(() => setVfxAgeStep(0), [mapId]);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setPoseFrame(0);
+      return undefined;
+    }
+    const timer = setInterval(() => setPoseFrame((current) => current === 0 ? 1 : 0), 720);
+    return () => clearInterval(timer);
+  }, [reducedMotion]);
+
+  const selectCharacter = useCallback((id: string) => {
+    setSelected(id);
+    setReactionId(id);
+    setTimeout(() => setReactionId((current) => current === id ? undefined : current), 520);
+  }, []);
 
   useLayoutEffect(() => {
     const previous = previousSurface.current;
@@ -571,7 +600,7 @@ export function WorldScene({
           point.y >= screen.y - 27 * camera.zoom && point.y <= screen.y + 3 * camera.zoom;
       });
     if (visibleNpc) {
-      setSelected(visibleNpc[0]);
+      selectCharacter(visibleNpc[0]);
       setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
       return;
     }
@@ -585,7 +614,7 @@ export function WorldScene({
     const resolved = resolveClickTarget(candidates);
     if (!resolved) return;
     if (resolved.kind === 'npc') {
-      setSelected(resolved.id);
+      selectCharacter(resolved.id);
       setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
       return;
     }
@@ -610,7 +639,7 @@ export function WorldScene({
       return;
     }
     if (resolved.tile) requestTile(resolved.tile);
-  }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile, runtime.movement.player, runtime.worldState]);
+  }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   const requestedMarkerTarget = runtime.movement.status === 'unreachable'
     ? undefined
@@ -890,8 +919,10 @@ export function WorldScene({
       moving: runtime.movement.status === 'moving',
       reducedMotion,
       horizontalRunDistance: runtime.movement.horizontalRunDistance,
+      pose: selected === 'protagonist' ? (reactionId === 'protagonist' ? 'reaction' : 'idle') : 'idle',
+      poseFrame: selected === 'protagonist' ? poseFrame : 0,
     }),
-    [map, npcTiles, playerVisualFoot, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState],
+    [map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState, selected],
   );
   const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
     visibility.maximumX,
@@ -1013,6 +1044,13 @@ export function WorldScene({
   const selectedSubtitle = selected === 'protagonist'
     ? 'YOU'
     : runtime.worldState.relationships[selected]?.stage.replaceAll('_', ' ') ?? 'RESIDENT';
+  const selectedSummary = selectedCharacterSummary(
+    runtime.worldState,
+    selected,
+    selected === 'protagonist'
+      ? runtime.movement.status === 'moving'
+      : runtime.npcMovements[selected]?.status === 'moving',
+  );
   const feedbackScreen = runtime.movement.feedbackTile
     ? worldToScreen(camera, {
       x: runtime.movement.feedbackTile.x * TILE_SIZE + 16,
@@ -1293,6 +1331,16 @@ export function WorldScene({
           uiScale={uiScale}
           zoom={camera.zoom}
         />
+        <SelectedCharacterCard
+          availableWidth={surface.width}
+          onCenter={() => setCamera((current) => centerCameraOnWorld(selectedFoot, current.zoom, surface, MAP_PIXELS))}
+          onTalk={stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel
+            ? () => setConversationNpcId(stateNpcId(selected, runtime.worldState))
+            : undefined}
+          summary={selectedSummary}
+          pose={reactionId === selected ? 'reaction' : conversationNpcId === selected ? 'talk' : 'idle'}
+          uiScale={uiScale}
+        />
         <View nativeID="world-ui-zoom" style={styles.zoomPlate}>
           <Text style={[styles.controlLabel, { fontSize: metrics.secondaryText }]}>VIEW</Text>
           <Pressable
@@ -1397,18 +1445,6 @@ export function WorldScene({
             onSleep={sleep}
             uiScale={uiScale}
           />
-        ) : null}
-        {stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel ? (
-          <View nativeID="world-ui-talk" style={styles.talkPlate}>
-            <Text style={[styles.talkLabel, { fontSize: metrics.secondaryText }]}>{npcLabel(selected, npcTiles).toUpperCase()} SELECTED</Text>
-            <Pressable
-              accessibilityLabel={`Talk to ${npcLabel(selected, npcTiles)}`}
-              onPress={() => setConversationNpcId(stateNpcId(selected, runtime.worldState))}
-              style={({ pressed }) => [styles.talkButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}
-            >
-              <Text style={[styles.talkText, { fontSize: metrics.persistentText }]}>TALK</Text>
-            </Pressable>
-          </View>
         ) : null}
         {!conversationNpcId && !openPanel && runtime.movement.status !== 'moving' ? (
           <ContextActionMenu actions={questActions} onAction={runQuestAction} surface={surface} uiScale={uiScale} />
