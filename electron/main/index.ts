@@ -1483,7 +1483,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   progress('neighborhood-loop');
   await clickAriaButton(window, 'Set 1x time');
-  await clickWorldTile(window, { x: 16, y: 25 });
+  await dispatchWorldTileClick(window, { x: 16, y: 25 });
   await waitForWorldTile(window, { x: 16, y: 25 });
   await clickZoomButton(window, 1);
   await panWorld(window, -500, 0);
@@ -1503,10 +1503,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   await panWorld(window, 0, -500);
   await dispatchWorldTileClick(window, { x: 32, y: 47 });
-  await waitForWorldLocation(window, 'Harbor Authority', { x: 32, y: 0 });
+  await waitForWorldLocation(window, 'Greywake Harbor', { x: 32, y: 0 });
   const docks = parseWorldStateLabel(await worldStateLabel(window));
   await panWorld(window, 0, -500);
-  const closedFerry = docks.mapName === 'Harbor Authority' &&
+  const closedFerry = docks.mapName === 'Greywake Harbor' &&
     (await rendererText(window, 'body')).includes('FERRY TERMINAL · CLOSED');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-ferry.png'), [previousWorldBuffer],
@@ -1517,7 +1517,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   await panWorld(window, 500, 0);
   await dispatchWorldTileClick(window, { x: 0, y: 24 });
-  await waitForWorldLocation(window, 'Palm Exchange', { x: 63, y: 24 });
+  await waitForWorldLocation(window, 'Saffron Bazaar', { x: 63, y: 24 });
   const commercial = parseWorldStateLabel(await worldStateLabel(window));
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-commercial.png'), [previousWorldBuffer],
@@ -1530,7 +1530,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await dispatchWorldTileClick(window, { x: 32, y: 0 });
   await waitForWorldLocation(window, 'Sunward Villas', { x: 32, y: 47 });
   const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
-  const allNeighborhoods = commercial.mapName === 'Palm Exchange' &&
+  const allNeighborhoods = commercial.mapName === 'Saffron Bazaar' &&
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 6');
   const allTravelAutosaves = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 6');

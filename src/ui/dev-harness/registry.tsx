@@ -91,8 +91,8 @@ const WORLD_MAP_LABELS: Readonly<Record<(typeof DEV_HARNESS_MAP_IDS)[number], st
 const ATLAS_MAP_NAMES: Readonly<Record<(typeof DEV_HARNESS_MAP_IDS)[number], string>> = {
   northwest_residential: 'Sunward Villas',
   northeast_downtown: 'Neon Crescent',
-  southwest_commercial: 'Palm Exchange',
-  southeast_docks: 'Harbor Authority',
+  southwest_commercial: 'Saffron Bazaar',
+  southeast_docks: 'Greywake Harbor',
 };
 
 const mapCases = DEV_HARNESS_MAP_IDS.map((mapId) => ({
