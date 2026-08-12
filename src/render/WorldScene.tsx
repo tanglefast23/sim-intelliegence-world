@@ -1590,8 +1590,10 @@ export function WorldScene({
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
         {conversationNpcId ? (
           <ConversationPanel
+            accent={lighting.accent}
             fixtureDisplayName={conversationFixtureId ? ATLAS_INDEX.characters[conversationFixtureId].displayName : undefined}
             fixtureMode={conversationFixtureId === conversationNpcId}
+            locationName={map.source.displayName}
             npcId={conversationNpcId}
             onDismiss={() => {
               setConversationFixtureId(undefined);

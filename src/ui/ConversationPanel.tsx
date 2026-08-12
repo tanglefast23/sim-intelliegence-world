@@ -8,16 +8,17 @@ import { cueForConversationTurn, type VocalCueId } from '../audio/vocal-cue-poli
 import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
-import { authoredBeginFallback, conversationGenerationNote } from './conversation-feedback';
+import { authoredBeginFallback, conversationGenerationNote, portraitExpressionForEmotion } from './conversation-feedback';
 import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
 
 type Line = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
-
 type ConversationPanelProps = Readonly<{
+  accent: string;
   npcId: string;
   fixtureDisplayName?: string;
   fixtureMode?: boolean;
+  locationName: string;
   port: ConversationPort;
   state: WorldState;
   onPausedState: (state: WorldState) => void;
@@ -33,7 +34,7 @@ function idPart(source: string): string {
 }
 
 export function ConversationPanel({
-  npcId, fixtureDisplayName, fixtureMode = false, port, state, onPausedState, onStableState,
+  accent, npcId, fixtureDisplayName, fixtureMode = false, locationName, port, state, onPausedState, onStableState,
   onDismiss, onVocalCue, surface, uiScale,
 }: ConversationPanelProps) {
   const initialState = useRef(state);
@@ -49,6 +50,7 @@ export function ConversationPanel({
   const [reveal, setReveal] = useState('');
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [generationNote, setGenerationNote] = useState('LOCAL MODEL LOADING…');
+  const [portraitExpression, setPortraitExpression] = useState<'rest' | 'joy' | 'upset'>('rest');
   const [suggestions, setSuggestions] = useState(() => conversationPromptSuggestions(initialState.current, npcId));
   const turnNumber = useRef(0);
   const active = useRef(false);
@@ -63,8 +65,13 @@ export function ConversationPanel({
   useEffect(() => {
     if (fixtureMode) {
       setDisplayName(fixtureDisplayName ?? npcId);
-      setLines([{ speaker: 'npc', text: 'Portrait and conversation readability fixture.' }]);
-      setGenerationNote('AUTHORED ART REVIEW FIXTURE');
+      setLines([{ speaker: 'npc', text: `You made it to ${locationName}. It looks calm at this hour, but don't mistake quiet for safe.` }]);
+      setSuggestions([
+        { id: 'ask_out', label: 'ASK ABOUT HALCYRA', suggestedText: 'What should I know about Halcyra?' },
+        { id: 'invite_home', label: 'MENTION THE WATCHER', suggestedText: 'Who was watching the villa?' },
+      ]);
+      setGenerationNote(`LINDA · ${locationName.toUpperCase()} · GOLDEN HOUR`);
+      setPortraitExpression('upset');
       setStatus('ready');
       return undefined;
     }
@@ -102,7 +109,7 @@ export function ConversationPanel({
       if (revealTimer.current) clearInterval(revealTimer.current);
       if (active.current && !closing.current) void port.abortConversation({ conversationId });
     };
-  }, [conversationId, fixtureDisplayName, fixtureMode, npcId, onPausedState, onVocalCue, port]);
+  }, [conversationId, fixtureDisplayName, fixtureMode, locationName, npcId, onPausedState, onVocalCue, port]);
 
   useEffect(() => {
     if (status === 'ready') inputRef.current?.focus();
@@ -133,6 +140,7 @@ export function ConversationPanel({
         new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 180)),
       ]);
       setGenerationNote(conversationGenerationNote(result.source));
+      setPortraitExpression(portraitExpressionForEmotion(result.emotion));
       const cue = cueForConversationTurn(result);
       if (cue) onVocalCue(cue);
       setSuggestions(result.promptSuggestions);
@@ -197,23 +205,31 @@ export function ConversationPanel({
     }
     void close(false);
   };
+  const relationship = state.relationships[npcId];
+  const activity = state.npcs[npcId]?.scheduleGoal?.activityId.replaceAll('_', ' ') ?? 'present';
 
   return (
     <View nativeID="world-ui-conversation-overlay" style={styles.overlay}>
       <View
         accessibilityLabel={`Conversation with ${displayName}`}
         nativeID="world-ui-conversation-panel"
-        style={[styles.panel, { height: panelLayout.height, padding: metrics.padding, width: panelLayout.width }]}
+        style={[styles.panel, { borderColor: accent, height: Math.min(panelLayout.height, Math.round(450 * uiScale)), padding: metrics.padding, width: panelLayout.width }]}
       >
+        <View style={[styles.accentRule, { backgroundColor: accent }]} />
         <View style={styles.header}>
           <View style={styles.headerIdentity}>
-            <CharacterPortrait displayName={displayName} npcId={npcId} />
+            <View style={[styles.portraitFrame, { borderColor: accent }]}><CharacterPortrait displayName={displayName} expression={portraitExpression} npcId={npcId} /></View>
             <View style={styles.headerCopy}>
               <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION{active.current ? ' · TIME PAUSED' : ''}</Text>
-              <Text style={[styles.name, { fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
+              <Text style={[styles.name, { color: accent, fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
+              <View style={styles.identityRow}>
+                <Text style={styles.identityChip}>{relationship?.stage.toUpperCase() ?? 'RESIDENT'}</Text>
+                <Text style={styles.identityChip}>TRUST {relationship?.values.trust ?? 0}</Text>
+                <Text style={styles.identityChip}>{activity.toUpperCase()}</Text>
+              </View>
             </View>
           </View>
-          <Pressable accessibilityLabel="Cancel conversation" onPress={cancel} style={[styles.smallButton, { minHeight: metrics.pointerTarget }]}>
+          <Pressable accessibilityLabel="Cancel conversation" onPress={cancel} style={({ pressed }) => [styles.smallButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
             <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>{confirmDiscard ? 'DISCARD?' : 'CANCEL'}</Text>
           </Pressable>
         </View>
@@ -224,17 +240,22 @@ export function ConversationPanel({
           ref={transcriptRef}
           style={styles.transcript}
         >
-          <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={[styles.modelStatus, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>{generationNote}</Text>
+          <View style={styles.sceneLine}>
+            <Text style={[styles.sceneLabel, { color: accent }]}>SCENE</Text>
+            <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={[styles.modelStatus, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>{generationNote}</Text>
+          </View>
           {lines.map((line, index) => (
-            <Text
-              key={`${line.speaker}-${index}`}
+            <View key={`${line.speaker}-${index}`} style={[styles.lineCard, line.speaker === 'npc' ? styles.npcCard : styles.playerCard]}>
+              <Text style={styles.speaker}>{line.speaker === 'npc' ? displayName.toUpperCase() : 'YOU'}</Text>
+              <Text
               style={[
                 line.speaker === 'npc' ? styles.npcLine : styles.playerLine,
                 { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) },
               ]}
             >
-              {line.speaker === 'npc' ? `${displayName}: ` : 'YOU: '}{line.text}
-            </Text>
+              {line.text}
+              </Text>
+            </View>
           ))}
           {status === 'generating' ? <Text accessibilityLabel="NPC is thinking" style={[styles.thinking, { fontSize: metrics.conversationText }]}>●  ●  ●</Text> : null}
           {status === 'revealing' ? (
@@ -245,19 +266,20 @@ export function ConversationPanel({
           {status === 'failed' ? <Text style={[styles.error, { fontSize: metrics.panelText }]}>CONVERSATION COULD NOT START</Text> : null}
         </ScrollView>
         {status === 'ambient' || status === 'failed' ? (
-          <Pressable accessibilityLabel="Close dialogue" onPress={() => void close(false)} style={[styles.endButton, { minHeight: metrics.primaryControl }]}>
+          <Pressable accessibilityLabel="Close dialogue" onPress={() => void close(false)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
             <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>CLOSE</Text>
           </Pressable>
         ) : (
           status === 'action-complete' ? (
             <View style={styles.actionCompleteRow}>
               <Text style={[styles.actionComplete, { fontSize: metrics.secondaryText }]}>ACTION RECORDED · END OR CANCEL THIS CONVERSATION</Text>
-              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={[styles.endButton, { minHeight: metrics.primaryControl }]}>
+              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
             </View>
           ) : (
             <>
+              <Text style={styles.responseLabel}>YOUR RESPONSE · CHOOSE OR WRITE FREELY</Text>
               <View nativeID="conversation-prompt-suggestions" style={styles.actionRow}>
                 {suggestions.map((suggestion) => (
                   <Pressable
@@ -265,9 +287,9 @@ export function ConversationPanel({
                     disabled={status !== 'ready'}
                     key={suggestion.id}
                     onPress={() => setDraft(suggestion.suggestedText)}
-                    style={[styles.actionButton, { minHeight: metrics.pointerTarget }, status !== 'ready' && styles.disabled]}
+                    style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, draft === suggestion.suggestedText && { borderColor: accent, borderWidth: 2 }, pressed && styles.buttonPressed, status !== 'ready' && styles.disabled]}
                   >
-                    <Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>{suggestion.label}</Text>
+                    <Text style={[styles.actionText, { color: draft === suggestion.suggestedText ? accent : '#e2bf76', fontSize: metrics.secondaryText }]}>{suggestion.label}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -284,10 +306,10 @@ export function ConversationPanel({
                 style={[styles.input, { fontSize: metrics.conversationText, minHeight: metrics.primaryControl }]}
                 value={draft}
               />
-              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={[styles.sendButton, { minHeight: metrics.primaryControl }, (status !== 'ready' || draft.trim().length === 0) && styles.disabled]}>
+              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={({ pressed }) => [styles.sendButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (status !== 'ready' || draft.trim().length === 0) && styles.disabled]}>
                 <Text style={[styles.sendText, { fontSize: metrics.persistentText }]}>SAY</Text>
               </Pressable>
-              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={[styles.endButton, { minHeight: metrics.primaryControl }, (status === 'generating' || status === 'revealing') && styles.disabled]}>
+              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (status === 'generating' || status === 'revealing') && styles.disabled]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
               </View>
@@ -300,11 +322,13 @@ export function ConversationPanel({
 }
 
 const styles = StyleSheet.create({
+  accentRule: { height: 3, left: 0, position: 'absolute', right: 0, top: 0 },
   actionComplete: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 12 },
   actionCompleteRow: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between' },
   actionButton: { borderColor: '#8b6846', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
   actionText: { color: '#e2bf76', fontFamily: 'Silkscreen', fontSize: 8 },
+  buttonPressed: { opacity: 0.78, transform: [{ translateY: 2 }] },
   endButton: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, justifyContent: 'center', minHeight: 38, paddingHorizontal: 14 },
   endText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
   disabled: { opacity: 0.4 },
@@ -313,19 +337,29 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   headerCopy: { flexShrink: 1, marginLeft: 12 },
   headerIdentity: { alignItems: 'center', flexDirection: 'row', flexShrink: 1 },
+  identityChip: { borderColor: '#66513b', borderWidth: 1, color: '#b7a080', fontFamily: 'Silkscreen', fontSize: 7, paddingHorizontal: 6, paddingVertical: 3 },
+  identityRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 7 },
   input: { backgroundColor: '#181512', borderColor: '#76573d', borderWidth: 1, color: '#fff0c7', flex: 1, fontFamily: 'Silkscreen', fontSize: 10, minHeight: 38, paddingHorizontal: 10 },
   inputRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
   name: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 18, marginTop: 3 },
-  modelStatus: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 9, lineHeight: 15, marginBottom: 10 },
+  lineCard: { borderLeftWidth: 3, marginBottom: 10, maxWidth: '88%', paddingHorizontal: 12, paddingVertical: 10 },
+  modelStatus: { color: '#9d8768', flex: 1, fontFamily: 'Silkscreen', fontSize: 9, lineHeight: 15 },
+  npcCard: { alignSelf: 'flex-start', backgroundColor: '#29231b', borderLeftColor: '#c58b4b' },
   npcLine: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 50 },
-  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2 },
+  panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, shadowColor: '#090704', shadowOffset: { height: 12, width: 12 }, shadowOpacity: 0.7, shadowRadius: 0 },
   playerLine: { color: '#9fc58e', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
+  playerCard: { alignSelf: 'flex-end', backgroundColor: '#1d2820', borderLeftColor: '#78a77b' },
+  portraitFrame: { borderWidth: 2, height: 94, padding: 1, width: 86 },
+  responseLabel: { color: '#7f6d55', fontFamily: 'Silkscreen', fontSize: 7, letterSpacing: 0.5, marginTop: 10 },
   sendButton: { alignItems: 'center', backgroundColor: '#d3a04c', justifyContent: 'center', minHeight: 38, paddingHorizontal: 16 },
   sendText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
+  sceneLabel: { fontFamily: 'Silkscreen', fontSize: 7, marginRight: 8 },
+  sceneLine: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 },
   smallButton: { borderColor: '#76573d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
   smallButtonText: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 8 },
+  speaker: { color: '#9d8768', fontFamily: 'Silkscreen', fontSize: 7, marginBottom: 5 },
   thinking: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10, letterSpacing: 5 },
-  transcript: { backgroundColor: '#1b1713', flex: 1, marginTop: 12, minHeight: 96 },
+  transcript: { backgroundColor: '#181512', borderColor: '#493b2d', borderWidth: 1, flex: 1, marginTop: 12, minHeight: 96 },
   transcriptContent: { flexGrow: 1 },
 });
