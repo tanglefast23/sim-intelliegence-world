@@ -1,0 +1,131 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Verification policy
+
+`AGENTS.md` is authoritative for Electron testing. Protect the user's desktop.
+
+- Use headless verification by default.
+- Treat `npm run smoke:*`, `npm run test:electron`, and `npm run verify` as visible-window commands
+  unless their background behavior is confirmed first.
+- Do not run `npm run dev:harness` during routine testing. It opens a visible Electron window.
+- When Electron fidelity is required, create hidden windows with `show: false`, disable background
+  throttling when rendering matters, mute audio before content loads, and capture with
+  `stayHidden: true`.
+- Never use full screen, foreground input, audible sound, focus calls, `moveTop`, or always-on-top.
+- Close every Electron process started by a test, including after failures.
+
+In practice:
+
+- Default to Jest, `tsc --noEmit`, and the `tsx` scripts under `scripts/`. They need no window.
+- When real Electron behaviour is required, prefer a hidden renderer. Packaged smoke scripts drive
+  a real `BrowserWindow` and may be visible, so do not run them routinely.
+- Smoke runs drive the UI through `webContents.executeJavaScript` and `sendInputEvent`, not through
+  the host keyboard or mouse. Keep it that way.
+
+## Commands
+
+```bash
+npm ci                    # install locked deps (Node >= 22.13, npm 10.9.8)
+npm run typecheck         # tsc --noEmit (renderer + shared)
+npm test                  # jest --runInBand
+npm run verify            # full gate with visible-window commands; run only when that behavior is allowed
+npm run verify:ci-build   # the CI gate, minus the packaged smokes
+```
+
+Single test file or single case:
+
+```bash
+npx jest --runInBand --runTestsByPath tests/electron/security.test.ts
+npx jest --runInBand -t "migrates a v5 envelope"
+```
+
+Electron build and packaged smokes (each needs a fresh package first):
+
+```bash
+npm run dev:harness       # visible dev harness; do not run during routine testing
+npm run package:electron  # export:web + build:electron + electron-forge package
+npm run smoke:electron    # packaged renderer readiness, screenshots, world/conversation evidence
+npm run test:electron     # unit electron tests + package + package smoke + movement smoke
+```
+
+Other smokes: `smoke:natural-movement`, `smoke:art-quality`, `smoke:procedural-vfx`,
+`smoke:responsive` (`:high-dpi`, `:qualification`), `smoke:presentation-restart`,
+`smoke:save-migration`. Each accepts `-- --output-root <dir>`.
+
+Generated-asset gates run the builder and then `git diff --exit-code`, so regenerated output must be
+committed: `content:check`, `art:check`, `audio:check`, `proof:check`. To regenerate, run the
+matching builder (`content:build`, `art:atlas`, `audio:build`, `proof:assets`).
+
+## Architecture
+
+**Three processes, one codebase.** The renderer is an Expo / React Native Web app exported to
+`dist/` and loaded in Electron over a custom `app://game/` protocol
+([electron/protocol/app-protocol.ts](electron/protocol/app-protocol.ts)) — never `file://` or HTTP.
+Electron main owns the filesystem, save files, presentation preferences, and the bundled
+`llama-server` child process. A narrow typed preload exposes `window.siWorldDesktop`, described by
+[src/application/DesktopBridge.ts](src/application/DesktopBridge.ts); raw `ipcRenderer` is never
+exposed.
+
+**Layer purity is enforced, not conventional.** `src/domain` and `src/world` are pure roots.
+`npm run check:boundaries` ([scripts/verification/import-boundaries.ts](scripts/verification/import-boundaries.ts))
+fails the build if they import Node builtins, `electron`, `expo*`, React, React Native, Skia,
+Reanimated, or `zustand`, or reach into `electron/`, `src/application/`, `src/render/`, or `src/ui/`.
+Simulation logic goes in the pure roots; effects go in `src/application/effects` behind ports.
+
+Layer map:
+
+| Path | Role |
+|---|---|
+| `src/domain` | Deterministic state, clock, quests, relationships, economy, save schema + migrations |
+| `src/world` | Maps, pathfinding, movement, schedules, neighborhood transfers |
+| `src/application` | Runtime tick, autosave, readiness gates, ports, top-level screens |
+| `src/render` | Skia world scene, atlas, camera, VFX, evidence emitters |
+| `src/ui` | HUD, panels, input surfaces, dev harness |
+| `src/ai` | Conversation service, prompt projection, knowledge, Zod response schemas, inference adapters |
+| `electron/` | Main, preload, IPC contracts, persistence, model supervisor, protocol, security |
+| `scripts/` | `tsx` builders, smoke drivers, qualification evidence writers |
+
+**Determinism is the contract.** State is seeded PRNG (`src/domain/prng.ts`,
+`PRNG_VERSION` in [src/domain/version.ts](src/domain/version.ts)). The LLM proposes; validation in
+`src/ai/validation` and `src/domain/consequences` decides. `verify:first-hour` replays a golden run.
+
+**Content is authored JSON, then generated TypeScript.** `content/` holds authored registries, maps,
+characters, and quests. `npm run content:build` emits `src/domain/state/generated-layout.ts`,
+`src/world/transfers/generated-routes.ts`, `src/ai/registry/generated-browser-writing.ts`, and save
+fixtures. Never hand-edit a file whose header says `Generated by scripts/...`.
+
+**Saves are versioned envelopes.** Current chain is v1→v6 in `src/domain/state/migrations/`.
+Writes go through [electron/persistence/write-queue.ts](electron/persistence/write-queue.ts) with a
+checksum and recovery path. Adding a schema field means a new migration step plus fixtures under
+`tests/fixtures/saves/`.
+
+**Renderer evidence is DOM-visible on purpose.** The world exposes state through `aria-label` on
+hidden nodes (`#world-state`, `#world-camera-state`, `#world-movement-state`,
+`#world-responsive-state`, `#world-vfx-state`, `#world-geometry-state`). Smoke scripts parse those
+labels. Changing a label format breaks smokes — update both sides together.
+
+**Model runtime.** One shared `llama-server` per session on loopback with a per-run port and key
+([electron/model/](electron/model/)). Never one instance per NPC. The renderer never sees the URL or
+key. Packaged model binaries live outside ASAR via `SI_WORLD_MODEL_RESOURCE_DIR` and resolve from
+`process.resourcesPath`.
+
+**Electron security is locked and tested.** [electron/main/security.ts](electron/main/security.ts)
+pins `contextIsolation`, `sandbox`, `nodeIntegration: false`, `devTools: false`, denies new windows
+and webviews, and rejects navigation outside `app://game`. `tests/electron/security.test.ts` guards
+it; do not relax these to make debugging easier.
+
+## Repository conventions
+
+- [spec.md](spec.md) is the authoritative product and technical specification. Check it before
+  changing behaviour, then `docs/specs/` for the feature-level spec and `docs/plans/` for the plan.
+- Work is organised in numbered phases. Evidence lands in `artifacts/phase-NN/`; external reviews
+  land in `audits/`. Historical evidence roots are write-protected by
+  [scripts/verification/evidence-output.ts](scripts/verification/evidence-output.ts), so pass a new
+  `--output-root` rather than overwriting an old phase.
+- TypeScript is strict with `noUncheckedIndexedAccess`. There is no linter or formatter — match the
+  surrounding style (two-space indent, `Readonly<{...}>` types, named exports).
+- Electron main compiles separately via `electron/tsconfig.json` into `build/`; the root
+  `tsconfig.json` excludes `electron/`. Run both `typecheck` and `build:electron` after touching
+  shared code.
