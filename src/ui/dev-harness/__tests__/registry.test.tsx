@@ -10,7 +10,7 @@ import { DEV_HARNESS_ENTRIES } from '../registry';
 describe('dev harness registry', () => {
   test('has stable, unique, non-empty entry and case ids', () => {
     expect(DEV_HARNESS_ENTRIES.map((entry) => entry.id)).toEqual([
-      'welcome', 'locations', 'golden-hour', 'hero-scenes', 'grounding', 'character-talk', 'procedural-effects', 'conversations', 'panels',
+      'welcome', 'locations', 'golden-hour', 'hero-scenes', 'grounding', 'character-talk', 'procedural-effects', 'conversations', 'panels', 'district-panels',
     ]);
     expect(new Set(DEV_HARNESS_ENTRIES.map((entry) => entry.id)).size).toBe(DEV_HARNESS_ENTRIES.length);
     for (const entry of DEV_HARNESS_ENTRIES) {
@@ -49,5 +49,13 @@ describe('dev harness registry', () => {
   test('covers the selected-character talk pose in every district', () => {
     const characterTalk = DEV_HARNESS_ENTRIES.find((entry) => entry.id === 'character-talk');
     expect(characterTalk?.cases.map((entryCase) => entryCase.id)).toEqual(DEV_HARNESS_MAP_IDS);
+  });
+
+  test('covers both side sheets in every district', () => {
+    const panels = DEV_HARNESS_ENTRIES.find((entry) => entry.id === 'district-panels');
+    expect(panels?.cases.map((entryCase) => entryCase.id)).toEqual(DEV_HARNESS_MAP_IDS.flatMap((mapId) => [
+      `journal-${mapId}`,
+      `social-${mapId}`,
+    ]));
   });
 });

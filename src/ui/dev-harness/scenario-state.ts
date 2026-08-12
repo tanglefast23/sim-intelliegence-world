@@ -190,3 +190,17 @@ export function devHarnessQuestState(stage: DevHarnessQuestStage): WorldState {
   });
   return paused(planLindaVillaDiscovery(atVilla).state);
 }
+
+export function devHarnessDistrictPanelState(mapId: MapId): WorldState {
+  const world = devHarnessHeroSceneState(mapId);
+  const quest = devHarnessQuestState('discovered');
+  return parseWorldState({
+    ...world,
+    evidence: quest.evidence,
+    factions: quest.factions,
+    invitations: quest.invitations,
+    journal: quest.journal,
+    quests: quest.quests,
+    relationships: quest.relationships,
+  });
+}
