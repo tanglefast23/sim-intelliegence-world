@@ -1,6 +1,7 @@
 import {
   canonicalMaterialDistribution,
   encodeLengthPrefixedTuple,
+  materialCompositionSize,
   selectMaterialVariants,
   stableTupleHash,
 } from '../../../src/world/presentation/material-selection';
@@ -19,7 +20,7 @@ describe('deterministic material selection', () => {
       .toBe(stableTupleHash(['map', 1, 2, 'sand', 1, 'salt']));
   });
 
-  test('is independent of caller traversal and prevents an all-identical 2x2 block', () => {
+  test('is independent of caller traversal and authors stable 2x2 or 3x3 material compositions', () => {
     const width = 12;
     const height = 12;
     const materialIds = Array.from({ length: width * height }, () => 'warm-sand');
@@ -34,12 +35,17 @@ describe('deterministic material selection', () => {
       recipesById: MATERIAL_RECIPE_BY_ID,
     });
     expect(second).toEqual(first);
-    for (let y = 1; y < height; y += 1) {
-      for (let x = 1; x < width; x += 1) {
-        const offset = y * width + x;
-        const values = [first[offset], first[offset - 1], first[offset - width], first[offset - width - 1]]
-          .map((selection) => selection?.logicalVariantId);
-        expect(new Set(values).size).toBeGreaterThan(1);
+    const recipe = MATERIAL_RECIPE_BY_ID['warm-sand']!;
+    const size = materialCompositionSize('test-map', recipe, ART_PRESENTATION_REVISION);
+    expect(first.every(({ compositionSize }) => compositionSize === size)).toBe(true);
+    for (let y = 0; y < height; y += size) {
+      for (let x = 0; x < width; x += size) {
+        const values = Array.from({ length: size * size }, (_unused, index) => {
+          const tileX = x + index % size;
+          const tileY = y + Math.floor(index / size);
+          return tileX < width && tileY < height ? first[tileY * width + tileX]?.logicalVariantId : undefined;
+        }).filter(Boolean);
+        expect(new Set(values).size).toBe(1);
       }
     }
   });

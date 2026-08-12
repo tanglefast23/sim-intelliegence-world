@@ -98,6 +98,14 @@
         "sprite": "tile.neon-floor"
       },
       {
+        "id": "club-dance-floor",
+        "x": 15,
+        "y": 14,
+        "width": 9,
+        "height": 6,
+        "sprite": "tile.neon-paver"
+      },
+      {
         "id": "arcade-floor",
         "x": 40,
         "y": 7,
@@ -820,6 +828,92 @@
           "bounds": {
             "x": 1,
             "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "club-neon-fountain",
+      "kind": "neon-fountain",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 18,
+        "y": 16
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 1
+      },
+      "renderParts": [
+        {
+          "id": "club-neon-fountain-part-01",
+          "sprite": "tile.landmark-fountain-nw",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-neon-fountain-part-02",
+          "sprite": "tile.landmark-fountain-ne",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-neon-fountain-part-03",
+          "sprite": "tile.landmark-fountain-sw",
+          "offset": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "id": "club-neon-fountain-part-04",
+          "sprite": "tile.landmark-fountain-se",
+          "offset": {
+            "x": 1,
+            "y": 1
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "club-neon-fountain-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-neon-fountain-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-neon-fountain-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 1,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-neon-fountain-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 1,
             "width": 1,
             "height": 1
           }
@@ -2391,5 +2485,32 @@
       "x": 18,
       "y": 13
     }
+  },
+  "startComposition": {
+    "cameraAnchor": {
+      "x": 19,
+      "y": 18
+    },
+    "requiredActorIds": [
+      "linda",
+      "devon_price"
+    ],
+    "requiredDetailPartIds": [
+      "club-west-sofa-part-01",
+      "club-west-sofa-part-02",
+      "club-east-sofa-part-01",
+      "club-east-sofa-part-02",
+      "club-entrance-neon-part-03",
+      "club-entrance-neon-part-04",
+      "club-neon-fountain-part-01",
+      "club-neon-fountain-part-02",
+      "club-neon-fountain-part-03",
+      "club-neon-fountain-part-04",
+      "boulevard-car-02-part-01",
+      "boulevard-car-02-part-02"
+    ],
+    "landmarkAreaIds": [
+      "club-strip"
+    ]
   }
 }

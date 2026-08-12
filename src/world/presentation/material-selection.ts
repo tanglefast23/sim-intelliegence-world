@@ -12,6 +12,7 @@ export type MaterialSelectionInput = Readonly<{
 }>;
 
 export type MaterialVariantSelection = Readonly<{
+  compositionSize: 2 | 3;
   materialId: string;
   logicalVariantId: string;
   variantIndex: number;
@@ -62,38 +63,37 @@ function avalancheHash(hash: number): number {
   return mixed >>> 0;
 }
 
+export function materialCompositionSize(
+  mapId: string,
+  recipe: MaterialRecipe,
+  artRevision: number,
+): 2 | 3 {
+  return stableTupleHash([mapId, recipe.id, artRevision, recipe.selectionSalt, 'composition-size']) % 2 === 0 ? 2 : 3;
+}
+
 function initialVariantIndex(
   recipe: MaterialRecipe,
   mapId: string,
   x: number,
   y: number,
+  width: number,
   artRevision: number,
 ): number {
-  if (recipe.seamMode === 'coordinate-phase') {
-    const phase = stableTupleHash([
-      mapId,
-      recipe.id,
-      artRevision,
-      recipe.selectionSalt,
-    ]);
-    const coordinatePhase = (
-      Math.imul(x + 1, 17) +
-      Math.imul(y + 1, 31) +
-      Math.imul(x + 1, y + 1) * 7 +
-      Math.floor(x / 2) * 11 +
-      Math.floor(y / 3) * 13
-    ) >>> 0;
-    return avalancheHash((phase + coordinatePhase) >>> 0) % recipe.logicalVariants.length;
-  }
-  const seed = stableTupleHash([
+  const size = materialCompositionSize(mapId, recipe, artRevision);
+  const compositionX = Math.floor(x / size);
+  const compositionY = Math.floor(y / size);
+  const columns = Math.ceil(width / size);
+  const compositionIndex = compositionY * columns + compositionX;
+  const variantCount = recipe.logicalVariants.length;
+  const groupIndex = Math.floor(compositionIndex / variantCount);
+  const rotation = avalancheHash(stableTupleHash([
     mapId,
-    x,
-    y,
     recipe.id,
     artRevision,
     recipe.selectionSalt,
-  ]);
-  return avalancheHash(seed) % recipe.logicalVariants.length;
+    groupIndex,
+  ])) % variantCount;
+  return (compositionIndex % variantCount + rotation) % variantCount;
 }
 
 export function selectMaterialVariants(input: MaterialSelectionInput): readonly MaterialVariantSelection[] {
@@ -108,21 +108,9 @@ export function selectMaterialVariants(input: MaterialSelectionInput): readonly 
       if (!materialId) throw new Error(`Material selection is missing tile ${x},${y}.`);
       const recipe = input.recipesById[materialId];
       if (!recipe) throw new Error(`No material recipe exists for ${materialId}.`);
-      let variantIndex = initialVariantIndex(recipe, input.mapId, x, y, input.artRevision);
-      if (x > 0 && y > 0) {
-        const left = output[offset - 1];
-        const upperLeft = output[offset - input.width - 1];
-        const upper = output[offset - input.width];
-        const candidate = recipe.logicalVariants[variantIndex];
-        if (
-          left?.logicalVariantId === candidate &&
-          upperLeft?.logicalVariantId === candidate &&
-          upper?.logicalVariantId === candidate
-        ) {
-          variantIndex = (variantIndex + 1) % recipe.logicalVariants.length;
-        }
-      }
+      const variantIndex = initialVariantIndex(recipe, input.mapId, x, y, input.width, input.artRevision);
       output.push(Object.freeze({
+        compositionSize: materialCompositionSize(input.mapId, recipe, input.artRevision),
         materialId,
         logicalVariantId: recipe.logicalVariants[variantIndex] as string,
         variantIndex,
