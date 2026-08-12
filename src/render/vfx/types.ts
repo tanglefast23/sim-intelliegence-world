@@ -1,13 +1,14 @@
 import type { TilePoint } from '../../world/maps/schema';
 
-export const VFX_REVISION = 1 as const;
+export const VFX_REVISION = 2 as const;
 export const VFX_STEP_MILLISECONDS = 334 as const;
 export const VFX_MAX_DELTA_MILLISECONDS = 50 as const;
 export const VFX_SUSPENSION_GAP_MILLISECONDS = 250 as const;
 
 export type VfxMode = 'circle' | 'procedural';
-export type VfxKind = 'fire' | 'sparkle';
-export type VfxRecipeId = 'fire-v1' | 'sparkle-v1';
+export const VFX_KINDS = ['fire', 'sparkle', 'insects', 'leaves', 'neon', 'palm', 'steam', 'water'] as const;
+export type VfxKind = (typeof VFX_KINDS)[number];
+export type VfxRecipeId = `${VfxKind}-v1`;
 export type VfxPrimitiveRole =
   | 'fire-halo'
   | 'fire-outer'
@@ -15,7 +16,19 @@ export type VfxPrimitiveRole =
   | 'fire-ember'
   | 'sparkle-shadow'
   | 'sparkle-primary'
-  | 'sparkle-satellite';
+  | 'sparkle-satellite'
+  | 'insects-halo'
+  | 'insects-primary'
+  | 'leaves-shadow'
+  | 'leaves-primary'
+  | 'neon-halo'
+  | 'neon-primary'
+  | 'palm-shadow'
+  | 'palm-primary'
+  | 'steam-shadow'
+  | 'steam-primary'
+  | 'water-shadow'
+  | 'water-primary';
 
 export type AuthoredMapEffect = Readonly<{
   id: string;

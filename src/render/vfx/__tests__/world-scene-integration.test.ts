@@ -23,7 +23,7 @@ describe('WorldScene procedural VFX integration', () => {
 
   test('uses effective speed, full bounds, map identity, and per-emitter fallback', () => {
     expect(scene).toContain('const speed = effectiveSpeed(runtime.worldState.clock);');
-    expect(scene).toContain('running={speed > 0}');
+    expect(scene).toContain('running={forceAmbientMotion || speed > 0}');
     expect(scene).toContain('vfxBoundsIntersectWorldRect(effect, vfxViewport)');
     expect(scene).toContain('partitionVfxEmitters(mapId, visibleEffects)');
     expect(scene).toContain('mapEntryIdentity={mapId}');

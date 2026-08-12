@@ -14,9 +14,17 @@ import { VFX_STEP_MILLISECONDS } from '../types';
 
 const FIRE = { id: 'patio-fire', kind: 'fire', tile: { x: 27, y: 32 } } as const;
 const SPARKLE = { id: 'beach-sparkle', kind: 'sparkle', tile: { x: 50, y: 40 } } as const;
+const ENVIRONMENTAL = [
+  { id: 'leaves', kind: 'leaves', tile: { x: 20, y: 20 } },
+  { id: 'insects', kind: 'insects', tile: { x: 20, y: 20 } },
+  { id: 'neon', kind: 'neon', tile: { x: 20, y: 20 } },
+  { id: 'palm', kind: 'palm', tile: { x: 20, y: 20 } },
+  { id: 'steam', kind: 'steam', tile: { x: 20, y: 20 } },
+  { id: 'water', kind: 'water', tile: { x: 20, y: 20 } },
+] as const;
 const SAMPLE_AGES = [0, 50, 250, 500, 1_000] as const;
 
-describe('procedural fire and sparkle contracts', () => {
+describe('procedural ambient effect contracts', () => {
   test('matches every authored catalogue anchor without changing map schema', () => {
     expect(catalogueVfxAnchors(WORLD_MAP_CATALOG)).toEqual(EXPECTED_VFX_ANCHORS);
     expect(Object.keys(WORLD_MAP_CATALOG.northwest_residential.source.effects[0] ?? {}).sort())
@@ -27,7 +35,7 @@ describe('procedural fire and sparkle contracts', () => {
     const first = prepareVfxEmitter('northwest_residential', FIRE);
     const second = prepareVfxEmitter('northwest_residential', FIRE);
     expect(first).toEqual(second);
-    expect(first.seed).toBe(1_352_237_368);
+    expect(first.seed).toBe(259_184_209);
     expect(prepareVfxEmitter('northwest_residential', SPARKLE).seed).not.toBe(first.seed);
     const partition = partitionVfxEmitters('northwest_residential', [
       FIRE,
@@ -68,6 +76,16 @@ describe('procedural fire and sparkle contracts', () => {
     expect(firstFire.rects.some(({ role }) => role === 'fire-ember')).toBe(false);
     expect(sampleVfxGeometry(sparkle, 8_000, true).rects.some(({ role }) => role === 'sparkle-satellite')).toBe(false);
     expect(sampleVfxGeometry(sparkle, 0, true).rects.some(({ role }) => role === 'sparkle-shadow')).toBe(true);
+  });
+
+  test.each(ENVIRONMENTAL)('keeps $kind deterministic, distinct, and static under reduced motion', (effect) => {
+    const emitter = prepareVfxEmitter('ambient_test', effect);
+    const moving = sampleVfxGeometry(emitter, 0, false);
+    expect(sampleVfxGeometry(emitter, 8_000, true).rects)
+      .toEqual(sampleVfxGeometry(emitter, 0, true).rects);
+    expect(moving.kind).toBe(effect.kind);
+    expect(moving.rects.length).toBeLessThanOrEqual(4);
+    expect(primarySilhouette(moving)).not.toBe('');
   });
 
   test('declares complete bounds and keeps partially overlapping effects visible', () => {

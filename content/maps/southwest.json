@@ -3385,7 +3385,40 @@
       "interactions": []
     }
   ],
-  "effects": [],
+  "effects": [
+    {
+      "id": "courtyard-steam-west",
+      "kind": "steam",
+      "tile": {
+        "x": 12,
+        "y": 34
+      }
+    },
+    {
+      "id": "courtyard-steam-east",
+      "kind": "steam",
+      "tile": {
+        "x": 19,
+        "y": 36
+      }
+    },
+    {
+      "id": "courtyard-water-glint",
+      "kind": "water",
+      "tile": {
+        "x": 22,
+        "y": 32
+      }
+    },
+    {
+      "id": "courtyard-insects",
+      "kind": "insects",
+      "tile": {
+        "x": 25,
+        "y": 35
+      }
+    }
+  ],
   "roofGroups": [],
   "areas": [
     {

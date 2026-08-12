@@ -4,9 +4,9 @@ import { resolve } from 'node:path';
 describe('procedural VFX renderer bill', () => {
   const source = readFileSync(resolve(process.cwd(), 'src/render/vfx/ProceduralMapEffects.tsx'), 'utf8');
 
-  test('uses a constant seven-node path bill with no per-primitive React mapping', () => {
-    expect(source).toContain('export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 7 as const;');
-    expect(source.match(/<Path\b/gu)).toHaveLength(7);
+  test('uses a constant nineteen-node path bill with no per-primitive React mapping', () => {
+    expect(source).toContain('export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 19 as const;');
+    expect(source.match(/<Path\b/gu)).toHaveLength(19);
     expect(source).not.toMatch(/rects\.map|emitters\.map|<Rect\b|<Circle\b/u);
   });
 
