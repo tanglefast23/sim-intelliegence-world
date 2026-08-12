@@ -1,0 +1,1078 @@
+{
+  "schemaVersion": 1,
+  "artRevision": 13,
+  "characters": [
+    "devon-price",
+    "elise-moreau",
+    "generic-resident",
+    "linda",
+    "linda-boyfriend",
+    "mina-park",
+    "priya-nair",
+    "protagonist",
+    "rafael-cruz",
+    "resident-01",
+    "resident-02",
+    "resident-03",
+    "resident-04",
+    "resident-05",
+    "resident-06",
+    "resident-07",
+    "resident-08",
+    "resident-09",
+    "resident-10",
+    "resident-11",
+    "resident-12",
+    "resident-13",
+    "resident-14",
+    "resident-15",
+    "resident-16",
+    "resident-17",
+    "resident-18",
+    "resident-19",
+    "resident-20",
+    "resident-21",
+    "resident-22",
+    "resident-23",
+    "resident-24",
+    "sora-tan",
+    "tomas-reed"
+  ],
+  "directions": [
+    "front-1",
+    "front-2",
+    "rear-1",
+    "rear-2",
+    "left-1",
+    "left-2",
+    "right-1",
+    "right-2"
+  ],
+  "files": [
+    "full-cast-identity-1x.png",
+    "full-cast-identity-3x.png",
+    "hero-vs-full-cast-directions-3x.png"
+  ],
+  "identityFeatures": {
+    "devon-price": [
+      {
+        "id": "tower-flat-top",
+        "description": "A towering flat-top makes his head look like a nightclub doorway.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "tiny-waist-jacket",
+        "description": "An absurdly broad bartender jacket narrows to a tiny waist.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "elise-moreau": [
+      {
+        "id": "question-forelock",
+        "description": "A question-mark forelock curls above her head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "shoulder-recorder",
+        "description": "An oversized shoulder recorder hangs beside her narrow coat.",
+        "layer": "heldItem",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "generic-resident": [
+      {
+        "id": "window-glasses",
+        "description": "Two broad square lenses look like apartment windows.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "long-scarf",
+        "description": "A long scarf drops down one side of the body.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "linda": [
+      {
+        "id": "cloud-side-hair",
+        "description": "A cloud-sized side hair mass is almost as large as her torso.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "flared-dress",
+        "description": "A flared dress widens below her cloud-sized hair.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "linda-boyfriend": [
+      {
+        "id": "tiny-pompadour",
+        "description": "A tiny perfect pompadour perches on an unusually long head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "bow-tie",
+        "description": "A nervous bow tie is almost as wide as his shoulders.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "mina-park": [
+      {
+        "id": "spa-stone-bun",
+        "description": "Her bun rises in three rounded layers like stacked spa stones.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "towel-sleeve",
+        "description": "One towel sleeve is much larger than the other and a small supply bag hangs at her hip.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "priya-nair": [
+      {
+        "id": "crossed-hair-sticks",
+        "description": "Two long hair sticks cross through a high bun like antennae.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "clinic-pockets",
+        "description": "Her clinic coat has two oversized square pockets.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "protagonist": [
+      {
+        "id": "prize-forelock",
+        "description": "An enormous wind-swept prizewinner forelock points forward like a wave.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "luggage-strap",
+        "description": "A large diagonal luggage strap makes the accidental tourist silhouette.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "rafael-cruz": [
+      {
+        "id": "curl-moustache",
+        "description": "A broad moustache curls upward beyond both cheeks.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "cook-apron-ladle",
+        "description": "A cook apron and long ladle sit across his round build.",
+        "layer": "heldItem",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-01": [
+      {
+        "id": "umbrella-hat",
+        "description": "A tiny wearable umbrella spreads wider than the shoulders.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "rain-cape",
+        "description": "A wide rain cape completes the shape.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-02": [
+      {
+        "id": "planet-buns",
+        "description": "Two round buns orbit the head like small planets.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "big-black-boots",
+        "description": "Two large black boots anchor the tiny body.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-03": [
+      {
+        "id": "moon-cap",
+        "description": "A crescent cap leans far past one side of the head.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "bright-cuff",
+        "description": "A short square tunic uses one bright cuff.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-04": [
+      {
+        "id": "giant-satchel",
+        "description": "A giant satchel hangs from shoulder to ankle.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "guitar-case",
+        "description": "A rigid guitar case rises behind the free shoulder.",
+        "layer": "heldItem",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-05": [
+      {
+        "id": "lantern-chin",
+        "description": "A lantern-shaped chin extends below a tiny mouth.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "short-jacket",
+        "description": "A short jacket makes the head look even longer.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-06": [
+      {
+        "id": "wide-straw-hat",
+        "description": "A flat straw hat spans almost the full sprite.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "double-braids",
+        "description": "Two short braids hang below the brim.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-07": [
+      {
+        "id": "tiny-hat-high-collar",
+        "description": "A coin-sized hat sits above a collar that covers both cheeks.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "flared-coat",
+        "description": "The coat widens toward the feet.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-08": [
+      {
+        "id": "single-bell-sleeve",
+        "description": "One bell sleeve is wider than the torso while the other arm is bare.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "opposite-ponytail",
+        "description": "A short ponytail points the opposite way.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-09": [
+      {
+        "id": "giant-head-bow",
+        "description": "A giant bow is wider than the head.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "big-black-boots",
+        "description": "Two large black boots make the tiny body look grounded.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-10": [
+      {
+        "id": "tower-beanie",
+        "description": "A soft beanie rises in a tall crooked tower.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "long-scarf",
+        "description": "A very long scarf falls down the back.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-11": [
+      {
+        "id": "side-fan-hair",
+        "description": "Hair opens into a stiff fan on one side only.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "split-tunic",
+        "description": "A broad split tunic balances the opposite side.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-12": [
+      {
+        "id": "spiral-moustache",
+        "description": "A spiral moustache ends in two square curls.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "round-vest-button",
+        "description": "A round vest uses one tiny central button.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-13": [
+      {
+        "id": "monocle-chain",
+        "description": "An oversized monocle chain loops from eye to waist.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "side-fastened-jacket",
+        "description": "The jacket closes on one side only.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-14": [
+      {
+        "id": "wing-collar",
+        "description": "Two pale collar wings rise above the shoulders.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "tiny-waist-belt",
+        "description": "A tiny waist belt sits under the wide upper body.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-15": [
+      {
+        "id": "loop-backpack",
+        "description": "A rigid loop backpack arches above the head.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "charm-bracelet",
+        "description": "A loose charm bracelet hangs from one wrist.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-16": [
+      {
+        "id": "giant-gloves",
+        "description": "Two giant square gloves hang beside a tiny torso.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "big-black-boots",
+        "description": "Two large black boots mirror the heavy gloves.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-17": [
+      {
+        "id": "one-ear-cap",
+        "description": "A cap has one tall ear flap and one missing flap.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "half-cape",
+        "description": "A half cape falls from the uncovered side.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-18": [
+      {
+        "id": "soft-mohawk",
+        "description": "A tall soft mohawk bends over like a tired plant.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "suspenders",
+        "description": "A wide shirt carries two narrow suspenders.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-19": [
+      {
+        "id": "veil-cap",
+        "description": "A tiny cap trails a stiff square veil behind the head.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "pearl-necklace",
+        "description": "A pearl necklace loops below the veil.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-20": [
+      {
+        "id": "star-glasses",
+        "description": "Two blocky star glasses cover most of the face.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "star-cuff",
+        "description": "A narrow shirt has one star-shaped cuff.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-21": [
+      {
+        "id": "shoulder-bird",
+        "description": "A square tropical bird sits permanently on one shoulder.",
+        "layer": "heldItem",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "large-necklace",
+        "description": "A large necklace fills the front of the coat.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-22": [
+      {
+        "id": "triple-braid",
+        "description": "Three stiff braids form a small tripod around the head.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "guitar-case",
+        "description": "A tall guitar case hangs behind the plain coat.",
+        "layer": "heldItem",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-23": [
+      {
+        "id": "double-goggles",
+        "description": "Two stacked pairs of square goggles cover most of the face.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "short-jacket",
+        "description": "A broad short jacket makes the long head look even taller.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "resident-24": [
+      {
+        "id": "shell-shoulders",
+        "description": "Two spiral shell shoulder pieces make a wide sea-creature silhouette.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "thin-ponytail",
+        "description": "A thin ponytail drops between the shells.",
+        "layer": "hair",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "sora-tan": [
+      {
+        "id": "blade-collar",
+        "description": "An enormous angular fashion collar points past both shoulders.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "asymmetric-sleeves",
+        "description": "One sleeve reaches the wrist while the other stops high on the arm.",
+        "layer": "torsoAndClothing",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ],
+    "tomas-reed": [
+      {
+        "id": "square-ear-defenders",
+        "description": "Square ear defenders are wider than his head.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      },
+      {
+        "id": "permit-pouch",
+        "description": "A long narrow clerk body carries a rigid permit pouch.",
+        "layer": "accessory",
+        "visibleIn": [
+          "front",
+          "rear",
+          "left",
+          "right"
+        ]
+      }
+    ]
+  },
+  "signatureOddities": {
+    "devon-price": {
+      "id": "tower-flat-top",
+      "description": "A towering flat-top makes his head look like a nightclub doorway.",
+      "supportingFeature": "An absurdly broad bartender jacket narrows to a tiny waist."
+    },
+    "elise-moreau": {
+      "id": "question-forelock",
+      "description": "A question-mark forelock curls above her head.",
+      "supportingFeature": "An oversized shoulder recorder hangs beside her narrow coat."
+    },
+    "generic-resident": {
+      "id": "window-glasses",
+      "description": "Two broad square lenses look like apartment windows.",
+      "supportingFeature": "A long scarf drops down one side of the body."
+    },
+    "linda": {
+      "id": "cloud-side-hair",
+      "description": "A cloud-sized side hair mass is almost as large as her torso.",
+      "supportingFeature": "A flared dress widens below her cloud-sized hair."
+    },
+    "linda-boyfriend": {
+      "id": "tiny-pompadour",
+      "description": "A tiny perfect pompadour perches on an unusually long head.",
+      "supportingFeature": "A nervous bow tie is almost as wide as his shoulders."
+    },
+    "mina-park": {
+      "id": "spa-stone-bun",
+      "description": "Her bun rises in three rounded layers like stacked spa stones.",
+      "supportingFeature": "One towel sleeve is much larger than the other and a small supply bag hangs at her hip."
+    },
+    "priya-nair": {
+      "id": "crossed-hair-sticks",
+      "description": "Two long hair sticks cross through a high bun like antennae.",
+      "supportingFeature": "Her clinic coat has two oversized square pockets."
+    },
+    "protagonist": {
+      "id": "prize-forelock",
+      "description": "An enormous wind-swept prizewinner forelock points forward like a wave.",
+      "supportingFeature": "A large diagonal luggage strap makes the accidental tourist silhouette."
+    },
+    "rafael-cruz": {
+      "id": "curl-moustache",
+      "description": "A broad moustache curls upward beyond both cheeks.",
+      "supportingFeature": "A cook apron and long ladle sit across his round build."
+    },
+    "resident-01": {
+      "id": "umbrella-hat",
+      "description": "A tiny wearable umbrella spreads wider than the shoulders.",
+      "supportingFeature": "A wide rain cape completes the shape."
+    },
+    "resident-02": {
+      "id": "planet-buns",
+      "description": "Two round buns orbit the head like small planets.",
+      "supportingFeature": "Two large black boots anchor the tiny body."
+    },
+    "resident-03": {
+      "id": "moon-cap",
+      "description": "A crescent cap leans far past one side of the head.",
+      "supportingFeature": "A short square tunic uses one bright cuff."
+    },
+    "resident-04": {
+      "id": "giant-satchel",
+      "description": "A giant satchel hangs from shoulder to ankle.",
+      "supportingFeature": "A rigid guitar case rises behind the free shoulder."
+    },
+    "resident-05": {
+      "id": "lantern-chin",
+      "description": "A lantern-shaped chin extends below a tiny mouth.",
+      "supportingFeature": "A short jacket makes the head look even longer."
+    },
+    "resident-06": {
+      "id": "wide-straw-hat",
+      "description": "A flat straw hat spans almost the full sprite.",
+      "supportingFeature": "Two short braids hang below the brim."
+    },
+    "resident-07": {
+      "id": "tiny-hat-high-collar",
+      "description": "A coin-sized hat sits above a collar that covers both cheeks.",
+      "supportingFeature": "The coat widens toward the feet."
+    },
+    "resident-08": {
+      "id": "single-bell-sleeve",
+      "description": "One bell sleeve is wider than the torso while the other arm is bare.",
+      "supportingFeature": "A short ponytail points the opposite way."
+    },
+    "resident-09": {
+      "id": "giant-head-bow",
+      "description": "A giant bow is wider than the head.",
+      "supportingFeature": "Two large black boots make the tiny body look grounded."
+    },
+    "resident-10": {
+      "id": "tower-beanie",
+      "description": "A soft beanie rises in a tall crooked tower.",
+      "supportingFeature": "A very long scarf falls down the back."
+    },
+    "resident-11": {
+      "id": "side-fan-hair",
+      "description": "Hair opens into a stiff fan on one side only.",
+      "supportingFeature": "A broad split tunic balances the opposite side."
+    },
+    "resident-12": {
+      "id": "spiral-moustache",
+      "description": "A spiral moustache ends in two square curls.",
+      "supportingFeature": "A round vest uses one tiny central button."
+    },
+    "resident-13": {
+      "id": "monocle-chain",
+      "description": "An oversized monocle chain loops from eye to waist.",
+      "supportingFeature": "The jacket closes on one side only."
+    },
+    "resident-14": {
+      "id": "wing-collar",
+      "description": "Two pale collar wings rise above the shoulders.",
+      "supportingFeature": "A tiny waist belt sits under the wide upper body."
+    },
+    "resident-15": {
+      "id": "loop-backpack",
+      "description": "A rigid loop backpack arches above the head.",
+      "supportingFeature": "A loose charm bracelet hangs from one wrist."
+    },
+    "resident-16": {
+      "id": "giant-gloves",
+      "description": "Two giant square gloves hang beside a tiny torso.",
+      "supportingFeature": "Two large black boots mirror the heavy gloves."
+    },
+    "resident-17": {
+      "id": "one-ear-cap",
+      "description": "A cap has one tall ear flap and one missing flap.",
+      "supportingFeature": "A half cape falls from the uncovered side."
+    },
+    "resident-18": {
+      "id": "soft-mohawk",
+      "description": "A tall soft mohawk bends over like a tired plant.",
+      "supportingFeature": "A wide shirt carries two narrow suspenders."
+    },
+    "resident-19": {
+      "id": "veil-cap",
+      "description": "A tiny cap trails a stiff square veil behind the head.",
+      "supportingFeature": "A pearl necklace loops below the veil."
+    },
+    "resident-20": {
+      "id": "star-glasses",
+      "description": "Two blocky star glasses cover most of the face.",
+      "supportingFeature": "A narrow shirt has one star-shaped cuff."
+    },
+    "resident-21": {
+      "id": "shoulder-bird",
+      "description": "A square tropical bird sits permanently on one shoulder.",
+      "supportingFeature": "A large necklace fills the front of the coat."
+    },
+    "resident-22": {
+      "id": "triple-braid",
+      "description": "Three stiff braids form a small tripod around the head.",
+      "supportingFeature": "A tall guitar case hangs behind the plain coat."
+    },
+    "resident-23": {
+      "id": "double-goggles",
+      "description": "Two stacked pairs of square goggles cover most of the face.",
+      "supportingFeature": "A broad short jacket makes the long head look even taller."
+    },
+    "resident-24": {
+      "id": "shell-shoulders",
+      "description": "Two spiral shell shoulder pieces make a wide sea-creature silhouette.",
+      "supportingFeature": "A thin ponytail drops between the shells."
+    },
+    "sora-tan": {
+      "id": "blade-collar",
+      "description": "An enormous angular fashion collar points past both shoulders.",
+      "supportingFeature": "One sleeve reaches the wrist while the other stops high on the arm."
+    },
+    "tomas-reed": {
+      "id": "square-ear-defenders",
+      "description": "Square ear defenders are wider than his head.",
+      "supportingFeature": "A long narrow clerk body carries a rigid permit pouch."
+    }
+  },
+  "torsoSilhouetteCount": 22,
+  "pairwiseMinimumNonColorDifferences": 2,
+  "lateralThreeQuarterHeadRequired": false
+}
