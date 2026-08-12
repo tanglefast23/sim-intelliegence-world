@@ -48,8 +48,14 @@ export function SelectionMarker({ color = '#f1c65b', label, reducedMotion, subti
           },
         ]}
       />
+      <View
+        style={[
+          styles.focusPip,
+          { backgroundColor: color, left: x - 3, top: y - 32 * ringScale },
+        ]}
+      />
       {label ? (
-        <View style={[styles.nameplate, { left: labelLeft, top: Math.max(8, y - 54) }]}>
+        <View style={[styles.nameplate, { borderBottomColor: color, left: labelLeft, top: Math.max(8, y - 54) }]}>
           <Text numberOfLines={1} style={styles.name}>{label.toUpperCase()}</Text>
           {subtitle ? <Text numberOfLines={1} style={styles.subtitle}>{subtitle.toUpperCase()}</Text> : null}
         </View>
@@ -59,8 +65,9 @@ export function SelectionMarker({ color = '#f1c65b', label, reducedMotion, subti
 }
 
 const styles = StyleSheet.create({
+  focusPip: { borderColor: '#171914', borderWidth: 1, height: 6, position: 'absolute', transform: [{ rotate: '45deg' }], width: 6 },
   name: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 9 },
-  nameplate: { alignItems: 'center', backgroundColor: '#10130fe8', borderBottomColor: '#d3a04c', borderBottomWidth: 1, paddingHorizontal: 7, paddingVertical: 4, position: 'absolute', width: 140 },
+  nameplate: { alignItems: 'center', backgroundColor: '#10130fe8', borderBottomWidth: 1, paddingHorizontal: 7, paddingVertical: 4, position: 'absolute', width: 140 },
   overlay: { bottom: 0, left: 0, position: 'absolute', right: 0, top: 0 },
   ring: { borderColor: '#f1c65b', borderRadius: 18, borderWidth: 2, position: 'absolute' },
   subtitle: { color: '#9fc58e', fontFamily: 'Silkscreen', fontSize: 7, marginTop: 2 },

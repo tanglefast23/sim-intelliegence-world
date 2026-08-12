@@ -163,6 +163,21 @@ const goldenHourEntry: DevHarnessEntry = {
   ),
 };
 
+const characterTalkEntry: DevHarnessEntry = {
+  id: 'character-talk',
+  group: 'People',
+  title: 'Four-District Talk Pose',
+  summary: 'Open the same selected-character talk pose in every district.',
+  cases: mapCases,
+  render: (caseId, surface) => (
+    <HarnessWorld
+      conversationFixtureId="linda"
+      state={devHarnessGoldenHourState(caseId as (typeof DEV_HARNESS_MAP_IDS)[number])}
+      surface={surface}
+    />
+  ),
+};
+
 const proceduralEffectsEntry: DevHarnessEntry = {
   id: 'procedural-effects',
   group: 'World',
@@ -236,6 +251,7 @@ export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
   goldenHourEntry,
+  characterTalkEntry,
   proceduralEffectsEntry,
   conversationsEntry,
   panelsEntry,
