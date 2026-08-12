@@ -40,6 +40,7 @@ import { ContextActionMenu } from '../ui/ContextActionMenu';
 import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
+import { SelectionMarker } from '../ui/SelectionMarker';
 import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
 import { uiMetrics } from '../ui/ui-metrics';
@@ -1006,6 +1007,12 @@ export function WorldScene({
     ? playerVisualFoot
     : npcTiles[selected]?.visualFoot ?? tileFootPoint(npcTiles[selected]?.tile ?? runtime.movement.player);
   const selectedScreen = worldToScreen(camera, selectedFoot);
+  const selectedName = selected === 'protagonist'
+    ? runtime.worldState.protagonist.displayName
+    : npcLabel(selected, npcTiles);
+  const selectedSubtitle = selected === 'protagonist'
+    ? 'YOU'
+    : runtime.worldState.relationships[selected]?.stage.replaceAll('_', ' ') ?? 'RESIDENT';
   const feedbackScreen = runtime.movement.feedbackTile
     ? worldToScreen(camera, {
       x: runtime.movement.feedbackTile.x * TILE_SIZE + 16,
@@ -1064,7 +1071,10 @@ export function WorldScene({
         return (
           <Group key={layer} transform={atlasCameraTransform}>
             {characters.map((character) => (
-              <RoundedRect color="#20191566" height={3 * camera.zoom} key={`shadow-${character.id}`} r={camera.zoom} width={14 * camera.zoom} x={character.shadowWorldX * camera.zoom} y={character.shadowWorldY * camera.zoom} />
+              <Group key={`shadow-${character.id}`}>
+                <RoundedRect color="#14171170" height={5 * camera.zoom} r={2 * camera.zoom} width={18 * camera.zoom} x={(character.shadowWorldX - 2) * camera.zoom} y={(character.shadowWorldY - 1) * camera.zoom} />
+                <RoundedRect color="#2019158f" height={3 * camera.zoom} r={camera.zoom} width={12 * camera.zoom} x={(character.shadowWorldX + 1) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
+              </Group>
             ))}
           </Group>
         );
@@ -1119,7 +1129,6 @@ export function WorldScene({
           <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
             <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
-            <Circle color="#f1c65b" cx={selectedScreen.x} cy={selectedScreen.y} r={10 * camera.zoom} style="stroke" strokeWidth={camera.zoom} />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
             {destinationMarker ? (() => {
               const screen = worldToScreen(camera, tileFootPoint(destinationMarker));
@@ -1150,6 +1159,15 @@ export function WorldScene({
             <AtmosphereOverlay
               absoluteMinute={runtime.worldState.clock.absoluteMinute}
               reducedMotion={reducedMotion}
+            />
+            <SelectionMarker
+              label={selected === 'protagonist' ? undefined : selectedName}
+              reducedMotion={reducedMotion}
+              subtitle={selected === 'protagonist' ? undefined : selectedSubtitle}
+              viewportWidth={surface.width}
+              x={selectedScreen.x}
+              y={selectedScreen.y}
+              zoom={camera.zoom}
             />
           </View>
         </View>

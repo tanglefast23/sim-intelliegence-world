@@ -145,11 +145,12 @@ export function movementPresentation(
   direction: MovementDirection,
   frame: 0 | 1,
 ): MovementPresentation {
+  const leanX = frame === 1 && direction === 'left' ? -1 : frame === 1 && direction === 'right' ? 1 : 0;
   return {
     sprite: characterFrameName(characterId, direction, frame),
-    leanX: 0,
-    bounceY: 0,
-    shadowX: 0,
+    leanX,
+    bounceY: frame === 1 ? -1 : 0,
+    shadowX: leanX,
   };
 }
 

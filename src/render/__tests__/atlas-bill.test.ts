@@ -60,10 +60,10 @@ describe('runtime atlas bill and movement contract', () => {
       sprite: 'character.protagonist.left-1', leanX: 0, bounceY: 0, shadowX: 0,
     });
     expect(movementPresentation('protagonist', 'right', 1)).toMatchObject({
-      sprite: 'character.protagonist.right-2', leanX: 0, bounceY: 0, shadowX: 0,
+      sprite: 'character.protagonist.right-2', leanX: 1, bounceY: -1, shadowX: 1,
     });
     expect(movementPresentation('linda', 'right', 1)).toMatchObject({
-      sprite: 'character.linda.right-2', leanX: 0, bounceY: 0, shadowX: 0,
+      sprite: 'character.linda.right-2', leanX: 1, bounceY: -1, shadowX: 1,
     });
     expect(WALK_FRAME_MILLISECONDS).toBeGreaterThanOrEqual(130);
     expect(WALK_FRAME_MILLISECONDS).toBeLessThanOrEqual(160);
