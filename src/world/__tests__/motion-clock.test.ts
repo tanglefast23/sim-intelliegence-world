@@ -70,6 +70,10 @@ describe('continuous movement clock', () => {
 
   test('snaps presentation to physical pixels without changing world authority', () => {
     expect(snapWorldPoint({ x: 10.24, y: 20.76 }, 1, 2)).toEqual({ x: 10, y: 21 });
+    expect(snapWorldPoint({ x: 10.24, y: 20.76 }, 1.5, 2)).toEqual({
+      x: 10.333333333333334,
+      y: 20.666666666666668,
+    });
     expect(snapWorldPoint({ x: 10.24, y: 20.76 }, 2, 2)).toEqual({ x: 10.25, y: 20.75 });
     expect(snapWorldPoint({ x: 10.24, y: 20.76 }, 3, 2)).toEqual({ x: 10.166666666666666, y: 20.833333333333332 });
   });

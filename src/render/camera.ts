@@ -1,7 +1,7 @@
 import type { TilePoint } from '../world/maps/schema';
-import { assertZoomLevel, type ZoomLevel } from './atlas';
+import { assertWorldZoom } from '../domain/presentation/world-zoom';
 
-export type CameraState = Readonly<{ x: number; y: number; zoom: ZoomLevel }>;
+export type CameraState = Readonly<{ x: number; y: number; zoom: number }>;
 export type ViewportSize = Readonly<{ width: number; height: number }>;
 
 function clamp(value: number, minimum: number, maximum: number): number {
@@ -25,10 +25,11 @@ export function clampCamera(
   viewport: ViewportSize,
   mapPixels: ViewportSize,
 ): CameraState {
-  const horizontal = cameraAxisBounds(viewport.width, mapPixels.width, camera.zoom);
-  const vertical = cameraAxisBounds(viewport.height, mapPixels.height, camera.zoom);
+  const zoom = assertWorldZoom(camera.zoom);
+  const horizontal = cameraAxisBounds(viewport.width, mapPixels.width, zoom);
+  const vertical = cameraAxisBounds(viewport.height, mapPixels.height, zoom);
   return {
-    zoom: camera.zoom,
+    zoom,
     x: Math.round(clamp(camera.x, horizontal.minimum, horizontal.maximum)),
     y: Math.round(clamp(camera.y, vertical.minimum, vertical.maximum)),
   };
@@ -38,7 +39,7 @@ export function resizeCameraPreservingCenter(
   camera: CameraState,
   oldViewport: ViewportSize,
   nextViewport: ViewportSize,
-  nextZoom: ZoomLevel,
+  nextZoom: number,
   mapPixels: ViewportSize,
 ): CameraState {
   const centerWorldX = camera.x + oldViewport.width / camera.zoom / 2;
@@ -52,7 +53,7 @@ export function resizeCameraPreservingCenter(
 
 export function centerCameraOnTile(
   tile: TilePoint,
-  zoom: ZoomLevel,
+  zoom: number,
   viewport: ViewportSize,
   mapPixels: ViewportSize,
   tileSize = 32,
@@ -62,7 +63,7 @@ export function centerCameraOnTile(
 
 export function centerCameraOnWorld(
   point: Readonly<{ x: number; y: number }>,
-  zoom: ZoomLevel,
+  zoom: number,
   viewport: ViewportSize,
   mapPixels: ViewportSize,
 ): CameraState {
@@ -93,7 +94,7 @@ export function zoomCameraAt(
   viewport: ViewportSize,
   mapPixels: ViewportSize,
 ): CameraState {
-  const nextZoom = assertZoomLevel(nextZoomCandidate);
+  const nextZoom = assertWorldZoom(nextZoomCandidate);
   const worldX = camera.x + anchor.x / camera.zoom;
   const worldY = camera.y + anchor.y / camera.zoom;
   return clampCamera({

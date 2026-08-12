@@ -17,8 +17,8 @@ Halcyra uses an original warm-noir pixel-diorama style.
 - One world tile is `32x32` pixels.
 - One world character cell is `24x30` pixels.
 - One portrait cell is `24x29` pixels.
-- World zoom is exactly `1x`, `2x`, or `3x`.
-- All final placement is on whole screen pixels.
+- Player world zoom ranges from `100%` through `300%` in `5%` increments.
+- `1x`, `2x`, and `3x` are the canonical whole-screen-pixel art review scales.
 - Runtime sampling is nearest neighbor.
 - Source layers compile into flat atlas cells before play.
 
