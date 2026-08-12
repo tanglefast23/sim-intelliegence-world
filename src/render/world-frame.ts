@@ -19,6 +19,7 @@ export const WORLD_LAYER_ORDER = [
 ] as const;
 
 export type WorldLayer = typeof WORLD_LAYER_ORDER[number];
+export type CharacterPose = 'idle' | 'reaction' | 'talk';
 export type WorldCharacterPlacement = Readonly<{
   id: string;
   visualId: CharacterId;
@@ -48,6 +49,8 @@ export type WorldActor = Readonly<{
   moving?: boolean;
   reducedMotion?: boolean;
   horizontalRunDistance?: number;
+  pose?: CharacterPose;
+  poseFrame?: 0 | 1;
 }>;
 
 export type WorldActors = Readonly<Record<string, WorldActor>>;
@@ -75,6 +78,8 @@ export function buildWorldFrameState(
     moving: boolean;
     reducedMotion: boolean;
     horizontalRunDistance?: number;
+    pose?: CharacterPose;
+    poseFrame?: 0 | 1;
   }>,
 ): WorldFrameState {
   const playerPosition = state.protagonist.worldPosition;
@@ -92,6 +97,8 @@ export function buildWorldFrameState(
     moving: boolean;
     reducedMotion: boolean;
     horizontalRunDistance: number;
+    pose: CharacterPose;
+    poseFrame: 0 | 1;
   }>[] = [
     {
       id: 'protagonist',
@@ -103,6 +110,8 @@ export function buildWorldFrameState(
       moving: playerPresentation?.moving ?? frame === 1,
       reducedMotion: playerPresentation?.reducedMotion ?? false,
       horizontalRunDistance: playerPresentation?.horizontalRunDistance ?? 0,
+      pose: playerPresentation?.pose ?? 'idle',
+      poseFrame: playerPresentation?.poseFrame ?? 0,
     },
     ...Object.entries(actors).sort(([left], [right]) => left.localeCompare(right, 'en')).map(([id, actor]) => ({
       id,
@@ -114,6 +123,8 @@ export function buildWorldFrameState(
       moving: actor.moving ?? false,
       reducedMotion: actor.reducedMotion ?? false,
       horizontalRunDistance: actor.horizontalRunDistance ?? 0,
+      pose: actor.pose ?? 'idle',
+      poseFrame: actor.poseFrame ?? 0,
     })),
   ];
   const characters = characterInputs.map(({
@@ -126,12 +137,15 @@ export function buildWorldFrameState(
     moving,
     reducedMotion,
     horizontalRunDistance,
+    pose,
+    poseFrame,
   }) => {
-    const actorFrame = moving ? walkFrame : 0;
+    const actorFrame = moving ? walkFrame : pose === 'idle' ? 0 : poseFrame;
     const presentation = movementPresentation(visualId, actorDirection, actorFrame);
     const foot = visualFoot ?? { x: tile.x * TILE_SIZE + 16, y: tile.y * TILE_SIZE + 29 };
     const leanX = reducedMotion ? 0 : presentation.leanX;
-    const bounceY = reducedMotion ? 0 : presentation.bounceY;
+    const poseLift = reducedMotion || moving ? 0 : pose === 'reaction' ? -2 : poseFrame === 1 ? -1 : 0;
+    const bounceY = reducedMotion ? 0 : presentation.bounceY + poseLift;
     const shadowX = reducedMotion ? 0 : presentation.shadowX;
     return {
       id,
@@ -142,12 +156,12 @@ export function buildWorldFrameState(
       worldY: foot.y - 27 + bounceY,
       shadowWorldX: foot.x - 7 + shadowX,
       shadowWorldY: foot.y,
-      angleDegrees: protagonistWobbleDegrees({
+      angleDegrees: moving ? protagonistWobbleDegrees({
         direction: actorDirection,
         status: moving ? 'moving' : 'idle',
         horizontalRunDistance,
         reducedMotion,
-      }),
+      }) : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0,
     };
   }).sort((left, right) => left.shadowWorldY - right.shadowWorldY || left.id.localeCompare(right.id, 'en'));
   const hiddenRoofGroupId = roofGroupAtV2(map, playerTile);

@@ -116,6 +116,21 @@ describe('authoritative world frame', () => {
     expect(player.shadowWorldX).toBe(577);
   });
 
+  test('uses restrained talk and reaction poses before adding more walk frames', () => {
+    const reaction = buildWorldFrameState(MAP, createInitialState(), {
+      linda: { tile: { x: 23, y: 30 }, visualId: 'linda', pose: 'reaction', poseFrame: 1 },
+    }, 'down', 0).characters.find(({ id }) => id === 'linda')!;
+    const talk = buildWorldFrameState(MAP, createInitialState(), {
+      linda: { tile: { x: 23, y: 30 }, visualId: 'linda', pose: 'talk', poseFrame: 1 },
+    }, 'down', 0).characters.find(({ id }) => id === 'linda')!;
+    const reduced = buildWorldFrameState(MAP, createInitialState(), {
+      linda: { tile: { x: 23, y: 30 }, visualId: 'linda', pose: 'reaction', poseFrame: 1, reducedMotion: true },
+    }, 'down', 0).characters.find(({ id }) => id === 'linda')!;
+    expect(reaction).toMatchObject({ angleDegrees: -4, worldY: 959 });
+    expect(talk).toMatchObject({ angleDegrees: 2, worldY: 960 });
+    expect(reduced).toMatchObject({ angleDegrees: 0, worldY: 962 });
+  });
+
   test('save and reload inside reconstruct the byte-identical first frame', () => {
     const inside = walkTo({ x: 16, y: 23 });
     const savedBytes = JSON.stringify(inside.worldState);
