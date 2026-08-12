@@ -2324,6 +2324,30 @@
       }
     },
     {
+      "id": "club-neon-west",
+      "kind": "neon",
+      "tile": {
+        "x": 15,
+        "y": 20
+      }
+    },
+    {
+      "id": "club-neon-east",
+      "kind": "neon",
+      "tile": {
+        "x": 23,
+        "y": 20
+      }
+    },
+    {
+      "id": "club-insects",
+      "kind": "insects",
+      "tile": {
+        "x": 25,
+        "y": 18
+      }
+    },
+    {
       "id": "market-sparkle",
       "kind": "sparkle",
       "tile": {

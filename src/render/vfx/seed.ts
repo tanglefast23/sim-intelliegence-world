@@ -1,6 +1,7 @@
 import { stableTupleHash } from '../../world/presentation/material-selection';
 import {
   VFX_REVISION,
+  VFX_KINDS,
   type AuthoredMapEffect,
   type PreparedVfxEmitter,
   type VfxEmitterPartition,
@@ -8,12 +9,12 @@ import {
 } from './types';
 
 function recipeIdFor(kind: AuthoredMapEffect['kind']): VfxRecipeId {
-  return kind === 'fire' ? 'fire-v1' : 'sparkle-v1';
+  return `${kind}-v1`;
 }
 
 function assertEffect(effect: AuthoredMapEffect): void {
   if (effect.id.trim().length === 0) throw new Error('A VFX emitter ID cannot be empty.');
-  if (effect.kind !== 'fire' && effect.kind !== 'sparkle') {
+  if (!VFX_KINDS.includes(effect.kind)) {
     throw new Error(`Unsupported VFX emitter kind: ${String(effect.kind)}.`);
   }
   if (!Number.isInteger(effect.tile.x) || !Number.isInteger(effect.tile.y)) {

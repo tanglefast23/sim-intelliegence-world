@@ -10,7 +10,7 @@ import { DEV_HARNESS_ENTRIES } from '../registry';
 describe('dev harness registry', () => {
   test('has stable, unique, non-empty entry and case ids', () => {
     expect(DEV_HARNESS_ENTRIES.map((entry) => entry.id)).toEqual([
-      'welcome', 'locations', 'golden-hour', 'hero-scenes', 'grounding', 'character-talk', 'procedural-effects', 'conversations', 'panels', 'district-panels',
+      'welcome', 'locations', 'golden-hour', 'hero-scenes', 'ambient-scenes', 'grounding', 'character-talk', 'procedural-effects', 'conversations', 'panels', 'district-panels',
     ]);
     expect(new Set(DEV_HARNESS_ENTRIES.map((entry) => entry.id)).size).toBe(DEV_HARNESS_ENTRIES.length);
     for (const entry of DEV_HARNESS_ENTRIES) {
@@ -44,6 +44,11 @@ describe('dev harness registry', () => {
   test('covers a hero scene in every district', () => {
     const heroScenes = DEV_HARNESS_ENTRIES.find((entry) => entry.id === 'hero-scenes');
     expect(heroScenes?.cases.map((entryCase) => entryCase.id)).toEqual(DEV_HARNESS_MAP_IDS);
+  });
+
+  test('covers ambient motion in every district', () => {
+    const ambientScenes = DEV_HARNESS_ENTRIES.find((entry) => entry.id === 'ambient-scenes');
+    expect(ambientScenes?.cases.map((entryCase) => entryCase.id)).toEqual(DEV_HARNESS_MAP_IDS);
   });
 
   test('covers the selected-character talk pose in every district', () => {

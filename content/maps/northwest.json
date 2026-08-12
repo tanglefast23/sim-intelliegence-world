@@ -1937,6 +1937,38 @@
       }
     },
     {
+      "id": "patio-leaves",
+      "kind": "leaves",
+      "tile": {
+        "x": 30,
+        "y": 30
+      }
+    },
+    {
+      "id": "patio-palm",
+      "kind": "palm",
+      "tile": {
+        "x": 35,
+        "y": 31
+      }
+    },
+    {
+      "id": "garden-insects",
+      "kind": "insects",
+      "tile": {
+        "x": 31,
+        "y": 26
+      }
+    },
+    {
+      "id": "patio-water-glint",
+      "kind": "water",
+      "tile": {
+        "x": 25,
+        "y": 29
+      }
+    },
+    {
       "id": "beach-sparkle",
       "kind": "sparkle",
       "tile": {

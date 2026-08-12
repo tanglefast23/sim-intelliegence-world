@@ -45,7 +45,7 @@ export const WorldMapSchema = z.object({
   }).strict()),
   effects: z.array(z.object({
     id: MapStableIdSchema,
-    kind: z.enum(['fire', 'sparkle']),
+    kind: z.enum(['fire', 'sparkle', 'insects', 'leaves', 'neon', 'palm', 'steam', 'water']),
     tile: TilePointSchema,
   }).strict()),
   interactions: z.array(z.object({
@@ -180,7 +180,7 @@ export const WorldMapV2Schema = z.object({
   objects: z.array(ObjectV2Schema).default([]),
   effects: z.array(z.object({
     id: MapStableIdSchema,
-    kind: z.enum(['fire', 'sparkle']),
+    kind: z.enum(['fire', 'sparkle', 'insects', 'leaves', 'neon', 'palm', 'steam', 'water']),
     tile: TilePointSchema,
   }).strict()).default([]),
   roofGroups: z.array(z.object({

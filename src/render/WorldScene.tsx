@@ -101,7 +101,7 @@ import { parseVfxEvidence } from './vfx/evidence';
 import { ProceduralMapEffects, PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
 import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
 import { partitionVfxEmitters } from './vfx/seed';
-import { VFX_REVISION, VFX_STEP_MILLISECONDS, type AuthoredMapEffect } from './vfx/types';
+import { VFX_KINDS, VFX_REVISION, VFX_STEP_MILLISECONDS, type AuthoredMapEffect } from './vfx/types';
 import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wobble';
 import {
   buildWorldFrameState,
@@ -317,6 +317,7 @@ function npcLabel(selectedId: string, actors: WorldActors): string {
 }
 
 type WorldSceneProps = Readonly<{
+  forceAmbientMotion?: boolean;
   initialConversationFixtureId?: CharacterId;
   initialFeedback: string;
   initialOpenPanel?: 'journal' | 'relationships';
@@ -331,6 +332,7 @@ type WorldSceneProps = Readonly<{
 }>;
 
 export function WorldScene({
+  forceAmbientMotion = false,
   initialConversationFixtureId,
   initialFeedback,
   initialOpenPanel,
@@ -1114,14 +1116,11 @@ export function WorldScene({
         reducedMotion,
       ))
       : [];
-    const firePrimitiveCount = vfxMode === 'procedural'
-      ? geometries.filter(({ kind }) => kind === 'fire').reduce((total, geometry) => total + geometry.rects.length, 0) +
-        vfxEmitters.fallback.filter(({ kind }) => kind === 'fire').length
-      : visibleEffects.filter(({ kind }) => kind === 'fire').length;
-    const sparklePrimitiveCount = vfxMode === 'procedural'
-      ? geometries.filter(({ kind }) => kind === 'sparkle').reduce((total, geometry) => total + geometry.rects.length, 0) +
-        vfxEmitters.fallback.filter(({ kind }) => kind === 'sparkle').length
-      : visibleEffects.filter(({ kind }) => kind === 'sparkle').length;
+    const primitiveCount = (kind: AuthoredMapEffect['kind']) => vfxMode === 'procedural'
+      ? geometries.filter((geometry) => geometry.kind === kind).reduce((total, geometry) => total + geometry.rects.length, 0) +
+        vfxEmitters.fallback.filter((effect) => effect.kind === kind).length
+      : visibleEffects.filter((effect) => effect.kind === kind).length;
+    const primitiveCounts = Object.fromEntries(VFX_KINDS.map((kind) => [kind, primitiveCount(kind)])) as Record<AuthoredMapEffect['kind'], number>;
     return JSON.stringify(parseVfxEvidence({
       schemaVersion: 1,
       mode: vfxMode,
@@ -1133,9 +1132,8 @@ export function WorldScene({
       culledEmitterIds: culledEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
       fallbackEmitterIds: vfxEmitters.fallback.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
       primitiveCounts: {
-        fire: firePrimitiveCount,
-        sparkle: sparklePrimitiveCount,
-        total: firePrimitiveCount + sparklePrimitiveCount,
+        ...primitiveCounts,
+        total: Object.values(primitiveCounts).reduce((total, count) => total + count, 0),
       },
       renderNodeCount: vfxMode === 'procedural'
         ? PROCEDURAL_VFX_RENDER_NODE_COUNT + vfxEmitters.fallback.length
@@ -1308,12 +1306,20 @@ export function WorldScene({
                 mapEntryIdentity={mapId}
                 onAgeStepChange={smokeMode ? setVfxAgeStep : undefined}
                 reducedMotion={reducedMotion}
-                running={speed > 0}
+                running={forceAmbientMotion || speed > 0}
               />
             ) : null}
             {circleEffects.map((effect) => {
           const screen = worldToScreen(camera, { x: effect.tile.x * 32 + 16, y: effect.tile.y * 32 + 16 });
-          return <Circle color={effect.kind === 'fire' ? '#f07832' : '#f5dd9d'} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
+          const color = effect.kind === 'fire' ? '#f07832'
+            : effect.kind === 'insects' ? '#ffe889'
+              : effect.kind === 'leaves' ? '#e0a14e'
+              : effect.kind === 'neon' ? '#ff67d9'
+                : effect.kind === 'palm' ? '#86a451'
+                  : effect.kind === 'steam' ? '#fff0d6'
+                  : effect.kind === 'water' ? '#8ef1e6'
+                    : '#f5dd9d';
+          return <Circle color={color} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
             })}
           </Group>
         );

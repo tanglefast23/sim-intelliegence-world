@@ -17,6 +17,12 @@ export const VfxEvidenceSchema = z.object({
   primitiveCounts: z.object({
     fire: z.number().int().nonnegative(),
     sparkle: z.number().int().nonnegative(),
+    insects: z.number().int().nonnegative(),
+    leaves: z.number().int().nonnegative(),
+    neon: z.number().int().nonnegative(),
+    palm: z.number().int().nonnegative(),
+    steam: z.number().int().nonnegative(),
+    water: z.number().int().nonnegative(),
     total: z.number().int().nonnegative(),
   }).strict().readonly(),
   renderNodeCount: z.number().int().nonnegative(),

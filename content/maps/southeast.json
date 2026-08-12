@@ -3154,7 +3154,32 @@
       "interactions": []
     }
   ],
-  "effects": [],
+  "effects": [
+    {
+      "id": "yard-steam",
+      "kind": "steam",
+      "tile": {
+        "x": 21,
+        "y": 32
+      }
+    },
+    {
+      "id": "yard-insects",
+      "kind": "insects",
+      "tile": {
+        "x": 27,
+        "y": 32
+      }
+    },
+    {
+      "id": "harbor-water-glint",
+      "kind": "water",
+      "tile": {
+        "x": 55,
+        "y": 34
+      }
+    }
+  ],
   "roofGroups": [],
   "areas": [
     {

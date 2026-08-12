@@ -385,6 +385,10 @@ function northwestMap(): WorldMapV2 {
     },
     effects: [
       { id: 'patio-fire', kind: 'fire', tile: { x: 27, y: 32 } },
+      { id: 'patio-leaves', kind: 'leaves', tile: { x: 30, y: 30 } },
+      { id: 'patio-palm', kind: 'palm', tile: { x: 35, y: 31 } },
+      { id: 'garden-insects', kind: 'insects', tile: { x: 31, y: 26 } },
+      { id: 'patio-water-glint', kind: 'water', tile: { x: 25, y: 29 } },
       { id: 'beach-sparkle', kind: 'sparkle', tile: { x: 50, y: 40 } },
     ],
   });
@@ -578,7 +582,13 @@ function northeastMap(): WorldMapV2 {
       linda: { x: 18, y: 13 }, generic_resident: { x: 44, y: 34 }, devon_price: { x: 20, y: 13 },
       elise_moreau: { x: 46, y: 36 }, 'generic-meal': { x: 44, y: 34 }, 'generic-nightlife': { x: 18, y: 13 },
     },
-    effects: [{ id: 'club-sparkle', kind: 'sparkle', tile: { x: 19, y: 11 } }, { id: 'market-sparkle', kind: 'sparkle', tile: { x: 45, y: 34 } }],
+    effects: [
+      { id: 'club-sparkle', kind: 'sparkle', tile: { x: 19, y: 11 } },
+      { id: 'club-neon-west', kind: 'neon', tile: { x: 15, y: 20 } },
+      { id: 'club-neon-east', kind: 'neon', tile: { x: 23, y: 20 } },
+      { id: 'club-insects', kind: 'insects', tile: { x: 25, y: 18 } },
+      { id: 'market-sparkle', kind: 'sparkle', tile: { x: 45, y: 34 } },
+    ],
   });
   map.doors = [
     { id: 'club-door', openingId: 'club-strip-entrance', initialState: 'open', sprite: 'tile.open-door' },
@@ -831,6 +841,12 @@ function southwestMap(): WorldMapV2 {
       linda: { x: 17, y: 16 }, generic_resident: { x: 44, y: 34 }, sora_tan: { x: 14, y: 14 },
       rafael_cruz: { x: 44, y: 36 }, 'linda-shop': { x: 17, y: 17 },
     },
+    effects: [
+      { id: 'courtyard-steam-west', kind: 'steam', tile: { x: 12, y: 34 } },
+      { id: 'courtyard-steam-east', kind: 'steam', tile: { x: 19, y: 36 } },
+      { id: 'courtyard-water-glint', kind: 'water', tile: { x: 22, y: 32 } },
+      { id: 'courtyard-insects', kind: 'insects', tile: { x: 25, y: 35 } },
+    ],
   });
   map.doors = [
     { id: 'market-hall-door', openingId: 'market-hall-entrance', initialState: 'open', sprite: 'tile.open-door' },
@@ -1057,6 +1073,11 @@ function southeastMap(): WorldMapV2 {
       linda: { x: 12, y: 14 }, generic_resident: { x: 39, y: 34 }, priya_nair: { x: 12, y: 12 },
       tomas_reed: { x: 41, y: 34 },
     },
+    effects: [
+      { id: 'yard-steam', kind: 'steam', tile: { x: 21, y: 32 } },
+      { id: 'yard-insects', kind: 'insects', tile: { x: 27, y: 32 } },
+      { id: 'harbor-water-glint', kind: 'water', tile: { x: 55, y: 34 } },
+    ],
   });
   map.doors = [
     { id: 'government-door', openingId: 'government-yard-entrance', initialState: 'open', sprite: 'tile.open-door' },

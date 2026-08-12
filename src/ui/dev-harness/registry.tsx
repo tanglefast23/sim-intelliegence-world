@@ -41,6 +41,7 @@ export interface DevHarnessEntry extends DevHarnessRoutableEntry {
 type HarnessWorldProps = Readonly<{
   conversationFixtureId?: CharacterId;
   feedback?: string;
+  forceAmbientMotion?: boolean;
   initialPanel?: 'journal' | 'relationships';
   newGame?: boolean;
   presentationPreferences?: PresentationPreferences;
@@ -51,6 +52,7 @@ type HarnessWorldProps = Readonly<{
 function HarnessWorld({
   conversationFixtureId,
   feedback = 'DEV HARNESS · DISPOSABLE STATE',
+  forceAmbientMotion = false,
   initialPanel,
   newGame = false,
   presentationPreferences = DEFAULT_PRESENTATION_PREFERENCES,
@@ -59,6 +61,7 @@ function HarnessWorld({
 }: HarnessWorldProps) {
   return (
     <WorldScene
+      forceAmbientMotion={forceAmbientMotion}
       initialConversationFixtureId={conversationFixtureId}
       initialFeedback={feedback}
       initialOpenPanel={initialPanel}
@@ -207,6 +210,25 @@ const heroScenesEntry: DevHarnessEntry = {
   },
 };
 
+const ambientScenesEntry: DevHarnessEntry = {
+  id: 'ambient-scenes',
+  group: 'World',
+  title: 'Four-District Ambient Motion',
+  summary: 'Review restrained deterministic motion in every hero scene.',
+  cases: mapCases,
+  render: (caseId, surface) => {
+    const mapId = caseId as (typeof DEV_HARNESS_MAP_IDS)[number];
+    return (
+      <HarnessWorld
+        forceAmbientMotion
+        presentationPreferences={heroScenePresentationPreferences(mapId, surface)}
+        state={devHarnessHeroSceneState(mapId)}
+        surface={surface}
+      />
+    );
+  },
+};
+
 const groundingEntry: DevHarnessEntry = {
   id: 'grounding',
   group: 'World',
@@ -244,7 +266,7 @@ const proceduralEffectsEntry: DevHarnessEntry = {
   id: 'procedural-effects',
   group: 'World',
   title: 'Procedural Effects',
-  summary: 'Open every authored fire and sparkle in its real neighborhood.',
+  summary: 'Open every authored ambient effect in its real neighborhood.',
   cases: vfxCases,
   render: (caseId, surface) => {
     const anchor = EXPECTED_VFX_ANCHORS.find(({ id }) => id === caseId);
@@ -337,6 +359,7 @@ export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   locationsEntry,
   goldenHourEntry,
   heroScenesEntry,
+  ambientScenesEntry,
   groundingEntry,
   characterTalkEntry,
   proceduralEffectsEntry,

@@ -17,18 +17,28 @@ function anchor(effect: Readonly<{ tile: AuthoredMapEffect['tile'] }>) {
   };
 }
 
-export function declaredVfxBounds(effect: Readonly<{ tile: AuthoredMapEffect['tile'] }>): VfxBounds {
+export function declaredVfxBounds(effect: Readonly<Pick<AuthoredMapEffect, 'kind' | 'tile'>>): VfxBounds {
   const center = anchor(effect);
+  const extent = {
+    fire: { left: 5, top: 10, right: 5, bottom: 3 },
+    sparkle: { left: 5, top: 10, right: 5, bottom: 3 },
+    insects: { left: 10, top: 8, right: 10, bottom: 8 },
+    leaves: { left: 13, top: 9, right: 13, bottom: 8 },
+    neon: { left: 10, top: 5, right: 10, bottom: 5 },
+    palm: { left: 12, top: 9, right: 12, bottom: 7 },
+    steam: { left: 7, top: 18, right: 7, bottom: 2 },
+    water: { left: 15, top: 4, right: 15, bottom: 4 },
+  }[effect.kind];
   return Object.freeze({
-    left: center.x - 5,
-    top: center.y - 10,
-    right: center.x + 5,
-    bottom: center.y + 3,
+    left: center.x - extent.left,
+    top: center.y - extent.top,
+    right: center.x + extent.right,
+    bottom: center.y + extent.bottom,
   });
 }
 
 export function vfxBoundsIntersectWorldRect(
-  effect: Readonly<{ tile: AuthoredMapEffect['tile'] }>,
+  effect: Readonly<Pick<AuthoredMapEffect, 'kind' | 'tile'>>,
   window: VfxWorldRect,
 ): boolean {
   const bounds = declaredVfxBounds(effect);
@@ -102,6 +112,66 @@ function sparkleGeometry(
   return Object.freeze(output);
 }
 
+function environmentalGeometry(
+  emitter: PreparedVfxEmitter,
+  step: number,
+  reducedMotion: boolean,
+): readonly VfxRect[] {
+  const center = anchor(emitter);
+  const phase = reducedMotion ? emitter.phaseOffset : (step + emitter.phaseOffset) % 4;
+  const drift = reducedMotion ? 0 : emitter.lateralSign * phase;
+  if (emitter.kind === 'insects') {
+    return Object.freeze([
+      rect('insects-halo', center.x - 9 + drift, center.y - 7 + phase, 3, 3),
+      rect('insects-halo', center.x + 5 - drift, center.y + 3 - phase, 3, 3),
+      rect('insects-primary', center.x - 8 + drift, center.y - 6 + phase, 1, 1),
+      rect('insects-primary', center.x + 6 - drift, center.y + 4 - phase, 1, 1),
+    ]);
+  }
+  if (emitter.kind === 'leaves') {
+    return Object.freeze([
+      rect('leaves-shadow', center.x - 11 + drift, center.y + 4, 5, 2),
+      rect('leaves-primary', center.x - 10 + drift, center.y - 5 + phase, 4, 2),
+      rect('leaves-primary', center.x - 1 - drift, center.y - 1, 3, 2),
+      rect('leaves-primary', center.x + 7 + drift, center.y - 7 + phase, 4, 2),
+    ]);
+  }
+  if (emitter.kind === 'neon') {
+    const pulse = reducedMotion || phase === 3 ? 0 : 1;
+    return Object.freeze([
+      rect('neon-halo', center.x - 10, center.y - 5, 20, 10),
+      rect('neon-primary', center.x - 8 + pulse, center.y - 1, 16 - pulse * 2, 2),
+    ]);
+  }
+  if (emitter.kind === 'palm') {
+    const sway = reducedMotion ? 0 : emitter.lateralSign * (phase % 2);
+    return Object.freeze([
+      rect('palm-shadow', center.x - 10 + sway, center.y + 3, 20, 3),
+      rect('palm-primary', center.x - 11 + sway, center.y - 2, 9, 3),
+      rect('palm-primary', center.x + 2 + sway, center.y - 5, 9, 3),
+    ]);
+  }
+  if (emitter.kind === 'steam') {
+    const rise = reducedMotion ? 0 : phase * 2;
+    return Object.freeze([
+      rect('steam-shadow', center.x - 5, center.y - 7 - rise, 3, 7),
+      rect('steam-shadow', center.x + 2, center.y - 11 + rise / 2, 3, 8),
+      rect('steam-primary', center.x - 4 + drift, center.y - 9 - rise, 2, 6),
+      rect('steam-primary', center.x + 3 - drift, center.y - 14 + rise / 2, 2, 7),
+    ]);
+  }
+  if (emitter.kind === 'water') {
+    const spread = reducedMotion ? 0 : phase;
+    return Object.freeze([
+      rect('water-shadow', center.x - 14 + spread, center.y + 2, 11, 2),
+      rect('water-shadow', center.x + 3 - spread, center.y - 3, 10, 2),
+      rect('water-primary', center.x - 12 + spread, center.y + 1, 9, 1),
+      rect('water-primary', center.x + 4 - spread, center.y - 4, 8, 1),
+    ]);
+  }
+  throw new Error(`Unsupported environmental VFX kind: ${emitter.kind}.`);
+}
+
 export function sampleVfxGeometry(
   emitter: PreparedVfxEmitter,
   ageMilliseconds: number,
@@ -113,7 +183,9 @@ export function sampleVfxGeometry(
   const ageStep = Math.floor(ageMilliseconds / VFX_STEP_MILLISECONDS);
   const rects = emitter.kind === 'fire'
     ? fireGeometry(emitter, ageStep, reducedMotion)
-    : sparkleGeometry(emitter, ageStep, reducedMotion);
+    : emitter.kind === 'sparkle'
+      ? sparkleGeometry(emitter, ageStep, reducedMotion)
+      : environmentalGeometry(emitter, ageStep, reducedMotion);
   return Object.freeze({
     emitterId: emitter.id,
     kind: emitter.kind,
@@ -126,7 +198,7 @@ export function sampleVfxGeometry(
 
 export function primarySilhouette(geometry: VfxGeometry): string {
   return geometry.rects
-    .filter(({ role }) => role === 'fire-outer' || role === 'fire-core' || role === 'sparkle-primary')
+    .filter(({ role }) => role === 'fire-outer' || role === 'fire-core' || role.endsWith('-primary'))
     .map(({ x, y, width, height }) => `${x},${y},${width},${height}`)
     .join('|');
 }
