@@ -88,6 +88,7 @@ import {
 } from './camera';
 import { WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
+import { AtmosphereOverlay } from './AtmosphereOverlay';
 import { journalMapMarkers } from './journal-markers';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
@@ -1146,6 +1147,10 @@ export function WorldScene({
               </>
             ) : null}
             </Canvas>
+            <AtmosphereOverlay
+              absoluteMinute={runtime.worldState.clock.absoluteMinute}
+              reducedMotion={reducedMotion}
+            />
           </View>
         </View>
         <View pointerEvents="none" style={styles.areaLabels}>
