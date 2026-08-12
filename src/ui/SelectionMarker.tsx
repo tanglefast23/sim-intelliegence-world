@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
 
 type SelectionMarkerProps = Readonly<{
   label?: string;
@@ -20,8 +20,8 @@ export function SelectionMarker({ label, reducedMotion, subtitle, viewportWidth,
       return undefined;
     }
     const animation = Animated.loop(Animated.sequence([
-      Animated.timing(pulse, { duration: 900, easing: Easing.inOut(Easing.sin), toValue: 1, useNativeDriver: true }),
-      Animated.timing(pulse, { duration: 900, easing: Easing.inOut(Easing.sin), toValue: 0, useNativeDriver: true }),
+      Animated.timing(pulse, { duration: 900, easing: Easing.inOut(Easing.sin), toValue: 1, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(pulse, { duration: 900, easing: Easing.inOut(Easing.sin), toValue: 0, useNativeDriver: Platform.OS !== 'web' }),
     ]));
     animation.start();
     return () => animation.stop();

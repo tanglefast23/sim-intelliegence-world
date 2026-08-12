@@ -2,6 +2,7 @@ import { CHARACTER_IDS } from '../../../render/atlas';
 import { EXPECTED_VFX_ANCHORS } from '../../../render/vfx/fixtures';
 
 jest.mock('../../../render/WorldScene', () => ({ WorldScene: () => null }));
+jest.mock('../../../application/NewGameFlow', () => ({ NewGameFlow: () => null }));
 
 import { DEV_HARNESS_ENTRIES } from '../registry';
 
