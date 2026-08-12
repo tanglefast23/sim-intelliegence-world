@@ -64,11 +64,15 @@ import {
 import {
   ATLAS_INDEX,
   CHARACTER_IDS,
-  ZOOM_LEVELS,
   atlasRectangle,
   type CharacterId,
-  type ZoomLevel,
 } from './atlas';
+import {
+  MAX_WORLD_ZOOM,
+  MIN_WORLD_ZOOM,
+  stepWorldZoom,
+  worldZoomPercentage,
+} from '../domain/presentation/world-zoom';
 import { snapWorldPoint, tileFootPoint } from '../world/movement/motion-clock';
 import {
   centerCameraOnWorld,
@@ -132,7 +136,7 @@ function isVisible(tile: TilePoint, bounds: VisibleTileBounds): boolean {
     tile.y >= bounds.minimumY && tile.y <= bounds.maximumY;
 }
 
-function atlasData(placements: readonly SpritePlacement[], zoom: ZoomLevel) {
+function atlasData(placements: readonly SpritePlacement[], zoom: number) {
   return {
     sprites: placements.map(({ sprite }) => {
       const source = atlasRectangle(sprite);
@@ -162,7 +166,7 @@ function actorTiles(
   state: WorldState,
   mapId: string,
   movements: Readonly<Record<string, MovementState>>,
-  zoom: ZoomLevel,
+  zoom: number,
   dpr: number,
   reducedMotion: boolean,
 ): WorldActors {
@@ -608,21 +612,23 @@ export function WorldScene({
   const handleZoom = useCallback((direction: -1 | 1, anchor: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || openPanel) return;
     setExplicitWorldZoom(true);
-    setCamera((current) => {
-      const index = ZOOM_LEVELS.indexOf(current.zoom);
-      const nextIndex = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, index + direction));
-      return zoomCameraAt(current, ZOOM_LEVELS[nextIndex] as ZoomLevel, anchor, surface, MAP_PIXELS);
-    });
+    setCamera((current) => zoomCameraAt(
+      current,
+      stepWorldZoom(current.zoom, direction),
+      anchor,
+      surface,
+      MAP_PIXELS,
+    ));
   }, [conversationNpcId, openPanel, surface]);
   const center = useCallback(() => {
     if (conversationNpcId || openPanel) return;
     setCamera((current) => centerCameraOnWorld(runtime.movement.visualFoot, current.zoom, surface, MAP_PIXELS));
   }, [conversationNpcId, openPanel, runtime.movement.visualFoot, surface]);
-  const selectWorldZoom = useCallback((zoom: ZoomLevel) => {
+  const changeWorldZoom = useCallback((direction: -1 | 1) => {
     setExplicitWorldZoom(true);
     setCamera((current) => zoomCameraAt(
       current,
-      zoom,
+      stepWorldZoom(current.zoom, direction),
       { x: surface.width / 2, y: surface.height / 2 },
       surface,
       MAP_PIXELS,
@@ -1092,7 +1098,7 @@ export function WorldScene({
       onZoom={handleZoom}
     >
       <View
-        accessibilityLabel={`${map.source.displayName}; tile ${runtime.movement.player.x},${runtime.movement.player.y}; minute ${runtime.worldState.clock.absoluteMinute}; speed ${runtime.worldState.clock.selectedSpeed}; world zoom ${camera.zoom}; interface ${Math.round(uiScale * 100)} percent`}
+        accessibilityLabel={`${map.source.displayName}; tile ${runtime.movement.player.x},${runtime.movement.player.y}; minute ${runtime.worldState.clock.absoluteMinute}; speed ${runtime.worldState.clock.selectedSpeed}; world zoom ${worldZoomPercentage(camera.zoom)} percent; interface ${Math.round(uiScale * 100)} percent`}
         nativeID="world-state"
         style={[styles.frame, surface]}
       >
@@ -1239,21 +1245,49 @@ export function WorldScene({
           zoom={camera.zoom}
         />
         <View nativeID="world-ui-zoom" style={styles.zoomPlate}>
-          {ZOOM_LEVELS.map((zoom) => (
-            <Pressable
-              accessibilityLabel={`Set ${zoom}x zoom`}
-              key={zoom}
-              onPress={() => selectWorldZoom(zoom)}
-              style={[
-                styles.zoomButton,
-                { height: metrics.pointerTarget, width: metrics.pointerTarget },
-                camera.zoom === zoom && styles.zoomButtonActive,
-              ]}
-            >
-              <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }, camera.zoom === zoom && styles.zoomTextActive]}>{zoom}×</Text>
-            </Pressable>
-          ))}
+          <Pressable
+            accessibilityLabel="Decrease world zoom"
+            accessibilityState={{ disabled: camera.zoom <= MIN_WORLD_ZOOM }}
+            disabled={camera.zoom <= MIN_WORLD_ZOOM}
+            onPress={() => changeWorldZoom(-1)}
+            style={[
+              styles.zoomButton,
+              { height: metrics.pointerTarget, width: metrics.pointerTarget },
+              camera.zoom <= MIN_WORLD_ZOOM && styles.zoomButtonDisabled,
+            ]}
+          >
+            <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>-</Text>
+          </Pressable>
+          <View
+            accessibilityLabel={`World zoom ${worldZoomPercentage(camera.zoom)} percent`}
+            nativeID="world-ui-zoom-value"
+            style={[styles.zoomValue, { height: metrics.pointerTarget, minWidth: metrics.pointerTarget + 18 }]}
+          >
+            <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>
+              {worldZoomPercentage(camera.zoom)}%
+            </Text>
+          </View>
+          <Pressable
+            accessibilityLabel="Increase world zoom"
+            accessibilityState={{ disabled: camera.zoom >= MAX_WORLD_ZOOM }}
+            disabled={camera.zoom >= MAX_WORLD_ZOOM}
+            onPress={() => changeWorldZoom(1)}
+            style={[
+              styles.zoomButton,
+              { height: metrics.pointerTarget, width: metrics.pointerTarget },
+              camera.zoom >= MAX_WORLD_ZOOM && styles.zoomButtonDisabled,
+            ]}
+          >
+            <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>+</Text>
+          </Pressable>
         </View>
+        <Text
+          accessibilityLiveRegion="polite"
+          nativeID="world-ui-zoom-announcement"
+          style={styles.proofState}
+        >
+          {`World zoom ${worldZoomPercentage(camera.zoom)} percent`}
+        </Text>
         <View nativeID="world-ui-scale" style={[styles.uiScalePlate, { top: 22 + metrics.pointerTarget }]}>
           {UI_SCALES.map((scale) => (
             <Pressable
@@ -1394,8 +1428,10 @@ const styles = StyleSheet.create({
   uiScalePlate: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12 },
   viewport: { overflow: 'hidden' },
   zoomButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, height: 29, justifyContent: 'center', width: 36 },
+  zoomButtonDisabled: { opacity: 0.35 },
   zoomButtonActive: { backgroundColor: '#f1c65b', borderColor: '#fff0c7' },
   zoomPlate: { backgroundColor: '#211d1aee', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 12 },
   zoomText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 10 },
   zoomTextActive: { color: '#211d1a' },
+  zoomValue: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
 });

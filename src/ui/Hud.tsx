@@ -31,7 +31,7 @@ export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpe
         <Text style={[styles.area, { fontSize: metrics.titleText }]}>{areaName}</Text>
         <View style={styles.row}>
           <Text style={[styles.clock, { fontSize: metrics.persistentText }]}>{clockLabel(state.clock.absoluteMinute)}</Text>
-          <Text style={[styles.zoom, { fontSize: metrics.secondaryText }]}>{zoom}×</Text>
+          <Text style={[styles.zoom, { fontSize: metrics.secondaryText }]}>{Math.round(zoom * 100)}%</Text>
         </View>
         <View style={[styles.meters, { gap: metrics.gap }]}>
           <Text style={[styles.energy, { fontSize: metrics.secondaryText }]}>ENERGY {state.protagonist.energy}</Text>

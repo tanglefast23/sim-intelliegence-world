@@ -12,8 +12,8 @@ import {
 const VIEWPORT = { width: 1120, height: 620 } as const;
 const MAP_PIXELS = { width: 2048, height: 1536 } as const;
 
-describe('integer world camera', () => {
-  test.each([1, 2, 3] as const)('keeps the centered tile under the center pointer at %ix', (zoom) => {
+describe('world camera', () => {
+  test.each([1, 1.5, 2, 3] as const)('keeps the centered tile under the center pointer at %ix', (zoom) => {
     const tile = { x: 18, y: 18 };
     const camera = centerCameraOnTile(tile, zoom, VIEWPORT, MAP_PIXELS);
     expect(screenToTile(camera, { x: VIEWPORT.width / 2, y: VIEWPORT.height / 2 })).toEqual(tile);
@@ -24,13 +24,13 @@ describe('integer world camera', () => {
     expect(Math.abs(screen.y - VIEWPORT.height / 2)).toBeLessThanOrEqual(1);
   });
 
-  test('anchored zoom preserves the world point and rejects non-discrete zoom', () => {
+  test('anchored gradual zoom preserves the world point and rejects off-step zoom', () => {
     const camera = centerCameraOnTile({ x: 30, y: 25 }, 1, VIEWPORT, MAP_PIXELS);
-    const anchor = { x: 300, y: 200 };
+    const anchor = { x: 300, y: 300 };
     const before = { x: camera.x + anchor.x / camera.zoom, y: camera.y + anchor.y / camera.zoom };
-    const zoomed = zoomCameraAt(camera, 2, anchor, VIEWPORT, MAP_PIXELS);
+    const zoomed = zoomCameraAt(camera, 1.5, anchor, VIEWPORT, MAP_PIXELS);
     expect({ x: zoomed.x + anchor.x / zoomed.zoom, y: zoomed.y + anchor.y / zoomed.zoom }).toEqual(before);
-    expect(() => zoomCameraAt(camera, 1.5, anchor, VIEWPORT, MAP_PIXELS)).toThrow('exactly 1x, 2x, or 3x');
+    expect(() => zoomCameraAt(camera, 1.53, anchor, VIEWPORT, MAP_PIXELS)).toThrow('5% increments');
   });
 
   test('middle-drag math and bounds cannot expose outside the map', () => {

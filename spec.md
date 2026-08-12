@@ -74,7 +74,7 @@ The following decisions are currently locked:
 - Crossing a neighborhood's connected outer edge triggers a short fade and loads the adjacent neighborhood, placing the protagonist at the matching opposite edge.
 - Only the current neighborhood is rendered and fully simulated frame by frame. Inactive neighborhoods advance residents through lightweight deterministic schedule and event updates.
 - The protagonist uses mouse click-to-move controls. The player clicks a reachable tile or destination and deterministic pathfinding moves him there.
-- The camera uses middle-mouse drag, optional edge panning, mouse-wheel `1×`/`2×`/`3×` zoom selection, and `F` to center on the protagonist.
+- The camera uses middle-mouse drag, optional edge panning, gradual mouse-wheel zoom from `100%` through `300%` in `5%` increments, and `F` to center on the protagonist.
 - The map uses `32×32` logical-pixel tiles, and ordinary world characters use `24×30` logical-pixel sprite cells.
 - Walkable building interiors exist on the same neighborhood map as their exteriors. Entering a building hides or fades its roof so the interior becomes visible; leaving restores the roof.
 - Doors, interior floors, walls, furniture, characters, and pathfinding remain part of the normal neighborhood scene. Ordinary buildings do not load separate interior maps.
@@ -85,7 +85,7 @@ The following decisions are currently locked:
 - Character source art is organized into legs, torso/clothing, head/face, hair, accessory, and optional held-item layers. The asset generator combines those layers into flat atlas cells before gameplay; the runtime renders the completed cells rather than rebuilding each character from layers every frame.
 - Ordinary two-frame walking uses a frame interval in the `130–160 ms` range.
 - Walking may use a one-pixel body lean, a one-pixel contact-shadow shift, and a small vertical bounce. Talking may use a one-pixel head or body bob without requiring another authored frame.
-- The prototype uses discrete `1×`, `2×`, and `3×` pixel-art zoom levels and never zooms below native `1×`.
+- The prototype lets the player select world zoom from `100%` through `300%` in `5%` increments and never zooms below native `1×`. Integer `1×`, `2×`, and `3×` remain the canonical pixel-art review scales.
 - Full left/right profile sprites are not part of the initial art system. If the front-facing horizontal walk is not readable in the prototype, the first fallback is one mirrored three-quarter head/hair view rather than a complete side-facing body redraw.
 - The game may show killings, blood, crime, betrayal, addiction, and adult relationships.
 - Local dialogue may discuss relevant fictional-adult relationships, consensual adult prostitution, crime, drugs, addiction, and violence. Explicit sexual detail, sexual violence, sexual content involving minors, and sexual content involving real people receive refusal or an authored fade to black.
@@ -300,13 +300,13 @@ Residential and relaxation ↔ Downtown entertainment
       Commercial          ↔    Docks and government
 ```
 
-The camera can move independently inside the current neighborhood. Holding the middle mouse button and dragging pans the camera. Optional edge panning may be enabled in settings. The mouse wheel cycles through discrete `1×`, `2×`, and `3×` zoom levels, with `1×` providing the broad neighborhood view and higher levels providing closer character views. Pressing `F` centers the camera on the protagonist. RimWorld and Prison Architect are control-and-map references only; their art, building systems, indirect pawn control, and game rules are not automatically inherited.
+The camera can move independently inside the current neighborhood. Holding the middle mouse button and dragging pans the camera. Optional edge panning may be enabled in settings. The mouse wheel changes world zoom by `5%` per rendered input step from `100%` through `300%`, anchored at the pointer. Visible decrease and increase controls change the same `5%` step around the viewport center and show the exact percentage. Pressing `F` centers the camera on the protagonist. RimWorld and Prison Architect are control-and-map references only; their art, building systems, indirect pawn control, and game rules are not automatically inherited.
 
 The protagonist is controlled through mouse clicks rather than required WASD movement. A click on a reachable destination creates a deterministic pathfinding request; movement, collision, arrival, and interruption remain conventional game-code responsibilities rather than LLM decisions.
 
 Walkable building interiors share the neighborhood tile map. Roofs are a separate occlusion layer grouped by building. A roof is visible while the protagonist is outside its building, then hides or fades when the protagonist crosses through a valid entrance into that building. Exterior walls remain visible so the room shape and exits stay readable. The roof returns after the protagonist leaves. Doors and indoor destinations use the same click-to-move and pathfinding system as outdoor tiles; ordinary buildings do not load separate interior scenes.
 
-The logical map tile is `32×32` pixels. An ordinary character occupies a `24×30` sprite cell positioned inside one tile, matching Hero Football Manager's existing match-character scale while leaving room for a contact shadow and readable separation from surrounding objects. On-screen zoom uses nearest-neighbor scaling at the locked whole-number prototype levels so hard pixel edges remain intact. The prototype does not scale the world below native `1×`.
+The logical map tile is `32×32` pixels. An ordinary character occupies a `24×30` sprite cell positioned inside one tile, matching Hero Football Manager's existing match-character scale while leaving room for a contact shadow and readable separation from surrounding objects. On-screen zoom keeps nearest-neighbor sampling throughout the `100%`–`300%` range. Fractional scales can repeat or skip physical pixels, so `1×`, `2×`, and `3×` remain the strict crispness and atlas-bleed review points. The prototype does not scale the world below native `1×`.
 
 SI World reuses Hero Football Manager's heroic-chibi character grammar and generation architecture: exaggerated readable faces, varied hair and silhouettes, hard-pixel palette ramps, and separate expressive conversation portraits. It does not copy football kits. SI World characters receive original clothing and the directional movement poses required by this game. Character source art is divided into legs, torso/clothing, head/face, hair, accessory, and an optional held item. These layers are combined during asset generation into flat cells in a runtime sprite atlas.
 
@@ -1078,7 +1078,7 @@ Each gate belongs to the earliest milestone that must prove it. Later milestones
 - **ART-02:** Each of those three characters has eight generated walking atlas cells: two front, two rear, two left, and two right.
 - **ART-03:** Each character has one outfit and one HFM-style conversation portrait; the scene uses approximately `8–12` original environment tiles.
 - **ART-04:** Front-facing horizontal movement remains readable at native `1×` through lateral legs, lean, shadow shift, and bounce. If it fails, the mirrored three-quarter head/hair fallback is tested before any full side body.
-- **ART-05:** Walking uses `130–160 ms` frame timing and nearest-neighbor `1×`, `2×`, and `3×` scaling without pixel smoothing.
+- **ART-05:** Walking uses `130–160 ms` frame timing and nearest-neighbor scaling throughout the `100%`–`300%` range. Canonical `1×`, `2×`, and `3×` captures remain free of smoothing and atlas bleed.
 - **ART-06:** The spike adds no sitting, combat, romance, or job animation.
 
 ### 17.3 Deterministic world vertical slice
@@ -1162,7 +1162,7 @@ Each gate belongs to the earliest milestone that must prove it. Later milestones
 32. Use visible `0–100` Energy and Health, slow Energy drain, event-only Health loss, about `25` Energy per nap, and about `80` per overnight sleep.
 33. Give each resident four to six daily schedule blocks and use milestone movement while off-screen.
 34. Use versioned JSON as authoritative state, generated Markdown prompt views, and three rotating autosaves.
-35. Use middle-mouse drag, optional edge pan, wheel zoom at `1×`/`2×`/`3×`, and `F` to center.
+35. Use middle-mouse drag, optional edge pan, pointer-anchored wheel zoom from `100%` through `300%` in `5%` increments, visible decrease/increase controls, and `F` to center.
 36. Validate invitations; let an NPC accept, reject, or counter-schedule; use normal travel.
 37. Use a fictional contemporary setting with no stated calendar year.
 38. Show a ferry but do not let the player use it in version one.

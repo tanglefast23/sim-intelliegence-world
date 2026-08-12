@@ -284,16 +284,24 @@ async function surfaceBounds(window: BrowserWindow): Promise<SurfaceBounds> {
 }
 
 function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom: number }> {
-  const match = /^World camera (-?\d+),(-?\d+) at (\d+)x$/u.exec(label);
+  const match = /^World camera (-?\d+),(-?\d+) at (\d+(?:\.\d+)?)x$/u.exec(label);
   if (!match) throw new Error(`Invalid camera label: ${label}`);
   return { x: Number(match[1]), y: Number(match[2]), zoom: Number(match[3]) };
 }
 
 async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<void> {
   await window.webContents.executeJavaScript(`(() => {
-    const button = document.querySelector('[aria-label="Set ${zoom}x zoom"]');
-    if (!(button instanceof HTMLElement)) throw new Error('${zoom}x zoom button is missing.');
-    button.click();
+    const value = document.querySelector('#world-ui-zoom-value');
+    if (!(value instanceof HTMLElement)) throw new Error('World zoom value is missing.');
+    const currentPercentage = Number.parseInt(value.textContent ?? '', 10);
+    const targetPercentage = ${zoom * 100};
+    if (!Number.isFinite(currentPercentage)) throw new Error('World zoom value is invalid.');
+    const label = targetPercentage > currentPercentage ? 'Increase world zoom' : 'Decrease world zoom';
+    const button = document.querySelector('[aria-label="' + label + '"]');
+    const clicks = Math.abs(targetPercentage - currentPercentage) / 5;
+    if (!Number.isInteger(clicks)) throw new Error('World zoom is not on a five-percent step.');
+    if (clicks > 0 && !(button instanceof HTMLElement)) throw new Error(label + ' button is missing.');
+    for (let index = 0; index < clicks; index += 1) button.click();
   })()`, true);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
@@ -1403,7 +1411,13 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     }));
   })()`, true);
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
-  const wheelZoom = (await cameraLabel(window)).endsWith('at 3x');
+  const wheelZoom = (await cameraLabel(window)).endsWith('at 2.05x');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 300));
+  const presentationAfterWheel = await window.webContents.executeJavaScript(
+    'window.siWorldDesktop?.loadPresentationPreferences()',
+    true,
+  ) as Readonly<{ worldZoom?: number }>;
+  const gradualZoomPersistence = presentationAfterWheel.worldZoom === 2.05;
 
   await clickZoomButton(window, 2);
   sendKey(window, 'F');
@@ -1772,7 +1786,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   return {
     newGameFlow, stableProtagonist, allowanceReceipt, newGameSave, accessibilityPolicy,
     responsiveSurface, resizeCamera, uiScaleControls,
-    zoomButtons, movement, middlePan, wheelZoom, centerKey, cancelKey, uiClickThrough, roofRestore, roofEntry,
+    zoomButtons, movement, middlePan, wheelZoom, gradualZoomPersistence, centerKey, cancelKey, uiClickThrough,
+    roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
     conversationPause, conversationInputLocked, conversationSocialNavLocked, conversationResponsiveState, promptIdeasContextual, conversationBuffered,

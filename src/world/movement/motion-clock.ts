@@ -35,7 +35,7 @@ export function sampleSegment(segment: MotionSegment): WorldPoint {
   };
 }
 
-export function snapWorldPoint(point: WorldPoint, zoom: 1 | 2 | 3, dpr: number): WorldPoint {
+export function snapWorldPoint(point: WorldPoint, zoom: number, dpr: number): WorldPoint {
   const physicalScale = zoom * Math.max(1, dpr);
   return {
     x: Math.round(point.x * physicalScale) / physicalScale,

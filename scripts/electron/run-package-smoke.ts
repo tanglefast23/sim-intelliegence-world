@@ -151,7 +151,7 @@ child.once('close', (code) => {
   for (const key of [
     'newGameFlow', 'stableProtagonist', 'allowanceReceipt', 'newGameSave', 'accessibilityPolicy',
     'responsiveSurface', 'resizeCamera', 'uiScaleControls',
-    'zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'centerKey', 'cancelKey', 'uiClickThrough',
+    'zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'gradualZoomPersistence', 'centerKey', 'cancelKey', 'uiClickThrough',
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',

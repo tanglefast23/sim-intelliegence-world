@@ -1,11 +1,15 @@
 import { z } from 'zod';
 
+import { isWorldZoom } from '../../domain/presentation/world-zoom';
 import { MAP_IDS } from '../../world/maps/catalog';
 
 export const UiScaleSchema = z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]);
+export const WorldZoomSchema = z.number().refine(isWorldZoom, {
+  message: 'World zoom must be from 100% to 300% in 5% increments.',
+});
 export const PresentationPreferencesSchema = z.object({
   schemaVersion: z.literal(1),
-  worldZoom: z.union([z.literal(1), z.literal(2), z.literal(3)]).nullable(),
+  worldZoom: WorldZoomSchema.nullable(),
   uiScale: UiScaleSchema.nullable(),
   camera: z.object({
     mapId: z.enum(MAP_IDS),

@@ -32,6 +32,8 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     let lastMiddlePoint: ScreenPoint | undefined;
     let pendingPan = { x: 0, y: 0 };
     let panFrame = 0;
+    let pendingZoom: Readonly<{ direction: -1 | 1; anchor: ScreenPoint }> | undefined;
+    let zoomFrame = 0;
 
     const flushPan = () => {
       panFrame = 0;
@@ -41,6 +43,15 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     const queuePan = (delta: ScreenPoint) => {
       pendingPan = { x: pendingPan.x + delta.x, y: pendingPan.y + delta.y };
       if (panFrame === 0) panFrame = requestAnimationFrame(flushPan);
+    };
+    const flushZoom = () => {
+      zoomFrame = 0;
+      if (pendingZoom) handlersRef.current.onZoom(pendingZoom.direction, pendingZoom.anchor);
+      pendingZoom = undefined;
+    };
+    const queueZoom = (direction: -1 | 1, anchor: ScreenPoint) => {
+      pendingZoom = { direction, anchor };
+      if (zoomFrame === 0) zoomFrame = requestAnimationFrame(flushZoom);
     };
     const isUiTarget = (target: EventTarget | null) =>
       target instanceof Element && Boolean(target.closest('[id^="world-ui-"]'));
@@ -73,8 +84,9 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
       if (isUiTarget(event.target)) return;
       const point = eventPoint(event, element);
       if (!handlersRef.current.isPointInteractive(point)) return;
+      if (event.deltaY === 0) return;
       event.preventDefault();
-      handlersRef.current.onZoom(event.deltaY < 0 ? 1 : -1, point);
+      queueZoom(event.deltaY < 0 ? 1 : -1, point);
     };
     const handleKey = (event: KeyboardEvent) => {
       const target = event.target;
@@ -104,6 +116,7 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     window.addEventListener('keydown', handleKey);
     return () => {
       if (panFrame !== 0) cancelAnimationFrame(panFrame);
+      if (zoomFrame !== 0) cancelAnimationFrame(zoomFrame);
       element.removeEventListener('pointerdown', handlePointerDown);
       element.removeEventListener('pointermove', handlePointerMove);
       element.removeEventListener('pointerup', releasePointer);

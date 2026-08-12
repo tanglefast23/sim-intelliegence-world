@@ -14,7 +14,7 @@ export type ResponsiveEvidence = Readonly<{
   devicePixelRatio: number;
   canvas: Readonly<{ backingWidth: number; backingHeight: number }>;
   automaticWorldZoom: 1 | 2 | 3;
-  selectedWorldZoom: 1 | 2 | 3;
+  selectedWorldZoom: number;
   uiScale: UiScale;
   camera: CameraState;
   mapId: MapId;

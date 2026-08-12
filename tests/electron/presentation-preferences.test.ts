@@ -17,13 +17,14 @@ describe('main-owned presentation preferences', () => {
     }));
     await repository.saveWindowSize({ width: 1_440, height: 900 });
     const saved = await repository.saveRendererPatch({
-      worldZoom: 2,
+      worldZoom: 1.55,
       uiScale: 1.25,
       camera: { mapId: 'northwest_residential', x: 100, y: 200 },
     });
     expect(saved.windowSize).toEqual({ width: 1_440, height: 900 });
     expect(JSON.parse(await readFile(path, 'utf8'))).toEqual(saved);
-    await expect(repository.saveRendererPatch({ worldZoom: 1.5 })).rejects.toThrow();
+    expect(saved.worldZoom).toBe(1.55);
+    await expect(repository.saveRendererPatch({ worldZoom: 1.53 })).rejects.toThrow('5% increments');
   });
 
   test('ignores invalid persisted data without overwriting it', async () => {
