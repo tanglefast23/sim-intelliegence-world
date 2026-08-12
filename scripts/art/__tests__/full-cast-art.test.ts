@@ -210,6 +210,7 @@ describe('full-cast shared-source character art', () => {
     const scores = CHARACTER_LOOKS.map(({ id }) => scoreCharacterAgainstProtagonist(sourceById.get(id)!));
     expect(scores.map(({ characterId }) => characterId)).toEqual(CHARACTER_LOOKS.map(({ id }) => id));
     expect(scores.every(({ identityRetained }) => identityRetained)).toBe(true);
+    expect(scores.every(({ passed }) => passed)).toBe(true);
     expect(Math.min(...scores.map(({ score }) => score))).toBeGreaterThanOrEqual(PROTAGONIST_STYLE_PASS_SCORE);
   });
 

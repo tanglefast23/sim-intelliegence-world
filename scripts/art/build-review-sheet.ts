@@ -56,7 +56,7 @@ const PIXEL_FONT: Readonly<Record<string, readonly string[]>> = {
   Z: ['111', '001', '010', '100', '111'],
 };
 
-function drawText(bitmap: Bitmap, source: string, x: number, y: number, color: Rgba, scale = 1): void {
+export function drawText(bitmap: Bitmap, source: string, x: number, y: number, color: Rgba, scale = 1): void {
   [...source.toUpperCase()].forEach((character, characterIndex) => {
     const glyph = PIXEL_FONT[character] ?? PIXEL_FONT[' '] as readonly string[];
     glyph.forEach((row, rowIndex) => {

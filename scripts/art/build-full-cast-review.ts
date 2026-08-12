@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import type { AtlasIndex, AtlasRect } from './build-world-atlas';
+import { drawText } from './build-review-sheet';
 import {
   addOutwardContour,
   composeFrontFrame,
@@ -23,6 +24,7 @@ import {
 } from './png';
 
 const DIRECTIONS = ['front-1', 'front-2', 'rear-1', 'rear-2', 'left-1', 'left-2', 'right-1', 'right-2'] as const;
+const COMPARISON_DIRECTIONS = ['front-1', 'rear-1', 'left-1', 'right-1'] as const;
 
 function crop(source: Bitmap, rectangle: AtlasRect): Bitmap {
   const target = createBitmap(rectangle.width, rectangle.height);
@@ -88,6 +90,36 @@ function pairwiseMinimumDifferences(sources: readonly CharacterSource[]): number
   return minimum;
 }
 
+function heroComparisonBoard(
+  atlas: Bitmap,
+  index: AtlasIndex,
+  sources: readonly CharacterSource[],
+): Bitmap {
+  const rowHeight = 44;
+  const headerHeight = 25;
+  const board = createBitmap(384, headerHeight + sources.length * rowHeight + 6, parseHexColor('#17151b'));
+  const ink = parseHexColor('#f4e4a6');
+  const mutedInk = parseHexColor('#a9a3b2');
+  const heroPanel = parseHexColor('#403927');
+  const characterPanel = parseHexColor('#243642');
+  drawText(board, 'CHARACTER', 8, 8, mutedInk);
+  drawText(board, 'HERO  FRONT BACK LEFT RIGHT', 116, 8, ink);
+  drawText(board, 'CAST  FRONT BACK LEFT RIGHT', 256, 8, ink);
+
+  sources.forEach((source, row) => {
+    const y = headerHeight + row * rowHeight;
+    fillRect(board, 4, y + 2, 104, rowHeight - 4, parseHexColor(row % 2 === 0 ? '#25232b' : '#312e36'));
+    fillRect(board, 112, y + 2, 128, rowHeight - 4, heroPanel);
+    fillRect(board, 244, y + 2, 136, rowHeight - 4, characterPanel);
+    drawText(board, source.displayName, 8, y + 19, ink);
+    COMPARISON_DIRECTIONS.forEach((direction, column) => {
+      blit(sprite(atlas, index, `character.protagonist.${direction}`), board, 120 + column * 29, y + 7);
+      blit(sprite(atlas, index, `character.${source.id}.${direction}`), board, 252 + column * 29, y + 7);
+    });
+  });
+  return board;
+}
+
 export type FullCastReviewReport = Readonly<{
   schemaVersion: 1;
   artRevision: number;
@@ -126,11 +158,19 @@ export function writeFullCastReview(outputRoot: string, root = process.cwd()): F
     blit(sprite(atlas, index, portraits.upset ?? `portrait.${source.id}`), board, 444, y);
   });
 
-  const files = ['full-cast-identity-1x.png', 'full-cast-identity-3x.png'] as const;
+  const files = [
+    'full-cast-identity-1x.png',
+    'full-cast-identity-3x.png',
+    'hero-vs-full-cast-directions-3x.png',
+  ] as const;
   writeFileSync(resolve(outputRoot, files[0]), encodePng(board), { flush: true });
   const scaled = createBitmap(board.width * 3, board.height * 3, parseHexColor('#17151b'));
   blitScaled(board, scaled, 0, 0, 3);
   writeFileSync(resolve(outputRoot, files[1]), encodePng(scaled), { flush: true });
+  const comparison = heroComparisonBoard(atlas, index, sources);
+  const comparison3x = createBitmap(comparison.width * 3, comparison.height * 3, parseHexColor('#17151b'));
+  blitScaled(comparison, comparison3x, 0, 0, 3);
+  writeFileSync(resolve(outputRoot, files[2]), encodePng(comparison3x), { flush: true });
 
   const report: FullCastReviewReport = Object.freeze({
     schemaVersion: 1,
