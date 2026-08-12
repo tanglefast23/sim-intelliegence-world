@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import northwestMapJson from '../../../content/maps/northwest.json';
-import revision12PixelHashes from '../../../assets/source/art/revision-12-pixel-hashes.json';
+import revision13PixelHashes from '../../../assets/source/art/revision-13-pixel-hashes.json';
 import { buildAtlas } from '../build-world-atlas';
 import { decodePng } from '../png';
 import {
@@ -53,7 +53,7 @@ function alphaCount(pixels: Buffer): number {
 describe('Phase 30 complete Tier A Sunward art', () => {
   const built = buildAtlas();
   const bitmap = decodePng(built.png);
-  const revision12Cells = revision12PixelHashes.cells as Readonly<Record<string, string>>;
+  const revision13Cells = revision13PixelHashes.cells as Readonly<Record<string, string>>;
 
   test('keeps the authoritative Sunward geometry byte-identical', () => {
     const source = readFileSync(resolve(process.cwd(), 'content/maps/northwest.json'));
@@ -61,7 +61,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
   });
 
   test('makes all completed Sunward materials and states public and revisioned', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(12);
+    expect(ART_PRESENTATION_REVISION).toBe(13);
     expect(MATERIAL_RECIPE_BY_ID['warm-sand']?.publicVariantSprites).toEqual([
       'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
     ]);
@@ -78,8 +78,8 @@ describe('Phase 30 complete Tier A Sunward art', () => {
       expect(built.index.publicSpriteIds).toContain(id);
       const rectangle = built.index.sprites[id];
       expect(rectangle).toBeDefined();
-      expect(revision12Cells[id]).toBeDefined();
-      expect(cellHash(bitmap, rectangle!)).toBe(revision12Cells[id]);
+      expect(revision13Cells[id]).toBeDefined();
+      expect(cellHash(bitmap, rectangle!)).toBe(revision13Cells[id]);
     }
   });
 
@@ -89,7 +89,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
       const pixels = rectanglePixels(bitmap, rectangle!);
       expect(alphaCount(pixels)).toBeGreaterThanOrEqual(600);
       const hash = createHash('sha256').update(pixels).digest('hex');
-      expect(hash).toBe(revision12Cells[id]);
+      expect(hash).toBe(revision13Cells[id]);
       return hash;
     });
     expect(new Set(villaHashes).size).toBe(16);

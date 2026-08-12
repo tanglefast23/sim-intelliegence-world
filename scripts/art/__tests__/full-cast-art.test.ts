@@ -12,7 +12,7 @@ import {
   type DrawCommand,
   type TokenFrame,
 } from '../character-source';
-import { composeLateralFrame } from '../lateral-legs';
+import { composeLateralFrame, getLateralIdentityCommandSets } from '../lateral-legs';
 import { parseHexColor } from '../png';
 import { deriveRearFrame } from '../rear-frame';
 import { CHARACTER_LOOKS } from '../character-look-roster';
@@ -245,19 +245,28 @@ describe('full-cast shared-source character art', () => {
         ['front', 'rear', 'left', 'right'] as const
       ).every((direction) => visibleIn.includes(direction)));
       expect(feature).toBeDefined();
-      const commands = feature ? source.sourceLayers[feature.layer]?.commands ?? [] : [];
-      const featurePixels = painted(layerFrame(commands));
-      expect(featurePixels.size).toBeGreaterThan(0);
+      const look = CHARACTER_LOOKS.find(({ id }) => id === source.id)!;
+      const identity = getCharacterIdentityCommandSets(look);
+      const frontFeaturePixels = [identity.primaryWorld, identity.secondaryWorld].map(
+        (commands) => painted(layerFrame(commands)),
+      );
+      expect(frontFeaturePixels.every((pixels) => pixels.size > 0)).toBe(true);
       const front = composeFrontFrame(source, 0);
-      const frames = [
-        front,
-        deriveRearFrame(front, source),
-        composeLateralFrame(source, 'left', 0),
-        composeLateralFrame(source, 'right', 0),
-      ];
-      for (const frame of frames) {
+      const directionalCases = [
+        [front, frontFeaturePixels],
+        [deriveRearFrame(front, source), frontFeaturePixels],
+        [composeLateralFrame(source, 'left', 0), Object.values(getLateralIdentityCommandSets(source, 'left')).map(
+          (commands) => painted(layerFrame(commands)),
+        )],
+        [composeLateralFrame(source, 'right', 0), Object.values(getLateralIdentityCommandSets(source, 'right')).map(
+          (commands) => painted(layerFrame(commands)),
+        )],
+      ] as const;
+      for (const [frame, featurePixelSets] of directionalCases) {
         const composedPixels = painted(frame);
-        expect([...featurePixels].some((pixel) => composedPixels.has(pixel))).toBe(true);
+        expect(featurePixelSets.some((featurePixels) => (
+          [...featurePixels].some((pixel) => composedPixels.has(pixel))
+        ))).toBe(true);
       }
     },
   );

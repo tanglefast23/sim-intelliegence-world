@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "artRevision": 12,
-  "toolVersion": "atlas-v8-protagonist-style-cast",
+  "artRevision": 13,
+  "toolVersion": "atlas-v9-authored-full-cast",
   "indexVersion": 3,
   "publicIdPrefixes": [
     "tile.",

@@ -1,0 +1,1046 @@
+{
+  "schemaVersion": 2,
+  "referenceCharacterId": "protagonist",
+  "scoreMeaning": "A deterministic final-render feature-completeness gate. It checks hair values, eyes, brows, mouth, hands, accessory placement, true profiles, rear facing, identity retention, and pose stability. It is not a subjective art-quality rating.",
+  "passScore": 9.7,
+  "reviewOrder": "character-look-roster",
+  "allPassed": true,
+  "minimumScore": 10,
+  "scores": [
+    {
+      "characterId": "devon-price",
+      "displayName": "Devon Price",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "elise-moreau",
+      "displayName": "Elise Moreau",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "generic-resident",
+      "displayName": "Resident",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "linda",
+      "displayName": "Linda",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "cloud-sized side hair crosses the left eye",
+        "the side-cloud hair covers the profile eye"
+      ]
+    },
+    {
+      "characterId": "mina-park",
+      "displayName": "Mina Park",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "priya-nair",
+      "displayName": "Priya Nair",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "protagonist",
+      "displayName": "Protagonist",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the authored swept forelock covers the right profile eye"
+      ]
+    },
+    {
+      "characterId": "rafael-cruz",
+      "displayName": "Rafael Cruz",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "sora-tan",
+      "displayName": "Sora Tan",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the bob fringe crosses the left eye"
+      ]
+    },
+    {
+      "characterId": "tomas-reed",
+      "displayName": "Tomas Reed",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "linda-boyfriend",
+      "displayName": "Linda's Boyfriend",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-01",
+      "displayName": "Resident 01",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-02",
+      "displayName": "Resident 02",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-03",
+      "displayName": "Resident 03",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-04",
+      "displayName": "Resident 04",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-05",
+      "displayName": "Resident 05",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-06",
+      "displayName": "Resident 06",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the straw hat and braids cover the profile eye"
+      ]
+    },
+    {
+      "characterId": "resident-07",
+      "displayName": "Resident 07",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-08",
+      "displayName": "Resident 08",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-09",
+      "displayName": "Resident 09",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the bob and giant bow cross the left eye"
+      ]
+    },
+    {
+      "characterId": "resident-10",
+      "displayName": "Resident 10",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-11",
+      "displayName": "Resident 11",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-12",
+      "displayName": "Resident 12",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-13",
+      "displayName": "Resident 13",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-14",
+      "displayName": "Resident 14",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-15",
+      "displayName": "Resident 15",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-16",
+      "displayName": "Resident 16",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-17",
+      "displayName": "Resident 17",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the one-ear cap and long hair cross the left eye",
+        "the one-ear cap partly covers the profile eye"
+      ]
+    },
+    {
+      "characterId": "resident-18",
+      "displayName": "Resident 18",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-19",
+      "displayName": "Resident 19",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-20",
+      "displayName": "Resident 20",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the star glasses cross the eye boxes"
+      ]
+    },
+    {
+      "characterId": "resident-21",
+      "displayName": "Resident 21",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the side braid covers the profile eye"
+      ]
+    },
+    {
+      "characterId": "resident-22",
+      "displayName": "Resident 22",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": [
+        "the near braid covers the profile eye"
+      ]
+    },
+    {
+      "characterId": "resident-23",
+      "displayName": "Resident 23",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    },
+    {
+      "characterId": "resident-24",
+      "displayName": "Resident 24",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "hairRendering": 2,
+        "eyesAndBrows": 1.75,
+        "mouth": 1,
+        "hands": 1,
+        "accessoryPlacement": 1,
+        "directionalFacing": 2,
+        "identityRetention": 0.75,
+        "stableFloatingPose": 0.5
+      },
+      "renderedChecks": {
+        "hairValues": true,
+        "frontEyes": true,
+        "frontBrows": true,
+        "mouth": true,
+        "frontHands": true,
+        "leftProfile": true,
+        "rightProfile": true,
+        "rearFacing": true,
+        "stablePose": true
+      },
+      "intentionalOcclusions": []
+    }
+  ]
+}

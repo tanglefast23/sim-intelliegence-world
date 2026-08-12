@@ -21,9 +21,9 @@ function main(root = process.cwd()): void {
   });
   const failed = scores.filter(({ passed }) => !passed);
   const report = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     referenceCharacterId: 'protagonist',
-    scoreMeaning: 'Shared face, eye, body, portrait, direction, floating-base, and stable-pose proportions. Identity colors and features are excluded from likeness scoring.',
+    scoreMeaning: 'A deterministic final-render feature-completeness gate. It checks hair values, eyes, brows, mouth, hands, accessory placement, true profiles, rear facing, identity retention, and pose stability. It is not a subjective art-quality rating.',
     passScore: PROTAGONIST_STYLE_PASS_SCORE,
     reviewOrder: 'character-look-roster',
     allPassed: failed.length === 0,
@@ -34,7 +34,9 @@ function main(root = process.cwd()): void {
   const output = resolve(outputRoot, 'protagonist-style-scores.json');
   writeFileSync(output, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });
   for (const score of scores) {
-    process.stdout.write(`${score.passed ? 'PASS' : 'FAIL'} ${score.characterId}: ${score.score.toFixed(2)}/10\n`);
+    process.stdout.write(
+      `${score.passed ? 'PASS' : 'FAIL'} ${score.characterId}: final-render feature completeness ${score.score.toFixed(2)}/10\n`,
+    );
   }
   if (failed.length > 0) {
     throw new Error(`${failed.length} characters remain below ${PROTAGONIST_STYLE_PASS_SCORE.toFixed(1)}/10.`);

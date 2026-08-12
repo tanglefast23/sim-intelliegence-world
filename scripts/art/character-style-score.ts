@@ -1,22 +1,18 @@
 import {
   WORLD_CELL,
-  addOutwardContour,
   composeFrontFrame,
-  drawTokenCommands,
-  emptyTokenFrame,
-  getCharacterGeometryCommandSets,
   getCharacterIdentityCommandSets,
-  tokenFrameToBitmap,
   type CharacterSource,
-  type DrawCommand,
   type TokenFrame,
 } from './character-source';
 import { CHARACTER_LOOKS, type CharacterLook } from './character-look-roster';
-import { composeLateralFrame } from './lateral-legs';
+import { composeLateralFrame, getLateralIdentityCommandSets } from './lateral-legs';
 import { protagonistReferenceFrames } from './protagonist-reference';
 import { deriveRearFrame } from './rear-frame';
 
 export const PROTAGONIST_STYLE_PASS_SCORE = 9.7;
+
+type Direction = 'front' | 'rear' | 'left' | 'right';
 
 export type CharacterStyleScore = Readonly<{
   characterId: string;
@@ -25,34 +21,50 @@ export type CharacterStyleScore = Readonly<{
   passed: boolean;
   identityRetained: boolean;
   categories: Readonly<{
-    faceProportions: number;
-    eyeProportions: number;
-    worldBody: number;
-    directionalSilhouette: number;
-    portraitProportions: number;
-    floatingBase: number;
-    stablePose: number;
+    hairRendering: number;
+    eyesAndBrows: number;
+    mouth: number;
+    hands: number;
+    accessoryPlacement: number;
+    directionalFacing: number;
+    identityRetention: number;
+    stableFloatingPose: number;
   }>;
-  directionSimilarity: Readonly<Record<'front' | 'rear' | 'left' | 'right', number>>;
+  renderedChecks: Readonly<Record<
+    'hairValues' | 'frontEyes' | 'frontBrows' | 'mouth' | 'frontHands' |
+    'leftProfile' | 'rightProfile' | 'rearFacing' | 'stablePose',
+    boolean
+  >>;
+  intentionalOcclusions: readonly string[];
 }>;
 
-const STYLE_WEIGHTS = Object.freeze({
-  faceProportions: 2,
-  eyeProportions: 2,
-  worldBody: 2,
-  directionalSilhouette: 1.5,
-  portraitProportions: 1,
-  floatingBase: 1,
-  stablePose: 0.5,
+const CATEGORY_WEIGHTS = Object.freeze({
+  hairRendering: 2,
+  eyesAndBrows: 1.75,
+  mouth: 1,
+  hands: 1,
+  accessoryPlacement: 1,
+  directionalFacing: 2,
+  identityRetention: 0.75,
+  stableFloatingPose: 0.5,
 });
 
-const EXPECTED_FACE_BOUNDS = Object.freeze({ left: 4, right: 19, top: 4, bottom: 17 });
-const EXPECTED_EYES = Object.freeze([
-  [7, 13, 'W'], [8, 13, 'K'], [9, 13, 'W'], [10, 13, 'D'],
-  [13, 13, 'W'], [14, 13, 'K'], [15, 13, 'W'], [16, 13, 'D'],
-  [7, 14, 'W'], [8, 14, 'K'], [9, 14, 'W'], [10, 14, 'D'],
-  [13, 14, 'W'], [14, 14, 'K'], [15, 14, 'W'], [16, 14, 'D'],
-] as const);
+const INTENTIONAL_FRONT_EYE_OCCLUSION: Readonly<Record<string, string>> = Object.freeze({
+  linda: 'cloud-sized side hair crosses the left eye',
+  'sora-tan': 'the bob fringe crosses the left eye',
+  'resident-09': 'the bob and giant bow cross the left eye',
+  'resident-17': 'the one-ear cap and long hair cross the left eye',
+  'resident-20': 'the star glasses cross the eye boxes',
+});
+
+const INTENTIONAL_PROFILE_EYE_OCCLUSION: Readonly<Record<string, string>> = Object.freeze({
+  protagonist: 'the authored swept forelock covers the right profile eye',
+  linda: 'the side-cloud hair covers the profile eye',
+  'resident-06': 'the straw hat and braids cover the profile eye',
+  'resident-17': 'the one-ear cap partly covers the profile eye',
+  'resident-21': 'the side braid covers the profile eye',
+  'resident-22': 'the near braid covers the profile eye',
+});
 
 function lookFor(source: CharacterSource): CharacterLook {
   const look = CHARACTER_LOOKS.find(({ id }) => id === source.id);
@@ -60,182 +72,208 @@ function lookFor(source: CharacterSource): CharacterLook {
   return look;
 }
 
-function commandFrame(commands: readonly DrawCommand[], width: number, height: number): TokenFrame {
-  const frame = emptyTokenFrame(width, height);
-  drawTokenCommands(frame, commands);
-  return frame;
-}
-
-function boundsForTokens(frame: TokenFrame, tokens: ReadonlySet<string>): Readonly<{
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-}> | undefined {
-  const points = frame.flatMap((row, y) => [...row].flatMap(
-    (token, x) => tokens.has(token) ? [[x, y] as const] : [],
-  ));
-  if (points.length === 0) return undefined;
-  return {
-    left: Math.min(...points.map(([x]) => x)),
-    right: Math.max(...points.map(([x]) => x)),
-    top: Math.min(...points.map(([, y]) => y)),
-    bottom: Math.max(...points.map(([, y]) => y)),
-  };
-}
-
-function alphaRows(frame: TokenFrame, source: CharacterSource): number[] {
-  const bitmap = addOutwardContour(
-    tokenFrameToBitmap(frame, source.palette),
-    [33, 28, 39, 255],
-    true,
-  );
-  return Array.from({ length: WORLD_CELL.height }, (_unused, y) => {
-    const columns = Array.from({ length: WORLD_CELL.width }, (_entry, x) => x).filter(
-      (x) => bitmap.data[(y * WORLD_CELL.width + x) * 4 + 3] !== 0,
-    );
-    return columns.length === 0 ? 0 : Math.max(...columns) - Math.min(...columns) + 1;
-  });
-}
-
-function tokenRows(frame: TokenFrame): number[] {
-  return frame.map((row) => {
-    const columns = [...row].flatMap((token, x) => token === '.' ? [] : [x]);
-    return columns.length === 0 ? 0 : Math.max(...columns) - Math.min(...columns) + 1;
-  });
-}
-
-function rowSimilarity(actual: readonly number[], expected: readonly number[]): number {
-  const expectedMass = expected.reduce((sum, width) => sum + width, 0);
-  const distance = expected.reduce(
-    (sum, width, index) => sum + Math.abs(width - (actual[index] ?? 0)),
-    0,
-  );
-  return expectedMass === 0 ? 1 : Math.max(0, 1 - distance / expectedMass);
-}
-
-function occupancySignature(commands: readonly DrawCommand[], width: number, height: number): string {
-  return commandFrame(commands, width, height)
-    .map((row) => [...row].map((token) => token === '.' ? '.' : '#').join(''))
-    .join('\n');
-}
-
-function styleOnlySource(source: CharacterSource): CharacterSource {
-  const geometry = getCharacterGeometryCommandSets(lookFor(source));
-  return {
-    ...source,
-    sourceLayers: {
-      ...source.sourceLayers,
-      legs: geometry.legs,
-      torsoAndClothing: { commands: [...geometry.worldBody] },
-      hair: { commands: [] },
-      accessory: { commands: [] },
-      heldItem: { commands: [] },
-    },
-  };
-}
-
-function styleFrames(source: CharacterSource): Readonly<Record<'front' | 'rear' | 'left' | 'right', TokenFrame>> {
-  const base = styleOnlySource(source);
-  const front = composeFrontFrame(base, 0);
+function renderedFrames(source: CharacterSource): Readonly<Record<Direction, TokenFrame>> {
+  const authored = protagonistReferenceFrames(source.id);
+  if (authored) {
+    return {
+      front: authored['front-1'],
+      rear: authored['rear-1'],
+      left: authored['left-1'],
+      right: authored['right-1'],
+    };
+  }
+  const front = composeFrontFrame(source, 0);
   return {
     front,
-    rear: deriveRearFrame(front, base),
-    left: composeLateralFrame(base, 'left', 0),
-    right: composeLateralFrame(base, 'right', 0),
+    rear: deriveRearFrame(front, source),
+    left: composeLateralFrame(source, 'left', 0),
+    right: composeLateralFrame(source, 'right', 0),
   };
 }
 
-function exactRatio(actual: unknown, expected: unknown): number {
-  return JSON.stringify(actual) === JSON.stringify(expected) ? 1 : 0;
+function tokensIn(
+  frame: TokenFrame,
+  rows: readonly number[],
+  columns: readonly number[],
+): string[] {
+  return rows.flatMap((row) => columns.map((column) => frame[row]?.[column] ?? '.'));
+}
+
+function tokenCount(tokens: readonly string[], accepted: ReadonlySet<string>): number {
+  return tokens.filter((token) => accepted.has(token)).length;
+}
+
+function commandPoints(commands: readonly import('./character-source').DrawCommand[]): readonly (readonly [number, number, string])[] {
+  return commands.flatMap((command) => command.kind === 'pixels'
+    ? command.points.map(([x, y]) => [x, y, command.token] as const)
+    : Array.from({ length: command.width * command.height }, (_unused, index) => [
+      command.x + index % command.width,
+      command.y + Math.floor(index / command.width),
+      command.token,
+    ] as const));
+}
+
+function renderedFeatureVisible(
+  frame: TokenFrame,
+  commands: readonly import('./character-source').DrawCommand[],
+): boolean {
+  return commandPoints(commands).some(([x, y, token]) => {
+    const rendered = frame[y]?.[x];
+    if (['H', 'h', 'K'].includes(token)) return ['H', 'h', 'K'].includes(rendered as string);
+    return rendered === token;
+  });
+}
+
+function hasConnectedHighlight(frame: TokenFrame): boolean {
+  for (let y = 0; y < Math.min(18, frame.length); y += 1) {
+    for (let x = 0; x < (frame[y]?.length ?? 0); x += 1) {
+      if (frame[y]?.[x] !== 'h') continue;
+      if (
+        frame[y]?.[x + 1] === 'h' || frame[y]?.[x - 1] === 'h' ||
+        frame[y + 1]?.[x] === 'h' || frame[y - 1]?.[x] === 'h'
+      ) return true;
+    }
+  }
+  return false;
+}
+
+function hairValuesPass(frames: Readonly<Record<Direction, TokenFrame>>, look: CharacterLook): boolean {
+  if (look.hair === 'bald') return true;
+  return Object.values(frames).every((frame) => {
+    const hairRegion = frame.slice(0, 18).join('');
+    return hairRegion.includes('H') && hairRegion.includes('h') &&
+      hairRegion.includes('K') && hasConnectedHighlight(frame);
+  });
+}
+
+function eyeWhiteCount(frame: TokenFrame, direction: 'front' | 'left' | 'right'): number {
+  const columns = direction === 'front'
+    ? Array.from({ length: 14 }, (_unused, index) => index + 5)
+    : Array.from({ length: 18 }, (_unused, index) => index + 3);
+  return tokenCount(tokensIn(frame, [13, 14], columns), new Set(['W']));
+}
+
+function browPass(frame: TokenFrame, source: CharacterSource): boolean {
+  const browTokens = tokensIn(frame, [11], Array.from({ length: 12 }, (_unused, index) => index + 6));
+  const visible = tokenCount(browTokens, new Set(['H', 'h', 'K']));
+  return visible >= 4 || source.id in INTENTIONAL_FRONT_EYE_OCCLUSION;
+}
+
+function mouthPass(frame: TokenFrame, look: CharacterLook): boolean {
+  const mouth = tokensIn(frame, [16], [10, 11, 12, 13]);
+  const visibleLip = tokenCount(mouth, new Set(['s', 'K']));
+  return visibleLip >= 2 || ['curl-moustache', 'spiral-moustache'].includes(look.oddity);
+}
+
+function handPass(frame: TokenFrame, direction: Direction, look: CharacterLook, characterId: string): boolean {
+  const handRegion = tokensIn(
+    frame,
+    [23, 24, 25, 26],
+    Array.from({ length: 20 }, (_unused, index) => index + 2),
+  );
+  const skinPixels = tokenCount(handRegion, new Set(['S', 's', 'L']));
+  if (direction === 'rear') return true;
+  if (characterId === 'protagonist') return skinPixels >= (direction === 'front' ? 2 : 3);
+  if (look.oddity === 'giant-gloves') return tokenCount(handRegion, new Set(['A', 'a'])) >= 8;
+  return skinPixels >= (direction === 'front' ? 4 : 3);
+}
+
+function silhouette(frame: TokenFrame): string {
+  return frame.map((row) => [...row].map((token) => token === '.' ? '.' : '#').join('')).join('\n');
+}
+
+function openMargins(frame: TokenFrame): boolean {
+  return [...(frame[0] ?? '')].every((token) => token === '.') &&
+    frame.every((row) => row[0] === '.' && row[WORLD_CELL.width - 1] === '.');
+}
+
+function roundedBase(frame: TokenFrame): boolean {
+  const bottom = frame.at(-1) ?? '';
+  const painted = [...bottom].filter((token) => token !== '.').length;
+  return painted >= 6 && painted <= 12;
+}
+
+function categoryScore(pass: boolean, weight: number): number {
+  return pass ? weight : 0;
 }
 
 export function scoreCharacterAgainstProtagonist(source: CharacterSource): CharacterStyleScore {
   const look = lookFor(source);
-  const headFrame = commandFrame(source.sourceLayers.headAndFace.commands, WORLD_CELL.width, WORLD_CELL.height);
-  const faceBounds = boundsForTokens(headFrame, new Set(['S', 's', 'L']));
-  const faceRatio = exactRatio(faceBounds, EXPECTED_FACE_BOUNDS);
-  const eyeMatches = EXPECTED_EYES.filter(([x, y, token]) => headFrame[y]?.[x] === token).length;
-  const eyeRatio = eyeMatches / EXPECTED_EYES.length;
-
-  const reference = protagonistReferenceFrames('protagonist');
-  if (!reference) throw new Error('Missing protagonist reference frames.');
-  const frames = source.id === 'protagonist'
-    ? {
-      front: reference['front-1'],
-      rear: reference['rear-1'],
-      left: reference['left-1'],
-      right: reference['right-1'],
-    }
-    : styleFrames(source);
-  const renderedRows = Object.fromEntries(Object.entries(frames).map(([direction, frame]) => [
-    direction,
-    source.id === 'protagonist' ? tokenRows(frame) : alphaRows(frame, source),
-  ])) as Readonly<Record<'front' | 'rear' | 'left' | 'right', number[]>>;
-  const directionSimilarity = {
-    front: rowSimilarity(renderedRows.front.slice(18), tokenRows(reference['front-1']).slice(18)),
-    rear: rowSimilarity(renderedRows.rear.slice(18), tokenRows(reference['rear-1']).slice(18)),
-    left: rowSimilarity(renderedRows.left.slice(18), tokenRows(reference['left-1']).slice(18)),
-    right: rowSimilarity(renderedRows.right.slice(18), tokenRows(reference['right-1']).slice(18)),
-  };
-  const averageDirectionSimilarity = Object.values(directionSimilarity).reduce(
-    (sum, similarity) => sum + similarity,
-    0,
-  ) / 4;
-
-  const frontWidths = renderedRows.front;
-  const frontReferenceWidths = tokenRows(reference['front-1']);
-  const frontSilhouetteRatio = rowSimilarity(frontWidths.slice(18), frontReferenceWidths.slice(18));
-  const frontBaseMatches = exactRatio(frontWidths.slice(27), frontReferenceWidths.slice(27));
-  const worldBodyRatio = frontSilhouetteRatio * 0.75 + frontBaseMatches * 0.25;
-
-  const protagonistLook = CHARACTER_LOOKS.find(({ id }) => id === 'protagonist');
-  if (!protagonistLook) throw new Error('Missing protagonist look.');
-  const portraitRatio = exactRatio(
-    occupancySignature(getCharacterGeometryCommandSets(look).portraitBody, 24, 29),
-    occupancySignature(getCharacterGeometryCommandSets(protagonistLook).portraitBody, 24, 29),
+  const frames = renderedFrames(source);
+  const frontEyeOcclusion = INTENTIONAL_FRONT_EYE_OCCLUSION[source.id];
+  const profileEyeOcclusion = INTENTIONAL_PROFILE_EYE_OCCLUSION[source.id];
+  const frontEyes = eyeWhiteCount(frames.front, 'front') >= 8 || Boolean(frontEyeOcclusion);
+  const frontBrows = browPass(frames.front, source);
+  const leftProfile = eyeWhiteCount(frames.left, 'left') >= 2 || Boolean(profileEyeOcclusion);
+  const rightProfile = eyeWhiteCount(frames.right, 'right') >= 2 || Boolean(profileEyeOcclusion);
+  const mouth = mouthPass(frames.front, look);
+  const frontHands = handPass(frames.front, 'front', look, source.id);
+  const sideHands = handPass(frames.left, 'left', look, source.id) && handPass(frames.right, 'right', look, source.id);
+  const rearEyeRegion = tokensIn(
+    frames.rear,
+    [12, 13, 14, 15],
+    Array.from({ length: 16 }, (_unused, index) => index + 4),
   );
-
-  const floatingRatio = (
-    frontWidths[0] === 0 &&
-    frontWidths.at(-1) === 10 &&
-    frontWidths[27] === 14 &&
-    frontWidths[28] === 12 &&
-    frames.front.every((row) => row[0] === '.' && row.at(-1) === '.')
-  ) ? 1 : 0;
-  const base = styleOnlySource(source);
-  const stableRatio = (
-    composeFrontFrame(base, 0).join('\n') === composeFrontFrame(base, 1).join('\n') &&
-    JSON.stringify(base.sourceLayers.legs.frontFrames[0]) === JSON.stringify(base.sourceLayers.legs.frontFrames[1]) &&
-    JSON.stringify(base.sourceLayers.legs.lateralFrames[0]) === JSON.stringify(base.sourceLayers.legs.lateralFrames[1])
-  ) ? 1 : 0;
+  const rearFacing = tokenCount(rearEyeRegion, new Set(['W'])) === 0;
+  const hairValues = hairValuesPass(frames, look);
+  const directionsDistinct = silhouette(frames.front) !== silhouette(frames.left) &&
+    silhouette(frames.front) !== silhouette(frames.right) &&
+    frames.front.slice(12, 16).join('') !== frames.rear.slice(12, 16).join('');
+  const stablePose = source.id === 'protagonist' || (
+    composeFrontFrame(source, 0).join('\n') === composeFrontFrame(source, 1).join('\n') &&
+    composeLateralFrame(source, 'left', 0).join('\n') === composeLateralFrame(source, 'left', 1).join('\n') &&
+    composeLateralFrame(source, 'right', 0).join('\n') === composeLateralFrame(source, 'right', 1).join('\n')
+  );
+  const stableFloatingPose = stablePose && Object.values(frames).every(
+    (frame) => openMargins(frame) && roundedBase(frame),
+  );
   const identity = getCharacterIdentityCommandSets(look);
-  const identityRetained = source.identityFeatures.length >= 2 &&
-    identity.primaryWorld.length > 0 && identity.secondaryWorld.length > 0;
+  const leftIdentity = getLateralIdentityCommandSets(source, 'left');
+  const rightIdentity = getLateralIdentityCommandSets(source, 'right');
+  const identityRetained = source.id === 'protagonist' || (
+    source.identityFeatures.length >= 2 &&
+    [identity.primaryWorld, identity.secondaryWorld].every((commands) => renderedFeatureVisible(frames.front, commands)) &&
+    [leftIdentity.primary, leftIdentity.secondary].some((commands) => renderedFeatureVisible(frames.left, commands)) &&
+    [rightIdentity.primary, rightIdentity.secondary].some((commands) => renderedFeatureVisible(frames.right, commands)) &&
+    [identity.primaryWorld, identity.secondaryWorld].some((commands) => renderedFeatureVisible(frames.rear, commands))
+  );
+  const accessoryPlacement = identityRetained && frontEyes && frontBrows && mouth && leftProfile && rightProfile;
+  const directionalFacing = directionsDistinct && leftProfile && rightProfile && rearFacing;
 
-  const categories = {
-    faceProportions: faceRatio * STYLE_WEIGHTS.faceProportions,
-    eyeProportions: eyeRatio * STYLE_WEIGHTS.eyeProportions,
-    worldBody: worldBodyRatio * STYLE_WEIGHTS.worldBody,
-    directionalSilhouette: averageDirectionSimilarity * STYLE_WEIGHTS.directionalSilhouette,
-    portraitProportions: portraitRatio * STYLE_WEIGHTS.portraitProportions,
-    floatingBase: floatingRatio * STYLE_WEIGHTS.floatingBase,
-    stablePose: stableRatio * STYLE_WEIGHTS.stablePose,
+  const renderedChecks = {
+    hairValues,
+    frontEyes,
+    frontBrows,
+    mouth,
+    frontHands,
+    leftProfile,
+    rightProfile,
+    rearFacing,
+    stablePose,
   };
-  const rawScore = Object.values(categories).reduce((sum, value) => sum + value, 0);
-  const score = Math.round(rawScore * 100) / 100;
+  const categories = {
+    hairRendering: categoryScore(hairValues, CATEGORY_WEIGHTS.hairRendering),
+    eyesAndBrows: categoryScore(frontEyes && frontBrows, CATEGORY_WEIGHTS.eyesAndBrows),
+    mouth: categoryScore(mouth, CATEGORY_WEIGHTS.mouth),
+    hands: categoryScore(frontHands && sideHands, CATEGORY_WEIGHTS.hands),
+    accessoryPlacement: categoryScore(accessoryPlacement, CATEGORY_WEIGHTS.accessoryPlacement),
+    directionalFacing: categoryScore(directionalFacing, CATEGORY_WEIGHTS.directionalFacing),
+    identityRetention: categoryScore(identityRetained, CATEGORY_WEIGHTS.identityRetention),
+    stableFloatingPose: categoryScore(stableFloatingPose, CATEGORY_WEIGHTS.stableFloatingPose),
+  };
+  const score = Math.round(Object.values(categories).reduce((sum, value) => sum + value, 0) * 100) / 100;
+  const intentionalOcclusions = [frontEyeOcclusion, profileEyeOcclusion].filter(
+    (reason): reason is string => Boolean(reason),
+  );
 
   return {
     characterId: source.id,
     displayName: source.displayName,
     score,
-    passed: score >= PROTAGONIST_STYLE_PASS_SCORE && identityRetained,
+    passed: score >= PROTAGONIST_STYLE_PASS_SCORE && Object.values(renderedChecks).every(Boolean),
     identityRetained,
-    categories: Object.fromEntries(Object.entries(categories).map(
-      ([category, value]) => [category, Math.round(value * 1000) / 1000],
-    )) as CharacterStyleScore['categories'],
-    directionSimilarity: Object.fromEntries(Object.entries(directionSimilarity).map(
-      ([direction, value]) => [direction, Math.round(value * 1000) / 1000],
-    )) as CharacterStyleScore['directionSimilarity'],
+    categories,
+    renderedChecks,
+    intentionalOcclusions,
   };
 }
