@@ -44,7 +44,6 @@ export function AtmosphereOverlay({ absoluteMinute, reducedMotion }: AtmosphereO
       style={styles.overlay}
     >
       <View style={[styles.wash, { backgroundColor: atmosphere.wash }]} />
-      <View style={[styles.horizon, { backgroundColor: atmosphere.horizon }]} />
       <View style={[styles.topShade, { backgroundColor: atmosphere.shade }]} />
       <View style={[styles.bottomShade, { backgroundColor: atmosphere.shade }]} />
       <View style={[styles.leftShade, { backgroundColor: atmosphere.shade }]} />
@@ -70,7 +69,6 @@ export function AtmosphereOverlay({ absoluteMinute, reducedMotion }: AtmosphereO
 
 const styles = StyleSheet.create({
   bottomShade: { bottom: 0, height: 22, left: 0, opacity: 0.34, position: 'absolute', right: 0 },
-  horizon: { height: '28%', left: 0, position: 'absolute', right: 0, top: 0 },
   leftShade: { bottom: 0, left: 0, opacity: 0.18, position: 'absolute', top: 0, width: 16 },
   mote: { height: 2, position: 'absolute', width: 2 },
   overlay: { bottom: 0, left: 0, overflow: 'hidden', position: 'absolute', right: 0, top: 0 },

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
 
 type SelectionMarkerProps = Readonly<{
+  color?: string;
   label?: string;
   reducedMotion: boolean;
   subtitle?: string;
@@ -11,7 +12,7 @@ type SelectionMarkerProps = Readonly<{
   zoom: number;
 }>;
 
-export function SelectionMarker({ label, reducedMotion, subtitle, viewportWidth, x, y, zoom }: SelectionMarkerProps) {
+export function SelectionMarker({ color = '#f1c65b', label, reducedMotion, subtitle, viewportWidth, x, y, zoom }: SelectionMarkerProps) {
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -37,6 +38,7 @@ export function SelectionMarker({ label, reducedMotion, subtitle, viewportWidth,
         style={[
           styles.ring,
           {
+            borderColor: color,
             height: ringHeight,
             left: x - ringWidth / 2,
             opacity: reducedMotion ? 0.82 : pulse.interpolate({ inputRange: [0, 1], outputRange: [0.55, 0.95] }),

@@ -57,6 +57,14 @@ export function devHarnessLocationState(
   }));
 }
 
+export function devHarnessGoldenHourState(mapId: MapId = 'northwest_residential'): WorldState {
+  const state = devHarnessLocationState(mapId);
+  return parseWorldState({
+    ...state,
+    clock: { ...state.clock, absoluteMinute: 17 * 60 + 30 },
+  });
+}
+
 export function devHarnessVfxState(mapId: MapId, effectId: string): WorldState {
   const map = WORLD_MAP_CATALOG[mapId];
   const effect = map.source.effects.find(({ id }) => id === effectId);

@@ -1,5 +1,6 @@
 import { CHARACTER_IDS } from '../../../render/atlas';
 import { EXPECTED_VFX_ANCHORS } from '../../../render/vfx/fixtures';
+import { DEV_HARNESS_MAP_IDS } from '../scenario-state';
 
 jest.mock('../../../render/WorldScene', () => ({ WorldScene: () => null }));
 jest.mock('../../../application/NewGameFlow', () => ({ NewGameFlow: () => null }));
@@ -9,7 +10,7 @@ import { DEV_HARNESS_ENTRIES } from '../registry';
 describe('dev harness registry', () => {
   test('has stable, unique, non-empty entry and case ids', () => {
     expect(DEV_HARNESS_ENTRIES.map((entry) => entry.id)).toEqual([
-      'welcome', 'locations', 'procedural-effects', 'conversations', 'panels',
+      'welcome', 'locations', 'golden-hour', 'procedural-effects', 'conversations', 'panels',
     ]);
     expect(new Set(DEV_HARNESS_ENTRIES.map((entry) => entry.id)).size).toBe(DEV_HARNESS_ENTRIES.length);
     for (const entry of DEV_HARNESS_ENTRIES) {
@@ -28,5 +29,10 @@ describe('dev harness registry', () => {
     expect(effects?.cases.map((entryCase) => entryCase.id)).toEqual(
       EXPECTED_VFX_ANCHORS.map(({ id }) => id),
     );
+  });
+
+  test('covers golden hour in every district', () => {
+    const goldenHour = DEV_HARNESS_ENTRIES.find((entry) => entry.id === 'golden-hour');
+    expect(goldenHour?.cases.map((entryCase) => entryCase.id)).toEqual(DEV_HARNESS_MAP_IDS);
   });
 });

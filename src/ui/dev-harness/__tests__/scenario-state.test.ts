@@ -2,6 +2,7 @@ import { WORLD_MAP_CATALOG } from '../../../application/runtime/map-catalog';
 import { parseWorldState } from '../../../domain/state/schema';
 import {
   DEV_HARNESS_MAP_IDS,
+  devHarnessGoldenHourState,
   devHarnessLocationState,
   devHarnessQuestState,
   devHarnessVfxState,
@@ -9,6 +10,12 @@ import {
 import { EXPECTED_VFX_ANCHORS } from '../../../render/vfx/fixtures';
 
 describe('dev harness scenario states', () => {
+  test.each(DEV_HARNESS_MAP_IDS)('holds %s at golden hour', (mapId) => {
+    const state = devHarnessGoldenHourState(mapId);
+    expect(state.clock).toMatchObject({ absoluteMinute: 1_050, selectedSpeed: 0 });
+    expect(state.protagonist.worldPosition.mapId).toBe(mapId);
+  });
+
   test.each(DEV_HARNESS_MAP_IDS)('opens %s in a paused valid state', (mapId) => {
     const state = devHarnessLocationState(mapId);
     expect(parseWorldState(state)).toEqual(state);
