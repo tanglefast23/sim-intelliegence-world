@@ -2,10 +2,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
-import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
+import { responsivePanelLayout, responsiveSideSheetWidth, type UiScale } from '../render/responsive-layout';
 import { uiMetrics } from './ui-metrics';
 
 type JournalPanelProps = Readonly<{
+  accent: string;
   state: WorldState;
   onDismiss: () => void;
   onPurchaseSecurityReport: () => void;
@@ -24,7 +25,7 @@ function timeLabel(absoluteMinute: number): string {
   return `DAY ${day} ${Math.floor(time / 60).toString().padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`;
 }
 
-export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdvancePolice, surface, uiScale }: JournalPanelProps) {
+export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityReport, onAdvancePolice, surface, uiScale }: JournalPanelProps) {
   const entries = Object.values(state.journal);
   const invitations = Object.values(state.invitations);
   const purchased = state.quests.linda_boyfriend_check?.flagIds.includes('security_report_purchased') ?? false;
@@ -49,16 +50,17 @@ export function JournalPanel({ state, onDismiss, onPurchaseSecurityReport, onAdv
           styles.panel,
           docked && styles.panelDocked,
           {
-            height: docked ? surface.height - 28 : panelLayout.height,
+            borderColor: accent,
+            height: docked ? surface.height : panelLayout.height,
             padding: metrics.padding,
-            width: docked ? Math.round(430 * uiScale) : panelLayout.width,
+            width: docked ? responsiveSideSheetWidth(surface, uiScale) : panelLayout.width,
           },
         ]}
       >
         <View style={styles.header}>
           <View>
             <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>VALIDATED LEADS</Text>
-            <Text style={[styles.title, { fontSize: metrics.titleText }]}>JOURNAL</Text>
+            <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>JOURNAL</Text>
           </View>
           <Pressable accessibilityLabel="Close journal" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.closeText, { fontSize: metrics.secondaryText }]}>CLOSE</Text>
@@ -124,7 +126,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
-  overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start', padding: 14 },
+  overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start' },
   panel: { backgroundColor: '#181914f7', borderColor: '#c58b4b', borderWidth: 1 },
   panelDocked: { borderLeftWidth: 3, shadowColor: '#070906', shadowOffset: { height: 8, width: -8 }, shadowOpacity: 0.65, shadowRadius: 0 },
   policeAction: { backgroundColor: '#4b2d2d', borderColor: '#d3765d', borderWidth: 1, marginTop: 8, padding: 10 },

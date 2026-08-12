@@ -90,7 +90,7 @@ import {
   type ViewportSize,
 } from './camera';
 import { compareGroundedDepth, WORLD_DEPTH } from './depth';
-import { automaticUiScale, automaticWorldZoom, UI_SCALES, type UiScale } from './responsive-layout';
+import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
 import { AtmosphereOverlay } from './AtmosphereOverlay';
 import { DistrictLightingOverlay } from './DistrictLightingOverlay';
 import { districtLighting } from './district-lighting';
@@ -1520,13 +1520,23 @@ export function WorldScene({
           <Text>{`${map.source.displayName} TILE ${runtime.movement.player.x},${runtime.movement.player.y}`}</Text>
         </View>
         <Hud
+          accent={lighting.accent}
           areaName={currentAreaName}
+          availableWidth={surface.width}
           mapName={map.source.displayName}
+          onJournal={() => setOpenPanel('journal')}
+          onSave={() => void requestAutosave(runtime.worldState, 'manual')}
+          onSocial={() => setOpenPanel('relationships')}
           onSpeed={changeSpeed}
+          onUiScale={selectUiScale}
+          onZoom={changeWorldZoom}
           saveStatus={saveStatus}
+          saveDisabled={transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0}
           state={runtime.worldState}
           uiScale={uiScale}
           zoom={camera.zoom}
+          zoomInDisabled={camera.zoom >= MAX_WORLD_ZOOM}
+          zoomOutDisabled={camera.zoom <= MIN_WORLD_ZOOM}
         />
         <SelectedCharacterCard
           accent={lighting.accent}
@@ -1539,46 +1549,6 @@ export function WorldScene({
           pose={reactionId === selected ? 'reaction' : conversationNpcId === selected ? 'talk' : 'idle'}
           uiScale={uiScale}
         />
-        <View nativeID="world-ui-zoom" style={styles.zoomPlate}>
-          <Text style={[styles.controlLabel, { fontSize: metrics.secondaryText }]}>VIEW</Text>
-          <Pressable
-            accessibilityLabel="Decrease world zoom"
-            accessibilityState={{ disabled: camera.zoom <= MIN_WORLD_ZOOM }}
-            disabled={camera.zoom <= MIN_WORLD_ZOOM}
-            onPress={() => changeWorldZoom(-1)}
-            style={({ pressed }) => [
-              styles.zoomButton,
-              { height: metrics.pointerTarget, width: metrics.pointerTarget },
-              camera.zoom <= MIN_WORLD_ZOOM && styles.zoomButtonDisabled,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>-</Text>
-          </Pressable>
-          <View
-            accessibilityLabel={`World zoom ${worldZoomPercentage(camera.zoom)} percent`}
-            nativeID="world-ui-zoom-value"
-            style={[styles.zoomValue, { height: metrics.pointerTarget, minWidth: metrics.pointerTarget + 18 }]}
-          >
-            <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>
-              {worldZoomPercentage(camera.zoom)}%
-            </Text>
-          </View>
-          <Pressable
-            accessibilityLabel="Increase world zoom"
-            accessibilityState={{ disabled: camera.zoom >= MAX_WORLD_ZOOM }}
-            disabled={camera.zoom >= MAX_WORLD_ZOOM}
-            onPress={() => changeWorldZoom(1)}
-            style={({ pressed }) => [
-              styles.zoomButton,
-              { height: metrics.pointerTarget, width: metrics.pointerTarget },
-              camera.zoom >= MAX_WORLD_ZOOM && styles.zoomButtonDisabled,
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>+</Text>
-          </Pressable>
-        </View>
         <Text
           accessibilityLiveRegion="polite"
           nativeID="world-ui-zoom-announcement"
@@ -1586,26 +1556,6 @@ export function WorldScene({
         >
           {`World zoom ${worldZoomPercentage(camera.zoom)} percent`}
         </Text>
-        <View nativeID="world-ui-scale" style={[styles.uiScalePlate, { top: 22 + metrics.pointerTarget }]}>
-          <Text style={[styles.controlLabel, { fontSize: metrics.secondaryText }]}>UI</Text>
-          {UI_SCALES.map((scale) => (
-            <Pressable
-              accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`}
-              key={scale}
-              onPress={() => selectUiScale(scale)}
-              style={({ pressed }) => [
-                styles.uiScaleButton,
-                { minHeight: metrics.pointerTarget, minWidth: metrics.pointerTarget + 10 },
-                uiScale === scale && styles.zoomButtonActive,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }, uiScale === scale && styles.zoomTextActive]}>
-                {Math.round(scale * 100)}%
-              </Text>
-            </Pressable>
-          ))}
-        </View>
         <Text
           accessibilityLiveRegion="polite"
           nativeID="world-ui-scale-announcement"
@@ -1613,29 +1563,6 @@ export function WorldScene({
         >
           {`Interface scale ${Math.round(uiScale * 100)} percent`}
         </Text>
-        {!conversationNpcId && !openPanel ? (
-          <View nativeID="world-ui-social-nav" style={[styles.socialNav, { top: 32 + metrics.pointerTarget * 2 }]}>
-            <Pressable accessibilityLabel="Open journal" onPress={() => setOpenPanel('journal')} style={({ pressed }) => [styles.socialButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
-              <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>JOURNAL</Text>
-            </Pressable>
-            <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={({ pressed }) => [styles.socialButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
-              <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text>
-            </Pressable>
-            <Pressable
-              accessibilityLabel="Save game"
-              disabled={transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0}
-              onPress={() => void requestAutosave(runtime.worldState, 'manual')}
-              style={({ pressed }) => [
-                styles.socialButton,
-                { minHeight: metrics.pointerTarget },
-                (transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0) && styles.zoomButtonDisabled,
-                pressed && styles.buttonPressed,
-              ]}
-            >
-              <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SAVE</Text>
-            </Pressable>
-          </View>
-        ) : null}
         {inBedroom ? (
           <BedActions
             disabled={transitioning || runtime.worldState.clock.pauseTokens.length > 0}
@@ -1675,6 +1602,7 @@ export function WorldScene({
         ) : null}
         {openPanel === 'journal' ? (
           <JournalPanel
+            accent={lighting.accent}
             onDismiss={() => setOpenPanel(undefined)}
             onAdvancePolice={advancePoliceHook}
             onPurchaseSecurityReport={purchaseSecurityReport}
@@ -1685,6 +1613,7 @@ export function WorldScene({
         ) : null}
         {openPanel === 'relationships' ? (
           <RelationshipPanel
+            accent={lighting.accent}
             npcId={runtime.worldState.relationships[selected] ? selected : 'linda'}
             onDismiss={() => setOpenPanel(undefined)}
             state={runtime.worldState}
@@ -1707,15 +1636,11 @@ const styles = StyleSheet.create({
   canvas: { backgroundColor: '#b77945' },
   buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
   canvasHost: { overflow: 'hidden' },
-  controlLabel: { color: '#dfa85e', fontFamily: 'Silkscreen', marginHorizontal: 3 },
   frame: { overflow: 'hidden', position: 'relative' },
   loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },
   status: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 9 },
   statusStrong: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
-  socialButton: { alignItems: 'center', backgroundColor: '#10130f', borderColor: '#665139', borderWidth: 1, justifyContent: 'center', minHeight: 29, paddingHorizontal: 9 },
-  socialNav: { backgroundColor: '#181914f2', borderBottomColor: '#ad7640', borderBottomWidth: 2, flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 52 },
-  socialText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
   shelterShade: { position: 'absolute' },
   transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0 },
   transitionText: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 16 },
@@ -1723,14 +1648,6 @@ const styles = StyleSheet.create({
   talkLabel: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },
   talkPlate: { alignItems: 'center', backgroundColor: '#211d1aee', bottom: 42, flexDirection: 'row', gap: 10, padding: 6, position: 'absolute', right: 14 },
   talkText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
-  uiScaleButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
-  uiScalePlate: { alignItems: 'center', backgroundColor: '#181914f2', flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12 },
   viewport: { overflow: 'hidden' },
-  zoomButton: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, height: 29, justifyContent: 'center', width: 36 },
   zoomButtonDisabled: { opacity: 0.35 },
-  zoomButtonActive: { backgroundColor: '#f1c65b', borderColor: '#fff0c7' },
-  zoomPlate: { alignItems: 'center', backgroundColor: '#181914f2', borderTopColor: '#ad7640', borderTopWidth: 2, flexDirection: 'row', gap: 4, padding: 5, position: 'absolute', right: 12, top: 12 },
-  zoomText: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 10 },
-  zoomTextActive: { color: '#211d1a' },
-  zoomValue: { alignItems: 'center', borderColor: '#665139', borderWidth: 1, justifyContent: 'center' },
 });

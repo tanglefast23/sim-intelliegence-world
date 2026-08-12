@@ -3,6 +3,7 @@ import {
   automaticWorldZoom,
   coalescedResizeDelay,
   responsivePanelLayout,
+  responsiveSideSheetWidth,
   responsiveSurface,
 } from '../responsive-layout';
 import { uiMetrics } from '../../ui/ui-metrics';
@@ -45,6 +46,11 @@ describe('responsive world layout', () => {
     expect(panel.height).toBeLessThanOrEqual(surface.height - 32);
     expect(panel.compact).toBe(true);
     expect(panel.bodyScrolls).toBe(true);
+  });
+
+  test.each([1, 1.25, 1.5] as const)('keeps at least 60 percent of the desktop world beside a %s side sheet', (scale) => {
+    const surface = { width: 1_890, height: 1_050 };
+    expect(responsiveSideSheetWidth(surface, scale)).toBeLessThanOrEqual(surface.width * 0.4);
   });
 
   test('bounds resize coalescing', () => {

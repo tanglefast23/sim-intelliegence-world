@@ -70,6 +70,10 @@ export function responsivePanelLayout(surface: ViewportSize, uiScale: UiScale): 
   };
 }
 
+export function responsiveSideSheetWidth(surface: ViewportSize, uiScale: UiScale): number {
+  return Math.min(Math.round(430 * uiScale), Math.floor(surface.width * 0.4));
+}
+
 export function coalescedResizeDelay(milliseconds = 48): number {
   if (!Number.isFinite(milliseconds) || milliseconds < 0 || milliseconds > 250) {
     throw new RangeError('Resize delay must be between 0 and 250 milliseconds.');

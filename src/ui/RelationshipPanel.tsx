@@ -3,11 +3,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { factionTier } from '../domain/factions/faction';
 import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
-import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
+import { responsivePanelLayout, responsiveSideSheetWidth, type UiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
 
 type RelationshipPanelProps = Readonly<{
+  accent: string;
   state: WorldState;
   npcId: string;
   onDismiss: () => void;
@@ -19,7 +20,7 @@ function label(id: string): string {
   return id.replaceAll('_', ' ').toUpperCase();
 }
 
-export function RelationshipPanel({ state, npcId, onDismiss, surface, uiScale }: RelationshipPanelProps) {
+export function RelationshipPanel({ accent, state, npcId, onDismiss, surface, uiScale }: RelationshipPanelProps) {
   const relationship = state.relationships[npcId];
   if (!relationship) return null;
   const visibleFactions = Object.values(state.factions).filter(({ revealed }) => revealed);
@@ -36,9 +37,10 @@ export function RelationshipPanel({ state, npcId, onDismiss, surface, uiScale }:
           styles.panel,
           docked && styles.panelDocked,
           {
-            height: docked ? surface.height - 28 : panelLayout.height,
+            borderColor: accent,
+            height: docked ? surface.height : panelLayout.height,
             padding: metrics.padding,
-            width: docked ? Math.round(430 * uiScale) : panelLayout.width,
+            width: docked ? responsiveSideSheetWidth(surface, uiScale) : panelLayout.width,
           },
         ]}
       >
@@ -47,7 +49,7 @@ export function RelationshipPanel({ state, npcId, onDismiss, surface, uiScale }:
             <CharacterPortrait displayName={label(relationship.npcId)} npcId={relationship.npcId} />
             <View>
               <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>SOCIAL RECORD</Text>
-              <Text style={[styles.title, { fontSize: metrics.titleText }]}>{label(relationship.npcId)}</Text>
+              <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>{label(relationship.npcId)}</Text>
               <Text style={[styles.stageHeader, { fontSize: metrics.secondaryText }]}>{label(relationship.stage)}</Text>
             </View>
           </View>
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
   identity: { alignItems: 'center', flexDirection: 'row', gap: 10 },
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
-  overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start', padding: 14 },
+  overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start' },
   panel: { backgroundColor: '#181914f7', borderColor: '#c58b4b', borderWidth: 1 },
   panelDocked: { borderLeftWidth: 3, shadowColor: '#070906', shadowOffset: { height: 8, width: -8 }, shadowOpacity: 0.65, shadowRadius: 0 },
   rejection: { color: '#ef9a69', fontFamily: 'Silkscreen', fontSize: 9, marginTop: 7 },

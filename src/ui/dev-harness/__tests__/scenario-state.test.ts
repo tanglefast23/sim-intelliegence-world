@@ -3,6 +3,7 @@ import { parseWorldState } from '../../../domain/state/schema';
 import {
   DEV_HARNESS_MAP_IDS,
   devHarnessGoldenHourState,
+  devHarnessDistrictPanelState,
   devHarnessGroundingState,
   devHarnessHeroSceneState,
   devHarnessLocationState,
@@ -40,6 +41,13 @@ describe('dev harness scenario states', () => {
       const presence = state.npcs[id]?.presence;
       expect(presence).toMatchObject({ kind: 'active_local', mapId });
     }
+  });
+
+  test.each(DEV_HARNESS_MAP_IDS)('keeps discovered panel data over %s', (mapId) => {
+    const state = devHarnessDistrictPanelState(mapId);
+    expect(state.protagonist.worldPosition.mapId).toBe(mapId);
+    expect(Object.keys(state.journal)).not.toHaveLength(0);
+    expect(state.clock.absoluteMinute).toBe(1_050);
   });
 
   test.each(DEV_HARNESS_MAP_IDS)('opens %s in a paused valid state', (mapId) => {

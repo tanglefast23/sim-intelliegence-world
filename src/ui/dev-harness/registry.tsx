@@ -15,6 +15,7 @@ import type { DevHarnessRoutableEntry } from './route';
 import {
   DEV_HARNESS_MAP_IDS,
   devHarnessGoldenHourState,
+  devHarnessDistrictPanelState,
   devHarnessGroundingState,
   devHarnessHeroSceneState,
   devHarnessLocationState,
@@ -308,6 +309,29 @@ const panelsEntry: DevHarnessEntry = {
   },
 };
 
+const districtPanelsEntry: DevHarnessEntry = {
+  id: 'district-panels',
+  group: 'Systems',
+  title: 'Four-District Side Sheets',
+  summary: 'Review Journal and Social as docked sheets over every district palette.',
+  cases: DEV_HARNESS_MAP_IDS.flatMap((mapId) => ([
+    { id: `journal-${mapId}`, label: `JOURNAL · ${WORLD_MAP_LABELS[mapId]}` },
+    { id: `social-${mapId}`, label: `SOCIAL · ${WORLD_MAP_LABELS[mapId]}` },
+  ])),
+  render: (caseId, surface) => {
+    const [panel, ...mapParts] = caseId.split('-');
+    const mapId = mapParts.join('-') as (typeof DEV_HARNESS_MAP_IDS)[number];
+    return (
+      <HarnessWorld
+        initialPanel={panel === 'journal' ? 'journal' : 'relationships'}
+        presentationPreferences={heroScenePresentationPreferences(mapId, surface)}
+        state={devHarnessDistrictPanelState(mapId)}
+        surface={surface}
+      />
+    );
+  },
+};
+
 export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
@@ -318,4 +342,5 @@ export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   proceduralEffectsEntry,
   conversationsEntry,
   panelsEntry,
+  districtPanelsEntry,
 ]);
