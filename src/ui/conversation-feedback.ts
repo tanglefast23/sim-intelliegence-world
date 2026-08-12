@@ -1,5 +1,11 @@
 import type { ConversationTurnResult } from '../application/effects/ConversationPort';
 
+export function portraitExpressionForEmotion(emotion: ConversationTurnResult['emotion']): 'rest' | 'joy' | 'upset' {
+  if (emotion === 'warm' || emotion === 'amused') return 'joy';
+  if (emotion === 'neutral') return 'rest';
+  return 'upset';
+}
+
 export function authoredBeginFallback(npcId: string): Readonly<{ displayName: string; dialogue: string }> {
   return npcId === 'linda'
     ? { displayName: 'Linda', dialogue: "The island's systems are acting up. We can keep this simple." }
