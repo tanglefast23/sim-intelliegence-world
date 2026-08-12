@@ -467,7 +467,13 @@ function oddityCommands(look: CharacterLook): DrawCommand[] {
     case 'star-glasses': return [pixelsCommand('A', [[5, 13], [7, 13], [8, 11], [9, 13], [11, 13], [9, 15], [8, 17], [7, 15], [14, 13], [16, 13], [17, 11], [18, 13], [20, 13], [18, 15], [17, 17], [16, 15]])];
     case 'shoulder-bird': return [rectCommand('A', 17, 12, 5, 6), pixelsCommand('a', [[18, 11], [19, 10], [20, 11], [21, 14]]), pixelsCommand('K', [[20, 12]])];
     case 'triple-braid': return [rectCommand('H', 3, 6, 3, 13), rectCommand('H', 10, 7, 3, 13), rectCommand('H', 18, 6, 3, 13), pixelsCommand('h', [[4, 9], [11, 10], [19, 9]])];
-    case 'double-goggles': return [rectCommand('A', 4, 6, 16, 3), rectCommand('W', 6, 7, 5, 3), rectCommand('W', 14, 7, 5, 3), rectCommand('A', 7, 12, 4, 3), rectCommand('A', 14, 12, 4, 3)];
+    case 'double-goggles': return [
+      rectCommand('A', 4, 6, 16, 3), rectCommand('W', 6, 7, 5, 2), rectCommand('W', 14, 7, 5, 2),
+      rectCommand('A', 6, 12, 6, 1), rectCommand('A', 6, 15, 6, 1),
+      rectCommand('A', 6, 13, 1, 2), rectCommand('A', 11, 13, 1, 2),
+      rectCommand('A', 12, 12, 6, 1), rectCommand('A', 12, 15, 6, 1),
+      rectCommand('A', 12, 13, 1, 2), rectCommand('A', 17, 13, 1, 2),
+    ];
     case 'shell-shoulders': return [rectCommand('A', 2, 15, 6, 7), rectCommand('A', 16, 15, 6, 7), pixelsCommand('a', [[3, 17], [4, 16], [6, 18], [5, 20], [17, 18], [18, 16], [20, 17], [19, 20]])];
     default: throw new Error(`Unknown character oddity ${look.oddity}.`);
   }
