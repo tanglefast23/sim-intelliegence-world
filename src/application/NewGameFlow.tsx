@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Animated, Easing, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import type { ViewportSize } from '../render/camera';
 import { automaticUiScale } from '../render/responsive-layout';
@@ -22,8 +22,8 @@ function IslandBackdrop({ compact }: Readonly<{ compact: boolean }>) {
   useEffect(() => {
     if (reducedMotion) return undefined;
     const animation = Animated.loop(Animated.sequence([
-      Animated.timing(tide, { duration: 4_800, easing: Easing.inOut(Easing.sin), toValue: 1, useNativeDriver: true }),
-      Animated.timing(tide, { duration: 4_800, easing: Easing.inOut(Easing.sin), toValue: 0, useNativeDriver: true }),
+      Animated.timing(tide, { duration: 4_800, easing: Easing.inOut(Easing.sin), toValue: 1, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(tide, { duration: 4_800, easing: Easing.inOut(Easing.sin), toValue: 0, useNativeDriver: Platform.OS !== 'web' }),
     ]));
     animation.start();
     return () => animation.stop();

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
 
 import { worldAtmosphere } from './atmosphere';
 
@@ -26,8 +26,8 @@ export function AtmosphereOverlay({ absoluteMinute, reducedMotion }: AtmosphereO
       return undefined;
     }
     const animation = Animated.loop(Animated.sequence([
-      Animated.timing(drift, { duration: 3_800, easing: Easing.inOut(Easing.sin), toValue: 1, useNativeDriver: true }),
-      Animated.timing(drift, { duration: 4_600, easing: Easing.inOut(Easing.sin), toValue: 0, useNativeDriver: true }),
+      Animated.timing(drift, { duration: 3_800, easing: Easing.inOut(Easing.sin), toValue: 1, useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(drift, { duration: 4_600, easing: Easing.inOut(Easing.sin), toValue: 0, useNativeDriver: Platform.OS !== 'web' }),
     ]));
     animation.start();
     return () => animation.stop();

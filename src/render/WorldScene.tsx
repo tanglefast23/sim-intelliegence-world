@@ -1300,10 +1300,11 @@ export function WorldScene({
             accessibilityState={{ disabled: camera.zoom <= MIN_WORLD_ZOOM }}
             disabled={camera.zoom <= MIN_WORLD_ZOOM}
             onPress={() => changeWorldZoom(-1)}
-            style={[
+            style={({ pressed }) => [
               styles.zoomButton,
               { height: metrics.pointerTarget, width: metrics.pointerTarget },
               camera.zoom <= MIN_WORLD_ZOOM && styles.zoomButtonDisabled,
+              pressed && styles.buttonPressed,
             ]}
           >
             <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>-</Text>
@@ -1322,10 +1323,11 @@ export function WorldScene({
             accessibilityState={{ disabled: camera.zoom >= MAX_WORLD_ZOOM }}
             disabled={camera.zoom >= MAX_WORLD_ZOOM}
             onPress={() => changeWorldZoom(1)}
-            style={[
+            style={({ pressed }) => [
               styles.zoomButton,
               { height: metrics.pointerTarget, width: metrics.pointerTarget },
               camera.zoom >= MAX_WORLD_ZOOM && styles.zoomButtonDisabled,
+              pressed && styles.buttonPressed,
             ]}
           >
             <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }]}>+</Text>
@@ -1345,10 +1347,11 @@ export function WorldScene({
               accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`}
               key={scale}
               onPress={() => selectUiScale(scale)}
-              style={[
+              style={({ pressed }) => [
                 styles.uiScaleButton,
                 { minHeight: metrics.pointerTarget, minWidth: metrics.pointerTarget + 10 },
                 uiScale === scale && styles.zoomButtonActive,
+                pressed && styles.buttonPressed,
               ]}
             >
               <Text style={[styles.zoomText, { fontSize: metrics.secondaryText }, uiScale === scale && styles.zoomTextActive]}>
@@ -1366,20 +1369,21 @@ export function WorldScene({
         </Text>
         {!conversationNpcId && !openPanel ? (
           <View nativeID="world-ui-social-nav" style={[styles.socialNav, { top: 32 + metrics.pointerTarget * 2 }]}>
-            <Pressable accessibilityLabel="Open journal" onPress={() => setOpenPanel('journal')} style={[styles.socialButton, { minHeight: metrics.pointerTarget }]}>
+            <Pressable accessibilityLabel="Open journal" onPress={() => setOpenPanel('journal')} style={({ pressed }) => [styles.socialButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
               <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>JOURNAL</Text>
             </Pressable>
-            <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={[styles.socialButton, { minHeight: metrics.pointerTarget }]}>
+            <Pressable accessibilityLabel="Open relationships" onPress={() => setOpenPanel('relationships')} style={({ pressed }) => [styles.socialButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
               <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text>
             </Pressable>
             <Pressable
               accessibilityLabel="Save game"
               disabled={transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0}
               onPress={() => void requestAutosave(runtime.worldState, 'manual')}
-              style={[
+              style={({ pressed }) => [
                 styles.socialButton,
                 { minHeight: metrics.pointerTarget },
                 (transitioning || runtime.movement.status === 'moving' || runtime.worldState.clock.pauseTokens.length > 0) && styles.zoomButtonDisabled,
+                pressed && styles.buttonPressed,
               ]}
             >
               <Text style={[styles.socialText, { fontSize: metrics.secondaryText }]}>SAVE</Text>
@@ -1400,7 +1404,7 @@ export function WorldScene({
             <Pressable
               accessibilityLabel={`Talk to ${npcLabel(selected, npcTiles)}`}
               onPress={() => setConversationNpcId(stateNpcId(selected, runtime.worldState))}
-              style={[styles.talkButton, { minHeight: metrics.primaryControl }]}
+              style={({ pressed }) => [styles.talkButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}
             >
               <Text style={[styles.talkText, { fontSize: metrics.persistentText }]}>TALK</Text>
             </Pressable>
@@ -1411,7 +1415,7 @@ export function WorldScene({
         ) : null}
         <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
           <Text style={[styles.statusStrong, { fontSize: metrics.persistentText }]}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
-          <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>LEFT CLICK MOVE / MIDDLE DRAG PAN / WHEEL ZOOM / F CENTER / ESC STOP</Text>
+          <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>CLICK MOVE · DRAG PAN · WHEEL ZOOM · F CENTER · ESC STOP</Text>
         </View>
         {audioCaption ? (
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
@@ -1472,6 +1476,7 @@ const styles = StyleSheet.create({
     position: 'absolute', right: 0,
   },
   canvas: { backgroundColor: '#b77945' },
+  buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
   canvasHost: { overflow: 'hidden' },
   controlLabel: { color: '#dfa85e', fontFamily: 'Silkscreen', marginHorizontal: 3 },
   frame: { overflow: 'hidden', position: 'relative' },

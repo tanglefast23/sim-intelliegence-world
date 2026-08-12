@@ -68,10 +68,11 @@ export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpe
             accessibilityLabel={speed === 0 ? 'Pause time' : `Set ${speed}x time`}
             key={speed}
             onPress={() => onSpeed(speed)}
-            style={[
+            style={({ pressed }) => [
               styles.speedButton,
               { height: metrics.pointerTarget, width: metrics.pointerTarget },
               state.clock.selectedSpeed === speed && styles.speedActive,
+              pressed && styles.buttonPressed,
             ]}
           >
             <Text style={[styles.speedText, { fontSize: metrics.secondaryText }, state.clock.selectedSpeed === speed && styles.speedTextActive]}>
@@ -89,6 +90,7 @@ export function Hud({ state, mapName, areaName, zoom, saveStatus, uiScale, onSpe
 
 const styles = StyleSheet.create({
   area: { color: '#fff0c7', fontFamily: 'Georgia', fontWeight: '700', marginTop: 1 },
+  buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
   clock: { color: '#f1c65b', fontFamily: 'Silkscreen' },
   eyebrow: { color: '#dfa85e', fontFamily: 'Silkscreen' },
   fillEnergy: { backgroundColor: '#d9ad56', bottom: 0, left: 0, position: 'absolute', top: 0 },
