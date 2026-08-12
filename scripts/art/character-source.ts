@@ -286,19 +286,13 @@ function characterPalette(look: CharacterLook): Record<string, string> {
   };
 }
 
-function headBounds(look: CharacterLook): Readonly<{
+function headBounds(_look: CharacterLook): Readonly<{
   left: number;
   right: number;
   top: number;
   bottom: number;
 }> {
-  switch (look.head) {
-    case 'round': return { left: 5, right: 18, top: 4, bottom: 15 };
-    case 'square': return { left: 4, right: 19, top: 4, bottom: 15 };
-    case 'long': return { left: 5, right: 18, top: 2, bottom: 15 };
-    case 'wide': return { left: 4, right: 19, top: 4, bottom: 15 };
-    case 'pear': return { left: 5, right: 18, top: 3, bottom: 15 };
-  }
+  return { left: 4, right: 19, top: 4, bottom: 17 };
 }
 
 function portraitHeadCommands(look: CharacterLook): DrawCommand[] {
@@ -308,62 +302,35 @@ function portraitHeadCommands(look: CharacterLook): DrawCommand[] {
     rectCommand('S', left + 1, top, width - 2, 1),
     rectCommand('S', left, top + 1, width, bottom - top - 1),
     rectCommand('S', left + 1, bottom, width - 2, 1),
-    pixelsCommand('s', [[left - 1, 9], [left - 1, 10], [right + 1, 9], [right + 1, 10]]),
     rectCommand('s', left + 2, bottom - 1, width - 4, 2),
     pixelsCommand('L', [[left + 1, top + 2], [left + 1, top + 3]]),
   ];
-  if (look.head === 'round') {
-    commands.push(pixelsCommand('S', [[left - 1, 7], [right + 1, 7], [left - 1, 12], [right + 1, 12]]));
-  }
-  if (look.head === 'wide') {
-    commands.push(pixelsCommand('S', [[left - 1, 8], [right + 1, 8], [left - 1, 11], [right + 1, 11]]));
-  }
-  if (look.head === 'pear') {
-    commands.push(pixelsCommand('S', [[left - 1, 11], [right + 1, 11], [left - 1, 12], [right + 1, 12]]));
-  }
   return commands;
 }
 
 function portraitExpressionCommands(expression: PortraitExpression, look: CharacterLook): DrawCommand[] {
   if (expression === 'joy') {
     return [
-      pixelsCommand('K', [[8, 8], [9, 9], [10, 8], [14, 8], [15, 9], [16, 8], [11, 11], [12, 11]]),
-      rectCommand('K', 9, 12, 6, 2),
-      rectCommand('W', 11, 12, 2, 1),
+      pixelsCommand('K', [[7, 11], [8, 12], [9, 11], [14, 11], [15, 12], [16, 11], [11, 14], [12, 14]]),
+      rectCommand('K', 9, 15, 6, 2),
+      rectCommand('W', 11, 15, 2, 1),
     ];
   }
   if (expression === 'upset') {
     return [
-      pixelsCommand('K', [[7, 7], [8, 8], [9, 8], [10, 9], [14, 9], [15, 8], [16, 8], [17, 7], [11, 11], [12, 11]]),
-      rectCommand('K', 10, 13, 4, 1),
-      pixelsCommand('K', [[9, 14], [14, 14]]),
+      pixelsCommand('K', [[6, 10], [7, 11], [8, 11], [9, 12], [14, 12], [15, 11], [16, 11], [17, 10], [11, 14], [12, 14]]),
+      rectCommand('K', 10, 16, 4, 1),
+      pixelsCommand('K', [[9, 17], [14, 17]]),
     ];
   }
-  const eyes = (() => {
-    switch (look.eyes ?? 'normal') {
-      case 'large':
-        return [
-          rectCommand('W', 7, 7, 4, 4),
-          rectCommand('W', 13, 7, 4, 4),
-          rectCommand('K', 9, 8, 2, 2),
-          rectCommand('K', 13, 8, 2, 2),
-        ];
-      case 'beady':
-        return [pixelsCommand('K', [[9, 9], [15, 9]])];
-      case 'angled-small':
-        return [pixelsCommand('K', [[8, 8], [9, 9], [15, 8], [14, 9]])];
-      case 'normal':
-        return [
-          rectCommand('W', 8, 8, 3, 2),
-          rectCommand('W', 13, 8, 3, 2),
-          pixelsCommand('K', [[9, 9], [14, 9]]),
-        ];
-    }
-  })();
+  void look;
   return [
-    ...eyes,
-    pixelsCommand('K', [[11, 11], [12, 11]]),
-    rectCommand('K', 10, 13, 4, 1),
+    rectCommand('W', 7, 13, 4, 2),
+    rectCommand('W', 13, 13, 4, 2),
+    rectCommand('K', 8, 13, 1, 2),
+    rectCommand('K', 14, 13, 1, 2),
+    rectCommand('D', 10, 13, 1, 2),
+    rectCommand('D', 16, 13, 1, 2),
   ];
 }
 
@@ -397,55 +364,29 @@ function worldHairCommands(look: CharacterLook): DrawCommand[] {
 }
 
 function worldBodyCommands(look: CharacterLook): DrawCommand[] {
-  const bodyRows = (() => {
-    switch (look.build) {
-      case 'tiny': return [6, 10, 12, 14, 14, 14, 14, 14, 12, 10, 8, 6] as const;
-      case 'slim': return [6, 10, 12, 14, 16, 16, 16, 16, 14, 12, 10, 8] as const;
-      case 'normal': return [6, 10, 14, 16, 18, 18, 18, 18, 16, 14, 12, 10] as const;
-      case 'wide': return [8, 12, 16, 18, 20, 20, 20, 20, 18, 16, 14, 12] as const;
-      case 'round': return [8, 12, 16, 18, 20, 20, 20, 20, 18, 16, 14, 12] as const;
-      case 'top-heavy': return [8, 14, 18, 20, 20, 18, 18, 16, 14, 12, 10, 8] as const;
-      case 'pear': return [6, 10, 12, 14, 16, 18, 20, 20, 18, 16, 14, 12] as const;
-    }
-  })();
-  const body = bodyRows.map((width, offset) => rectCommand('C', (24 - width) / 2, 16 + offset, width, 1));
-  const maximumWidth = Math.max(...bodyRows);
-  const bodyLeft = (24 - maximumWidth) / 2;
-  const bodyRight = bodyLeft + maximumWidth - 1;
-  const armLeft = Math.max(1, bodyLeft - 1);
-  const armRight = Math.min(21, bodyRight);
+  const body = [
+    rectCommand('C', 5, 18, 14, 1),
+    rectCommand('C', 4, 19, 16, 5),
+    rectCommand('C', 5, 24, 14, 3),
+    rectCommand('C', 6, 27, 12, 1),
+  ];
   const arms = [
-    rectCommand('C', armLeft, 18, 2, 4),
-    rectCommand('C', armRight, 18, 2, 4),
-    rectCommand('S', armLeft, 22, 2, 3),
-    rectCommand('S', armRight, 22, 2, 3),
-    rectCommand('s', armLeft, 24, 2, 1),
-    rectCommand('s', armRight, 24, 2, 1),
-    pixelsCommand('c', [[9, 16], [14, 16]]),
+    pixelsCommand('S', [[4, 24], [19, 24]]),
+    pixelsCommand('c', [[8, 18], [15, 18]]),
   ];
   const patterns: DrawCommand[][] = [
-    [rectCommand('c', 7, 18, 10, 3), pixelsCommand('A', [[11, 23], [12, 23]])],
-    [pixelsCommand('A', [[7, 17], [8, 18], [9, 19], [10, 20], [11, 21], [12, 22], [13, 23], [14, 24], [15, 25]])],
-    [rectCommand('A', 10, 16, 4, 2), pixelsCommand('a', [[11, 18], [12, 18]])],
-    [rectCommand('c', 6, 24, 12, 2), rectCommand('A', 7, 19, 4, 5), rectCommand('A', 13, 19, 4, 5)],
-    [rectCommand('A', 4, 18, 4, 7), rectCommand('c', 16, 18, 4, 7)],
-    [rectCommand('c', 5, 17, 14, 4), pixelsCommand('A', [[6, 17], [17, 17], [11, 23], [12, 23]])],
+    [rectCommand('c', 7, 19, 10, 3), pixelsCommand('A', [[11, 23], [12, 23]])],
+    [pixelsCommand('A', [[6, 18], [7, 19], [8, 20], [9, 21], [10, 22], [11, 23], [12, 24], [13, 25], [14, 26]])],
+    [rectCommand('A', 10, 18, 4, 2), pixelsCommand('a', [[11, 20], [12, 20]])],
+    [rectCommand('c', 6, 24, 12, 2), rectCommand('A', 7, 20, 4, 4), rectCommand('A', 13, 20, 4, 4)],
+    [rectCommand('A', 4, 19, 4, 6), rectCommand('c', 16, 19, 4, 6)],
+    [rectCommand('c', 5, 19, 14, 3), pixelsCommand('A', [[6, 19], [17, 19], [11, 24], [12, 24]])],
   ];
   return [...body, ...(patterns[look.outfitPattern] as DrawCommand[]), ...arms];
 }
 
 function portraitBodyCommands(look: CharacterLook): DrawCommand[] {
-  const [left, right] = (() => {
-    switch (look.build) {
-      case 'tiny': return [4, 19] as const;
-      case 'slim': return [3, 20] as const;
-      case 'normal': return [2, 21] as const;
-      case 'wide': return [1, 22] as const;
-      case 'round': return [1, 22] as const;
-      case 'top-heavy': return [1, 22] as const;
-      case 'pear': return [2, 21] as const;
-    }
-  })();
+  const [left, right] = [2, 21] as const;
   const width = right - left + 1;
   return [
     rectCommand('C', 9, 16, 6, 1),
@@ -472,9 +413,8 @@ function portraitBodyCommands(look: CharacterLook): DrawCommand[] {
 
 function worldLegCommands(): CharacterSource['sourceLayers']['legs'] {
   const roundedBase = [
-    rectCommand('D', 6, 28, 12, 1),
+    rectCommand('D', 7, 28, 10, 1),
     rectCommand('K', 7, 29, 10, 1),
-    pixelsCommand('D', [[7, 27], [16, 27]]),
   ];
   return {
     frontFrames: [[...roundedBase], [...roundedBase]],
@@ -486,12 +426,18 @@ function oddityCommands(look: CharacterLook): DrawCommand[] {
   switch (look.oddity) {
     case 'tower-flat-top': return [rectCommand('H', 6, 1, 12, 5), rectCommand('h', 8, 1, 8, 2)];
     case 'question-forelock': return [pixelsCommand('H', [[15, 4], [16, 2], [18, 1], [20, 2], [20, 4], [18, 5], [17, 7]])];
-    case 'window-glasses': return [rectCommand('K', 5, 8, 7, 4), rectCommand('K', 13, 8, 7, 4), rectCommand('W', 6, 9, 5, 2), rectCommand('W', 14, 9, 5, 2), rectCommand('K', 11, 9, 3, 1)];
+    case 'window-glasses': return [
+      rectCommand('K', 6, 12, 6, 1), rectCommand('K', 6, 15, 6, 1),
+      rectCommand('K', 6, 13, 1, 2), rectCommand('K', 11, 13, 1, 2),
+      rectCommand('K', 12, 12, 6, 1), rectCommand('K', 12, 15, 6, 1),
+      rectCommand('K', 12, 13, 1, 2), rectCommand('K', 17, 13, 1, 2),
+      rectCommand('K', 11, 13, 2, 1),
+    ];
     case 'cloud-side-hair': return [rectCommand('H', 2, 5, 5, 15), rectCommand('H', 17, 4, 5, 16), pixelsCommand('h', [[3, 7], [4, 11], [20, 6], [19, 10], [20, 14]])];
     case 'spa-stone-bun': return [rectCommand('H', 8, 3, 8, 4), rectCommand('H', 9, 1, 6, 3), rectCommand('h', 10, 1, 4, 1)];
     case 'crossed-hair-sticks': return [pixelsCommand('A', [[5, 1], [7, 2], [9, 3], [11, 4], [13, 4], [15, 3], [17, 2], [19, 1]])];
     case 'prize-forelock': return [pixelsCommand('H', [[7, 3], [9, 2], [11, 1], [14, 1], [16, 2], [18, 3], [20, 4], [21, 5], [19, 6]]), pixelsCommand('h', [[10, 2], [13, 2], [16, 3], [19, 4]])];
-    case 'curl-moustache': return [pixelsCommand('H', [[5, 12], [6, 13], [7, 14], [8, 13], [9, 12], [10, 13], [11, 14], [12, 14], [13, 14], [14, 13], [15, 12], [16, 13], [17, 14], [18, 13], [19, 12]])];
+    case 'curl-moustache': return [pixelsCommand('H', [[5, 15], [6, 16], [7, 17], [8, 16], [9, 15], [10, 16], [11, 17], [12, 17], [13, 17], [14, 16], [15, 15], [16, 16], [17, 17], [18, 16], [19, 15]])];
     case 'blade-collar': return [pixelsCommand('A', [[2, 16], [3, 17], [4, 18], [5, 19], [6, 20], [21, 16], [20, 17], [19, 18], [18, 19], [17, 20]])];
     case 'square-ear-defenders': return [rectCommand('A', 3, 7, 4, 8), rectCommand('A', 17, 7, 4, 8), rectCommand('K', 4, 8, 2, 6), rectCommand('K', 18, 8, 2, 6)];
     case 'tiny-pompadour': return [rectCommand('H', 10, 1, 5, 3), rectCommand('h', 12, 1, 2, 1), rectCommand('A', 7, 16, 10, 2)];
@@ -499,25 +445,35 @@ function oddityCommands(look: CharacterLook): DrawCommand[] {
     case 'planet-buns': return [rectCommand('H', 2, 2, 6, 6), rectCommand('H', 16, 2, 6, 6), pixelsCommand('h', [[3, 3], [17, 3]])];
     case 'moon-cap': return [pixelsCommand('A', [[6, 2], [8, 1], [10, 1], [12, 2], [13, 3], [12, 4], [10, 5], [8, 5], [6, 4], [5, 3]])];
     case 'giant-satchel': return [pixelsCommand('A', [[6, 15], [8, 17], [10, 19], [12, 21], [14, 23]]), rectCommand('A', 13, 18, 8, 9), rectCommand('a', 15, 20, 4, 3)];
-    case 'lantern-chin': return [rectCommand('s', 9, 14, 6, 4), pixelsCommand('s', [[10, 18], [11, 19], [12, 19], [13, 19], [14, 18]])];
+    case 'lantern-chin': return [rectCommand('s', 9, 15, 6, 3), pixelsCommand('s', [[10, 18], [11, 19], [12, 19], [13, 19], [14, 18]])];
     case 'wide-straw-hat': return [rectCommand('A', 2, 3, 20, 3), rectCommand('a', 7, 1, 10, 3)];
     case 'tiny-hat-high-collar': return [rectCommand('A', 10, 1, 4, 2), rectCommand('A', 3, 13, 5, 8), rectCommand('A', 16, 13, 5, 8)];
     case 'single-bell-sleeve': return [rectCommand('C', 2, 17, 6, 8), rectCommand('c', 3, 18, 4, 3), rectCommand('S', 18, 17, 2, 6)];
     case 'giant-head-bow': return [pixelsCommand('A', [[3, 3], [4, 2], [5, 2], [6, 3], [7, 4], [8, 5], [16, 5], [17, 4], [18, 3], [19, 2], [20, 2], [21, 3], [12, 4]])];
     case 'tower-beanie': return [pixelsCommand('A', [[8, 6], [7, 5], [8, 3], [9, 2], [10, 1], [13, 1], [15, 2], [16, 4], [15, 6]]), rectCommand('A', 16, 12, 3, 13)];
     case 'side-fan-hair': return [pixelsCommand('H', [[16, 2], [18, 1], [20, 2], [21, 4], [20, 6], [18, 7], [16, 8]]), pixelsCommand('h', [[19, 3], [19, 5]])];
-    case 'spiral-moustache': return [pixelsCommand('H', [[4, 12], [5, 11], [7, 11], [8, 12], [7, 14], [5, 14], [10, 13], [11, 14], [12, 14], [13, 13], [16, 12], [17, 11], [19, 11], [20, 12], [19, 14], [17, 14]])];
-    case 'monocle-chain': return [rectCommand('A', 14, 8, 5, 5), pixelsCommand('A', [[18, 12], [18, 14], [17, 16], [17, 18], [16, 20], [16, 22], [15, 24]])];
+    case 'spiral-moustache': return [pixelsCommand('H', [[4, 15], [5, 14], [7, 14], [8, 15], [7, 17], [5, 17], [10, 16], [11, 17], [12, 17], [13, 16], [16, 15], [17, 14], [19, 14], [20, 15], [19, 17], [17, 17]])];
+    case 'monocle-chain': return [
+      rectCommand('A', 12, 12, 6, 1), rectCommand('A', 12, 15, 6, 1),
+      rectCommand('A', 12, 13, 1, 2), rectCommand('A', 17, 13, 1, 2),
+      pixelsCommand('A', [[17, 16], [18, 18], [17, 20], [16, 22], [15, 24]]),
+    ];
     case 'wing-collar': return [pixelsCommand('a', [[3, 14], [4, 15], [5, 16], [6, 17], [7, 18], [20, 14], [19, 15], [18, 16], [17, 17], [16, 18]])];
     case 'loop-backpack': return [pixelsCommand('A', [[5, 17], [4, 15], [4, 10], [5, 7], [7, 5], [9, 4], [15, 4], [17, 5], [19, 7], [20, 10], [20, 16], [19, 18]])];
     case 'giant-gloves': return [rectCommand('A', 2, 18, 6, 7), rectCommand('A', 16, 18, 6, 7), rectCommand('a', 3, 19, 4, 3), rectCommand('a', 17, 19, 4, 3)];
     case 'one-ear-cap': return [rectCommand('A', 6, 2, 12, 4), rectCommand('A', 4, 5, 4, 9)];
     case 'soft-mohawk': return [pixelsCommand('H', [[9, 5], [9, 3], [10, 1], [12, 1], [14, 2], [16, 3], [17, 5], [16, 7]]), pixelsCommand('h', [[11, 2], [14, 3]])];
     case 'veil-cap': return [rectCommand('A', 9, 2, 6, 3), rectCommand('A', 16, 4, 5, 14), pixelsCommand('a', [[17, 6], [19, 9], [18, 13]])];
-    case 'star-glasses': return [pixelsCommand('A', [[5, 8], [7, 8], [8, 6], [9, 8], [11, 8], [9, 10], [8, 12], [7, 10], [14, 8], [16, 8], [17, 6], [18, 8], [20, 8], [18, 10], [17, 12], [16, 10]])];
+    case 'star-glasses': return [pixelsCommand('A', [[5, 13], [7, 13], [8, 11], [9, 13], [11, 13], [9, 15], [8, 17], [7, 15], [14, 13], [16, 13], [17, 11], [18, 13], [20, 13], [18, 15], [17, 17], [16, 15]])];
     case 'shoulder-bird': return [rectCommand('A', 17, 12, 5, 6), pixelsCommand('a', [[18, 11], [19, 10], [20, 11], [21, 14]]), pixelsCommand('K', [[20, 12]])];
     case 'triple-braid': return [rectCommand('H', 3, 6, 3, 13), rectCommand('H', 10, 7, 3, 13), rectCommand('H', 18, 6, 3, 13), pixelsCommand('h', [[4, 9], [11, 10], [19, 9]])];
-    case 'double-goggles': return [rectCommand('A', 4, 6, 16, 3), rectCommand('W', 6, 7, 5, 3), rectCommand('W', 14, 7, 5, 3), rectCommand('A', 7, 12, 4, 3), rectCommand('A', 14, 12, 4, 3)];
+    case 'double-goggles': return [
+      rectCommand('A', 4, 6, 16, 3), rectCommand('W', 6, 7, 5, 2), rectCommand('W', 14, 7, 5, 2),
+      rectCommand('A', 6, 12, 6, 1), rectCommand('A', 6, 15, 6, 1),
+      rectCommand('A', 6, 13, 1, 2), rectCommand('A', 11, 13, 1, 2),
+      rectCommand('A', 12, 12, 6, 1), rectCommand('A', 12, 15, 6, 1),
+      rectCommand('A', 12, 13, 1, 2), rectCommand('A', 17, 13, 1, 2),
+    ];
     case 'shell-shoulders': return [rectCommand('A', 2, 15, 6, 7), rectCommand('A', 16, 15, 6, 7), pixelsCommand('a', [[3, 17], [4, 16], [6, 18], [5, 20], [17, 18], [18, 16], [20, 17], [19, 20]])];
     default: throw new Error(`Unknown character oddity ${look.oddity}.`);
   }

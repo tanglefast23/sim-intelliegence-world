@@ -17,6 +17,10 @@ import { parseHexColor } from '../png';
 import { deriveRearFrame } from '../rear-frame';
 import { CHARACTER_LOOKS } from '../character-look-roster';
 import type { SecondaryFeature } from '../character-look-roster';
+import {
+  PROTAGONIST_STYLE_PASS_SCORE,
+  scoreCharacterAgainstProtagonist,
+} from '../character-style-score';
 
 function alphaSignature(commands: readonly DrawCommand[]): string {
   return JSON.stringify(commands.map((command) => command.kind === 'rect'
@@ -96,8 +100,9 @@ describe('full-cast shared-source character art', () => {
     expect('eyes' in protagonistLook ? protagonistLook.eyes : undefined).toBe('angled-small');
     expect(protagonist.palette.H).toBe('#16121f');
     const portrait = composePortrait(protagonist, 'rest');
-    for (const [x, y] of [[8, 8], [9, 9], [15, 8], [14, 9]] as const) {
-      expect(portrait[y]?.[x]).toBe('K');
+    for (const y of [13, 14]) {
+      expect(portrait[y]?.slice(7, 11)).toBe('WKWD');
+      expect(portrait[y]?.slice(13, 17)).toBe('WKWD');
     }
 
     const lindaLook = CHARACTER_LOOKS.find(({ id }) => id === 'linda')!;
@@ -185,8 +190,10 @@ describe('full-cast shared-source character art', () => {
       expect(new Set([16, 17, 18, 19, 20, 21, 22, 23, 24].map(
         (row) => paintedWidth(worldBody[row] as string),
       )).size).toBeGreaterThanOrEqual(2);
-      expect(worldBody.slice(22, 25).join('').split('').filter((token) => token === 'S' || token === 's').length)
-        .toBeGreaterThanOrEqual(8);
+      expect(worldBody[24]?.[4]).toBe('S');
+      expect(worldBody[24]?.[19]).toBe('S');
+      expect([25, 26, 27].map((row) => paintedWidth(worldBody[row] as string)))
+        .toEqual([14, 14, 12]);
 
       for (const frameCommands of geometry.legs.frontFrames) {
         const legs = commandFrame(frameCommands, WORLD_CELL.width, WORLD_CELL.height);
@@ -196,6 +203,14 @@ describe('full-cast shared-source character art', () => {
       expect(geometry.legs.frontFrames[1]).toEqual(geometry.legs.frontFrames[0]);
       expect(geometry.legs.lateralFrames[1]).toEqual(geometry.legs.lateralFrames[0]);
     }
+  });
+
+  test('passes every character against the protagonist proportion bar in roster order', () => {
+    const sourceById = new Map(sources.map((source) => [source.id, source]));
+    const scores = CHARACTER_LOOKS.map(({ id }) => scoreCharacterAgainstProtagonist(sourceById.get(id)!));
+    expect(scores.map(({ characterId }) => characterId)).toEqual(CHARACTER_LOOKS.map(({ id }) => id));
+    expect(scores.every(({ identityRetained }) => identityRetained)).toBe(true);
+    expect(Math.min(...scores.map(({ score }) => score))).toBeGreaterThanOrEqual(PROTAGONIST_STYLE_PASS_SCORE);
   });
 
   test('gives every named pair two non-color layer differences and varied torso silhouettes', () => {

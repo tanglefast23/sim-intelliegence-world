@@ -380,6 +380,8 @@ The compact look records in `scripts/art/character-look-roster.ts` are authorita
 | `resident-23` | two stacked pairs of square goggles | short jacket |
 | `resident-24` | spiral shell shoulders | thin ponytail |
 
+Revision 12 uses the protagonist as the shared proportion bar for the full cast. Every character keeps the same large face, matching eye grid, rounded weighted body, narrow side profile, portrait body, and stable floating pose. Hair, skin, clothing, and two identity features remain character-specific. The automated protagonist-style score must remain at least `9.7/10` for every character in roster order.
+
 The cast keeps generated rear cells and the front-body lateral method. Named sources generate `rest`, `joy`, and `upset`; ambient sources generate `rest`. Review `artifacts/phase-24/art-quality/phase-33-hfm-full-cast/full-cast-identity-1x.png` before the `3x` board.
 
 ## 18. Phase 30 complete Sunward family ledger

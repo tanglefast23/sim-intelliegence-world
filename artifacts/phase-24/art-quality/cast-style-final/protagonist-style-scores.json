@@ -1,0 +1,781 @@
+{
+  "schemaVersion": 1,
+  "referenceCharacterId": "protagonist",
+  "scoreMeaning": "Shared face, eye, body, portrait, direction, floating-base, and stable-pose proportions. Identity colors and features are excluded from likeness scoring.",
+  "passScore": 9.7,
+  "reviewOrder": "character-look-roster",
+  "allPassed": true,
+  "minimumScore": 9.95,
+  "scores": [
+    {
+      "characterId": "devon-price",
+      "displayName": "Devon Price",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "elise-moreau",
+      "displayName": "Elise Moreau",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "generic-resident",
+      "displayName": "Resident",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "linda",
+      "displayName": "Linda",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "mina-park",
+      "displayName": "Mina Park",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "priya-nair",
+      "displayName": "Priya Nair",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "protagonist",
+      "displayName": "Protagonist",
+      "score": 10,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.5,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 1,
+        "left": 1,
+        "right": 1
+      }
+    },
+    {
+      "characterId": "rafael-cruz",
+      "displayName": "Rafael Cruz",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "sora-tan",
+      "displayName": "Sora Tan",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "tomas-reed",
+      "displayName": "Tomas Reed",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "linda-boyfriend",
+      "displayName": "Linda's Boyfriend",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-01",
+      "displayName": "Resident 01",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-02",
+      "displayName": "Resident 02",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-03",
+      "displayName": "Resident 03",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-04",
+      "displayName": "Resident 04",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-05",
+      "displayName": "Resident 05",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-06",
+      "displayName": "Resident 06",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-07",
+      "displayName": "Resident 07",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-08",
+      "displayName": "Resident 08",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-09",
+      "displayName": "Resident 09",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-10",
+      "displayName": "Resident 10",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-11",
+      "displayName": "Resident 11",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-12",
+      "displayName": "Resident 12",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-13",
+      "displayName": "Resident 13",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-14",
+      "displayName": "Resident 14",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-15",
+      "displayName": "Resident 15",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-16",
+      "displayName": "Resident 16",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-17",
+      "displayName": "Resident 17",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-18",
+      "displayName": "Resident 18",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-19",
+      "displayName": "Resident 19",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-20",
+      "displayName": "Resident 20",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-21",
+      "displayName": "Resident 21",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-22",
+      "displayName": "Resident 22",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-23",
+      "displayName": "Resident 23",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    },
+    {
+      "characterId": "resident-24",
+      "displayName": "Resident 24",
+      "score": 9.95,
+      "passed": true,
+      "identityRetained": true,
+      "categories": {
+        "faceProportions": 2,
+        "eyeProportions": 2,
+        "worldBody": 2,
+        "directionalSilhouette": 1.454,
+        "portraitProportions": 1,
+        "floatingBase": 1,
+        "stablePose": 0.5
+      },
+      "directionSimilarity": {
+        "front": 1,
+        "rear": 0.951,
+        "left": 0.969,
+        "right": 0.957
+      }
+    }
+  ]
+}
