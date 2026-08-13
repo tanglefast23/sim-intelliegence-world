@@ -447,7 +447,7 @@ export function planLindaQuestOutcome(state: WorldState, approachId: LindaQuestA
 }
 
 export type ContextQuestAction = Readonly<{
-  id: 'start' | 'discover' | LindaQuestApproachId;
+  id: string;
   label: string;
   cause: string;
   result: string;

@@ -298,7 +298,10 @@ export const BROWSER_NAMED_WRITING = {
     "rules": {
       "schemaVersion": 1,
       "npcId": "priya_nair",
-      "factIds": [],
+      "factIds": [
+        "priya_injury_transport_evidence",
+        "priya_patient_consent"
+      ],
       "interestIds": [
         "medicine",
         "island_gossip"
@@ -309,13 +312,17 @@ export const BROWSER_NAMED_WRITING = {
         "end_conversation",
         "invite_home",
         "ask_date",
-        "aggressive_flirt"
+        "aggressive_flirt",
+        "assess_off_island_transport",
+        "schedule_priya_assessment"
       ],
       "memorySubjectIds": [
         "protagonist_health"
       ],
       "unlockIds": [],
-      "questIds": [],
+      "questIds": [
+        "priya_off_island_assessment"
+      ],
       "locationIds": [
         "priya_clinic",
         "southeast_docks"
@@ -368,7 +375,9 @@ export const BROWSER_NAMED_WRITING = {
     "rules": {
       "schemaVersion": 1,
       "npcId": "tomas_reed",
-      "factIds": [],
+      "factIds": [
+        "ferry_after_dark_route"
+      ],
       "interestIds": [
         "boating",
         "island_gossip"
@@ -379,13 +388,16 @@ export const BROWSER_NAMED_WRITING = {
         "end_conversation",
         "invite_home",
         "ask_date",
-        "aggressive_flirt"
+        "aggressive_flirt",
+        "record_tomas_ferry_disclosure"
       ],
       "memorySubjectIds": [
         "protagonist_boating"
       ],
       "unlockIds": [],
-      "questIds": [],
+      "questIds": [
+        "tomas_after_dark_ferry"
+      ],
       "locationIds": [
         "tomas_marina",
         "southeast_docks"

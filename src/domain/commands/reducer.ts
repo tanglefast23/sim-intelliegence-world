@@ -30,6 +30,10 @@ import {
   planCommitmentResolution,
 } from '../verbal-missions/commitments';
 import {
+  LINDA_PURSE_MISSION_ID,
+  PRIYA_ASSESSMENT_MISSION_ID,
+  TOMAS_FERRY_MISSION_ID,
+  authoredPlayerKnowledgeRecord,
   planFactDisclosure,
   planOfferVerbalMission,
   planRecordPlayerKnowledge,
@@ -105,6 +109,41 @@ function settleDueCommitments(result: CommandResult): CommandResult {
     ).state;
   }
   return { ...result, state: settled };
+}
+
+function offerMissions(result: CommandResult, missionIds: readonly string[]): CommandResult {
+  let offered = result.state;
+  for (const missionId of missionIds) {
+    if (offered.verbalMissions[missionId]) continue;
+    const missionSlug = missionId.replaceAll('_', '-');
+    try {
+      offered = reduceCommand(offered, DomainCommandSchema.parse({
+        type: 'offer-verbal-mission',
+        commandId: `command-auto-offer-${missionSlug}-r${offered.revision}`,
+        eventId: `event-auto-offer-${missionSlug}-r${offered.revision}`,
+        scheduledMinute: offered.clock.absoluteMinute,
+        priority: 60,
+        missionId,
+      })).state;
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('is not available')) throw error;
+    }
+  }
+  return { ...result, state: offered };
+}
+
+function recordInjuredEscapeEvidence(result: CommandResult): CommandResult {
+  if (result.event?.type !== 'linda-quest-resolved' || result.event.resultId !== 'injured_escape') return result;
+  const record = authoredPlayerKnowledgeRecord('priya_injury_transport_evidence');
+  const recorded = reduceCommand(result.state, DomainCommandSchema.parse({
+    type: 'record-player-knowledge',
+    commandId: `command-injured-escape-evidence-r${result.state.revision}`,
+    eventId: `event-injured-escape-evidence-r${result.state.revision}`,
+    scheduledMinute: result.state.clock.absoluteMinute,
+    priority: 65,
+    record,
+  }));
+  return { ...result, state: recorded.state };
 }
 
 export function resolveDueCommitments(state: WorldState): WorldState {
@@ -364,7 +403,10 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         policeFrom: plan.policeFrom,
         policeTo: plan.policeTo,
       };
-      return settleDueCommitments(commitEvent(state, event, plan.state));
+      return offerMissions(
+        recordInjuredEscapeEvidence(settleDueCommitments(commitEvent(state, event, plan.state))),
+        [LINDA_PURSE_MISSION_ID, PRIYA_ASSESSMENT_MISSION_ID],
+      );
     }
     case 'advance-police-attention': {
       const evidence = state.evidence[command.evidenceId];
@@ -640,7 +682,7 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         tileX: command.tileX,
         tileY: command.tileY,
       };
-      return commitEvent(state, event, {
+      const result = commitEvent(state, event, {
         protagonist: {
           ...state.protagonist,
           locationId: command.destinationMapId,
@@ -650,6 +692,9 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         npcs,
         transfers,
       });
+      return command.destinationMapId === 'southeast_docks'
+        ? offerMissions(result, [TOMAS_FERRY_MISSION_ID])
+        : result;
     }
     case 'commit-conversation': {
       const npc = state.npcs[command.npcId];

@@ -6,6 +6,7 @@ import type { InferenceCompletionRequest, InferencePort } from '../../applicatio
 import { ConversationService, type CharacterWritingStore } from './service';
 import { parseCharacterKnowledgeMarkdown } from '../knowledge/character-knowledge';
 import { BROWSER_NAMED_WRITING } from '../registry/generated-browser-writing';
+import { BROWSER_VERBAL_MISSION_CONTENT } from '../../content/verbal-missions/browser-catalog';
 
 const lindaBrowserKnowledgeProfile = parseCharacterKnowledgeMarkdown(`# Knowledge Profile
 
@@ -141,7 +142,7 @@ class AuthoredBrowserInference implements InferencePort {
 }
 
 export function createBrowserConversationPort(): ConversationPort {
-  const service = new ConversationService(new AuthoredBrowserInference(), writing);
+  const service = new ConversationService(new AuthoredBrowserInference(), writing, undefined, BROWSER_VERBAL_MISSION_CONTENT);
   return {
     beginConversation: (request) => service.begin(request),
     sendConversationTurn: (request) => service.turn(request),

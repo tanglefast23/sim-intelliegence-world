@@ -258,6 +258,8 @@ describe('Phase 11 Linda quest and consequences', () => {
     expect(result.state.journal.journal_linda_boyfriend?.outcomeReceipts).toEqual([
       expect.objectContaining({ id: 'receipt_linda_protected', outcome: 'success' }),
     ]);
+    expect(result.state.verbalMissions.linda_marchetti_purse_sale).toBeDefined();
+    expect(result.state.verbalMissions.priya_off_island_assessment).toBeUndefined();
 
     const duplicate = reduceCommand(result.state, command(ready, 'resolve-linda-quest', {
       approachId: 'protect_linda',
@@ -292,6 +294,8 @@ describe('Phase 11 Linda quest and consequences', () => {
     }));
     expect(result.state.relationships.linda?.policy.stageRules.find(({ stage }) => stage === 'dating')?.unavailable).toBe(true);
     expect(result.state.factions.velvet_tide).toEqual(expect.objectContaining({ standing: 15, revealed: true }));
+    expect(result.state.verbalMissions.linda_marchetti_purse_sale).toBeUndefined();
+    expect(result.state.verbalMissions.priya_off_island_assessment).toBeUndefined();
   });
 
   test('QUEST-01 withdraw is terminal, records its reason, and changes the relationship without invented punishment', () => {
@@ -307,6 +311,7 @@ describe('Phase 11 Linda quest and consequences', () => {
     expect(result.state.quests.linda_boyfriend_check?.status).toBe('withdrawn');
     expect(result.state.evidence).toEqual({});
     expect(result.state.policeAttention).toBe('none');
+    expect(result.state.verbalMissions.linda_marchetti_purse_sale).toBeDefined();
   });
 
   test('QUEST-09 injured_escape applies the locked survival floor and four-hour cost exactly once', () => {
@@ -322,6 +327,9 @@ describe('Phase 11 Linda quest and consequences', () => {
     expect(result.state.protagonist.health).toBe(5);
     expect(result.state.clock.absoluteMinute).toBe(minuteBefore + fixture.injuredEscape.timeMinutes);
     expect(result.state.quests.linda_boyfriend_check?.status).toBe('failed');
+    expect(result.state.playerKnowledge.priya_injury_transport_evidence).toBeDefined();
+    expect(result.state.verbalMissions.linda_marchetti_purse_sale).toBeDefined();
+    expect(result.state.verbalMissions.priya_off_island_assessment).toBeDefined();
     const duplicate = reduceCommand(result.state, command(ready, 'resolve-linda-quest', {
       approachId: 'protect_linda',
     }, 'injured-escape'));

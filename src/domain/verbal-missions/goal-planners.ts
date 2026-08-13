@@ -48,9 +48,9 @@ export const VERBAL_MISSION_AUTHORITIES: Readonly<Record<string, MissionAuthorit
     journalEntryId: 'journal_linda_marchetti_purse',
     journalSummary: 'Convince Linda to sell her black Marchetti purse for less than $100.',
     concernStates: [
-      { concernId: 'purpose', state: 'open' },
+      { concernId: 'purpose', state: 'hidden' },
       { concernId: 'value', state: 'open' },
-      { concernId: 'dignity', state: 'hidden' },
+      { concernId: 'dignity', state: 'open' },
       { concernId: 'payment', state: 'open' },
     ],
     patience: 6,
@@ -99,6 +99,18 @@ export const PLAYER_KNOWLEDGE_AUTHORITIES: Readonly<Record<string, KnowledgeAuth
   linda_bakery_deposit_deadline: {
     assertedValue: 'friday', epistemicState: 'observed_fact', truthStatus: 'verified',
     sources: [{ type: 'authored_event', sourceId: 'linda_bakery_deadline' }],
+  },
+  linda_purse_worn_clasp: {
+    assertedValue: true, epistemicState: 'observed_fact', truthStatus: 'verified',
+    sources: [{ type: 'scene_observation', sourceId: 'purse_clasp_observation' }],
+  },
+  linda_cash_payment_ready: {
+    assertedValue: true, epistemicState: 'observed_fact', truthStatus: 'verified',
+    sources: [{ type: 'scene_observation', sourceId: 'inventory_cash_check' }],
+  },
+  priya_injury_transport_evidence: {
+    assertedValue: true, epistemicState: 'observed_fact', truthStatus: 'verified',
+    sources: [{ type: 'authored_event', sourceId: 'injured_escape' }],
   },
   priya_patient_consent: {
     assertedValue: true, epistemicState: 'observed_fact', truthStatus: 'verified',
