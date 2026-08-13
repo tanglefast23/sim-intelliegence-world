@@ -291,8 +291,18 @@ function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom:
 }
 
 async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<void> {
-  await window.webContents.executeJavaScript(`(() => {
-    const value = document.querySelector('#world-ui-zoom-value');
+  await window.webContents.executeJavaScript(`(async () => {
+    let value = document.querySelector('#world-ui-zoom-value');
+    if (!(value instanceof HTMLElement)) {
+      const settings = document.querySelector('[aria-label="Open display settings"]');
+      if (!(settings instanceof HTMLElement)) throw new Error('Display settings button is missing.');
+      settings.click();
+      const deadline = Date.now() + 2_000;
+      while (!(document.querySelector('#world-ui-zoom-value') instanceof HTMLElement) && Date.now() < deadline) {
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
+      }
+      value = document.querySelector('#world-ui-zoom-value');
+    }
     if (!(value instanceof HTMLElement)) throw new Error('World zoom value is missing.');
     const currentPercentage = Number.parseInt(value.textContent ?? '', 10);
     const targetPercentage = ${zoom * 100};
@@ -450,7 +460,7 @@ async function clickAriaButton(window: BrowserWindow, label: string): Promise<vo
   const result = await window.webContents.executeJavaScript(`(() => {
     try {
       const button = Array.from(document.querySelectorAll('[aria-label]')).find(
-        (element) => element.getAttribute('aria-label') === ${JSON.stringify(label)},
+        (element) => (element.getAttribute('aria-label') ?? '').toLowerCase() === ${JSON.stringify(label)}.toLowerCase(),
       );
       if (!(button instanceof HTMLElement)) return { clicked: false, error: null };
       button.click();
@@ -543,7 +553,7 @@ async function waitForAriaButtonEnabled(
   while (Date.now() < deadline) {
     const enabled = await window.webContents.executeJavaScript(`(() => {
       const button = Array.from(document.querySelectorAll('[aria-label]')).find(
-        (element) => element.getAttribute('aria-label') === ${JSON.stringify(label)},
+        (element) => (element.getAttribute('aria-label') ?? '').toLowerCase() === ${JSON.stringify(label)}.toLowerCase(),
       );
       return button instanceof HTMLElement && button.getAttribute('aria-disabled') !== 'true' &&
         !('disabled' in button && button.disabled === true);
@@ -1544,10 +1554,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   await dispatchWorldTileClick(window, lindaTile);
   const talkLabels = await window.webContents.executeJavaScript(
-    `Array.from(document.querySelectorAll('#world-ui-talk [aria-label]')).map((element) => element.getAttribute('aria-label'))`,
+    `Array.from(document.querySelectorAll('[aria-label^="Talk to "]')).map((element) => element.getAttribute('aria-label'))`,
     true,
   ) as readonly (string | null)[];
-  if (!talkLabels.includes('Talk to Linda')) {
+  if (!talkLabels.some((label) => label?.toLowerCase() === 'talk to linda')) {
     throw new Error(`Linda selection failed: talk ${JSON.stringify(talkLabels)}; NPC ${await npcStateLabel(window)}; world ${await worldStateLabel(window)}`);
   }
   await clickAriaButton(window, 'Talk to Linda');
@@ -1883,7 +1893,7 @@ async function createMainWindow(): Promise<void> {
     height: initialPresentation.windowSize?.height ?? 720,
     minHeight: 640,
     minWidth: 960,
-    show: true,
+    show: !smokeMode,
     title: devHarnessMode ? 'SI World · Dev Harness' : 'SI World',
     useContentSize: true,
     webPreferences: {
@@ -1901,6 +1911,7 @@ async function createMainWindow(): Promise<void> {
   });
   activeMainWindow = window;
   if (smokeMode) window.webContents.setBackgroundThrottling(false);
+  if (smokeMode) window.webContents.setAudioMuted(true);
   if (smokeMode) {
     window.webContents.on('console-message', (details) => {
       if (details.level === 'error' || details.message.includes('SI_WORLD_RENDERER_READY_FAILURE')) {
