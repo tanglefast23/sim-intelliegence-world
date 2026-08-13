@@ -783,6 +783,17 @@ Run packaged smoke only through confirmed hidden, muted automation. Do not run `
 
 The build can be code-complete after this gate. The system spec's guided and unmoderated player tests remain a product-release gate. Do not invent their results.
 
+### Completed development result
+
+- The integrated 4B Reader passed 399 of 400 structures on the first attempt: 99.75%.
+- The 400-case corpus recorded 0% wrong high-impact referents and 0% false backfires.
+- With the model process running alone, authoritative feedback reached 2.64 seconds p95 and the validated full path reached 4.20 seconds p95.
+- A prior run during heavy host contention reached 3.27 seconds p95 and failed the 3-second reaction gate. That report is retained as diagnostic evidence, not treated as a pass.
+- The ordinary 4B qualification passed every development performance and behavior gate, including 98% first-pass capability validity.
+- Content checks, boundaries, type checks, first-hour replay, web export, Electron unit tests, model tests, and Electron packaging pass.
+- The full suite passes with 82 suites and 825 tests.
+- This Mac has 128 GB RAM. Both locked 16 GB machine runs, renderer FPS proof, and player tests remain product-release blockers.
+
 ### Commit
 
 `test: qualify verbal mission vertical slice`
