@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { StableIdSchema } from '../../domain/state/ids';
 import { WorldStateSchema } from '../../domain/state/schema';
 import { RelationshipStageSchema } from '../../domain/relationships/relationship';
+import { VERBAL_MISSION_OUTCOMES } from '../../domain/verbal-missions/contracts';
 
 const ConversationIdSchema = StableIdSchema.refine((id) => id.length <= 64, 'Conversation ID is too long.');
 
@@ -20,6 +21,12 @@ export const BeginConversationResultSchema = z.discriminatedUnion('kind', [
     displayName: z.string().min(1).max(80),
     greeting: z.string().min(1).max(420),
     pausedState: WorldStateSchema,
+    verbalMission: z.object({
+      missionId: StableIdSchema,
+      goalKind: z.enum(['disclose_fact', 'buy_object', 'schedule_cooperation']),
+      status: z.enum(['available', 'active']),
+      roomState: z.enum(['open', 'cooling', 'guarded', 'done']),
+    }).strict().optional(),
   }).strict(),
   z.object({
     kind: z.literal('ambient'),
@@ -84,6 +91,88 @@ export const ConversationTurnResultSchema = z.object({
 export const CloseConversationRequestSchema = z.object({ conversationId: ConversationIdSchema }).strict();
 export const CloseConversationResultSchema = z.object({ state: WorldStateSchema }).strict();
 
+export const ReadVerbalMissionTurnRequestSchema = ConversationTurnRequestSchema;
+
+const VerbalMissionConfirmationSchema = z.discriminatedUnion('goalKind', [
+  z.object({ goalKind: z.literal('disclose_fact'), factId: StableIdSchema }).strict(),
+  z.object({
+    goalKind: z.literal('buy_object'), objectId: StableIdSchema,
+    confirmedAmount: z.number().int().nonnegative(),
+  }).strict(),
+  z.object({
+    goalKind: z.literal('schedule_cooperation'), actionId: StableIdSchema,
+    subjectNpcId: StableIdSchema, locationId: StableIdSchema,
+    scheduledMinute: z.number().int().nonnegative(),
+  }).strict(),
+]);
+
+export const ReadVerbalMissionTurnResultSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('clarify'),
+    conversationId: ConversationIdSchema,
+    turnId: StableIdSchema,
+    dialogue: z.string().min(1).max(420),
+    source: z.literal('authored-clarification'),
+  }).strict(),
+  z.object({
+    kind: z.literal('decided'),
+    conversationId: ConversationIdSchema,
+    turnId: StableIdSchema,
+    missionId: StableIdSchema,
+    outcomeId: StableIdSchema,
+    outcome: z.enum(VERBAL_MISSION_OUTCOMES),
+    reactionId: StableIdSchema,
+    readTheRoom: z.string().min(1).max(240),
+    portraitId: z.enum(['neutral', 'warm', 'considering', 'guarded', 'hurt']),
+    cueId: z.enum(['greeting', 'laugh', 'sigh', 'consequence']).nullable(),
+    concernTransitions: z.array(z.object({
+      concernId: StableIdSchema,
+      from: z.enum(['hidden', 'open', 'eased', 'resolved', 'hardened']),
+      to: z.enum(['hidden', 'open', 'eased', 'resolved', 'hardened']),
+      reasonId: StableIdSchema,
+    }).strict()).max(8),
+    roomState: z.enum(['open', 'cooling', 'guarded', 'done']),
+    stagedChangeCount: z.number().int().nonnegative().max(16),
+    confirmation: VerbalMissionConfirmationSchema.nullable(),
+  }).strict(),
+]);
+
+export const CompleteVerbalMissionTurnRequestSchema = z.object({
+  conversationId: ConversationIdSchema,
+  turnId: StableIdSchema.refine((id) => id.length <= 64, 'Turn ID is too long.'),
+}).strict();
+
+export const CompleteVerbalMissionTurnResultSchema = z.object({
+  conversationId: ConversationIdSchema,
+  turnId: StableIdSchema,
+  dialogue: z.string().min(1).max(420),
+  emotion: z.enum(['neutral', 'warm', 'wary', 'angry', 'afraid', 'sad', 'amused']),
+  source: z.enum(['model', 'corrected-model', 'authored-fallback']),
+}).strict();
+
+export const ConfirmVerbalMissionGoalRequestSchema = z.discriminatedUnion('goalKind', [
+  z.object({ conversationId: ConversationIdSchema, goalKind: z.literal('disclose_fact') }).strict(),
+  z.object({
+    conversationId: ConversationIdSchema, goalKind: z.literal('buy_object'),
+    confirmedAmount: z.number().int().nonnegative(),
+  }).strict(),
+  z.object({
+    conversationId: ConversationIdSchema, goalKind: z.literal('schedule_cooperation'),
+    scheduledMinute: z.number().int().nonnegative(),
+  }).strict(),
+]);
+
+export const ConfirmVerbalMissionGoalResultSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('confirmed'), missionId: StableIdSchema, resultId: StableIdSchema,
+    journalReceiptId: StableIdSchema, state: WorldStateSchema,
+  }).strict(),
+  z.object({
+    kind: z.literal('rejected'), missionId: StableIdSchema,
+    reasonId: z.literal('goal_confirmation_invalid'), state: WorldStateSchema,
+  }).strict(),
+]);
+
 export type BeginConversationRequest = z.infer<typeof BeginConversationRequestSchema>;
 export type BeginConversationResult = z.infer<typeof BeginConversationResultSchema>;
 export type ConversationTurnRequest = z.infer<typeof ConversationTurnRequestSchema>;
@@ -93,10 +182,19 @@ export type StructuredConversationAction = z.infer<typeof StructuredConversation
 export type ConversationSocialOutcome = z.infer<typeof ConversationSocialOutcomeSchema>;
 export type CloseConversationRequest = z.infer<typeof CloseConversationRequestSchema>;
 export type CloseConversationResult = z.infer<typeof CloseConversationResultSchema>;
+export type ReadVerbalMissionTurnRequest = z.infer<typeof ReadVerbalMissionTurnRequestSchema>;
+export type ReadVerbalMissionTurnResult = z.infer<typeof ReadVerbalMissionTurnResultSchema>;
+export type CompleteVerbalMissionTurnRequest = z.infer<typeof CompleteVerbalMissionTurnRequestSchema>;
+export type CompleteVerbalMissionTurnResult = z.infer<typeof CompleteVerbalMissionTurnResultSchema>;
+export type ConfirmVerbalMissionGoalRequest = z.infer<typeof ConfirmVerbalMissionGoalRequestSchema>;
+export type ConfirmVerbalMissionGoalResult = z.infer<typeof ConfirmVerbalMissionGoalResultSchema>;
 
 export type ConversationPort = Readonly<{
   beginConversation: (request: BeginConversationRequest) => Promise<BeginConversationResult>;
   sendConversationTurn: (request: ConversationTurnRequest) => Promise<ConversationTurnResult>;
+  readVerbalMissionTurn: (request: ReadVerbalMissionTurnRequest) => Promise<ReadVerbalMissionTurnResult>;
+  completeVerbalMissionTurn: (request: CompleteVerbalMissionTurnRequest) => Promise<CompleteVerbalMissionTurnResult>;
+  confirmVerbalMissionGoal: (request: ConfirmVerbalMissionGoalRequest) => Promise<ConfirmVerbalMissionGoalResult>;
   endConversation: (request: CloseConversationRequest) => Promise<CloseConversationResult>;
   abortConversation: (request: CloseConversationRequest) => Promise<CloseConversationResult>;
 }>;

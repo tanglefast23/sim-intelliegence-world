@@ -14,8 +14,14 @@ import type {
   BeginConversationResult,
   CloseConversationRequest,
   CloseConversationResult,
+  CompleteVerbalMissionTurnRequest,
+  CompleteVerbalMissionTurnResult,
+  ConfirmVerbalMissionGoalRequest,
+  ConfirmVerbalMissionGoalResult,
   ConversationTurnRequest,
   ConversationTurnResult,
+  ReadVerbalMissionTurnRequest,
+  ReadVerbalMissionTurnResult,
 } from '../../src/application/effects/ConversationPort';
 import type {
   PresentationPreferences,
@@ -27,6 +33,8 @@ import type {
 const IPC_CHANNELS = Object.freeze({
   abortConversation: 'si-world:abort-conversation',
   beginConversation: 'si-world:begin-conversation',
+  completeVerbalMissionTurn: 'si-world:complete-verbal-mission-turn',
+  confirmVerbalMissionGoal: 'si-world:confirm-verbal-mission-goal',
   endConversation: 'si-world:end-conversation',
   getRuntimeInfo: 'si-world:get-runtime-info',
   loadPresentationPreferences: 'si-world:load-presentation-preferences',
@@ -34,6 +42,7 @@ const IPC_CHANNELS = Object.freeze({
   migrateSave: 'si-world:migrate-save',
   reportRendererReady: 'si-world:report-renderer-ready',
   requestSave: 'si-world:request-save',
+  readVerbalMissionTurn: 'si-world:read-verbal-mission-turn',
   savePresentationPreferences: 'si-world:save-presentation-preferences',
   sendConversationTurn: 'si-world:send-conversation-turn',
 });
@@ -43,6 +52,10 @@ const desktopBridge = Object.freeze({
     ipcRenderer.invoke(IPC_CHANNELS.abortConversation, request),
   beginConversation: (request: BeginConversationRequest): Promise<BeginConversationResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.beginConversation, request),
+  completeVerbalMissionTurn: (request: CompleteVerbalMissionTurnRequest): Promise<CompleteVerbalMissionTurnResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.completeVerbalMissionTurn, request),
+  confirmVerbalMissionGoal: (request: ConfirmVerbalMissionGoalRequest): Promise<ConfirmVerbalMissionGoalResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.confirmVerbalMissionGoal, request),
   endConversation: (request: CloseConversationRequest): Promise<CloseConversationResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.endConversation, request),
   getRuntimeInfo: (): Promise<RuntimeInfo> => ipcRenderer.invoke(IPC_CHANNELS.getRuntimeInfo),
@@ -58,6 +71,8 @@ const desktopBridge = Object.freeze({
     ipcRenderer.invoke(IPC_CHANNELS.reportRendererReady, report),
   requestSave: (request: SaveRequest): Promise<SaveResult> =>
     ipcRenderer.invoke(IPC_CHANNELS.requestSave, request),
+  readVerbalMissionTurn: (request: ReadVerbalMissionTurnRequest): Promise<ReadVerbalMissionTurnResult> =>
+    ipcRenderer.invoke(IPC_CHANNELS.readVerbalMissionTurn, request),
   savePresentationPreferences: (patch: RendererPresentationPatch): Promise<PresentationPreferences> =>
     ipcRenderer.invoke(IPC_CHANNELS.savePresentationPreferences, patch),
   sendConversationTurn: (request: ConversationTurnRequest): Promise<ConversationTurnResult> =>

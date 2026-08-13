@@ -6,8 +6,14 @@ import {
   BeginConversationResultSchema,
   CloseConversationRequestSchema,
   CloseConversationResultSchema,
+  CompleteVerbalMissionTurnRequestSchema,
+  CompleteVerbalMissionTurnResultSchema,
+  ConfirmVerbalMissionGoalRequestSchema,
+  ConfirmVerbalMissionGoalResultSchema,
   ConversationTurnRequestSchema,
   ConversationTurnResultSchema,
+  ReadVerbalMissionTurnRequestSchema,
+  ReadVerbalMissionTurnResultSchema,
 } from '../../src/application/effects/ConversationPort';
 import { assertTrustedEvent, IpcRateLimiter } from '../ipc/contracts';
 
@@ -16,6 +22,9 @@ export const CONVERSATION_IPC_CHANNELS = Object.freeze({
   sendConversationTurn: 'si-world:send-conversation-turn',
   endConversation: 'si-world:end-conversation',
   abortConversation: 'si-world:abort-conversation',
+  completeVerbalMissionTurn: 'si-world:complete-verbal-mission-turn',
+  confirmVerbalMissionGoal: 'si-world:confirm-verbal-mission-goal',
+  readVerbalMissionTurn: 'si-world:read-verbal-mission-turn',
 });
 
 const MAX_PAYLOAD_BYTES = 2 * 1_024 * 1_024;
@@ -37,6 +46,27 @@ export function registerConversationIpc(ipcMain: IpcMain, service: ConversationS
     assertTrustedEvent(event, limiter);
     assertBoundedPayload(payload, extra);
     return ConversationTurnResultSchema.parse(await service.turn(ConversationTurnRequestSchema.parse(payload)));
+  });
+  ipcMain.handle(CONVERSATION_IPC_CHANNELS.readVerbalMissionTurn, async (event, payload: unknown, ...extra: unknown[]) => {
+    assertTrustedEvent(event, limiter);
+    assertBoundedPayload(payload, extra);
+    return ReadVerbalMissionTurnResultSchema.parse(
+      await service.readVerbalMissionTurn(ReadVerbalMissionTurnRequestSchema.parse(payload)),
+    );
+  });
+  ipcMain.handle(CONVERSATION_IPC_CHANNELS.completeVerbalMissionTurn, async (event, payload: unknown, ...extra: unknown[]) => {
+    assertTrustedEvent(event, limiter);
+    assertBoundedPayload(payload, extra);
+    return CompleteVerbalMissionTurnResultSchema.parse(
+      await service.completeVerbalMissionTurn(CompleteVerbalMissionTurnRequestSchema.parse(payload)),
+    );
+  });
+  ipcMain.handle(CONVERSATION_IPC_CHANNELS.confirmVerbalMissionGoal, (event, payload: unknown, ...extra: unknown[]) => {
+    assertTrustedEvent(event, limiter);
+    assertBoundedPayload(payload, extra);
+    return ConfirmVerbalMissionGoalResultSchema.parse(
+      service.confirmVerbalMissionGoal(ConfirmVerbalMissionGoalRequestSchema.parse(payload)),
+    );
   });
   ipcMain.handle(CONVERSATION_IPC_CHANNELS.endConversation, (event, payload: unknown, ...extra: unknown[]) => {
     assertTrustedEvent(event, limiter);
