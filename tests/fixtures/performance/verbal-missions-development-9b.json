@@ -1,0 +1,615 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-13T05:54:26.592Z",
+  "testedCommit": "a00b876f4ec591ab2515d753fe83a5101ddfef56",
+  "modelId": "qwen3.5-9b",
+  "hardware": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "processor": "Apple M5 Max",
+    "logicalCpuCount": 18,
+    "memoryBytes": 137438953472
+  },
+  "measurements": {
+    "sampleCount": 16,
+    "readerStructuredFirstPassPercent": 93.75,
+    "readerSemanticPercent": 43.75,
+    "wrongHighImpactReferentPercent": 6.25,
+    "fullPathFirstPassPercent": 75,
+    "authoritativeReactionP95Milliseconds": 2287.1492500000004,
+    "validatedActorP95Milliseconds": 3642.8820410000044
+  },
+  "thresholds": {
+    "readerFirstPass": false,
+    "wrongHighImpactReferents": false,
+    "authoritativeReactionP95": true,
+    "validatedActorP95": true,
+    "baselineHardwareVerified": false
+  },
+  "limitations": [
+    "Development evidence only. This host is not either locked 16 GB baseline. Renderer FPS is not measured."
+  ],
+  "samples": [
+    {
+      "id": "ask_purse",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "ask",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 276.59620799999993,
+      "authoritativeReactionMilliseconds": 1578.1702909999995,
+      "validatedActorMilliseconds": 2753.585165999999,
+      "promptTokens": [
+        452,
+        77,
+        172
+      ],
+      "completionTokens": [
+        90,
+        41,
+        25
+      ]
+    },
+    {
+      "id": "ask_bag",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "ask",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 93.14229200000045,
+      "authoritativeReactionMilliseconds": 1348.390125,
+      "validatedActorMilliseconds": 2363.4561240000003,
+      "promptTokens": [
+        43,
+        23,
+        33
+      ],
+      "completionTokens": [
+        89,
+        42,
+        25
+      ]
+    },
+    {
+      "id": "observe_clasp",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "observe",
+            "referentId": "linda_bakery_deposit"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "ambiguous"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 86.33924999999908,
+      "authoritativeReactionMilliseconds": 1374.737959,
+      "validatedActorMilliseconds": 2580.416167000001,
+      "promptTokens": [
+        44,
+        79,
+        42
+      ],
+      "completionTokens": [
+        90,
+        51,
+        25
+      ]
+    },
+    {
+      "id": "assert_appraisal",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "assert",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [
+          {
+            "factId": "linda_quick_consignment_net",
+            "polarity": "assert"
+          }
+        ],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 92.86187500000051,
+      "authoritativeReactionMilliseconds": 2287.1492500000004,
+      "validatedActorMilliseconds": 3567.3653760000016,
+      "promptTokens": [
+        51,
+        85,
+        45
+      ],
+      "completionTokens": [
+        155,
+        54,
+        25
+      ]
+    },
+    {
+      "id": "warm_empathy",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "empathize",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": false,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 96.5769169999985,
+      "authoritativeReactionMilliseconds": 1474.856334,
+      "validatedActorMilliseconds": 2597.614583999999,
+      "promptTokens": [
+        46,
+        82,
+        32
+      ],
+      "completionTokens": [
+        95,
+        42,
+        25
+      ]
+    },
+    {
+      "id": "compliment",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "compliment",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 97.22916600000099,
+      "authoritativeReactionMilliseconds": 1454.2232909999984,
+      "validatedActorMilliseconds": 2642.672623999999,
+      "promptTokens": [
+        46,
+        82,
+        36
+      ],
+      "completionTokens": [
+        94,
+        46,
+        25
+      ]
+    },
+    {
+      "id": "offer_95",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "offer",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 100.04008299999987,
+      "authoritativeReactionMilliseconds": 1449.2575829999987,
+      "validatedActorMilliseconds": 2702.173665999995,
+      "promptTokens": [
+        46,
+        80,
+        43
+      ],
+      "completionTokens": [
+        93,
+        51,
+        25
+      ]
+    },
+    {
+      "id": "offer_blunt",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "offer",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": false,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 101.91112499999872,
+      "authoritativeReactionMilliseconds": 1447.788375,
+      "validatedActorMilliseconds": 2584.2092090000006,
+      "promptTokens": [
+        46,
+        26,
+        37
+      ],
+      "completionTokens": [
+        92,
+        46,
+        25
+      ]
+    },
+    {
+      "id": "trade",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "trade",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": false,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 100.40912500000195,
+      "authoritativeReactionMilliseconds": 1392.416000000001,
+      "validatedActorMilliseconds": 2458.5906660000037,
+      "promptTokens": [
+        46,
+        79,
+        27
+      ],
+      "completionTokens": [
+        89,
+        34,
+        25
+      ]
+    },
+    {
+      "id": "apology",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "apologize",
+            "referentId": null
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 120.72966599999927,
+      "authoritativeReactionMilliseconds": 1353.0110830000012,
+      "validatedActorMilliseconds": 2533.184831999999,
+      "promptTokens": [
+        44,
+        80,
+        30
+      ],
+      "completionTokens": [
+        83,
+        40,
+        25
+      ]
+    },
+    {
+      "id": "joke",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "ask",
+            "referentId": "linda_marchetti_purse"
+          }
+        ],
+        "register": "plain",
+        "claims": [
+          {
+            "factId": "linda_purse_worn_clasp",
+            "polarity": "assert"
+          }
+        ],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 117.24262499999895,
+      "authoritativeReactionMilliseconds": 2158.1016249999993,
+      "validatedActorMilliseconds": 3305.0776679999944,
+      "promptTokens": [
+        44,
+        24,
+        38
+      ],
+      "completionTokens": [
+        141,
+        46,
+        25
+      ]
+    },
+    {
+      "id": "threat",
+      "readerStructuredValid": false,
+      "readerSemanticValid": false,
+      "readerFailure": "Verbal Move claim evidence is not an exact player-message substring.",
+      "observedMove": null,
+      "actorValid": false,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 105.37925000000541,
+      "authoritativeReactionMilliseconds": 2273.9088330000013,
+      "validatedActorMilliseconds": 3642.8820410000044,
+      "promptTokens": [
+        49,
+        82,
+        48
+      ],
+      "completionTokens": [
+        147,
+        56,
+        25
+      ]
+    },
+    {
+      "id": "withdraw",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "withdraw",
+            "referentId": null
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 107.8269169999985,
+      "authoritativeReactionMilliseconds": 1374.5130419999987,
+      "validatedActorMilliseconds": 2735.1987089999966,
+      "promptTokens": [
+        48,
+        82,
+        45
+      ],
+      "completionTokens": [
+        84,
+        54,
+        25
+      ]
+    },
+    {
+      "id": "ask_deposit",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "ask",
+            "referentId": "linda_bakery_deposit"
+          }
+        ],
+        "register": "plain",
+        "claims": [
+          {
+            "factId": "linda_quick_consignment_net",
+            "polarity": "ask"
+          }
+        ],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 107.25074999999924,
+      "authoritativeReactionMilliseconds": 2174.477458000001,
+      "validatedActorMilliseconds": 3317.9114580000023,
+      "promptTokens": [
+        43,
+        24,
+        34
+      ],
+      "completionTokens": [
+        138,
+        42,
+        25
+      ]
+    },
+    {
+      "id": "ambiguous_it",
+      "readerStructuredValid": true,
+      "readerSemanticValid": false,
+      "readerFailure": "semantic_mismatch",
+      "observedMove": {
+        "acts": [
+          {
+            "act": "ask",
+            "referentId": null
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 129.83899999999994,
+      "authoritativeReactionMilliseconds": 1332.7931249999965,
+      "validatedActorMilliseconds": 2372.948126000003,
+      "promptTokens": [
+        40,
+        21,
+        27
+      ],
+      "completionTokens": [
+        77,
+        35,
+        25
+      ]
+    },
+    {
+      "id": "other_greeting",
+      "readerStructuredValid": true,
+      "readerSemanticValid": true,
+      "readerFailure": null,
+      "observedMove": {
+        "acts": [
+          {
+            "act": "other",
+            "referentId": null
+          }
+        ],
+        "register": "plain",
+        "claims": [],
+        "referenceConfidence": "clear"
+      },
+      "actorValid": true,
+      "policyValid": true,
+      "observedPolicy": {
+        "decision": "allow",
+        "category": "allowed_fictional_adult"
+      },
+      "firstTokenMilliseconds": 99.93212499999936,
+      "authoritativeReactionMilliseconds": 1311.776957999995,
+      "validatedActorMilliseconds": 2396.3203319999957,
+      "promptTokens": [
+        40,
+        73,
+        25
+      ],
+      "completionTokens": [
+        79,
+        33,
+        25
+      ]
+    }
+  ]
+}

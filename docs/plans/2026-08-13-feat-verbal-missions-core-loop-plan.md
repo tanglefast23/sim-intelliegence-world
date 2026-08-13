@@ -231,6 +231,17 @@ npm run model:qualify
 
 If either locked model or machine fails, stop. Trim prompts or choose a passing installed model. Do not start the save migration.
 
+### Completed development result
+
+The real spike selected `qwen3.5-4b`.
+
+- 4B: 100% first-pass valid Reader structures, 0% wrong high-impact referents, 1.56-second p95 authoritative reaction, and 2.73-second p95 full path.
+- 9B: 93.75% first-pass valid Reader structures and 6.25% wrong high-impact referents, so it is not eligible for Verbal Missions.
+
+The 4B fine-grained tone diagnostic was 31.25%. The authoritative engine does not trust tone or generated text for state changes. Expand and tune that corpus during phase 8 before release.
+
+This Mac has 128 GB RAM, so these timings are development evidence only. Phase 8 still requires both locked 16 GB machines. Phase 2 may proceed because no locked machine failed; those machine gates are unrun and remain release blockers.
+
 ### Commit
 
 `test: qualify verbal mission model pipeline`
@@ -291,9 +302,10 @@ Modify:
 11. Freeze a complete `LegacyStateV6Schema` before changing the current base.
 12. Make migrations 1 through 6 parse their historical shapes without importing the new base shape.
 13. Migrate v6 to v7 with empty player knowledge, missions, and commitments.
-14. Seed only `linda_marchetti_purse`, owned by `linda`.
-15. Update the save envelope, checksum, recovery, evidence, and packaged migration paths for v7.
-16. Preserve source bytes and backup behavior when migration fails.
+14. Replace the global model pin with the already-installed and qualified `qwen3.5-4b` revision `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` and artifact SHA-256 `32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14`.
+15. Seed only `linda_marchetti_purse`, owned by `linda`.
+16. Update the save envelope, checksum, recovery, evidence, and packaged migration paths for v7.
+17. Preserve source bytes and backup behavior when migration fails.
 
 ### Focused checks
 
