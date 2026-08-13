@@ -1,9 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ViewportSize } from '../render/camera';
 import type { UiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
+
+const protagonistPortrait = require('../../assets/source/dialogue-portraits/protagonist.png') as number;
 
 type QuestOfferDialogueProps = Readonly<{
   accent: string;
@@ -18,6 +20,8 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
   const metrics = uiMetrics(uiScale);
   const choiceWidth = Math.min(430, Math.round(surface.width * 0.36));
   const stripHeight = Math.max(Math.round(150 * metrics.scale), Math.round(surface.height * 0.22));
+  const portraitHeight = Math.min(700, Math.round(surface.height * 0.96));
+  const portraitWidth = Math.round(portraitHeight * 754 / 900);
   const dialogueText = { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) };
   return (
     <View accessibilityLabel="Linda quest offer" nativeID="world-ui-quest-offer-overlay" style={styles.overlay}>
@@ -26,7 +30,14 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
         style={[styles.scene, { height: surface.height, width: surface.width }]}
       >
         <View style={styles.actorLeft}>
-          <View style={styles.facesRight}><CharacterPortrait displayName={playerName} npcId="protagonist" scale={20} /></View>
+          <Image
+            accessibilityLabel={`Portrait of ${playerName}`}
+            nativeID="conversation-portrait-protagonist"
+            resizeMode="contain"
+            source={protagonistPortrait}
+            style={{ height: portraitHeight, width: portraitWidth }}
+          />
+          <View nativeID="conversation-portrait-protagonist-ready" style={styles.portraitReady} />
         </View>
         <View style={styles.actorRight}>
           <View style={styles.facesLeft}><CharacterPortrait displayName="Linda" expression="upset" npcId="linda" scale={20} /></View>
@@ -65,7 +76,7 @@ const styles = StyleSheet.create({
   accept: { alignItems: 'center', backgroundColor: '#d3a04c', justifyContent: 'center', paddingHorizontal: 14 },
   acceptText: { color: '#211d1a', fontFamily: 'Silkscreen' },
   actions: { flexDirection: 'column', gap: 7, position: 'absolute', zIndex: 5 },
-  actorLeft: { bottom: 0, left: '1%', position: 'absolute', zIndex: 2 },
+  actorLeft: { bottom: 0, left: 0, position: 'absolute', zIndex: 2 },
   actorRight: { bottom: 0, position: 'absolute', right: '1%', zIndex: 2 },
   decline: { alignItems: 'center', backgroundColor: '#100d0ae6', borderColor: '#76573d', borderWidth: 1, justifyContent: 'center', paddingHorizontal: 14 },
   declineText: { color: '#c3b18f', fontFamily: 'Silkscreen' },
@@ -75,6 +86,7 @@ const styles = StyleSheet.create({
   nameplate: { alignItems: 'center', borderColor: '#fff0c7', borderWidth: 1, minWidth: 180, paddingHorizontal: 22, paddingVertical: 7, position: 'absolute', right: '18%', top: -18 },
   overlay: { backgroundColor: '#08090733', bottom: 0, left: 0, position: 'absolute', right: 0, top: 0, zIndex: 65 },
   pressed: { opacity: 0.78, transform: [{ translateY: 2 }] },
+  portraitReady: { height: 0, width: 0 },
   question: { color: '#9d8768', fontFamily: 'Silkscreen', marginTop: 10 },
   scene: { overflow: 'hidden', position: 'relative' },
   speaker: { color: '#211d1a', fontFamily: 'Silkscreen' },
