@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ViewportSize } from '../render/camera';
@@ -66,6 +67,9 @@ export function QuestOfferDialogue({
   surface,
   uiScale,
 }: QuestOfferDialogueProps) {
+  const [playerPortraitLoaded, setPlayerPortraitLoaded] = useState(false);
+  const [speakerPortraitLoaded, setSpeakerPortraitLoaded] = useState(false);
+  useEffect(() => setSpeakerPortraitLoaded(false), [speakerId]);
   const metrics = uiMetrics(uiScale);
   const choiceWidth = Math.min(430, Math.round(surface.width * 0.36));
   const stripHeight = Math.max(Math.round(150 * metrics.scale), Math.round(surface.height * 0.22));
@@ -82,21 +86,23 @@ export function QuestOfferDialogue({
           <Image
             accessibilityLabel={`Portrait of ${playerName}`}
             nativeID="conversation-portrait-protagonist"
+            onLoad={() => setPlayerPortraitLoaded(true)}
             resizeMode="contain"
             source={portraits.protagonist}
             style={{ height: portraitHeight, width: portraitWidth }}
           />
-          <View nativeID="conversation-portrait-protagonist-ready" style={styles.portraitReady} />
+          {playerPortraitLoaded ? <View nativeID="conversation-portrait-protagonist-ready" style={styles.portraitReady} /> : null}
         </View>
         <View style={styles.actorRight}>
           <Image
             accessibilityLabel={`Portrait of ${speakerName}`}
             nativeID={`conversation-portrait-${speakerId}`}
+            onLoad={() => setSpeakerPortraitLoaded(true)}
             resizeMode="contain"
             source={portraits[speakerId]}
             style={{ height: portraitHeight, width: portraitWidth }}
           />
-          <View nativeID={`conversation-portrait-${speakerId}-ready`} style={styles.portraitReady} />
+          {speakerPortraitLoaded ? <View nativeID={`conversation-portrait-${speakerId}-ready`} style={styles.portraitReady} /> : null}
         </View>
         <View style={[styles.actions, { bottom: stripHeight + metrics.gap, left: (surface.width - choiceWidth) / 2, width: choiceWidth }] }>
           <Pressable

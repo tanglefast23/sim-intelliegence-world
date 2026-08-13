@@ -817,8 +817,11 @@ export function WorldScene({
   );
   const cancel = useCallback(() => {
     if (questOfferOpen) {
+      setAuthoredDialogueFixtureId(undefined);
       setQuestOfferOpen(false);
-      setWorldFeedback('LINDA QUEST NOT ACCEPTED · TALK TO HER AGAIN ANY TIME');
+      setWorldFeedback(authoredDialogueFixtureId
+        ? 'MARCUS CONVERSATION ENDED · LINDA QUEST NOT ACCEPTED'
+        : 'LINDA QUEST NOT ACCEPTED · TALK TO HER AGAIN ANY TIME');
       playInterfaceSound('panel-close');
       return;
     }
@@ -830,7 +833,7 @@ export function WorldScene({
     if (conversationNpcId) return;
     playInterfaceSound('cancel');
     setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
-  }, [conversationNpcId, openPanel, playInterfaceSound, questOfferOpen]);
+  }, [authoredDialogueFixtureId, conversationNpcId, openPanel, playInterfaceSound, questOfferOpen]);
   const toggleQuests = useCallback(() => {
     if (conversationNpcId || questOfferOpen) return;
     playInterfaceSound(openPanel === 'journal' ? 'panel-close' : 'panel-open');
