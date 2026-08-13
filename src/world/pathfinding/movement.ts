@@ -208,7 +208,7 @@ const BLOCKED_CLAIM_RETRY_MS = 145;
 const BLOCKED_CLAIM_BUDGET = 4;
 const BLOCKED_REPLAN_MS = BLOCKED_CLAIM_RETRY_MS * BLOCKED_CLAIM_BUDGET;
 export const DOOR_OPENING_MS = 120;
-export const DOOR_CLOSE_DELAY_MS = 800;
+export const DOOR_CLOSE_DELAY_MS = 200;
 export const DOOR_CLOSING_MS = 120;
 
 export type DoorMotionPhase = 'closed' | 'opening' | 'open' | 'closing';
