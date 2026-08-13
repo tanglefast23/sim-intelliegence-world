@@ -1600,6 +1600,11 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForRendererText(window, '#world-ui-quest-offer-panel', 'MARCUS VALE');
   await waitForRendererPaint(window);
   await captureSmokeScreenshot(window, join(directory, 'world-marcus-dialogue.png'));
+  await clickAriaButton(window, 'Ask Marcus Vale what happened');
+  await waitForSelectorMissing(window, '#world-ui-quest-offer-panel');
+  if ((await questStateLabel(window)).includes('Linda quest active')) {
+    throw new Error('Asking Marcus incorrectly started Linda quest.');
+  }
   await window.webContents.executeJavaScript(`window.siWorldSetAuthoredDialogueFixture?.()`, true);
   await waitForRendererText(window, '#world-ui-quest-offer-panel', 'YES · HELP LINDA');
   await clickAriaButton(window, "Accept Linda's request");

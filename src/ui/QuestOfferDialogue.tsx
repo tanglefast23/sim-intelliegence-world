@@ -100,21 +100,21 @@ export function QuestOfferDialogue({
         </View>
         <View style={[styles.actions, { bottom: stripHeight + metrics.gap, left: (surface.width - choiceWidth) / 2, width: choiceWidth }] }>
           <Pressable
-            accessibilityLabel={speakerId === 'linda' ? "Accept Linda's request" : 'Ask Marcus what happened'}
+            accessibilityLabel={speakerId === 'linda' ? "Accept Linda's request" : `Ask ${speakerName} what happened`}
             onPress={onAccept}
             style={({ pressed }) => [styles.accept, { minHeight: metrics.primaryControl }, pressed && styles.pressed]}
           >
             <Text style={[styles.acceptText, { fontSize: metrics.persistentText }]}>{speakerId === 'linda' ? 'YES · HELP LINDA' : 'ASK WHAT HAPPENED'}</Text>
           </Pressable>
           <Pressable
-            accessibilityLabel={speakerId === 'linda' ? "Decline Linda's request" : 'Leave Marcus'}
+            accessibilityLabel={speakerId === 'linda' ? "Decline Linda's request" : `Leave ${speakerName}`}
             onPress={onDecline}
             style={({ pressed }) => [styles.decline, { minHeight: metrics.primaryControl }, pressed && styles.pressed]}
           >
             <Text style={[styles.declineText, { fontSize: metrics.persistentText }]}>{speakerId === 'linda' ? 'NO · NOT NOW' : 'LEAVE'}</Text>
           </Pressable>
         </View>
-        <View style={[styles.speech, { height: stripHeight, paddingHorizontal: Math.max(28, Math.round(surface.width * 0.19)) }] }>
+        <View accessibilityLiveRegion="polite" style={[styles.speech, { height: stripHeight, paddingHorizontal: Math.max(28, Math.round(surface.width * 0.19)) }] }>
           <View style={[styles.nameplate, { backgroundColor: accent }]}>
             <Text style={[styles.speaker, { fontSize: metrics.persistentText }]}>{speakerName.toUpperCase()}</Text>
           </View>

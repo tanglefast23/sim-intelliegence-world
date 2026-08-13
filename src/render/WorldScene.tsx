@@ -1724,10 +1724,22 @@ export function WorldScene({
         {questOfferOpen ? (
           <QuestOfferDialogue
             accent={lighting.accent}
-            onAccept={() => runQuestAction('start')}
-            onDecline={() => {
+            onAccept={() => {
+              if (!authoredDialogueFixtureId) {
+                runQuestAction('start');
+                return;
+              }
+              setAuthoredDialogueFixtureId(undefined);
               setQuestOfferOpen(false);
-              setWorldFeedback('LINDA QUEST NOT ACCEPTED · TALK TO HER AGAIN ANY TIME');
+              setWorldFeedback('MARCUS SHARED HIS SIDE · LINDA QUEST NOT ACCEPTED');
+              playInterfaceSound('panel-close');
+            }}
+            onDecline={() => {
+              setAuthoredDialogueFixtureId(undefined);
+              setQuestOfferOpen(false);
+              setWorldFeedback(authoredDialogueFixtureId
+                ? 'MARCUS CONVERSATION ENDED · LINDA QUEST NOT ACCEPTED'
+                : 'LINDA QUEST NOT ACCEPTED · TALK TO HER AGAIN ANY TIME');
               playInterfaceSound('panel-close');
             }}
             playerName={runtime.worldState.protagonist.displayName}
