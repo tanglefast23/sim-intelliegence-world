@@ -14,9 +14,17 @@ import { spawn } from 'node:child_process';
 
 import { SaveRequestSchema, type SaveTrigger } from '../../src/application/effects/PersistencePort';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
+import { reduceCommand } from '../../src/domain/commands/reducer';
+import { DomainCommandSchema } from '../../src/domain/commands/types';
 import { createInitialState } from '../../src/domain/state/initial-state';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
 import { WorldStateSchema, type WorldState } from '../../src/domain/state/schema';
+import type { VerbalMissionState } from '../../src/domain/verbal-missions/state';
+import {
+  PRIYA_ASSESSMENT_COMMITMENT_ID,
+  PRIYA_ASSESSMENT_MISSION_ID,
+  planOfferVerbalMission,
+} from '../../src/domain/verbal-missions/goal-planners';
 import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
 import {
   SaveManifestSchema,
@@ -114,6 +122,67 @@ describe('recoverable save repository', () => {
     expect(manifest.latestSaveGeneration).toBe(envelope.saveGeneration);
     expect(manifest.payloadChecksum).toBe(envelope.payloadChecksum);
     expect(manifest.pins.modelArtifactSha256).toBe(state.modelPin.artifactSha256);
+  });
+
+  test('load resolves due commitments and preserves the pre-resolution save as backup', async () => {
+    const root = await temporaryRoot();
+    const repository = new SaveRepository(root);
+    const initial = WorldStateSchema.parse({
+      ...createInitialState(),
+      quests: {
+        ...createInitialState().quests,
+        linda_boyfriend_check: {
+          id: 'linda_boyfriend_check', status: 'failed', flagIds: ['linda_protect_failed'],
+        },
+      },
+    });
+    const offered = planOfferVerbalMission(initial, PRIYA_ASSESSMENT_MISSION_ID).state;
+    const mission = offered.verbalMissions[PRIYA_ASSESSMENT_MISSION_ID]!;
+    if (mission.goalKind !== 'schedule_cooperation') throw new Error('Expected Priya schedule mission.');
+    const ready: VerbalMissionState = {
+      ...mission,
+      status: 'active',
+      concerns: mission.concerns.map((concern) => ({ ...concern, state: 'resolved' as const })),
+      terms: { ...mission.terms, proposedMinute: 600 },
+      creditedMoves: [{
+        leverId: 'schedule_600', concernId: 'capacity', supportFactIds: [], offerAmount: null,
+      }],
+    };
+    const readyState = WorldStateSchema.parse({
+      ...offered,
+      verbalMissions: { ...offered.verbalMissions, [PRIYA_ASSESSMENT_MISSION_ID]: ready },
+    });
+    const agreed = reduceCommand(readyState, DomainCommandSchema.parse({
+      type: 'create-scheduled-commitment',
+      commandId: 'command-load-priya-agreement',
+      eventId: 'event-load-priya-agreement',
+      scheduledMinute: 0,
+      priority: 0,
+      missionId: PRIYA_ASSESSMENT_MISSION_ID,
+      commitmentId: PRIYA_ASSESSMENT_COMMITMENT_ID,
+      commitmentMinute: 600,
+    })).state;
+    const due = WorldStateSchema.parse({
+      ...agreed,
+      clock: { ...agreed.clock, absoluteMinute: 600 },
+    });
+    await repository.save(request(due, null));
+
+    const loaded = await repository.load('slot-001');
+    expect(loaded).toEqual(expect.objectContaining({
+      status: 'migrated', saveGeneration: 2, migratedFromSchemaVersion: 7, migratedMapIds: [],
+    }));
+    if (loaded.status !== 'migrated') throw new Error('Expected load-time commitment settlement.');
+    expect(loaded.state.commitments[PRIYA_ASSESSMENT_COMMITMENT_ID]?.status).toBe('honoured');
+    expect(loaded.state.verbalMissions[PRIYA_ASSESSMENT_MISSION_ID]?.terminalResultId).toBe(
+      'priya_assessment_honoured',
+    );
+
+    const backup = parseSaveEnvelope(JSON.parse(await readFile(
+      join(root, 'save-slots', 'slot-001', 'state.json.bak'),
+      'utf8',
+    )) as unknown);
+    expect(backup.state.commitments[PRIYA_ASSESSMENT_COMMITMENT_ID]?.status).toBe('agreed');
   });
 
   test('fixture-driven stable boundaries rotate only the newest three autosaves', async () => {
@@ -404,7 +473,7 @@ describe('save migrations and state invariants', () => {
         'southeast_docks',
         'southwest_commercial',
       ],
-      state: expect.objectContaining({ schemaVersion: 6 }),
+      state: expect.objectContaining({ schemaVersion: 7 }),
     }));
     const backupBytes = await readFile(join(slotPath, 'state.json.bak'), 'utf8');
     if (loaded.status !== 'migrated') throw new Error('Expected production schedule migration.');
@@ -500,12 +569,12 @@ describe('save migrations and state invariants', () => {
     const migrated = migrateStateCopy(source, 'generation-migrated-001');
 
     expect(JSON.stringify(source)).toBe(before);
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.generationId).toBe('generation-migrated-001');
     expect(migrated.modelPin).toEqual({
-      id: 'qwen3.5-9b',
-      sourceRevision: 'c202236235762e1c871ad0ccb60c8ee5ba337b9a',
-      artifactSha256: '8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341',
+      id: 'qwen3.5-4b',
+      sourceRevision: '851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a',
+      artifactSha256: '32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14',
     });
     expect(migrated.npcs.linda?.unlockedIds).toEqual([]);
     expect(migrated.protagonist.worldPosition).toEqual({
@@ -543,6 +612,10 @@ describe('save migrations and state invariants', () => {
     delete source.invitations;
     delete source.layoutRevisions;
     delete source.layoutMigrationEvidence;
+    delete source.playerKnowledge;
+    delete source.worldObjects;
+    delete source.verbalMissions;
+    delete source.commitments;
     const legacyRelationships = Object.fromEntries(Object.entries(current.relationships).map(([id, relationship]) => {
       const legacy: Partial<typeof relationship> = { ...relationship };
       delete legacy.policy;
@@ -581,14 +654,14 @@ describe('save migrations and state invariants', () => {
       sourceSlotId: 'slot-001',
       targetSlotId: 'slot-002',
       saveGeneration: 1,
-      stateSchemaVersion: 6,
+      stateSchemaVersion: 7,
     }));
     expect(await readFile(sourcePath, 'utf8')).toBe(legacyBytes);
     await expect(repository.load('slot-002')).resolves.toEqual(expect.objectContaining({
       status: 'unchanged',
       state: expect.objectContaining({
         generationId: 'generation-migrated-002',
-        schemaVersion: 6,
+        schemaVersion: 7,
         protagonist: expect.objectContaining({
           worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
         }),

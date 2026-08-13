@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "npcId": "linda",
-  "factIds": ["protagonist_has_cat"],
+  "factIds": ["protagonist_has_cat", "linda_cash_payment_ready", "linda_purse_independence_story", "linda_purse_worn_clasp", "linda_quick_consignment_net"],
   "interestIds": ["cats", "island_gossip"],
-  "actionIds": ["greet", "ask_follow_up", "end_conversation", "invite_home", "ask_date", "aggressive_flirt"],
+  "actionIds": ["greet", "ask_follow_up", "end_conversation", "invite_home", "ask_date", "aggressive_flirt", "buy_linda_marchetti_purse"],
   "memorySubjectIds": ["protagonist_cat", "linda_boyfriend"],
   "unlockIds": ["cats_common_interest", "linda_relationship_resolved", "velvet_tide_lead"],
-  "questIds": ["linda_boyfriend_check"],
+  "questIds": ["linda_boyfriend_check", "linda_marchetti_purse_sale"],
   "locationIds": ["linda_villa", "northwest_residential"],
   "factionIds": ["velvet_tide"],
   "compatibility": {

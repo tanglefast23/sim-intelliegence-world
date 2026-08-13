@@ -18,7 +18,7 @@ export function ContextActionMenu({ actions, onAction, surface, uiScale }: Conte
   const top = 40 + metrics.pointerTarget * 3;
   return (
     <View
-      accessibilityLabel="Linda quest choices"
+      accessibilityLabel="Context choices"
       nativeID="world-ui-context-actions"
       style={[
         styles.panel,

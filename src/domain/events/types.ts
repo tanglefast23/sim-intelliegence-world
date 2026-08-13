@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from '../state/ids';
 import { SimulationSpeedSchema } from '../clock/clock';
 import { PoliceHookSchema } from '../consequences/police';
+import { VERBAL_MISSION_OUTCOMES } from '../verbal-missions/contracts';
 
 const EventBaseSchema = z.object({
   eventId: EventIdSchema,
@@ -208,6 +209,76 @@ export const DomainEventSchema = z.discriminatedUnion('type', [
     interestCount: z.number().int().nonnegative(),
     unlockCount: z.number().int().nonnegative(),
     memoryCount: z.number().int().nonnegative(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('verbal-mission-offered'),
+    missionId: StableIdSchema,
+    npcId: StableIdSchema,
+    journalEntryId: StableIdSchema,
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('verbal-mission-outcome-applied'),
+    missionId: StableIdSchema,
+    outcomeId: StableIdSchema,
+    outcome: z.enum(VERBAL_MISSION_OUTCOMES),
+    reactionId: StableIdSchema,
+    fromStatus: z.enum(['available', 'active']),
+    toStatus: z.literal('active'),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('verbal-mission-withdrawn'),
+    missionId: StableIdSchema,
+    resultId: StableIdSchema,
+    journalReceiptId: StableIdSchema,
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('player-knowledge-recorded'),
+    factId: StableIdSchema,
+    sourceId: StableIdSchema,
+    changed: z.boolean(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('fact-disclosure-recorded'),
+    missionId: StableIdSchema,
+    factId: StableIdSchema,
+    resultId: StableIdSchema,
+    journalReceiptId: StableIdSchema,
+    familiarityDelta: z.number().int(),
+    trustDelta: z.number().int(),
+    attractionDelta: z.number().int(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('unique-object-purchased'),
+    missionId: StableIdSchema,
+    objectId: StableIdSchema,
+    amount: z.number().int().nonnegative(),
+    resultId: StableIdSchema,
+    journalReceiptId: StableIdSchema,
+    familiarityDelta: z.number().int(),
+    trustDelta: z.number().int(),
+    attractionDelta: z.number().int(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('scheduled-commitment-created'),
+    missionId: StableIdSchema,
+    commitmentId: StableIdSchema,
+    scheduledMinute: z.number().int().nonnegative(),
+    journalReceiptId: StableIdSchema,
+    familiarityDelta: z.number().int(),
+    trustDelta: z.number().int(),
+    attractionDelta: z.number().int(),
+  }).strict(),
+  EventBaseSchema.extend({
+    type: z.literal('scheduled-commitment-resolved'),
+    missionId: StableIdSchema,
+    commitmentId: StableIdSchema,
+    result: z.enum(['honoured', 'delayed', 'reneged']),
+    reasonId: StableIdSchema.optional(),
+    scheduledMinute: z.number().int().nonnegative().optional(),
+    journalReceiptId: StableIdSchema,
+    familiarityDelta: z.number().int(),
+    trustDelta: z.number().int(),
+    attractionDelta: z.number().int(),
   }).strict(),
 ]);
 

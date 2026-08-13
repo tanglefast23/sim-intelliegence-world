@@ -1,0 +1,486 @@
+{
+  "disposition": {
+    "dispositionId": "priya_clinical_disposition",
+    "npcId": "priya_nair",
+    "protectedValueIds": [
+      "patient_consent",
+      "clinical_safety"
+    ],
+    "credibilitySignalIds": [
+      "documented_injury",
+      "exact_schedule"
+    ],
+    "suspicionSignalIds": [
+      "diagnosis_from_gossip",
+      "pressure"
+    ],
+    "decisionStyle": "evidence_first",
+    "patience": 7,
+    "repetitionTolerance": 2,
+    "verificationMethodIds": [
+      "patient_record",
+      "clinic_schedule"
+    ],
+    "hardBoundaries": [
+      {
+        "boundaryId": "priya_no_threats",
+        "trigger": {
+          "actIds": [
+            "threaten"
+          ]
+        }
+      }
+    ]
+  },
+  "definition": {
+    "schemaVersion": 1,
+    "missionId": "priya_off_island_assessment",
+    "npcId": "priya_nair",
+    "dispositionId": "priya_clinical_disposition",
+    "concerns": [
+      {
+        "concernId": "evidence",
+        "summary": "Priya needs direct evidence of an injury requiring transport assessment.",
+        "required": true,
+        "initialState": "open"
+      },
+      {
+        "concernId": "consent",
+        "summary": "The patient must consent before Priya agrees.",
+        "required": true,
+        "initialState": "open"
+      },
+      {
+        "concernId": "capacity",
+        "summary": "The visit needs a precise time within Priya schedule.",
+        "required": true,
+        "initialState": "open"
+      }
+    ],
+    "levers": [
+      {
+        "leverId": "documented_injury",
+        "stableOrder": 1,
+        "concernId": "evidence",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "assert"
+          ],
+          "referentId": "linda_boyfriend",
+          "claimFactIds": [
+            "priya_injury_transport_evidence"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "priya_injury_transport_evidence"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "priya_progress"
+      },
+      {
+        "leverId": "observed_injury",
+        "stableOrder": 2,
+        "concernId": "evidence",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "observe"
+          ],
+          "referentId": "linda_boyfriend",
+          "claimFactIds": [
+            "priya_injury_transport_evidence"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "priya_injury_transport_evidence"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "priya_progress"
+      },
+      {
+        "leverId": "documented_consent",
+        "stableOrder": 3,
+        "concernId": "consent",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "assert"
+          ],
+          "referentId": "linda_boyfriend",
+          "claimFactIds": [
+            "priya_patient_consent"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "priya_patient_consent"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "priya_progress"
+      },
+      {
+        "leverId": "respect_patient_choice",
+        "stableOrder": 4,
+        "concernId": "consent",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "empathize"
+          ],
+          "referentId": "linda_boyfriend",
+          "claimFactIds": [
+            "priya_patient_consent"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "priya_patient_consent"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "priya_progress"
+      },
+      {
+        "leverId": "exact_assessment_time",
+        "stableOrder": 5,
+        "concernId": "capacity",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "offer"
+          ],
+          "referentId": "linda_boyfriend"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open",
+          "eased"
+        ],
+        "toState": "resolved",
+        "exactTerm": {
+          "kind": "schedule",
+          "requireWithinContract": true
+        },
+        "newlySpeakableFactIds": [],
+        "reactionId": "priya_progress"
+      },
+      {
+        "leverId": "ask_clinic_window",
+        "stableOrder": 6,
+        "concernId": "capacity",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "ask"
+          ],
+          "registerIds": [
+            "formal"
+          ],
+          "referentId": "assess_off_island_transport"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "eased",
+        "newlySpeakableFactIds": [],
+        "reactionId": "priya_progress"
+      }
+    ],
+    "allergies": [],
+    "recoveries": [],
+    "reactions": [
+      {
+        "reactionId": "priya_clarify",
+        "outcome": "clarify",
+        "readTheRoomId": "priya_read_clarify",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "The request is unclear."
+      },
+      {
+        "reactionId": "priya_small_talk",
+        "outcome": "small_talk",
+        "readTheRoomId": "priya_read_small_talk",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "The conversation stays friendly, but the concern does not move."
+      },
+      {
+        "reactionId": "priya_progress",
+        "outcome": "progress",
+        "readTheRoomId": "priya_read_progress",
+        "portraitId": "considering",
+        "cueId": null,
+        "actorFallback": "The point lands. Something in the conversation shifts."
+      },
+      {
+        "reactionId": "priya_repeat",
+        "outcome": "repeat",
+        "readTheRoomId": "priya_read_repeat",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "This point has already been heard. Repeating it adds nothing."
+      },
+      {
+        "reactionId": "priya_backfire",
+        "outcome": "backfire",
+        "readTheRoomId": "priya_read_backfire",
+        "portraitId": "guarded",
+        "cueId": "sigh",
+        "actorFallback": "The approach crosses a line and makes the conversation harder."
+      },
+      {
+        "reactionId": "priya_lie_detected",
+        "outcome": "lie_detected",
+        "readTheRoomId": "priya_read_lie_detected",
+        "portraitId": "guarded",
+        "cueId": null,
+        "actorFallback": "The claim conflicts with verified facts. Trust in this argument drops."
+      },
+      {
+        "reactionId": "priya_offer_too_low",
+        "outcome": "offer_too_low",
+        "readTheRoomId": "priya_read_offer_too_low",
+        "portraitId": "hurt",
+        "cueId": null,
+        "actorFallback": "The offer is below the price this sale can accept."
+      },
+      {
+        "reactionId": "priya_cannot_pay",
+        "outcome": "cannot_pay",
+        "readTheRoomId": "priya_read_cannot_pay",
+        "portraitId": "hurt",
+        "cueId": null,
+        "actorFallback": "The offered amount is not available to spend."
+      },
+      {
+        "reactionId": "priya_ready",
+        "outcome": "ready",
+        "readTheRoomId": "priya_read_ready",
+        "portraitId": "warm",
+        "cueId": "consequence",
+        "actorFallback": "Priya is ready for you to confirm the exact terms."
+      },
+      {
+        "reactionId": "priya_refused",
+        "outcome": "refused",
+        "readTheRoomId": "priya_read_refused",
+        "portraitId": "guarded",
+        "cueId": null,
+        "actorFallback": "The proposed term cannot be accepted as stated."
+      },
+      {
+        "reactionId": "priya_walkout",
+        "outcome": "walkout",
+        "readTheRoomId": "priya_read_walkout",
+        "portraitId": "guarded",
+        "cueId": "sigh",
+        "actorFallback": "Priya ends the conversation after that boundary is crossed."
+      }
+    ],
+    "defaultReactionIds": {
+      "clarify": "priya_clarify",
+      "small_talk": "priya_small_talk",
+      "progress": "priya_progress",
+      "repeat": "priya_repeat",
+      "backfire": "priya_backfire",
+      "lie_detected": "priya_lie_detected",
+      "offer_too_low": "priya_offer_too_low",
+      "cannot_pay": "priya_cannot_pay",
+      "ready": "priya_ready",
+      "refused": "priya_refused",
+      "walkout": "priya_walkout"
+    },
+    "goalContract": {
+      "kind": "schedule_cooperation",
+      "missionId": "priya_off_island_assessment",
+      "npcId": "priya_nair",
+      "requiredConcernIds": [
+        "evidence",
+        "consent",
+        "capacity"
+      ],
+      "availableWhenId": "priya_assessment_available",
+      "confirmRuleId": "priya_assessment_ready",
+      "successRuleId": "priya_assessment_agreed",
+      "closerActionId": "schedule_priya_assessment",
+      "actionId": "assess_off_island_transport",
+      "subjectNpcId": "linda_boyfriend",
+      "locationId": "linda_villa",
+      "earliestMinute": 600,
+      "latestMinute": 10080,
+      "commandType": "create_scheduled_commitment"
+    },
+    "honestRoute": {
+      "proofId": "priya_evidence_consent_schedule_trace",
+      "context": {
+        "playerFactIds": [
+          "priya_injury_transport_evidence",
+          "priya_patient_consent"
+        ],
+        "npcFactIds": [],
+        "contradictedFactIds": [],
+        "playerMoney": 800,
+        "objectOwners": {
+          "linda_marchetti_purse": "linda"
+        },
+        "absoluteMinute": 720
+      },
+      "steps": [
+        {
+          "playerMessage": "The injury record shows he needs a transport assessment.",
+          "move": {
+            "acts": [
+              {
+                "act": "assert",
+                "referentId": "linda_boyfriend",
+                "evidenceText": "injury record"
+              }
+            ],
+            "register": "formal",
+            "claims": [
+              {
+                "factId": "priya_injury_transport_evidence",
+                "polarity": "assert",
+                "evidenceText": "injury record"
+              }
+            ],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        {
+          "playerMessage": "He gave consent for you to assess him.",
+          "move": {
+            "acts": [
+              {
+                "act": "assert",
+                "referentId": "linda_boyfriend",
+                "evidenceText": "gave consent"
+              }
+            ],
+            "register": "plain",
+            "claims": [
+              {
+                "factId": "priya_patient_consent",
+                "polarity": "assert",
+                "evidenceText": "consent"
+              }
+            ],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        {
+          "playerMessage": "Can you assess him at 9am tomorrow?",
+          "move": {
+            "acts": [
+              {
+                "act": "offer",
+                "referentId": "linda_boyfriend",
+                "evidenceText": "9am tomorrow"
+              }
+            ],
+            "register": "plain",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": 1980,
+          "grantPlayerFactIds": []
+        }
+      ]
+    },
+    "recoveryProofs": []
+  },
+  "referents": [
+    {
+      "id": "assess_off_island_transport",
+      "label": "off-island transport assessment",
+      "aliases": [
+        "assessment",
+        "transport assessment"
+      ]
+    },
+    {
+      "id": "linda_boyfriend",
+      "label": "Marcus Vale",
+      "aliases": [
+        "Marcus",
+        "patient",
+        "him"
+      ]
+    },
+    {
+      "id": "linda_villa",
+      "label": "Linda's villa",
+      "aliases": [
+        "villa",
+        "patient location"
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "id": "priya_injury_transport_evidence",
+      "description": "the injury record supports a transport assessment",
+      "aliases": [
+        "injury record",
+        "medical evidence"
+      ]
+    },
+    {
+      "id": "priya_patient_consent",
+      "description": "Marcus consented to Priya assessment",
+      "aliases": [
+        "patient consent",
+        "consent record"
+      ]
+    }
+  ],
+  "readTheRoomLines": {
+    "priya_read_clarify": "Priya the request is unclear.",
+    "priya_read_small_talk": "Priya the conversation stays friendly, but the concern does not move.",
+    "priya_read_progress": "Priya the point lands. Something in the conversation shifts.",
+    "priya_read_repeat": "Priya this point has already been heard. Repeating it adds nothing.",
+    "priya_read_backfire": "Priya the approach crosses a line and makes the conversation harder.",
+    "priya_read_lie_detected": "Priya the claim conflicts with verified facts. Trust in this argument drops.",
+    "priya_read_offer_too_low": "Priya the offer is below the price this sale can accept.",
+    "priya_read_cannot_pay": "Priya the offered amount is not available to spend.",
+    "priya_read_ready": "Priya every required concern is answered. The exact result is ready to confirm.",
+    "priya_read_refused": "Priya the proposed term cannot be accepted as stated.",
+    "priya_read_walkout": "Priya a hard boundary ends this attempt."
+  },
+  "speakableFactTexts": {}
+}

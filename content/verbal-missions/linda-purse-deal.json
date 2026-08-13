@@ -1,0 +1,668 @@
+{
+  "disposition": {
+    "dispositionId": "linda_purse_disposition",
+    "npcId": "linda",
+    "protectedValueIds": [
+      "independence",
+      "dignity"
+    ],
+    "credibilitySignalIds": [
+      "specific_use",
+      "verified_value"
+    ],
+    "suspicionSignalIds": [
+      "generic_flattery",
+      "pressure"
+    ],
+    "decisionStyle": "relational",
+    "patience": 6,
+    "repetitionTolerance": 1,
+    "verificationMethodIds": [
+      "consignment_appraisal",
+      "cash_check"
+    ],
+    "hardBoundaries": [
+      {
+        "boundaryId": "linda_no_threats",
+        "trigger": {
+          "actIds": [
+            "threaten"
+          ]
+        }
+      }
+    ]
+  },
+  "definition": {
+    "schemaVersion": 1,
+    "missionId": "linda_marchetti_purse_sale",
+    "npcId": "linda",
+    "dispositionId": "linda_purse_disposition",
+    "concerns": [
+      {
+        "concernId": "purpose",
+        "summary": "Linda needs a concrete reason the purse will be used, not collected as a trophy.",
+        "required": true,
+        "initialState": "hidden"
+      },
+      {
+        "concernId": "value",
+        "summary": "The price must reflect a fair private sale.",
+        "required": true,
+        "initialState": "open"
+      },
+      {
+        "concernId": "dignity",
+        "summary": "The approach must respect Linda and the purse history.",
+        "required": true,
+        "initialState": "open"
+      },
+      {
+        "concernId": "payment",
+        "summary": "The exact payment must be available now.",
+        "required": true,
+        "initialState": "open"
+      }
+    ],
+    "levers": [
+      {
+        "leverId": "ask_purse_history",
+        "stableOrder": 1,
+        "concernId": "purpose",
+        "honest": true,
+        "credits": false,
+        "trigger": {
+          "actIds": [
+            "ask"
+          ],
+          "referentId": "linda_marchetti_purse"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "hidden"
+        ],
+        "toState": "open",
+        "newlySpeakableFactIds": [
+          "linda_purse_independence_story"
+        ],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "state_personal_use",
+        "stableOrder": 2,
+        "concernId": "purpose",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "assert"
+          ],
+          "referentId": "linda_marchetti_purse",
+          "forbiddenRegisterIds": [
+            "flattering",
+            "threatening"
+          ]
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "honour_independence_story",
+        "stableOrder": 3,
+        "concernId": "purpose",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "empathize"
+          ],
+          "referentId": "linda_marchetti_purse",
+          "claimFactIds": [
+            "linda_purse_independence_story"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "linda_purse_independence_story"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "verified_consignment_value",
+        "stableOrder": 4,
+        "concernId": "value",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "assert"
+          ],
+          "referentId": "linda_marchetti_purse",
+          "claimFactIds": [
+            "linda_quick_consignment_net"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "linda_quick_consignment_net"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "observe_worn_clasp",
+        "stableOrder": 5,
+        "concernId": "value",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "observe"
+          ],
+          "referentId": "linda_marchetti_purse",
+          "claimFactIds": [
+            "linda_purse_worn_clasp"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "linda_purse_worn_clasp"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "respect_purse_history",
+        "stableOrder": 6,
+        "concernId": "dignity",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "empathize"
+          ],
+          "registerIds": [
+            "warm"
+          ],
+          "referentId": "linda_marchetti_purse"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "formal_private_sale",
+        "stableOrder": 7,
+        "concernId": "dignity",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "assert"
+          ],
+          "registerIds": [
+            "formal"
+          ],
+          "referentId": "linda_marchetti_purse"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "exact_private_offer",
+        "stableOrder": 8,
+        "concernId": "payment",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "offer"
+          ],
+          "referentId": "linda_marchetti_purse",
+          "forbiddenRegisterIds": [
+            "threatening"
+          ]
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open",
+          "eased"
+        ],
+        "toState": "resolved",
+        "exactTerm": {
+          "kind": "offer",
+          "minimumAmount": 80,
+          "maximumAmount": null,
+          "requireAffordable": true
+        },
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      },
+      {
+        "leverId": "cash_ready",
+        "stableOrder": 9,
+        "concernId": "payment",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "trade"
+          ],
+          "referentId": "linda_marchetti_purse",
+          "claimFactIds": [
+            "linda_cash_payment_ready"
+          ]
+        },
+        "requiredPlayerFactIds": [
+          "linda_cash_payment_ready"
+        ],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "eased",
+        "newlySpeakableFactIds": [],
+        "reactionId": "linda_progress"
+      }
+    ],
+    "allergies": [
+      {
+        "allergyId": "linda_generic_flattery",
+        "stableOrder": 1,
+        "trigger": {
+          "registerIds": [
+            "flattering"
+          ]
+        },
+        "severity": "mild",
+        "concernId": "dignity",
+        "recoveryIds": [
+          "linda_plain_apology"
+        ],
+        "patienceDelta": -1,
+        "reactionId": "linda_backfire"
+      }
+    ],
+    "recoveries": [
+      {
+        "recoveryId": "linda_plain_apology",
+        "stableOrder": 1,
+        "concernId": "dignity",
+        "trigger": {
+          "actIds": [
+            "apologize"
+          ],
+          "forbiddenRegisterIds": [
+            "flattering"
+          ]
+        },
+        "requiredPlayerFactIds": [],
+        "toState": "open",
+        "sameConversation": true,
+        "reactionId": "linda_progress"
+      }
+    ],
+    "reactions": [
+      {
+        "reactionId": "linda_clarify",
+        "outcome": "clarify",
+        "readTheRoomId": "linda_read_clarify",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "The request is unclear."
+      },
+      {
+        "reactionId": "linda_small_talk",
+        "outcome": "small_talk",
+        "readTheRoomId": "linda_read_small_talk",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "The conversation stays friendly, but the concern does not move."
+      },
+      {
+        "reactionId": "linda_progress",
+        "outcome": "progress",
+        "readTheRoomId": "linda_read_progress",
+        "portraitId": "considering",
+        "cueId": null,
+        "actorFallback": "The point lands. Something in the conversation shifts."
+      },
+      {
+        "reactionId": "linda_repeat",
+        "outcome": "repeat",
+        "readTheRoomId": "linda_read_repeat",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "This point has already been heard. Repeating it adds nothing."
+      },
+      {
+        "reactionId": "linda_backfire",
+        "outcome": "backfire",
+        "readTheRoomId": "linda_read_backfire",
+        "portraitId": "guarded",
+        "cueId": "sigh",
+        "actorFallback": "The approach crosses a line and makes the conversation harder."
+      },
+      {
+        "reactionId": "linda_lie_detected",
+        "outcome": "lie_detected",
+        "readTheRoomId": "linda_read_lie_detected",
+        "portraitId": "guarded",
+        "cueId": null,
+        "actorFallback": "The claim conflicts with verified facts. Trust in this argument drops."
+      },
+      {
+        "reactionId": "linda_offer_too_low",
+        "outcome": "offer_too_low",
+        "readTheRoomId": "linda_read_offer_too_low",
+        "portraitId": "hurt",
+        "cueId": null,
+        "actorFallback": "The offer is below the price this sale can accept."
+      },
+      {
+        "reactionId": "linda_cannot_pay",
+        "outcome": "cannot_pay",
+        "readTheRoomId": "linda_read_cannot_pay",
+        "portraitId": "hurt",
+        "cueId": null,
+        "actorFallback": "The offered amount is not available to spend."
+      },
+      {
+        "reactionId": "linda_ready",
+        "outcome": "ready",
+        "readTheRoomId": "linda_read_ready",
+        "portraitId": "warm",
+        "cueId": "consequence",
+        "actorFallback": "Linda is ready for you to confirm the exact terms."
+      },
+      {
+        "reactionId": "linda_refused",
+        "outcome": "refused",
+        "readTheRoomId": "linda_read_refused",
+        "portraitId": "guarded",
+        "cueId": null,
+        "actorFallback": "The proposed term cannot be accepted as stated."
+      },
+      {
+        "reactionId": "linda_walkout",
+        "outcome": "walkout",
+        "readTheRoomId": "linda_read_walkout",
+        "portraitId": "guarded",
+        "cueId": "sigh",
+        "actorFallback": "Linda ends the conversation after that boundary is crossed."
+      }
+    ],
+    "defaultReactionIds": {
+      "clarify": "linda_clarify",
+      "small_talk": "linda_small_talk",
+      "progress": "linda_progress",
+      "repeat": "linda_repeat",
+      "backfire": "linda_backfire",
+      "lie_detected": "linda_lie_detected",
+      "offer_too_low": "linda_offer_too_low",
+      "cannot_pay": "linda_cannot_pay",
+      "ready": "linda_ready",
+      "refused": "linda_refused",
+      "walkout": "linda_walkout"
+    },
+    "goalContract": {
+      "kind": "buy_object",
+      "missionId": "linda_marchetti_purse_sale",
+      "npcId": "linda",
+      "requiredConcernIds": [
+        "purpose",
+        "value",
+        "dignity",
+        "payment"
+      ],
+      "availableWhenId": "linda_purse_available",
+      "confirmRuleId": "linda_purse_sale_legal",
+      "successRuleId": "linda_purse_under_100",
+      "closerActionId": "buy_linda_marchetti_purse",
+      "objectId": "linda_marchetti_purse",
+      "successPriceExclusive": 100,
+      "hardMinimumPrice": 80,
+      "commandType": "purchase_unique_object"
+    },
+    "honestRoute": {
+      "proofId": "linda_appraisal_trace",
+      "context": {
+        "playerFactIds": [
+          "linda_quick_consignment_net"
+        ],
+        "npcFactIds": [],
+        "contradictedFactIds": [],
+        "playerMoney": 800,
+        "objectOwners": {
+          "linda_marchetti_purse": "linda"
+        },
+        "absoluteMinute": 720
+      },
+      "steps": [
+        {
+          "playerMessage": "Why does the purse matter to you?",
+          "move": {
+            "acts": [
+              {
+                "act": "ask",
+                "referentId": "linda_marchetti_purse",
+                "evidenceText": "Why does the purse matter"
+              }
+            ],
+            "register": "warm",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        {
+          "playerMessage": "I would use the purse, and the appraisal says a quick sale nets $85.",
+          "move": {
+            "acts": [
+              {
+                "act": "assert",
+                "referentId": "linda_marchetti_purse",
+                "evidenceText": "I would use the purse"
+              }
+            ],
+            "register": "plain",
+            "claims": [
+              {
+                "factId": "linda_quick_consignment_net",
+                "polarity": "assert",
+                "evidenceText": "appraisal"
+              }
+            ],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        {
+          "playerMessage": "I understand why its history deserves respect.",
+          "move": {
+            "acts": [
+              {
+                "act": "empathize",
+                "referentId": "linda_marchetti_purse",
+                "evidenceText": "history deserves respect"
+              }
+            ],
+            "register": "warm",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        {
+          "playerMessage": "I offer $95 for the purse.",
+          "move": {
+            "acts": [
+              {
+                "act": "offer",
+                "referentId": "linda_marchetti_purse",
+                "evidenceText": "$95"
+              }
+            ],
+            "register": "plain",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": 95,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        }
+      ]
+    },
+    "recoveryProofs": [
+      {
+        "proofId": "linda_flattery_recovery_trace",
+        "allergyId": "linda_generic_flattery",
+        "recoveryId": "linda_plain_apology",
+        "context": {
+          "playerFactIds": [
+            "linda_quick_consignment_net"
+          ],
+          "npcFactIds": [],
+          "contradictedFactIds": [],
+          "playerMoney": 800,
+          "objectOwners": {
+            "linda_marchetti_purse": "linda"
+          },
+          "absoluteMinute": 720
+        },
+        "allergyStep": {
+          "playerMessage": "You are perfect and the purse makes you perfect.",
+          "move": {
+            "acts": [
+              {
+                "act": "compliment",
+                "referentId": "linda_marchetti_purse",
+                "evidenceText": "perfect"
+              }
+            ],
+            "register": "flattering",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        "recoveryStep": {
+          "playerMessage": "Sorry. That sounded fake.",
+          "move": {
+            "acts": [
+              {
+                "act": "apologize",
+                "referentId": "linda_marchetti_purse",
+                "evidenceText": "Sorry"
+              }
+            ],
+            "register": "plain",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        }
+      }
+    ]
+  },
+  "referents": [
+    {
+      "id": "linda_marchetti_purse",
+      "label": "Linda's black Marchetti purse",
+      "aliases": [
+        "purse",
+        "bag",
+        "Marchetti"
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "id": "linda_purse_independence_story",
+      "description": "the purse helped Linda mark her independence",
+      "aliases": [
+        "independence story",
+        "purse history"
+      ]
+    },
+    {
+      "id": "linda_quick_consignment_net",
+      "description": "a quick consignment sale would net Linda $85",
+      "aliases": [
+        "appraisal",
+        "consignment quote"
+      ]
+    },
+    {
+      "id": "linda_purse_worn_clasp",
+      "description": "the purse clasp is visibly worn",
+      "aliases": [
+        "worn clasp"
+      ]
+    },
+    {
+      "id": "linda_cash_payment_ready",
+      "description": "the exact cash payment is available",
+      "aliases": [
+        "cash ready"
+      ]
+    }
+  ],
+  "readTheRoomLines": {
+    "linda_read_clarify": "Linda the request is unclear.",
+    "linda_read_small_talk": "Linda the conversation stays friendly, but the concern does not move.",
+    "linda_read_progress": "Linda the point lands. Something in the conversation shifts.",
+    "linda_read_repeat": "Linda this point has already been heard. Repeating it adds nothing.",
+    "linda_read_backfire": "Linda the approach crosses a line and makes the conversation harder.",
+    "linda_read_lie_detected": "Linda the claim conflicts with verified facts. Trust in this argument drops.",
+    "linda_read_offer_too_low": "Linda the offer is below the price this sale can accept.",
+    "linda_read_cannot_pay": "Linda the offered amount is not available to spend.",
+    "linda_read_ready": "Linda every required concern is answered. The exact result is ready to confirm.",
+    "linda_read_refused": "Linda the proposed term cannot be accepted as stated.",
+    "linda_read_walkout": "Linda a hard boundary ends this attempt."
+  },
+  "speakableFactTexts": {
+    "linda_purse_independence_story": "The purse was the first expensive thing Linda bought after becoming independent."
+  }
+}

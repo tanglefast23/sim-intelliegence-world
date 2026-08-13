@@ -124,12 +124,12 @@ describe('Phase 32 final art-quality manifest', () => {
     };
     const result = (mode: 'migration' | 'reload') => ({
       mode, expectedSaveStatus: 'GEN 8', visibleSaveStatus: 'GEN 8',
-      loaded: { status: 'unchanged', saveGeneration: 8, checksum, state: { schemaVersion: 6 } },
+      loaded: { status: 'unchanged', saveGeneration: 8, checksum, state: { schemaVersion: 7 } },
     });
     const save = {
       schemaVersion: 1, testedCommit, packageProvenance,
       migration: result('migration'), reload: result('reload'),
-      disk: { mainSchemaVersion: 6, mainSaveGeneration: 8, mainPayloadChecksum: checksum, exactV5BackupPreserved: true, backupSchemaVersion: 5 },
+      disk: { mainSchemaVersion: 7, mainSaveGeneration: 8, mainPayloadChecksum: checksum, exactV5BackupPreserved: true, backupSchemaVersion: 5 },
       screenshots: { migration: 'migration.png', reload: 'reload.png' },
     };
     const prototypeReview = {

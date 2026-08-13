@@ -1,0 +1,312 @@
+{
+  "disposition": {
+    "dispositionId": "tomas_procedural_disposition",
+    "npcId": "tomas_reed",
+    "protectedValueIds": [
+      "public_record_integrity"
+    ],
+    "credibilitySignalIds": [
+      "clear_public_purpose"
+    ],
+    "suspicionSignalIds": [
+      "pressure",
+      "rumor"
+    ],
+    "decisionStyle": "procedural",
+    "patience": 6,
+    "repetitionTolerance": 1,
+    "verificationMethodIds": [
+      "public_timetable"
+    ],
+    "hardBoundaries": [
+      {
+        "boundaryId": "tomas_no_threats",
+        "trigger": {
+          "actIds": [
+            "threaten"
+          ]
+        }
+      }
+    ]
+  },
+  "definition": {
+    "schemaVersion": 1,
+    "missionId": "tomas_after_dark_ferry",
+    "npcId": "tomas_reed",
+    "dispositionId": "tomas_procedural_disposition",
+    "concerns": [
+      {
+        "concernId": "procedure",
+        "summary": "Tomas needs a clear public request he can answer from the timetable.",
+        "required": true,
+        "initialState": "open"
+      }
+    ],
+    "levers": [
+      {
+        "leverId": "read_public_timetable",
+        "stableOrder": 1,
+        "concernId": "procedure",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "observe"
+          ],
+          "referentId": "ferry_after_dark_route"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "open"
+        ],
+        "toState": "eased",
+        "newlySpeakableFactIds": [],
+        "reactionId": "tomas_progress"
+      },
+      {
+        "leverId": "make_formal_ferry_request",
+        "stableOrder": 2,
+        "concernId": "procedure",
+        "honest": true,
+        "credits": true,
+        "trigger": {
+          "actIds": [
+            "ask"
+          ],
+          "registerIds": [
+            "formal"
+          ],
+          "referentId": "ferry_after_dark_route"
+        },
+        "requiredPlayerFactIds": [],
+        "requiredNpcFactIds": [],
+        "fromStates": [
+          "eased"
+        ],
+        "toState": "resolved",
+        "newlySpeakableFactIds": [
+          "ferry_after_dark_route"
+        ],
+        "reactionId": "tomas_progress"
+      }
+    ],
+    "allergies": [],
+    "recoveries": [],
+    "reactions": [
+      {
+        "reactionId": "tomas_clarify",
+        "outcome": "clarify",
+        "readTheRoomId": "tomas_read_clarify",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "The request is unclear."
+      },
+      {
+        "reactionId": "tomas_small_talk",
+        "outcome": "small_talk",
+        "readTheRoomId": "tomas_read_small_talk",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "The conversation stays friendly, but the concern does not move."
+      },
+      {
+        "reactionId": "tomas_progress",
+        "outcome": "progress",
+        "readTheRoomId": "tomas_read_progress",
+        "portraitId": "considering",
+        "cueId": null,
+        "actorFallback": "The point lands. Something in the conversation shifts."
+      },
+      {
+        "reactionId": "tomas_repeat",
+        "outcome": "repeat",
+        "readTheRoomId": "tomas_read_repeat",
+        "portraitId": "neutral",
+        "cueId": null,
+        "actorFallback": "This point has already been heard. Repeating it adds nothing."
+      },
+      {
+        "reactionId": "tomas_backfire",
+        "outcome": "backfire",
+        "readTheRoomId": "tomas_read_backfire",
+        "portraitId": "guarded",
+        "cueId": "sigh",
+        "actorFallback": "The approach crosses a line and makes the conversation harder."
+      },
+      {
+        "reactionId": "tomas_lie_detected",
+        "outcome": "lie_detected",
+        "readTheRoomId": "tomas_read_lie_detected",
+        "portraitId": "guarded",
+        "cueId": null,
+        "actorFallback": "The claim conflicts with verified facts. Trust in this argument drops."
+      },
+      {
+        "reactionId": "tomas_offer_too_low",
+        "outcome": "offer_too_low",
+        "readTheRoomId": "tomas_read_offer_too_low",
+        "portraitId": "hurt",
+        "cueId": null,
+        "actorFallback": "The offer is below the price this sale can accept."
+      },
+      {
+        "reactionId": "tomas_cannot_pay",
+        "outcome": "cannot_pay",
+        "readTheRoomId": "tomas_read_cannot_pay",
+        "portraitId": "hurt",
+        "cueId": null,
+        "actorFallback": "The offered amount is not available to spend."
+      },
+      {
+        "reactionId": "tomas_ready",
+        "outcome": "ready",
+        "readTheRoomId": "tomas_read_ready",
+        "portraitId": "warm",
+        "cueId": "consequence",
+        "actorFallback": "Tomas is ready for you to confirm the exact terms."
+      },
+      {
+        "reactionId": "tomas_refused",
+        "outcome": "refused",
+        "readTheRoomId": "tomas_read_refused",
+        "portraitId": "guarded",
+        "cueId": null,
+        "actorFallback": "The proposed term cannot be accepted as stated."
+      },
+      {
+        "reactionId": "tomas_walkout",
+        "outcome": "walkout",
+        "readTheRoomId": "tomas_read_walkout",
+        "portraitId": "guarded",
+        "cueId": "sigh",
+        "actorFallback": "Tomas ends the conversation after that boundary is crossed."
+      }
+    ],
+    "defaultReactionIds": {
+      "clarify": "tomas_clarify",
+      "small_talk": "tomas_small_talk",
+      "progress": "tomas_progress",
+      "repeat": "tomas_repeat",
+      "backfire": "tomas_backfire",
+      "lie_detected": "tomas_lie_detected",
+      "offer_too_low": "tomas_offer_too_low",
+      "cannot_pay": "tomas_cannot_pay",
+      "ready": "tomas_ready",
+      "refused": "tomas_refused",
+      "walkout": "tomas_walkout"
+    },
+    "goalContract": {
+      "kind": "disclose_fact",
+      "missionId": "tomas_after_dark_ferry",
+      "npcId": "tomas_reed",
+      "requiredConcernIds": [
+        "procedure"
+      ],
+      "availableWhenId": "tomas_ferry_available",
+      "confirmRuleId": "tomas_ferry_ready",
+      "successRuleId": "tomas_ferry_disclosed",
+      "closerActionId": "record_tomas_ferry_disclosure",
+      "factId": "ferry_after_dark_route",
+      "recipientId": "protagonist",
+      "commandType": "record_fact_disclosure"
+    },
+    "honestRoute": {
+      "proofId": "tomas_public_timetable_trace",
+      "context": {
+        "playerFactIds": [],
+        "npcFactIds": [],
+        "contradictedFactIds": [],
+        "playerMoney": 800,
+        "objectOwners": {
+          "linda_marchetti_purse": "linda"
+        },
+        "absoluteMinute": 480
+      },
+      "steps": [
+        {
+          "playerMessage": "The public timetable shows an after-dark ferry.",
+          "move": {
+            "acts": [
+              {
+                "act": "observe",
+                "referentId": "ferry_after_dark_route",
+                "evidenceText": "public timetable"
+              }
+            ],
+            "register": "plain",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        },
+        {
+          "playerMessage": "Please tell me which ferry runs after dark.",
+          "move": {
+            "acts": [
+              {
+                "act": "ask",
+                "referentId": "ferry_after_dark_route",
+                "evidenceText": "which ferry runs after dark"
+              }
+            ],
+            "register": "formal",
+            "claims": [],
+            "referenceConfidence": "clear"
+          },
+          "exactOfferAmount": null,
+          "exactProposedMinute": null,
+          "grantPlayerFactIds": []
+        }
+      ]
+    },
+    "recoveryProofs": []
+  },
+  "referents": [
+    {
+      "id": "protagonist",
+      "label": "you",
+      "aliases": [
+        "me",
+        "myself"
+      ]
+    },
+    {
+      "id": "ferry_after_dark_route",
+      "label": "after-dark ferry route",
+      "aliases": [
+        "night ferry",
+        "late ferry",
+        "timetable"
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "id": "ferry_after_dark_route",
+      "description": "the public ferry route that still runs after dark",
+      "aliases": [
+        "night ferry",
+        "late ferry"
+      ]
+    }
+  ],
+  "readTheRoomLines": {
+    "tomas_read_clarify": "Tomas the request is unclear.",
+    "tomas_read_small_talk": "Tomas the conversation stays friendly, but the concern does not move.",
+    "tomas_read_progress": "Tomas the point lands. Something in the conversation shifts.",
+    "tomas_read_repeat": "Tomas this point has already been heard. Repeating it adds nothing.",
+    "tomas_read_backfire": "Tomas the approach crosses a line and makes the conversation harder.",
+    "tomas_read_lie_detected": "Tomas the claim conflicts with verified facts. Trust in this argument drops.",
+    "tomas_read_offer_too_low": "Tomas the offer is below the price this sale can accept.",
+    "tomas_read_cannot_pay": "Tomas the offered amount is not available to spend.",
+    "tomas_read_ready": "Tomas every required concern is answered. The exact result is ready to confirm.",
+    "tomas_read_refused": "Tomas the proposed term cannot be accepted as stated.",
+    "tomas_read_walkout": "Tomas a hard boundary ends this attempt."
+  },
+  "speakableFactTexts": {
+    "ferry_after_dark_route": "The southeast night ferry is the public route that still runs after dark."
+  }
+}

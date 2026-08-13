@@ -9,6 +9,7 @@ import { createInitialState } from '../../src/domain/state/initial-state';
 import { CHARACTER_LOOKS } from '../art/character-look-roster';
 import { buildProductionMaps } from './build-map-v2';
 import { buildSaveCutoverFixtures } from './build-save-cutover-fixtures';
+import { buildVerbalMissions } from './build-verbal-missions';
 
 const root = process.cwd();
 
@@ -154,7 +155,13 @@ async function buildCharacters(): Promise<void> {
       'Answers briefly at the authored knowledge level. States uncertainty instead of inventing a name, live fact, private fact, exact geography, or expertise.',
       '',
     ].join('\n'));
-    const actions = ['greet', 'ask_follow_up', 'end_conversation', 'invite_home', 'ask_date', 'aggressive_flirt'];
+    const missionFacts = character.id === 'tomas_reed' ? ['ferry_after_dark_route']
+      : character.id === 'priya_nair' ? ['priya_injury_transport_evidence', 'priya_patient_consent'] : [];
+    const missionActions = character.id === 'tomas_reed' ? ['record_tomas_ferry_disclosure']
+      : character.id === 'priya_nair' ? ['assess_off_island_transport', 'schedule_priya_assessment'] : [];
+    const missionQuests = character.id === 'tomas_reed' ? ['tomas_after_dark_ferry']
+      : character.id === 'priya_nair' ? ['priya_off_island_assessment'] : [];
+    const actions = ['greet', 'ask_follow_up', 'end_conversation', 'invite_home', 'ask_date', 'aggressive_flirt', ...missionActions];
     const romanticBoundary = [
       { id: 'no_aggressive_flirting', scope: 'romantic', blockedActionIds: ['aggressive_flirt'] },
     ];
@@ -164,12 +171,12 @@ async function buildCharacters(): Promise<void> {
     await writeJson(resolve(directory, 'rules.json'), {
       schemaVersion: 1,
       npcId: character.id,
-      factIds: [],
+      factIds: missionFacts,
       interestIds: [character.interestId, 'island_gossip'],
       actionIds: actions,
       memorySubjectIds: [character.memorySubjectId],
       unlockIds: [],
-      questIds: [],
+      questIds: missionQuests,
       locationIds: [character.homeLocationId, character.work.mapId],
       factionIds: character.factionIds,
       compatibility: { social: true, romantic: character.romantic, romanticEligibleAtStart: false },
@@ -264,6 +271,26 @@ async function buildWorldCatalog(): Promise<void> {
 }
 
 async function buildRegistries(): Promise<void> {
+  await mergeRegistry('facts.json', [
+    { id: 'ferry_after_dark_route', displayName: 'After-dark public ferry route' },
+    { id: 'linda_cash_payment_ready', displayName: 'Exact purse payment is available' },
+    { id: 'linda_purse_independence_story', displayName: 'Linda purse independence story' },
+    { id: 'linda_purse_worn_clasp', displayName: 'Linda purse worn clasp' },
+    { id: 'linda_quick_consignment_net', displayName: 'Linda quick consignment net value' },
+    { id: 'priya_injury_transport_evidence', displayName: 'Injury transport evidence' },
+    { id: 'priya_patient_consent', displayName: 'Patient consent for Priya assessment' },
+  ]);
+  await mergeRegistry('actions.json', [
+    { id: 'assess_off_island_transport', displayName: 'Assess off-island transport' },
+    { id: 'buy_linda_marchetti_purse', displayName: 'Buy Linda Marchetti purse' },
+    { id: 'record_tomas_ferry_disclosure', displayName: 'Record Tomas ferry disclosure' },
+    { id: 'schedule_priya_assessment', displayName: 'Schedule Priya assessment' },
+  ]);
+  await mergeRegistry('quests.json', [
+    { id: 'linda_marchetti_purse_sale', displayName: 'Buy Linda Marchetti purse' },
+    { id: 'priya_off_island_assessment', displayName: 'Arrange Priya transport assessment' },
+    { id: 'tomas_after_dark_ferry', displayName: 'Learn the after-dark ferry route' },
+  ]);
   await mergeRegistry('interests.json', PRODUCTION_FULL_AI_CAST.map((character) => ({
     id: character.interestId,
     displayName: character.interestId[0]!.toUpperCase() + character.interestId.slice(1),
@@ -285,6 +312,7 @@ async function main(): Promise<void> {
   await buildProductionMaps(root);
   await buildWorldCatalog();
   await buildSaveCutoverFixtures(root);
+  await buildVerbalMissions(root);
   process.stdout.write(`Built ${PRODUCTION_FULL_AI_CAST.length} named character files and ${PRODUCTION_AMBIENT_RESIDENTS.length} ambient residents.\n`);
 }
 

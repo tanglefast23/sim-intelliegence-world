@@ -117,7 +117,7 @@ const SaveResultSchema = z.object({
     status: z.literal('unchanged'),
     saveGeneration: z.literal(8),
     checksum: Sha256Schema,
-    state: z.object({ schemaVersion: z.literal(6) }).passthrough(),
+    state: z.object({ schemaVersion: z.literal(7) }).passthrough(),
   }).passthrough(),
 }).passthrough();
 const SaveMigrationReportSchema = z.object({
@@ -127,7 +127,7 @@ const SaveMigrationReportSchema = z.object({
   migration: SaveResultSchema,
   reload: SaveResultSchema,
   disk: z.object({
-    mainSchemaVersion: z.literal(6),
+    mainSchemaVersion: z.literal(7),
     mainSaveGeneration: z.literal(8),
     mainPayloadChecksum: Sha256Schema,
     exactV5BackupPreserved: z.literal(true),

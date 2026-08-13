@@ -9,7 +9,7 @@ function stateWithMarker(markerVisible: boolean, locationId = 'linda_villa') {
     journal: {
       journal_linda_boyfriend: {
         id: 'journal_linda_boyfriend',
-        questId: 'linda_boyfriend_check',
+        subject: { kind: 'quest', questId: 'linda_boyfriend_check' },
         summary: 'Exact villa location confirmed.',
         locationPrecision: 'exact',
         locationId,

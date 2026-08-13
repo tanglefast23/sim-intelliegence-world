@@ -222,7 +222,7 @@ export function planLindaQuestStart(state: WorldState, requestNpcId: string): Qu
   }
   const entry: JournalEntry = {
     id: LINDA_QUEST.start.journalEntryId,
-    questId: LINDA_QUEST.id,
+    subject: { kind: 'quest', questId: LINDA_QUEST.id },
     summary: LINDA_QUEST.start.summary,
     locationPrecision: 'vague',
     markerVisible: false,
@@ -447,7 +447,7 @@ export function planLindaQuestOutcome(state: WorldState, approachId: LindaQuestA
 }
 
 export type ContextQuestAction = Readonly<{
-  id: 'start' | 'discover' | LindaQuestApproachId;
+  id: string;
   label: string;
   cause: string;
   result: string;

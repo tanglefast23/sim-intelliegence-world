@@ -70,7 +70,7 @@ export async function inspectSaveCandidate(
     if (typeof parsed === 'object' && parsed !== null && 'state' in parsed &&
       typeof parsed.state === 'object' && parsed.state !== null) {
       const state = parsed.state as Readonly<Record<string, unknown>>;
-      const incompatible = ![5, 6].includes(state.schemaVersion as number) ||
+      const incompatible = ![5, 6, 7].includes(state.schemaVersion as number) ||
         state.engineVersion !== ENGINE_VERSION ||
         state.contentVersion !== CONTENT_VERSION ||
         state.promptVersion !== PROMPT_VERSION ||

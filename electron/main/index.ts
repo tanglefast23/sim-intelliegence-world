@@ -10,6 +10,7 @@ import { CHARACTER_IDS } from '../../src/render/atlas';
 import { responsiveSurface } from '../../src/render/responsive-layout';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
+import { FileVerbalMissionContentStore } from '../conversation/file-verbal-mission-content-store';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
 import { BundledConversationInference } from '../model/conversation-inference';
 import { runPackagedModelSmoke } from '../model/model-smoke';
@@ -1681,11 +1682,11 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const transcript = await rendererText(window, '#conversation-transcript');
   const modelStatus = await rendererText(window, '#conversation-model-status');
   const conversationFallback = smokeExpectsModel
-    ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
+    ? modelStatus.includes('REPLY RECEIVED') && !modelStatus.includes('SAFE REPLY')
     : transcript.includes('I lost the thread') && !transcript.includes('jsonSchema');
   const modelFailureFeedback = smokeExpectsModel
-    ? modelStatus.includes('LOCAL MODEL REPLIED') && !modelStatus.includes('FALLBACK')
-    : modelStatus.includes('FALLBACK USED');
+    ? modelStatus.includes('REPLY RECEIVED') && !modelStatus.includes('SAFE REPLY')
+    : modelStatus.includes('SAFE REPLY USED');
   const firstFreeTextTurnSource = smokeExpectsModel ? 'model' : 'authored-fallback';
   const transcriptChildrenBeforeInvitation = await conversationTranscriptMeasure(window);
   await window.webContents.executeJavaScript(`(() => {
@@ -1702,10 +1703,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const invitationTranscript = await rendererText(window, '#conversation-transcript');
   const structuredInvitation = invitationTranscript.includes('current situation') && (
     !smokeExpectsModel ||
-    (invitationStatus.includes('LOCAL MODEL REPLIED') || invitationStatus.includes('AUTHORED RESPONSE USED')) &&
-      !invitationStatus.includes('FALLBACK')
+    (invitationStatus.includes('REPLY RECEIVED') || invitationStatus.includes('AUTHORED REPLY USED')) &&
+      !invitationStatus.includes('SAFE REPLY')
   );
-  const structuredInvitationSource = invitationStatus.includes('LOCAL MODEL REPLIED')
+  const structuredInvitationSource = invitationStatus.includes('REPLY RECEIVED')
     ? 'model'
     : 'authored-structured';
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
@@ -1957,6 +1958,7 @@ async function createMainWindow(): Promise<void> {
     smokeExpectsModel
       ? (diagnostic) => process.stdout.write(`SI_WORLD_CONVERSATION_DIAGNOSTIC ${JSON.stringify(diagnostic)}\n`)
       : undefined,
+    new FileVerbalMissionContentStore(contentRoot),
   );
   registerConversationIpc(ipcMain, conversationService);
   window.webContents.once('destroyed', () => conversationService?.abortAll());

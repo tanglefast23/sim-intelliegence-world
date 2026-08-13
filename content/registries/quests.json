@@ -1,1 +1,21 @@
-{"schemaVersion":1,"items":[{"id":"linda_boyfriend_check","displayName":"Check on Linda's boyfriend"}]}
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "linda_boyfriend_check",
+      "displayName": "Check on Linda's boyfriend"
+    },
+    {
+      "id": "linda_marchetti_purse_sale",
+      "displayName": "Buy Linda Marchetti purse"
+    },
+    {
+      "id": "priya_off_island_assessment",
+      "displayName": "Arrange Priya transport assessment"
+    },
+    {
+      "id": "tomas_after_dark_ferry",
+      "displayName": "Learn the after-dark ferry route"
+    }
+  ]
+}

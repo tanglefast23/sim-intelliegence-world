@@ -23,6 +23,24 @@ import {
   planLindaQuestStart,
   planLindaVillaDiscovery,
 } from '../quests/quest-machine';
+import { validateAppliedMissionOutcome } from '../verbal-missions/commands';
+import {
+  automaticCommitmentCommand,
+  dueCommitmentIds,
+  planCommitmentResolution,
+} from '../verbal-missions/commitments';
+import {
+  LINDA_PURSE_MISSION_ID,
+  PRIYA_ASSESSMENT_MISSION_ID,
+  TOMAS_FERRY_MISSION_ID,
+  authoredPlayerKnowledgeRecord,
+  planFactDisclosure,
+  planOfferVerbalMission,
+  planRecordPlayerKnowledge,
+  planScheduledCommitment,
+  planUniqueObjectPurchase,
+  planWithdrawVerbalMission,
+} from '../verbal-missions/goal-planners';
 
 export type CommandResult = Readonly<{
   state: WorldState;
@@ -70,10 +88,72 @@ function socialFlagIds(state: WorldState, npcId: string): Set<string> {
   return new Set([...allQuestFlagIds(state), ...(state.npcs[npcId]?.unlockedIds ?? [])]);
 }
 
+function latestEvent(state: WorldState, predicate: (event: DomainEvent) => boolean): DomainEvent | undefined {
+  for (let index = state.eventLedger.length - 1; index >= 0; index -= 1) {
+    const event = state.eventLedger[index];
+    if (event && predicate(event)) return event;
+  }
+  return undefined;
+}
+
+function duplicateResult(state: WorldState, event?: DomainEvent): CommandResult {
+  return { state, ...(event ? { event } : {}), duplicate: true };
+}
+
+function settleDueCommitments(result: CommandResult): CommandResult {
+  let settled = result.state;
+  for (const commitmentId of dueCommitmentIds(settled)) {
+    settled = reduceCommand(
+      settled,
+      automaticCommitmentCommand(commitmentId, settled.clock.absoluteMinute),
+    ).state;
+  }
+  return { ...result, state: settled };
+}
+
+function offerMissions(result: CommandResult, missionIds: readonly string[]): CommandResult {
+  let offered = result.state;
+  for (const missionId of missionIds) {
+    if (offered.verbalMissions[missionId]) continue;
+    const missionSlug = missionId.replaceAll('_', '-');
+    try {
+      offered = reduceCommand(offered, DomainCommandSchema.parse({
+        type: 'offer-verbal-mission',
+        commandId: `command-auto-offer-${missionSlug}-r${offered.revision}`,
+        eventId: `event-auto-offer-${missionSlug}-r${offered.revision}`,
+        scheduledMinute: offered.clock.absoluteMinute,
+        priority: 60,
+        missionId,
+      })).state;
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('is not available')) throw error;
+    }
+  }
+  return { ...result, state: offered };
+}
+
+function recordInjuredEscapeEvidence(result: CommandResult): CommandResult {
+  if (result.event?.type !== 'linda-quest-resolved' || result.event.resultId !== 'injured_escape') return result;
+  const record = authoredPlayerKnowledgeRecord('priya_injury_transport_evidence');
+  const recorded = reduceCommand(result.state, DomainCommandSchema.parse({
+    type: 'record-player-knowledge',
+    commandId: `command-injured-escape-evidence-r${result.state.revision}`,
+    eventId: `event-injured-escape-evidence-r${result.state.revision}`,
+    scheduledMinute: result.state.clock.absoluteMinute,
+    priority: 65,
+    record,
+  }));
+  return { ...result, state: recorded.state };
+}
+
+export function resolveDueCommitments(state: WorldState): WorldState {
+  return settleDueCommitments({ state, duplicate: false }).state;
+}
+
 export function reduceCommand(state: WorldState, candidate: DomainCommand): CommandResult {
   const command = DomainCommandSchema.parse(candidate);
   if (state.eventReceipts.includes(command.eventId)) {
-    return { state, duplicate: true };
+    return duplicateResult(state);
   }
 
   switch (command.type) {
@@ -86,7 +166,7 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         toMinute: result.clock.absoluteMinute,
         consumedRealMilliseconds: command.realMilliseconds,
       };
-      return commitEvent(state, event, { clock: result.clock });
+      return settleDueCommitments(commitEvent(state, event, { clock: result.clock }));
     }
     case 'add-pause-token': {
       const result = addPauseToken(state.clock, command.token);
@@ -239,14 +319,18 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
       });
     }
     case 'upsert-journal-entry': {
-      const quest = state.quests[command.entry.questId];
-      if (!quest) throw new Error(`Unknown journal quest: ${command.entry.questId}`);
+      if (command.entry.subject.kind !== 'quest') {
+        throw new Error('Verbal Mission journal entries require their mission command.');
+      }
+      const questId = command.entry.subject.questId;
+      const quest = state.quests[questId];
+      if (!quest) throw new Error(`Unknown journal quest: ${questId}`);
       const current = state.journal[command.entry.id];
       const entry = upsertJournalEntry(current, command.entry);
       const changed = JSON.stringify(current) !== JSON.stringify(entry);
       const event: DomainEvent = {
         ...eventBase(state, command, state.clock.absoluteMinute),
-        type: 'journal-entry-upserted', entryId: entry.id, questId: entry.questId,
+        type: 'journal-entry-upserted', entryId: entry.id, questId,
         locationPrecision: entry.locationPrecision, markerVisible: entry.markerVisible, changed,
       };
       return commitEvent(state, event, { journal: { ...state.journal, [entry.id]: entry } });
@@ -319,7 +403,10 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         policeFrom: plan.policeFrom,
         policeTo: plan.policeTo,
       };
-      return commitEvent(state, event, plan.state);
+      return offerMissions(
+        recordInjuredEscapeEvidence(settleDueCommitments(commitEvent(state, event, plan.state))),
+        [LINDA_PURSE_MISSION_ID, PRIYA_ASSESSMENT_MISSION_ID],
+      );
     }
     case 'advance-police-attention': {
       const evidence = state.evidence[command.evidenceId];
@@ -403,7 +490,7 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         energyDelta: simulation.energyDelta,
         moneyDelta: simulation.moneyDelta,
       };
-      return commitEvent(state, event, simulation.state);
+      return settleDueCommitments(commitEvent(state, event, simulation.state));
     }
     case 'sleep-protagonist': {
       if (state.clock.pauseTokens.length > 0) throw new Error('Sleep requires a stable unpaused world.');
@@ -427,10 +514,10 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         energyDelta,
         milestoneIds: [...simulation.milestoneIds],
       };
-      return commitEvent(state, event, {
+      return settleDueCommitments(commitEvent(state, event, {
         ...simulation.state,
         protagonist: { ...simulation.state.protagonist, energy: nextEnergy },
-      });
+      }));
     }
     case 'apply-quest-reward': {
       const amount = validateQuestReward(command.rewardKind, command.amount);
@@ -595,7 +682,7 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         tileX: command.tileX,
         tileY: command.tileY,
       };
-      return commitEvent(state, event, {
+      const result = commitEvent(state, event, {
         protagonist: {
           ...state.protagonist,
           locationId: command.destinationMapId,
@@ -605,6 +692,9 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
         npcs,
         transfers,
       });
+      return command.destinationMapId === 'southeast_docks'
+        ? offerMissions(result, [TOMAS_FERRY_MISSION_ID])
+        : result;
     }
     case 'commit-conversation': {
       const npc = state.npcs[command.npcId];
@@ -644,6 +734,184 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
           [npc.id]: { ...npc, knowledge, unlockedInterestIds, unlockedIds, memories },
         },
       });
+    }
+    case 'offer-verbal-mission': {
+      const plan = planOfferVerbalMission(state, command.missionId);
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'verbal-mission-offered' && event.missionId === command.missionId
+        )));
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'verbal-mission-offered',
+        missionId: plan.mission.missionId,
+        npcId: plan.mission.npcId,
+        journalEntryId: plan.journalEntryId,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'apply-verbal-mission-outcome': {
+      const prior = latestEvent(state, (event) => (
+        event.type === 'verbal-mission-outcome-applied' && event.outcomeId === command.outcomeId
+      ));
+      if (prior) {
+        if (prior.type !== 'verbal-mission-outcome-applied' || prior.missionId !== command.expectedMission.missionId) {
+          throw new Error(`Outcome ID ${command.outcomeId} belongs to another Verbal Mission.`);
+        }
+        return duplicateResult(state, prior);
+      }
+      const current = state.verbalMissions[command.expectedMission.missionId];
+      if (!current || JSON.stringify(current) !== JSON.stringify(command.expectedMission)) {
+        throw new Error('Verbal Mission outcome expected state is stale.');
+      }
+      const next = validateAppliedMissionOutcome(current, command.nextMission);
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'verbal-mission-outcome-applied',
+        missionId: next.missionId,
+        outcomeId: command.outcomeId,
+        outcome: command.outcome,
+        reactionId: command.reactionId,
+        fromStatus: current.status as 'available' | 'active',
+        toStatus: 'active',
+      };
+      return commitEvent(state, event, {
+        verbalMissions: { ...state.verbalMissions, [next.missionId]: next },
+      });
+    }
+    case 'withdraw-verbal-mission': {
+      const plan = planWithdrawVerbalMission(state, command.missionId);
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'verbal-mission-withdrawn' && event.missionId === command.missionId
+        )));
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'verbal-mission-withdrawn',
+        missionId: command.missionId,
+        resultId: plan.resultId,
+        journalReceiptId: plan.journalReceiptId,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'record-player-knowledge': {
+      const plan = planRecordPlayerKnowledge(state, command.record);
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'player-knowledge-recorded' && event.factId === command.record.factId
+        )));
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'player-knowledge-recorded',
+        factId: plan.record.factId,
+        sourceId: plan.record.source.sourceId,
+        changed: true,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'record-fact-disclosure': {
+      const plan = planFactDisclosure(state, command.missionId);
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'fact-disclosure-recorded' && event.missionId === command.missionId
+        )));
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'fact-disclosure-recorded',
+        missionId: command.missionId,
+        factId: plan.factId,
+        resultId: plan.resultId,
+        journalReceiptId: plan.journalReceiptId,
+        familiarityDelta: plan.relationshipDelta.familiarity,
+        trustDelta: plan.relationshipDelta.trust,
+        attractionDelta: plan.relationshipDelta.attraction,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'purchase-unique-object': {
+      const purchaseMission = state.verbalMissions[command.missionId];
+      const objectId = purchaseMission?.goalKind === 'buy_object'
+        ? purchaseMission.terms.objectId
+        : undefined;
+      const plan = planUniqueObjectPurchase(state, command.missionId, command.confirmedAmount);
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'unique-object-purchased' && event.missionId === command.missionId
+        )));
+      }
+      if (!objectId) throw new Error('Unique purchase lost its object.');
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'unique-object-purchased',
+        missionId: command.missionId,
+        objectId,
+        amount: plan.amount,
+        resultId: plan.resultId,
+        journalReceiptId: plan.journalReceiptId,
+        familiarityDelta: plan.relationshipDelta.familiarity,
+        trustDelta: plan.relationshipDelta.trust,
+        attractionDelta: plan.relationshipDelta.attraction,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'create-scheduled-commitment': {
+      const plan = planScheduledCommitment(
+        state,
+        command.missionId,
+        command.commitmentId,
+        command.commitmentMinute,
+      );
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'scheduled-commitment-created' && event.commitmentId === command.commitmentId
+        )));
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'scheduled-commitment-created',
+        missionId: command.missionId,
+        commitmentId: plan.commitment.commitmentId,
+        scheduledMinute: plan.commitment.scheduledMinute,
+        journalReceiptId: plan.journalReceiptId,
+        familiarityDelta: plan.relationshipDelta.familiarity,
+        trustDelta: plan.relationshipDelta.trust,
+        attractionDelta: plan.relationshipDelta.attraction,
+      };
+      return commitEvent(state, event, plan.state);
+    }
+    case 'resolve-scheduled-commitment': {
+      const current = state.commitments[command.commitmentId];
+      if (!current) throw new Error(`Unknown commitment: ${command.commitmentId}`);
+      if (current.status === 'honoured' || current.status === 'reneged') {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'scheduled-commitment-resolved' &&
+          event.commitmentId === command.commitmentId && event.result === current.status
+        )));
+      }
+      const plan = planCommitmentResolution(state, command.commitmentId);
+      if (!plan.changed) {
+        return duplicateResult(state, latestEvent(state, (event) => (
+          event.type === 'scheduled-commitment-resolved' && event.commitmentId === command.commitmentId
+        )));
+      }
+      const event: DomainEvent = {
+        ...eventBase(state, command, state.clock.absoluteMinute),
+        type: 'scheduled-commitment-resolved',
+        missionId: plan.commitment.missionId,
+        commitmentId: plan.commitment.commitmentId,
+        result: plan.result,
+        ...(plan.reasonId ? { reasonId: plan.reasonId } : {}),
+        ...('scheduledMinute' in plan.commitment ? { scheduledMinute: plan.commitment.scheduledMinute } : {}),
+        journalReceiptId: plan.journalReceiptId,
+        familiarityDelta: plan.relationshipDelta.familiarity,
+        trustDelta: plan.relationshipDelta.trust,
+        attractionDelta: plan.relationshipDelta.attraction,
+      };
+      return commitEvent(state, event, plan.state);
     }
   }
 }

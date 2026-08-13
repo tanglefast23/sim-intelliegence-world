@@ -27,8 +27,8 @@ import {
 } from '../../src/application/effects/PersistencePort';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
-import { migrateV5ToV6 } from '../../src/domain/state/migrations/v5-to-v6';
 import { migrateProductionSchedules } from '../../src/domain/state/production-cast';
+import { resolveDueCommitments } from '../../src/domain/commands/reducer';
 import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
 import { LayoutMigrationError, recoverWorldLayout } from '../../src/world/maps/layout-recovery';
 import {
@@ -149,21 +149,25 @@ export class SaveRepository {
     }
     const sourceSchemaVersion = recovery.selected.envelope.state.schemaVersion;
     try {
-      const currentState = sourceSchemaVersion === 5
-        ? migrateV5ToV6(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId)
-        : recovery.selected.envelope.state;
+      const currentState = sourceSchemaVersion === 7
+        ? recovery.selected.envelope.state
+        : migrateStateCopy(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId);
       const layout = recoverWorldLayout(currentState, this.#catalog);
       const scheduledState = migrateProductionSchedules(layout.state);
       const scheduleChanged = JSON.stringify(layout.state.schedules) !== JSON.stringify(scheduledState.schedules);
       const migratedState = scheduleChanged ? scheduledState : layout.state;
-      if (sourceSchemaVersion === 6 && layout.migratedMapIds.length === 0 && !scheduleChanged) {
+      const settledState = resolveDueCommitments(migratedState);
+      if (
+        sourceSchemaVersion === 7 && layout.migratedMapIds.length === 0 &&
+        !scheduleChanged && settledState === migratedState
+      ) {
         return LoadResultSchema.parse({
           status: 'unchanged',
           slotId,
           saveGeneration: recovery.selected.envelope.saveGeneration,
           checksum: recovery.selected.envelope.payloadChecksum,
           source: recovery.selected.source,
-          state: migratedState,
+          state: settledState,
           incompatibleCandidateCount,
           corruptCandidateCount,
         });
@@ -172,7 +176,7 @@ export class SaveRepository {
         slotId,
         expectedSaveGeneration: recovery.selected.envelope.saveGeneration,
         trigger: 'manual',
-        state: migratedState,
+        state: settledState,
       }));
       if (saved.status !== 'saved') throw new Error('A load-time migration save was deferred.');
       return LoadResultSchema.parse({
@@ -181,7 +185,7 @@ export class SaveRepository {
         saveGeneration: saved.saveGeneration,
         checksum: saved.checksum,
         source: recovery.selected.source,
-        state: migratedState,
+        state: settledState,
         incompatibleCandidateCount,
         corruptCandidateCount,
         migratedFromSchemaVersion: sourceSchemaVersion,
