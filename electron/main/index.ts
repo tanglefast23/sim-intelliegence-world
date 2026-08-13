@@ -1582,7 +1582,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     throw new Error(`Linda selection failed: talk ${JSON.stringify(talkLabels)}; NPC ${await npcStateLabel(window)}; world ${await worldStateLabel(window)}`);
   }
   await clickAriaButton(window, 'Talk to Linda');
-  await waitForRendererText(window, '#world-ui-quest-offer-panel', "LINDA'S REQUEST");
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'YES · HELP LINDA');
   const questOfferText = await rendererText(window, '#world-ui-quest-offer-panel');
   const portraitsReady = await window.webContents.executeJavaScript(`Boolean(
     document.querySelector('#conversation-portrait-protagonist-ready') &&
