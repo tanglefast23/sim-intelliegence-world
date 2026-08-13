@@ -7,6 +7,7 @@ type ScreenPoint = Readonly<{ x: number; y: number }>;
 type WorldInputProps = PropsWithChildren<Readonly<{
   onCancel: () => void;
   onCenter: () => void;
+  onQuests: () => void;
   onPan: (delta: ScreenPoint) => void;
   onPrimary: (point: ScreenPoint) => void;
   onZoom: (direction: -1 | 1, anchor: ScreenPoint) => void;
@@ -20,10 +21,10 @@ function eventPoint(event: PointerEvent | WheelEvent, element: HTMLElement): Scr
   return { x: Math.floor(event.clientX - bounds.left), y: Math.floor(event.clientY - bounds.top) };
 }
 
-export function WorldInput({ children, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onZoom }: WorldInputProps) {
+export function WorldInput({ children, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom }: WorldInputProps) {
   const rootRef = useRef<View>(null);
-  const handlersRef = useRef({ isPointInteractive, onCancel, onCenter, onPan, onPrimary, onZoom });
-  handlersRef.current = { isPointInteractive, onCancel, onCenter, onPan, onPrimary, onZoom };
+  const handlersRef = useRef({ isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom });
+  handlersRef.current = { isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom };
 
   useEffect(() => {
     const element = rootRef.current as unknown as HTMLElement | null;
@@ -94,6 +95,10 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
         (target instanceof HTMLElement && target.isContentEditable)) return;
       if (!event.metaKey && !event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'f') {
         handlersRef.current.onCenter();
+      }
+      if (!event.metaKey && !event.ctrlKey && !event.altKey && !event.repeat && event.key.toLowerCase() === 'q') {
+        event.preventDefault();
+        handlersRef.current.onQuests();
       }
       if (event.key === 'Escape') handlersRef.current.onCancel();
     };

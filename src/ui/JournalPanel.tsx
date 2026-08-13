@@ -1,14 +1,19 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import type { ContextQuestAction } from '../domain/quests/quest-machine';
 import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, responsiveSideSheetWidth, type UiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from './CharacterPortrait';
+import { questActionCopy } from './quest-action-copy';
 import { uiMetrics } from './ui-metrics';
 
 type JournalPanelProps = Readonly<{
   accent: string;
+  actions: readonly ContextQuestAction[];
+  contextActions: readonly ContextQuestAction[];
   state: WorldState;
+  onAction: (actionId: ContextQuestAction['id']) => void;
   onDismiss: () => void;
   onPurchaseSecurityReport: () => void;
   onAdvancePolice: () => void;
@@ -41,11 +46,17 @@ function caseContact(entry: WorldState['journal'][string]): Readonly<{ id: strin
     : { id: entry.source.sourceId, name: label(entry.source.sourceId) };
 }
 
-export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityReport, onAdvancePolice, surface, uiScale }: JournalPanelProps) {
+function questTitle(entry: WorldState['journal'][string]): string {
+  return entry.subject.kind === 'quest' && entry.subject.questId === 'linda_boyfriend_check'
+    ? "CHECK ON LINDA'S BOYFRIEND"
+    : entry.subject.kind === 'quest' ? label(entry.subject.questId) : entry.summary.toUpperCase();
+}
+
+export function JournalPanel({ accent, actions, contextActions, state, onAction, onDismiss, onPurchaseSecurityReport, onAdvancePolice, surface, uiScale }: JournalPanelProps) {
   const entries = Object.values(state.journal);
+  const questEntries = entries.filter((entry) => entry.subject.kind === 'quest');
   const invitations = Object.values(state.invitations);
   const purchased = state.quests.linda_boyfriend_check?.flagIds.includes('security_report_purchased') ?? false;
-  const lindaQuest = state.quests.linda_boyfriend_check;
   const policeAction = state.policeAttention === 'noticed'
     ? { label: 'Answer police questions', result: 'Attention becomes QUESTIONED. Evidence becomes linked.' }
     : state.policeAttention === 'questioned'
@@ -60,7 +71,7 @@ export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityRepor
   return (
     <View nativeID="world-ui-journal-overlay" style={[styles.overlay, docked && styles.overlayDocked]}>
       <View
-        accessibilityLabel="Lead journal"
+        accessibilityLabel="Quests"
         nativeID="world-ui-journal-panel"
         style={[
           styles.panel,
@@ -75,29 +86,36 @@ export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityRepor
       >
         <View style={styles.header}>
           <View>
-            <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>PRIVATE CASEBOARD</Text>
-            <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>JOURNAL</Text>
+            <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>PRIVATE CASEBOARD · Q</Text>
+            <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>QUESTS</Text>
           </View>
-          <Pressable accessibilityLabel="Close journal" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
+          <Pressable accessibilityLabel="Close quests" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.closeText, { fontSize: metrics.secondaryText }]}>CLOSE</Text>
           </Pressable>
         </View>
         <View style={styles.summary}>
-          <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{entries.length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>LEADS</Text></View>
+          <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{questEntries.length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>QUESTS</Text></View>
           <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{invitations.length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>VISITS</Text></View>
           <View style={styles.summaryItem}><Text style={[styles.summaryValue, bodyText]}>{Object.keys(state.evidence).length}</Text><Text style={[styles.summaryLabel, { fontSize: metrics.secondaryText }]}>EVIDENCE</Text></View>
         </View>
         <ScrollView contentContainerStyle={styles.body} style={styles.bodyScroll}>
         <View style={styles.sectionHeader}>
-          <Text style={[styles.section, bodyText]}>ACTIVE LEADS</Text>
-          <Text style={[styles.caseNumber, { fontSize: metrics.secondaryText }]}>CASE 01 · HALCYRA</Text>
+          <Text style={[styles.section, bodyText]}>ACCEPTED QUESTS</Text>
+          <Text style={[styles.caseNumber, { fontSize: metrics.secondaryText }]}>HALCYRA CASEBOARD</Text>
         </View>
-        {lindaQuest ? <Text style={[styles.detail, bodyText]}>LINDA QUEST · {lindaQuest.status.toUpperCase()}</Text> : null}
-        {entries.length === 0 ? <Text style={[styles.muted, bodyText]}>NO VALIDATED LEADS YET</Text> : entries.map((entry, index) => {
+        {entries.length === 0 ? <Text style={[styles.muted, bodyText]}>NO QUESTS ACCEPTED YET</Text> : entries.map((entry, index) => {
           const contact = caseContact(entry);
+          const questNumber = entry.subject.kind === 'quest'
+            ? questEntries.findIndex((candidate) => candidate.id === entry.id) + 1
+            : 0;
+          const entryActions = entry.subject.kind === 'quest' && entry.subject.questId === 'linda_boyfriend_check'
+            ? actions.filter(({ id }) => id !== 'start')
+            : [];
           return <View key={entry.id} style={[styles.card, { borderLeftColor: accent }]}>
             <View style={[styles.casePin, { backgroundColor: accent }]} />
-            <Text style={[styles.leadIndex, { color: accent }]}>LEAD {String(index + 1).padStart(2, '0')}</Text>
+            <Text style={[styles.leadIndex, { color: accent }]}>
+              {questNumber > 0 ? `QUEST ${String(questNumber).padStart(2, '0')}` : `LEAD ${String(index + 1).padStart(2, '0')}`}
+            </Text>
             <View style={styles.leadHeader}>
               <View>
                 <CharacterPortrait displayName={contact.name} npcId={contact.id} />
@@ -106,7 +124,8 @@ export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityRepor
               <View style={styles.leadIdentity}>
                 <Text style={[styles.source, { fontSize: metrics.secondaryText }]}>REQUESTED BY {contact.name}</Text>
                 <Text style={styles.sourceProof}>{sourceLabel(entry.source)}</Text>
-                <Text style={[styles.cardTitle, bodyText]}>{entry.summary.toUpperCase()}</Text>
+                <Text style={[styles.cardTitle, bodyText]}>{questTitle(entry)}</Text>
+                <Text style={[styles.objective, bodyText]}>{entry.summary}</Text>
                 <View style={styles.stamps}>
                   <Text style={[styles.stamp, { borderColor: accent, color: accent }]}>{entry.resolutionState.toUpperCase()}</Text>
                   <Text style={styles.stamp}>{entry.locationPrecision.toUpperCase()}</Text>
@@ -143,8 +162,53 @@ export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityRepor
                 </View>
               ))}
             </View>
+            {entryActions.length > 0 ? (
+              <View style={[styles.questActions, { borderLeftColor: accent }]}>
+                <Text style={[styles.questActionsTitle, { color: accent }]}>QUEST ACTIONS</Text>
+                {entryActions.map((action) => {
+                  const copy = questActionCopy(action, state.protagonist.displayName);
+                  return <View key={action.id} style={styles.questAction}>
+                    <Pressable
+                      accessibilityHint={[copy.result, action.socialConsequence, action.routeConsequence].join('. ')}
+                      accessibilityLabel={action.label}
+                      disabled={!action.enabled}
+                      onPress={() => onAction(action.id)}
+                      style={({ pressed }) => [styles.questActionButton, { minHeight: metrics.pointerTarget }, !action.enabled && styles.questActionDisabled, pressed && styles.questActionPressed]}
+                    >
+                      <Text style={[styles.questActionButtonText, { fontSize: metrics.secondaryText }]}>{action.label.toUpperCase()}</Text>
+                    </Pressable>
+                    <Text style={[styles.actionLine, bodyText]}>ACTION · {copy.action}</Text>
+                    {action.readinessSummary ? <Text style={[styles.actionReadiness, bodyText]}>{action.readinessSummary}</Text> : null}
+                    <Text style={[styles.actionLine, bodyText]}>RESULT · {copy.result}</Text>
+                    <Text style={[styles.actionSocial, bodyText]}>SOCIAL · {action.socialConsequence}</Text>
+                    <Text style={[styles.actionRoute, bodyText]}>ROUTE · {action.routeConsequence}</Text>
+                    {action.disabledReason ? <Text style={[styles.actionDisabledReason, bodyText]}>{action.disabledReason.toUpperCase()}</Text> : null}
+                  </View>;
+                })}
+              </View>
+            ) : null}
           </View>
         })}
+        {contextActions.length > 0 ? (
+          <View style={styles.contextActions}>
+            <Text style={[styles.section, bodyText]}>VERBAL MISSION ACTIONS</Text>
+            {contextActions.map((action) => {
+              const copy = questActionCopy(action, state.protagonist.displayName);
+              return <View key={action.id} style={styles.questAction}>
+                <Pressable
+                  accessibilityLabel={action.label}
+                  disabled={!action.enabled}
+                  onPress={() => onAction(action.id)}
+                  style={({ pressed }) => [styles.questActionButton, { minHeight: metrics.pointerTarget }, !action.enabled && styles.questActionDisabled, pressed && styles.questActionPressed]}
+                >
+                  <Text style={[styles.questActionButtonText, { fontSize: metrics.secondaryText }]}>{action.label.toUpperCase()}</Text>
+                </Pressable>
+                <Text style={[styles.actionLine, bodyText]}>ACTION · {copy.action}</Text>
+                <Text style={[styles.actionLine, bodyText]}>RESULT · {copy.result}</Text>
+              </View>;
+            })}
+          </View>
+        ) : null}
         <Text style={[styles.section, bodyText]}>HOME INVITATIONS</Text>
         {invitations.length === 0 ? <Text style={[styles.muted, bodyText]}>NO VISITS SCHEDULED</Text> : invitations.map((invitation) => (
           <Text key={invitation.id} style={[styles.detail, bodyText]}>
@@ -178,6 +242,11 @@ export function JournalPanel({ accent, state, onDismiss, onPurchaseSecurityRepor
 }
 
 const styles = StyleSheet.create({
+  actionDisabledReason: { color: '#e07a62', fontFamily: 'Silkscreen', marginTop: 5 },
+  actionLine: { color: '#c3b18f', fontFamily: 'Silkscreen', marginTop: 5 },
+  actionReadiness: { color: '#f1c65b', fontFamily: 'Silkscreen', marginTop: 5 },
+  actionRoute: { color: '#d6a45d', fontFamily: 'Silkscreen', marginTop: 5 },
+  actionSocial: { color: '#8fc59a', fontFamily: 'Silkscreen', marginTop: 5 },
   card: { backgroundColor: '#10130f', borderLeftColor: '#d3a04c', borderLeftWidth: 3, marginTop: 8, padding: 10 },
   body: { paddingBottom: 18 },
   bodyScroll: { flex: 1, minHeight: 0 },
@@ -192,11 +261,13 @@ const styles = StyleSheet.create({
   eyebrow: { color: '#c89b5e', fontFamily: 'Silkscreen', fontSize: 8 },
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
+  objective: { color: '#bda77e', fontFamily: 'Silkscreen', marginTop: 6 },
   consequenceLabel: { color: '#827561', fontFamily: 'Silkscreen', fontSize: 7, marginRight: 'auto' },
   consequenceIcon: { color: '#171914', fontFamily: 'Silkscreen', fontSize: 6, paddingHorizontal: 3, paddingVertical: 2 },
   consequenceRow: { alignItems: 'center', borderTopColor: '#40382d', borderTopWidth: 1, flexDirection: 'row', gap: 4, marginTop: 10, paddingTop: 8 },
   consequenceStamp: { alignItems: 'center', borderColor: '#594b3a', borderWidth: 1, flexDirection: 'row', gap: 3, padding: 2 },
   consequenceText: { color: '#b79c76', fontFamily: 'Silkscreen', fontSize: 6 },
+  contextActions: { marginTop: 8 },
   contactLabel: { color: '#171914', fontFamily: 'Silkscreen', fontSize: 6, marginTop: -16, paddingVertical: 3, position: 'relative', textAlign: 'center' },
   leadEvidence: { flexDirection: 'row', gap: 10, marginTop: 10 },
   leadHeader: { flexDirection: 'row', gap: 10 },
@@ -213,6 +284,13 @@ const styles = StyleSheet.create({
   purchase: { alignItems: 'center', backgroundColor: '#6f4931', borderColor: '#d6a45d', borderWidth: 1, marginTop: 8, padding: 10 },
   purchaseDone: { backgroundColor: '#324a37' },
   purchaseText: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 8 },
+  questAction: { backgroundColor: '#1a1612ee', marginTop: 8, padding: 8 },
+  questActionButton: { backgroundColor: '#75452f', borderColor: '#e0ad5c', borderWidth: 1, justifyContent: 'center', paddingHorizontal: 8, paddingVertical: 6 },
+  questActionButtonText: { color: '#fff0c7', fontFamily: 'Silkscreen' },
+  questActionDisabled: { backgroundColor: '#3a342d', borderColor: '#665f55', opacity: 0.65 },
+  questActionPressed: { opacity: 0.78, transform: [{ translateY: 2 }] },
+  questActions: { borderLeftWidth: 2, marginLeft: 14, marginTop: 12, paddingLeft: 10 },
+  questActionsTitle: { fontFamily: 'Silkscreen', fontSize: 7 },
   section: { color: '#d3a04c', fontFamily: 'Silkscreen', fontSize: 9, marginTop: 16 },
   sectionHeader: { alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'space-between' },
   source: { color: '#8f826d', fontFamily: 'Silkscreen', marginBottom: 6 },

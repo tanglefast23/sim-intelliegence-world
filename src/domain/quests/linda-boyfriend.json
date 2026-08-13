@@ -85,8 +85,8 @@
     {
       "id": "withdraw",
       "label": "Withdraw",
-      "cause": "Tell Linda that the player will not intervene.",
-      "result": "End the quest without money, injury, or police attention.",
+      "cause": "Tell Linda that help will not continue.",
+      "result": "End the quest. No cash gain, no injury possibility, no police attention.",
       "socialConsequence": "Linda loses trust but keeps her right to seek help elsewhere.",
       "routeConsequence": "No underworld route opens from this quest.",
       "violent": false,

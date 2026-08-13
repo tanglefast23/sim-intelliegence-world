@@ -608,7 +608,7 @@ function sendMouseClick(window: BrowserWindow, x: number, y: number): void {
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(x), y: Math.round(y), button: 'left', clickCount: 1 });
 }
 
-function sendKey(window: BrowserWindow, keyCode: 'Enter' | 'F' | 'Escape'): void {
+function sendKey(window: BrowserWindow, keyCode: 'Enter' | 'F' | 'Q' | 'Escape'): void {
   window.webContents.sendInputEvent({ type: 'keyDown', keyCode });
   window.webContents.sendInputEvent({ type: 'keyUp', keyCode });
 }
@@ -949,6 +949,11 @@ async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): P
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   await dispatchWorldTileClick(window, lindaTile);
   await clickAriaButton(window, 'Talk to Linda');
+  if (await window.webContents.executeJavaScript(`Boolean(document.querySelector('#world-ui-quest-offer-panel'))`, true) as boolean) {
+    await clickAriaButton(window, "Accept Linda's request");
+    await waitForSelectorMissing(window, '#world-ui-quest-offer-panel');
+    await clickAriaButton(window, 'Talk to Linda');
+  }
   await waitForRendererText(window, '#world-ui-conversation-panel', 'TIME PAUSED');
   return waitForResponsiveEvidence(window, (evidence) => {
     const panel = evidence.activePanel as { id?: unknown; rect?: { width?: unknown; height?: unknown } } | null;
@@ -1574,6 +1579,26 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     throw new Error(`Linda selection failed: talk ${JSON.stringify(talkLabels)}; NPC ${await npcStateLabel(window)}; world ${await worldStateLabel(window)}`);
   }
   await clickAriaButton(window, 'Talk to Linda');
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', "LINDA'S REQUEST");
+  const questOfferText = await rendererText(window, '#world-ui-quest-offer-panel');
+  const portraitsReady = await window.webContents.executeJavaScript(`Boolean(
+    document.querySelector('#conversation-portrait-protagonist-ready') &&
+    document.querySelector('#conversation-portrait-linda-ready')
+  )`, true) as boolean;
+  const questOfferDialogue = questOfferText.includes('AUTHORED SCENE · TIME PAUSED') &&
+    questOfferText.includes('LINDA') && questOfferText.includes('MISTAKE') &&
+    questOfferText.includes('YES · HELP LINDA') && questOfferText.includes('NO · NOT NOW') && portraitsReady;
+  const questOfferMinute = parseWorldStateLabel(await worldStateLabel(window)).minute;
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));
+  const questOfferPause = parseWorldStateLabel(await worldStateLabel(window)).minute === questOfferMinute;
+  previousWorldBuffer = await captureDistinctSmokeScreenshot(
+    window, join(directory, 'world-linda-offer.png'), [previousWorldBuffer],
+  );
+  await clickAriaButton(window, "Accept Linda's request");
+  await waitForSelectorMissing(window, '#world-ui-quest-offer-panel');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
+  const questStarted = (await questStateLabel(window)).includes('Linda quest active');
+  await clickAriaButton(window, 'Talk to Linda');
   await waitForRendererText(window, '#world-ui-conversation-panel', 'TIME PAUSED');
   await waitForRendererText(window, '#world-audio-caption', 'GREETING CHIRP');
   const audioCaptions = (await rendererText(window, '#world-audio-caption')).includes('GREETING CHIRP');
@@ -1714,10 +1739,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   );
   progress('conversation-second-turn-complete');
   await clickAriaButton(window, 'End conversation');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 8');
   const conversationCommitSave = !(await window.webContents.executeJavaScript(
     `Boolean(document.querySelector('#world-ui-conversation-panel'))`, true,
-  )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 7');
+  )) && (await rendererText(window, '#world-save-status')).includes('SAVED GEN 8');
   await clickAriaButton(window, 'Open relationships');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
   const relationshipText = await rendererText(window, '#world-ui-relationship-panel');
@@ -1734,29 +1759,29 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await dispatchWorldTileClick(window, lindaApproachTile);
   await waitForWorldTile(window, lindaApproachTile, 10_000);
   await dispatchWorldTileClick(window, currentLindaTile);
-  await clickAriaButton(window, 'Open journal');
+  await clickAriaButton(window, 'Open quests');
   await waitForRendererText(window, '#world-ui-journal-panel', 'LINDA · REJECTED');
   const journalInvitation = (await rendererText(window, '#world-ui-journal-panel')).includes('LINDA · REJECTED');
   await clickAriaButton(window, 'Buy villa security report');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 8');
+  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 9');
   const socialPurchase = (await rendererText(window, '#world-ui-journal-panel')).includes('SECURITY REPORT PURCHASED') &&
-    (await rendererText(window, '#world-save-status')).includes('SAVED GEN 8');
+    (await rendererText(window, '#world-save-status')).includes('SAVED GEN 9');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-journal.png'), [previousWorldBuffer],
   );
-  await clickAriaButton(window, 'Close journal');
-  await clickAriaButton(window, "Accept Linda's request");
+  await clickAriaButton(window, 'Close quests');
   progress('quest');
-  await waitForRendererText(window, '#world-save-status', 'SAVED GEN 9');
-  const questStarted = (await questStateLabel(window)).includes('Linda quest active') &&
-    (await questStateLabel(window)).includes('flags security_report_purchased');
+  const questPreparationPreserved = (await questStateLabel(window)).includes('flags security_report_purchased');
   await dispatchWorldTileClick(window, { x: 22, y: 28 });
   await waitForWorldTile(window, { x: 22, y: 28 }, 10_000);
+  sendKey(window, 'Q');
+  await waitForRendererText(window, '#world-ui-journal-panel', 'QUESTS');
+  const questShortcut = (await rendererText(window, '#world-ui-journal-panel')).includes('QUEST 01');
   await clickAriaButton(window, "Confirm Linda's villa");
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 10');
-  const choiceText = await rendererText(window, '#world-ui-context-actions');
+  const choiceText = await rendererText(window, '#world-ui-journal-panel');
   const questChoicePreview = choiceText.includes('PROTECT LINDA') && choiceText.includes('BETRAY LINDA') &&
-    choiceText.includes('WITHDRAW') && choiceText.includes('YOU DO') && choiceText.includes('RESULT') &&
+    choiceText.includes('WITHDRAW') && choiceText.includes('ACTION') && choiceText.includes('RESULT') &&
     choiceText.includes('SOCIAL') && choiceText.includes('ROUTE');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-linda-quest.png'), [previousWorldBuffer],
@@ -1772,7 +1797,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-linda-outcome.png'), [previousWorldBuffer],
   );
-  await clickAriaButton(window, 'Open journal');
+  await clickAriaButton(window, 'Close quests');
+  await clickAriaButton(window, 'Open quests');
   await clickAriaButton(window, 'Answer police questions');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 12');
   await clickAriaButton(window, 'Ignore police summons');
@@ -1811,7 +1837,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     conversationFeedbackMilliseconds, rendererFpsDuringGeneration,
     conversationFallback, firstFreeTextTurnSource, modelFailureFeedback, audioCaptions, conversationCommitSave,
     structuredInvitation, structuredInvitationSource, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
-    questStarted, questChoicePreview, questOutcome, questAutosave, consequenceCaption, policeHooks, saveReload,
+    questOfferDialogue, questOfferPause, questStarted, questPreparationPreserved, questShortcut,
+    questChoicePreview, questOutcome, questAutosave, consequenceCaption, policeHooks, saveReload,
   };
 }
 

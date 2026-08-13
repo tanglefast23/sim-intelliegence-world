@@ -45,6 +45,7 @@ const downtownScreenshotPath = join(screenshotDirectory, 'world-downtown.png');
 const ferryScreenshotPath = join(screenshotDirectory, 'world-ferry.png');
 const commercialScreenshotPath = join(screenshotDirectory, 'world-commercial.png');
 const loopScreenshotPath = join(screenshotDirectory, 'world-loop-complete.png');
+const questOfferScreenshotPath = join(screenshotDirectory, 'world-linda-offer.png');
 const conversationScreenshotPath = join(screenshotDirectory, 'world-conversation.png');
 const socialScreenshotPath = join(screenshotDirectory, 'world-social.png');
 const journalScreenshotPath = join(screenshotDirectory, 'world-journal.png');
@@ -65,6 +66,7 @@ rmSync(downtownScreenshotPath, { force: true });
 rmSync(ferryScreenshotPath, { force: true });
 rmSync(commercialScreenshotPath, { force: true });
 rmSync(loopScreenshotPath, { force: true });
+rmSync(questOfferScreenshotPath, { force: true });
 rmSync(conversationScreenshotPath, { force: true });
 rmSync(socialScreenshotPath, { force: true });
 rmSync(journalScreenshotPath, { force: true });
@@ -157,7 +159,8 @@ child.once('close', (code) => {
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',
     'conversationPause', 'conversationInputLocked', 'conversationSocialNavLocked', 'conversationResponsiveState', 'promptIdeasContextual', 'conversationBuffered', 'conversationFallback', 'modelFailureFeedback', 'audioCaptions', 'conversationCommitSave',
     'structuredInvitation', 'relationshipPanel', 'hiddenFaction', 'journalInvitation', 'socialPurchase',
-    'questStarted', 'questChoicePreview', 'questOutcome', 'questAutosave', 'consequenceCaption', 'policeHooks', 'saveReload',
+    'questOfferDialogue', 'questOfferPause', 'questStarted', 'questPreparationPreserved', 'questShortcut',
+    'questChoicePreview', 'questOutcome', 'questAutosave', 'consequenceCaption', 'policeHooks', 'saveReload',
   ]) {
     if (worldResult[key] !== true) {
       throw new Error(
@@ -183,7 +186,8 @@ child.once('close', (code) => {
   validateScreenshotBuffers(readFileSync(downtownScreenshotPath), readFileSync(ferryScreenshotPath));
   validateScreenshotBuffers(readFileSync(ferryScreenshotPath), readFileSync(commercialScreenshotPath));
   validateScreenshotBuffers(readFileSync(commercialScreenshotPath), readFileSync(loopScreenshotPath));
-  validateScreenshotBuffers(readFileSync(loopScreenshotPath), readFileSync(conversationScreenshotPath));
+  validateScreenshotBuffers(readFileSync(loopScreenshotPath), readFileSync(questOfferScreenshotPath));
+  validateScreenshotBuffers(readFileSync(questOfferScreenshotPath), readFileSync(conversationScreenshotPath));
   validateScreenshotBuffers(readFileSync(conversationScreenshotPath), readFileSync(socialScreenshotPath));
   validateScreenshotBuffers(readFileSync(socialScreenshotPath), readFileSync(journalScreenshotPath));
   validateScreenshotBuffers(readFileSync(journalScreenshotPath), readFileSync(questScreenshotPath));

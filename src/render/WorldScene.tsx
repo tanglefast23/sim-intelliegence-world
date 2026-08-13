@@ -44,9 +44,9 @@ import { relationshipSound } from '../audio/halcyra-audio-policy';
 import { useWorldAudio, type InterfaceSoundId } from '../audio/halcyra-audio';
 import { BedActions } from '../ui/BedActions';
 import { ConversationPanel } from '../ui/ConversationPanel';
-import { ContextActionMenu } from '../ui/ContextActionMenu';
 import { Hud } from '../ui/Hud';
 import { JournalPanel } from '../ui/JournalPanel';
+import { QuestOfferDialogue } from '../ui/QuestOfferDialogue';
 import { RelationshipPanel } from '../ui/RelationshipPanel';
 import { SelectedCharacterCard } from '../ui/SelectedCharacterCard';
 import { SelectionMarker } from '../ui/SelectionMarker';
@@ -396,6 +396,7 @@ export function WorldScene({
   const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
   const [conversationNpcId, setConversationNpcId] = useState<string | undefined>(initialConversationFixtureId);
   const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId | undefined>(initialConversationFixtureId);
+  const [questOfferOpen, setQuestOfferOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<'journal' | 'relationships' | undefined>(initialOpenPanel);
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
@@ -448,10 +449,10 @@ export function WorldScene({
     poseFrame,
   ), [camera.zoom, conversationNpcId, dpr, mapId, poseFrame, reactionId, reducedMotion, runtime.npcMovements, runtime.worldState, selected]);
   const speed = effectiveSpeed(runtime.worldState.clock);
-  const questActions = [
-    ...lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState)),
-    ...verbalMissionContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState)),
-  ];
+  const selectedNpcId = stateNpcId(selected, runtime.worldState);
+  const lindaQuestActions = lindaContextActions(runtime.worldState, selectedNpcId);
+  const contextualMissionActions = verbalMissionContextActions(runtime.worldState, selectedNpcId);
+  const lindaOfferReady = lindaQuestActions.some(({ enabled, id }) => id === 'start' && enabled);
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
 
   useEffect(() => setVfxAgeStep(0), [mapId]);
@@ -618,15 +619,15 @@ export function WorldScene({
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setRuntime((current) => effectiveSpeed(current.worldState.clock) === 0
+      setRuntime((current) => questOfferOpen || effectiveSpeed(current.worldState.clock) === 0
         ? current
         : { ...current, worldState: tickWorld(current.worldState, 1_000) });
     }, 1_000);
     return () => clearInterval(timer);
-  }, []);
+  }, [questOfferOpen]);
 
   useEffect(() => {
-    if (speed === 0 || transitioning || conversationNpcId || openPanel) return;
+    if (speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
     let animationFrame = 0;
     let previousTime: number | undefined;
     const animate = (time: number) => {
@@ -643,7 +644,7 @@ export function WorldScene({
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [conversationNpcId, openPanel, speed, transitioning]);
+  }, [conversationNpcId, openPanel, questOfferOpen, speed, transitioning]);
 
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
@@ -653,7 +654,7 @@ export function WorldScene({
       arrivalLocked: arrivalLock === key,
       transitioning,
       movementStatus: runtime.movement.status,
-      conversationOpen: conversationNpcId !== undefined,
+      conversationOpen: conversationNpcId !== undefined || questOfferOpen,
       panelOpen: openPanel !== undefined,
     })) return;
     const portal = map.source.portals.find(({ tile }) => tile.x === position.tileX && tile.y === position.tileY);
@@ -677,7 +678,7 @@ export function WorldScene({
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
       if (result.completed) void requestAutosave(result.state, 'travel');
     }).finally(() => setTransitioning(false));
-  }, [arrivalLock, conversationNpcId, map, openPanel, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
+  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
 
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
@@ -697,7 +698,7 @@ export function WorldScene({
   }, []);
 
   const handlePrimary = useCallback((point: Readonly<{ x: number; y: number }>) => {
-    if (conversationNpcId || openPanel) return;
+    if (conversationNpcId || questOfferOpen || openPanel) return;
     if (!isScreenPointInsideMap(camera, point, MAP_PIXELS)) return;
     const visibleNpc = Object.entries(npcTiles)
       .sort(([left], [right]) => left.localeCompare(right, 'en'))
@@ -747,7 +748,7 @@ export function WorldScene({
       return;
     }
     if (resolved.tile) requestTile(resolved.tile);
-  }, [camera, conversationNpcId, map, npcTiles, openPanel, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
+  }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   const requestedMarkerTarget = runtime.movement.status === 'unreachable'
     ? undefined
@@ -760,11 +761,11 @@ export function WorldScene({
   }, [requestedMarkerTarget?.x, requestedMarkerTarget?.y]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
-    if (conversationNpcId || openPanel) return;
+    if (conversationNpcId || questOfferOpen || openPanel) return;
     setCamera((current) => panCamera(current, delta, surface, MAP_PIXELS));
-  }, [conversationNpcId, openPanel, surface]);
+  }, [conversationNpcId, openPanel, questOfferOpen, surface]);
   const handleZoom = useCallback((direction: -1 | 1, anchor: Readonly<{ x: number; y: number }>) => {
-    if (conversationNpcId || openPanel) return;
+    if (conversationNpcId || questOfferOpen || openPanel) return;
     setExplicitWorldZoom(true);
     setCamera((current) => zoomCameraAt(
       current,
@@ -773,11 +774,11 @@ export function WorldScene({
       surface,
       MAP_PIXELS,
     ));
-  }, [conversationNpcId, openPanel, surface]);
+  }, [conversationNpcId, openPanel, questOfferOpen, surface]);
   const center = useCallback(() => {
-    if (conversationNpcId || openPanel) return;
+    if (conversationNpcId || questOfferOpen || openPanel) return;
     setCamera((current) => centerCameraOnWorld(runtime.movement.visualFoot, current.zoom, surface, MAP_PIXELS));
-  }, [conversationNpcId, openPanel, runtime.movement.visualFoot, surface]);
+  }, [conversationNpcId, openPanel, questOfferOpen, runtime.movement.visualFoot, surface]);
   const changeWorldZoom = useCallback((direction: -1 | 1) => {
     setExplicitWorldZoom(true);
     setCamera((current) => zoomCameraAt(
@@ -797,6 +798,12 @@ export function WorldScene({
     [camera],
   );
   const cancel = useCallback(() => {
+    if (questOfferOpen) {
+      setQuestOfferOpen(false);
+      setWorldFeedback('LINDA QUEST NOT ACCEPTED · TALK TO HER AGAIN ANY TIME');
+      playInterfaceSound('panel-close');
+      return;
+    }
     if (openPanel) {
       setOpenPanel(undefined);
       playInterfaceSound('panel-close');
@@ -805,7 +812,12 @@ export function WorldScene({
     if (conversationNpcId) return;
     playInterfaceSound('cancel');
     setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
-  }, [conversationNpcId, openPanel, playInterfaceSound]);
+  }, [conversationNpcId, openPanel, playInterfaceSound, questOfferOpen]);
+  const toggleQuests = useCallback(() => {
+    if (conversationNpcId || questOfferOpen) return;
+    playInterfaceSound(openPanel === 'journal' ? 'panel-close' : 'panel-open');
+    setOpenPanel((current) => current === 'journal' ? undefined : 'journal');
+  }, [conversationNpcId, openPanel, playInterfaceSound, questOfferOpen]);
   const changeSpeed = useCallback((nextSpeed: 0 | 1 | 2) => {
     setRuntime((current) => ({ ...current, worldState: setWorldSpeed(current.worldState, nextSpeed) }));
   }, []);
@@ -860,7 +872,7 @@ export function WorldScene({
     }
   }, [conversationNpcId, requestAutosave, runtime.worldState]);
   const runQuestAction = useCallback((actionId: ContextQuestAction['id']) => {
-    if (conversationNpcId || openPanel) return;
+    if (conversationNpcId || openPanel === 'relationships') return;
     try {
       const stableActionId = actionId.replaceAll('_', '-');
       if (actionId in VERBAL_MISSION_DISCOVERY_FACTS) {
@@ -898,6 +910,7 @@ export function WorldScene({
         worldState: result.state,
       }));
       if (result.event?.type === 'linda-quest-started') {
+        setQuestOfferOpen(false);
         setWorldFeedback('LINDA QUEST STARTED · VAGUE LEAD ADDED');
       } else if (result.event?.type === 'linda-villa-discovered') {
         setWorldFeedback('LINDA VILLA CONFIRMED · THREE CHOICES READY');
@@ -1414,6 +1427,7 @@ export function WorldScene({
       onCenter={center}
       onPan={handlePan}
       onPrimary={handlePrimary}
+      onQuests={toggleQuests}
       onZoom={handleZoom}
     >
       <View
@@ -1601,7 +1615,7 @@ export function WorldScene({
           areaName={currentAreaName}
           availableWidth={surface.width}
           mapName={map.source.displayName}
-          onJournal={() => { playInterfaceSound('panel-open'); setOpenPanel('journal'); }}
+          onJournal={toggleQuests}
           onPressSound={() => playInterfaceSound('press')}
           onSave={() => void requestAutosave(runtime.worldState, 'manual')}
           onSocial={() => { playInterfaceSound('panel-open'); setOpenPanel('relationships'); }}
@@ -1621,8 +1635,14 @@ export function WorldScene({
           availableWidth={surface.width}
           compact={selected === 'protagonist' && reactionId !== 'protagonist'}
           onCenter={() => setCamera((current) => centerCameraOnWorld(selectedFoot, current.zoom, surface, MAP_PIXELS))}
-          onTalk={stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel
-            ? () => setConversationNpcId(stateNpcId(selected, runtime.worldState))
+          onTalk={selectedNpcId && !conversationNpcId && !questOfferOpen && !openPanel
+            ? () => {
+              if (selectedNpcId === 'linda' && lindaOfferReady) {
+                setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
+                setQuestOfferOpen(true);
+                playInterfaceSound('panel-open');
+              } else setConversationNpcId(selectedNpcId);
+            }
             : undefined}
           summary={selectedSummary}
           pose={reactionId === selected ? 'reaction' : conversationNpcId === selected ? 'talk' : 'idle'}
@@ -1650,12 +1670,9 @@ export function WorldScene({
             uiScale={uiScale}
           />
         ) : null}
-        {!conversationNpcId && !openPanel && runtime.movement.status !== 'moving' ? (
-          <ContextActionMenu actions={questActions} onAction={runQuestAction} surface={surface} uiScale={uiScale} />
-        ) : null}
         <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
           <Text style={[styles.statusStrong, { fontSize: metrics.persistentText }]}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
-          <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>CLICK MOVE · DRAG PAN · WHEEL ZOOM · F CENTER · ESC STOP</Text>
+          <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>CLICK MOVE · DRAG PAN · WHEEL ZOOM · F CENTER · Q QUESTS · ESC STOP</Text>
         </View>
         {audioCaption ? (
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
@@ -1681,9 +1698,26 @@ export function WorldScene({
             uiScale={uiScale}
           />
         ) : null}
+        {questOfferOpen ? (
+          <QuestOfferDialogue
+            accent={lighting.accent}
+            onAccept={() => runQuestAction('start')}
+            onDecline={() => {
+              setQuestOfferOpen(false);
+              setWorldFeedback('LINDA QUEST NOT ACCEPTED · TALK TO HER AGAIN ANY TIME');
+              playInterfaceSound('panel-close');
+            }}
+            playerName={runtime.worldState.protagonist.displayName}
+            surface={surface}
+            uiScale={uiScale}
+          />
+        ) : null}
         {openPanel === 'journal' ? (
           <JournalPanel
             accent={lighting.accent}
+            actions={lindaQuestActions}
+            contextActions={contextualMissionActions}
+            onAction={runQuestAction}
             onDismiss={() => { playInterfaceSound('panel-close'); setOpenPanel(undefined); }}
             onAdvancePolice={advancePoliceHook}
             onPurchaseSecurityReport={purchaseSecurityReport}
