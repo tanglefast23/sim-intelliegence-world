@@ -1,16 +1,10 @@
 import { z } from 'zod';
 
 import { StableIdSchema } from '../../domain/state/ids';
+import { VERBAL_ACTS, VERBAL_REGISTERS } from '../../domain/verbal-missions/contracts';
 import { parseBoundedJson } from './safe-json';
 
-export const VERBAL_ACTS = [
-  'ask', 'observe', 'assert', 'empathize', 'compliment', 'offer', 'trade',
-  'apologize', 'joke', 'threaten', 'withdraw', 'other',
-] as const;
-
-export const VERBAL_REGISTERS = [
-  'plain', 'blunt', 'warm', 'playful', 'flattering', 'pleading', 'formal', 'threatening',
-] as const;
+export { VERBAL_ACTS, VERBAL_REGISTERS };
 
 const EvidenceTextSchema = z.string().min(1).max(500);
 
