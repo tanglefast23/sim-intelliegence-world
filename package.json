@@ -29,6 +29,7 @@
     "model:parent-kill-smoke": "tsx scripts/model/run-package-parent-kill-smoke.ts",
     "model:real-spike": "tsx scripts/model/run-real-spike.ts",
     "model:qualify": "tsx scripts/qualification/run-model-qualification.ts",
+    "model:qualify:verbal": "tsx scripts/qualification/run-verbal-mission-spike.ts",
     "save:qualify": "tsx scripts/qualification/write-save-evidence.ts",
     "model:smoke": "tsx scripts/model/run-package-model-smoke.ts",
     "setup:skia-web": "setup-skia-web public",

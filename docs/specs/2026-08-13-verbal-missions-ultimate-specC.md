@@ -1211,7 +1211,7 @@ Version 7 replaces a journal entry's bare `questId` with `subject: JournalSubjec
 
 The persisted `journal-entry-upserted` event keeps its existing quest-only shape so old event ledgers remain parseable. Verbal Mission offer and goal-family events carry their own journal entry and receipt IDs. Do not rewrite historical event variants during migration.
 
-The current save schema is version 6 at `src/domain/state/schema.ts:24`. Before adding version 7 fields, freeze an explicit `LegacyStateV6Schema`; older migrations must not derive their required fields from the new current base schema. Version 7 migrates journal subjects and adds `playerKnowledge`, `worldObjects`, `verbalMissions`, and `commitments` records to `WorldStateBaseSchema`. The `v6 → v7` migration starts player knowledge, missions, and commitments empty and seeds `linda_marchetti_purse` with owner `linda`; it does not activate a mission or commitment.
+The current save schema is version 6 at `src/domain/state/schema.ts:24`. Before adding version 7 fields, freeze an explicit `LegacyStateV6Schema`; older migrations must not derive their required fields from the new current base schema. Version 7 migrates journal subjects, pins the already-qualified `qwen3.5-4b` artifact, and adds `playerKnowledge`, `worldObjects`, `verbalMissions`, and `commitments` records to `WorldStateBaseSchema`. The `v6 → v7` migration starts player knowledge, missions, and commitments empty and seeds `linda_marchetti_purse` with owner `linda`; it does not activate a mission or commitment.
 
 Migration fixtures must prove versions 1 through 6 all reach a valid version 7 state, reload twice, preserve source bytes on failure, and reject bad key-to-ID pairs, duplicate commitments, and unsupported versions. Electron save-envelope validation, checksums, recovery, cutover fixtures, and packaged migration smoke must all recognize version 7.
 
@@ -1249,6 +1249,8 @@ Priya's schedule-cooperation command creates an `agreed` commitment. Existing qu
 - One contradiction check for generated exact terms, ownership, targets, commitments, and agreement language.
 
 No second model server is added. The Reader, Actor, and existing generated-output policy check use the already-loaded serialized local model. The performance spike measures the real common-case call count; it may be three calls even though the mission design itself has two semantic passes.
+
+The completed development-hardware spike selects the existing pinned `qwen3.5-4b` artifact for version one Verbal Missions. It produced 100% first-pass valid Reader structures, 0% wrong high-impact referents, 1.56-second p95 authoritative reactions, and 2.73-second p95 full paths on the development Mac. The 9B artifact is not eligible for Verbal Missions: it produced 93.75% valid Reader structures and 6.25% wrong high-impact referents. Version 7 updates the global model pin to the same already-qualified 4B artifact, whose ordinary-conversation corpus also outperformed 9B. Locked 16 GB hardware proof remains a release gate.
 
 ### 18.4 UI additions
 
@@ -1373,7 +1375,7 @@ Each Tier 1 or higher mission also needs:
 - The complete two-pass turn begins validated player-visible text within the existing 12-second p95 gate on both locked 16 GB baseline machines.
 - The renderer holds 60 FPS through the Reader, Outcome Engine, Actor, and output-policy path.
 - The Actor prompt stays within `7,000` UTF-8 bytes and `4,096` estimated tokens.
-- The Move Reader prompt target is at most `2,500` UTF-8 bytes and 128 generated tokens.
+- The Move Reader prompt target is at most `2,500` UTF-8 bytes and 160 generated tokens. A real 4B spike proved that 128 tokens truncates the required act-plus-claim shape because both carry exact evidence.
 
 The existing qualification runner defines a 3-second first-token limit and 12-second visible-response p95 at `scripts/qualification/run-model-qualification.ts:26-27`. The mission spike adds the new outcome-feedback measurement; it does not replace either existing gate.
 
