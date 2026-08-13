@@ -1,21 +1,54 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ViewportSize } from '../render/camera';
+import type { CharacterId } from '../render/atlas';
 import type { UiScale } from '../render/responsive-layout';
 import { uiMetrics } from './ui-metrics';
 
-const portraits = {
-  protagonist: require('../../assets/source/dialogue-portraits/protagonist.png') as number,
+const portraits: Record<CharacterId, number> = {
+  'devon-price': require('../../assets/source/dialogue-portraits/devon-price.png') as number,
+  'elise-moreau': require('../../assets/source/dialogue-portraits/elise-moreau.png') as number,
+  'generic-resident': require('../../assets/source/dialogue-portraits/generic-resident.png') as number,
   linda: require('../../assets/source/dialogue-portraits/linda.png') as number,
   'linda-boyfriend': require('../../assets/source/dialogue-portraits/linda-boyfriend.png') as number,
-} as const;
+  'mina-park': require('../../assets/source/dialogue-portraits/mina-park.png') as number,
+  'priya-nair': require('../../assets/source/dialogue-portraits/priya-nair.png') as number,
+  protagonist: require('../../assets/source/dialogue-portraits/protagonist.png') as number,
+  'rafael-cruz': require('../../assets/source/dialogue-portraits/rafael-cruz.png') as number,
+  'resident-01': require('../../assets/source/dialogue-portraits/resident-01.png') as number,
+  'resident-02': require('../../assets/source/dialogue-portraits/resident-02.png') as number,
+  'resident-03': require('../../assets/source/dialogue-portraits/resident-03.png') as number,
+  'resident-04': require('../../assets/source/dialogue-portraits/resident-04.png') as number,
+  'resident-05': require('../../assets/source/dialogue-portraits/resident-05.png') as number,
+  'resident-06': require('../../assets/source/dialogue-portraits/resident-06.png') as number,
+  'resident-07': require('../../assets/source/dialogue-portraits/resident-07.png') as number,
+  'resident-08': require('../../assets/source/dialogue-portraits/resident-08.png') as number,
+  'resident-09': require('../../assets/source/dialogue-portraits/resident-09.png') as number,
+  'resident-10': require('../../assets/source/dialogue-portraits/resident-10.png') as number,
+  'resident-11': require('../../assets/source/dialogue-portraits/resident-11.png') as number,
+  'resident-12': require('../../assets/source/dialogue-portraits/resident-12.png') as number,
+  'resident-13': require('../../assets/source/dialogue-portraits/resident-13.png') as number,
+  'resident-14': require('../../assets/source/dialogue-portraits/resident-14.png') as number,
+  'resident-15': require('../../assets/source/dialogue-portraits/resident-15.png') as number,
+  'resident-16': require('../../assets/source/dialogue-portraits/resident-16.png') as number,
+  'resident-17': require('../../assets/source/dialogue-portraits/resident-17.png') as number,
+  'resident-18': require('../../assets/source/dialogue-portraits/resident-18.png') as number,
+  'resident-19': require('../../assets/source/dialogue-portraits/resident-19.png') as number,
+  'resident-20': require('../../assets/source/dialogue-portraits/resident-20.png') as number,
+  'resident-21': require('../../assets/source/dialogue-portraits/resident-21.png') as number,
+  'resident-22': require('../../assets/source/dialogue-portraits/resident-22.png') as number,
+  'resident-23': require('../../assets/source/dialogue-portraits/resident-23.png') as number,
+  'resident-24': require('../../assets/source/dialogue-portraits/resident-24.png') as number,
+  'sora-tan': require('../../assets/source/dialogue-portraits/sora-tan.png') as number,
+  'tomas-reed': require('../../assets/source/dialogue-portraits/tomas-reed.png') as number,
+};
 
 type QuestOfferDialogueProps = Readonly<{
   accent: string;
   onAccept: () => void;
   onDecline: () => void;
   playerName: string;
-  speakerId?: 'linda' | 'linda-boyfriend';
+  speakerId?: Exclude<CharacterId, 'protagonist'>;
   speakerName?: string;
   speakerText?: string;
   surface: ViewportSize;
