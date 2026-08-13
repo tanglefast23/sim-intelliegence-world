@@ -1,6 +1,11 @@
 import { execFileSync } from 'node:child_process';
 
 export function resolveTestedCommit(): string {
+  const dirty = execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], {
+    cwd: process.cwd(),
+    encoding: 'utf8',
+  }).trim();
+  if (dirty) throw new Error('Qualification requires a clean tracked working tree.');
   const checkedOut = execFileSync('git', ['rev-parse', 'HEAD'], {
     cwd: process.cwd(),
     encoding: 'utf8',
