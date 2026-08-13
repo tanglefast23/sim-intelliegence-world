@@ -1,7 +1,7 @@
 import type { WorldState } from '../domain/state/schema';
-import { roofGroupAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
-import type { TilePoint } from '../world/maps/schema';
-import type { MovementDirection } from '../world/pathfinding/movement';
+import { roofGroupAtV2, type CompiledDoorV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
+import { tileKey, type TilePoint } from '../world/maps/schema';
+import { activeDoorId, type MovementDirection, type MovementState } from '../world/pathfinding/movement';
 import { movementPresentation, type CharacterId } from './atlas';
 import { compareDepth } from './depth';
 import { protagonistWobbleDegrees } from './protagonist-wobble';
@@ -64,6 +64,17 @@ export function compareWorldLayerTiles(
     { id: left.id, layer, tileY: left.tile.y },
     { id: right.id, layer, tileY: right.tile.y },
   );
+}
+
+export function doorSpriteForFrame(
+  door: CompiledDoorV2,
+  movements: readonly MovementState[],
+): string {
+  if (door.initialState !== 'closed-unlocked') return door.sprite;
+  const open = movements.some((movement) => (
+    activeDoorId(movement) === door.id || tileKey(movement.player) === tileKey(door.tile)
+  ));
+  return open ? door.sprite.replace('closed-door', 'open-door') : door.sprite;
 }
 
 export function buildWorldFrameState(

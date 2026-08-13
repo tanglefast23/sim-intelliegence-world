@@ -1,10 +1,16 @@
 import { WORLD_MAP_CATALOG } from '../../application/runtime/map-catalog';
 import { createInitialState } from '../../domain/state/initial-state';
 import { WorldStateSchema } from '../../domain/state/schema';
-import { createMovementState, requestMovement } from '../../world/pathfinding/movement';
+import { tileKey } from '../../world/maps/schema';
+import {
+  advanceMovement,
+  createMovementState,
+  DOOR_OPENING_MS,
+  requestMovement,
+} from '../../world/pathfinding/movement';
 import { advanceWorldMovement } from '../../application/runtime/world-runtime';
 import { compareGroundedDepth, WORLD_DEPTH } from '../depth';
-import { buildWorldFrameState, WORLD_LAYER_ORDER } from '../world-frame';
+import { buildWorldFrameState, doorSpriteForFrame, WORLD_LAYER_ORDER } from '../world-frame';
 
 const MAP = WORLD_MAP_CATALOG.northwest_residential;
 const ACTORS = {
@@ -29,6 +35,30 @@ function walkTo(target: { x: number; y: number }, initialState = createInitialSt
 }
 
 describe('authoritative world frame', () => {
+  test('opens an unlocked door before crossing and closes it after clearing', () => {
+    const door = MAP.doorById.get('bedroom-door')!;
+    let movement = requestMovement(MAP, createMovementState({ x: 16, y: 13 }), { x: 16, y: 15 });
+    expect(MAP.blockedKeys.has(tileKey(door.tile))).toBe(false);
+    expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite);
+
+    let remainingOpeningMs = DOOR_OPENING_MS;
+    while (remainingOpeningMs > 0) {
+      const elapsedMs = Math.min(50, remainingOpeningMs);
+      movement = advanceMovement(MAP, movement, elapsedMs).movement;
+      remainingOpeningMs -= elapsedMs;
+    }
+    expect(movement.player).toEqual({ x: 16, y: 13 });
+    expect(movement.segment).toBeUndefined();
+    expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite.replace('closed-door', 'open-door'));
+
+    for (let frame = 0; frame < 20 && movement.status === 'moving'; frame += 1) {
+      movement = advanceMovement(MAP, movement, 50).movement;
+    }
+    expect(movement.player).toEqual({ x: 16, y: 15 });
+    expect(movement.status).toBe('idle');
+    expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite);
+  });
+
   test('sorts props and characters by their ground contact point', () => {
     const order = [
       { groundY: 64, id: 'front-prop', kind: 'prop' as const },

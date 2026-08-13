@@ -450,13 +450,13 @@ function northwestMap(): WorldMapV2 {
     ],
   });
   map.doors = [
-    { id: 'villa-front-door', openingId: 'villa-front-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof', interaction: { id: 'villa-front-door-use', areaId: 'social', approachTiles: [{ x: 17, y: 23 }, { x: 17, y: 25 }] } },
-    { id: 'bedroom-door', openingId: 'bedroom-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof' },
-    { id: 'bathroom-hall-door', openingId: 'bathroom-hall-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof' },
-    { id: 'bathroom-left-door', openingId: 'bathroom-left-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof' },
-    { id: 'bathroom-right-door', openingId: 'bathroom-right-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof' },
-    { id: 'social-door', openingId: 'social-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof' },
-    { id: 'entry-hall-door', openingId: 'villa-entry-hall-opening', initialState: 'open', sprite: 'tile.open-door', roofGroupId: 'protagonist-villa-roof' },
+    { id: 'villa-front-door', openingId: 'villa-front-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof', interaction: { id: 'villa-front-door-use', areaId: 'social', approachTiles: [{ x: 17, y: 23 }, { x: 17, y: 25 }] } },
+    { id: 'bedroom-door', openingId: 'bedroom-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof' },
+    { id: 'bathroom-hall-door', openingId: 'bathroom-hall-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof' },
+    { id: 'bathroom-left-door', openingId: 'bathroom-left-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof' },
+    { id: 'bathroom-right-door', openingId: 'bathroom-right-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof' },
+    { id: 'social-door', openingId: 'social-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof' },
+    { id: 'entry-hall-door', openingId: 'villa-entry-hall-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door', roofGroupId: 'protagonist-villa-roof' },
   ];
   map.roofGroups = [{
     id: 'protagonist-villa-roof',

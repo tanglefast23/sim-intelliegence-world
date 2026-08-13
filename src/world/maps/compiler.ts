@@ -295,7 +295,7 @@ function compileDoors(input: Readonly<{
       throw new Error(`Door ${door.id} references unknown roof group ${door.roofGroupId}.`);
     }
     usedOpenings.add(door.openingId);
-    if (door.initialState !== 'open') addOwner(owners, opening.tile, { kind: 'door', id: door.id });
+    if (door.initialState === 'closed-locked') addOwner(owners, opening.tile, { kind: 'door', id: door.id });
     if (door.interaction) {
       if (usedInteractionIds.has(door.interaction.id)) {
         throw new Error(`Interaction IDs must be unique: ${door.interaction.id}`);

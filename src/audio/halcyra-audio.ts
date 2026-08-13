@@ -74,7 +74,7 @@ const INTERFACE_SOUNDS = {
   'relationship-negative': require('../../assets/source/audio/sfx_relationship_negative.wav') as number,
 } as const;
 
-const doorOpen = require('../../assets/source/audio/sfx_door_open.wav') as number;
+const doorOpenSound = require('../../assets/source/audio/sfx_door_open.wav') as number;
 const doorClose = require('../../assets/source/audio/sfx_door_close.wav') as number;
 
 export type InterfaceSoundId = 'press' | 'confirm' | 'cancel' | 'panel-open' | 'panel-close' |
@@ -156,7 +156,7 @@ export function useInterfaceSounds(enabled: boolean): (sound: InterfaceSoundId) 
 
 type WorldAudioInput = Readonly<{
   absoluteMinute: number;
-  doorCrossing: boolean;
+  doorOpen: boolean;
   enabled: boolean;
   mapId: MapId;
   materialId?: string;
@@ -165,7 +165,7 @@ type WorldAudioInput = Readonly<{
 
 export function useWorldAudio({
   absoluteMinute,
-  doorCrossing,
+  doorOpen,
   enabled,
   mapId,
   materialId,
@@ -177,12 +177,10 @@ export function useWorldAudio({
   useLoopingTrack(ambience, enabled, 0.1);
 
   const footstepPlayer = useAudioPlayer(null);
-  const doorOpenPlayer = useAudioPlayer(doorOpen);
+  const doorOpenPlayer = useAudioPlayer(doorOpenSound);
   const doorClosePlayer = useAudioPlayer(doorClose);
   const previousSegment = useRef<string | undefined>(undefined);
-  const doorCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const enabledRef = useRef(enabled);
-  enabledRef.current = enabled;
+  const previousDoorOpen = useRef(false);
   const segmentKey = segment
     ? `${mapId}:${segment.from.x},${segment.from.y}:${segment.to.x},${segment.to.y}`
     : undefined;
@@ -201,22 +199,16 @@ export function useWorldAudio({
     footstepPlayer.volume = 0.3;
     footstepPlayer.play();
 
-    if (doorCrossing) {
-      doorOpenPlayer.loop = false;
-      doorOpenPlayer.volume = 0.28;
-      void doorOpenPlayer.seekTo(0).then(() => doorOpenPlayer.play()).catch(() => undefined);
-      if (doorCloseTimer.current) clearTimeout(doorCloseTimer.current);
-      doorCloseTimer.current = setTimeout(() => {
-        if (!enabledRef.current) return;
-        doorClosePlayer.loop = false;
-        doorClosePlayer.volume = 0.24;
-        void doorClosePlayer.seekTo(0).then(() => doorClosePlayer.play()).catch(() => undefined);
-      }, 240);
-    }
     return undefined;
-  }, [doorClosePlayer, doorCrossing, doorOpenPlayer, enabled, footstepPlayer, materialId, segmentKey]);
+  }, [enabled, footstepPlayer, materialId, segmentKey]);
 
-  useEffect(() => () => {
-    if (doorCloseTimer.current) clearTimeout(doorCloseTimer.current);
-  }, []);
+  useEffect(() => {
+    const wasOpen = previousDoorOpen.current;
+    previousDoorOpen.current = doorOpen;
+    if (!enabled || doorOpen === wasOpen) return;
+    const player = doorOpen ? doorOpenPlayer : doorClosePlayer;
+    player.loop = false;
+    player.volume = doorOpen ? 0.28 : 0.24;
+    void player.seekTo(0).then(() => player.play()).catch(() => undefined);
+  }, [doorClosePlayer, doorOpen, doorOpenPlayer, enabled]);
 }

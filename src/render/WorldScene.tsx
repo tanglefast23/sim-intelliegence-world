@@ -62,6 +62,7 @@ import { visualBoundsIntersectTileWindow } from '../world/presentation/visual-bo
 import { tileKey, type TilePoint } from '../world/maps/schema';
 import type { MapId } from '../world/maps/catalog';
 import {
+  activeDoorId,
   cancelMovement,
   createMovementState,
   requestMovement,
@@ -115,6 +116,7 @@ import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wo
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
+  doorSpriteForFrame,
   type WorldActors,
   type WorldCharacterPlacement,
   type WorldLayer,
@@ -280,7 +282,7 @@ function actorTiles(
         direction: movement?.direction ?? 'down',
         visualFoot: snapWorldPoint(movement?.visualFoot ?? tileFootPoint(tile), zoom, dpr),
         walkFrame: movement?.walkFrame ?? 0,
-        moving: movement?.status === 'moving',
+        moving: movement?.segment !== undefined,
         reducedMotion,
         horizontalRunDistance: movement?.horizontalRunDistance ?? 0,
         pose: stateId === reactionId ? 'reaction' : stateId === conversationNpcId ? 'talk' : 'idle',
@@ -414,13 +416,12 @@ export function WorldScene({
   const movementMaterialId = runtime.movement.segment
     ? presentationGroundAt(map.presentation, runtime.movement.segment.to, map.source.width).materialId
     : undefined;
-  const segmentTo = runtime.movement.segment?.to;
-  const doorCrossing = useMemo(() => segmentTo !== undefined && [...map.doorById.values()].some(({ tile }) => (
-    tile.x === segmentTo.x && tile.y === segmentTo.y
-  )), [map, segmentTo?.x, segmentTo?.y]);
+  const doorOpen = activeDoorId(runtime.movement) !== undefined || [...map.doorById.values()].some((door) => (
+    door.initialState === 'closed-unlocked' && tileKey(door.tile) === tileKey(runtime.movement.player)
+  ));
   useWorldAudio({
     absoluteMinute: runtime.worldState.clock.absoluteMinute,
-    doorCrossing,
+    doorOpen,
     enabled: audioEnabled,
     mapId,
     materialId: movementMaterialId,
@@ -1046,7 +1047,7 @@ export function WorldScene({
       id: door.id,
       isDoor: true,
       objectId: door.id,
-      sprite: door.sprite,
+      sprite: doorSpriteForFrame(door, [runtime.movement, ...Object.values(runtime.npcMovements)]),
       tile: door.tile,
       worldX: door.tile.x * TILE_SIZE,
       worldY: door.tile.y * TILE_SIZE,
@@ -1057,6 +1058,8 @@ export function WorldScene({
     visibility.maximumY,
     visibility.minimumX,
     visibility.minimumY,
+    runtime.movement,
+    runtime.npcMovements,
   ]);
   const visibleWalls = useMemo(() => map.wallTiles.filter(({ tile }) => isVisible(tile, visibility))
     .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
@@ -1078,13 +1081,13 @@ export function WorldScene({
     () => buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, 0, {
       visualFoot: playerVisualFoot,
       walkFrame: runtime.movement.walkFrame,
-      moving: runtime.movement.status === 'moving',
+      moving: runtime.movement.segment !== undefined,
       reducedMotion,
       horizontalRunDistance: runtime.movement.horizontalRunDistance,
       pose: selected === 'protagonist' ? (reactionId === 'protagonist' ? 'reaction' : 'idle') : 'idle',
       poseFrame: selected === 'protagonist' ? poseFrame : 0,
     }),
-    [map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.status, runtime.movement.walkFrame, runtime.worldState, selected],
+    [map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.segment, runtime.movement.walkFrame, runtime.worldState, selected],
   );
   const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
     visibility.maximumX,

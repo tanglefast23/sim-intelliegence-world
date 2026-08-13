@@ -38,6 +38,8 @@ export type MovementState = Readonly<{
   blockedElapsedMs: number;
   blockedReplanAttempted: boolean;
   blockedAttempts: number;
+  openingDoorId?: string;
+  doorOpeningElapsedMs: number;
   latchedTurnCurve?: TurnCurve;
   latchedTurnCorner?: TilePoint;
   stopAfterSegment: boolean;
@@ -57,6 +59,7 @@ export function createMovementState(player: TilePoint): MovementState {
     blockedElapsedMs: 0,
     blockedReplanAttempted: false,
     blockedAttempts: 0,
+    doorOpeningElapsedMs: 0,
     stopAfterSegment: false,
     status: 'idle',
   };
@@ -92,6 +95,8 @@ export function requestMovement(
       target,
       path: [],
       horizontalRunDistance: 0,
+      openingDoorId: undefined,
+      doorOpeningElapsedMs: 0,
       status: 'unreachable',
       feedbackTile: { ...target },
     };
@@ -113,6 +118,8 @@ export function requestMovement(
     blockedElapsedMs: 0,
     blockedReplanAttempted: false,
     blockedAttempts: 0,
+    openingDoorId: undefined,
+    doorOpeningElapsedMs: 0,
     latchedTurnCurve: undefined,
     latchedTurnCorner: undefined,
     feedbackTile: undefined,
@@ -138,6 +145,8 @@ export function cancelMovement(state: MovementState): MovementState {
     blockedElapsedMs: 0,
     blockedReplanAttempted: false,
     blockedAttempts: 0,
+    openingDoorId: undefined,
+    doorOpeningElapsedMs: 0,
     latchedTurnCurve: undefined,
     latchedTurnCorner: undefined,
     stopAfterSegment: false,
@@ -202,6 +211,19 @@ function beginSegment(
 const BLOCKED_CLAIM_RETRY_MS = 145;
 const BLOCKED_CLAIM_BUDGET = 4;
 const BLOCKED_REPLAN_MS = BLOCKED_CLAIM_RETRY_MS * BLOCKED_CLAIM_BUDGET;
+export const DOOR_OPENING_MS = 120;
+
+function unlockedDoorAt(map: CompiledMapV2, tile: TilePoint | undefined) {
+  if (!tile) return undefined;
+  const key = tileKey(tile);
+  return [...map.doorById.values()].find((door) => (
+    door.initialState === 'closed-unlocked' && tileKey(door.tile) === key
+  ));
+}
+
+export function activeDoorId(movement: MovementState): string | undefined {
+  return movement.doorOpeningElapsedMs >= DOOR_OPENING_MS ? movement.openingDoorId : undefined;
+}
 
 function findYieldRoute(
   map: CompiledMapV2,
@@ -372,8 +394,29 @@ export function advanceMovement(
   if (speed <= 0 || state.status === 'idle' || state.status === 'unreachable') {
     return { movement: state, committedTiles: [] };
   }
-  const submitted = Math.max(0, Math.min(MAX_MOVEMENT_FRAME_MS, elapsedMs)) * speed;
-  let current = state.segment ? state : beginSegment(map, state, dynamicBlockers);
+  let submitted = Math.max(0, Math.min(MAX_MOVEMENT_FRAME_MS, elapsedMs)) * speed;
+  let current = state;
+  if (!current.segment) {
+    const door = unlockedDoorAt(map, current.path[0]);
+    const openedDoor = current.openingDoorId ? map.doorById.get(current.openingDoorId) : undefined;
+    if (door && tileKey(current.player) !== tileKey(door.tile)) {
+      const elapsed = current.openingDoorId === door.id ? current.doorOpeningElapsedMs : 0;
+      const consumed = Math.min(Math.max(0, DOOR_OPENING_MS - elapsed), submitted);
+      submitted -= consumed;
+      current = {
+        ...current,
+        openingDoorId: door.id,
+        doorOpeningElapsedMs: elapsed + consumed,
+        status: 'moving',
+      };
+      if (current.doorOpeningElapsedMs < DOOR_OPENING_MS || submitted <= 0) {
+        return { movement: current, committedTiles: [] };
+      }
+    } else if (current.openingDoorId && (!openedDoor || tileKey(current.player) !== tileKey(openedDoor.tile))) {
+      current = { ...current, openingDoorId: undefined, doorOpeningElapsedMs: 0 };
+    }
+    current = beginSegment(map, current, dynamicBlockers);
+  }
   if (!current.segment && current.status === 'waiting') {
     current = waitOrReplan(map, current, submitted, dynamicBlockers);
     if (current.status === 'moving') current = beginSegment(map, current, dynamicBlockers);
@@ -417,6 +460,10 @@ export function advanceMovement(
   }
   const path = current.path.slice(1);
   const committed = { ...segment.to };
+  const openedDoor = current.openingDoorId ? map.doorById.get(current.openingDoorId) : undefined;
+  const clearedOpenedDoor = openedDoor !== undefined &&
+    tileKey(segment.from) === tileKey(openedDoor.tile) &&
+    tileKey(segment.to) !== tileKey(openedDoor.tile);
   let completed: MovementState = {
     ...current,
     player: committed,
@@ -425,6 +472,8 @@ export function advanceMovement(
     segment: undefined,
     visualFoot: tileFootPoint(committed),
     status: path.length === 0 ? 'idle' : 'moving',
+    openingDoorId: clearedOpenedDoor ? undefined : current.openingDoorId,
+    doorOpeningElapsedMs: clearedOpenedDoor ? 0 : current.doorOpeningElapsedMs,
   };
   if (current.stopAfterSegment) completed = cancelMovement({ ...completed, stopAfterSegment: false });
   else if (current.pendingTarget) {
