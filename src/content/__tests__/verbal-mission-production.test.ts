@@ -179,6 +179,59 @@ describe('production Verbal Missions', () => {
     }));
   });
 
+  test('alternate term levers stay completable and Linda can reach the authored $100 failure', () => {
+    const linda = PRODUCTION_CONTENT.find(({ definition }) => definition.missionId === LINDA_PURSE_MISSION_ID)!;
+    const cashReady: RouteStep = {
+      playerMessage: 'I have the exact cash ready for the trade.',
+      move: VerbalMoveSchema.parse({
+        acts: [{ act: 'trade', referentId: 'linda_marchetti_purse', evidenceText: 'cash ready' }],
+        register: 'plain',
+        claims: [{ factId: 'linda_cash_payment_ready', polarity: 'assert', evidenceText: 'cash ready' }],
+        referenceConfidence: 'clear',
+      }),
+      exactOfferAmount: null, exactProposedMinute: null, grantPlayerFactIds: [],
+    };
+    const offer100: RouteStep = {
+      playerMessage: 'I offer $100 for the purse.',
+      move: VerbalMoveSchema.parse({
+        acts: [{ act: 'offer', referentId: 'linda_marchetti_purse', evidenceText: '$100' }],
+        register: 'plain', claims: [], referenceConfidence: 'clear',
+      }),
+      exactOfferAmount: 100, exactProposedMinute: null, grantPlayerFactIds: [],
+    };
+    const lindaResult = runTrace(
+      linda,
+      [...linda.definition.honestRoute.steps.slice(0, -1), cashReady, offer100],
+      {
+        ...linda.definition.honestRoute.context,
+        playerFactIds: [...linda.definition.honestRoute.context.playerFactIds, 'linda_cash_payment_ready'],
+      },
+    );
+    expect(lindaResult.readiness).toEqual({ canConfirm: true, wouldSucceed: false });
+    expect(lindaResult.mission).toEqual(expect.objectContaining({
+      terms: { objectId: 'linda_marchetti_purse', currentOffer: 100 },
+    }));
+
+    const priya = PRODUCTION_CONTENT.find(({ definition }) => definition.missionId === PRIYA_ASSESSMENT_MISSION_ID)!;
+    const askWindow: RouteStep = {
+      playerMessage: 'What is the formal clinic window for this assessment?',
+      move: VerbalMoveSchema.parse({
+        acts: [{ act: 'ask', referentId: 'assess_off_island_transport', evidenceText: 'clinic window' }],
+        register: 'formal', claims: [], referenceConfidence: 'clear',
+      }),
+      exactOfferAmount: null, exactProposedMinute: null, grantPlayerFactIds: [],
+    };
+    const priyaResult = runTrace(priya, [
+      ...priya.definition.honestRoute.steps.slice(0, -1),
+      askWindow,
+      priya.definition.honestRoute.steps.at(-1)!,
+    ]);
+    expect(priyaResult.readiness).toEqual({ canConfirm: true, wouldSucceed: true });
+    expect(priyaResult.mission).toEqual(expect.objectContaining({
+      terms: expect.objectContaining({ proposedMinute: 1980 }),
+    }));
+  });
+
   test('world transitions offer Tomas, while context actions reveal Linda and Priya facts once', () => {
     const initial = createInitialState();
     expect(initial.verbalMissions).toEqual({});

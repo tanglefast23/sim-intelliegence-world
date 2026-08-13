@@ -199,6 +199,18 @@ function validateVerbalMission(
     assertReferences(`${mission.missionId} subject`, [contract.subjectNpcId], references.npcIds);
     assertReferences(`${mission.missionId} location`, [contract.locationId], references.locationIds);
   }
+  if (contract.kind === 'buy_object' || contract.kind === 'schedule_cooperation') {
+    const exactTermKind = contract.kind === 'buy_object' ? 'offer' : 'schedule';
+    const guarded = contract.requiredConcernIds.some((concernId) => {
+      const resolvingLevers = mission.levers.filter((lever) => (
+        lever.concernId === concernId && lever.toState === 'resolved'
+      ));
+      return resolvingLevers.length > 0 && resolvingLevers.every((lever) => (
+        lever.credits && lever.exactTerm?.kind === exactTermKind
+      ));
+    });
+    if (!guarded) throw new Error(`${mission.missionId} exact terms must guard a required concern.`);
+  }
   assertReferences(`${mission.missionId} closer`, [contract.closerActionId], references.actionIds);
 
   const opening = createOpeningMission(mission, disposition);
