@@ -328,6 +328,15 @@ Run `npm run smoke:save-migration` only through its hidden and muted Electron pa
 - Unsupported versions and damaged saves preserve recoverable bytes.
 - Linda's purse has one owner record and no counted inventory copy.
 
+### Completed implementation result
+
+Version 7 now has closed Verbal Mission, unique-object, player-knowledge, commitment, and journal-subject state.
+
+- Versions 1 through 6 migrate to valid version 7 copies without changing their source objects.
+- Version 6 has a frozen schema, so later current-state fields cannot break old migrations.
+- Current saves pin the qualified 4B artifact and store Linda's purse in one owner record.
+- Focused state and save-fault checks pass, including failed-write byte preservation.
+
 ### Commit
 
 `feat: add verbal mission save state`

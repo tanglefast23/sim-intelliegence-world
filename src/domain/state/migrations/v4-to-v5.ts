@@ -7,7 +7,7 @@ import {
   resolveChangeableRejections,
 } from '../../relationships/relationship';
 import { StableIdSchema } from '../ids';
-import { WorldStateBaseSchema } from '../schema';
+import { LegacyStateV6Schema } from './legacy-v6';
 import { LegacyStateV5Schema, type LegacyStateV5 } from './v5-to-v6';
 
 const LegacyRelationshipV4Schema = z.object({
@@ -28,7 +28,7 @@ const LegacyJournalEntryV4Schema = z.object({
   resolutionState: z.enum(['open', 'resolved', 'expired']),
 }).strict();
 
-export const LegacyStateV4Schema = WorldStateBaseSchema.omit({
+export const LegacyStateV4Schema = LegacyStateV6Schema.omit({
   schemaVersion: true,
   relationships: true,
   journal: true,

@@ -36,7 +36,7 @@ function locationLabel(entry: WorldState['journal'][string]): string {
 }
 
 function caseContact(entry: WorldState['journal'][string]): Readonly<{ id: string; name: string }> {
-  return entry.questId === 'linda_boyfriend_check'
+  return entry.subject.kind === 'quest' && entry.subject.questId === 'linda_boyfriend_check'
     ? { id: 'linda', name: 'LINDA' }
     : { id: entry.source.sourceId, name: label(entry.source.sourceId) };
 }

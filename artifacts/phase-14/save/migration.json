@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T11:19:09.222Z",
-  "testedCommit": "e5dc137419bb4cacdc2e72bf1e7c12d1a988c6f1",
+  "generatedAt": "2026-08-13T06:08:03.418Z",
+  "testedCommit": "07c6bc65d418b21d9bf74343a60f76aa55f8947e",
   "fixture": "tests/fixtures/saves/legacy-v1.json",
   "fixtureSha256": "4021eb4f822454e4c5a71393348a7aab3aa403eb21029508cf4b47e9fed8591c",
   "compatibleMigration": {
     "fromSchemaVersion": 1,
-    "toSchemaVersion": 5,
+    "toSchemaVersion": 7,
     "sourceUnchanged": true,
     "generationId": "generation-phase-14-migrated",
     "pins": {
@@ -15,9 +15,9 @@
       "promptVersion": "prompt-0.1.0",
       "modelContractVersion": "qwen-json-v1",
       "model": {
-        "id": "qwen3.5-9b",
-        "sourceRevision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
-        "artifactSha256": "8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341"
+        "id": "qwen3.5-4b",
+        "sourceRevision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "artifactSha256": "32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14"
       }
     }
   },

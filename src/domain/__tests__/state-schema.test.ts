@@ -8,7 +8,8 @@ describe('world state schema', () => {
     expect(state.protagonist.id).toBe('protagonist');
     expect(Object.keys(state)).toEqual(expect.arrayContaining([
       'npcs', 'relationships', 'inventory', 'economy', 'factions', 'quests', 'journal',
-      'invitations', 'maps', 'schedules', 'transfers', 'evidence', 'policeAttention', 'eventReceipts', 'eventLedger',
+      'invitations', 'maps', 'schedules', 'transfers', 'evidence', 'playerKnowledge',
+      'worldObjects', 'verbalMissions', 'commitments', 'policeAttention', 'eventReceipts', 'eventLedger',
     ]));
   });
 
@@ -35,7 +36,7 @@ describe('world state schema', () => {
       journal: {
         lead: {
           id: 'lead',
-          questId: 'linda_boyfriend_check',
+          subject: { kind: 'quest', questId: 'linda_boyfriend_check' },
           summary: 'Look for Linda.',
           locationPrecision: 'vague',
           markerVisible: true,

@@ -15,7 +15,7 @@ async function main(): Promise<void> {
   const before = JSON.stringify(parsed);
   const migrated = migrateStateCopy(parsed, 'generation-phase-14-migrated');
   if (JSON.stringify(parsed) !== before) throw new Error('Compatible migration modified its source object.');
-  if (migrated.schemaVersion !== 6) throw new Error('Compatible migration did not reach schema version 6.');
+  if (migrated.schemaVersion !== 7) throw new Error('Compatible migration did not reach schema version 7.');
 
   const unsupported = { schemaVersion: 99, data: 'preserve me' };
   const unsupportedBefore = JSON.stringify(unsupported);
