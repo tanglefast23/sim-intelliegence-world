@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { ModelManifestSchema, verifyArtifact } from '../../electron/model/model-manifest';
 import { ModelSupervisor } from '../../electron/model/model-supervisor';
 import { buildActorSpikePrompt, buildMoveReaderPrompt, moveReaderCandidates, moveReaderUserMessage } from '../../src/ai/conversation/verbal-mission-prompts';
+import { readerDialogueText } from '../../src/ai/conversation/verbal-mission-reader';
 import { parseVerbalMoveJson, verbalMoveJsonSchemaForCandidates } from '../../src/ai/schemas/verbal-move';
 import { parseBoundedJson } from '../../src/ai/schemas/safe-json';
 import { parsePolicyResponseJson, policyResponseJsonSchema } from '../../src/ai/schemas/policy-response';
@@ -71,20 +72,21 @@ async function main(): Promise<void> {
   try {
     await supervisor.start();
     for (const fixture of fixtures) {
+      const dialogue = readerDialogueText(fixture.playerMessage);
       const readerPrompt = buildMoveReaderPrompt({
-        playerMessage: fixture.playerMessage,
+        playerMessage: dialogue,
         referents: VERBAL_MISSION_SPIKE_REFERENTS,
         facts: VERBAL_MISSION_SPIKE_FACTS,
       });
       const readerCandidates = moveReaderCandidates({
-        playerMessage: fixture.playerMessage,
+        playerMessage: dialogue,
         referents: VERBAL_MISSION_SPIKE_REFERENTS,
         facts: VERBAL_MISSION_SPIKE_FACTS,
       });
       const reader = await supervisor.completeBufferedWithTimings({
         messages: [
           { role: 'system', content: readerPrompt },
-          { role: 'user', content: moveReaderUserMessage(fixture.playerMessage) },
+          { role: 'user', content: moveReaderUserMessage(dialogue) },
         ],
         schemaName: 'si_world_verbal_move',
         jsonSchema: verbalMoveJsonSchemaForCandidates(readerCandidates),
