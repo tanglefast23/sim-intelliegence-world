@@ -38,6 +38,7 @@ export const KnowledgeRecordSchema = z.object({
   truthStatus: z.enum(['verified', 'contradicted', 'unknown']),
   source: KnowledgeSourceSchema,
 }).strict();
+export type KnowledgeRecord = z.infer<typeof KnowledgeRecordSchema>;
 
 export const MemoryRecordSchema = z.object({
   subjectId: StableIdSchema,

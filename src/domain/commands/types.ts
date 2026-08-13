@@ -7,6 +7,10 @@ import { CommandIdSchema, EventIdSchema, PauseTokenSchema, StableIdSchema } from
 import { SimulationSpeedSchema } from '../clock/clock';
 import { KnowledgeRecordSchema } from '../state/models';
 import { PoliceHookSchema } from '../consequences/police';
+import {
+  RecordPlayerKnowledgeBodySchema,
+  VerbalMissionOutcomeCommandSchema,
+} from '../verbal-missions/commands';
 
 const CommandBaseSchema = z.object({
   commandId: CommandIdSchema,
@@ -151,6 +155,41 @@ export const DomainCommandSchema = z.discriminatedUnion('type', [
       summary: z.string().trim().min(1).max(240),
       importancePermille: z.number().int().min(0).max(1_000),
     }).strict()).max(8),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('offer-verbal-mission'),
+    missionId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('apply-verbal-mission-outcome'),
+    ...VerbalMissionOutcomeCommandSchema.shape,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('withdraw-verbal-mission'),
+    missionId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('record-player-knowledge'),
+    ...RecordPlayerKnowledgeBodySchema.shape,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('record-fact-disclosure'),
+    missionId: StableIdSchema,
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('purchase-unique-object'),
+    missionId: StableIdSchema,
+    confirmedAmount: z.number().int().nonnegative(),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('create-scheduled-commitment'),
+    missionId: StableIdSchema,
+    commitmentId: StableIdSchema,
+    commitmentMinute: z.number().int().nonnegative(),
+  }).strict(),
+  CommandBaseSchema.extend({
+    type: z.literal('resolve-scheduled-commitment'),
+    commitmentId: StableIdSchema,
   }).strict(),
 ]);
 

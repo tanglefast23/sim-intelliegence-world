@@ -476,6 +476,18 @@ npm run check:boundaries
 - Tomas, Linda, and Priya reject another family's closer.
 - Priya's agreement never equals follow-through.
 
+### Completed implementation result
+
+Mission offers now create one available mission and typed journal entry, and the first decided outcome moves it to active.
+
+- Outcome commands require the exact prior mission state and reject reused IDs, illegal transitions, and forged progress history.
+- Tomas disclosure, Linda purchase, and Priya agreement use separate atomic commands with fixed authored authority.
+- Player knowledge is validated against authored atoms and keeps its first provenance.
+- Linda's `$79`, `$80`, `$99`, `$100`, funds, ownership, and duplicate-delivery cases are locked by tests.
+- Priya records only `agreed` during conversation. Deterministic commands later produce `honoured`, `delayed`, or `reneged` after clock advance, simulation, sleep, or load.
+- Load-time settlement writes a new generation and preserves the pre-settlement save as backup.
+- Focused Phase 4 tests pass. The full suite passes with 80 suites and 807 tests.
+
 ### Commit
 
 `feat: add verbal mission goal commands`
