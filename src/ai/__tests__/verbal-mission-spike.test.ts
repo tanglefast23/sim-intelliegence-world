@@ -8,7 +8,9 @@ import {
 } from '../conversation/verbal-mission-prompts';
 import {
   VERBAL_MISSION_SPIKE_FACTS,
+  VERBAL_MISSION_READER_CORPUS,
   VERBAL_MISSION_SPIKE_REFERENTS,
+  verbalMissionSpikeFixtureMatches,
 } from '../../../tests/fixtures/ai-capability/verbal-missions';
 
 const input = {
@@ -25,6 +27,37 @@ const validMove = JSON.stringify({
 });
 
 describe('Verbal Mission model spike contracts', () => {
+  test('locks 400 unique paraphrase, referent, injection, marriage, and murder cases', () => {
+    expect(VERBAL_MISSION_READER_CORPUS).toHaveLength(400);
+    expect(new Set(VERBAL_MISSION_READER_CORPUS.map(({ id }) => id)).size).toBe(400);
+    expect(new Set(VERBAL_MISSION_READER_CORPUS.map(({ playerMessage }) => playerMessage)).size).toBe(400);
+    for (const fixture of VERBAL_MISSION_READER_CORPUS) {
+      const move = parseVerbalMoveJson(JSON.stringify({
+        acts: [{
+          act: fixture.expected.acts[0],
+          referentId: fixture.expected.referentId,
+          evidenceText: fixture.playerMessage,
+        }],
+        register: fixture.expected.register,
+        claims: fixture.expected.claimFactId ? [{
+          factId: fixture.expected.claimFactId,
+          polarity: 'assert',
+          evidenceText: fixture.playerMessage,
+        }] : [],
+        referenceConfidence: fixture.expected.confidence,
+      }), fixture.playerMessage, {
+        referentIds: VERBAL_MISSION_SPIKE_REFERENTS.map(({ id }) => id),
+        factIds: VERBAL_MISSION_SPIKE_FACTS.map(({ id }) => id),
+      });
+      expect(verbalMissionSpikeFixtureMatches(move, fixture)).toBe(true);
+      expect(new TextEncoder().encode(buildMoveReaderPrompt({
+        playerMessage: fixture.playerMessage,
+        referents: VERBAL_MISSION_SPIKE_REFERENTS,
+        facts: VERBAL_MISSION_SPIKE_FACTS,
+      })).byteLength).toBeLessThanOrEqual(MAX_MOVE_READER_PROMPT_BYTES);
+    }
+  });
+
   test('parses a closed move with exact evidence and candidate IDs', () => {
     expect(parseVerbalMoveJson(validMove, input.playerMessage, {
       referentIds: input.referents.map(({ id }) => id),

@@ -97,6 +97,29 @@ describe('pure Verbal Mission Outcome Engine', () => {
     expect(result.mission.roomState).toBe('done');
   });
 
+  test('a walkout blocks progress until its authored cooldown expires', () => {
+    const walkedOut = run(undefined, {
+      acts: [{ act: 'threaten', referentId: 'test_purse', evidenceText: 'or else' }],
+      register: 'threatening', claims: [], referenceConfidence: 'clear',
+    });
+    const cooldownUntilMinute = TEST_DEAL_CONTEXT.absoluteMinute + 1_440;
+    expect(walkedOut.mission.cooldownUntilMinute).toBe(cooldownUntilMinute);
+
+    const blocked = run(walkedOut.mission, appraisalMove, context({
+      absoluteMinute: cooldownUntilMinute - 1, playerFactIds: ['fact_appraisal'],
+    }));
+    expect(blocked.outcome).toBe('refused');
+    expect(blocked.concernTransitions).toEqual([]);
+    expect(blocked.mission).toEqual(walkedOut.mission);
+
+    const reopened = run(walkedOut.mission, appraisalMove, context({
+      absoluteMinute: cooldownUntilMinute, playerFactIds: ['fact_appraisal'],
+    }));
+    expect(reopened.outcome).toBe('progress');
+    expect(reopened.mission.cooldownUntilMinute).toBeNull();
+    expect(reopened.mission.roomState).toBe('open');
+  });
+
   test('a known contradiction cancels otherwise valid progress', () => {
     const result = run(undefined, appraisalMove, context({
       playerFactIds: ['fact_appraisal'],

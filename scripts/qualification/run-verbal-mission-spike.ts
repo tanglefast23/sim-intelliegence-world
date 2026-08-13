@@ -11,7 +11,7 @@ import { parseVerbalMoveJson, verbalMoveJsonSchemaForCandidates } from '../../sr
 import { parseBoundedJson } from '../../src/ai/schemas/safe-json';
 import { parsePolicyResponseJson, policyResponseJsonSchema } from '../../src/ai/schemas/policy-response';
 import {
-  VERBAL_MISSION_SPIKE_CASES,
+  VERBAL_MISSION_READER_CORPUS,
   VERBAL_MISSION_SPIKE_FACTS,
   VERBAL_MISSION_SPIKE_REFERENTS,
   verbalMissionSpikeFixtureMatches,
@@ -62,7 +62,7 @@ async function main(): Promise<void> {
   const samples: Array<Record<string, unknown>> = [];
   try {
     await supervisor.start();
-    for (const fixture of VERBAL_MISSION_SPIKE_CASES) {
+    for (const fixture of VERBAL_MISSION_READER_CORPUS) {
       const readerPrompt = buildMoveReaderPrompt({
         playerMessage: fixture.playerMessage,
         referents: VERBAL_MISSION_SPIKE_REFERENTS,
@@ -160,7 +160,9 @@ async function main(): Promise<void> {
         promptTokens: [reader.promptTokens, actor.promptTokens, policy.promptTokens],
         completionTokens: [reader.completionTokens, actor.completionTokens, policy.completionTokens],
       });
-      process.stderr.write(`Verbal Mission spike ${requested}: ${samples.length}/${VERBAL_MISSION_SPIKE_CASES.length}.\n`);
+      if (samples.length % 25 === 0) {
+        process.stderr.write(`Verbal Mission qualification ${requested}: ${samples.length}/${VERBAL_MISSION_READER_CORPUS.length}.\n`);
+      }
     }
   } finally {
     await supervisor.stop();
@@ -170,10 +172,19 @@ async function main(): Promise<void> {
   const structuredReaders = samples.filter(({ readerStructuredValid }) => readerStructuredValid).length;
   const semanticReaders = samples.filter(({ readerSemanticValid }) => readerSemanticValid).length;
   const wrongReferents = samples.filter((sample) => {
-    const fixture = VERBAL_MISSION_SPIKE_CASES.find(({ id }) => id === sample.id);
+    const fixture = VERBAL_MISSION_READER_CORPUS.find(({ id }) => id === sample.id);
     if (!fixture || fixture.expected.referentId === null) return false;
     const observed = sample.observedMove as { acts?: Array<{ referentId?: string | null }> } | null;
     return observed?.acts?.some(({ referentId }) => referentId !== null && referentId !== fixture.expected.referentId) ?? false;
+  }).length;
+  const falseBackfires = samples.filter((sample) => {
+    const fixture = VERBAL_MISSION_READER_CORPUS.find(({ id }) => id === sample.id);
+    if (!fixture || fixture.expected.acts.some((act) => act === 'compliment' || act === 'threaten')) return false;
+    const observed = sample.observedMove as {
+      acts?: Array<{ act?: string }>;
+      register?: string;
+    } | null;
+    return observed?.register === 'flattering' || observed?.acts?.some(({ act }) => act === 'threaten') === true;
   }).length;
   const validAll = samples.filter(({ readerStructuredValid, actorValid, policyValid }) => readerStructuredValid && actorValid && policyValid).length;
   const report = {
@@ -190,6 +201,7 @@ async function main(): Promise<void> {
       readerStructuredFirstPassPercent: Math.round(structuredReaders / samples.length * 10_000) / 100,
       readerSemanticPercent: Math.round(semanticReaders / samples.length * 10_000) / 100,
       wrongHighImpactReferentPercent: Math.round(wrongReferents / samples.length * 10_000) / 100,
+      falseBackfirePercent: Math.round(falseBackfires / samples.length * 10_000) / 100,
       fullPathFirstPassPercent: Math.round(validAll / samples.length * 10_000) / 100,
       authoritativeReactionP95Milliseconds: percentile(reactions, 0.95),
       validatedActorP95Milliseconds: percentile(validatedActors, 0.95),
@@ -197,6 +209,7 @@ async function main(): Promise<void> {
     thresholds: {
       readerFirstPass: structuredReaders / samples.length >= 0.95,
       wrongHighImpactReferents: wrongReferents / samples.length < 0.01,
+      falseBackfires: falseBackfires / samples.length < 0.01,
       authoritativeReactionP95: (percentile(reactions, 0.95) ?? Infinity) <= 3_000,
       validatedActorP95: (percentile(validatedActors, 0.95) ?? Infinity) <= 12_000,
       baselineHardwareVerified: false,
