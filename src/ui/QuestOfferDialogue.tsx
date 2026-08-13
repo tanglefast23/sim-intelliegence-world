@@ -25,10 +25,6 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
         nativeID="world-ui-quest-offer-panel"
         style={[styles.scene, { height: surface.height, width: surface.width }]}
       >
-        <View style={styles.sceneTitle}>
-          <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>AUTHORED SCENE · TIME PAUSED</Text>
-          <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>LINDA'S REQUEST</Text>
-        </View>
         <View style={[styles.actorLeft, { bottom: stripHeight - 24 }]}>
           <View style={styles.facesRight}><CharacterPortrait displayName={playerName} npcId="protagonist" scale={9} /></View>
         </View>
@@ -74,7 +70,6 @@ const styles = StyleSheet.create({
   decline: { alignItems: 'center', backgroundColor: '#100d0ae6', borderColor: '#76573d', borderWidth: 1, justifyContent: 'center', paddingHorizontal: 14 },
   declineText: { color: '#c3b18f', fontFamily: 'Silkscreen' },
   dialogue: { color: '#fff0c7', fontFamily: 'Silkscreen' },
-  eyebrow: { color: '#c89b5e', fontFamily: 'Silkscreen' },
   facesLeft: { transform: [{ scaleX: -1 }] },
   facesRight: { transform: [{ scaleX: 1 }] },
   nameplate: { alignItems: 'center', borderColor: '#fff0c7', borderWidth: 1, minWidth: 180, paddingHorizontal: 22, paddingVertical: 7, position: 'absolute', right: '18%', top: -18 },
@@ -82,8 +77,6 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.78, transform: [{ translateY: 2 }] },
   question: { color: '#9d8768', fontFamily: 'Silkscreen', marginTop: 10 },
   scene: { overflow: 'hidden', position: 'relative' },
-  sceneTitle: { backgroundColor: '#10130fbd', borderLeftColor: '#d3a04c', borderLeftWidth: 3, left: 22, paddingHorizontal: 12, paddingVertical: 9, position: 'absolute', top: 18, zIndex: 5 },
   speaker: { color: '#211d1a', fontFamily: 'Silkscreen' },
   speech: { backgroundColor: '#100d0ae6', borderTopColor: '#9c6a3d', borderTopWidth: 2, bottom: 0, justifyContent: 'center', left: 0, paddingBottom: 18, paddingTop: 28, position: 'absolute', right: 0, zIndex: 4 },
-  title: { fontFamily: 'Silkscreen', marginTop: 4 },
 });
