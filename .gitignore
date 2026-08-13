@@ -42,3 +42,4 @@ saves/
 .DS_Store
 .idea/
 .vscode/
+.worktrees
