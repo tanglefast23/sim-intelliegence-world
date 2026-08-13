@@ -31,6 +31,11 @@ import { effectiveSpeed } from '../domain/clock/clock';
 import { reduceCommand } from '../domain/commands/reducer';
 import { DomainCommandSchema } from '../domain/commands/types';
 import { lindaContextActions, type ContextQuestAction } from '../domain/quests/quest-machine';
+import {
+  VERBAL_MISSION_DISCOVERY_FACTS,
+  verbalMissionContextActions,
+  verbalMissionDiscoveryRecord,
+} from '../domain/verbal-missions/discovery';
 import { parseWorldState, type WorldState } from '../domain/state/schema';
 import { VOCAL_CUE_CAPTIONS, type VocalCueId } from '../audio/vocal-cue-policy';
 import { useVocalCues } from '../audio/vocal-cues';
@@ -419,7 +424,10 @@ export function WorldScene({
     poseFrame,
   ), [camera.zoom, conversationNpcId, dpr, mapId, poseFrame, reactionId, reducedMotion, runtime.npcMovements, runtime.worldState, selected]);
   const speed = effectiveSpeed(runtime.worldState.clock);
-  const questActions = lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState));
+  const questActions = [
+    ...lindaContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState)),
+    ...verbalMissionContextActions(runtime.worldState, stateNpcId(selected, runtime.worldState)),
+  ];
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
 
   useEffect(() => setVfxAgeStep(0), [mapId]);
@@ -819,6 +827,21 @@ export function WorldScene({
     if (conversationNpcId || openPanel) return;
     try {
       const stableActionId = actionId.replaceAll('_', '-');
+      if (actionId in VERBAL_MISSION_DISCOVERY_FACTS) {
+        const record = verbalMissionDiscoveryRecord(runtime.worldState, actionId);
+        const result = reduceCommand(runtime.worldState, DomainCommandSchema.parse({
+          type: 'record-player-knowledge',
+          commandId: `command-discover-${stableActionId}-r${runtime.worldState.revision}`,
+          eventId: `event-discover-${stableActionId}-r${runtime.worldState.revision}`,
+          scheduledMinute: runtime.worldState.clock.absoluteMinute,
+          priority: 70,
+          record,
+        }));
+        setRuntime((current) => ({ ...current, worldState: result.state }));
+        setWorldFeedback(`${record.factId.replaceAll('_', ' ').toUpperCase()} · RECORDED`);
+        void requestAutosave(result.state, 'manual');
+        return;
+      }
       const base = {
         commandId: `command-linda-quest-${stableActionId}-r${runtime.worldState.revision}`,
         eventId: `event-linda-quest-${stableActionId}-r${runtime.worldState.revision}`,

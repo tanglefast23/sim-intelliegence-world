@@ -718,6 +718,15 @@ npm run check:boundaries
 
 `feat: ship verbal mission vertical slice`
 
+### Completed result
+
+- Tomas, Linda, and Priya now use the same production Outcome Engine and strict content catalog.
+- Existing world and quest transitions offer each mission once. Authored context actions reveal required evidence facts.
+- Linda has two automated complete routes plus a tested flattery backfire and apology recovery.
+- Priya's conversation creates only an agreement. The existing deterministic commitment resolver owns the later result.
+- Content generation, content validation, the first-hour golden, type checks, boundaries, Electron build, and web export pass.
+- The full suite passes with 82 suites and 822 tests.
+
 ## 13. Phase 8: qualify the integrated feature
 
 ### Goal

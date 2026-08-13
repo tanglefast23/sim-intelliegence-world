@@ -1,1 +1,45 @@
-{"schemaVersion":1,"items":[{"id":"aggressive_flirt","displayName":"Flirt aggressively"},{"id":"ask_date","displayName":"Ask for a date"},{"id":"ask_follow_up","displayName":"Ask a follow-up"},{"id":"end_conversation","displayName":"End conversation"},{"id":"greet","displayName":"Greet"},{"id":"invite_home","displayName":"Invite home"}]}
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "aggressive_flirt",
+      "displayName": "Flirt aggressively"
+    },
+    {
+      "id": "ask_date",
+      "displayName": "Ask for a date"
+    },
+    {
+      "id": "ask_follow_up",
+      "displayName": "Ask a follow-up"
+    },
+    {
+      "id": "assess_off_island_transport",
+      "displayName": "Assess off-island transport"
+    },
+    {
+      "id": "buy_linda_marchetti_purse",
+      "displayName": "Buy Linda Marchetti purse"
+    },
+    {
+      "id": "end_conversation",
+      "displayName": "End conversation"
+    },
+    {
+      "id": "greet",
+      "displayName": "Greet"
+    },
+    {
+      "id": "invite_home",
+      "displayName": "Invite home"
+    },
+    {
+      "id": "record_tomas_ferry_disclosure",
+      "displayName": "Record Tomas ferry disclosure"
+    },
+    {
+      "id": "schedule_priya_assessment",
+      "displayName": "Schedule Priya assessment"
+    }
+  ]
+}

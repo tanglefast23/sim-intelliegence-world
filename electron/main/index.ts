@@ -10,6 +10,7 @@ import { CHARACTER_IDS } from '../../src/render/atlas';
 import { responsiveSurface } from '../../src/render/responsive-layout';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
+import { FileVerbalMissionContentStore } from '../conversation/file-verbal-mission-content-store';
 import { registerRuntimeIpc, type RendererReadyReport } from '../ipc/contracts';
 import { BundledConversationInference } from '../model/conversation-inference';
 import { runPackagedModelSmoke } from '../model/model-smoke';
@@ -1932,6 +1933,7 @@ async function createMainWindow(): Promise<void> {
     smokeExpectsModel
       ? (diagnostic) => process.stdout.write(`SI_WORLD_CONVERSATION_DIAGNOSTIC ${JSON.stringify(diagnostic)}\n`)
       : undefined,
+    new FileVerbalMissionContentStore(contentRoot),
   );
   registerConversationIpc(ipcMain, conversationService);
   window.webContents.once('destroyed', () => conversationService?.abortAll());

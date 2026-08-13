@@ -1,7 +1,9 @@
 {
   "schemaVersion": 1,
   "npcId": "tomas_reed",
-  "factIds": [],
+  "factIds": [
+    "ferry_after_dark_route"
+  ],
   "interestIds": [
     "boating",
     "island_gossip"
@@ -12,13 +14,16 @@
     "end_conversation",
     "invite_home",
     "ask_date",
-    "aggressive_flirt"
+    "aggressive_flirt",
+    "record_tomas_ferry_disclosure"
   ],
   "memorySubjectIds": [
     "protagonist_boating"
   ],
   "unlockIds": [],
-  "questIds": [],
+  "questIds": [
+    "tomas_after_dark_ferry"
+  ],
   "locationIds": [
     "tomas_marina",
     "southeast_docks"

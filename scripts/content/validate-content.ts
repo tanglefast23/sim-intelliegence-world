@@ -1,7 +1,13 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { buildContentCatalog, type ContentBundleInput } from '../../src/content/registries/catalog';
+import {
+  buildContentCatalog,
+  buildVerbalMissionCatalog,
+  type ContentBundleInput,
+} from '../../src/content/registries/catalog';
+import { parseVerbalMissionContentFile } from '../../src/content/verbal-missions/catalog';
+import { GoalContractSchema } from '../../src/content/schemas/verbal-mission';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { REGISTRY_NAMES, type RegistryName } from '../../src/content/schemas/registry';
 import { SocialContentSchema } from '../../src/content/schemas/social';
@@ -14,6 +20,10 @@ import { LINDA_QUEST, resolveLindaQuestDefinition } from '../../src/domain/quest
 import { ATLAS_INDEX } from '../../src/render/atlas';
 import { buildWorldMapV2Catalog, MAP_IDS, type MapId } from '../../src/world/maps/catalog';
 import type { WorldState } from '../../src/domain/state/schema';
+import {
+  PLAYER_KNOWLEDGE_AUTHORITIES,
+  VERBAL_MISSION_AUTHORITIES,
+} from '../../src/domain/verbal-missions/goal-planners';
 import { tileKey, type TilePoint } from '../../src/world/maps/schema';
 import { z } from 'zod';
 
@@ -234,6 +244,28 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
     throw new Error('The prototype economy fixture does not match the authoritative economy policy.');
   }
   const initialState = createInitialState();
+  const verbalMissionFiles = (await readJsonDirectory(resolve(rootPath, 'content', 'verbal-missions')))
+    .map(parseVerbalMissionContentFile);
+  const verbalMissionCatalog = buildVerbalMissionCatalog(
+    verbalMissionFiles.map(({ disposition }) => disposition),
+    verbalMissionFiles.map(({ definition }) => definition),
+    {
+      npcIds: new Set(catalog.characters.map(({ id }) => id)),
+      factIds: new Set(catalog.registries.facts.items.map(({ id }) => id)),
+      reachableFactIds: new Set(Object.keys(PLAYER_KNOWLEDGE_AUTHORITIES)),
+      actionIds: new Set(catalog.registries.actions.items.map(({ id }) => id)),
+      locationIds: new Set(catalog.locations.map(({ id }) => id)),
+      objectIds: new Set(Object.keys(initialState.worldObjects)),
+      referentIds: new Set(verbalMissionFiles.flatMap(({ referents }) => referents.map(({ id }) => id))),
+    },
+  );
+  for (const mission of verbalMissionCatalog.missions) {
+    if (JSON.stringify(mission.goalContract) !== JSON.stringify(
+      GoalContractSchema.parse(VERBAL_MISSION_AUTHORITIES[mission.missionId]?.contract),
+    )) {
+      throw new Error(`${mission.missionId} content contract does not match deterministic authority.`);
+    }
+  }
   validateInitialWorldReferences(initialState, maps, locationNeighborhoodById);
   assertBoundTile(
     maps, locationNeighborhoodById, `${lindaQuest.id}.target`,
@@ -244,7 +276,7 @@ export async function validateContent(rootPath = process.cwd()): Promise<void> {
     throw new Error('The prototype schedule fixture does not match the authoritative initial schedules.');
   }
   process.stdout.write(
-    `Validated ${catalog.characters.length} characters, ${catalog.locations.length} locations, ${catalog.factions.length} factions, ${catalog.rules.length} rule files, ${Object.keys(maps).length} maps, ${schedules.length} schedules, ${social.factionAccessGates.length} faction gates, ${social.purchases.length} social purchase, and 1 Linda quest.\n`,
+    `Validated ${catalog.characters.length} characters, ${catalog.locations.length} locations, ${catalog.factions.length} factions, ${catalog.rules.length} rule files, ${Object.keys(maps).length} maps, ${schedules.length} schedules, ${verbalMissionCatalog.missions.length} Verbal Missions, ${social.factionAccessGates.length} faction gates, ${social.purchases.length} social purchase, and 1 Linda quest.\n`,
   );
 }
 
