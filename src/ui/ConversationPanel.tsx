@@ -1,18 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { ConversationPort } from '../application/effects/ConversationPort';
+import type {
+  BeginConversationResult,
+  ConfirmVerbalMissionGoalRequest,
+  ConfirmVerbalMissionGoalResult,
+  ConversationPort,
+  ReadVerbalMissionTurnResult,
+} from '../application/effects/ConversationPort';
 import { useReducedMotion } from '../application/accessibility';
 import { conversationPromptSuggestions } from '../ai/conversation/intent';
 import { cueForConversationTurn, type VocalCueId } from '../audio/vocal-cue-policy';
 import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
-import { authoredBeginFallback, conversationGenerationNote, portraitExpressionForEmotion } from './conversation-feedback';
+import {
+  authoredBeginFallback,
+  conversationGenerationNote,
+  portraitExpressionForEmotion,
+  portraitExpressionForMissionReaction,
+} from './conversation-feedback';
 import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
+import { VerbalMissionConfirmation, VerbalMissionFeedback } from './VerbalMissionFeedback';
 
-type Line = Readonly<{ speaker: 'player' | 'npc'; text: string }>;
+type MissionRead = Extract<ReadVerbalMissionTurnResult, { kind: 'decided' }>;
+type VerbalMissionSummary = NonNullable<Extract<BeginConversationResult, { kind: 'active' }>['verbalMission']>;
+type Line =
+  | Readonly<{ speaker: 'player' | 'npc'; text: string }>
+  | Readonly<{ speaker: 'reaction'; result: MissionRead }>;
 type ConversationPanelProps = Readonly<{
   accent: string;
   npcId: string;
@@ -46,12 +62,15 @@ export function ConversationPanel({
   const [displayName, setDisplayName] = useState(npcId);
   const [lines, setLines] = useState<Line[]>([]);
   const [draft, setDraft] = useState('');
-  const [status, setStatus] = useState<'opening' | 'ready' | 'generating' | 'revealing' | 'action-complete' | 'ambient' | 'failed'>('opening');
+  const [status, setStatus] = useState<'opening' | 'ready' | 'generating' | 'reacting' | 'confirming' | 'revealing' | 'action-complete' | 'ambient' | 'failed'>('opening');
   const [reveal, setReveal] = useState('');
   const [confirmDiscard, setConfirmDiscard] = useState(false);
-  const [generationNote, setGenerationNote] = useState('LOCAL MODEL LOADING…');
+  const [generationNote, setGenerationNote] = useState('OPENING CONVERSATION…');
   const [portraitExpression, setPortraitExpression] = useState<'rest' | 'joy' | 'upset'>('rest');
   const [suggestions, setSuggestions] = useState(() => conversationPromptSuggestions(initialState.current, npcId));
+  const [verbalMission, setVerbalMission] = useState<VerbalMissionSummary>();
+  const [missionRead, setMissionRead] = useState<MissionRead>();
+  const [missionSettlement, setMissionSettlement] = useState<ConfirmVerbalMissionGoalResult>();
   const turnNumber = useRef(0);
   const active = useRef(false);
   const closing = useRef(false);
@@ -90,7 +109,13 @@ export function ConversationPanel({
         active.current = true;
         onPausedState(result.pausedState);
         setLines([{ speaker: 'npc', text: result.greeting }]);
-        setGenerationNote('LOCAL MODEL READY');
+        if (result.verbalMission) {
+          setVerbalMission(result.verbalMission);
+          setSuggestions([]);
+          setGenerationNote('VERBAL MISSION READY');
+        } else {
+          setGenerationNote('READY TO TALK');
+        }
         setStatus('ready');
       }
       onVocalCue('greeting');
@@ -99,7 +124,7 @@ export function ConversationPanel({
         const fallback = authoredBeginFallback(npcId);
         setDisplayName(fallback.displayName);
         setLines([{ speaker: 'npc', text: fallback.dialogue }]);
-        setGenerationNote('LOCAL MODEL UNAVAILABLE · SAFE FALLBACK USED');
+        setGenerationNote('CONVERSATION OPENED WITH A SAFE REPLY');
         setStatus('ambient');
         onVocalCue('sigh');
       }
@@ -126,6 +151,24 @@ export function ConversationPanel({
     setStatus(pending.nextStatus);
   };
 
+  const showReply = (dialogue: string, nextStatus: 'ready' | 'action-complete') => {
+    if (reducedMotion) {
+      setLines((current) => [...current, { speaker: 'npc', text: dialogue }]);
+      setStatus(nextStatus);
+      return;
+    }
+    setStatus('revealing');
+    setReveal('');
+    pendingReveal.current = { dialogue, nextStatus };
+    let index = 0;
+    if (revealTimer.current) clearInterval(revealTimer.current);
+    revealTimer.current = setInterval(() => {
+      index += 1;
+      setReveal(dialogue.slice(0, index));
+      if (index >= dialogue.length) finishReveal();
+    }, 12);
+  };
+
   const sendMessage = async (message: string) => {
     if (!active.current || status !== 'ready' || !message) return;
     turnNumber.current += 1;
@@ -134,7 +177,32 @@ export function ConversationPanel({
     setDraft('');
     setLines((current) => [...current, { speaker: 'player', text: message }]);
     setStatus('generating');
+    let missionOutcomeDecided = false;
     try {
+      if (verbalMission) {
+        const [read] = await Promise.all([
+          port.readVerbalMissionTurn({ conversationId, turnId, message }),
+          new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 180)),
+        ]);
+        if (read.kind === 'clarify') {
+          setLines((current) => [...current, { speaker: 'npc', text: read.dialogue }]);
+          setGenerationNote('A CLEARER REQUEST IS NEEDED');
+          setStatus('ready');
+          return;
+        }
+        missionOutcomeDecided = true;
+        setMissionRead(read);
+        setLines((current) => [...current, { speaker: 'reaction', result: read }]);
+        setPortraitExpression(portraitExpressionForMissionReaction(read.portraitId));
+        if (read.cueId) onVocalCue(read.cueId);
+        setGenerationNote('REACTION SHOWN · REPLY PENDING');
+        setStatus('reacting');
+        await new Promise<void>((resolveFrame) => requestAnimationFrame(() => resolveFrame()));
+        const reply = await port.completeVerbalMissionTurn({ conversationId, turnId });
+        setGenerationNote(conversationGenerationNote(reply.source));
+        showReply(reply.dialogue, 'ready');
+        return;
+      }
       const [result] = await Promise.all([
         port.sendConversationTurn({ conversationId, turnId, message }),
         new Promise<void>((resolveDelay) => setTimeout(resolveDelay, 180)),
@@ -144,27 +212,15 @@ export function ConversationPanel({
       const cue = cueForConversationTurn(result);
       if (cue) onVocalCue(cue);
       setSuggestions(result.promptSuggestions);
-      if (reducedMotion) {
-        setLines((current) => [...current, { speaker: 'npc', text: result.dialogue }]);
-        setStatus(result.intent === 'end_conversation' ? 'action-complete' : 'ready');
+      showReply(result.dialogue, result.intent === 'end_conversation' ? 'action-complete' : 'ready');
+    } catch {
+      if (verbalMission && missionOutcomeDecided) {
+        setGenerationNote('REACTION SAVED · REPLY UNAVAILABLE');
+        setStatus('action-complete');
         return;
       }
-      setStatus('revealing');
-      setReveal('');
-      pendingReveal.current = {
-        dialogue: result.dialogue,
-        nextStatus: result.intent === 'end_conversation' ? 'action-complete' : 'ready',
-      };
-      let index = 0;
-      if (revealTimer.current) clearInterval(revealTimer.current);
-      revealTimer.current = setInterval(() => {
-        index += 1;
-        setReveal(result.dialogue.slice(0, index));
-        if (index >= result.dialogue.length) finishReveal();
-      }, 12);
-    } catch {
       setLines((current) => [...current, { speaker: 'npc', text: 'I cannot talk right now.' }]);
-      setGenerationNote('LOCAL MODEL UNAVAILABLE · SAFE FALLBACK USED');
+      setGenerationNote('SAFE REPLY USED');
       onVocalCue('sigh');
       setStatus('ready');
     }
@@ -175,6 +231,28 @@ export function ConversationPanel({
     if (!message) return;
     setDraft('');
     await sendMessage(message);
+  };
+
+  const confirmMission = async () => {
+    const confirmation = missionRead?.confirmation;
+    if (!confirmation || status !== 'ready') return;
+    const request: ConfirmVerbalMissionGoalRequest = confirmation.goalKind === 'disclose_fact'
+      ? { conversationId, goalKind: confirmation.goalKind }
+      : confirmation.goalKind === 'buy_object'
+        ? { conversationId, goalKind: confirmation.goalKind, confirmedAmount: confirmation.confirmedAmount }
+        : { conversationId, goalKind: confirmation.goalKind, scheduledMinute: confirmation.scheduledMinute };
+    setStatus('confirming');
+    setGenerationNote('CHECKING FINAL TERMS…');
+    try {
+      const result = await port.confirmVerbalMissionGoal(request);
+      setMissionSettlement(result);
+      setGenerationNote(result.kind === 'confirmed' ? 'OUTCOME RECORDED' : 'FINAL ACTION NOT RECORDED');
+      setStatus('action-complete');
+      if (result.kind === 'confirmed') onVocalCue('consequence');
+    } catch {
+      setGenerationNote('CONFIRMATION DELIVERY FAILED · TRY AGAIN');
+      setStatus('ready');
+    }
   };
 
   const close = async (commit: boolean) => {
@@ -199,6 +277,10 @@ export function ConversationPanel({
   };
 
   const cancel = () => {
+    if (verbalMission) {
+      void close(missionRead !== undefined || missionSettlement !== undefined);
+      return;
+    }
     if (active.current && turnNumber.current > 0 && !confirmDiscard) {
       setConfirmDiscard(true);
       return;
@@ -207,6 +289,8 @@ export function ConversationPanel({
   };
   const relationship = state.relationships[npcId];
   const activity = state.npcs[npcId]?.scheduleGoal?.activityId.replaceAll('_', ' ') ?? 'present';
+  const missionBusy = verbalMission !== undefined && ['generating', 'reacting', 'confirming', 'revealing'].includes(status);
+  const headerActionLabel = missionSettlement ? 'END' : verbalMission && missionRead ? 'WALK AWAY' : confirmDiscard ? 'DISCARD?' : 'CANCEL';
 
   return (
     <View nativeID="world-ui-conversation-overlay" style={styles.overlay}>
@@ -220,17 +304,32 @@ export function ConversationPanel({
           <View style={styles.headerIdentity}>
             <View style={[styles.portraitFrame, { borderColor: accent }]}><CharacterPortrait displayName={displayName} expression={portraitExpression} npcId={npcId} /></View>
             <View style={styles.headerCopy}>
-              <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION{active.current ? ' · TIME PAUSED' : ''}</Text>
+              <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>{verbalMission ? 'VERBAL MISSION' : 'CONVERSATION'}{active.current ? ' · TIME PAUSED' : ''}</Text>
               <Text style={[styles.name, { color: accent, fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
               <View style={styles.identityRow}>
-                <Text style={styles.identityChip}>{relationship?.stage.toUpperCase() ?? 'RESIDENT'}</Text>
-                <Text style={styles.identityChip}>TRUST {relationship?.values.trust ?? 0}</Text>
-                <Text style={styles.identityChip}>{activity.toUpperCase()}</Text>
+                {verbalMission ? (
+                  <>
+                    <Text style={styles.identityChip}>{verbalMission.goalKind.replaceAll('_', ' ').toUpperCase()}</Text>
+                    <Text style={styles.identityChip}>ROOM {(missionRead?.roomState ?? verbalMission.roomState).toUpperCase()}</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.identityChip}>{relationship?.stage.toUpperCase() ?? 'RESIDENT'}</Text>
+                    <Text style={styles.identityChip}>TRUST {relationship?.values.trust ?? 0}</Text>
+                    <Text style={styles.identityChip}>{activity.toUpperCase()}</Text>
+                  </>
+                )}
               </View>
             </View>
           </View>
-          <Pressable accessibilityLabel="Cancel conversation" onPress={cancel} style={({ pressed }) => [styles.smallButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
-            <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>{confirmDiscard ? 'DISCARD?' : 'CANCEL'}</Text>
+          <Pressable
+            accessibilityLabel={missionSettlement ? 'End conversation' : verbalMission && missionRead ? 'Walk away and save this reaction' : 'Cancel conversation'}
+            accessibilityState={{ disabled: missionBusy }}
+            disabled={missionBusy}
+            onPress={missionSettlement ? () => void close(true) : cancel}
+            style={({ pressed }) => [styles.smallButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed, missionBusy && styles.disabled]}
+          >
+            <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>{headerActionLabel}</Text>
           </Pressable>
         </View>
         <ScrollView
@@ -244,24 +343,38 @@ export function ConversationPanel({
             <Text style={[styles.sceneLabel, { color: accent }]}>SCENE</Text>
             <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={[styles.modelStatus, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>{generationNote}</Text>
           </View>
-          {lines.map((line, index) => (
+          {lines.map((line, index) => line.speaker === 'reaction' ? (
+            <VerbalMissionFeedback accent={accent} key={`${line.speaker}-${index}`} result={line.result} uiScale={uiScale} />
+          ) : (
             <View key={`${line.speaker}-${index}`} style={[styles.lineCard, line.speaker === 'npc' ? styles.npcCard : styles.playerCard]}>
               <Text style={styles.speaker}>{line.speaker === 'npc' ? displayName.toUpperCase() : 'YOU'}</Text>
               <Text
-              style={[
-                line.speaker === 'npc' ? styles.npcLine : styles.playerLine,
-                { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) },
-              ]}
-            >
-              {line.text}
+                style={[
+                  line.speaker === 'npc' ? styles.npcLine : styles.playerLine,
+                  { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) },
+                ]}
+              >
+                {line.text}
               </Text>
             </View>
           ))}
           {status === 'generating' ? <Text accessibilityLabel="NPC is thinking" style={[styles.thinking, { fontSize: metrics.conversationText }]}>●  ●  ●</Text> : null}
+          {status === 'reacting' ? <Text accessibilityLabel="NPC is preparing a reply" style={[styles.thinking, { fontSize: metrics.conversationText }]}>FINDING THE WORDS…</Text> : null}
           {status === 'revealing' ? (
             <Pressable accessibilityLabel="Show full reply" onPress={finishReveal}>
               <Text style={[styles.npcLine, { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) }]}>{displayName}: {reveal}</Text>
             </Pressable>
+          ) : null}
+          {missionRead?.confirmation ? (
+            <VerbalMissionConfirmation
+              accent={accent}
+              busy={status !== 'ready'}
+              busyLabel={status === 'confirming' ? 'CHECKING TERMS…' : 'WAIT FOR REPLY…'}
+              confirmation={missionRead.confirmation}
+              onConfirm={() => void confirmMission()}
+              settlement={missionSettlement}
+              uiScale={uiScale}
+            />
           ) : null}
           {status === 'failed' ? <Text style={[styles.error, { fontSize: metrics.panelText }]}>CONVERSATION COULD NOT START</Text> : null}
         </ScrollView>
@@ -272,15 +385,23 @@ export function ConversationPanel({
         ) : (
           status === 'action-complete' ? (
             <View style={styles.actionCompleteRow}>
-              <Text style={[styles.actionComplete, { fontSize: metrics.secondaryText }]}>ACTION RECORDED · END OR CANCEL THIS CONVERSATION</Text>
+              <Text style={[styles.actionComplete, { fontSize: metrics.secondaryText }]}>
+                {verbalMission
+                  ? missionSettlement?.kind === 'confirmed'
+                    ? 'OUTCOME RECORDED · END TO RETURN TO THE WORLD'
+                    : missionSettlement?.kind === 'rejected'
+                      ? 'FINAL ACTION NOT RECORDED · PROGRESS SAVED'
+                      : 'REACTION SAVED · END TO RETURN TO THE WORLD'
+                  : 'ACTION RECORDED · END OR CANCEL THIS CONVERSATION'}
+              </Text>
               <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
             </View>
           ) : (
             <>
-              <Text style={styles.responseLabel}>YOUR RESPONSE · CHOOSE OR WRITE FREELY</Text>
-              <View nativeID="conversation-prompt-suggestions" style={styles.actionRow}>
+              <Text style={styles.responseLabel}>{verbalMission ? 'YOUR WORDS · SAY IT YOUR WAY' : 'YOUR RESPONSE · CHOOSE OR WRITE FREELY'}</Text>
+              {suggestions.length > 0 ? <View nativeID="conversation-prompt-suggestions" style={styles.actionRow}>
                 {suggestions.map((suggestion) => (
                   <Pressable
                     accessibilityLabel={`Use ${suggestion.label.toLowerCase()} prompt idea`}
@@ -292,7 +413,7 @@ export function ConversationPanel({
                     <Text style={[styles.actionText, { color: draft === suggestion.suggestedText ? accent : '#e2bf76', fontSize: metrics.secondaryText }]}>{suggestion.label}</Text>
                   </Pressable>
                 ))}
-              </View>
+              </View> : null}
               <View style={styles.inputRow}>
               <TextInput
                 accessibilityLabel="Conversation message"
@@ -309,7 +430,7 @@ export function ConversationPanel({
               <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={({ pressed }) => [styles.sendButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (status !== 'ready' || draft.trim().length === 0) && styles.disabled]}>
                 <Text style={[styles.sendText, { fontSize: metrics.persistentText }]}>SAY</Text>
               </Pressable>
-              <Pressable accessibilityLabel="End conversation" disabled={status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (status === 'generating' || status === 'revealing') && styles.disabled]}>
+              <Pressable accessibilityLabel="End conversation" disabled={missionBusy || status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (missionBusy || status === 'generating' || status === 'revealing') && styles.disabled]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
               </View>

@@ -178,15 +178,34 @@ function applyExplicitAction(move: VerbalMove, action: ReturnType<typeof parseVe
   return { ...move, acts: [action, ...move.acts].slice(0, 3) };
 }
 
-function confirmationFor(mission: VerbalMissionState, canConfirm: boolean) {
+function referentLabel(content: VerbalMissionSessionContent, id: string): string {
+  const label = content.referents.find((referent) => referent.id === id)?.label;
+  if (!label) throw new Error(`Missing Verbal Mission referent label: ${id}`);
+  return label;
+}
+
+function factLabel(content: VerbalMissionSessionContent, id: string): string {
+  const label = content.facts.find((fact) => fact.id === id)?.description;
+  if (!label) throw new Error(`Missing Verbal Mission fact label: ${id}`);
+  return label;
+}
+
+function confirmationFor(content: VerbalMissionSessionContent, mission: VerbalMissionState, canConfirm: boolean) {
   if (!canConfirm) return null;
   if (mission.goalKind === 'disclose_fact') {
-    return { goalKind: mission.goalKind, factId: mission.terms.factId } as const;
+    return {
+      goalKind: mission.goalKind,
+      factId: mission.terms.factId,
+      factLabel: factLabel(content, mission.terms.factId),
+      recipientId: mission.terms.recipientId,
+      recipientLabel: referentLabel(content, mission.terms.recipientId),
+    } as const;
   }
   if (mission.goalKind === 'buy_object' && mission.terms.currentOffer !== null) {
     return {
       goalKind: mission.goalKind,
       objectId: mission.terms.objectId,
+      objectLabel: referentLabel(content, mission.terms.objectId),
       confirmedAmount: mission.terms.currentOffer,
     } as const;
   }
@@ -194,8 +213,11 @@ function confirmationFor(mission: VerbalMissionState, canConfirm: boolean) {
     return {
       goalKind: mission.goalKind,
       actionId: mission.terms.actionId,
+      actionLabel: referentLabel(content, mission.terms.actionId),
       subjectNpcId: mission.terms.subjectNpcId,
+      subjectLabel: referentLabel(content, mission.terms.subjectNpcId),
       locationId: mission.terms.locationId,
+      locationLabel: referentLabel(content, mission.terms.locationId),
       scheduledMinute: mission.terms.proposedMinute,
     } as const;
   }
@@ -359,9 +381,10 @@ export class VerbalMissionSession {
       portraitId: outcome.portraitId,
       cueId: outcome.cueId,
       concernTransitions: [...outcome.concernTransitions],
+      recall: [...speakableFactTexts],
       roomState: stagedMission.roomState,
       stagedChangeCount: commands.length,
-      confirmation: confirmationFor(stagedMission, outcome.canConfirm),
+      confirmation: confirmationFor(this.content, stagedMission, outcome.canConfirm),
     };
     this.#turns.set(turnId, { message, read, outcome, mission: stagedMission, speakableFactTexts });
     this.#pendingTurnId = turnId;

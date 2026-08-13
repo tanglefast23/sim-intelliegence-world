@@ -637,6 +637,20 @@ Use hidden renderer screenshots only if unit and web-export checks cannot prove 
 - Reduced motion, keyboard control, and accessible labels pass.
 - Ordinary conversations remain usable at supported window sizes.
 
+### Completed implementation result
+
+The conversation panel now presents Verbal Mission reactions as authored game feedback before requesting the in-character reply.
+
+- Read the Room text, reaction, qualitative room state, revealed concern changes, and recall facts appear in transcript order.
+- Mission conversations hide numeric Trust and remove unrelated relationship prompt chips.
+- Reader, Actor, model, scores, and private-price terms do not appear in player-facing copy.
+- Exact disclosure, purchase, and future-agreement cards show only their relevant labels, terms, time, and irreversible consequence.
+- Confirmation stays disabled until the reply finishes. Successful or rejected delivery removes Cancel and keeps the settled result until close.
+- Walk Away commits any decided reaction without a discard prompt. Leaving before a decision still discards safely.
+- Existing portrait frames cover the required reactions, with a visible reaction label distinguishing all five states. Authored cues fire when the deterministic reaction arrives.
+- Reduced motion skips text animation but still gives the reaction one rendered frame before the reply request starts.
+- Focused UI checks, web export, type checks, and boundaries pass. The full suite passes with 81 suites and 818 tests.
+
 ### Commit
 
 `feat: add verbal mission conversation feedback`
