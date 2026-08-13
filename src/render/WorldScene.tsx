@@ -62,9 +62,9 @@ import { visualBoundsIntersectTileWindow } from '../world/presentation/visual-bo
 import { tileKey, type TilePoint } from '../world/maps/schema';
 import type { MapId } from '../world/maps/catalog';
 import {
-  activeDoorId,
   cancelMovement,
   createMovementState,
+  doorMotionPhases,
   requestMovement,
   type MovementState,
 } from '../world/pathfinding/movement';
@@ -420,12 +420,10 @@ export function WorldScene({
   const movementMaterialId = runtime.movement.segment
     ? presentationGroundAt(map.presentation, runtime.movement.segment.to, map.source.width).materialId
     : undefined;
-  const doorOpen = activeDoorId(runtime.movement) !== undefined || [...map.doorById.values()].some((door) => (
-    door.initialState === 'closed-unlocked' && tileKey(door.tile) === tileKey(runtime.movement.player)
-  ));
+  const doorPhases = useMemo(() => doorMotionPhases(runtime.movement), [runtime.movement]);
   useWorldAudio({
     absoluteMinute: runtime.worldState.clock.absoluteMinute,
-    doorOpen,
+    doorPhases,
     enabled: audioEnabled,
     mapId,
     materialId: movementMaterialId,
@@ -455,7 +453,8 @@ export function WorldScene({
   const selectedNpcId = stateNpcId(selected, runtime.worldState);
   const lindaQuestActions = lindaContextActions(runtime.worldState, selectedNpcId);
   const contextualMissionActions = verbalMissionContextActions(runtime.worldState, selectedNpcId);
-  const lindaOfferReady = lindaQuestActions.some(({ enabled, id }) => id === 'start' && enabled);
+  const lindaOfferAction = lindaQuestActions.find(({ id }) => id === 'start');
+  const lindaOfferReady = lindaOfferAction?.enabled ?? false;
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
 
   useEffect(() => setVfxAgeStep(0), [mapId]);
@@ -1654,6 +1653,8 @@ export function WorldScene({
                 setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
                 setQuestOfferOpen(true);
                 playInterfaceSound('panel-open');
+              } else if (selectedNpcId === 'linda' && lindaOfferAction?.disabledReason) {
+                setWorldFeedback(lindaOfferAction.disabledReason.toUpperCase());
               } else setConversationNpcId(selectedNpcId);
             }
             : undefined}

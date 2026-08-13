@@ -1,5 +1,6 @@
 import type { RelationshipState } from '../domain/relationships/relationship';
 import type { MapId } from '../world/maps/catalog';
+import type { DoorMotionPhase } from '../world/pathfinding/movement';
 import { worldAtmosphere } from '../render/atmosphere';
 
 export type DistrictAudioId = 'sunward' | 'neon' | 'saffron' | 'greywake';
@@ -7,6 +8,7 @@ export type MusicTrackId = `music_${DistrictAudioId}_${'day' | 'night'}`;
 export type AmbienceTrackId = `ambience_${DistrictAudioId}_loop`;
 export type FootstepSurface = 'sand' | 'stone' | 'asphalt' | 'wood' | 'indoor';
 export type RelationshipSound = 'relationship-positive' | 'relationship-negative';
+export type DoorSound = 'open' | 'close';
 
 const DISTRICT_BY_MAP: Readonly<Record<MapId, DistrictAudioId>> = {
   northwest_residential: 'sunward',
@@ -50,6 +52,17 @@ export function footstepSurface(materialId: string): FootstepSurface {
   if (SAND_MATERIALS.has(materialId)) return 'sand';
   if (ASPHALT_MATERIALS.has(materialId)) return 'asphalt';
   return 'stone';
+}
+
+export function doorSoundsForTransition(
+  previous: Readonly<Record<string, DoorMotionPhase>>,
+  current: Readonly<Record<string, DoorMotionPhase>>,
+): readonly DoorSound[] {
+  const phases = Object.entries(current);
+  return [
+    phases.some(([doorId, phase]) => phase === 'opening' && previous[doorId] !== 'opening') ? 'open' : undefined,
+    phases.some(([doorId, phase]) => phase === 'closing' && previous[doorId] !== 'closing') ? 'close' : undefined,
+  ].filter((sound): sound is DoorSound => sound !== undefined);
 }
 
 function relationshipTotal(relationship: RelationshipState | undefined): number {

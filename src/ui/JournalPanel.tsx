@@ -125,7 +125,7 @@ export function JournalPanel({ accent, actions, contextActions, state, onAction,
                 <Text style={[styles.source, { fontSize: metrics.secondaryText }]}>REQUESTED BY {contact.name}</Text>
                 <Text style={styles.sourceProof}>{sourceLabel(entry.source)}</Text>
                 <Text style={[styles.cardTitle, bodyText]}>{questTitle(entry)}</Text>
-                <Text style={[styles.objective, bodyText]}>{entry.summary}</Text>
+                {entry.subject.kind === 'quest' ? <Text style={[styles.objective, bodyText]}>{entry.summary}</Text> : null}
                 <View style={styles.stamps}>
                   <Text style={[styles.stamp, { borderColor: accent, color: accent }]}>{entry.resolutionState.toUpperCase()}</Text>
                   <Text style={styles.stamp}>{entry.locationPrecision.toUpperCase()}</Text>

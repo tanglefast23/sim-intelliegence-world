@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revision14PixelHashes from '../../../assets/source/art/revision-14-pixel-hashes.json';
+import revision15PixelHashes from '../../../assets/source/art/revision-15-pixel-hashes.json';
 import northeastMap from '../../../content/maps/northeast.json';
 import southeastMap from '../../../content/maps/southeast.json';
 import southwestMap from '../../../content/maps/southwest.json';
@@ -41,10 +41,10 @@ function alphaCount(pixels: Buffer): number {
 describe('current shared and district art', () => {
   const built = buildAtlas();
   const bitmap = decodePng(built.png);
-  const revision14Cells = revision14PixelHashes.cells as Readonly<Record<string, string>>;
+  const revision15Cells = revision15PixelHashes.cells as Readonly<Record<string, string>>;
 
   test('uses revision 14 map-specific material cells', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(14);
+    expect(ART_PRESENTATION_REVISION).toBe(15);
     expect(MATERIAL_RECIPE_BY_ID['dark-asphalt']?.publicVariantSprites).toEqual([
       'tile.dark-asphalt', 'tile.dark-asphalt-b', 'tile.dark-asphalt-c',
     ]);
@@ -62,7 +62,7 @@ describe('current shared and district art', () => {
       for (const id of built.index.walls[family] ?? []) {
         const rectangle = built.index.sprites[id];
         expect(rectangle).toBeDefined();
-        expect(cellHash(rectanglePixels(bitmap, rectangle!))).toBe(revision14Cells[id]);
+        expect(cellHash(rectanglePixels(bitmap, rectangle!))).toBe(revision15Cells[id]);
       }
     }
   });

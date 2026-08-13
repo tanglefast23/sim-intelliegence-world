@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "artRevision": 14,
+  "artRevision": 15,
   "categories": {
     "ground-base": {
       "actualCount": 81,
@@ -18,9 +18,9 @@
       "rawRectangleArea": 31212
     },
     "wall-door": {
-      "actualCount": 73,
+      "actualCount": 76,
       "maximumCount": 80,
-      "rawRectangleArea": 84388
+      "rawRectangleArea": 87856
     },
     "roof": {
       "actualCount": 3,
@@ -49,12 +49,12 @@
     }
   },
   "actual": {
-    "cellCount": 609,
-    "rawRectangleArea": 594734,
+    "cellCount": 612,
+    "rawRectangleArea": 598202,
     "width": 1024,
     "height": 595,
     "boundingRectangleArea": 609280,
-    "occupancy": 0.976125919117647
+    "occupancy": 0.9818178834033613
   },
   "forecast": {
     "cellCount": 749,
@@ -154,7 +154,7 @@
   ],
   "indexVersion": 3,
   "toolVersion": "atlas-v9-authored-full-cast",
-  "imageSha256": "2e80fdc28e27d1fb688004fac07012fc4a6bd67550d21cadbe7ddb14989ecae9",
-  "publicSpriteCount": 609,
+  "imageSha256": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+  "publicSpriteCount": 612,
   "internalReviewSpriteCount": 0
 }

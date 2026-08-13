@@ -1,7 +1,7 @@
 import type { WorldState } from '../domain/state/schema';
 import { roofGroupAtV2, type CompiledDoorV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
 import { tileKey, type TilePoint } from '../world/maps/schema';
-import { activeDoorId, type MovementDirection, type MovementState } from '../world/pathfinding/movement';
+import { doorMotionPhase, type MovementDirection, type MovementState } from '../world/pathfinding/movement';
 import { movementPresentation, type CharacterId } from './atlas';
 import { compareDepth } from './depth';
 import { protagonistWobbleDegrees } from './protagonist-wobble';
@@ -71,10 +71,14 @@ export function doorSpriteForFrame(
   movements: readonly MovementState[],
 ): string {
   if (door.initialState !== 'closed-unlocked') return door.sprite;
-  const open = movements.some((movement) => (
-    activeDoorId(movement) === door.id || tileKey(movement.player) === tileKey(door.tile)
+  const phases = movements.map((movement) => doorMotionPhase(movement, door.id));
+  const open = phases.includes('open') || movements.some((movement) => (
+    tileKey(movement.player) === tileKey(door.tile)
   ));
-  return open ? door.sprite.replace('closed-door', 'open-door') : door.sprite;
+  if (open) return door.sprite.replace('closed-door', 'open-door');
+  return phases.some((phase) => phase === 'opening' || phase === 'closing')
+    ? door.sprite.replace('closed-door', 'opening-door')
+    : door.sprite;
 }
 
 export const DESTINATION_PULSE_MS = 520;

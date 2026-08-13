@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import northwestMapJson from '../../../content/maps/northwest.json';
-import revision14PixelHashes from '../../../assets/source/art/revision-14-pixel-hashes.json';
+import revision15PixelHashes from '../../../assets/source/art/revision-15-pixel-hashes.json';
 import { buildAtlas } from '../build-world-atlas';
 import { decodePng } from '../png';
 import {
@@ -15,7 +15,7 @@ import { selectMaterialVariants } from '../../../src/world/presentation/material
 const SUNWARD_SPRITES = [
   'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
   'tile.villa-floor', 'tile.villa-floor-b', 'tile.plaza-paver', 'tile.boardwalk',
-  'tile.open-door', 'tile.closed-door', 'tile.closed-locked-door',
+  'tile.open-door', 'tile.opening-door', 'tile.closed-door', 'tile.closed-locked-door',
   'tile.bed-head', 'tile.bed-foot', 'tile.sofa-left', 'tile.sofa-right',
   'tile.table-left', 'tile.table-right', 'tile.counter-left', 'tile.counter-right',
   'tile.sign-spa', 'tile.sign-market', 'tile.fixture-lamp', 'tile.fixture-planter',
@@ -25,7 +25,7 @@ const SUNWARD_SPRITES = [
   'tile.villa-floor-c', 'tile.villa-floor-d', 'tile.plaza-paver-b',
   'tile.boardwalk-b', 'tile.decal-sand-shells',
 ] as const;
-const MAP_SOURCE_SHA256 = 'eb4a43b60d7a56250d0aabead3575318c0b5fc31638dac1ca71ddd0fc5a13503';
+const MAP_SOURCE_SHA256 = '046b9bfee85770a51ba4588873179a404312a301ab6b10eedd9b0bffdf74ba36';
 
 function rectanglePixels(
   bitmap: ReturnType<typeof decodePng>,
@@ -53,7 +53,7 @@ function alphaCount(pixels: Buffer): number {
 describe('Phase 30 complete Tier A Sunward art', () => {
   const built = buildAtlas();
   const bitmap = decodePng(built.png);
-  const revision14Cells = revision14PixelHashes.cells as Readonly<Record<string, string>>;
+  const revision15Cells = revision15PixelHashes.cells as Readonly<Record<string, string>>;
 
   test('keeps the revised Sunward geometry generated and versioned', () => {
     const source = readFileSync(resolve(process.cwd(), 'content/maps/northwest.json'));
@@ -65,7 +65,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
   });
 
   test('makes all completed Sunward materials and states public and revisioned', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(14);
+    expect(ART_PRESENTATION_REVISION).toBe(15);
     expect(MATERIAL_RECIPE_BY_ID['warm-sand']?.publicVariantSprites).toEqual([
       'tile.warm-sand', 'tile.warm-sand-b', 'tile.warm-sand-c', 'tile.warm-sand-d',
     ]);
@@ -82,8 +82,8 @@ describe('Phase 30 complete Tier A Sunward art', () => {
       expect(built.index.publicSpriteIds).toContain(id);
       const rectangle = built.index.sprites[id];
       expect(rectangle).toBeDefined();
-      expect(revision14Cells[id]).toBeDefined();
-      expect(cellHash(bitmap, rectangle!)).toBe(revision14Cells[id]);
+      expect(revision15Cells[id]).toBeDefined();
+      expect(cellHash(bitmap, rectangle!)).toBe(revision15Cells[id]);
     }
   });
 
@@ -93,7 +93,7 @@ describe('Phase 30 complete Tier A Sunward art', () => {
       const pixels = rectanglePixels(bitmap, rectangle!);
       expect(alphaCount(pixels)).toBeGreaterThanOrEqual(600);
       const hash = createHash('sha256').update(pixels).digest('hex');
-      expect(hash).toBe(revision14Cells[id]);
+      expect(hash).toBe(revision15Cells[id]);
       return hash;
     });
     expect(new Set(villaHashes).size).toBe(16);

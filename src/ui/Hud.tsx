@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.58, shadowRadius: 0, top: 0, zIndex: 30,
   },
   hudFooter: { alignItems: 'center', borderTopColor: '#514838', borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 9, paddingTop: 7 },
-  hidden: { opacity: 0 },
+  hidden: { display: 'none' },
   identity: { gap: 2 },
   locationMark: { backgroundColor: '#f1c65b', height: 4, marginTop: 4, width: 22 },
   locationRow: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', minWidth: 0 },

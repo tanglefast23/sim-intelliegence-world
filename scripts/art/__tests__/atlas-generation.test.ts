@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revisionPixelHashes from '../../../assets/source/art/revision-14-pixel-hashes.json';
+import revisionPixelHashes from '../../../assets/source/art/revision-15-pixel-hashes.json';
 import { buildAtlas, validateAtlasArtifacts, writeAtlas } from '../build-world-atlas';
 import {
   composeFrontFrame,
@@ -67,12 +67,12 @@ describe('deterministic SI World atlas generation', () => {
     expect(first.report).toEqual(second.report);
     expect(first.png[25]).toBe(6);
     expect(first.index.version).toBe(3);
-    expect(first.index.artRevision).toBe(14);
+    expect(first.index.artRevision).toBe(15);
     expect(first.index.image).toMatchObject({ colorType: 'rgba', gutter: 1 });
-    expect(Object.keys(first.index.sprites)).toHaveLength(609);
-    expect(first.index.tiles).toHaveLength(276);
+    expect(Object.keys(first.index.sprites)).toHaveLength(612);
+    expect(first.index.tiles).toHaveLength(279);
     expect(first.index.groundCells).toHaveLength(81);
-    expect(first.index.transparentPartCells).toHaveLength(135);
+    expect(first.index.transparentPartCells).toHaveLength(138);
     expect(first.index.presentationCells).toHaveLength(60);
     expect(createHash('sha256').update(first.png).digest('hex')).toBe(first.index.image.sha256);
     expect(first.index.publicSpriteIds).toEqual(Object.keys(first.index.sprites));
@@ -197,7 +197,7 @@ describe('deterministic SI World atlas generation', () => {
     expect(aggregatePublicCellHash(bitmap, index.sprites, index.publicSpriteIds)).toBe(
       revisionPixelHashes.allPublicCellsAggregateSha256,
     );
-    expect(revisionPixelHashes.artRevision).toBe(14);
+    expect(revisionPixelHashes.artRevision).toBe(15);
     for (const tile of tiles) {
       const name = `tile.${tile.id}`;
       const expectedHash = revisionPixelHashes.cells[name as keyof typeof revisionPixelHashes.cells];
@@ -246,6 +246,30 @@ describe('deterministic SI World atlas generation', () => {
     expect(rgbaAt(vertical, 4, 31)[3]).toBe(255);
     expect(rgbaAt(vertical, 12, 4)).not.toEqual(rgbaAt(vertical, 12, 6));
     expect(rgbaAt(vertical, 12, 27)).not.toEqual(rgbaAt(vertical, 12, 25));
+  });
+
+  test('leaves a clear center passage when a door is open', () => {
+    const source = loadTransparentPartSources().find(({ id }) => id === 'open-door');
+    expect(source).toBeDefined();
+    const horizontal = renderDoorVariant(source!, 'horizontal');
+    const vertical = renderDoorVariant(source!, 'vertical');
+
+    expect(rgbaAt(horizontal, 16, 16)[3]).toBe(0);
+    expect(rgbaAt(horizontal, 2, 16)[3]).toBe(255);
+    expect(rgbaAt(vertical, 16, 16)[3]).toBe(0);
+    expect(rgbaAt(vertical, 16, 2)[3]).toBe(255);
+  });
+
+  test('uses a narrower center passage while a door is opening', () => {
+    const source = loadTransparentPartSources().find(({ id }) => id === 'opening-door');
+    expect(source).toBeDefined();
+    const horizontal = renderDoorVariant(source!, 'horizontal');
+    const vertical = renderDoorVariant(source!, 'vertical');
+
+    expect(rgbaAt(horizontal, 16, 16)[3]).toBe(0);
+    expect(rgbaAt(horizontal, 10, 16)[3]).toBe(255);
+    expect(rgbaAt(vertical, 16, 16)[3]).toBe(0);
+    expect(rgbaAt(vertical, 16, 10)[3]).toBe(255);
   });
 
   test('maps every orthogonal wall mask to a generated transparent cell', () => {

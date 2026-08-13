@@ -9,7 +9,7 @@ export function questActionCopy(action: ContextQuestAction, playerName: string) 
     case 'withdraw':
       return {
         action: `${playerName} tells Linda that he will not intervene.`,
-        result: 'End the quest. No cash gain, no injury possibility, no police attention.',
+        result: action.result,
       };
     case 'discover':
       return { action: `${playerName} confirms Linda's villa at the address she described.`, result: action.result };

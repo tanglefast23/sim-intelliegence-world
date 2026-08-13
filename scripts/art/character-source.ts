@@ -1515,8 +1515,32 @@ export function renderDoorVariant(
   const highlight = parseHexColor('#bd8a67');
   const hardware = parseHexColor(source.id === 'closed-locked-door' ? '#d6b45d' : '#2c2325');
   const open = source.id === 'open-door';
+  const opening = source.id === 'opening-door';
   const seed = stableArtSeed(`door:${source.id}:${orientation}`);
-  if (orientation === 'horizontal') {
+  if (open || opening) {
+    const depth = opening ? 12 : 7;
+    if (orientation === 'horizontal') {
+      fillRect(bitmap, 0, 4, depth, 24, outline);
+      fillRect(bitmap, 32 - depth, 4, depth, 24, outline);
+      fillRect(bitmap, 1, 6, depth - 2, 20, cavity);
+      fillRect(bitmap, 33 - depth, 6, depth - 2, 20, cavity);
+      fillRect(bitmap, 2, 7, depth - 4, 17, panel);
+      fillRect(bitmap, 34 - depth, 7, depth - 4, 17, panel);
+      fillRect(bitmap, 3, 8, 1, 15, cap);
+      fillRect(bitmap, 28, 8, 1, 15, cap);
+      fillRect(bitmap, 2, 28, 28, 2, [outline[0], outline[1], outline[2], 135]);
+    } else {
+      fillRect(bitmap, 4, 0, 24, depth, outline);
+      fillRect(bitmap, 4, 32 - depth, 24, depth, outline);
+      fillRect(bitmap, 6, 1, 20, depth - 2, cavity);
+      fillRect(bitmap, 6, 33 - depth, 20, depth - 2, cavity);
+      fillRect(bitmap, 7, 2, 17, depth - 4, panel);
+      fillRect(bitmap, 7, 34 - depth, 17, depth - 4, panel);
+      fillRect(bitmap, 8, 3, 15, 1, cap);
+      fillRect(bitmap, 8, 28, 15, 1, cap);
+      fillRect(bitmap, 28, 2, 2, 28, [outline[0], outline[1], outline[2], 135]);
+    }
+  } else if (orientation === 'horizontal') {
     // The cavity touches both wall ends. The door slabs do not: they sit inside
     // the opening so the assembly reads as a recessed fixture, not painted wall.
     fillRect(bitmap, 0, 4, 32, 24, outline);

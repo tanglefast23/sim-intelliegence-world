@@ -1,5 +1,6 @@
 import {
   ambienceTrackId,
+  doorSoundsForTransition,
   footstepSurface,
   musicTrackId,
   relationshipSound,
@@ -45,5 +46,11 @@ describe('Halcyra audio routing', () => {
     expect(relationshipSound(before, positive)).toBe('relationship-positive');
     expect(relationshipSound(before, negative)).toBe('relationship-negative');
     expect(relationshipSound(before, before)).toBeUndefined();
+  });
+
+  test('starts door sounds on the first opening and closing frames', () => {
+    expect(doorSoundsForTransition({}, { bedroom: 'opening' })).toEqual(['open']);
+    expect(doorSoundsForTransition({ bedroom: 'opening' }, { bedroom: 'open' })).toEqual([]);
+    expect(doorSoundsForTransition({ bedroom: 'open' }, { bedroom: 'closing' })).toEqual(['close']);
   });
 });

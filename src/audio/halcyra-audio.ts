@@ -4,8 +4,10 @@ import { AppState } from 'react-native';
 
 import type { MapId } from '../world/maps/catalog';
 import type { MotionSegment } from '../world/movement/motion-clock';
+import type { DoorMotionPhase } from '../world/pathfinding/movement';
 import {
   ambienceTrackId,
+  doorSoundsForTransition,
   footstepSurface,
   musicTrackId,
   type AmbienceTrackId,
@@ -156,7 +158,7 @@ export function useInterfaceSounds(enabled: boolean): (sound: InterfaceSoundId) 
 
 type WorldAudioInput = Readonly<{
   absoluteMinute: number;
-  doorOpen: boolean;
+  doorPhases: Readonly<Record<string, DoorMotionPhase>>;
   enabled: boolean;
   mapId: MapId;
   materialId?: string;
@@ -165,7 +167,7 @@ type WorldAudioInput = Readonly<{
 
 export function useWorldAudio({
   absoluteMinute,
-  doorOpen,
+  doorPhases,
   enabled,
   mapId,
   materialId,
@@ -180,7 +182,7 @@ export function useWorldAudio({
   const doorOpenPlayer = useAudioPlayer(doorOpenSound);
   const doorClosePlayer = useAudioPlayer(doorClose);
   const previousSegment = useRef<string | undefined>(undefined);
-  const previousDoorOpen = useRef(false);
+  const previousDoorPhases = useRef<Readonly<Record<string, DoorMotionPhase>>>({});
   const segmentKey = segment
     ? `${mapId}:${segment.from.x},${segment.from.y}:${segment.to.x},${segment.to.y}`
     : undefined;
@@ -203,12 +205,14 @@ export function useWorldAudio({
   }, [enabled, footstepPlayer, materialId, segmentKey]);
 
   useEffect(() => {
-    const wasOpen = previousDoorOpen.current;
-    previousDoorOpen.current = doorOpen;
-    if (!enabled || doorOpen === wasOpen) return;
-    const player = doorOpen ? doorOpenPlayer : doorClosePlayer;
-    player.loop = false;
-    player.volume = doorOpen ? 0.28 : 0.24;
-    void player.seekTo(0).then(() => player.play()).catch(() => undefined);
-  }, [doorClosePlayer, doorOpen, doorOpenPlayer, enabled]);
+    const sounds = doorSoundsForTransition(previousDoorPhases.current, doorPhases);
+    previousDoorPhases.current = doorPhases;
+    if (!enabled) return;
+    for (const sound of sounds) {
+      const player = sound === 'open' ? doorOpenPlayer : doorClosePlayer;
+      player.loop = false;
+      player.volume = sound === 'open' ? 0.28 : 0.24;
+      void player.seekTo(0).then(() => player.play()).catch(() => undefined);
+    }
+  }, [doorClosePlayer, doorOpenPlayer, doorPhases, enabled]);
 }

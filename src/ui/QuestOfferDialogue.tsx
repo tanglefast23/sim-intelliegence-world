@@ -17,7 +17,7 @@ type QuestOfferDialogueProps = Readonly<{
 export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, surface, uiScale }: QuestOfferDialogueProps) {
   const metrics = uiMetrics(uiScale);
   const choiceWidth = Math.min(430, Math.round(surface.width * 0.36));
-  const stripHeight = Math.max(150, Math.round(surface.height * 0.22));
+  const stripHeight = Math.max(Math.round(150 * metrics.scale), Math.round(surface.height * 0.22));
   const dialogueText = { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) };
   return (
     <View accessibilityLabel="Linda quest offer" nativeID="world-ui-quest-offer-overlay" style={styles.overlay}>
@@ -31,7 +31,7 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
         <View style={[styles.actorRight, { bottom: stripHeight - 24 }]}>
           <View style={styles.facesLeft}><CharacterPortrait displayName="Linda" expression="upset" npcId="linda" scale={9} /></View>
         </View>
-        <View style={[styles.actions, { bottom: Math.max(176, Math.round(surface.height * 0.265)), left: (surface.width - choiceWidth) / 2, width: choiceWidth }] }>
+        <View style={[styles.actions, { bottom: stripHeight + metrics.gap, left: (surface.width - choiceWidth) / 2, width: choiceWidth }] }>
           <Pressable
             accessibilityLabel="Accept Linda's request"
             onPress={onAccept}
@@ -47,7 +47,7 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
             <Text style={[styles.declineText, { fontSize: metrics.persistentText }]}>NO · NOT NOW</Text>
           </Pressable>
         </View>
-        <View style={[styles.speech, { minHeight: stripHeight, paddingHorizontal: Math.max(28, Math.round(surface.width * 0.19)) }] }>
+        <View style={[styles.speech, { height: stripHeight, paddingHorizontal: Math.max(28, Math.round(surface.width * 0.19)) }] }>
           <View style={[styles.nameplate, { backgroundColor: accent }]}>
             <Text style={[styles.speaker, { fontSize: metrics.persistentText }]}>LINDA</Text>
           </View>

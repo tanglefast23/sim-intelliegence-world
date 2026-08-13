@@ -534,6 +534,13 @@
       ]
     },
     {
+      "id": "opening-door",
+      "cellClass": "transparent-part",
+      "role": "door",
+      "palette": { "K": "#49312d", "D": "#8b5138", "B": "#c77549", "L": "#e9b477", "A": "#e7c66b" },
+      "commands": []
+    },
+    {
       "id": "closed-door",
       "cellClass": "transparent-part",
       "role": "door",

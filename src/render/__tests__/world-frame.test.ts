@@ -5,7 +5,10 @@ import { tileKey } from '../../world/maps/schema';
 import {
   advanceMovement,
   createMovementState,
+  DOOR_CLOSE_DELAY_MS,
+  DOOR_CLOSING_MS,
   DOOR_OPENING_MS,
+  doorMotionPhase,
   requestMovement,
 } from '../../world/pathfinding/movement';
 import { advanceWorldMovement } from '../../application/runtime/world-runtime';
@@ -47,20 +50,25 @@ describe('authoritative world frame', () => {
     expect(destinationPulseFrame(DESTINATION_PULSE_MS)).toMatchObject({ complete: true, opacity: 0, radius: 16 });
   });
 
-  test('opens an unlocked door before crossing and closes it after clearing', () => {
+  test('opens one tile ahead, holds after crossing, then closes', () => {
     const door = MAP.doorById.get('bedroom-door')!;
-    let movement = requestMovement(MAP, createMovementState({ x: 16, y: 13 }), { x: 16, y: 15 });
+    let movement = requestMovement(MAP, createMovementState({ x: 16, y: 12 }), { x: 16, y: 15 });
     expect(MAP.blockedKeys.has(tileKey(door.tile))).toBe(false);
     expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite);
 
+    movement = advanceMovement(MAP, movement, 50).movement;
+    expect(movement.player).toEqual({ x: 16, y: 12 });
+    expect(movement.segment?.to).toEqual({ x: 16, y: 13 });
+    expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite.replace('closed-door', 'opening-door'));
     let remainingOpeningMs = DOOR_OPENING_MS;
+    remainingOpeningMs -= 50;
     while (remainingOpeningMs > 0) {
       const elapsedMs = Math.min(50, remainingOpeningMs);
       movement = advanceMovement(MAP, movement, elapsedMs).movement;
       remainingOpeningMs -= elapsedMs;
     }
-    expect(movement.player).toEqual({ x: 16, y: 13 });
-    expect(movement.segment).toBeUndefined();
+    expect(movement.player).toEqual({ x: 16, y: 12 });
+    expect(movement.segment).toBeDefined();
     expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite.replace('closed-door', 'open-door'));
 
     for (let frame = 0; frame < 20 && movement.status === 'moving'; frame += 1) {
@@ -68,6 +76,17 @@ describe('authoritative world frame', () => {
     }
     expect(movement.player).toEqual({ x: 16, y: 15 });
     expect(movement.status).toBe('idle');
+    expect(doorMotionPhase(movement, door.id)).toBe('open');
+
+    for (let elapsed = 0; elapsed < DOOR_CLOSE_DELAY_MS; elapsed += 50) {
+      movement = advanceMovement(MAP, movement, Math.min(50, DOOR_CLOSE_DELAY_MS - elapsed)).movement;
+    }
+    expect(doorMotionPhase(movement, door.id)).toBe('closing');
+    expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite.replace('closed-door', 'opening-door'));
+
+    for (let elapsed = 0; elapsed < DOOR_CLOSING_MS; elapsed += 50) {
+      movement = advanceMovement(MAP, movement, Math.min(50, DOOR_CLOSING_MS - elapsed)).movement;
+    }
     expect(doorSpriteForFrame(door, [movement])).toBe(door.sprite);
   });
 
