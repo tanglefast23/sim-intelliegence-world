@@ -92,10 +92,10 @@ export function buildSmokeGeometryEvidence(map: CompiledMapV2): SmokeGeometryEvi
   const blockedSolid = requireFirst(blockedOwners, 'a wall or object solid');
   const openDoor = requireFirst(
     [...map.doorById.values()]
-      .filter(({ initialState }) => initialState === 'open')
+      .filter(({ initialState }) => initialState !== 'closed-locked')
       .sort((left, right) => left.id.localeCompare(right.id, 'en'))
       .map(({ id, tile }) => ({ id, tile })),
-    'an open door',
+    'a pathfindable door',
   );
   const interaction = requireFirst(
     [...map.interactionById.values()]
