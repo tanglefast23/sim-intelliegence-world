@@ -55,9 +55,9 @@ export function DistrictLightingOverlay({
           });
           const radius = pool.radius * camera.zoom;
           return [
-            <Oval color={withOpacity(lighting.accent, lighting.poolOpacity * 0.1)} key={`${index}-outer`} rect={rect(center.x - radius * 1.18, center.y - radius * 0.58, radius * 2.36, radius * 1.16)} />,
-            <Oval color={withOpacity(lighting.accent, lighting.poolOpacity * 0.28)} key={`${index}-middle`} rect={rect(center.x - radius * 0.72, center.y - radius * 0.34, radius * 1.44, radius * 0.68)} />,
-            <Oval color={withOpacity(lighting.accent, lighting.poolOpacity * 0.55)} key={`${index}-inner`} rect={rect(center.x - radius * 0.38, center.y - radius * 0.17, radius * 0.76, radius * 0.34)} />,
+            <Oval color={withOpacity(lighting.accent, lighting.poolOpacity * 0.18)} key={`${index}-outer`} rect={rect(center.x - radius * 1.18, center.y - radius * 0.58, radius * 2.36, radius * 1.16)} />,
+            <Oval color={withOpacity(lighting.accent, lighting.poolOpacity * 0.45)} key={`${index}-middle`} rect={rect(center.x - radius * 0.72, center.y - radius * 0.34, radius * 1.44, radius * 0.68)} />,
+            <Oval color={withOpacity(lighting.accent, lighting.poolOpacity * 0.8)} key={`${index}-inner`} rect={rect(center.x - radius * 0.38, center.y - radius * 0.17, radius * 0.76, radius * 0.34)} />,
           ];
         })}
       </Canvas>

@@ -95,11 +95,11 @@ describe('deterministic natural movement', () => {
     const movement = requestMovement(
       map,
       createMovementState({ x: 18, y: 18 }),
-      { x: 20, y: 20 },
+      { x: 20, y: 21 },
       new Set([tileKey({ x: 19, y: 19 })]),
     );
     expect(movement.path).not.toContainEqual({ x: 19, y: 19 });
-    expect(movement.path.at(-1)).toEqual({ x: 20, y: 20 });
+    expect(movement.path.at(-1)).toEqual({ x: 20, y: 21 });
   });
 
   test('replans once around a blocker that stays in the next tile', () => {

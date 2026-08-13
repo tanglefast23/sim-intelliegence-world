@@ -6,7 +6,12 @@ import { buildWorldMapV2Catalog, type MapId } from '../../src/world/maps/catalog
 import type { TilePoint, WorldMapV2 } from '../../src/world/maps/schema';
 import { deriveNeighborhoodRoutes } from '../../src/world/transfers/routes';
 
-const LAYOUT_REVISION = 1;
+const LAYOUT_REVISIONS: Readonly<Record<MapId, number>> = {
+  northwest_residential: 2,
+  northeast_downtown: 2,
+  southwest_commercial: 2,
+  southeast_docks: 2,
+};
 
 type MapObject = WorldMapV2['objects'][number];
 type ObjectTile = Readonly<{ x: number; y: number; sprite: string; solid?: boolean }>;
@@ -150,7 +155,7 @@ function commonMap(input: Readonly<{
 }>): WorldMapV2 {
   return {
     schemaVersion: 2,
-    layoutRevision: LAYOUT_REVISION,
+    layoutRevision: LAYOUT_REVISIONS[input.id],
     id: input.id,
     displayName: input.displayName,
     width: 64,
@@ -171,8 +176,6 @@ function commonMap(input: Readonly<{
     spawns: { ...input.spawns },
   };
 }
-
-const RESIDENT_POSITIONS = [5, 12, 20, 30, 38, 44].flatMap((y) => [2, 4, 6, 60].map((x) => ({ x, y })));
 
 function northwestMap(): WorldMapV2 {
   const spa = placeholderArea({
@@ -265,8 +268,8 @@ function northwestMap(): WorldMapV2 {
     objectFromTiles({
       id: 'social-tables', kind: 'table', areaId: 'social',
       tiles: [
-        { x: 18, y: 21, sprite: 'tile.table-left', solid: true },
-        { x: 19, y: 21, sprite: 'tile.table-right', solid: true },
+        { x: 20, y: 20, sprite: 'tile.table-left', solid: true },
+        { x: 21, y: 20, sprite: 'tile.table-right', solid: true },
         { x: 22, y: 21, sprite: 'tile.table-left', solid: true },
         { x: 23, y: 21, sprite: 'tile.table-right', solid: true },
       ],
@@ -290,51 +293,101 @@ function northwestMap(): WorldMapV2 {
   const patio = objectFromTiles({
     id: 'sunward-patio-furniture', kind: 'patio-furniture', areaId: 'sunward-patio',
     tiles: [
-      { x: 21, y: 26, sprite: 'tile.table-left', solid: true },
-      { x: 22, y: 26, sprite: 'tile.table-right', solid: true },
-      { x: 25, y: 29, sprite: 'tile.landmark-fountain-nw', solid: true },
-      { x: 26, y: 29, sprite: 'tile.landmark-fountain-ne', solid: true },
-      { x: 25, y: 30, sprite: 'tile.landmark-fountain-sw', solid: true },
-      { x: 26, y: 30, sprite: 'tile.landmark-fountain-se', solid: true },
-      { x: 31, y: 27, sprite: 'tile.sofa-left', solid: true },
-      { x: 32, y: 27, sprite: 'tile.sofa-right', solid: true },
-      { x: 21, y: 31, sprite: 'tile.fixture-lamp' },
-      { x: 24, y: 31, sprite: 'tile.fixture-planter' },
-      { x: 27, y: 31, sprite: 'tile.fixture-lamp' },
-      { x: 30, y: 31, sprite: 'tile.fixture-planter' },
-      { x: 33, y: 31, sprite: 'tile.fixture-lamp' },
+      { x: 21, y: 29, sprite: 'tile.table-left', solid: true },
+      { x: 22, y: 29, sprite: 'tile.table-right', solid: true },
+      { x: 26, y: 29, sprite: 'tile.landmark-fountain-nw', solid: true },
+      { x: 27, y: 29, sprite: 'tile.landmark-fountain-ne', solid: true },
+      { x: 26, y: 30, sprite: 'tile.landmark-fountain-sw', solid: true },
+      { x: 27, y: 30, sprite: 'tile.landmark-fountain-se', solid: true },
+      { x: 31, y: 29, sprite: 'tile.sofa-left', solid: true },
+      { x: 32, y: 29, sprite: 'tile.sofa-right', solid: true },
+      { x: 23, y: 27, sprite: 'tile.fixture-lamp' },
+      { x: 23, y: 32, sprite: 'tile.fixture-planter' },
+      { x: 29, y: 27, sprite: 'tile.fixture-lamp' },
+      { x: 33, y: 32, sprite: 'tile.fixture-planter' },
+      { x: 34, y: 28, sprite: 'tile.fixture-lamp' },
     ],
   });
   const promenade = objectFromTiles({
     id: 'promenade-details', kind: 'street-furniture', areaId: 'villa-promenade',
-    tiles: clusteredTiles(
-      { x: 38, y: 9 }, { x: 51, y: 17 }, 24, 6,
-      ['tile.fixture-planter', 'tile.fixture-lamp', 'tile.sign-spa', 'tile.plant-palm'],
-    ),
+    tiles: [
+      { x: 38, y: 10, sprite: 'tile.plant-palm', solid: true },
+      { x: 39, y: 10, sprite: 'tile.fixture-planter', solid: true },
+      { x: 40, y: 10, sprite: 'tile.fixture-lamp' },
+      { x: 41, y: 10, sprite: 'tile.sign-spa' },
+      { x: 42, y: 10, sprite: 'tile.fixture-lamp' },
+      { x: 43, y: 10, sprite: 'tile.fixture-planter', solid: true },
+      { x: 50, y: 10, sprite: 'tile.fixture-planter', solid: true },
+      { x: 51, y: 10, sprite: 'tile.fixture-lamp' },
+      { x: 52, y: 10, sprite: 'tile.sign-spa' },
+      { x: 53, y: 10, sprite: 'tile.fixture-lamp' },
+      { x: 54, y: 10, sprite: 'tile.fixture-planter' },
+      { x: 55, y: 10, sprite: 'tile.plant-palm', solid: true },
+      { x: 38, y: 18, sprite: 'tile.fixture-planter' },
+      { x: 39, y: 18, sprite: 'tile.fixture-lamp' },
+      { x: 40, y: 18, sprite: 'tile.sign-spa' },
+      { x: 41, y: 18, sprite: 'tile.fixture-lamp' },
+      { x: 42, y: 18, sprite: 'tile.fixture-planter', solid: true },
+      { x: 43, y: 18, sprite: 'tile.plant-palm' },
+      { x: 50, y: 18, sprite: 'tile.plant-palm' },
+      { x: 51, y: 18, sprite: 'tile.fixture-planter' },
+      { x: 52, y: 18, sprite: 'tile.fixture-lamp' },
+      { x: 53, y: 18, sprite: 'tile.sign-spa' },
+      { x: 54, y: 18, sprite: 'tile.fixture-lamp' },
+      { x: 55, y: 18, sprite: 'tile.fixture-planter' },
+    ],
   });
   const market = objectFromTiles({
     id: 'beach-market-details', kind: 'market-stalls', areaId: 'beach-market',
-    tiles: clusteredTiles(
-      { x: 38, y: 26 }, { x: 51, y: 31 }, 16, 4,
-      ['tile.sign-market', 'tile.counter-left', 'tile.counter-right', 'tile.fixture-lamp'],
-    ),
+    tiles: [
+      { x: 38, y: 27, sprite: 'tile.sign-market' },
+      { x: 39, y: 27, sprite: 'tile.counter-left', solid: true },
+      { x: 40, y: 27, sprite: 'tile.counter-right', solid: true },
+      { x: 41, y: 27, sprite: 'tile.fixture-lamp' },
+      { x: 42, y: 27, sprite: 'tile.fixture-planter' },
+      { x: 38, y: 32, sprite: 'tile.sign-market' },
+      { x: 39, y: 32, sprite: 'tile.counter-left', solid: true },
+      { x: 40, y: 32, sprite: 'tile.counter-right', solid: true },
+      { x: 41, y: 32, sprite: 'tile.fixture-lamp' },
+      { x: 42, y: 32, sprite: 'tile.fixture-planter' },
+      { x: 51, y: 29, sprite: 'tile.fixture-planter' },
+      { x: 52, y: 29, sprite: 'tile.counter-left', solid: true },
+      { x: 53, y: 29, sprite: 'tile.counter-right', solid: true },
+      { x: 54, y: 29, sprite: 'tile.sign-market' },
+      { x: 55, y: 29, sprite: 'tile.fixture-lamp' },
+      { x: 55, y: 33, sprite: 'tile.fixture-lamp' },
+    ],
   });
   const beach = objectFromTiles({
     id: 'public-beach-details', kind: 'beach-furniture', areaId: 'public-beach',
-    tiles: clusteredTiles(
-      { x: 36, y: 39 }, { x: 52, y: 41 }, 8, 2,
-      ['tile.plant-palm', 'tile.fixture-planter', 'tile.fixture-lamp'],
-    ),
+    tiles: [
+      { x: 37, y: 39, sprite: 'tile.plant-palm', solid: true },
+      { x: 38, y: 39, sprite: 'tile.fixture-planter' },
+      { x: 39, y: 39, sprite: 'tile.fixture-lamp' },
+      { x: 42, y: 40, sprite: 'tile.table-left' },
+      { x: 43, y: 40, sprite: 'tile.table-right' },
+      { x: 51, y: 39, sprite: 'tile.fixture-lamp' },
+      { x: 52, y: 39, sprite: 'tile.fixture-planter' },
+      { x: 53, y: 39, sprite: 'tile.plant-palm', solid: true },
+      { x: 56, y: 40, sprite: 'tile.table-left' },
+      { x: 57, y: 40, sprite: 'tile.table-right' },
+    ],
   });
 
   const map = commonMap({
     id: 'northwest_residential', displayName: 'Sunward Villas', defaultSprite: 'tile.warm-sand',
     regions: [
       { id: 'villa-floor', x: 9, y: 8, width: 16, height: 16, sprite: 'tile.villa-floor' },
-      { id: 'sunward-patio-ground', x: 20, y: 25, width: 15, height: 6, sprite: 'tile.plaza-paver' },
+      { id: 'villa-patio-route', x: 16, y: 24, width: 7, height: 3, sprite: 'tile.plaza-paver' },
+      { id: 'sunward-patio-ground', x: 20, y: 25, width: 16, height: 10, sprite: 'tile.plaza-paver' },
+      { id: 'patio-spa-route', x: 31, y: 17, width: 3, height: 8, sprite: 'tile.plaza-paver' },
       { id: 'promenade-ground', x: 37, y: 8, width: 20, height: 14, sprite: 'tile.plaza-paver' },
+      { id: 'patio-promenade-route', x: 35, y: 27, width: 4, height: 3, sprite: 'tile.plaza-paver' },
+      { id: 'promenade-market-route', x: 45, y: 20, width: 4, height: 8, sprite: 'tile.plaza-paver' },
       { id: 'market-ground', x: 37, y: 25, width: 20, height: 10, sprite: 'tile.boardwalk' },
-      { id: 'beach-ground', x: 35, y: 38, width: 24, height: 6, sprite: 'tile.warm-sand' },
+      { id: 'market-beach-route', x: 45, y: 35, width: 4, height: 3, sprite: 'tile.boardwalk' },
+      { id: 'beach-ground', x: 35, y: 38, width: 24, height: 4, sprite: 'tile.warm-sand' },
+      { id: 'sunward-shallows', x: 35, y: 42, width: 24, height: 6, sprite: 'tile.shallow-water' },
     ],
     areas: [
       { id: 'bedroom', bounds: { x: 9, y: 8, width: 7, height: 6 }, densityProfile: 'furnished-interior', intentionalOpenAreas: [], entranceTiles: [{ x: 14, y: 12 }], primaryRoutes: [], requiredPortalIds: [] },
@@ -346,7 +399,7 @@ function northwestMap(): WorldMapV2 {
       { id: 'sunward-patio', bounds: { x: 20, y: 25, width: 16, height: 10 }, densityProfile: 'relaxation-natural', intentionalOpenAreas: [], entranceTiles: [{ x: 23, y: 28 }], primaryRoutes: [], requiredPortalIds: [] },
       { id: 'villa-promenade', bounds: { x: 37, y: 8, width: 20, height: 14 }, densityProfile: 'active-public', intentionalOpenAreas: [], entranceTiles: [{ x: 46, y: 20 }], primaryRoutes: [{ x: 46, y: 8, width: 2, height: 14 }], requiredPortalIds: [] },
       { id: 'beach-market', bounds: { x: 37, y: 25, width: 20, height: 10 }, densityProfile: 'active-public', intentionalOpenAreas: [], entranceTiles: [{ x: 46, y: 34 }], primaryRoutes: [{ x: 46, y: 25, width: 2, height: 10 }], requiredPortalIds: [] },
-      { id: 'public-beach', bounds: { x: 35, y: 38, width: 24, height: 6 }, densityProfile: 'relaxation-natural', intentionalOpenAreas: [], entranceTiles: [{ x: 46, y: 38 }], primaryRoutes: [], requiredPortalIds: [] },
+      { id: 'public-beach', bounds: { x: 35, y: 38, width: 24, height: 4 }, densityProfile: 'relaxation-natural', intentionalOpenAreas: [], entranceTiles: [{ x: 46, y: 38 }], primaryRoutes: [], requiredPortalIds: [] },
     ],
     wallRuns: [
       { id: 'villa-north', material: 'villa', bounds: { x: 8, y: 7, width: 18, height: 1 }, openings: [] },
@@ -372,6 +425,9 @@ function northwestMap(): WorldMapV2 {
       { id: 'to-downtown', edge: 'east', tile: { x: 63, y: 24 }, destinationMapId: 'northeast_downtown', destinationEntranceId: 'from-residential' },
       { id: 'to-commercial', edge: 'south', tile: { x: 32, y: 47 }, destinationMapId: 'southwest_commercial', destinationEntranceId: 'from-residential' },
     ],
+    terrainSolids: [
+      { id: 'sunward-shallows', kind: 'water', bounds: { x: 35, y: 42, width: 24, height: 6 } },
+    ],
     stagingTiles: [{ x: 62, y: 24 }, { x: 32, y: 46 }, { x: 16, y: 25 }],
     spawns: {
       protagonist: { x: 18, y: 18 }, linda: { x: 23, y: 28 }, generic_resident: { x: 29, y: 33 },
@@ -381,14 +437,15 @@ function northwestMap(): WorldMapV2 {
       'linda-home': { x: 23, y: 28 }, 'linda-relax': { x: 28, y: 30 },
       'generic-home': { x: 29, y: 33 }, 'generic-work': { x: 27, y: 28 },
       'home-visit': { x: 19, y: 18 },
-      ...Object.fromEntries(RESIDENT_POSITIONS.map((tile, index) => [`resident_${String(index + 1).padStart(2, '0')}`, tile])),
     },
     effects: [
       { id: 'patio-fire', kind: 'fire', tile: { x: 27, y: 32 } },
       { id: 'patio-leaves', kind: 'leaves', tile: { x: 30, y: 30 } },
       { id: 'patio-palm', kind: 'palm', tile: { x: 35, y: 31 } },
       { id: 'garden-insects', kind: 'insects', tile: { x: 31, y: 26 } },
-      { id: 'patio-water-glint', kind: 'water', tile: { x: 25, y: 29 } },
+      { id: 'shoreline-water-glint-west', kind: 'water', tile: { x: 42, y: 43 } },
+      { id: 'shoreline-water-glint-center', kind: 'water', tile: { x: 50, y: 44 } },
+      { id: 'shoreline-water-glint-east', kind: 'water', tile: { x: 57, y: 43 } },
       { id: 'beach-sparkle', kind: 'sparkle', tile: { x: 50, y: 40 } },
     ],
   });
@@ -414,7 +471,7 @@ function northwestMap(): WorldMapV2 {
     roofGroupId: 'protagonist-villa-roof',
   }];
   map.startComposition = {
-    cameraAnchor: { x: 23, y: 26 },
+    cameraAnchor: { x: 34, y: 31 },
     requiredActorIds: ['protagonist', 'linda', 'generic_resident'],
     requiredDetailPartIds: [
       'social-sofa-part-01', 'social-sofa-part-02', 'social-tables-part-01', 'social-tables-part-02',
@@ -462,15 +519,20 @@ function northeastMap(): WorldMapV2 {
       'tile.sign-market', 'tile.fixture-neon-lamp-cyan', 'tile.fixture-planter', 'tile.counter-left',
     ],
   });
+  const clubWallRuns = club.wallRuns.map((run) => run.id === 'club-strip-east' ? {
+    ...run,
+    openings: [{ id: 'club-service-opening', tile: { x: 29, y: 12 } }],
+  } : run);
+  const clubArea: WorldMapV2['areas'][number] = {
+    ...club.area,
+    densityProfile: 'active-public',
+    primaryRoutes: [{ x: 21, y: 9, width: 3, height: 9 }],
+  };
   const carSpecs = [
-    { id: 'boulevard-car-01', x: 7, y: 24, color: 'cyan', areaId: 'club-strip' },
     { id: 'boulevard-car-02', x: 24, y: 24, color: 'coral', areaId: 'club-strip' },
     { id: 'boulevard-car-03', x: 40, y: 24, color: 'cyan', areaId: 'arcade-row' },
-    { id: 'boulevard-car-04', x: 55, y: 24, color: 'coral', areaId: 'arcade-row' },
     { id: 'boulevard-car-05', x: 9, y: 28, color: 'coral', areaId: 'studio-row' },
     { id: 'boulevard-car-06', x: 40, y: 28, color: 'cyan', areaId: 'night-market' },
-    { id: 'boulevard-car-07', x: 55, y: 28, color: 'coral', areaId: 'night-market' },
-    { id: 'market-street-car-01', x: 7, y: 44, color: 'cyan', areaId: 'studio-row' },
     { id: 'market-street-car-02', x: 39, y: 44, color: 'coral', areaId: 'night-market' },
     { id: 'market-street-car-03', x: 54, y: 44, color: 'cyan', areaId: 'night-market' },
   ] as const;
@@ -501,18 +563,32 @@ function northeastMap(): WorldMapV2 {
       { id: 'arcade-floor', x: 40, y: 7, width: 20, height: 13, sprite: 'tile.neon-floor' },
       { id: 'studio-floor', x: 7, y: 32, width: 20, height: 9, sprite: 'tile.neon-floor' },
       { id: 'market-floor', x: 39, y: 31, width: 18, height: 10, sprite: 'tile.neon-floor' },
+      { id: 'club-service-alley', x: 30, y: 7, width: 2, height: 13, sprite: 'tile.dark-asphalt' },
     ],
-    areas: [club.area, arcade.area, studio.area, market.area],
-    wallRuns: [...club.wallRuns, ...arcade.wallRuns, ...studio.wallRuns, ...market.wallRuns],
+    areas: [clubArea, arcade.area, studio.area, market.area],
+    wallRuns: [...clubWallRuns, ...arcade.wallRuns, ...studio.wallRuns, ...market.wallRuns],
     objects: [
-      club.object,
+      objectFromTiles({ id: 'club-bar', kind: 'bar-counter', areaId: 'club-strip', tiles: [
+        { x: 10, y: 12, sprite: 'tile.counter-left', solid: true },
+        { x: 11, y: 12, sprite: 'tile.counter-right', solid: true },
+        { x: 12, y: 12, sprite: 'tile.counter-left', solid: true },
+        { x: 13, y: 12, sprite: 'tile.counter-right', solid: true },
+        { x: 14, y: 12, sprite: 'tile.counter-left', solid: true },
+        { x: 15, y: 12, sprite: 'tile.counter-right', solid: true },
+        { x: 16, y: 12, sprite: 'tile.counter-left', solid: true },
+        { x: 17, y: 12, sprite: 'tile.counter-right', solid: true },
+      ] }),
+      objectFromTiles({ id: 'club-backbar', kind: 'bar-signage', areaId: 'club-strip', tiles: [
+        { x: 10, y: 10, sprite: 'tile.fixture-neon-lamp-cyan' },
+        { x: 12, y: 10, sprite: 'tile.sign-neon' },
+        { x: 15, y: 10, sprite: 'tile.sign-neon' },
+        { x: 17, y: 10, sprite: 'tile.fixture-neon-lamp-magenta' },
+      ] }),
       objectFromTiles({ id: 'club-entrance-neon', kind: 'entrance-signage', areaId: 'club-strip', tiles: [
-        { x: 11, y: 20, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
-        { x: 15, y: 20, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
-        { x: 17, y: 20, sprite: 'tile.sign-neon', solid: true },
-        { x: 21, y: 20, sprite: 'tile.sign-neon', solid: true },
-        { x: 23, y: 20, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
-        { x: 27, y: 20, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
+        { x: 16, y: 20, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
+        { x: 18, y: 20, sprite: 'tile.sign-neon', solid: true },
+        { x: 20, y: 20, sprite: 'tile.sign-neon', solid: true },
+        { x: 22, y: 20, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
       ] }),
       objectFromTiles({ id: 'club-west-sofa', kind: 'lounge-sofa', areaId: 'club-strip', tiles: [
         { x: 10, y: 14, sprite: 'tile.sofa-left', solid: true },
@@ -530,13 +606,32 @@ function northeastMap(): WorldMapV2 {
         { x: 25, y: 14, sprite: 'tile.table-left', solid: true },
         { x: 26, y: 14, sprite: 'tile.table-right', solid: true },
       ] }),
-      objectFromTiles({ id: 'club-neon-fountain', kind: 'neon-fountain', areaId: 'club-strip', tiles: [
-        { x: 18, y: 16, sprite: 'tile.landmark-fountain-nw', solid: true },
-        { x: 19, y: 16, sprite: 'tile.landmark-fountain-ne', solid: true },
-        { x: 18, y: 17, sprite: 'tile.landmark-fountain-sw', solid: true },
-        { x: 19, y: 17, sprite: 'tile.landmark-fountain-se', solid: true },
+      objectFromTiles({ id: 'club-dance-lights', kind: 'dance-floor-lighting', areaId: 'club-strip', tiles: [
+        { x: 15, y: 14, sprite: 'tile.fixture-neon-lamp-cyan' },
+        { x: 23, y: 14, sprite: 'tile.fixture-neon-lamp-magenta' },
+        { x: 15, y: 18, sprite: 'tile.fixture-neon-lamp-magenta' },
+        { x: 23, y: 18, sprite: 'tile.fixture-neon-lamp-cyan' },
       ] }),
-      arcade.object,
+      objectFromTiles({ id: 'club-dj-booth', kind: 'dj-booth', areaId: 'club-strip', tiles: [
+        { x: 17, y: 14, sprite: 'tile.counter-left', solid: true },
+        { x: 18, y: 14, sprite: 'tile.counter-right', solid: true },
+        { x: 19, y: 14, sprite: 'tile.counter-left', solid: true },
+        { x: 20, y: 14, sprite: 'tile.counter-right', solid: true },
+        { x: 18, y: 13, sprite: 'tile.sign-neon' },
+        { x: 19, y: 13, sprite: 'tile.sign-neon' },
+      ] }),
+      objectFromTiles({ id: 'club-service-stack', kind: 'service-supplies', areaId: 'club-strip', tiles: [
+        { x: 30, y: 8, sprite: 'tile.cargo-stack-left', solid: true },
+        { x: 31, y: 8, sprite: 'tile.cargo-stack-right', solid: true },
+      ] }),
+      objectFromTiles({ id: 'arcade-machine-banks', kind: 'arcade-machines', areaId: 'arcade-row', tiles: [
+        { x: 42, y: 10, sprite: 'tile.sign-neon', solid: true }, { x: 43, y: 10, sprite: 'tile.counter-right', solid: true },
+        { x: 48, y: 10, sprite: 'tile.sign-neon', solid: true }, { x: 49, y: 10, sprite: 'tile.counter-right', solid: true },
+        { x: 54, y: 10, sprite: 'tile.sign-neon', solid: true }, { x: 55, y: 10, sprite: 'tile.counter-right', solid: true },
+        { x: 42, y: 16, sprite: 'tile.sign-neon', solid: true }, { x: 43, y: 16, sprite: 'tile.counter-right', solid: true },
+        { x: 48, y: 16, sprite: 'tile.sign-neon', solid: true }, { x: 49, y: 16, sprite: 'tile.counter-right', solid: true },
+        { x: 54, y: 16, sprite: 'tile.sign-neon', solid: true }, { x: 55, y: 16, sprite: 'tile.counter-right', solid: true },
+      ] }),
       objectFromTiles({ id: 'arcade-entrance-neon', kind: 'entrance-signage', areaId: 'arcade-row', tiles: [
         { x: 41, y: 20, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
         { x: 45, y: 20, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
@@ -545,7 +640,12 @@ function northeastMap(): WorldMapV2 {
         { x: 55, y: 20, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
         { x: 59, y: 20, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
       ] }),
-      studio.object,
+      objectFromTiles({ id: 'studio-worktables', kind: 'studio-worktables', areaId: 'studio-row', tiles: [
+        { x: 9, y: 34, sprite: 'tile.table-left', solid: true }, { x: 10, y: 34, sprite: 'tile.table-right', solid: true },
+        { x: 15, y: 34, sprite: 'tile.table-left', solid: true }, { x: 16, y: 34, sprite: 'tile.table-right', solid: true },
+        { x: 21, y: 34, sprite: 'tile.table-left', solid: true }, { x: 22, y: 34, sprite: 'tile.table-right', solid: true },
+        { x: 9, y: 38, sprite: 'tile.fixture-planter' }, { x: 15, y: 38, sprite: 'tile.fixture-planter' },
+      ] }),
       objectFromTiles({ id: 'studio-entrance-neon', kind: 'entrance-signage', areaId: 'studio-row', tiles: [
         { x: 9, y: 41, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
         { x: 12, y: 41, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
@@ -554,7 +654,12 @@ function northeastMap(): WorldMapV2 {
         { x: 22, y: 41, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
         { x: 25, y: 41, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
       ] }),
-      market.object,
+      objectFromTiles({ id: 'night-market-canopies', kind: 'market-canopy', areaId: 'night-market', tiles: [
+        { x: 41, y: 32, sprite: 'tile.market-canopy-nw', solid: true }, { x: 42, y: 32, sprite: 'tile.market-canopy-ne', solid: true },
+        { x: 41, y: 33, sprite: 'tile.market-canopy-sw', solid: true }, { x: 42, y: 33, sprite: 'tile.market-canopy-se', solid: true },
+        { x: 51, y: 36, sprite: 'tile.market-canopy-nw', solid: true }, { x: 52, y: 36, sprite: 'tile.market-canopy-ne', solid: true },
+        { x: 51, y: 37, sprite: 'tile.market-canopy-sw', solid: true }, { x: 52, y: 37, sprite: 'tile.market-canopy-se', solid: true },
+      ] }),
       objectFromTiles({ id: 'market-entrance-neon', kind: 'entrance-signage', areaId: 'night-market', tiles: [
         { x: 40, y: 41, sprite: 'tile.fixture-neon-lamp-cyan', solid: true },
         { x: 43, y: 41, sprite: 'tile.fixture-neon-lamp-magenta', solid: true },
@@ -583,15 +688,13 @@ function northeastMap(): WorldMapV2 {
       elise_moreau: { x: 46, y: 36 }, 'generic-meal': { x: 44, y: 34 }, 'generic-nightlife': { x: 18, y: 13 },
     },
     effects: [
-      { id: 'club-sparkle', kind: 'sparkle', tile: { x: 19, y: 11 } },
-      { id: 'club-neon-west', kind: 'neon', tile: { x: 15, y: 20 } },
-      { id: 'club-neon-east', kind: 'neon', tile: { x: 23, y: 20 } },
-      { id: 'club-insects', kind: 'insects', tile: { x: 25, y: 18 } },
-      { id: 'market-sparkle', kind: 'sparkle', tile: { x: 45, y: 34 } },
+      { id: 'club-neon-west', kind: 'neon', tile: { x: 16, y: 20 } },
+      { id: 'club-neon-east', kind: 'neon', tile: { x: 22, y: 20 } },
     ],
   });
   map.doors = [
     { id: 'club-door', openingId: 'club-strip-entrance', initialState: 'open', sprite: 'tile.open-door' },
+    { id: 'club-service-door', openingId: 'club-service-opening', initialState: 'closed-unlocked', sprite: 'tile.closed-door' },
     { id: 'arcade-door', openingId: 'arcade-row-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'studio-door', openingId: 'studio-row-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'market-door', openingId: 'night-market-entrance', initialState: 'open', sprite: 'tile.open-door' },
@@ -602,9 +705,11 @@ function northeastMap(): WorldMapV2 {
     requiredDetailPartIds: [
       'club-west-sofa-part-01', 'club-west-sofa-part-02',
       'club-east-sofa-part-01', 'club-east-sofa-part-02',
-      'club-entrance-neon-part-03', 'club-entrance-neon-part-04',
-      'club-neon-fountain-part-01', 'club-neon-fountain-part-02',
-      'club-neon-fountain-part-03', 'club-neon-fountain-part-04',
+      'club-entrance-neon-part-02', 'club-entrance-neon-part-03',
+      'club-bar-part-01', 'club-bar-part-02',
+      'club-dance-lights-part-01', 'club-dance-lights-part-02',
+      'club-dance-lights-part-03', 'club-dance-lights-part-04',
+      'club-dj-booth-part-01', 'club-dj-booth-part-02',
       'boulevard-car-02-part-01', 'boulevard-car-02-part-02',
     ],
     landmarkAreaIds: ['club-strip'],
@@ -691,12 +796,6 @@ function southwestMap(): WorldMapV2 {
       { x: 8, y: 17, sprite: 'tile.flowering-market-planter', solid: true },
       { x: 25, y: 17, sprite: 'tile.flowering-market-planter', solid: true },
     ] }),
-    objectFromTiles({ id: 'hall-authored-details', kind: 'passable-market-life', areaId: 'market-hall', tiles: [
-      { x: 12, y: 12, sprite: 'tile.market-detail-herbs' }, { x: 22, y: 12, sprite: 'tile.market-detail-petals' },
-      { x: 12, y: 16, sprite: 'tile.market-detail-paper' }, { x: 22, y: 16, sprite: 'tile.market-detail-chalk' },
-      { x: 9, y: 13, sprite: 'tile.market-detail-petals' }, { x: 24, y: 13, sprite: 'tile.market-detail-herbs' },
-      { x: 9, y: 19, sprite: 'tile.market-detail-chalk' }, { x: 24, y: 19, sprite: 'tile.market-detail-paper' },
-    ] }),
   ];
   const foodObjects = [
     solidRow('food-counter-west', 'food-counter', 'food-arcade', 41, 10, 6, ['tile.counter-left', 'tile.counter-right']),
@@ -711,12 +810,6 @@ function southwestMap(): WorldMapV2 {
       { x: 41, y: 17, sprite: 'tile.flowering-market-planter', solid: true },
       { x: 57, y: 17, sprite: 'tile.flowering-market-planter', solid: true },
     ] }),
-    objectFromTiles({ id: 'food-authored-details', kind: 'passable-market-life', areaId: 'food-arcade', tiles: [
-      { x: 44, y: 12, sprite: 'tile.market-detail-herbs' }, { x: 54, y: 12, sprite: 'tile.market-detail-petals' },
-      { x: 44, y: 16, sprite: 'tile.market-detail-paper' }, { x: 54, y: 16, sprite: 'tile.market-detail-chalk' },
-      { x: 42, y: 13, sprite: 'tile.market-detail-petals' }, { x: 56, y: 13, sprite: 'tile.market-detail-herbs' },
-      { x: 42, y: 19, sprite: 'tile.market-detail-chalk' }, { x: 56, y: 19, sprite: 'tile.market-detail-paper' },
-    ] }),
   ];
   const restaurantObjects = [
     solidRow('restaurant-counter-west', 'restaurant-counter', 'restaurant-row', 41, 35, 6, ['tile.counter-left', 'tile.counter-right']),
@@ -729,31 +822,25 @@ function southwestMap(): WorldMapV2 {
       { x: 41, y: 37, sprite: 'tile.flowering-market-planter', solid: true },
       { x: 57, y: 37, sprite: 'tile.flowering-market-planter', solid: true },
     ] }),
-    objectFromTiles({ id: 'restaurant-authored-details', kind: 'passable-market-life', areaId: 'restaurant-row', tiles: [
-      { x: 44, y: 37, sprite: 'tile.market-detail-herbs' }, { x: 54, y: 37, sprite: 'tile.market-detail-petals' },
-      { x: 44, y: 38, sprite: 'tile.market-detail-paper' }, { x: 54, y: 38, sprite: 'tile.market-detail-chalk' },
-      { x: 41, y: 42, sprite: 'tile.market-detail-petals' }, { x: 57, y: 42, sprite: 'tile.market-detail-herbs' },
-      { x: 46, y: 40, sprite: 'tile.market-detail-chalk' }, { x: 52, y: 40, sprite: 'tile.market-detail-paper' },
-    ] }),
   ];
   const courtyardObjects: MapObject[] = [
     objectFromTiles({ id: 'courtyard-canopy', kind: 'market-canopy', areaId: 'sunset-courtyard', tiles: [
-      { x: 7, y: 33, sprite: 'tile.market-canopy-nw', solid: true },
-      { x: 8, y: 33, sprite: 'tile.market-canopy-ne', solid: true },
-      { x: 7, y: 34, sprite: 'tile.market-canopy-sw', solid: true },
-      { x: 8, y: 34, sprite: 'tile.market-canopy-se', solid: true },
+      { x: 16, y: 32, sprite: 'tile.market-canopy-nw', solid: true },
+      { x: 17, y: 32, sprite: 'tile.market-canopy-ne', solid: true },
+      { x: 16, y: 33, sprite: 'tile.market-canopy-sw', solid: true },
+      { x: 17, y: 33, sprite: 'tile.market-canopy-se', solid: true },
     ] }),
     ...[
-      { id: 'courtyard-produce-west', x: 12, y: 34, sprites: ['tile.produce-stall-left', 'tile.produce-stall-right'] },
-      { id: 'courtyard-produce-east', x: 19, y: 36, sprites: ['tile.produce-stall-left', 'tile.produce-stall-right'] },
-      { id: 'courtyard-food-west', x: 7, y: 39, sprites: ['tile.food-stall-left', 'tile.food-stall-right'] },
-      { id: 'courtyard-food-east', x: 19, y: 41, sprites: ['tile.food-stall-left', 'tile.food-stall-right'] },
+      { id: 'courtyard-produce-west', x: 10, y: 34, sprites: ['tile.produce-stall-left', 'tile.produce-stall-right'] },
+      { id: 'courtyard-produce-east', x: 13, y: 34, sprites: ['tile.produce-stall-left', 'tile.produce-stall-right'] },
+      { id: 'courtyard-food-west', x: 10, y: 39, sprites: ['tile.food-stall-left', 'tile.food-stall-right'] },
+      { id: 'courtyard-food-east', x: 13, y: 39, sprites: ['tile.food-stall-left', 'tile.food-stall-right'] },
     ].map(({ id, x, y, sprites }) => solidRow(id, 'market-stall', 'sunset-courtyard', x, y, 2, sprites)),
     objectFromTiles({ id: 'courtyard-fountain', kind: 'market-fountain', areaId: 'sunset-courtyard', tiles: [
-      { x: 22, y: 32, sprite: 'tile.landmark-fountain-nw', solid: true },
-      { x: 23, y: 32, sprite: 'tile.landmark-fountain-ne', solid: true },
-      { x: 22, y: 33, sprite: 'tile.landmark-fountain-sw', solid: true },
-      { x: 23, y: 33, sprite: 'tile.landmark-fountain-se', solid: true },
+      { x: 20, y: 34, sprite: 'tile.landmark-fountain-nw', solid: true },
+      { x: 21, y: 34, sprite: 'tile.landmark-fountain-ne', solid: true },
+      { x: 20, y: 35, sprite: 'tile.landmark-fountain-sw', solid: true },
+      { x: 21, y: 35, sprite: 'tile.landmark-fountain-se', solid: true },
     ] }),
     objectFromTiles({ id: 'courtyard-planters', kind: 'flowering-planter', areaId: 'sunset-courtyard', tiles: [
       { x: 4, y: 32, sprite: 'tile.flowering-market-planter', solid: true },
@@ -762,20 +849,24 @@ function southwestMap(): WorldMapV2 {
       { x: 25, y: 44, sprite: 'tile.flowering-market-planter', solid: true },
     ] }),
     objectFromTiles({ id: 'courtyard-benches', kind: 'market-bench', areaId: 'sunset-courtyard', tiles: [
-      { x: 10, y: 42, sprite: 'tile.sunset-market-bench', solid: true },
-      { x: 14, y: 38, sprite: 'tile.sunset-market-bench', solid: true },
-      { x: 23, y: 38, sprite: 'tile.sunset-market-bench', solid: true },
+      { x: 19, y: 39, sprite: 'tile.sunset-market-bench', solid: true },
+      { x: 23, y: 39, sprite: 'tile.sunset-market-bench', solid: true },
+      { x: 19, y: 43, sprite: 'tile.sunset-market-bench', solid: true },
       { x: 23, y: 43, sprite: 'tile.sunset-market-bench', solid: true },
     ] }),
-    objectFromTiles({ id: 'courtyard-authored-details', kind: 'passable-market-life', areaId: 'sunset-courtyard', tiles: [
-      { x: 6, y: 35, sprite: 'tile.market-detail-petals' }, { x: 9, y: 35, sprite: 'tile.market-detail-chalk' },
-      { x: 11, y: 33, sprite: 'tile.market-detail-herbs' }, { x: 14, y: 35, sprite: 'tile.market-detail-paper' },
-      { x: 18, y: 35, sprite: 'tile.market-detail-petals' }, { x: 21, y: 37, sprite: 'tile.market-detail-herbs' },
-      { x: 6, y: 40, sprite: 'tile.market-detail-chalk' }, { x: 9, y: 40, sprite: 'tile.market-detail-paper' },
-      { x: 18, y: 42, sprite: 'tile.market-detail-petals' }, { x: 21, y: 42, sprite: 'tile.market-detail-herbs' },
-      { x: 5, y: 33, sprite: 'tile.market-detail-petals' }, { x: 24, y: 34, sprite: 'tile.market-detail-herbs' },
-      { x: 5, y: 44, sprite: 'tile.market-detail-paper' }, { x: 24, y: 45, sprite: 'tile.market-detail-chalk' },
-      { x: 12, y: 43, sprite: 'tile.market-detail-petals' }, { x: 15, y: 39, sprite: 'tile.market-detail-herbs' },
+    objectFromTiles({ id: 'courtyard-dining-tables', kind: 'restaurant-table', areaId: 'sunset-courtyard', tiles: [
+      { x: 20, y: 40, sprite: 'tile.table-left', solid: true },
+      { x: 21, y: 40, sprite: 'tile.table-right', solid: true },
+      { x: 20, y: 42, sprite: 'tile.table-left', solid: true },
+      { x: 21, y: 42, sprite: 'tile.table-right', solid: true },
+    ] }),
+    objectFromTiles({ id: 'courtyard-edge-fixtures', kind: 'market-lights', areaId: 'sunset-courtyard', tiles: [
+      { x: 8, y: 32, sprite: 'tile.fixture-lamp' }, { x: 12, y: 32, sprite: 'tile.fixture-lamp' },
+      { x: 20, y: 32, sprite: 'tile.fixture-lamp' }, { x: 24, y: 32, sprite: 'tile.fixture-lamp' },
+      { x: 8, y: 44, sprite: 'tile.fixture-lamp' }, { x: 12, y: 44, sprite: 'tile.fixture-lamp' },
+      { x: 20, y: 44, sprite: 'tile.fixture-lamp' }, { x: 24, y: 44, sprite: 'tile.fixture-lamp' },
+      { x: 8, y: 35, sprite: 'tile.flowering-market-planter' }, { x: 8, y: 41, sprite: 'tile.flowering-market-planter' },
+      { x: 24, y: 35, sprite: 'tile.flowering-market-planter' }, { x: 24, y: 41, sprite: 'tile.flowering-market-planter' },
     ] }),
   ];
   const frontageObjects: MapObject[] = [
@@ -823,7 +914,8 @@ function southwestMap(): WorldMapV2 {
       { id: 'east-west-promenade', x: 0, y: 23, width: 64, height: 5, sprite: 'tile.sunset-promenade' },
       { id: 'north-south-promenade', x: 30, y: 0, width: 5, height: 48, sprite: 'tile.sunset-promenade' },
       { id: 'central-market-mosaic', x: 28, y: 21, width: 9, height: 9, sprite: 'tile.sunset-mosaic' },
-      { id: 'courtyard-market-rug', x: 11, y: 30, width: 15, height: 9, sprite: 'tile.sunset-mosaic' },
+      { id: 'courtyard-market-rug', x: 7, y: 31, width: 19, height: 14, sprite: 'tile.sunset-mosaic' },
+      { id: 'courtyard-customer-lane', x: 8, y: 36, width: 17, height: 3, sprite: 'tile.sunset-promenade' },
       { id: 'market-hall-floor', x: 6, y: 7, width: 22, height: 14, sprite: 'tile.sunset-floor' },
       { id: 'food-arcade-floor', x: 39, y: 7, width: 21, height: 14, sprite: 'tile.sunset-floor' },
       { id: 'restaurant-row-floor', x: 39, y: 32, width: 21, height: 12, sprite: 'tile.sunset-floor' },
@@ -842,9 +934,8 @@ function southwestMap(): WorldMapV2 {
       rafael_cruz: { x: 44, y: 36 }, 'linda-shop': { x: 17, y: 17 },
     },
     effects: [
-      { id: 'courtyard-steam-west', kind: 'steam', tile: { x: 12, y: 34 } },
-      { id: 'courtyard-steam-east', kind: 'steam', tile: { x: 19, y: 36 } },
-      { id: 'courtyard-water-glint', kind: 'water', tile: { x: 22, y: 32 } },
+      { id: 'courtyard-steam-west', kind: 'steam', tile: { x: 11, y: 34 } },
+      { id: 'courtyard-steam-east', kind: 'steam', tile: { x: 14, y: 39 } },
       { id: 'courtyard-insects', kind: 'insects', tile: { x: 25, y: 35 } },
     ],
   });
@@ -854,7 +945,7 @@ function southwestMap(): WorldMapV2 {
     { id: 'restaurant-row-door', openingId: 'restaurant-row-entrance', initialState: 'open', sprite: 'tile.open-door' },
   ];
   map.startComposition = {
-    cameraAnchor: { x: 16, y: 30 },
+    cameraAnchor: { x: 17, y: 37 },
     requiredActorIds: ['linda', 'generic_resident'],
     requiredDetailPartIds: [
       'courtyard-canopy-part-01', 'courtyard-canopy-part-02',
@@ -870,16 +961,20 @@ function southwestMap(): WorldMapV2 {
 function southeastMap(): WorldMapV2 {
   const government = placeholderArea({
     id: 'government-yard', material: 'civic', bounds: { x: 7, y: 7, width: 20, height: 13 },
-    locationIds: ['priya_clinic', 'tomas_marina'], signSprite: 'tile.sign-harbor',
+    locationIds: ['priya_clinic'], signSprite: 'tile.sign-harbor',
   });
   const warehouse = placeholderArea({
     id: 'cargo-warehouse', material: 'civic', bounds: { x: 38, y: 7, width: 12, height: 13 },
     locationIds: [], signSprite: 'tile.sign-harbor',
   });
   const ferry = placeholderArea({
-    id: 'ferry-terminal', material: 'civic', bounds: { x: 36, y: 29, width: 14, height: 12 },
+    id: 'ferry-terminal', material: 'civic', bounds: { x: 38, y: 30, width: 12, height: 10 },
     locationIds: ['ferry_terminal'], signSprite: 'tile.sign-harbor',
   });
+  const ferryWallRuns = ferry.wallRuns.map((run) => run.id === 'ferry-terminal-east' ? {
+    ...run,
+    openings: [{ id: 'ferry-boarding-opening', tile: { x: 49, y: 34 } }],
+  } : run);
   const solidRow = (x: number, y: number, count: number, sprites: readonly string[]): ObjectTile[] => (
     Array.from({ length: count }, (_unused, offset) => ({
       x: x + offset,
@@ -926,7 +1021,9 @@ function southeastMap(): WorldMapV2 {
       { id: 'ferry-pier', x: 50, y: 33, width: 12, height: 3, sprite: 'tile.dock-boardwalk' },
       { id: 'government-floor', x: 7, y: 7, width: 20, height: 13, sprite: 'tile.dock-floor' },
       { id: 'warehouse-floor', x: 38, y: 7, width: 12, height: 13, sprite: 'tile.dock-floor' },
-      { id: 'ferry-floor', x: 36, y: 29, width: 14, height: 12, sprite: 'tile.dock-floor' },
+      { id: 'ferry-floor', x: 38, y: 30, width: 12, height: 10, sprite: 'tile.dock-floor' },
+      { id: 'ferry-ticketing-zone', x: 39, y: 36, width: 5, height: 3, sprite: 'tile.harbor-concrete' },
+      { id: 'ferry-boarding-lane', x: 45, y: 31, width: 4, height: 8, sprite: 'tile.harbor-concrete' },
       { id: 'cargo-work-pad', x: 10, y: 29, width: 18, height: 13, sprite: 'tile.harbor-concrete' },
     ],
     terrainSolids: [
@@ -954,8 +1051,8 @@ function southeastMap(): WorldMapV2 {
       {
         ...ferry.area,
         densityProfile: 'active-public',
-        entranceTiles: [{ x: 43, y: 40 }],
-        primaryRoutes: [{ x: 42, y: 31, width: 3, height: 9 }],
+        entranceTiles: [{ x: 44, y: 39 }],
+        primaryRoutes: [{ x: 43, y: 31, width: 3, height: 8 }],
         requiredPortalIds: ['from-downtown', 'from-commercial'],
       },
       {
@@ -971,7 +1068,7 @@ function southeastMap(): WorldMapV2 {
         requiredPortalIds: ['from-downtown', 'from-commercial'],
       },
     ],
-    wallRuns: [...government.wallRuns, ...warehouse.wallRuns, ...ferry.wallRuns],
+    wallRuns: [...government.wallRuns, ...warehouse.wallRuns, ...ferryWallRuns],
     objects: [
       objectFromTiles({ id: 'government-west-counter', kind: 'office-counter', areaId: 'government-yard', tiles: solidRow(9, 10, 6, ['tile.counter-left', 'tile.counter-right']) }),
       objectFromTiles({ id: 'government-east-counter', kind: 'office-counter', areaId: 'government-yard', tiles: solidRow(19, 10, 6, ['tile.counter-left', 'tile.counter-right']) }),
@@ -997,16 +1094,22 @@ function southeastMap(): WorldMapV2 {
         { x: 41, y: 20, sprite: 'tile.fixture-dock-lamp-cold', solid: true },
         { x: 47, y: 20, sprite: 'tile.fixture-dock-lamp-cold', solid: true },
       ] }),
-      objectFromTiles({ id: 'ferry-west-bench', kind: 'waiting-bench', areaId: 'ferry-terminal', tiles: solidRow(37, 32, 3, ['tile.dock-bench']) }),
-      objectFromTiles({ id: 'ferry-east-bench', kind: 'waiting-bench', areaId: 'ferry-terminal', tiles: solidRow(46, 32, 3, ['tile.dock-bench']) }),
-      objectFromTiles({ id: 'ferry-south-bench', kind: 'waiting-bench', areaId: 'ferry-terminal', tiles: solidRow(37, 35, 3, ['tile.dock-bench']) }),
-      objectFromTiles({ id: 'ferry-counter', kind: 'ticket-counter', areaId: 'ferry-terminal', tiles: solidRow(37, 37, 4, ['tile.counter-left', 'tile.counter-right']) }),
-      objectFromTiles({ id: 'ferry-kiosk', kind: 'ticket-kiosk', areaId: 'ferry-terminal', tiles: [{ x: 48, y: 37, sprite: 'tile.sign-harbor', solid: true }] }),
+      objectFromTiles({ id: 'ferry-west-bench', kind: 'waiting-bench', areaId: 'ferry-terminal', tiles: solidRow(39, 32, 2, ['tile.dock-bench']) }),
+      objectFromTiles({ id: 'ferry-east-bench', kind: 'waiting-bench', areaId: 'ferry-terminal', tiles: solidRow(46, 32, 2, ['tile.dock-bench']) }),
+      objectFromTiles({ id: 'ferry-south-bench', kind: 'waiting-bench', areaId: 'ferry-terminal', tiles: solidRow(39, 35, 2, ['tile.dock-bench']) }),
+      objectFromTiles({ id: 'ferry-counter', kind: 'ticket-counter', areaId: 'ferry-terminal', tiles: solidRow(39, 37, 3, ['tile.counter-left', 'tile.counter-right']) }),
+      objectFromTiles({ id: 'ferry-kiosk', kind: 'ticket-kiosk', areaId: 'ferry-terminal', tiles: [{ x: 48, y: 37, sprite: 'tile.sign-harbor' }] }),
       objectFromTiles({ id: 'ferry-frontage', kind: 'harbor-frontage', areaId: 'ferry-terminal', tiles: [
-        { x: 42, y: 40, sprite: 'tile.sign-harbor' },
-        { x: 44, y: 40, sprite: 'tile.sign-harbor' },
-        { x: 46, y: 41, sprite: 'tile.fixture-dock-lamp-cold', solid: true },
-        { x: 48, y: 41, sprite: 'tile.fixture-dock-lamp-cold', solid: true },
+        { x: 43, y: 39, sprite: 'tile.sign-harbor' },
+        { x: 45, y: 39, sprite: 'tile.sign-harbor' },
+        { x: 47, y: 40, sprite: 'tile.fixture-dock-lamp-cold', solid: true },
+        { x: 49, y: 40, sprite: 'tile.fixture-dock-lamp-cold', solid: true },
+      ] }),
+      objectFromTiles({ id: 'ferry-boarding-gate', kind: 'boarding-gate', areaId: 'ferry-terminal', tiles: [
+        { x: 47, y: 33, sprite: 'tile.sign-harbor' },
+        { x: 48, y: 33, sprite: 'tile.fixture-dock-lamp-cold' },
+        { x: 47, y: 35, sprite: 'tile.sign-harbor' },
+        { x: 48, y: 35, sprite: 'tile.fixture-dock-lamp-cold' },
       ] }),
       objectFromTiles({ id: 'cargo-crane', kind: 'cargo-crane', areaId: 'cargo-yard', tiles: [
         { x: 20, y: 32, sprite: 'tile.cargo-crane-nw', solid: true },
@@ -1034,20 +1137,15 @@ function southeastMap(): WorldMapV2 {
         { x: 27, y: 32, sprite: 'tile.fixture-dock-lamp-amber', solid: true },
         { x: 27, y: 40, sprite: 'tile.fixture-dock-lamp-amber', solid: true },
       ] }),
-      objectFromTiles({ id: 'cargo-surface-detail', kind: 'surface-detail', areaId: 'cargo-yard', tiles: [
-        { x: 8, y: 29, sprite: 'tile.decal-dock-oil' },
-        { x: 12, y: 30, sprite: 'tile.decal-dock-rope' },
-        { x: 18, y: 31, sprite: 'tile.decal-dock-drain' },
-        { x: 25, y: 31, sprite: 'tile.decal-dock-salt' },
-        { x: 7, y: 34, sprite: 'tile.decal-dock-gull' },
-        { x: 15, y: 34, sprite: 'tile.decal-dock-fog' },
-        { x: 24, y: 34, sprite: 'tile.decal-dock-oil' },
-        { x: 8, y: 38, sprite: 'tile.decal-dock-rope' },
-        { x: 18, y: 36, sprite: 'tile.decal-dock-drain' },
-        { x: 26, y: 37, sprite: 'tile.decal-dock-salt' },
-        { x: 12, y: 41, sprite: 'tile.decal-dock-gull' },
-        { x: 20, y: 42, sprite: 'tile.decal-dock-fog' },
-        { x: 25, y: 41, sprite: 'tile.decal-dock-oil' },
+      objectFromTiles({ id: 'cargo-route-lamps', kind: 'route-lamps', areaId: 'cargo-yard', tiles: [
+        { x: 4, y: 31, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 4, y: 34, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 4, y: 38, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 4, y: 42, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 26, y: 31, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 26, y: 34, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 26, y: 37, sprite: 'tile.fixture-dock-lamp-amber' },
+        { x: 26, y: 42, sprite: 'tile.fixture-dock-lamp-amber' },
       ] }),
       ...bollards,
       objectFromTiles({ id: 'quay-cold-lamps', kind: 'dock-lamps', areaId: 'ferry-terminal', tiles: [
@@ -1059,11 +1157,17 @@ function southeastMap(): WorldMapV2 {
       objectFromTiles({ id: 'quay-north-supplies', kind: 'quay-supplies', areaId: 'cargo-warehouse', tiles: solidRow(43, 3, 2, ['tile.cargo-stack-left', 'tile.cargo-stack-right']) }),
       objectFromTiles({ id: 'quay-south-supplies', kind: 'quay-supplies', areaId: 'ferry-terminal', tiles: solidRow(38, 45, 4, ['tile.cargo-stack-left', 'tile.cargo-stack-right']) }),
       objectFromTiles({ id: 'ferry-landmark', kind: 'ferry', areaId: 'ferry-terminal', tiles: [
-        { x: 56, y: 36, sprite: 'tile.landmark-ferry-left' },
+        { x: 54, y: 36, sprite: 'tile.landmark-ferry-left' },
+        { x: 55, y: 36, sprite: 'tile.landmark-ferry-left' },
+        { x: 56, y: 36, sprite: 'tile.landmark-ferry-right' },
         { x: 57, y: 36, sprite: 'tile.landmark-ferry-right' },
       ] }),
     ],
-    bindings: [...government.bindings, ...ferry.bindings],
+    bindings: [
+      ...government.bindings,
+      ...ferry.bindings,
+      { locationId: 'tomas_marina', areaIds: ['ferry-terminal'], preferredInteractionIds: [] },
+    ],
     portals: [
       { id: 'from-downtown', edge: 'north', tile: { x: 32, y: 0 }, destinationMapId: 'northeast_downtown', destinationEntranceId: 'to-docks' },
       { id: 'from-commercial', edge: 'west', tile: { x: 0, y: 24 }, destinationMapId: 'southwest_commercial', destinationEntranceId: 'to-docks' },
@@ -1075,25 +1179,26 @@ function southeastMap(): WorldMapV2 {
     },
     effects: [
       { id: 'yard-steam', kind: 'steam', tile: { x: 21, y: 32 } },
-      { id: 'yard-insects', kind: 'insects', tile: { x: 27, y: 32 } },
-      { id: 'harbor-water-glint', kind: 'water', tile: { x: 55, y: 34 } },
+      { id: 'harbor-water-glint-north', kind: 'water', tile: { x: 55, y: 30 } },
+      { id: 'harbor-water-glint-south', kind: 'water', tile: { x: 53, y: 40 } },
     ],
   });
   map.doors = [
     { id: 'government-door', openingId: 'government-yard-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'warehouse-door', openingId: 'cargo-warehouse-entrance', initialState: 'open', sprite: 'tile.open-door' },
     { id: 'ferry-door', openingId: 'ferry-terminal-entrance', initialState: 'open', sprite: 'tile.open-door' },
+    { id: 'ferry-boarding-door', openingId: 'ferry-boarding-opening', initialState: 'open', sprite: 'tile.open-door' },
   ];
   map.startComposition = {
-    cameraAnchor: { x: 20, y: 34 },
+    cameraAnchor: { x: 48, y: 34 },
     requiredActorIds: ['generic_resident', 'tomas_reed'],
     requiredDetailPartIds: [
-      'pallet-rack-west-part-01', 'pallet-rack-west-part-02',
-      'cargo-crane-part-01', 'cargo-crane-part-02',
-      'cargo-crane-part-03', 'cargo-crane-part-04',
-      'cargo-stack-04-part-01', 'cargo-stack-04-part-02',
+      'ferry-boarding-gate-part-01', 'ferry-boarding-gate-part-02',
+      'ferry-boarding-gate-part-03', 'ferry-boarding-gate-part-04',
+      'ferry-landmark-part-01', 'ferry-landmark-part-04',
+      'ferry-east-bench-part-01', 'ferry-east-bench-part-02',
     ],
-    landmarkAreaIds: ['cargo-yard'],
+    landmarkAreaIds: ['ferry-terminal'],
   };
   return map;
 }
@@ -1147,7 +1252,6 @@ export async function buildProductionMaps(rootPath = process.cwd()): Promise<voi
   const actorTiles = Object.fromEntries([
     'protagonist', 'linda', 'generic_resident', 'linda_boyfriend', 'mina_park', 'rafael_cruz',
     'sora_tan', 'devon_price', 'priya_nair', 'tomas_reed', 'elise_moreau',
-    ...RESIDENT_POSITIONS.map((_, index) => `resident_${String(index + 1).padStart(2, '0')}`),
   ].map((id) => [id, {
     mapId: 'northwest_residential',
     locationId: actorLocationIds[id] ?? 'northwest_residential',

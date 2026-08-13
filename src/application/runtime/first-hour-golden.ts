@@ -1,5 +1,6 @@
 import { reduceCommand } from '../../domain/commands/reducer';
 import { DomainCommandSchema } from '../../domain/commands/types';
+import { LINDA_QUEST } from '../../domain/quests/quest-machine';
 import { createInitialState } from '../../domain/state/initial-state';
 import { WorldStateSchema, type WorldState } from '../../domain/state/schema';
 import { advanceActiveNpcMovement, movementForNpc } from '../../world/schedules/active-movement';
@@ -104,10 +105,17 @@ export function runFirstHourGolden(displayName = 'MISTAKE'): Readonly<{
 }> {
   const startMinute = 8 * 60;
   let state = createInitialState(displayName);
-  state = walkProtagonist(state, 22, 28);
+  const linda = state.npcs.linda?.presence;
+  if (!linda || linda.kind !== 'active_local') throw new Error('First-hour Linda is not active.');
+  state = walkProtagonist(state, linda.tileX + 1, linda.tileY);
   state = reduceCommand(state, command(state, 'start-linda-quest', { requestNpcId: 'linda' }, 'start')).state;
   state = reduceCommand(state, command(state, 'purchase-social-option', { offerId: 'security_report' }, 'security')).state;
   state = placeAuthoredWitness(state);
+  state = walkProtagonist(
+    state,
+    LINDA_QUEST.targetTile.x - LINDA_QUEST.maximumActionDistance,
+    LINDA_QUEST.targetTile.y,
+  );
   state = reduceCommand(state, command(state, 'discover-linda-villa', {}, 'discover')).state;
   state = reduceCommand(state, command(state, 'resolve-linda-quest', { approachId: 'protect_linda' }, 'protect')).state;
   state = tickWorld(state, 60 * 1_000);

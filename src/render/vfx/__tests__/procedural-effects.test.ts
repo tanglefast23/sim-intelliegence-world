@@ -84,12 +84,13 @@ describe('procedural ambient effect contracts', () => {
     expect(sampleVfxGeometry(emitter, 8_000, true).rects)
       .toEqual(sampleVfxGeometry(emitter, 0, true).rects);
     expect(moving.kind).toBe(effect.kind);
-    expect(moving.rects.length).toBeLessThanOrEqual(4);
+    expect(moving.rects.length).toBeLessThanOrEqual(effect.kind === 'water' ? 5 : 4);
     expect(primarySilhouette(moving)).not.toBe('');
   });
 
   test('declares complete bounds and keeps partially overlapping effects visible', () => {
     expect(declaredVfxBounds(FIRE)).toEqual({ left: 875, top: 1_030, right: 885, bottom: 1_043 });
+    expect(declaredVfxBounds(ENVIRONMENTAL.at(-1)!)).toEqual({ left: 641, top: 650, right: 671, bottom: 660 });
     expect(vfxBoundsIntersectWorldRect(FIRE, {
       left: 884,
       top: 1_030,

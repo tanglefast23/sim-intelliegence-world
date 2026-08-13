@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "layoutRevision": 1,
+  "layoutRevision": 2,
   "id": "southeast_docks",
   "displayName": "Greywake Harbor",
   "width": 64,
@@ -91,11 +91,27 @@
       },
       {
         "id": "ferry-floor",
-        "x": 36,
-        "y": 29,
-        "width": 14,
-        "height": 12,
+        "x": 38,
+        "y": 30,
+        "width": 12,
+        "height": 10,
         "sprite": "tile.dock-floor"
+      },
+      {
+        "id": "ferry-ticketing-zone",
+        "x": 39,
+        "y": 36,
+        "width": 5,
+        "height": 3,
+        "sprite": "tile.harbor-concrete"
+      },
+      {
+        "id": "ferry-boarding-lane",
+        "x": 45,
+        "y": 31,
+        "width": 4,
+        "height": 8,
+        "sprite": "tile.harbor-concrete"
       },
       {
         "id": "cargo-work-pad",
@@ -269,9 +285,9 @@
         "id": "ferry-terminal-north",
         "material": "civic",
         "bounds": {
-          "x": 36,
-          "y": 29,
-          "width": 14,
+          "x": 38,
+          "y": 30,
+          "width": 12,
           "height": 1
         },
         "openings": []
@@ -280,17 +296,17 @@
         "id": "ferry-terminal-south",
         "material": "civic",
         "bounds": {
-          "x": 36,
-          "y": 40,
-          "width": 14,
+          "x": 38,
+          "y": 39,
+          "width": 12,
           "height": 1
         },
         "openings": [
           {
             "id": "ferry-terminal-entrance",
             "tile": {
-              "x": 43,
-              "y": 40
+              "x": 44,
+              "y": 39
             }
           }
         ]
@@ -299,10 +315,10 @@
         "id": "ferry-terminal-west",
         "material": "civic",
         "bounds": {
-          "x": 36,
-          "y": 30,
+          "x": 38,
+          "y": 31,
           "width": 1,
-          "height": 10
+          "height": 8
         },
         "openings": []
       },
@@ -311,11 +327,19 @@
         "material": "civic",
         "bounds": {
           "x": 49,
-          "y": 30,
+          "y": 31,
           "width": 1,
-          "height": 10
+          "height": 8
         },
-        "openings": []
+        "openings": [
+          {
+            "id": "ferry-boarding-opening",
+            "tile": {
+              "x": 49,
+              "y": 34
+            }
+          }
+        ]
       }
     ]
   },
@@ -335,6 +359,12 @@
     {
       "id": "ferry-door",
       "openingId": "ferry-terminal-entrance",
+      "initialState": "open",
+      "sprite": "tile.open-door"
+    },
+    {
+      "id": "ferry-boarding-door",
+      "openingId": "ferry-boarding-opening",
       "initialState": "open",
       "sprite": "tile.open-door"
     }
@@ -1326,11 +1356,11 @@
       "kind": "waiting-bench",
       "areaId": "ferry-terminal",
       "anchor": {
-        "x": 37,
+        "x": 39,
         "y": 32
       },
       "depthAnchorOffset": {
-        "x": 2,
+        "x": 1,
         "y": 0
       },
       "renderParts": [
@@ -1347,14 +1377,6 @@
           "sprite": "tile.dock-bench",
           "offset": {
             "x": 1,
-            "y": 0
-          }
-        },
-        {
-          "id": "ferry-west-bench-part-03",
-          "sprite": "tile.dock-bench",
-          "offset": {
-            "x": 2,
             "y": 0
           }
         }
@@ -1377,15 +1399,6 @@
             "width": 1,
             "height": 1
           }
-        },
-        {
-          "id": "ferry-west-bench-solid-03",
-          "bounds": {
-            "x": 2,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
         }
       ],
       "interactions": []
@@ -1399,7 +1412,7 @@
         "y": 32
       },
       "depthAnchorOffset": {
-        "x": 2,
+        "x": 1,
         "y": 0
       },
       "renderParts": [
@@ -1416,14 +1429,6 @@
           "sprite": "tile.dock-bench",
           "offset": {
             "x": 1,
-            "y": 0
-          }
-        },
-        {
-          "id": "ferry-east-bench-part-03",
-          "sprite": "tile.dock-bench",
-          "offset": {
-            "x": 2,
             "y": 0
           }
         }
@@ -1446,15 +1451,6 @@
             "width": 1,
             "height": 1
           }
-        },
-        {
-          "id": "ferry-east-bench-solid-03",
-          "bounds": {
-            "x": 2,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
         }
       ],
       "interactions": []
@@ -1464,11 +1460,11 @@
       "kind": "waiting-bench",
       "areaId": "ferry-terminal",
       "anchor": {
-        "x": 37,
+        "x": 39,
         "y": 35
       },
       "depthAnchorOffset": {
-        "x": 2,
+        "x": 1,
         "y": 0
       },
       "renderParts": [
@@ -1485,14 +1481,6 @@
           "sprite": "tile.dock-bench",
           "offset": {
             "x": 1,
-            "y": 0
-          }
-        },
-        {
-          "id": "ferry-south-bench-part-03",
-          "sprite": "tile.dock-bench",
-          "offset": {
-            "x": 2,
             "y": 0
           }
         }
@@ -1515,15 +1503,6 @@
             "width": 1,
             "height": 1
           }
-        },
-        {
-          "id": "ferry-south-bench-solid-03",
-          "bounds": {
-            "x": 2,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
         }
       ],
       "interactions": []
@@ -1533,11 +1512,11 @@
       "kind": "ticket-counter",
       "areaId": "ferry-terminal",
       "anchor": {
-        "x": 37,
+        "x": 39,
         "y": 37
       },
       "depthAnchorOffset": {
-        "x": 3,
+        "x": 2,
         "y": 0
       },
       "renderParts": [
@@ -1562,14 +1541,6 @@
           "sprite": "tile.counter-left",
           "offset": {
             "x": 2,
-            "y": 0
-          }
-        },
-        {
-          "id": "ferry-counter-part-04",
-          "sprite": "tile.counter-right",
-          "offset": {
-            "x": 3,
             "y": 0
           }
         }
@@ -1601,15 +1572,6 @@
             "width": 1,
             "height": 1
           }
-        },
-        {
-          "id": "ferry-counter-solid-04",
-          "bounds": {
-            "x": 3,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
         }
       ],
       "interactions": []
@@ -1636,17 +1598,7 @@
           }
         }
       ],
-      "solidFootprints": [
-        {
-          "id": "ferry-kiosk-solid-01",
-          "bounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        }
-      ],
+      "solidFootprints": [],
       "interactions": []
     },
     {
@@ -1654,8 +1606,8 @@
       "kind": "harbor-frontage",
       "areaId": "ferry-terminal",
       "anchor": {
-        "x": 42,
-        "y": 40
+        "x": 43,
+        "y": 39
       },
       "depthAnchorOffset": {
         "x": 6,
@@ -1715,6 +1667,55 @@
           }
         }
       ],
+      "interactions": []
+    },
+    {
+      "id": "ferry-boarding-gate",
+      "kind": "boarding-gate",
+      "areaId": "ferry-terminal",
+      "anchor": {
+        "x": 47,
+        "y": 33
+      },
+      "depthAnchorOffset": {
+        "x": 1,
+        "y": 2
+      },
+      "renderParts": [
+        {
+          "id": "ferry-boarding-gate-part-01",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-boarding-gate-part-02",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-boarding-gate-part-03",
+          "sprite": "tile.sign-harbor",
+          "offset": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "id": "ferry-boarding-gate-part-04",
+          "sprite": "tile.fixture-dock-lamp-cold",
+          "offset": {
+            "x": 1,
+            "y": 2
+          }
+        }
+      ],
+      "solidFootprints": [],
       "interactions": []
     },
     {
@@ -2496,120 +2497,80 @@
       "interactions": []
     },
     {
-      "id": "cargo-surface-detail",
-      "kind": "surface-detail",
+      "id": "cargo-route-lamps",
+      "kind": "route-lamps",
       "areaId": "cargo-yard",
       "anchor": {
-        "x": 8,
-        "y": 29
+        "x": 4,
+        "y": 31
       },
       "depthAnchorOffset": {
-        "x": 17,
-        "y": 12
+        "x": 22,
+        "y": 11
       },
       "renderParts": [
         {
-          "id": "cargo-surface-detail-part-01",
-          "sprite": "tile.decal-dock-oil",
+          "id": "cargo-route-lamps-part-01",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "cargo-surface-detail-part-02",
-          "sprite": "tile.decal-dock-rope",
-          "offset": {
-            "x": 4,
-            "y": 1
-          }
-        },
-        {
-          "id": "cargo-surface-detail-part-03",
-          "sprite": "tile.decal-dock-drain",
-          "offset": {
-            "x": 10,
-            "y": 2
-          }
-        },
-        {
-          "id": "cargo-surface-detail-part-04",
-          "sprite": "tile.decal-dock-salt",
-          "offset": {
-            "x": 17,
-            "y": 2
-          }
-        },
-        {
-          "id": "cargo-surface-detail-part-05",
-          "sprite": "tile.decal-dock-gull",
-          "offset": {
-            "x": -1,
-            "y": 5
-          }
-        },
-        {
-          "id": "cargo-surface-detail-part-06",
-          "sprite": "tile.decal-dock-fog",
-          "offset": {
-            "x": 7,
-            "y": 5
-          }
-        },
-        {
-          "id": "cargo-surface-detail-part-07",
-          "sprite": "tile.decal-dock-oil",
-          "offset": {
-            "x": 16,
-            "y": 5
-          }
-        },
-        {
-          "id": "cargo-surface-detail-part-08",
-          "sprite": "tile.decal-dock-rope",
+          "id": "cargo-route-lamps-part-02",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
             "x": 0,
-            "y": 9
+            "y": 3
           }
         },
         {
-          "id": "cargo-surface-detail-part-09",
-          "sprite": "tile.decal-dock-drain",
+          "id": "cargo-route-lamps-part-03",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
-            "x": 10,
+            "x": 0,
             "y": 7
           }
         },
         {
-          "id": "cargo-surface-detail-part-10",
-          "sprite": "tile.decal-dock-salt",
+          "id": "cargo-route-lamps-part-04",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
-            "x": 18,
-            "y": 8
+            "x": 0,
+            "y": 11
           }
         },
         {
-          "id": "cargo-surface-detail-part-11",
-          "sprite": "tile.decal-dock-gull",
+          "id": "cargo-route-lamps-part-05",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
-            "x": 4,
-            "y": 12
+            "x": 22,
+            "y": 0
           }
         },
         {
-          "id": "cargo-surface-detail-part-12",
-          "sprite": "tile.decal-dock-fog",
+          "id": "cargo-route-lamps-part-06",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
-            "x": 12,
-            "y": 13
+            "x": 22,
+            "y": 3
           }
         },
         {
-          "id": "cargo-surface-detail-part-13",
-          "sprite": "tile.decal-dock-oil",
+          "id": "cargo-route-lamps-part-07",
+          "sprite": "tile.fixture-dock-lamp-amber",
           "offset": {
-            "x": 17,
-            "y": 12
+            "x": 22,
+            "y": 6
+          }
+        },
+        {
+          "id": "cargo-route-lamps-part-08",
+          "sprite": "tile.fixture-dock-lamp-amber",
+          "offset": {
+            "x": 22,
+            "y": 11
           }
         }
       ],
@@ -3125,11 +3086,11 @@
       "kind": "ferry",
       "areaId": "ferry-terminal",
       "anchor": {
-        "x": 56,
+        "x": 54,
         "y": 36
       },
       "depthAnchorOffset": {
-        "x": 1,
+        "x": 3,
         "y": 0
       },
       "renderParts": [
@@ -3143,9 +3104,25 @@
         },
         {
           "id": "ferry-landmark-part-02",
-          "sprite": "tile.landmark-ferry-right",
+          "sprite": "tile.landmark-ferry-left",
           "offset": {
             "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-landmark-part-03",
+          "sprite": "tile.landmark-ferry-right",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "ferry-landmark-part-04",
+          "sprite": "tile.landmark-ferry-right",
+          "offset": {
+            "x": 3,
             "y": 0
           }
         }
@@ -3164,19 +3141,19 @@
       }
     },
     {
-      "id": "yard-insects",
-      "kind": "insects",
-      "tile": {
-        "x": 27,
-        "y": 32
-      }
-    },
-    {
-      "id": "harbor-water-glint",
+      "id": "harbor-water-glint-north",
       "kind": "water",
       "tile": {
         "x": 55,
-        "y": 34
+        "y": 30
+      }
+    },
+    {
+      "id": "harbor-water-glint-south",
+      "kind": "water",
+      "tile": {
+        "x": 53,
+        "y": 40
       }
     }
   ],
@@ -3243,25 +3220,25 @@
     {
       "id": "ferry-terminal",
       "bounds": {
-        "x": 36,
-        "y": 29,
-        "width": 14,
-        "height": 12
+        "x": 38,
+        "y": 30,
+        "width": 12,
+        "height": 10
       },
       "densityProfile": "active-public",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
-          "x": 43,
-          "y": 40
+          "x": 44,
+          "y": 39
         }
       ],
       "primaryRoutes": [
         {
-          "x": 42,
+          "x": 43,
           "y": 31,
           "width": 3,
-          "height": 9
+          "height": 8
         }
       ],
       "requiredPortalIds": [
@@ -3315,14 +3292,14 @@
       "preferredInteractionIds": []
     },
     {
-      "locationId": "tomas_marina",
+      "locationId": "ferry_terminal",
       "areaIds": [
-        "government-yard"
+        "ferry-terminal"
       ],
       "preferredInteractionIds": []
     },
     {
-      "locationId": "ferry_terminal",
+      "locationId": "tomas_marina",
       "areaIds": [
         "ferry-terminal"
       ],
@@ -3381,7 +3358,7 @@
   },
   "startComposition": {
     "cameraAnchor": {
-      "x": 20,
+      "x": 48,
       "y": 34
     },
     "requiredActorIds": [
@@ -3389,17 +3366,17 @@
       "tomas_reed"
     ],
     "requiredDetailPartIds": [
-      "pallet-rack-west-part-01",
-      "pallet-rack-west-part-02",
-      "cargo-crane-part-01",
-      "cargo-crane-part-02",
-      "cargo-crane-part-03",
-      "cargo-crane-part-04",
-      "cargo-stack-04-part-01",
-      "cargo-stack-04-part-02"
+      "ferry-boarding-gate-part-01",
+      "ferry-boarding-gate-part-02",
+      "ferry-boarding-gate-part-03",
+      "ferry-boarding-gate-part-04",
+      "ferry-landmark-part-01",
+      "ferry-landmark-part-04",
+      "ferry-east-bench-part-01",
+      "ferry-east-bench-part-02"
     ],
     "landmarkAreaIds": [
-      "cargo-yard"
+      "ferry-terminal"
     ]
   }
 }

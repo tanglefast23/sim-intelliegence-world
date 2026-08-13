@@ -192,7 +192,7 @@ describe('Phase 11 Linda quest and consequences', () => {
       confidenceReady: false,
       equipmentIds: ['first_aid_kit'],
       preparationFlagIds: [],
-      witnessNpcIds: ['generic_resident'],
+      witnessNpcIds: ['generic_resident', 'resident_05', 'resident_06'],
       readinessScore: 1,
     }));
     const prepared = WorldStateSchema.parse({
@@ -215,7 +215,7 @@ describe('Phase 11 Linda quest and consequences', () => {
       readinessScore: 3,
       equipmentIds: ['first_aid_kit'],
       preparationFlagIds: [],
-      witnessNpcIds: ['generic_resident'],
+      witnessNpcIds: ['generic_resident', 'resident_05', 'resident_06'],
     }));
     expect(unpreparedProtect).toEqual(expect.objectContaining({
       result: expect.stringContaining('INJURED ESCAPE'),
@@ -252,7 +252,7 @@ describe('Phase 11 Linda quest and consequences', () => {
       status: 'resolved', flagIds: expect.arrayContaining(['linda_protected', 'linda_relationship_resolved', 'velvet_tide_lead']),
     }));
     expect(result.state.evidence.evidence_linda_protected).toEqual(expect.objectContaining({
-      actionId: 'protect_linda', witnessNpcIds: ['generic_resident'], status: 'noticed',
+      actionId: 'protect_linda', witnessNpcIds: ['generic_resident', 'resident_05', 'resident_06'], status: 'noticed',
     }));
     expect(result.state.npcs.linda_boyfriend?.condition).toBe('injured');
     expect(result.state.journal.journal_linda_boyfriend?.outcomeReceipts).toEqual([

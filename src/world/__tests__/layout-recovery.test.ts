@@ -38,6 +38,27 @@ describe('deterministic layout recovery', () => {
     ]));
   });
 
+  test('moves a stale Sunward actor out of the new shallows deterministically', () => {
+    const initial = createInitialState();
+    const source = WorldStateSchema.parse({
+      ...initial,
+      layoutRevisions: { ...initial.layoutRevisions, northwest_residential: 1 },
+      protagonist: {
+        ...initial.protagonist,
+        locationId: 'northwest_residential',
+        worldPosition: { mapId: 'northwest_residential', tileX: 40, tileY: 44 },
+      },
+    });
+    const first = recoverWorldLayout(source, WORLD_MAP_CATALOG);
+    const second = recoverWorldLayout(source, WORLD_MAP_CATALOG);
+    expect(first).toEqual(second);
+    expect(first.migratedMapIds).toEqual(['northwest_residential']);
+    expect(first.state.protagonist.worldPosition).not.toEqual(source.protagonist.worldPosition);
+    expect(WORLD_MAP_CATALOG.northwest_residential.blockedKeys.has(
+      `${first.state.protagonist.worldPosition.tileX},${first.state.protagonist.worldPosition.tileY}`,
+    )).toBe(false);
+  });
+
   test('moves active and inactive actors within Linda villa without claiming one tile twice', () => {
     const initial = createInitialState();
     const source = stale(WorldStateSchema.parse({
@@ -70,8 +91,7 @@ describe('deterministic layout recovery', () => {
     expect(candidates.has(`${boyfriend.tileX},${boyfriend.tileY}`)).toBe(true);
     expect({ x: linda.tileX, y: linda.tileY }).not.toEqual({ x: boyfriend.tileX, y: boyfriend.tileY });
     expect(result.layoutMigrationEvidence).toEqual(expect.arrayContaining([
-      expect.objectContaining({ recordId: 'linda', reason: 'static_solid' }),
-      expect.objectContaining({ recordId: 'linda_boyfriend' }),
+      expect.objectContaining({ recordId: 'linda_boyfriend', reason: 'claimed_actor' }),
     ]));
   });
 

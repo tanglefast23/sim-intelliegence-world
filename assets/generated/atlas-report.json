@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "artRevision": 13,
+  "artRevision": 14,
   "categories": {
     "ground-base": {
       "actualCount": 81,
@@ -154,7 +154,7 @@
   ],
   "indexVersion": 3,
   "toolVersion": "atlas-v9-authored-full-cast",
-  "imageSha256": "b67abc6917252fc71f2b506b19cbd1e37e2a9a8f77c28fa22c03e120de04a440",
+  "imageSha256": "2e80fdc28e27d1fb688004fac07012fc4a6bd67550d21cadbe7ddb14989ecae9",
   "publicSpriteCount": 609,
   "internalReviewSpriteCount": 0
 }

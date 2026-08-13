@@ -46,19 +46,84 @@ export const PRODUCTION_FULL_AI_CAST = [
   },
 ] as const;
 
-export const PRODUCTION_AMBIENT_RESIDENTS = Array.from({ length: 24 }, (_, index) => {
-  const number = String(index + 1).padStart(2, '0');
-  const id = `resident_${number}` as keyof typeof GENERATED_LAYOUT.actorTiles;
-  return Object.freeze({
-    id,
-    displayName: `Resident ${number}`,
-    position: GENERATED_LAYOUT.actorTiles[id],
-  });
-});
-
 type NpcState = WorldState['npcs'][string];
 type RelationshipState = WorldState['relationships'][string];
 type ScheduleState = WorldState['schedules'][string];
+type Place = Readonly<{ mapId: string; locationId: string; x: number; y: number }>;
+
+const DISTRICT_HUBS = [
+  {
+    mapId: 'northwest_residential',
+    hubs: [[22, 30], [25, 31], [28, 31], [31, 30], [39, 28], [52, 30]],
+  },
+  {
+    mapId: 'northeast_downtown',
+    hubs: [[17, 16], [21, 16], [16, 21], [18, 21], [20, 21], [22, 21]],
+  },
+  {
+    mapId: 'southwest_commercial',
+    hubs: [[9, 36], [12, 36], [15, 36], [19, 38], [23, 38], [25, 36]],
+  },
+  {
+    mapId: 'southeast_docks',
+    hubs: [[37, 34], [40, 34], [43, 34], [46, 34], [50, 34], [53, 34]],
+  },
+] as const;
+
+function place(mapId: string, point: readonly [number, number], locationId = mapId): Place {
+  return { mapId, locationId, x: point[0], y: point[1] };
+}
+
+export const PRODUCTION_AMBIENT_RESIDENTS = DISTRICT_HUBS.flatMap((district, districtIndex) => (
+  district.hubs.map((home, localIndex) => {
+    const number = String(districtIndex * district.hubs.length + localIndex + 1).padStart(2, '0');
+    return Object.freeze({
+      id: `resident_${number}`,
+      displayName: `Resident ${number}`,
+      position: place(district.mapId, home),
+      work: place(district.mapId, district.hubs[(localIndex + 2) % district.hubs.length]!),
+      social: place(district.mapId, district.hubs[(localIndex + 4) % district.hubs.length]!),
+    });
+  })
+));
+
+const NAMED_LIFE: Readonly<Record<string, Readonly<{ home: Place; social: Place; evening: Place }>>> = {
+  mina_park: {
+    home: place('northwest_residential', [34, 15], 'mina_spa'),
+    social: place('northwest_residential', [34, 32]),
+    evening: place('northwest_residential', [45, 41]),
+  },
+  rafael_cruz: {
+    home: place('southwest_commercial', [50, 41]),
+    social: place('southwest_commercial', [21, 38]),
+    evening: place('southwest_commercial', [22, 41]),
+  },
+  sora_tan: {
+    home: place('southwest_commercial', [10, 19]),
+    social: place('southwest_commercial', [17, 36]),
+    evening: place('southwest_commercial', [24, 41]),
+  },
+  devon_price: {
+    home: place('northeast_downtown', [10, 17]),
+    social: place('northeast_downtown', [20, 18]),
+    evening: place('northeast_downtown', [19, 18]),
+  },
+  priya_nair: {
+    home: place('southeast_docks', [10, 16]),
+    social: place('southeast_docks', [40, 34]),
+    evening: place('southeast_docks', [40, 38]),
+  },
+  tomas_reed: {
+    home: place('southeast_docks', [46, 34]),
+    social: place('southeast_docks', [45, 34]),
+    evening: place('southeast_docks', [48, 38]),
+  },
+  elise_moreau: {
+    home: place('northeast_downtown', [17, 38]),
+    social: place('northeast_downtown', [45, 38]),
+    evening: place('northeast_downtown', [46, 38]),
+  },
+};
 
 function blankNpc(
   id: string,
@@ -69,7 +134,8 @@ function blankNpc(
     id,
     tier,
     presence: {
-      kind: 'active_local', mapId: position.mapId, locationId: position.locationId,
+      kind: position.mapId === 'northwest_residential' ? 'active_local' : 'inactive',
+      mapId: position.mapId, locationId: position.locationId,
       tileX: position.x, tileY: position.y,
     },
     knowledge: [],
@@ -79,15 +145,24 @@ function blankNpc(
   };
 }
 
-export function createProductionNpcs(): Record<string, NpcState> {
+export function createProductionNpcs(
+  schedules: Readonly<Record<string, ScheduleState>> = createProductionSchedules(),
+): Record<string, NpcState> {
+  const atEight = (id: string) => schedules[`${id}_daily`]!.blocks.find(({ startMinuteOfDay }) => (
+    startMinuteOfDay === 480
+  ))!;
+  const initialPlace = (id: string): Place => {
+    const block = atEight(id);
+    return { mapId: block.mapId, locationId: block.locationId, x: block.tileX, y: block.tileY };
+  };
   return Object.fromEntries([
     ...PRODUCTION_FULL_AI_CAST.map((character) => [
       character.id,
-      blankNpc(character.id, 'full_ai', character.position),
+      blankNpc(character.id, 'full_ai', initialPlace(character.id)),
     ] as const),
     ...PRODUCTION_AMBIENT_RESIDENTS.map((resident) => [
       resident.id,
-      blankNpc(resident.id, 'ambient', resident.position),
+      blankNpc(resident.id, 'ambient', initialPlace(resident.id)),
     ] as const),
   ]);
 }
@@ -119,39 +194,50 @@ export function createProductionRelationships(): Record<string, RelationshipStat
 
 function residentSchedule(
   id: string,
-  position: Readonly<{ mapId: string; locationId: string; x: number; y: number }>,
-  _index: number,
+  home: Place,
+  work: Place,
+  social: Place,
 ): ScheduleState {
   return {
     id: `${id}_daily`,
     npcId: id,
     blocks: [
-      { startMinuteOfDay: 0, locationId: position.locationId, activityId: 'sleep', mapId: position.mapId, tileX: position.x, tileY: position.y },
-      { startMinuteOfDay: 480, locationId: position.locationId, activityId: 'stroll', mapId: position.mapId, tileX: position.x, tileY: position.y },
-      { startMinuteOfDay: 720, locationId: position.locationId, activityId: 'errands', mapId: position.mapId, tileX: position.x, tileY: position.y },
-      { startMinuteOfDay: 1_080, locationId: position.locationId, activityId: 'socialize', mapId: position.mapId, tileX: position.x, tileY: position.y },
+      { startMinuteOfDay: 0, locationId: home.locationId, activityId: 'sleep', mapId: home.mapId, tileX: home.x, tileY: home.y },
+      { startMinuteOfDay: 480, locationId: work.locationId, activityId: 'work', mapId: work.mapId, tileX: work.x, tileY: work.y },
+      { startMinuteOfDay: 720, locationId: social.locationId, activityId: 'socialize', mapId: social.mapId, tileX: social.x, tileY: social.y },
+      { startMinuteOfDay: 1_080, locationId: home.locationId, activityId: 'evening', mapId: home.mapId, tileX: home.x, tileY: home.y },
     ],
   };
 }
 
 export function createProductionSchedules(): Record<string, ScheduleState> {
   const named = PRODUCTION_FULL_AI_CAST.map((character) => {
+    const life = NAMED_LIFE[character.id]!;
     return [character.id + '_daily', {
     id: character.id + '_daily',
     npcId: character.id,
     blocks: [
-      { startMinuteOfDay: 0, locationId: character.position.locationId, activityId: 'sleep', mapId: character.position.mapId, tileX: character.position.x, tileY: character.position.y },
-      { startMinuteOfDay: 480, locationId: character.position.locationId, activityId: 'morning', mapId: character.position.mapId, tileX: character.position.x, tileY: character.position.y },
-      { startMinuteOfDay: 720, locationId: character.position.locationId, activityId: 'meet_visitors', mapId: character.position.mapId, tileX: character.position.x, tileY: character.position.y },
-      { startMinuteOfDay: 1_080, locationId: character.position.locationId, activityId: 'evening', mapId: character.position.mapId, tileX: character.position.x, tileY: character.position.y },
+      { startMinuteOfDay: 0, locationId: life.home.locationId, activityId: 'sleep', mapId: life.home.mapId, tileX: life.home.x, tileY: life.home.y },
+      { startMinuteOfDay: 480, locationId: character.work.locationId, activityId: 'work', mapId: character.work.mapId, tileX: character.work.x, tileY: character.work.y },
+      { startMinuteOfDay: 720, locationId: life.social.locationId, activityId: 'socialize', mapId: life.social.mapId, tileX: life.social.x, tileY: life.social.y },
+      { startMinuteOfDay: 1_080, locationId: life.evening.locationId, activityId: 'evening', mapId: life.evening.mapId, tileX: life.evening.x, tileY: life.evening.y },
     ],
   } satisfies ScheduleState] as const;
   });
-  const ambient = PRODUCTION_AMBIENT_RESIDENTS.map((resident, index) => {
-    const schedule = residentSchedule(resident.id, resident.position, index);
+  const ambient = PRODUCTION_AMBIENT_RESIDENTS.map((resident) => {
+    const schedule = residentSchedule(resident.id, resident.position, resident.work, resident.social);
     return [schedule.id, schedule] as const;
   });
   return Object.fromEntries([...named, ...ambient]);
+}
+
+export function migrateProductionSchedules(state: WorldState): WorldState {
+  const production = createProductionSchedules();
+  const schedules = { ...state.schedules };
+  for (const [id, schedule] of Object.entries(production)) {
+    if (schedules[id]) schedules[id] = schedule;
+  }
+  return { ...state, schedules };
 }
 
 export const PRODUCTION_CAST_COUNTS = Object.freeze({

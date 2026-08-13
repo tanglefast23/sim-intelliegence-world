@@ -23,4 +23,10 @@ describe('authored district lighting', () => {
     expect(saffron.poolOpacity).toBeLessThan(sunward.poolOpacity);
     expect(saffron.shadow.color).not.toBe(sunward.shadow.color);
   });
+
+  test('keeps entrance pools local instead of washing whole rooms', () => {
+    const lighting = MAP_IDS.map((mapId) => districtLighting(mapId, 1_050));
+    expect(lighting.flatMap(({ pools }) => pools).every(({ radius }) => radius <= 52)).toBe(true);
+    expect(districtLighting('southeast_docks', 1_050).pools).toContainEqual({ x: 49, y: 34, radius: 50 });
+  });
 });

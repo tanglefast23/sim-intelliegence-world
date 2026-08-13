@@ -28,6 +28,7 @@ import {
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
 import { migrateV5ToV6 } from '../../src/domain/state/migrations/v5-to-v6';
+import { migrateProductionSchedules } from '../../src/domain/state/production-cast';
 import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
 import { LayoutMigrationError, recoverWorldLayout } from '../../src/world/maps/layout-recovery';
 import {
@@ -152,14 +153,17 @@ export class SaveRepository {
         ? migrateV5ToV6(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId)
         : recovery.selected.envelope.state;
       const layout = recoverWorldLayout(currentState, this.#catalog);
-      if (sourceSchemaVersion === 6 && layout.migratedMapIds.length === 0) {
+      const scheduledState = migrateProductionSchedules(layout.state);
+      const scheduleChanged = JSON.stringify(layout.state.schedules) !== JSON.stringify(scheduledState.schedules);
+      const migratedState = scheduleChanged ? scheduledState : layout.state;
+      if (sourceSchemaVersion === 6 && layout.migratedMapIds.length === 0 && !scheduleChanged) {
         return LoadResultSchema.parse({
           status: 'unchanged',
           slotId,
           saveGeneration: recovery.selected.envelope.saveGeneration,
           checksum: recovery.selected.envelope.payloadChecksum,
           source: recovery.selected.source,
-          state: layout.state,
+          state: migratedState,
           incompatibleCandidateCount,
           corruptCandidateCount,
         });
@@ -168,7 +172,7 @@ export class SaveRepository {
         slotId,
         expectedSaveGeneration: recovery.selected.envelope.saveGeneration,
         trigger: 'manual',
-        state: layout.state,
+        state: migratedState,
       }));
       if (saved.status !== 'saved') throw new Error('A load-time migration save was deferred.');
       return LoadResultSchema.parse({
@@ -177,7 +181,7 @@ export class SaveRepository {
         saveGeneration: saved.saveGeneration,
         checksum: saved.checksum,
         source: recovery.selected.source,
-        state: layout.state,
+        state: migratedState,
         incompatibleCandidateCount,
         corruptCandidateCount,
         migratedFromSchemaVersion: sourceSchemaVersion,

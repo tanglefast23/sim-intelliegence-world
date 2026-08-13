@@ -6,6 +6,7 @@ import {
   Group,
   Line,
   MipmapMode,
+  Oval,
   RoundedRect,
   Skia,
   rect,
@@ -34,6 +35,8 @@ import { lindaContextActions, type ContextQuestAction } from '../domain/quests/q
 import { parseWorldState, type WorldState } from '../domain/state/schema';
 import { VOCAL_CUE_CAPTIONS, type VocalCueId } from '../audio/vocal-cue-policy';
 import { useVocalCues } from '../audio/vocal-cues';
+import { relationshipSound } from '../audio/halcyra-audio-policy';
+import { useWorldAudio, type InterfaceSoundId } from '../audio/halcyra-audio';
 import { BedActions } from '../ui/BedActions';
 import { ConversationPanel } from '../ui/ConversationPanel';
 import { ContextActionMenu } from '../ui/ContextActionMenu';
@@ -75,6 +78,7 @@ import {
   stepWorldZoom,
   worldZoomPercentage,
 } from '../domain/presentation/world-zoom';
+import { mapEffectVisible } from './atmosphere';
 import { snapWorldPoint, tileFootPoint } from '../world/movement/motion-clock';
 import {
   centerCameraOnWorld,
@@ -317,6 +321,7 @@ function npcLabel(selectedId: string, actors: WorldActors): string {
 }
 
 type WorldSceneProps = Readonly<{
+  audioEnabled?: boolean;
   forceAmbientMotion?: boolean;
   initialConversationFixtureId?: CharacterId;
   initialFeedback: string;
@@ -327,11 +332,13 @@ type WorldSceneProps = Readonly<{
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  playInterfaceSound?: (sound: InterfaceSoundId) => void;
   persistenceDisabled?: boolean;
   surface: ViewportSize;
 }>;
 
 export function WorldScene({
+  audioEnabled = false,
   forceAmbientMotion = false,
   initialConversationFixtureId,
   initialFeedback,
@@ -342,6 +349,7 @@ export function WorldScene({
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  playInterfaceSound = () => undefined,
   persistenceDisabled = false,
   surface,
 }: WorldSceneProps) {
@@ -398,6 +406,21 @@ export function WorldScene({
   surfaceRef.current = surface;
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
+  const movementMaterialId = runtime.movement.segment
+    ? presentationGroundAt(map.presentation, runtime.movement.segment.to, map.source.width).materialId
+    : undefined;
+  const segmentTo = runtime.movement.segment?.to;
+  const doorCrossing = useMemo(() => segmentTo !== undefined && [...map.doorById.values()].some(({ tile }) => (
+    tile.x === segmentTo.x && tile.y === segmentTo.y
+  )), [map, segmentTo?.x, segmentTo?.y]);
+  useWorldAudio({
+    absoluteMinute: runtime.worldState.clock.absoluteMinute,
+    doorCrossing,
+    enabled: audioEnabled,
+    mapId,
+    materialId: movementMaterialId,
+    segment: runtime.movement.segment,
+  });
   const artMode = typeof window !== 'undefined' && window.siWorldSmokeMode === true && window.siWorldArtMode === 'legacy'
     ? 'legacy' as const
     : 'enhanced' as const;
@@ -504,8 +527,13 @@ export function WorldScene({
       setArrivalLock(`${fixtureMapId}:${tile.x},${tile.y}`);
       setWorldFeedback(`VFX FIXTURE · ${effectId.toUpperCase()}`);
       setRuntime((current) => {
+        const absoluteMinute = current.worldState.clock.absoluteMinute;
         const worldState = parseWorldState({
           ...current.worldState,
+          clock: {
+            ...current.worldState.clock,
+            absoluteMinute: mapEffectVisible(effect.kind, absoluteMinute) ? absoluteMinute : 1_260,
+          },
           protagonist: {
             ...current.worldState.protagonist,
             locationId: fixtureMapId,
@@ -570,13 +598,14 @@ export function WorldScene({
       if (result.status === 'saved') {
         saveGeneration.current = result.saveGeneration;
         setSaveStatus(`SAVED GEN ${result.saveGeneration}`);
+        playInterfaceSound('save-complete');
       } else {
         setSaveStatus(`SAVE DEFERRED · ${result.blockingPauseTokens.length} BLOCK`);
       }
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, [persistenceDisabled]);
+  }, [persistenceDisabled, playInterfaceSound]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -761,11 +790,13 @@ export function WorldScene({
   const cancel = useCallback(() => {
     if (openPanel) {
       setOpenPanel(undefined);
+      playInterfaceSound('panel-close');
       return;
     }
     if (conversationNpcId) return;
+    playInterfaceSound('cancel');
     setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
-  }, [conversationNpcId, openPanel]);
+  }, [conversationNpcId, openPanel, playInterfaceSound]);
   const changeSpeed = useCallback((nextSpeed: 0 | 1 | 2) => {
     setRuntime((current) => ({ ...current, worldState: setWorldSpeed(current.worldState, nextSpeed) }));
   }, []);
@@ -787,6 +818,10 @@ export function WorldScene({
     }));
   }, []);
   const applyConversationStableState = useCallback((state: WorldState, committed: boolean) => {
+    const sound = committed
+      ? relationshipSound(runtime.worldState.relationships, state.relationships)
+      : undefined;
+    if (sound) playInterfaceSound(sound);
     setRuntime((current) => ({
       movement: cancelMovement(current.movement),
       npcMovements: npcMovementState(state),
@@ -794,7 +829,7 @@ export function WorldScene({
     }));
     setWorldFeedback(committed ? 'CONVERSATION SAVED' : 'CONVERSATION CANCELLED');
     if (committed) void requestAutosave(state, 'manual');
-  }, [requestAutosave]);
+  }, [playInterfaceSound, requestAutosave, runtime.worldState.relationships]);
   const purchaseSecurityReport = useCallback(() => {
     if (conversationNpcId) return;
     try {
@@ -831,6 +866,8 @@ export function WorldScene({
           ? { ...base, type: 'discover-linda-villa' as const }
           : { ...base, type: 'resolve-linda-quest' as const, approachId: actionId };
       const result = reduceCommand(runtime.worldState, DomainCommandSchema.parse(candidate));
+      const sound = relationshipSound(runtime.worldState.relationships, result.state.relationships);
+      if (sound) playInterfaceSound(sound);
       setRuntime((current) => ({
         movement: cancelMovement(current.movement),
         npcMovements: npcMovementState(result.state),
@@ -851,7 +888,7 @@ export function WorldScene({
     } catch (error) {
       setWorldFeedback(error instanceof Error ? `QUEST BLOCKED · ${error.message.toUpperCase()}` : 'QUEST ACTION FAILED');
     }
-  }, [conversationNpcId, openPanel, requestAutosave, runtime.worldState, triggerVocalCue]);
+  }, [conversationNpcId, openPanel, playInterfaceSound, requestAutosave, runtime.worldState, triggerVocalCue]);
   const advancePoliceHook = useCallback(() => {
     const hook = runtime.worldState.policeAttention === 'noticed'
       ? 'officer_contact'
@@ -1073,12 +1110,15 @@ export function WorldScene({
     right: camera.x + surface.width / camera.zoom + TILE_SIZE,
     bottom: camera.y + surface.height / camera.zoom + TILE_SIZE,
   }), [camera.x, camera.y, camera.zoom, surface.height, surface.width]);
-  const visibleEffects = useMemo(() => map.source.effects.filter((effect) => (
+  const activeEffects = useMemo(() => map.source.effects.filter((effect) => (
+    mapEffectVisible(effect.kind, runtime.worldState.clock.absoluteMinute)
+  )), [map, runtime.worldState.clock.absoluteMinute]);
+  const visibleEffects = useMemo(() => activeEffects.filter((effect) => (
     vfxBoundsIntersectWorldRect(effect, vfxViewport)
-  )), [map, vfxViewport]);
-  const culledEffects = useMemo(() => map.source.effects.filter((effect) => (
+  )), [activeEffects, vfxViewport]);
+  const culledEffects = useMemo(() => activeEffects.filter((effect) => (
     !vfxBoundsIntersectWorldRect(effect, vfxViewport)
-  )), [map, vfxViewport]);
+  )), [activeEffects, vfxViewport]);
   const vfxEmitters = useMemo(
     () => partitionVfxEmitters(mapId, visibleEffects),
     [mapId, visibleEffects],
@@ -1272,9 +1312,9 @@ export function WorldScene({
                   p1={vec((character.shadowWorldX + 5) * camera.zoom, (character.shadowWorldY + 1) * camera.zoom)}
                   p2={vec((character.shadowWorldX + lighting.shadow.x) * camera.zoom, (character.shadowWorldY + lighting.shadow.y) * camera.zoom)}
                   strokeCap="round"
-                  strokeWidth={5 * camera.zoom}
+                  strokeWidth={9 * camera.zoom}
                 />
-                <RoundedRect color={lighting.shadow.color} height={4 * camera.zoom} r={2 * camera.zoom} width={17 * camera.zoom} x={(character.shadowWorldX - 2) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
+                <RoundedRect color={lighting.shadow.color} height={7 * camera.zoom} r={3.5 * camera.zoom} width={22 * camera.zoom} x={(character.shadowWorldX - 4) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
               </Group>
             ))}
           </Group>
@@ -1359,6 +1399,12 @@ export function WorldScene({
           <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
             <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
+            <Oval
+              color={lighting.accent}
+              rect={rect(selectedScreen.x - 17 * Math.min(1.5, camera.zoom), selectedScreen.y - 9 * Math.min(1.5, camera.zoom), 34 * Math.min(1.5, camera.zoom), 18 * Math.min(1.5, camera.zoom))}
+              style="stroke"
+              strokeWidth={2}
+            />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
             {destinationMarker ? (() => {
               const screen = worldToScreen(camera, tileFootPoint(destinationMarker));
@@ -1416,7 +1462,6 @@ export function WorldScene({
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}
-              reducedMotion={reducedMotion}
               subtitle={selected === 'protagonist' ? undefined : selectedSubtitle}
               viewportWidth={surface.width}
               x={selectedScreen.x}
@@ -1530,9 +1575,10 @@ export function WorldScene({
           areaName={currentAreaName}
           availableWidth={surface.width}
           mapName={map.source.displayName}
-          onJournal={() => setOpenPanel('journal')}
+          onJournal={() => { playInterfaceSound('panel-open'); setOpenPanel('journal'); }}
+          onPressSound={() => playInterfaceSound('press')}
           onSave={() => void requestAutosave(runtime.worldState, 'manual')}
-          onSocial={() => setOpenPanel('relationships')}
+          onSocial={() => { playInterfaceSound('panel-open'); setOpenPanel('relationships'); }}
           onSpeed={changeSpeed}
           onUiScale={selectUiScale}
           onZoom={changeWorldZoom}
@@ -1547,6 +1593,7 @@ export function WorldScene({
         <SelectedCharacterCard
           accent={lighting.accent}
           availableWidth={surface.width}
+          compact={selected === 'protagonist' && reactionId !== 'protagonist'}
           onCenter={() => setCamera((current) => centerCameraOnWorld(selectedFoot, current.zoom, surface, MAP_PIXELS))}
           onTalk={stateNpcId(selected, runtime.worldState) && !conversationNpcId && !openPanel
             ? () => setConversationNpcId(stateNpcId(selected, runtime.worldState))
@@ -1611,7 +1658,7 @@ export function WorldScene({
         {openPanel === 'journal' ? (
           <JournalPanel
             accent={lighting.accent}
-            onDismiss={() => setOpenPanel(undefined)}
+            onDismiss={() => { playInterfaceSound('panel-close'); setOpenPanel(undefined); }}
             onAdvancePolice={advancePoliceHook}
             onPurchaseSecurityReport={purchaseSecurityReport}
             state={runtime.worldState}
@@ -1623,7 +1670,7 @@ export function WorldScene({
           <RelationshipPanel
             accent={lighting.accent}
             npcId={runtime.worldState.relationships[selected] ? selected : 'linda'}
-            onDismiss={() => setOpenPanel(undefined)}
+            onDismiss={() => { playInterfaceSound('panel-close'); setOpenPanel(undefined); }}
             state={runtime.worldState}
             surface={surface}
             uiScale={uiScale}

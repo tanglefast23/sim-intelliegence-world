@@ -17,6 +17,9 @@ describe('dev harness scenario states', () => {
     const state = devHarnessGoldenHourState(mapId);
     expect(state.clock).toMatchObject({ absoluteMinute: 1_050, selectedSpeed: 0 });
     expect(state.protagonist.worldPosition.mapId).toBe(mapId);
+    expect(Object.values(state.npcs).filter(({ presence }) => (
+      presence.kind === 'active_local' && presence.mapId === mapId
+    )).length).toBeGreaterThanOrEqual(6);
   });
 
   test.each(DEV_HARNESS_MAP_IDS)('opens %s at an unblocked grounding close-up', (mapId) => {

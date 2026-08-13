@@ -116,7 +116,7 @@
     "id": "resident_07",
     "displayName": "Resident 07",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "northeast_downtown",
     "factionIds": []
   },
   {
@@ -124,7 +124,7 @@
     "id": "resident_08",
     "displayName": "Resident 08",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "northeast_downtown",
     "factionIds": []
   },
   {
@@ -132,7 +132,7 @@
     "id": "resident_09",
     "displayName": "Resident 09",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "northeast_downtown",
     "factionIds": []
   },
   {
@@ -140,7 +140,7 @@
     "id": "resident_10",
     "displayName": "Resident 10",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "northeast_downtown",
     "factionIds": []
   },
   {
@@ -148,7 +148,7 @@
     "id": "resident_11",
     "displayName": "Resident 11",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "northeast_downtown",
     "factionIds": []
   },
   {
@@ -156,7 +156,7 @@
     "id": "resident_12",
     "displayName": "Resident 12",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "northeast_downtown",
     "factionIds": []
   },
   {
@@ -164,7 +164,7 @@
     "id": "resident_13",
     "displayName": "Resident 13",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southwest_commercial",
     "factionIds": []
   },
   {
@@ -172,7 +172,7 @@
     "id": "resident_14",
     "displayName": "Resident 14",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southwest_commercial",
     "factionIds": []
   },
   {
@@ -180,7 +180,7 @@
     "id": "resident_15",
     "displayName": "Resident 15",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southwest_commercial",
     "factionIds": []
   },
   {
@@ -188,7 +188,7 @@
     "id": "resident_16",
     "displayName": "Resident 16",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southwest_commercial",
     "factionIds": []
   },
   {
@@ -196,7 +196,7 @@
     "id": "resident_17",
     "displayName": "Resident 17",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southwest_commercial",
     "factionIds": []
   },
   {
@@ -204,7 +204,7 @@
     "id": "resident_18",
     "displayName": "Resident 18",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southwest_commercial",
     "factionIds": []
   },
   {
@@ -212,7 +212,7 @@
     "id": "resident_19",
     "displayName": "Resident 19",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southeast_docks",
     "factionIds": []
   },
   {
@@ -220,7 +220,7 @@
     "id": "resident_20",
     "displayName": "Resident 20",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southeast_docks",
     "factionIds": []
   },
   {
@@ -228,7 +228,7 @@
     "id": "resident_21",
     "displayName": "Resident 21",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southeast_docks",
     "factionIds": []
   },
   {
@@ -236,7 +236,7 @@
     "id": "resident_22",
     "displayName": "Resident 22",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southeast_docks",
     "factionIds": []
   },
   {
@@ -244,7 +244,7 @@
     "id": "resident_23",
     "displayName": "Resident 23",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southeast_docks",
     "factionIds": []
   },
   {
@@ -252,7 +252,7 @@
     "id": "resident_24",
     "displayName": "Resident 24",
     "tier": "ambient",
-    "homeLocationId": "northwest_residential",
+    "homeLocationId": "southeast_docks",
     "factionIds": []
   }
 ]

@@ -7,6 +7,7 @@ import {
 import { createInitialState } from '../../domain/state/initial-state';
 import { parseWorldState, type WorldState } from '../../domain/state/schema';
 import type { MapId } from '../../world/maps/catalog';
+import { simulateWorldInterval } from '../../world/schedules/simulation';
 
 export const DEV_HARNESS_MAP_IDS = [
   'northwest_residential',
@@ -59,10 +60,13 @@ export function devHarnessLocationState(
 
 export function devHarnessGoldenHourState(mapId: MapId = 'northwest_residential'): WorldState {
   const state = devHarnessLocationState(mapId);
-  return parseWorldState({
-    ...state,
-    clock: { ...state.clock, absoluteMinute: 17 * 60 + 30 },
-  });
+  return paused(simulateWorldInterval({
+    state,
+    toAbsoluteMinute: 17 * 60 + 30,
+    toSubMinuteMilliseconds: 0,
+    awake: false,
+    frameMovement: false,
+  }).state);
 }
 
 export function devHarnessHeroSceneState(mapId: MapId): WorldState {
@@ -76,11 +80,11 @@ export function devHarnessHeroSceneState(mapId: MapId): WorldState {
   const localNpcs = Object.fromEntries(Object.entries(state.npcs).map(([id, npc]) => {
     const index = stagedIds.indexOf(id);
     if (index < 0) return [id, npc];
-    const tile = {
-      x: composition.cameraAnchor.x + (index === 0 ? -3 : 3),
+    const tile = [3, 4, 2].map((distance) => ({
+      x: composition.cameraAnchor.x + (index === 0 ? -distance : distance),
       y: composition.cameraAnchor.y + 2,
-    };
-    if (WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${tile.x},${tile.y}`)) {
+    })).find((candidate) => !WORLD_MAP_CATALOG[mapId].blockedKeys.has(`${candidate.x},${candidate.y}`));
+    if (!tile) {
       throw new Error(`Dev harness hero actor tile ${mapId}/${id} is blocked.`);
     }
     return [id, {

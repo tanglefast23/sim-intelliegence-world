@@ -27,7 +27,7 @@ export function declaredVfxBounds(effect: Readonly<Pick<AuthoredMapEffect, 'kind
     neon: { left: 10, top: 5, right: 10, bottom: 5 },
     palm: { left: 12, top: 9, right: 12, bottom: 7 },
     steam: { left: 7, top: 18, right: 7, bottom: 2 },
-    water: { left: 15, top: 4, right: 15, bottom: 4 },
+    water: { left: 15, top: 6, right: 15, bottom: 4 },
   }[effect.kind];
   return Object.freeze({
     left: center.x - extent.left,
@@ -161,12 +161,13 @@ function environmentalGeometry(
     ]);
   }
   if (emitter.kind === 'water') {
-    const spread = reducedMotion ? 0 : phase;
+    const waterDrift = reducedMotion ? 0 : phase - 2;
     return Object.freeze([
-      rect('water-shadow', center.x - 14 + spread, center.y + 2, 11, 2),
-      rect('water-shadow', center.x + 3 - spread, center.y - 3, 10, 2),
-      rect('water-primary', center.x - 12 + spread, center.y + 1, 9, 1),
-      rect('water-primary', center.x + 4 - spread, center.y - 4, 8, 1),
+      rect('water-shadow', center.x - 11 + waterDrift, center.y, 22, 4),
+      rect('water-shadow', center.x - 7 - waterDrift, center.y - 6, 14, 3),
+      rect('water-primary', center.x - 9 + waterDrift, center.y + 1, 7, 2),
+      rect('water-primary', center.x + 2 + waterDrift, center.y + 1, 7, 2),
+      rect('water-primary', center.x - 5 - waterDrift, center.y - 5, 10, 1),
     ]);
   }
   throw new Error(`Unsupported environmental VFX kind: ${emitter.kind}.`);

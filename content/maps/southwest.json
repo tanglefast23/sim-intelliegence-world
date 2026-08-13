@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "layoutRevision": 1,
+  "layoutRevision": 2,
   "id": "southwest_commercial",
   "displayName": "Saffron Bazaar",
   "width": 64,
@@ -67,11 +67,19 @@
       },
       {
         "id": "courtyard-market-rug",
-        "x": 11,
-        "y": 30,
-        "width": 15,
-        "height": 9,
+        "x": 7,
+        "y": 31,
+        "width": 19,
+        "height": 14,
         "sprite": "tile.sunset-mosaic"
+      },
+      {
+        "id": "courtyard-customer-lane",
+        "x": 8,
+        "y": 36,
+        "width": 17,
+        "height": 3,
+        "sprite": "tile.sunset-promenade"
       },
       {
         "id": "market-hall-floor",
@@ -884,87 +892,6 @@
       "interactions": []
     },
     {
-      "id": "hall-authored-details",
-      "kind": "passable-market-life",
-      "areaId": "market-hall",
-      "anchor": {
-        "x": 12,
-        "y": 12
-      },
-      "depthAnchorOffset": {
-        "x": 12,
-        "y": 7
-      },
-      "renderParts": [
-        {
-          "id": "hall-authored-details-part-01",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "hall-authored-details-part-02",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": 10,
-            "y": 0
-          }
-        },
-        {
-          "id": "hall-authored-details-part-03",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 0,
-            "y": 4
-          }
-        },
-        {
-          "id": "hall-authored-details-part-04",
-          "sprite": "tile.market-detail-chalk",
-          "offset": {
-            "x": 10,
-            "y": 4
-          }
-        },
-        {
-          "id": "hall-authored-details-part-05",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": -3,
-            "y": 1
-          }
-        },
-        {
-          "id": "hall-authored-details-part-06",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 12,
-            "y": 1
-          }
-        },
-        {
-          "id": "hall-authored-details-part-07",
-          "sprite": "tile.market-detail-chalk",
-          "offset": {
-            "x": -3,
-            "y": 7
-          }
-        },
-        {
-          "id": "hall-authored-details-part-08",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 12,
-            "y": 7
-          }
-        }
-      ],
-      "solidFootprints": [],
-      "interactions": []
-    },
-    {
       "id": "food-counter-west",
       "kind": "food-counter",
       "areaId": "food-arcade",
@@ -1533,87 +1460,6 @@
       "interactions": []
     },
     {
-      "id": "food-authored-details",
-      "kind": "passable-market-life",
-      "areaId": "food-arcade",
-      "anchor": {
-        "x": 44,
-        "y": 12
-      },
-      "depthAnchorOffset": {
-        "x": 12,
-        "y": 7
-      },
-      "renderParts": [
-        {
-          "id": "food-authored-details-part-01",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "food-authored-details-part-02",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": 10,
-            "y": 0
-          }
-        },
-        {
-          "id": "food-authored-details-part-03",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 0,
-            "y": 4
-          }
-        },
-        {
-          "id": "food-authored-details-part-04",
-          "sprite": "tile.market-detail-chalk",
-          "offset": {
-            "x": 10,
-            "y": 4
-          }
-        },
-        {
-          "id": "food-authored-details-part-05",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": -2,
-            "y": 1
-          }
-        },
-        {
-          "id": "food-authored-details-part-06",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 12,
-            "y": 1
-          }
-        },
-        {
-          "id": "food-authored-details-part-07",
-          "sprite": "tile.market-detail-chalk",
-          "offset": {
-            "x": -2,
-            "y": 7
-          }
-        },
-        {
-          "id": "food-authored-details-part-08",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 12,
-            "y": 7
-          }
-        }
-      ],
-      "solidFootprints": [],
-      "interactions": []
-    },
-    {
       "id": "restaurant-counter-west",
       "kind": "restaurant-counter",
       "areaId": "restaurant-row",
@@ -2114,93 +1960,12 @@
       "interactions": []
     },
     {
-      "id": "restaurant-authored-details",
-      "kind": "passable-market-life",
-      "areaId": "restaurant-row",
-      "anchor": {
-        "x": 44,
-        "y": 37
-      },
-      "depthAnchorOffset": {
-        "x": 8,
-        "y": 3
-      },
-      "renderParts": [
-        {
-          "id": "restaurant-authored-details-part-01",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-02",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": 10,
-            "y": 0
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-03",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 0,
-            "y": 1
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-04",
-          "sprite": "tile.market-detail-chalk",
-          "offset": {
-            "x": 10,
-            "y": 1
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-05",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": -3,
-            "y": 5
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-06",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 13,
-            "y": 5
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-07",
-          "sprite": "tile.market-detail-chalk",
-          "offset": {
-            "x": 2,
-            "y": 3
-          }
-        },
-        {
-          "id": "restaurant-authored-details-part-08",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 8,
-            "y": 3
-          }
-        }
-      ],
-      "solidFootprints": [],
-      "interactions": []
-    },
-    {
       "id": "courtyard-canopy",
       "kind": "market-canopy",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 7,
-        "y": 33
+        "x": 16,
+        "y": 32
       },
       "depthAnchorOffset": {
         "x": 1,
@@ -2285,7 +2050,7 @@
       "kind": "market-stall",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 12,
+        "x": 10,
         "y": 34
       },
       "depthAnchorOffset": {
@@ -2337,8 +2102,8 @@
       "kind": "market-stall",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 19,
-        "y": 36
+        "x": 13,
+        "y": 34
       },
       "depthAnchorOffset": {
         "x": 1,
@@ -2389,7 +2154,7 @@
       "kind": "market-stall",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 7,
+        "x": 10,
         "y": 39
       },
       "depthAnchorOffset": {
@@ -2441,8 +2206,8 @@
       "kind": "market-stall",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 19,
-        "y": 41
+        "x": 13,
+        "y": 39
       },
       "depthAnchorOffset": {
         "x": 1,
@@ -2493,8 +2258,8 @@
       "kind": "market-fountain",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 22,
-        "y": 32
+        "x": 20,
+        "y": 34
       },
       "depthAnchorOffset": {
         "x": 1,
@@ -2665,12 +2430,12 @@
       "kind": "market-bench",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 10,
-        "y": 42
+        "x": 19,
+        "y": 39
       },
       "depthAnchorOffset": {
-        "x": 13,
-        "y": 1
+        "x": 4,
+        "y": 4
       },
       "renderParts": [
         {
@@ -2686,23 +2451,23 @@
           "sprite": "tile.sunset-market-bench",
           "offset": {
             "x": 4,
-            "y": -4
+            "y": 0
           }
         },
         {
           "id": "courtyard-benches-part-03",
           "sprite": "tile.sunset-market-bench",
           "offset": {
-            "x": 13,
-            "y": -4
+            "x": 0,
+            "y": 4
           }
         },
         {
           "id": "courtyard-benches-part-04",
           "sprite": "tile.sunset-market-bench",
           "offset": {
-            "x": 13,
-            "y": 1
+            "x": 4,
+            "y": 4
           }
         }
       ],
@@ -2720,7 +2485,7 @@
           "id": "courtyard-benches-solid-02",
           "bounds": {
             "x": 4,
-            "y": -4,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -2728,8 +2493,8 @@
         {
           "id": "courtyard-benches-solid-03",
           "bounds": {
-            "x": 13,
-            "y": -4,
+            "x": 0,
+            "y": 4,
             "width": 1,
             "height": 1
           }
@@ -2737,8 +2502,8 @@
         {
           "id": "courtyard-benches-solid-04",
           "bounds": {
-            "x": 13,
-            "y": 1,
+            "x": 4,
+            "y": 4,
             "width": 1,
             "height": 1
           }
@@ -2747,144 +2512,198 @@
       "interactions": []
     },
     {
-      "id": "courtyard-authored-details",
-      "kind": "passable-market-life",
+      "id": "courtyard-dining-tables",
+      "kind": "restaurant-table",
       "areaId": "sunset-courtyard",
       "anchor": {
-        "x": 6,
-        "y": 35
+        "x": 20,
+        "y": 40
       },
       "depthAnchorOffset": {
-        "x": 9,
-        "y": 4
+        "x": 1,
+        "y": 2
       },
       "renderParts": [
         {
-          "id": "courtyard-authored-details-part-01",
-          "sprite": "tile.market-detail-petals",
+          "id": "courtyard-dining-tables-part-01",
+          "sprite": "tile.table-left",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "courtyard-authored-details-part-02",
-          "sprite": "tile.market-detail-chalk",
+          "id": "courtyard-dining-tables-part-02",
+          "sprite": "tile.table-right",
           "offset": {
-            "x": 3,
+            "x": 1,
             "y": 0
           }
         },
         {
-          "id": "courtyard-authored-details-part-03",
-          "sprite": "tile.market-detail-herbs",
+          "id": "courtyard-dining-tables-part-03",
+          "sprite": "tile.table-left",
           "offset": {
-            "x": 5,
-            "y": -2
-          }
-        },
-        {
-          "id": "courtyard-authored-details-part-04",
-          "sprite": "tile.market-detail-paper",
-          "offset": {
-            "x": 8,
-            "y": 0
-          }
-        },
-        {
-          "id": "courtyard-authored-details-part-05",
-          "sprite": "tile.market-detail-petals",
-          "offset": {
-            "x": 12,
-            "y": 0
-          }
-        },
-        {
-          "id": "courtyard-authored-details-part-06",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 15,
+            "x": 0,
             "y": 2
           }
         },
         {
-          "id": "courtyard-authored-details-part-07",
-          "sprite": "tile.market-detail-chalk",
+          "id": "courtyard-dining-tables-part-04",
+          "sprite": "tile.table-right",
+          "offset": {
+            "x": 1,
+            "y": 2
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "courtyard-dining-tables-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-dining-tables-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-dining-tables-solid-03",
+          "bounds": {
+            "x": 0,
+            "y": 2,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "courtyard-dining-tables-solid-04",
+          "bounds": {
+            "x": 1,
+            "y": 2,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "courtyard-edge-fixtures",
+      "kind": "market-lights",
+      "areaId": "sunset-courtyard",
+      "anchor": {
+        "x": 8,
+        "y": 32
+      },
+      "depthAnchorOffset": {
+        "x": 16,
+        "y": 9
+      },
+      "renderParts": [
+        {
+          "id": "courtyard-edge-fixtures-part-01",
+          "sprite": "tile.fixture-lamp",
           "offset": {
             "x": 0,
-            "y": 5
+            "y": 0
           }
         },
         {
-          "id": "courtyard-authored-details-part-08",
-          "sprite": "tile.market-detail-paper",
+          "id": "courtyard-edge-fixtures-part-02",
+          "sprite": "tile.fixture-lamp",
           "offset": {
-            "x": 3,
-            "y": 5
+            "x": 4,
+            "y": 0
           }
         },
         {
-          "id": "courtyard-authored-details-part-09",
-          "sprite": "tile.market-detail-petals",
+          "id": "courtyard-edge-fixtures-part-03",
+          "sprite": "tile.fixture-lamp",
           "offset": {
             "x": 12,
-            "y": 7
+            "y": 0
           }
         },
         {
-          "id": "courtyard-authored-details-part-10",
-          "sprite": "tile.market-detail-herbs",
+          "id": "courtyard-edge-fixtures-part-04",
+          "sprite": "tile.fixture-lamp",
           "offset": {
-            "x": 15,
-            "y": 7
+            "x": 16,
+            "y": 0
           }
         },
         {
-          "id": "courtyard-authored-details-part-11",
-          "sprite": "tile.market-detail-petals",
+          "id": "courtyard-edge-fixtures-part-05",
+          "sprite": "tile.fixture-lamp",
           "offset": {
-            "x": -1,
-            "y": -2
+            "x": 0,
+            "y": 12
           }
         },
         {
-          "id": "courtyard-authored-details-part-12",
-          "sprite": "tile.market-detail-herbs",
+          "id": "courtyard-edge-fixtures-part-06",
+          "sprite": "tile.fixture-lamp",
           "offset": {
-            "x": 18,
-            "y": -1
+            "x": 4,
+            "y": 12
           }
         },
         {
-          "id": "courtyard-authored-details-part-13",
-          "sprite": "tile.market-detail-paper",
+          "id": "courtyard-edge-fixtures-part-07",
+          "sprite": "tile.fixture-lamp",
           "offset": {
-            "x": -1,
+            "x": 12,
+            "y": 12
+          }
+        },
+        {
+          "id": "courtyard-edge-fixtures-part-08",
+          "sprite": "tile.fixture-lamp",
+          "offset": {
+            "x": 16,
+            "y": 12
+          }
+        },
+        {
+          "id": "courtyard-edge-fixtures-part-09",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
+            "y": 3
+          }
+        },
+        {
+          "id": "courtyard-edge-fixtures-part-10",
+          "sprite": "tile.flowering-market-planter",
+          "offset": {
+            "x": 0,
             "y": 9
           }
         },
         {
-          "id": "courtyard-authored-details-part-14",
-          "sprite": "tile.market-detail-chalk",
+          "id": "courtyard-edge-fixtures-part-11",
+          "sprite": "tile.flowering-market-planter",
           "offset": {
-            "x": 18,
-            "y": 10
+            "x": 16,
+            "y": 3
           }
         },
         {
-          "id": "courtyard-authored-details-part-15",
-          "sprite": "tile.market-detail-petals",
+          "id": "courtyard-edge-fixtures-part-12",
+          "sprite": "tile.flowering-market-planter",
           "offset": {
-            "x": 6,
-            "y": 8
-          }
-        },
-        {
-          "id": "courtyard-authored-details-part-16",
-          "sprite": "tile.market-detail-herbs",
-          "offset": {
-            "x": 9,
-            "y": 4
+            "x": 16,
+            "y": 9
           }
         }
       ],
@@ -3390,7 +3209,7 @@
       "id": "courtyard-steam-west",
       "kind": "steam",
       "tile": {
-        "x": 12,
+        "x": 11,
         "y": 34
       }
     },
@@ -3398,16 +3217,8 @@
       "id": "courtyard-steam-east",
       "kind": "steam",
       "tile": {
-        "x": 19,
-        "y": 36
-      }
-    },
-    {
-      "id": "courtyard-water-glint",
-      "kind": "water",
-      "tile": {
-        "x": 22,
-        "y": 32
+        "x": 14,
+        "y": 39
       }
     },
     {
@@ -3617,8 +3428,8 @@
   },
   "startComposition": {
     "cameraAnchor": {
-      "x": 16,
-      "y": 30
+      "x": 17,
+      "y": 37
     },
     "requiredActorIds": [
       "linda",

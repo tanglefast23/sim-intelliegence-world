@@ -21,6 +21,7 @@ const SCHEDULE_TILES = GENERATED_LAYOUT.scheduleTiles;
 
 export function createInitialState(displayName = 'Player'): WorldState {
   const prng = createPrng(0x51_57_01);
+  const productionSchedules = createProductionSchedules();
   return parseWorldState({
     schemaVersion: STATE_SCHEMA_VERSION,
     engineVersion: ENGINE_VERSION,
@@ -61,13 +62,8 @@ export function createInitialState(displayName = 'Player'): WorldState {
         id: 'linda',
         tier: 'full_ai',
         presence: {
-          kind: 'active_local', mapId: ACTORS.linda.mapId, locationId: 'linda_villa',
-          tileX: ACTORS.linda.x, tileY: ACTORS.linda.y,
-        },
-        scheduleGoal: {
-          mapId: SCHEDULE_TILES.linda_relax.mapId, locationId: SCHEDULE_TILES.linda_relax.locationId,
-          activityId: 'relax', tileX: SCHEDULE_TILES.linda_relax.x,
-          tileY: SCHEDULE_TILES.linda_relax.y, scheduledMinute: 480,
+          kind: 'active_local', mapId: ACTORS.linda.mapId, locationId: SCHEDULE_TILES.linda_relax.locationId,
+          tileX: SCHEDULE_TILES.linda_relax.x, tileY: SCHEDULE_TILES.linda_relax.y,
         },
         knowledge: [],
         unlockedInterestIds: [],
@@ -79,12 +75,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
         tier: 'ambient',
         presence: {
           kind: 'active_local', mapId: ACTORS.generic_resident.mapId, locationId: 'northwest_residential',
-          tileX: ACTORS.generic_resident.x, tileY: ACTORS.generic_resident.y,
-        },
-        scheduleGoal: {
-          mapId: SCHEDULE_TILES.generic_work.mapId, locationId: SCHEDULE_TILES.generic_work.locationId,
-          activityId: 'work', tileX: SCHEDULE_TILES.generic_work.x,
-          tileY: SCHEDULE_TILES.generic_work.y, scheduledMinute: 480,
+          tileX: SCHEDULE_TILES.generic_work.x, tileY: SCHEDULE_TILES.generic_work.y,
         },
         knowledge: [],
         unlockedInterestIds: [],
@@ -104,7 +95,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
         unlockedIds: [],
         memories: [],
       },
-      ...createProductionNpcs(),
+      ...createProductionNpcs(productionSchedules),
     },
     relationships: {
       linda: {
@@ -202,7 +193,7 @@ export function createInitialState(displayName = 'Player'): WorldState {
           { startMinuteOfDay: 1_080, locationId: SCHEDULE_TILES.generic_nightlife.locationId, activityId: 'nightlife', mapId: SCHEDULE_TILES.generic_nightlife.mapId, tileX: SCHEDULE_TILES.generic_nightlife.x, tileY: SCHEDULE_TILES.generic_nightlife.y },
         ],
       },
-      ...createProductionSchedules(),
+      ...productionSchedules,
     },
     transfers: {},
     evidence: {},

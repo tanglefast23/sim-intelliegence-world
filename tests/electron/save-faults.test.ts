@@ -390,6 +390,7 @@ describe('save migrations and state invariants', () => {
     const slotPath = join(root, 'save-slots', 'slot-001');
     await mkdir(slotPath, { recursive: true });
     const fixtureBytes = readFileSync(resolve('tests/fixtures/saves/valid-v5-envelope.json'), 'utf8');
+    const sourceState = parseSupportedSaveEnvelope(JSON.parse(fixtureBytes) as unknown).state;
     await writeFile(join(slotPath, 'state.json'), fixtureBytes, 'utf8');
 
     const loaded = await new SaveRepository(root, WORLD_MAP_CATALOG).load('slot-001');
@@ -406,6 +407,11 @@ describe('save migrations and state invariants', () => {
       state: expect.objectContaining({ schemaVersion: 6 }),
     }));
     const backupBytes = await readFile(join(slotPath, 'state.json.bak'), 'utf8');
+    if (loaded.status !== 'migrated') throw new Error('Expected production schedule migration.');
+    expect(loaded.state.schedules).toEqual(createInitialState().schedules);
+    expect(loaded.state.relationships).toEqual(sourceState.relationships);
+    expect(loaded.state.quests).toEqual(sourceState.quests);
+    expect(loaded.state.eventLedger).toEqual(sourceState.eventLedger);
     expect(backupBytes).toBe(fixtureBytes);
     expect(parseSupportedSaveEnvelope(JSON.parse(backupBytes) as unknown).state.schemaVersion).toBe(5);
     expect(parseSaveEnvelope(JSON.parse(await readFile(join(slotPath, 'state.json'), 'utf8')) as unknown).saveGeneration).toBe(8);

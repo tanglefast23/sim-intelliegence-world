@@ -140,13 +140,14 @@ function appendRole(
       addScreenRect(builder, camera, centerX - 4 + drift, centerY - 9 - rise, 2, 6);
       addScreenRect(builder, camera, centerX + 3 - drift, centerY - 14 + rise / 2, 2, 7);
     } else if (emitter.kind === 'water' && role === 'water-shadow') {
-      const spread = reducedMotion ? 0 : phase;
-      addScreenRect(builder, camera, centerX - 14 + spread, centerY + 2, 11, 2);
-      addScreenRect(builder, camera, centerX + 3 - spread, centerY - 3, 10, 2);
+      const drift = reducedMotion ? 0 : phase - 2;
+      addScreenRect(builder, camera, centerX - 11 + drift, centerY, 22, 4);
+      addScreenRect(builder, camera, centerX - 7 - drift, centerY - 6, 14, 3);
     } else if (emitter.kind === 'water' && role === 'water-primary') {
-      const spread = reducedMotion ? 0 : phase;
-      addScreenRect(builder, camera, centerX - 12 + spread, centerY + 1, 9, 1);
-      addScreenRect(builder, camera, centerX + 4 - spread, centerY - 4, 8, 1);
+      const drift = reducedMotion ? 0 : phase - 2;
+      addScreenRect(builder, camera, centerX - 9 + drift, centerY + 1, 7, 2);
+      addScreenRect(builder, camera, centerX + 2 + drift, centerY + 1, 7, 2);
+      addScreenRect(builder, camera, centerX - 5 - drift, centerY - 5, 10, 1);
     }
   }
 }

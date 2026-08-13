@@ -95,7 +95,7 @@ export type SunwardReviewReport = Readonly<{
   artRevision: number;
   mapId: 'northwest_residential';
   mapSourceSha256: string;
-  sourceGeometryChanged: false;
+  sourceGeometryChanged: true;
   materials: Readonly<Record<string, readonly string[]>>;
   architectureSprites: readonly string[];
   files: readonly string[];
@@ -121,7 +121,7 @@ export function writeSunwardReview(outputRoot: string, root = process.cwd()): Su
     artRevision: index.artRevision,
     mapId: 'northwest_residential',
     mapSourceSha256: createHash('sha256').update(mapSource).digest('hex'),
-    sourceGeometryChanged: false,
+    sourceGeometryChanged: true,
     materials: Object.freeze(Object.fromEntries(MATERIALS.map((id) => [
       id,
       Object.freeze([...(MATERIAL_RECIPE_BY_ID[id]?.publicVariantSprites ?? [])]),

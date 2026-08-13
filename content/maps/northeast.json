@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "layoutRevision": 1,
+  "layoutRevision": 2,
   "id": "northeast_downtown",
   "displayName": "Neon Crescent",
   "width": 64,
@@ -128,6 +128,14 @@
         "width": 18,
         "height": 10,
         "sprite": "tile.neon-floor"
+      },
+      {
+        "id": "club-service-alley",
+        "x": 30,
+        "y": 7,
+        "width": 2,
+        "height": 13,
+        "sprite": "tile.dark-asphalt"
       }
     ]
   },
@@ -184,7 +192,15 @@
           "width": 1,
           "height": 11
         },
-        "openings": []
+        "openings": [
+          {
+            "id": "club-service-opening",
+            "tile": {
+              "x": 29,
+              "y": 12
+            }
+          }
+        ]
       },
       {
         "id": "arcade-row-north",
@@ -352,6 +368,12 @@
       "sprite": "tile.open-door"
     },
     {
+      "id": "club-service-door",
+      "openingId": "club-service-opening",
+      "initialState": "closed-unlocked",
+      "sprite": "tile.closed-door"
+    },
+    {
       "id": "arcade-door",
       "openingId": "arcade-row-entrance",
       "initialState": "open",
@@ -372,86 +394,86 @@
   ],
   "objects": [
     {
-      "id": "club-strip-fixtures",
-      "kind": "development-fixtures",
+      "id": "club-bar",
+      "kind": "bar-counter",
       "areaId": "club-strip",
       "anchor": {
         "x": 10,
-        "y": 9
+        "y": 12
       },
       "depthAnchorOffset": {
-        "x": 17,
-        "y": 7
+        "x": 7,
+        "y": 0
       },
       "renderParts": [
         {
-          "id": "club-strip-fixtures-part-01",
-          "sprite": "tile.sign-neon",
+          "id": "club-bar-part-01",
+          "sprite": "tile.counter-left",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "club-strip-fixtures-part-02",
-          "sprite": "tile.fixture-neon-lamp-cyan",
+          "id": "club-bar-part-02",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 1,
             "y": 0
           }
         },
         {
-          "id": "club-strip-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
+          "id": "club-bar-part-03",
+          "sprite": "tile.counter-left",
           "offset": {
             "x": 2,
             "y": 0
           }
         },
         {
-          "id": "club-strip-fixtures-part-04",
-          "sprite": "tile.counter-left",
+          "id": "club-bar-part-04",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 3,
             "y": 0
           }
         },
         {
-          "id": "club-strip-fixtures-part-05",
-          "sprite": "tile.sign-neon",
-          "offset": {
-            "x": 14,
-            "y": 7
-          }
-        },
-        {
-          "id": "club-strip-fixtures-part-06",
-          "sprite": "tile.fixture-neon-lamp-magenta",
-          "offset": {
-            "x": 15,
-            "y": 7
-          }
-        },
-        {
-          "id": "club-strip-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 16,
-            "y": 7
-          }
-        },
-        {
-          "id": "club-strip-fixtures-part-08",
+          "id": "club-bar-part-05",
           "sprite": "tile.counter-left",
           "offset": {
-            "x": 17,
-            "y": 7
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-bar-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-bar-part-07",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-bar-part-08",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 7,
+            "y": 0
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "club-strip-fixtures-solid-01",
+          "id": "club-bar-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -460,7 +482,7 @@
           }
         },
         {
-          "id": "club-strip-fixtures-solid-02",
+          "id": "club-bar-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -469,7 +491,7 @@
           }
         },
         {
-          "id": "club-strip-fixtures-solid-03",
+          "id": "club-bar-solid-03",
           "bounds": {
             "x": 2,
             "y": 0,
@@ -478,7 +500,7 @@
           }
         },
         {
-          "id": "club-strip-fixtures-solid-04",
+          "id": "club-bar-solid-04",
           "bounds": {
             "x": 3,
             "y": 0,
@@ -487,19 +509,37 @@
           }
         },
         {
-          "id": "club-strip-fixtures-solid-05",
+          "id": "club-bar-solid-05",
           "bounds": {
-            "x": 14,
-            "y": 7,
+            "x": 4,
+            "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "club-strip-fixtures-solid-06",
+          "id": "club-bar-solid-06",
           "bounds": {
-            "x": 15,
-            "y": 7,
+            "x": 5,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-bar-solid-07",
+          "bounds": {
+            "x": 6,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "club-bar-solid-08",
+          "bounds": {
+            "x": 7,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -508,15 +548,64 @@
       "interactions": []
     },
     {
+      "id": "club-backbar",
+      "kind": "bar-signage",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 10,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 7,
+        "y": 0
+      },
+      "renderParts": [
+        {
+          "id": "club-backbar-part-01",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-backbar-part-02",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-backbar-part-03",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-backbar-part-04",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 7,
+            "y": 0
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
       "id": "club-entrance-neon",
       "kind": "entrance-signage",
       "areaId": "club-strip",
       "anchor": {
-        "x": 11,
+        "x": 16,
         "y": 20
       },
       "depthAnchorOffset": {
-        "x": 16,
+        "x": 6,
         "y": 0
       },
       "renderParts": [
@@ -530,9 +619,9 @@
         },
         {
           "id": "club-entrance-neon-part-02",
-          "sprite": "tile.fixture-neon-lamp-magenta",
+          "sprite": "tile.sign-neon",
           "offset": {
-            "x": 4,
+            "x": 2,
             "y": 0
           }
         },
@@ -540,31 +629,15 @@
           "id": "club-entrance-neon-part-03",
           "sprite": "tile.sign-neon",
           "offset": {
-            "x": 6,
+            "x": 4,
             "y": 0
           }
         },
         {
           "id": "club-entrance-neon-part-04",
-          "sprite": "tile.sign-neon",
-          "offset": {
-            "x": 10,
-            "y": 0
-          }
-        },
-        {
-          "id": "club-entrance-neon-part-05",
-          "sprite": "tile.fixture-neon-lamp-cyan",
-          "offset": {
-            "x": 12,
-            "y": 0
-          }
-        },
-        {
-          "id": "club-entrance-neon-part-06",
           "sprite": "tile.fixture-neon-lamp-magenta",
           "offset": {
-            "x": 16,
+            "x": 6,
             "y": 0
           }
         }
@@ -582,7 +655,7 @@
         {
           "id": "club-entrance-neon-solid-02",
           "bounds": {
-            "x": 4,
+            "x": 2,
             "y": 0,
             "width": 1,
             "height": 1
@@ -591,7 +664,7 @@
         {
           "id": "club-entrance-neon-solid-03",
           "bounds": {
-            "x": 6,
+            "x": 4,
             "y": 0,
             "width": 1,
             "height": 1
@@ -600,25 +673,7 @@
         {
           "id": "club-entrance-neon-solid-04",
           "bounds": {
-            "x": 10,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "club-entrance-neon-solid-05",
-          "bounds": {
-            "x": 12,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "club-entrance-neon-solid-06",
-          "bounds": {
-            "x": 16,
+            "x": 6,
             "y": 0,
             "width": 1,
             "height": 1
@@ -836,54 +891,119 @@
       "interactions": []
     },
     {
-      "id": "club-neon-fountain",
-      "kind": "neon-fountain",
+      "id": "club-dance-lights",
+      "kind": "dance-floor-lighting",
       "areaId": "club-strip",
       "anchor": {
-        "x": 18,
-        "y": 16
+        "x": 15,
+        "y": 14
       },
       "depthAnchorOffset": {
-        "x": 1,
-        "y": 1
+        "x": 8,
+        "y": 4
       },
       "renderParts": [
         {
-          "id": "club-neon-fountain-part-01",
-          "sprite": "tile.landmark-fountain-nw",
+          "id": "club-dance-lights-part-01",
+          "sprite": "tile.fixture-neon-lamp-cyan",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "club-neon-fountain-part-02",
-          "sprite": "tile.landmark-fountain-ne",
+          "id": "club-dance-lights-part-02",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 8,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-dance-lights-part-03",
+          "sprite": "tile.fixture-neon-lamp-magenta",
+          "offset": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "id": "club-dance-lights-part-04",
+          "sprite": "tile.fixture-neon-lamp-cyan",
+          "offset": {
+            "x": 8,
+            "y": 4
+          }
+        }
+      ],
+      "solidFootprints": [],
+      "interactions": []
+    },
+    {
+      "id": "club-dj-booth",
+      "kind": "dj-booth",
+      "areaId": "club-strip",
+      "anchor": {
+        "x": 17,
+        "y": 14
+      },
+      "depthAnchorOffset": {
+        "x": 2,
+        "y": -1
+      },
+      "renderParts": [
+        {
+          "id": "club-dj-booth-part-01",
+          "sprite": "tile.counter-left",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-dj-booth-part-02",
+          "sprite": "tile.counter-right",
           "offset": {
             "x": 1,
             "y": 0
           }
         },
         {
-          "id": "club-neon-fountain-part-03",
-          "sprite": "tile.landmark-fountain-sw",
+          "id": "club-dj-booth-part-03",
+          "sprite": "tile.counter-left",
           "offset": {
-            "x": 0,
-            "y": 1
+            "x": 2,
+            "y": 0
           }
         },
         {
-          "id": "club-neon-fountain-part-04",
-          "sprite": "tile.landmark-fountain-se",
+          "id": "club-dj-booth-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "id": "club-dj-booth-part-05",
+          "sprite": "tile.sign-neon",
           "offset": {
             "x": 1,
-            "y": 1
+            "y": -1
+          }
+        },
+        {
+          "id": "club-dj-booth-part-06",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 2,
+            "y": -1
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "club-neon-fountain-solid-01",
+          "id": "club-dj-booth-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -892,7 +1012,7 @@
           }
         },
         {
-          "id": "club-neon-fountain-solid-02",
+          "id": "club-dj-booth-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -901,19 +1021,19 @@
           }
         },
         {
-          "id": "club-neon-fountain-solid-03",
+          "id": "club-dj-booth-solid-03",
           "bounds": {
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "club-neon-fountain-solid-04",
+          "id": "club-dj-booth-solid-04",
           "bounds": {
-            "x": 1,
-            "y": 1,
+            "x": 3,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -922,86 +1042,38 @@
       "interactions": []
     },
     {
-      "id": "arcade-row-fixtures",
-      "kind": "development-fixtures",
-      "areaId": "arcade-row",
+      "id": "club-service-stack",
+      "kind": "service-supplies",
+      "areaId": "club-strip",
       "anchor": {
-        "x": 42,
-        "y": 9
+        "x": 30,
+        "y": 8
       },
       "depthAnchorOffset": {
-        "x": 15,
-        "y": 7
+        "x": 1,
+        "y": 0
       },
       "renderParts": [
         {
-          "id": "arcade-row-fixtures-part-01",
-          "sprite": "tile.sign-neon",
+          "id": "club-service-stack-part-01",
+          "sprite": "tile.cargo-stack-left",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "arcade-row-fixtures-part-02",
-          "sprite": "tile.fixture-neon-lamp-magenta",
+          "id": "club-service-stack-part-02",
+          "sprite": "tile.cargo-stack-right",
           "offset": {
             "x": 1,
             "y": 0
-          }
-        },
-        {
-          "id": "arcade-row-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 2,
-            "y": 0
-          }
-        },
-        {
-          "id": "arcade-row-fixtures-part-04",
-          "sprite": "tile.counter-left",
-          "offset": {
-            "x": 3,
-            "y": 0
-          }
-        },
-        {
-          "id": "arcade-row-fixtures-part-05",
-          "sprite": "tile.sign-neon",
-          "offset": {
-            "x": 12,
-            "y": 7
-          }
-        },
-        {
-          "id": "arcade-row-fixtures-part-06",
-          "sprite": "tile.fixture-neon-lamp-cyan",
-          "offset": {
-            "x": 13,
-            "y": 7
-          }
-        },
-        {
-          "id": "arcade-row-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
-          "offset": {
-            "x": 14,
-            "y": 7
-          }
-        },
-        {
-          "id": "arcade-row-fixtures-part-08",
-          "sprite": "tile.counter-right",
-          "offset": {
-            "x": 15,
-            "y": 7
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "arcade-row-fixtures-solid-01",
+          "id": "club-service-stack-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -1010,7 +1082,139 @@
           }
         },
         {
-          "id": "arcade-row-fixtures-solid-02",
+          "id": "club-service-stack-solid-02",
+          "bounds": {
+            "x": 1,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "interactions": []
+    },
+    {
+      "id": "arcade-machine-banks",
+      "kind": "arcade-machines",
+      "areaId": "arcade-row",
+      "anchor": {
+        "x": 42,
+        "y": 10
+      },
+      "depthAnchorOffset": {
+        "x": 13,
+        "y": 6
+      },
+      "renderParts": [
+        {
+          "id": "arcade-machine-banks-part-01",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-02",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-03",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-04",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 7,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-05",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 12,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-06",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 13,
+            "y": 0
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-07",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-08",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 1,
+            "y": 6
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-09",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 6,
+            "y": 6
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-10",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 7,
+            "y": 6
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-11",
+          "sprite": "tile.sign-neon",
+          "offset": {
+            "x": 12,
+            "y": 6
+          }
+        },
+        {
+          "id": "arcade-machine-banks-part-12",
+          "sprite": "tile.counter-right",
+          "offset": {
+            "x": 13,
+            "y": 6
+          }
+        }
+      ],
+      "solidFootprints": [
+        {
+          "id": "arcade-machine-banks-solid-01",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -1019,37 +1223,91 @@
           }
         },
         {
-          "id": "arcade-row-fixtures-solid-03",
+          "id": "arcade-machine-banks-solid-03",
           "bounds": {
-            "x": 2,
+            "x": 6,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "arcade-row-fixtures-solid-04",
+          "id": "arcade-machine-banks-solid-04",
           "bounds": {
-            "x": 3,
+            "x": 7,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "arcade-row-fixtures-solid-05",
+          "id": "arcade-machine-banks-solid-05",
           "bounds": {
             "x": 12,
-            "y": 7,
+            "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "arcade-row-fixtures-solid-06",
+          "id": "arcade-machine-banks-solid-06",
           "bounds": {
             "x": 13,
-            "y": 7,
+            "y": 0,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-07",
+          "bounds": {
+            "x": 0,
+            "y": 6,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-08",
+          "bounds": {
+            "x": 1,
+            "y": 6,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-09",
+          "bounds": {
+            "x": 6,
+            "y": 6,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-10",
+          "bounds": {
+            "x": 7,
+            "y": 6,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-11",
+          "bounds": {
+            "x": 12,
+            "y": 6,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "arcade-machine-banks-solid-12",
+          "bounds": {
+            "x": 13,
+            "y": 6,
             "width": 1,
             "height": 1
           }
@@ -1178,86 +1436,86 @@
       "interactions": []
     },
     {
-      "id": "studio-row-fixtures",
-      "kind": "development-fixtures",
+      "id": "studio-worktables",
+      "kind": "studio-worktables",
       "areaId": "studio-row",
       "anchor": {
         "x": 9,
         "y": 34
       },
       "depthAnchorOffset": {
-        "x": 15,
-        "y": 3
+        "x": 6,
+        "y": 4
       },
       "renderParts": [
         {
-          "id": "studio-row-fixtures-part-01",
-          "sprite": "tile.sign-market",
+          "id": "studio-worktables-part-01",
+          "sprite": "tile.table-left",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "studio-row-fixtures-part-02",
-          "sprite": "tile.fixture-neon-lamp-cyan",
+          "id": "studio-worktables-part-02",
+          "sprite": "tile.table-right",
           "offset": {
             "x": 1,
             "y": 0
           }
         },
         {
-          "id": "studio-row-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
+          "id": "studio-worktables-part-03",
+          "sprite": "tile.table-left",
           "offset": {
-            "x": 2,
+            "x": 6,
             "y": 0
           }
         },
         {
-          "id": "studio-row-fixtures-part-04",
-          "sprite": "tile.counter-left",
+          "id": "studio-worktables-part-04",
+          "sprite": "tile.table-right",
           "offset": {
-            "x": 3,
+            "x": 7,
             "y": 0
           }
         },
         {
-          "id": "studio-row-fixtures-part-05",
-          "sprite": "tile.sign-market",
+          "id": "studio-worktables-part-05",
+          "sprite": "tile.table-left",
           "offset": {
             "x": 12,
-            "y": 3
+            "y": 0
           }
         },
         {
-          "id": "studio-row-fixtures-part-06",
-          "sprite": "tile.fixture-neon-lamp-magenta",
+          "id": "studio-worktables-part-06",
+          "sprite": "tile.table-right",
           "offset": {
             "x": 13,
-            "y": 3
+            "y": 0
           }
         },
         {
-          "id": "studio-row-fixtures-part-07",
+          "id": "studio-worktables-part-07",
           "sprite": "tile.fixture-planter",
           "offset": {
-            "x": 14,
-            "y": 3
+            "x": 0,
+            "y": 4
           }
         },
         {
-          "id": "studio-row-fixtures-part-08",
-          "sprite": "tile.counter-right",
+          "id": "studio-worktables-part-08",
+          "sprite": "tile.fixture-planter",
           "offset": {
-            "x": 15,
-            "y": 3
+            "x": 6,
+            "y": 4
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "studio-row-fixtures-solid-01",
+          "id": "studio-worktables-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -1266,7 +1524,7 @@
           }
         },
         {
-          "id": "studio-row-fixtures-solid-02",
+          "id": "studio-worktables-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -1275,37 +1533,37 @@
           }
         },
         {
-          "id": "studio-row-fixtures-solid-03",
+          "id": "studio-worktables-solid-03",
           "bounds": {
-            "x": 2,
+            "x": 6,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "studio-row-fixtures-solid-04",
+          "id": "studio-worktables-solid-04",
           "bounds": {
-            "x": 3,
+            "x": 7,
             "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "studio-row-fixtures-solid-05",
+          "id": "studio-worktables-solid-05",
           "bounds": {
             "x": 12,
-            "y": 3,
+            "y": 0,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "studio-row-fixtures-solid-06",
+          "id": "studio-worktables-solid-06",
           "bounds": {
             "x": 13,
-            "y": 3,
+            "y": 0,
             "width": 1,
             "height": 1
           }
@@ -1434,86 +1692,86 @@
       "interactions": []
     },
     {
-      "id": "night-market-fixtures",
-      "kind": "development-fixtures",
+      "id": "night-market-canopies",
+      "kind": "market-canopy",
       "areaId": "night-market",
       "anchor": {
         "x": 41,
-        "y": 33
+        "y": 32
       },
       "depthAnchorOffset": {
-        "x": 13,
-        "y": 4
+        "x": 11,
+        "y": 5
       },
       "renderParts": [
         {
-          "id": "night-market-fixtures-part-01",
-          "sprite": "tile.sign-market",
+          "id": "night-market-canopies-part-01",
+          "sprite": "tile.market-canopy-nw",
           "offset": {
             "x": 0,
             "y": 0
           }
         },
         {
-          "id": "night-market-fixtures-part-02",
-          "sprite": "tile.fixture-neon-lamp-magenta",
+          "id": "night-market-canopies-part-02",
+          "sprite": "tile.market-canopy-ne",
           "offset": {
             "x": 1,
             "y": 0
           }
         },
         {
-          "id": "night-market-fixtures-part-03",
-          "sprite": "tile.fixture-planter",
+          "id": "night-market-canopies-part-03",
+          "sprite": "tile.market-canopy-sw",
           "offset": {
-            "x": 2,
-            "y": 0
+            "x": 0,
+            "y": 1
           }
         },
         {
-          "id": "night-market-fixtures-part-04",
-          "sprite": "tile.counter-left",
+          "id": "night-market-canopies-part-04",
+          "sprite": "tile.market-canopy-se",
           "offset": {
-            "x": 3,
-            "y": 0
+            "x": 1,
+            "y": 1
           }
         },
         {
-          "id": "night-market-fixtures-part-05",
-          "sprite": "tile.sign-market",
+          "id": "night-market-canopies-part-05",
+          "sprite": "tile.market-canopy-nw",
           "offset": {
             "x": 10,
             "y": 4
           }
         },
         {
-          "id": "night-market-fixtures-part-06",
-          "sprite": "tile.fixture-neon-lamp-cyan",
+          "id": "night-market-canopies-part-06",
+          "sprite": "tile.market-canopy-ne",
           "offset": {
             "x": 11,
             "y": 4
           }
         },
         {
-          "id": "night-market-fixtures-part-07",
-          "sprite": "tile.fixture-planter",
+          "id": "night-market-canopies-part-07",
+          "sprite": "tile.market-canopy-sw",
           "offset": {
-            "x": 12,
-            "y": 4
+            "x": 10,
+            "y": 5
           }
         },
         {
-          "id": "night-market-fixtures-part-08",
-          "sprite": "tile.counter-left",
+          "id": "night-market-canopies-part-08",
+          "sprite": "tile.market-canopy-se",
           "offset": {
-            "x": 13,
-            "y": 4
+            "x": 11,
+            "y": 5
           }
         }
       ],
       "solidFootprints": [
         {
-          "id": "night-market-fixtures-solid-01",
+          "id": "night-market-canopies-solid-01",
           "bounds": {
             "x": 0,
             "y": 0,
@@ -1522,7 +1780,7 @@
           }
         },
         {
-          "id": "night-market-fixtures-solid-02",
+          "id": "night-market-canopies-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -1531,25 +1789,25 @@
           }
         },
         {
-          "id": "night-market-fixtures-solid-03",
+          "id": "night-market-canopies-solid-03",
           "bounds": {
-            "x": 2,
-            "y": 0,
+            "x": 0,
+            "y": 1,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "night-market-fixtures-solid-04",
+          "id": "night-market-canopies-solid-04",
           "bounds": {
-            "x": 3,
-            "y": 0,
+            "x": 1,
+            "y": 1,
             "width": 1,
             "height": 1
           }
         },
         {
-          "id": "night-market-fixtures-solid-05",
+          "id": "night-market-canopies-solid-05",
           "bounds": {
             "x": 10,
             "y": 4,
@@ -1558,10 +1816,28 @@
           }
         },
         {
-          "id": "night-market-fixtures-solid-06",
+          "id": "night-market-canopies-solid-06",
           "bounds": {
             "x": 11,
             "y": 4,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "night-market-canopies-solid-07",
+          "bounds": {
+            "x": 10,
+            "y": 5,
+            "width": 1,
+            "height": 1
+          }
+        },
+        {
+          "id": "night-market-canopies-solid-08",
+          "bounds": {
+            "x": 11,
+            "y": 5,
             "width": 1,
             "height": 1
           }
@@ -1794,58 +2070,6 @@
       "interactions": []
     },
     {
-      "id": "boulevard-car-01",
-      "kind": "parked-car",
-      "areaId": "club-strip",
-      "anchor": {
-        "x": 7,
-        "y": 24
-      },
-      "depthAnchorOffset": {
-        "x": 1,
-        "y": 0
-      },
-      "renderParts": [
-        {
-          "id": "boulevard-car-01-part-01",
-          "sprite": "tile.parked-car-cyan-left",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "boulevard-car-01-part-02",
-          "sprite": "tile.parked-car-cyan-right",
-          "offset": {
-            "x": 1,
-            "y": 0
-          }
-        }
-      ],
-      "solidFootprints": [
-        {
-          "id": "boulevard-car-01-solid-01",
-          "bounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "boulevard-car-01-solid-02",
-          "bounds": {
-            "x": 1,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        }
-      ],
-      "interactions": []
-    },
-    {
       "id": "boulevard-car-02",
       "kind": "parked-car",
       "areaId": "club-strip",
@@ -1950,58 +2174,6 @@
       "interactions": []
     },
     {
-      "id": "boulevard-car-04",
-      "kind": "parked-car",
-      "areaId": "arcade-row",
-      "anchor": {
-        "x": 55,
-        "y": 24
-      },
-      "depthAnchorOffset": {
-        "x": 1,
-        "y": 0
-      },
-      "renderParts": [
-        {
-          "id": "boulevard-car-04-part-01",
-          "sprite": "tile.parked-car-coral-left",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "boulevard-car-04-part-02",
-          "sprite": "tile.parked-car-coral-right",
-          "offset": {
-            "x": 1,
-            "y": 0
-          }
-        }
-      ],
-      "solidFootprints": [
-        {
-          "id": "boulevard-car-04-solid-01",
-          "bounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "boulevard-car-04-solid-02",
-          "bounds": {
-            "x": 1,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        }
-      ],
-      "interactions": []
-    },
-    {
       "id": "boulevard-car-05",
       "kind": "parked-car",
       "areaId": "studio-row",
@@ -2095,110 +2267,6 @@
         },
         {
           "id": "boulevard-car-06-solid-02",
-          "bounds": {
-            "x": 1,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        }
-      ],
-      "interactions": []
-    },
-    {
-      "id": "boulevard-car-07",
-      "kind": "parked-car",
-      "areaId": "night-market",
-      "anchor": {
-        "x": 55,
-        "y": 28
-      },
-      "depthAnchorOffset": {
-        "x": 1,
-        "y": 0
-      },
-      "renderParts": [
-        {
-          "id": "boulevard-car-07-part-01",
-          "sprite": "tile.parked-car-coral-left",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "boulevard-car-07-part-02",
-          "sprite": "tile.parked-car-coral-right",
-          "offset": {
-            "x": 1,
-            "y": 0
-          }
-        }
-      ],
-      "solidFootprints": [
-        {
-          "id": "boulevard-car-07-solid-01",
-          "bounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "boulevard-car-07-solid-02",
-          "bounds": {
-            "x": 1,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        }
-      ],
-      "interactions": []
-    },
-    {
-      "id": "market-street-car-01",
-      "kind": "parked-car",
-      "areaId": "studio-row",
-      "anchor": {
-        "x": 7,
-        "y": 44
-      },
-      "depthAnchorOffset": {
-        "x": 1,
-        "y": 0
-      },
-      "renderParts": [
-        {
-          "id": "market-street-car-01-part-01",
-          "sprite": "tile.parked-car-cyan-left",
-          "offset": {
-            "x": 0,
-            "y": 0
-          }
-        },
-        {
-          "id": "market-street-car-01-part-02",
-          "sprite": "tile.parked-car-cyan-right",
-          "offset": {
-            "x": 1,
-            "y": 0
-          }
-        }
-      ],
-      "solidFootprints": [
-        {
-          "id": "market-street-car-01-solid-01",
-          "bounds": {
-            "x": 0,
-            "y": 0,
-            "width": 1,
-            "height": 1
-          }
-        },
-        {
-          "id": "market-street-car-01-solid-02",
           "bounds": {
             "x": 1,
             "y": 0,
@@ -2316,18 +2384,10 @@
   ],
   "effects": [
     {
-      "id": "club-sparkle",
-      "kind": "sparkle",
-      "tile": {
-        "x": 19,
-        "y": 11
-      }
-    },
-    {
       "id": "club-neon-west",
       "kind": "neon",
       "tile": {
-        "x": 15,
+        "x": 16,
         "y": 20
       }
     },
@@ -2335,24 +2395,8 @@
       "id": "club-neon-east",
       "kind": "neon",
       "tile": {
-        "x": 23,
+        "x": 22,
         "y": 20
-      }
-    },
-    {
-      "id": "club-insects",
-      "kind": "insects",
-      "tile": {
-        "x": 25,
-        "y": 18
-      }
-    },
-    {
-      "id": "market-sparkle",
-      "kind": "sparkle",
-      "tile": {
-        "x": 45,
-        "y": 34
       }
     }
   ],
@@ -2366,7 +2410,7 @@
         "width": 22,
         "height": 13
       },
-      "densityProfile": "structural-placeholder",
+      "densityProfile": "active-public",
       "intentionalOpenAreas": [],
       "entranceTiles": [
         {
@@ -2374,7 +2418,14 @@
           "y": 18
         }
       ],
-      "primaryRoutes": [],
+      "primaryRoutes": [
+        {
+          "x": 21,
+          "y": 9,
+          "width": 3,
+          "height": 9
+        }
+      ],
       "requiredPortalIds": []
     },
     {
@@ -2524,12 +2575,16 @@
       "club-west-sofa-part-02",
       "club-east-sofa-part-01",
       "club-east-sofa-part-02",
+      "club-entrance-neon-part-02",
       "club-entrance-neon-part-03",
-      "club-entrance-neon-part-04",
-      "club-neon-fountain-part-01",
-      "club-neon-fountain-part-02",
-      "club-neon-fountain-part-03",
-      "club-neon-fountain-part-04",
+      "club-bar-part-01",
+      "club-bar-part-02",
+      "club-dance-lights-part-01",
+      "club-dance-lights-part-02",
+      "club-dance-lights-part-03",
+      "club-dance-lights-part-04",
+      "club-dj-booth-part-01",
+      "club-dj-booth-part-02",
       "boulevard-car-02-part-01",
       "boulevard-car-02-part-02"
     ],

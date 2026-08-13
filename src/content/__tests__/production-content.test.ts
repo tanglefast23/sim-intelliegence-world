@@ -12,6 +12,7 @@ import {
   PRODUCTION_AMBIENT_RESIDENTS,
   PRODUCTION_CAST_COUNTS,
   PRODUCTION_FULL_AI_CAST,
+  migrateProductionSchedules,
 } from '../../domain/state/production-cast';
 import { createInitialState } from '../../domain/state/initial-state';
 import { ATLAS_INDEX, CHARACTER_IDS } from '../../render/atlas';
@@ -49,10 +50,10 @@ describe('Phase 13 production content bill', () => {
     expect(new Set(bill.scheduleIds)).toEqual(new Set(Object.keys(state.schedules)));
     for (const character of PRODUCTION_FULL_AI_CAST) {
       expect(state.npcs[character.id]?.presence).toEqual(expect.objectContaining({
-        mapId: character.position.mapId,
-        locationId: character.position.locationId,
-        tileX: character.position.x,
-        tileY: character.position.y,
+        mapId: character.work.mapId,
+        locationId: character.work.locationId,
+        tileX: character.work.x,
+        tileY: character.work.y,
       }));
     }
     for (const relationship of Object.values(state.relationships).filter(({ npcId }) => state.npcs[npcId]?.tier === 'full_ai')) {
@@ -60,6 +61,25 @@ describe('Phase 13 production content bill', () => {
         id: 'no_aggressive_flirting', blockedActionIds: ['aggressive_flirt'],
       }));
     }
+  });
+
+  test('replaces only production schedules and is idempotent', () => {
+    const state = createInitialState();
+    const old = {
+      ...state,
+      schedules: {
+        ...state.schedules,
+        resident_01_daily: {
+          ...state.schedules.resident_01_daily!,
+          blocks: state.schedules.resident_01_daily!.blocks.map((block) => ({ ...block, activityId: 'old_grid' })),
+        },
+      },
+    };
+    const first = migrateProductionSchedules(old);
+    expect(first.schedules.resident_01_daily).toEqual(state.schedules.resident_01_daily);
+    expect(first.relationships).toBe(old.relationships);
+    expect(first.quests).toBe(old.quests);
+    expect(migrateProductionSchedules(first)).toEqual(first);
   });
 
   test('loads every named character and keeps every projected prompt isolated and below 4,096 estimated tokens', async () => {

@@ -24,10 +24,12 @@ export function CharacterPortrait({
   displayName,
   expression = 'rest',
   npcId,
+  scale = PORTRAIT_SCALE,
 }: Readonly<{
   displayName: string;
   expression?: 'rest' | 'joy' | 'upset';
   npcId: string;
+  scale?: 2 | 3;
 }>) {
   const image = useImage(atlasImage);
   const characterId = portraitCharacterId(npcId);
@@ -39,16 +41,16 @@ export function CharacterPortrait({
     <View
       accessibilityLabel={`Portrait of ${displayName}`}
       nativeID={`conversation-portrait-${characterId}`}
-      style={styles.frame}
+      style={[styles.frame, scale === 3 && styles.largeFrame]}
     >
       {image ? (
         <>
-          <Canvas key={characterId} style={styles.canvas}>
+          <Canvas key={characterId} style={scale === 3 ? styles.largeCanvas : styles.canvas}>
             <Atlas
               image={image}
               sampling={NEAREST}
               sprites={[rect(source.x, source.y, source.width, source.height)]}
-              transforms={[Skia.RSXform(PORTRAIT_SCALE, 0, 0, 0)]}
+              transforms={[Skia.RSXform(scale, 0, 0, 0)]}
             />
           </Canvas>
           <View nativeID={`conversation-portrait-${characterId}-ready`} style={styles.ready} />
@@ -68,5 +70,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     width: 82,
   },
+  largeCanvas: { height: 132, width: 120 },
+  largeFrame: { height: 134, width: 122 },
   ready: { height: 0, width: 0 },
 });

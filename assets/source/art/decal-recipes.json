@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "artRevision": 13,
+  "artRevision": 14,
   "families": [
     {
       "id": "sand-traces",
@@ -26,7 +26,7 @@
     {
       "id": "grass-tufts",
       "publicSprites": ["tile.decal-grass-tuft"],
-      "densityPerThousand": 260,
+      "densityPerThousand": 0,
       "selectionSalt": "grass-tufts-v4"
     },
     {
@@ -40,7 +40,7 @@
         "tile.decal-neon-light-magenta",
         "tile.decal-neon-puddle"
       ],
-      "densityPerThousand": 300,
+      "densityPerThousand": 0,
       "selectionSalt": "neon-street-life-v1"
     },
     {
@@ -61,7 +61,7 @@
         "tile.decal-dock-salt",
         "tile.decal-dock-oil"
       ],
-      "densityPerThousand": 260,
+      "densityPerThousand": 0,
       "selectionSalt": "dock-surface-life-v1"
     },
     {
@@ -76,7 +76,7 @@
         "tile.decal-sunset-petals",
         "tile.decal-sunset-herbs"
       ],
-      "densityPerThousand": 340,
+      "densityPerThousand": 0,
       "selectionSalt": "sunset-market-life-v1"
     },
     {
@@ -87,7 +87,7 @@
         "tile.decal-sunset-petals",
         "tile.decal-sunset-paper"
       ],
-      "densityPerThousand": 110,
+      "densityPerThousand": 0,
       "selectionSalt": "sunset-route-wear-v1"
     }
   ]

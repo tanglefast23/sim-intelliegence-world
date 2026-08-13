@@ -72,6 +72,7 @@ if (smokeMode && smokeUserData) {
 if (smokeMode) {
   app.commandLine.appendSwitch('disable-background-timer-throttling');
   app.commandLine.appendSwitch('disable-renderer-backgrounding');
+  app.commandLine.appendSwitch('mute-audio');
 }
 
 if (responsiveHighDpiMode) {
@@ -109,7 +110,7 @@ async function captureSmokeScreenshot(
   deadlineMilliseconds?: number,
 ): Promise<Buffer> {
   const image = await captureNonEmptySmokeFrame(
-    () => window.webContents.capturePage(),
+    () => window.webContents.capturePage(undefined, { stayHidden: true }),
     waitForSmokeRetry,
     { deadlineMilliseconds },
   );
@@ -122,7 +123,7 @@ async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPa
     true,
   ) as Promise<boolean>;
   const image = await captureLoadingSmokeFrame(
-    () => window.webContents.capturePage(),
+    () => window.webContents.capturePage(undefined, { stayHidden: true }),
     loadingVisible,
     waitForSmokeRetry,
   );
@@ -291,8 +292,18 @@ function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom:
 }
 
 async function clickZoomButton(window: BrowserWindow, zoom: 1 | 2 | 3): Promise<void> {
-  await window.webContents.executeJavaScript(`(() => {
-    const value = document.querySelector('#world-ui-zoom-value');
+  await window.webContents.executeJavaScript(`(async () => {
+    let value = document.querySelector('#world-ui-zoom-value');
+    const settings = document.querySelector('[aria-label="Open display settings"]');
+    if (!(value instanceof HTMLElement)) {
+      if (!(settings instanceof HTMLElement)) throw new Error('Display settings button is missing.');
+      settings.click();
+      const deadline = Date.now() + 2_000;
+      while (!(document.querySelector('#world-ui-zoom-value') instanceof HTMLElement) && Date.now() < deadline) {
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
+      }
+      value = document.querySelector('#world-ui-zoom-value');
+    }
     if (!(value instanceof HTMLElement)) throw new Error('World zoom value is missing.');
     const currentPercentage = Number.parseInt(value.textContent ?? '', 10);
     const targetPercentage = ${zoom * 100};
@@ -450,7 +461,7 @@ async function clickAriaButton(window: BrowserWindow, label: string): Promise<vo
   const result = await window.webContents.executeJavaScript(`(() => {
     try {
       const button = Array.from(document.querySelectorAll('[aria-label]')).find(
-        (element) => element.getAttribute('aria-label') === ${JSON.stringify(label)},
+        (element) => (element.getAttribute('aria-label') ?? '').toLowerCase() === ${JSON.stringify(label)}.toLowerCase(),
       );
       if (!(button instanceof HTMLElement)) return { clicked: false, error: null };
       button.click();
@@ -543,7 +554,7 @@ async function waitForAriaButtonEnabled(
   while (Date.now() < deadline) {
     const enabled = await window.webContents.executeJavaScript(`(() => {
       const button = Array.from(document.querySelectorAll('[aria-label]')).find(
-        (element) => element.getAttribute('aria-label') === ${JSON.stringify(label)},
+        (element) => (element.getAttribute('aria-label') ?? '').toLowerCase() === ${JSON.stringify(label)}.toLowerCase(),
       );
       return button instanceof HTMLElement && button.getAttribute('aria-disabled') !== 'true' &&
         !('disabled' in button && button.disabled === true);
@@ -1288,8 +1299,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   progress('new-game');
   await waitForSelector(window, '#new-game-flow');
   await captureSmokeScreenshot(window, join(directory, 'world-new-game.png'));
-  const newGameFlow = (await rendererText(window, '#new-game-flow')).includes('WELCOME TO HALCYRA') &&
-    (await rendererText(window, '#new-game-flow')).includes('$800');
+  const newGameText = (await rendererText(window, '#new-game-flow')).replace(/\s+/gu, ' ').trim();
+  const newGameFlow = newGameText.includes('WELCOME TO HALCYRA') && newGameText.includes('$800');
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Player name"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Player name input is missing.');
@@ -1506,8 +1517,19 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForWorldLocation(window, 'Greywake Harbor', { x: 32, y: 0 });
   const docks = parseWorldStateLabel(await worldStateLabel(window));
   await panWorld(window, 0, -500);
-  const closedFerry = docks.mapName === 'Greywake Harbor' &&
-    (await rendererText(window, 'body')).includes('FERRY TERMINAL · CLOSED');
+  await panWorld(window, -500, 0);
+  const ferryMap = WORLD_MAP_CATALOG.southeast_docks;
+  const ferryObject = ferryMap.source.objects.find(({ id }) => id === 'ferry-landmark');
+  const ferryCamera = parseCameraLabel(await cameraLabel(window));
+  const ferrySurface = await surfaceBounds(window);
+  const ferryVisible = ferryObject?.renderParts.some(({ offset }) => {
+    const x = (ferryObject.anchor.x + offset.x) * 32;
+    const y = (ferryObject.anchor.y + offset.y) * 32;
+    return x >= ferryCamera.x && x < ferryCamera.x + ferrySurface.width / ferryCamera.zoom &&
+      y >= ferryCamera.y && y < ferryCamera.y + ferrySurface.height / ferryCamera.zoom;
+  }) === true;
+  const closedFerry = docks.mapName === 'Greywake Harbor' && ferryVisible &&
+    ferryObject?.interactions.length === 0;
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-ferry.png'), [previousWorldBuffer],
   );
@@ -1544,10 +1566,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   await dispatchWorldTileClick(window, lindaTile);
   const talkLabels = await window.webContents.executeJavaScript(
-    `Array.from(document.querySelectorAll('#world-ui-talk [aria-label]')).map((element) => element.getAttribute('aria-label'))`,
+    `Array.from(document.querySelectorAll('[aria-label^="Talk to "]')).map((element) => element.getAttribute('aria-label'))`,
     true,
   ) as readonly (string | null)[];
-  if (!talkLabels.includes('Talk to Linda')) {
+  if (!talkLabels.some((label) => label?.toLowerCase() === 'talk to linda')) {
     throw new Error(`Linda selection failed: talk ${JSON.stringify(talkLabels)}; NPC ${await npcStateLabel(window)}; world ${await worldStateLabel(window)}`);
   }
   await clickAriaButton(window, 'Talk to Linda');
@@ -1698,14 +1720,16 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickAriaButton(window, 'Open relationships');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 150));
   const relationshipText = await rendererText(window, '#world-ui-relationship-panel');
-  const relationshipPanel = relationshipText.includes('FAMILIARITY') && relationshipText.includes('STAGE');
+  const relationshipPanel = ['FAMILIARITY', 'TRUST', 'ATTRACTION'].every((label) => relationshipText.includes(label)) &&
+    ['STRANGER', 'ACQUAINTANCE', 'FRIEND', 'DATING', 'PARTNER', 'ENGAGED', 'MARRIED']
+      .some((stage) => relationshipText.includes(stage));
   const hiddenFaction = relationshipText.includes('OTHER NETWORKS REMAIN HIDDEN') && !relationshipText.includes('VELVET TIDE');
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-social.png'), [previousWorldBuffer],
   );
   await clickAriaButton(window, 'Close relationships');
   const currentLindaTile = parseLindaTile(await npcStateLabel(window));
-  const lindaApproachTile = { x: currentLindaTile.x - 1, y: currentLindaTile.y };
+  const lindaApproachTile = { x: currentLindaTile.x + 1, y: currentLindaTile.y };
   await dispatchWorldTileClick(window, lindaApproachTile);
   await waitForWorldTile(window, lindaApproachTile, 10_000);
   await dispatchWorldTileClick(window, currentLindaTile);
@@ -1883,11 +1907,12 @@ async function createMainWindow(): Promise<void> {
     height: initialPresentation.windowSize?.height ?? 720,
     minHeight: 640,
     minWidth: 960,
-    show: true,
+    show: !smokeMode,
     title: devHarnessMode ? 'SI World · Dev Harness' : 'SI World',
     useContentSize: true,
     webPreferences: {
       ...lockedWebPreferences(preloadPath),
+      ...(smokeMode ? { backgroundThrottling: false } : {}),
       additionalArguments: [
         ...(smokeMode ? [
           '--si-world-smoke-mode=1',
@@ -1900,7 +1925,7 @@ async function createMainWindow(): Promise<void> {
     width: initialPresentation.windowSize?.width ?? 1280,
   });
   activeMainWindow = window;
-  if (smokeMode) window.webContents.setBackgroundThrottling(false);
+  if (smokeMode) window.webContents.setAudioMuted(true);
   if (smokeMode) {
     window.webContents.on('console-message', (details) => {
       if (details.level === 'error' || details.message.includes('SI_WORLD_RENDERER_READY_FAILURE')) {

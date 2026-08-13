@@ -30,6 +30,15 @@ function screenshot(width: number, height: number, fill: number): Buffer {
 }
 
 describe('packaged Electron smoke evidence', () => {
+  test('keeps smoke windows hidden, muted, and hidden during capture', () => {
+    const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
+    expect(main).toContain("app.commandLine.appendSwitch('mute-audio')");
+    expect(main).toContain('show: !smokeMode');
+    expect(main).toContain('backgroundThrottling: false');
+    expect(main).toContain('window.webContents.setAudioMuted(true)');
+    expect(main).toContain('capturePage(undefined, { stayHidden: true })');
+  });
+
   test('uses explicit output roots and rejects immutable historical evidence', () => {
     const root = join(tmpdir(), 'si-world-evidence-root');
     expect(resolveEvidenceOutputRoot([], { defaultRelative: 'output/verification/package' }, root))

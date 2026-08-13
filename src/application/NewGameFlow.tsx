@@ -9,8 +9,10 @@ import { CharacterPortrait } from '../ui/CharacterPortrait';
 import { uiMetrics } from '../ui/ui-metrics';
 import { useReducedMotion } from './accessibility';
 import { normalizePlayerName } from './new-game-name';
+import { useMenuMusic } from '../audio/halcyra-audio';
 
 type NewGameFlowProps = Readonly<{
+  audioEnabled?: boolean;
   busy: boolean;
   error?: string;
   onStart: (displayName: string) => void;
@@ -97,7 +99,7 @@ function IslandBackdrop({ compact }: Readonly<{ compact: boolean }>) {
       </View>
       <View style={styles.arrivalTag}>
         <Text style={styles.arrivalKicker}>ARRIVAL WINDOW</Text>
-        <Text style={styles.arrivalValue}>DAY 1 · 17:30 · SUNWARD BAY</Text>
+        <Text style={styles.arrivalValue}>DAY 1 · 08:00 · SUNWARD BAY</Text>
       </View>
       {!compact ? <View style={styles.sceneLabel}><Text style={styles.sceneLabelText}>SUNWARD VILLAS · HALCYRA ISLAND</Text></View> : null}
       <View style={styles.vignetteTop} />
@@ -106,8 +108,9 @@ function IslandBackdrop({ compact }: Readonly<{ compact: boolean }>) {
   );
 }
 
-export function NewGameFlow({ busy, error, onStart, surface }: NewGameFlowProps) {
+export function NewGameFlow({ audioEnabled = false, busy, error, onStart, surface }: NewGameFlowProps) {
   const [draft, setDraft] = useState('');
+  useMenuMusic(audioEnabled);
   const metrics = uiMetrics(automaticUiScale(surface));
   const compact = surface.width < 900;
   const showCast = surface.width >= 1_180;

@@ -31,11 +31,13 @@ type HudProps = Readonly<{
   zoomOutDisabled: boolean;
   zoomInDisabled: boolean;
   onUiScale: (scale: UiScale) => void;
+  onPressSound: () => void;
 }>;
 
 export function Hud({
   state, mapName, areaName, zoom, saveStatus, accent, availableWidth, uiScale, onSpeed,
   onJournal, onSocial, onSave, saveDisabled, onZoom, zoomOutDisabled, zoomInDisabled, onUiScale,
+  onPressSound,
 }: HudProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const metrics = uiMetrics(uiScale);
@@ -65,7 +67,7 @@ export function Hud({
               <Pressable
                 accessibilityLabel={speed === 0 ? 'Pause time' : `Set ${speed}x time`}
                 key={speed}
-                onPress={() => onSpeed(speed)}
+                onPress={() => { onPressSound(); onSpeed(speed); }}
                 style={({ pressed }) => [
                   styles.speedButton,
                   { height: metrics.pointerTarget, width: metrics.pointerTarget },
@@ -105,22 +107,22 @@ export function Hud({
         <View style={styles.actions}>
           <Pressable accessibilityLabel="Open journal" onPress={onJournal} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>JOURNAL</Text></Pressable>
           <Pressable accessibilityLabel="Open relationships" onPress={onSocial} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text></Pressable>
-          <Pressable accessibilityLabel="Save game" disabled={saveDisabled} onPress={onSave} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, saveDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SAVE</Text></Pressable>
-          <Pressable accessibilityLabel="Open display settings" onPress={() => setSettingsOpen((open) => !open)} style={({ pressed }) => [styles.settingsButton, { minHeight: metrics.pointerTarget }, settingsOpen && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingsText, { fontSize: metrics.secondaryText }]}>SETTINGS</Text></Pressable>
+          <Pressable accessibilityLabel="Save game" disabled={saveDisabled} onPress={() => { onPressSound(); onSave(); }} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, saveDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SAVE</Text></Pressable>
+          <Pressable accessibilityLabel="Open display settings" onPress={() => { onPressSound(); setSettingsOpen((open) => !open); }} style={({ pressed }) => [styles.settingsButton, { minHeight: metrics.pointerTarget }, settingsOpen && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingsText, { fontSize: metrics.secondaryText }]}>SETTINGS</Text></Pressable>
         </View>
       </View>
       {settingsOpen ? (
         <View accessibilityLabel="Display settings" nativeID="world-ui-display-settings" style={styles.settingsDrawer}>
           <View nativeID="world-ui-zoom" style={styles.settingRow}>
             <Text style={[styles.settingLabel, { fontSize: metrics.secondaryText }]}>VIEW</Text>
-            <Pressable accessibilityLabel="Decrease world zoom" disabled={zoomOutDisabled} onPress={() => onZoom(-1)} style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomOutDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>−</Text></Pressable>
+            <Pressable accessibilityLabel="Decrease world zoom" disabled={zoomOutDisabled} onPress={() => { onPressSound(); onZoom(-1); }} style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomOutDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>−</Text></Pressable>
             <Text nativeID="world-ui-zoom-value" style={[styles.settingValue, { fontSize: metrics.secondaryText }]}>{Math.round(zoom * 100)}%</Text>
-            <Pressable accessibilityLabel="Increase world zoom" disabled={zoomInDisabled} onPress={() => onZoom(1)} style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomInDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>+</Text></Pressable>
+            <Pressable accessibilityLabel="Increase world zoom" disabled={zoomInDisabled} onPress={() => { onPressSound(); onZoom(1); }} style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomInDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>+</Text></Pressable>
           </View>
           <View nativeID="world-ui-scale" style={styles.settingRow}>
             <Text style={[styles.settingLabel, { fontSize: metrics.secondaryText }]}>UI SCALE</Text>
             {UI_SCALES.map((scale) => (
-              <Pressable accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`} key={scale} onPress={() => onUiScale(scale)} style={({ pressed }) => [styles.scaleButton, { minHeight: metrics.pointerTarget }, uiScale === scale && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>{Math.round(scale * 100)}%</Text></Pressable>
+              <Pressable accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`} key={scale} onPress={() => { onPressSound(); onUiScale(scale); }} style={({ pressed }) => [styles.scaleButton, { minHeight: metrics.pointerTarget }, uiScale === scale && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>{Math.round(scale * 100)}%</Text></Pressable>
             ))}
           </View>
         </View>

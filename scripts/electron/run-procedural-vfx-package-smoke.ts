@@ -11,6 +11,7 @@ import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { VfxEvidenceSchema } from '../../src/render/vfx/evidence';
+import { VFX_KINDS } from '../../src/render/vfx/types';
 import { findPackagedExecutable, validateWorldZoomEvidence } from './package-smoke-utils';
 import { validateVfxModePerformance } from './vfx-mode-performance';
 
@@ -18,7 +19,7 @@ const CameraSchema = z.object({ x: z.number(), y: z.number(), zoom: z.union([z.l
 const AnchorSchema = z.object({
   mapId: z.string().min(1),
   id: z.string().min(1),
-  kind: z.enum(['fire', 'sparkle']),
+  kind: z.enum(VFX_KINDS),
   x: z.number().int(),
   y: z.number().int(),
   fixtureEvidence: VfxEvidenceSchema,
@@ -41,7 +42,7 @@ const VfxSmokeSchema = z.object({
   artPresentation: z.string().startsWith('Art mode enhanced;'),
   contentSize: z.object({ width: z.number().int().positive(), height: z.number().int().positive() }).strict(),
   devicePixelRatio: z.number().min(2),
-  anchors: z.array(AnchorSchema).length(6),
+  anchors: z.array(AnchorSchema).length(EXPECTED_VFX_ANCHORS.length),
   pause: z.object({
     frozen: z.literal(true),
     ageStep: z.number().int().nonnegative(),

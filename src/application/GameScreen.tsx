@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { createInitialState } from '../domain/state/initial-state';
+import { useAudioEnabled, useInterfaceSounds } from '../audio/halcyra-audio';
 import type { WorldState } from '../domain/state/schema';
 import { WorldScene } from '../render/WorldScene';
 import { getDesktopBridge } from './DesktopBridge';
@@ -34,6 +35,8 @@ type GameScreenProps = Readonly<{ onReady: () => void; surface: ViewportSize }>;
 
 export function GameScreen({ onReady, surface }: GameScreenProps) {
   const [boot, setBoot] = useState<BootState>({ status: 'loading' });
+  const audioEnabled = useAudioEnabled();
+  const playInterfaceSound = useInterfaceSounds(audioEnabled);
 
   useEffect(() => {
     const bridge = getDesktopBridge();
@@ -88,6 +91,7 @@ export function GameScreen({ onReady, surface }: GameScreenProps) {
   }, [boot.status, onReady]);
 
   const startNewGame = useCallback((displayName: string) => {
+    playInterfaceSound('confirm');
     const state = createInitialState(displayName);
     const bridge = getDesktopBridge();
     const preferences = boot.status === 'new' ? boot.preferences : DEFAULT_PRESENTATION_PREFERENCES;
@@ -129,7 +133,7 @@ export function GameScreen({ onReady, surface }: GameScreenProps) {
     }).catch(() => {
       setBoot({ status: 'new', busy: false, error: 'The save write failed. No new game was started.', preferences });
     });
-  }, [boot]);
+  }, [boot, playInterfaceSound]);
 
   const savePresentationPreferences = useCallback((patch: RendererPresentationPatch) => {
     const bridge = getDesktopBridge();
@@ -139,7 +143,7 @@ export function GameScreen({ onReady, surface }: GameScreenProps) {
   if (boot.status === 'loading') return <LoadingShell detail="Checking your Halcyra save…" surface={surface} />;
   if (boot.status === 'failed') return <LoadingShell detail={boot.detail} failed surface={surface} />;
   if (boot.status === 'new') {
-    return <NewGameFlow busy={boot.busy} error={boot.error} onStart={startNewGame} surface={surface} />;
+    return <NewGameFlow audioEnabled={audioEnabled} busy={boot.busy} error={boot.error} onStart={startNewGame} surface={surface} />;
   }
   return (
     <WorldScene
@@ -148,8 +152,10 @@ export function GameScreen({ onReady, surface }: GameScreenProps) {
       initialSaveStatus={boot.session.saveStatus}
       initialState={boot.session.state}
       initialPresentationPreferences={boot.session.preferences}
+      audioEnabled={audioEnabled}
       newGame={boot.session.newGame}
       onPresentationPreferencesChange={savePresentationPreferences}
+      playInterfaceSound={playInterfaceSound}
       surface={surface}
       key={boot.session.key}
     />

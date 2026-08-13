@@ -238,7 +238,7 @@ async function buildWorldCatalog(): Promise<void> {
       id: resident.id,
       displayName: resident.displayName,
       tier: 'ambient',
-      homeLocationId: 'northwest_residential',
+      homeLocationId: resident.position.locationId,
       factionIds: [],
     })),
   ]);

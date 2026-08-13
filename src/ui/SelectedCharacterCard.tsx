@@ -8,6 +8,7 @@ import { uiMetrics } from './ui-metrics';
 export function SelectedCharacterCard({
   accent,
   availableWidth,
+  compact = false,
   onCenter,
   onTalk,
   pose,
@@ -16,6 +17,7 @@ export function SelectedCharacterCard({
 }: Readonly<{
   accent: string;
   availableWidth: number;
+  compact?: boolean;
   onCenter: () => void;
   onTalk?: () => void;
   pose: 'idle' | 'reaction' | 'talk';
@@ -24,6 +26,21 @@ export function SelectedCharacterCard({
 }>) {
   const metrics = uiMetrics(uiScale);
   const poseLabel = pose === 'reaction' ? 'REACTION POSE' : pose === 'talk' ? 'TALKING POSE' : 'IDLE POSE';
+  if (compact) return (
+    <View
+      accessibilityLabel={`${summary.displayName}. Mood ${summary.mood}. Activity ${summary.activity}.`}
+      nativeID="world-ui-character-card"
+      style={[styles.compactCard, { borderLeftColor: accent }]}
+    >
+      <View>
+        <Text style={[styles.compactName, { color: accent }]}>{summary.displayName.toUpperCase()}</Text>
+        <Text style={styles.compactState}>{summary.mood} · {summary.activity}</Text>
+      </View>
+      <Pressable accessibilityLabel={`Center view on ${summary.displayName}`} onPress={onCenter} style={({ pressed }) => [styles.compactButton, pressed && styles.pressed]}>
+        <Text style={styles.secondaryButtonText}>CENTER</Text>
+      </Pressable>
+    </View>
+  );
   return (
     <View
       accessibilityLabel={`${summary.displayName}. ${poseLabel}. Mood ${summary.mood}. Activity ${summary.activity}. Relationship ${summary.relationship}. Destination ${summary.destination}.`}
@@ -68,6 +85,15 @@ const styles = StyleSheet.create({
     gap: 10, left: 14, padding: 8, position: 'absolute', shadowColor: '#070906',
     shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.62, shadowRadius: 0, zIndex: 24,
   },
+  compactButton: { alignItems: 'center', borderColor: '#76573d', borderWidth: 1, justifyContent: 'center', minHeight: 30, paddingHorizontal: 12 },
+  compactCard: {
+    alignItems: 'center', backgroundColor: '#171914f5', borderBottomColor: '#7f5a35', borderBottomWidth: 3,
+    borderLeftWidth: 3, bottom: 42, flexDirection: 'row', gap: 14, justifyContent: 'space-between',
+    left: 14, paddingHorizontal: 10, paddingVertical: 8, position: 'absolute', shadowColor: '#070906',
+    shadowOffset: { height: 5, width: 5 }, shadowOpacity: 0.62, shadowRadius: 0, zIndex: 24,
+  },
+  compactName: { fontFamily: 'Georgia', fontSize: 14, fontWeight: '700' },
+  compactState: { color: '#dec69a', fontFamily: 'Silkscreen', fontSize: 7, marginTop: 2 },
   details: { flex: 1, minWidth: 0 },
   factLabel: { color: '#8e8069', fontFamily: 'Silkscreen', fontSize: 7, width: 42 },
   factRow: { flexDirection: 'row', marginTop: 4 },

@@ -18,7 +18,7 @@ describe('runtime atlas bill and movement contract', () => {
     const renderedNames = buildAtlasProofScene(0).sprites.map(({ sprite }) => sprite);
     expect(new Set(renderedNames)).toEqual(new Set(Object.keys(ATLAS_INDEX.sprites)));
     expect(ATLAS_INDEX.version).toBe(3);
-    expect(ATLAS_INDEX.artRevision).toBe(13);
+    expect(ATLAS_INDEX.artRevision).toBe(14);
     expect(ATLAS_INDEX.publicSpriteIds).toEqual(Object.keys(ATLAS_INDEX.sprites));
     expect(ATLAS_INDEX.internalReviewSpriteIds).toEqual([]);
     expect(ATLAS_INDEX.tiles).toHaveLength(276);
@@ -103,5 +103,18 @@ describe('runtime atlas bill and movement contract', () => {
     const publicIds = new Set(ATLAS_INDEX.publicSpriteIds);
     expect(map.presentation.ground.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
     expect(map.presentation.roofs.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
+  });
+
+  test('draws broad character shadows and places the selection ring behind characters', () => {
+    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    expect(scene).toContain('strokeWidth={9 * camera.zoom}');
+    expect(scene).toContain('width={22 * camera.zoom}');
+    expect(scene.indexOf('<Oval\n              color={lighting.accent}')).toBeGreaterThan(scene.indexOf('slice(0, 3).map(renderLayer)'));
+    expect(scene.indexOf('<Oval\n              color={lighting.accent}')).toBeLessThan(scene.indexOf('slice(3, 6).map(renderLayer)'));
+  });
+
+  test('collapses the self card until the player selects someone interesting', () => {
+    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    expect(scene).toContain("compact={selected === 'protagonist' && reactionId !== 'protagonist'}");
   });
 });

@@ -20,3 +20,8 @@ export function worldAtmosphere(absoluteMinute: number): WorldAtmosphere {
   }
   return { period: 'dusk', wash: '#c55f3030', shade: '#24142c45', accent: '#ffbd74' };
 }
+
+export function mapEffectVisible(kind: string, absoluteMinute: number): boolean {
+  const period = worldAtmosphere(absoluteMinute).period;
+  return kind !== 'neon' || period === 'dusk' || period === 'night';
+}

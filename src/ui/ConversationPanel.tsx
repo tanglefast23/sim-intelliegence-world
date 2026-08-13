@@ -8,7 +8,7 @@ import { cueForConversationTurn, type VocalCueId } from '../audio/vocal-cue-poli
 import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, type UiScale } from '../render/responsive-layout';
-import { authoredBeginFallback, conversationGenerationNote, portraitExpressionForEmotion } from './conversation-feedback';
+import { authoredBeginFallback, conversationGenerationNote, conversationIdentity, portraitExpressionForEmotion } from './conversation-feedback';
 import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
 
@@ -205,28 +205,31 @@ export function ConversationPanel({
     }
     void close(false);
   };
-  const relationship = state.relationships[npcId];
-  const activity = state.npcs[npcId]?.scheduleGoal?.activityId.replaceAll('_', ' ') ?? 'present';
+  const stateNpcId = npcId.replaceAll('-', '_');
+  const relationship = state.relationships[stateNpcId];
+  const activity = state.npcs[stateNpcId]?.scheduleGoal?.activityId.replaceAll('_', ' ') ?? 'present';
+  const identity = conversationIdentity(npcId, locationName);
 
   return (
     <View nativeID="world-ui-conversation-overlay" style={styles.overlay}>
       <View
         accessibilityLabel={`Conversation with ${displayName}`}
         nativeID="world-ui-conversation-panel"
-        style={[styles.panel, { borderColor: accent, height: Math.min(panelLayout.height, Math.round(450 * uiScale)), padding: metrics.padding, width: panelLayout.width }]}
+        style={[styles.panel, { borderColor: accent, height: Math.min(panelLayout.height, Math.round(540 * uiScale)), padding: metrics.padding, width: panelLayout.width }]}
       >
         <View style={[styles.accentRule, { backgroundColor: accent }]} />
         <View style={styles.header}>
           <View style={styles.headerIdentity}>
-            <View style={[styles.portraitFrame, { borderColor: accent }]}><CharacterPortrait displayName={displayName} expression={portraitExpression} npcId={npcId} /></View>
+            <View style={[styles.portraitFrame, { borderColor: accent }]}><CharacterPortrait displayName={displayName} expression={portraitExpression} npcId={npcId} scale={3} /></View>
             <View style={styles.headerCopy}>
               <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>CONVERSATION{active.current ? ' · TIME PAUSED' : ''}</Text>
               <Text style={[styles.name, { color: accent, fontSize: metrics.titleText }]}>{displayName.toUpperCase()}</Text>
               <View style={styles.identityRow}>
+                <Text style={styles.identityChip}>{identity.role}</Text>
                 <Text style={styles.identityChip}>{relationship?.stage.toUpperCase() ?? 'RESIDENT'}</Text>
-                <Text style={styles.identityChip}>TRUST {relationship?.values.trust ?? 0}</Text>
                 <Text style={styles.identityChip}>{activity.toUpperCase()}</Text>
               </View>
+              <Text style={styles.knownFact}>KNOWN · {identity.fact}</Text>
             </View>
           </View>
           <Pressable accessibilityLabel="Cancel conversation" onPress={cancel} style={({ pressed }) => [styles.smallButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}>
@@ -242,7 +245,8 @@ export function ConversationPanel({
         >
           <View style={styles.sceneLine}>
             <Text style={[styles.sceneLabel, { color: accent }]}>SCENE</Text>
-            <Text accessibilityLiveRegion="polite" nativeID="conversation-model-status" style={[styles.modelStatus, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>{generationNote}</Text>
+            <Text style={[styles.sceneText, { fontSize: metrics.secondaryText, lineHeight: Math.round(metrics.secondaryText * 1.5) }]}>MEETING AT {locationName.toUpperCase()} · {portraitExpression.toUpperCase()}</Text>
+            <Text accessibilityElementsHidden nativeID="conversation-model-status" style={styles.modelStatus}>{generationNote}</Text>
           </View>
           {lines.map((line, index) => (
             <View key={`${line.speaker}-${index}`} style={[styles.lineCard, line.speaker === 'npc' ? styles.npcCard : styles.playerCard]}>
@@ -343,19 +347,21 @@ const styles = StyleSheet.create({
   inputRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
   name: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 18, marginTop: 3 },
   lineCard: { borderLeftWidth: 3, marginBottom: 10, maxWidth: '88%', paddingHorizontal: 12, paddingVertical: 10 },
-  modelStatus: { color: '#9d8768', flex: 1, fontFamily: 'Silkscreen', fontSize: 9, lineHeight: 15 },
+  knownFact: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
+  modelStatus: { display: 'none' },
   npcCard: { alignSelf: 'flex-start', backgroundColor: '#29231b', borderLeftColor: '#c58b4b' },
   npcLine: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 50 },
   panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, shadowColor: '#090704', shadowOffset: { height: 12, width: 12 }, shadowOpacity: 0.7, shadowRadius: 0 },
   playerLine: { color: '#9fc58e', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   playerCard: { alignSelf: 'flex-end', backgroundColor: '#1d2820', borderLeftColor: '#78a77b' },
-  portraitFrame: { borderWidth: 2, height: 94, padding: 1, width: 86 },
+  portraitFrame: { borderWidth: 2, height: 138, padding: 1, width: 126 },
   responseLabel: { color: '#7f6d55', fontFamily: 'Silkscreen', fontSize: 7, letterSpacing: 0.5, marginTop: 10 },
   sendButton: { alignItems: 'center', backgroundColor: '#d3a04c', justifyContent: 'center', minHeight: 38, paddingHorizontal: 16 },
   sendText: { color: '#211d1a', fontFamily: 'Silkscreen', fontSize: 10 },
   sceneLabel: { fontFamily: 'Silkscreen', fontSize: 7, marginRight: 8 },
   sceneLine: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 },
+  sceneText: { color: '#9d8768', flex: 1, fontFamily: 'Silkscreen', fontSize: 9, lineHeight: 15 },
   smallButton: { borderColor: '#76573d', borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7 },
   smallButtonText: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 8 },
   speaker: { color: '#9d8768', fontFamily: 'Silkscreen', fontSize: 7, marginBottom: 5 },

@@ -7,7 +7,23 @@ import { advanceActiveNpcMovement, movementForNpc } from '../schedules/active-mo
 
 describe('active resident schedules', () => {
   test('a named resident pathfinds to a same-map schedule goal without teleporting', () => {
-    let worldState = createInitialState();
+    const initial = createInitialState();
+    let worldState = WorldStateSchema.parse({
+      ...initial,
+      npcs: {
+        ...initial.npcs,
+        linda: {
+          ...initial.npcs.linda!,
+          presence: {
+            kind: 'active_local', mapId: 'northwest_residential', locationId: 'linda_villa', tileX: 23, tileY: 28,
+          },
+          scheduleGoal: {
+            mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'relax',
+            tileX: 28, tileY: 30, scheduledMinute: 480,
+          },
+        },
+      },
+    });
     let movement = movementForNpc(worldState, 'linda')!;
     const visited = [tileKey(movement.player)];
     for (let step = 0; step < 40 && worldState.npcs.linda?.scheduleGoal; step += 1) {
@@ -61,7 +77,23 @@ describe('active resident schedules', () => {
   });
 
   test('an underscore-bearing state ID produces valid movement command IDs', () => {
-    let worldState = createInitialState();
+    const initial = createInitialState();
+    let worldState = WorldStateSchema.parse({
+      ...initial,
+      npcs: {
+        ...initial.npcs,
+        generic_resident: {
+          ...initial.npcs.generic_resident!,
+          presence: {
+            kind: 'active_local', mapId: 'northwest_residential', locationId: 'northwest_residential', tileX: 29, tileY: 33,
+          },
+          scheduleGoal: {
+            mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'work',
+            tileX: 27, tileY: 28, scheduledMinute: 480,
+          },
+        },
+      },
+    });
     let movement = movementForNpc(worldState, 'generic_resident')!;
     ({ movement, worldState } = advanceActiveNpcMovement(
       WORLD_MAP_CATALOG.northwest_residential,
@@ -74,7 +106,23 @@ describe('active resident schedules', () => {
   });
 
   test('an NPC retries a dynamically blocked goal after the blocker moves', () => {
-    let worldState = createInitialState();
+    const initial = createInitialState();
+    let worldState = WorldStateSchema.parse({
+      ...initial,
+      npcs: {
+        ...initial.npcs,
+        generic_resident: {
+          ...initial.npcs.generic_resident!,
+          presence: {
+            kind: 'active_local', mapId: 'northwest_residential', locationId: 'northwest_residential', tileX: 29, tileY: 33,
+          },
+          scheduleGoal: {
+            mapId: 'northwest_residential', locationId: 'northwest_residential', activityId: 'work',
+            tileX: 27, tileY: 28, scheduledMinute: 480,
+          },
+        },
+      },
+    });
     let movement = movementForNpc(worldState, 'generic_resident')!;
     ({ movement, worldState } = advanceActiveNpcMovement(
       WORLD_MAP_CATALOG.northwest_residential,

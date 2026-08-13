@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import revision13PixelHashes from '../../../assets/source/art/revision-13-pixel-hashes.json';
+import revision14PixelHashes from '../../../assets/source/art/revision-14-pixel-hashes.json';
 import northeastMap from '../../../content/maps/northeast.json';
 import southeastMap from '../../../content/maps/southeast.json';
 import southwestMap from '../../../content/maps/southwest.json';
@@ -41,10 +41,10 @@ function alphaCount(pixels: Buffer): number {
 describe('current shared and district art', () => {
   const built = buildAtlas();
   const bitmap = decodePng(built.png);
-  const revision13Cells = revision13PixelHashes.cells as Readonly<Record<string, string>>;
+  const revision14Cells = revision14PixelHashes.cells as Readonly<Record<string, string>>;
 
-  test('uses revision 13 map-specific material cells', () => {
-    expect(ART_PRESENTATION_REVISION).toBe(13);
+  test('uses revision 14 map-specific material cells', () => {
+    expect(ART_PRESENTATION_REVISION).toBe(14);
     expect(MATERIAL_RECIPE_BY_ID['dark-asphalt']?.publicVariantSprites).toEqual([
       'tile.dark-asphalt', 'tile.dark-asphalt-b', 'tile.dark-asphalt-c',
     ]);
@@ -62,7 +62,7 @@ describe('current shared and district art', () => {
       for (const id of built.index.walls[family] ?? []) {
         const rectangle = built.index.sprites[id];
         expect(rectangle).toBeDefined();
-        expect(cellHash(rectanglePixels(bitmap, rectangle!))).toBe(revision13Cells[id]);
+        expect(cellHash(rectanglePixels(bitmap, rectangle!))).toBe(revision14Cells[id]);
       }
     }
   });
@@ -112,13 +112,13 @@ describe('current shared and district art', () => {
       'northeast_downtown', 'southwest_commercial', 'southeast_docks',
     ]);
     for (const entry of report.maps) {
-      expect(entry.layoutRevision).toBe(1);
+      expect(entry.layoutRevision).toBe(2);
       for (const hash of [entry.authoritativeHash, entry.mapSourceSha256, entry.placementHash]) {
         expect(hash).toMatch(/^[0-9a-f]{64}$/u);
       }
     }
     for (const map of [northeastMap, southwestMap, southeastMap]) {
-      expect(map.layoutRevision).toBe(1);
+      expect(map.layoutRevision).toBe(2);
       expect(map.objects.length).toBeGreaterThan(0);
     }
   });
