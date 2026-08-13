@@ -399,6 +399,7 @@ export function WorldScene({
   const [conversationNpcId, setConversationNpcId] = useState<string | undefined>(initialConversationFixtureId);
   const [conversationFixtureId, setConversationFixtureId] = useState<CharacterId | undefined>(initialConversationFixtureId);
   const [questOfferOpen, setQuestOfferOpen] = useState(false);
+  const [authoredDialogueFixtureId, setAuthoredDialogueFixtureId] = useState<'linda-boyfriend'>();
   const [openPanel, setOpenPanel] = useState<'journal' | 'relationships' | undefined>(initialOpenPanel);
   const [audioCaption, setAudioCaption] = useState<string>();
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
@@ -515,6 +516,13 @@ export function WorldScene({
       setConversationFixtureId(undefined);
       setConversationNpcId(undefined);
     };
+    window.siWorldSetAuthoredDialogueFixture = (characterId) => {
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setAuthoredDialogueFixtureId(characterId);
+      setQuestOfferOpen(true);
+    };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
       const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
@@ -578,6 +586,7 @@ export function WorldScene({
     return () => {
       delete window.siWorldOpenConversationFixture;
       delete window.siWorldCloseConversationFixture;
+      delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
     };
   }, []);
@@ -1722,6 +1731,11 @@ export function WorldScene({
               playInterfaceSound('panel-close');
             }}
             playerName={runtime.worldState.protagonist.displayName}
+            speakerId={authoredDialogueFixtureId ?? 'linda'}
+            speakerName={authoredDialogueFixtureId ? 'Marcus Vale' : 'Linda'}
+            speakerText={authoredDialogueFixtureId
+              ? 'Linda told you I frightened her? You have heard only one side. Ask what happened before you judge me.'
+              : undefined}
             surface={surface}
             uiScale={uiScale}
           />

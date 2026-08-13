@@ -39,6 +39,7 @@ declare global {
     siWorldSmokeMode?: boolean;
     siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
     siWorldCloseConversationFixture?: () => void;
+    siWorldSetAuthoredDialogueFixture?: (characterId?: 'linda-boyfriend') => void;
     siWorldOpenVfxFixture?: (mapId: MapId, effectId: string) => void;
   }
 }

@@ -2,21 +2,37 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { ViewportSize } from '../render/camera';
 import type { UiScale } from '../render/responsive-layout';
-import { CharacterPortrait } from './CharacterPortrait';
 import { uiMetrics } from './ui-metrics';
 
-const protagonistPortrait = require('../../assets/source/dialogue-portraits/protagonist.png') as number;
+const portraits = {
+  protagonist: require('../../assets/source/dialogue-portraits/protagonist.png') as number,
+  linda: require('../../assets/source/dialogue-portraits/linda.png') as number,
+  'linda-boyfriend': require('../../assets/source/dialogue-portraits/linda-boyfriend.png') as number,
+} as const;
 
 type QuestOfferDialogueProps = Readonly<{
   accent: string;
   onAccept: () => void;
   onDecline: () => void;
   playerName: string;
+  speakerId?: 'linda' | 'linda-boyfriend';
+  speakerName?: string;
+  speakerText?: string;
   surface: ViewportSize;
   uiScale: UiScale;
 }>;
 
-export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, surface, uiScale }: QuestOfferDialogueProps) {
+export function QuestOfferDialogue({
+  accent,
+  onAccept,
+  onDecline,
+  playerName,
+  speakerId = 'linda',
+  speakerName = 'Linda',
+  speakerText = 'My boyfriend has been frightening me. I do not feel safe checking on him alone. Will you help me?',
+  surface,
+  uiScale,
+}: QuestOfferDialogueProps) {
   const metrics = uiMetrics(uiScale);
   const choiceWidth = Math.min(430, Math.round(surface.width * 0.36));
   const stripHeight = Math.max(Math.round(150 * metrics.scale), Math.round(surface.height * 0.22));
@@ -24,7 +40,7 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
   const portraitWidth = Math.round(portraitHeight * 754 / 900);
   const dialogueText = { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) };
   return (
-    <View accessibilityLabel="Linda quest offer" nativeID="world-ui-quest-offer-overlay" style={styles.overlay}>
+    <View accessibilityLabel={`${speakerName} authored dialogue`} nativeID="world-ui-quest-offer-overlay" style={styles.overlay}>
       <View
         nativeID="world-ui-quest-offer-panel"
         style={[styles.scene, { height: surface.height, width: surface.width }]}
@@ -34,38 +50,45 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
             accessibilityLabel={`Portrait of ${playerName}`}
             nativeID="conversation-portrait-protagonist"
             resizeMode="contain"
-            source={protagonistPortrait}
+            source={portraits.protagonist}
             style={{ height: portraitHeight, width: portraitWidth }}
           />
           <View nativeID="conversation-portrait-protagonist-ready" style={styles.portraitReady} />
         </View>
         <View style={styles.actorRight}>
-          <View style={styles.facesLeft}><CharacterPortrait displayName="Linda" expression="upset" npcId="linda" scale={20} /></View>
+          <Image
+            accessibilityLabel={`Portrait of ${speakerName}`}
+            nativeID={`conversation-portrait-${speakerId}`}
+            resizeMode="contain"
+            source={portraits[speakerId]}
+            style={{ height: portraitHeight, width: portraitWidth }}
+          />
+          <View nativeID={`conversation-portrait-${speakerId}-ready`} style={styles.portraitReady} />
         </View>
         <View style={[styles.actions, { bottom: stripHeight + metrics.gap, left: (surface.width - choiceWidth) / 2, width: choiceWidth }] }>
           <Pressable
-            accessibilityLabel="Accept Linda's request"
+            accessibilityLabel={speakerId === 'linda' ? "Accept Linda's request" : 'Ask Marcus what happened'}
             onPress={onAccept}
             style={({ pressed }) => [styles.accept, { minHeight: metrics.primaryControl }, pressed && styles.pressed]}
           >
-            <Text style={[styles.acceptText, { fontSize: metrics.persistentText }]}>YES · HELP LINDA</Text>
+            <Text style={[styles.acceptText, { fontSize: metrics.persistentText }]}>{speakerId === 'linda' ? 'YES · HELP LINDA' : 'ASK WHAT HAPPENED'}</Text>
           </Pressable>
           <Pressable
-            accessibilityLabel="Decline Linda's request"
+            accessibilityLabel={speakerId === 'linda' ? "Decline Linda's request" : 'Leave Marcus'}
             onPress={onDecline}
             style={({ pressed }) => [styles.decline, { minHeight: metrics.primaryControl }, pressed && styles.pressed]}
           >
-            <Text style={[styles.declineText, { fontSize: metrics.persistentText }]}>NO · NOT NOW</Text>
+            <Text style={[styles.declineText, { fontSize: metrics.persistentText }]}>{speakerId === 'linda' ? 'NO · NOT NOW' : 'LEAVE'}</Text>
           </Pressable>
         </View>
         <View style={[styles.speech, { height: stripHeight, paddingHorizontal: Math.max(28, Math.round(surface.width * 0.19)) }] }>
           <View style={[styles.nameplate, { backgroundColor: accent }]}>
-            <Text style={[styles.speaker, { fontSize: metrics.persistentText }]}>LINDA</Text>
+            <Text style={[styles.speaker, { fontSize: metrics.persistentText }]}>{speakerName.toUpperCase()}</Text>
           </View>
           <Text style={[styles.dialogue, dialogueText]}>
-            My boyfriend has been frightening me. I do not feel safe checking on him alone. Will you help me?
+            {speakerText}
           </Text>
-          <Text style={[styles.question, { fontSize: metrics.secondaryText }]}>LINDA IS WAITING FOR {playerName.toUpperCase()}'S ANSWER.</Text>
+          <Text style={[styles.question, { fontSize: metrics.secondaryText }]}>{speakerName.toUpperCase()} IS WAITING FOR {playerName.toUpperCase()}'S ANSWER.</Text>
         </View>
       </View>
     </View>
@@ -81,8 +104,6 @@ const styles = StyleSheet.create({
   decline: { alignItems: 'center', backgroundColor: '#100d0ae6', borderColor: '#76573d', borderWidth: 1, justifyContent: 'center', paddingHorizontal: 14 },
   declineText: { color: '#c3b18f', fontFamily: 'Silkscreen' },
   dialogue: { color: '#fff0c7', fontFamily: 'Silkscreen' },
-  facesLeft: { transform: [{ scaleX: -1 }] },
-  facesRight: { transform: [{ scaleX: 1 }] },
   nameplate: { alignItems: 'center', borderColor: '#fff0c7', borderWidth: 1, minWidth: 180, paddingHorizontal: 22, paddingVertical: 7, position: 'absolute', right: '18%', top: -18 },
   overlay: { backgroundColor: '#08090733', bottom: 0, left: 0, position: 'absolute', right: 0, top: 0, zIndex: 65 },
   pressed: { opacity: 0.78, transform: [{ translateY: 2 }] },

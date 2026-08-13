@@ -1596,6 +1596,12 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-linda-offer.png'), [previousWorldBuffer],
   );
+  await window.webContents.executeJavaScript(`window.siWorldSetAuthoredDialogueFixture?.('linda-boyfriend')`, true);
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'MARCUS VALE');
+  await waitForRendererPaint(window);
+  await captureSmokeScreenshot(window, join(directory, 'world-marcus-dialogue.png'));
+  await window.webContents.executeJavaScript(`window.siWorldSetAuthoredDialogueFixture?.()`, true);
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'YES · HELP LINDA');
   await clickAriaButton(window, "Accept Linda's request");
   await waitForSelectorMissing(window, '#world-ui-quest-offer-panel');
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 7');
