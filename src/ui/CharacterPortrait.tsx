@@ -29,7 +29,7 @@ export function CharacterPortrait({
   displayName: string;
   expression?: 'rest' | 'joy' | 'upset';
   npcId: string;
-  scale?: 2 | 3 | 6;
+  scale?: 2 | 3 | 6 | 9;
 }>) {
   const image = useImage(atlasImage);
   const characterId = portraitCharacterId(npcId);
@@ -41,11 +41,11 @@ export function CharacterPortrait({
     <View
       accessibilityLabel={`Portrait of ${displayName}`}
       nativeID={`conversation-portrait-${characterId}`}
-      style={[styles.frame, scale === 3 && styles.largeFrame, scale === 6 && styles.cinematicFrame]}
+      style={[styles.frame, scale === 3 && styles.largeFrame, scale === 6 && styles.cinematicFrame, scale === 9 && styles.cutsceneFrame]}
     >
       {image ? (
         <>
-          <Canvas key={characterId} style={scale === 6 ? styles.cinematicCanvas : scale === 3 ? styles.largeCanvas : styles.canvas}>
+          <Canvas key={characterId} style={scale === 9 ? styles.cutsceneCanvas : scale === 6 ? styles.cinematicCanvas : scale === 3 ? styles.largeCanvas : styles.canvas}>
             <Atlas
               image={image}
               sampling={NEAREST}
@@ -63,6 +63,8 @@ export function CharacterPortrait({
 const styles = StyleSheet.create({
   cinematicCanvas: { height: 264, width: 240 },
   cinematicFrame: { backgroundColor: 'transparent', borderWidth: 0, height: 264, width: 240 },
+  cutsceneCanvas: { height: 396, width: 360 },
+  cutsceneFrame: { backgroundColor: 'transparent', borderWidth: 0, height: 396, width: 360 },
   canvas: { height: 88, width: 80 },
   frame: {
     backgroundColor: '#181512',

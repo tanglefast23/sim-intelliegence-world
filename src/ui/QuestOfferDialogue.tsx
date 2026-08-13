@@ -30,10 +30,10 @@ export function QuestOfferDialogue({ accent, onAccept, onDecline, playerName, su
           <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>LINDA'S REQUEST</Text>
         </View>
         <View style={[styles.actorLeft, { bottom: stripHeight - 24 }]}>
-          <View style={styles.facesRight}><CharacterPortrait displayName={playerName} npcId="protagonist" scale={6} /></View>
+          <View style={styles.facesRight}><CharacterPortrait displayName={playerName} npcId="protagonist" scale={9} /></View>
         </View>
         <View style={[styles.actorRight, { bottom: stripHeight - 24 }]}>
-          <View style={styles.facesLeft}><CharacterPortrait displayName="Linda" expression="upset" npcId="linda" scale={6} /></View>
+          <View style={styles.facesLeft}><CharacterPortrait displayName="Linda" expression="upset" npcId="linda" scale={9} /></View>
         </View>
         <View style={[styles.actions, { bottom: Math.max(176, Math.round(surface.height * 0.265)), left: (surface.width - choiceWidth) / 2, width: choiceWidth }] }>
           <Pressable
@@ -69,8 +69,8 @@ const styles = StyleSheet.create({
   accept: { alignItems: 'center', backgroundColor: '#d3a04c', justifyContent: 'center', paddingHorizontal: 14 },
   acceptText: { color: '#211d1a', fontFamily: 'Silkscreen' },
   actions: { flexDirection: 'column', gap: 7, position: 'absolute', zIndex: 5 },
-  actorLeft: { left: '5%', position: 'absolute', zIndex: 2 },
-  actorRight: { position: 'absolute', right: '5%', zIndex: 2 },
+  actorLeft: { left: '1%', position: 'absolute', zIndex: 2 },
+  actorRight: { position: 'absolute', right: '1%', zIndex: 2 },
   decline: { alignItems: 'center', backgroundColor: '#100d0ae6', borderColor: '#76573d', borderWidth: 1, justifyContent: 'center', paddingHorizontal: 14 },
   declineText: { color: '#c3b18f', fontFamily: 'Silkscreen' },
   dialogue: { color: '#fff0c7', fontFamily: 'Silkscreen' },

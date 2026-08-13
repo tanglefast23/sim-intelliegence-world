@@ -1622,7 +1622,7 @@ export function WorldScene({
         <View nativeID="world-ui-location" pointerEvents="none" style={styles.proofState}>
           <Text>{`${map.source.displayName} TILE ${runtime.movement.player.x},${runtime.movement.player.y}`}</Text>
         </View>
-        <Hud
+        {!questOfferOpen ? <Hud
           accent={lighting.accent}
           areaName={currentAreaName}
           availableWidth={surface.width}
@@ -1641,8 +1641,8 @@ export function WorldScene({
           zoom={camera.zoom}
           zoomInDisabled={camera.zoom >= MAX_WORLD_ZOOM}
           zoomOutDisabled={camera.zoom <= MIN_WORLD_ZOOM}
-        />
-        <SelectedCharacterCard
+        /> : null}
+        {!questOfferOpen ? <SelectedCharacterCard
           accent={lighting.accent}
           availableWidth={surface.width}
           compact={selected === 'protagonist' && reactionId !== 'protagonist'}
@@ -1659,7 +1659,7 @@ export function WorldScene({
           summary={selectedSummary}
           pose={reactionId === selected ? 'reaction' : conversationNpcId === selected ? 'talk' : 'idle'}
           uiScale={uiScale}
-        />
+        /> : null}
         <Text
           accessibilityLiveRegion="polite"
           nativeID="world-ui-zoom-announcement"
@@ -1674,7 +1674,7 @@ export function WorldScene({
         >
           {`Interface scale ${Math.round(uiScale * 100)} percent`}
         </Text>
-        {inBedroom ? (
+        {inBedroom && !questOfferOpen ? (
           <BedActions
             disabled={transitioning || runtime.worldState.clock.pauseTokens.length > 0}
             minuteOfDay={runtime.worldState.clock.absoluteMinute % 1_440}
@@ -1682,10 +1682,10 @@ export function WorldScene({
             uiScale={uiScale}
           />
         ) : null}
-        <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
+        {!questOfferOpen ? <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
           <Text style={[styles.statusStrong, { fontSize: metrics.persistentText }]}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
           <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>CLICK MOVE · DRAG PAN · WHEEL ZOOM · F CENTER · Q QUESTS · ESC STOP</Text>
-        </View>
+        </View> : null}
         {audioCaption ? (
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
         ) : null}
