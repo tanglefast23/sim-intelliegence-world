@@ -1739,11 +1739,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await waitForAriaButtonEnabled(window, 'End conversation');
   const invitationStatus = await rendererText(window, '#conversation-model-status');
   const invitationTranscript = await rendererText(window, '#conversation-transcript');
-  const structuredInvitation = invitationTranscript.includes('current situation') && (
-    !smokeExpectsModel ||
-    (invitationStatus.includes('REPLY RECEIVED') || invitationStatus.includes('AUTHORED REPLY USED')) &&
+  const structuredInvitation = smokeExpectsModel
+    ? (invitationStatus.includes('REPLY RECEIVED') || invitationStatus.includes('AUTHORED REPLY USED')) &&
       !invitationStatus.includes('SAFE REPLY')
-  );
+    : invitationTranscript.includes('current situation');
   const structuredInvitationSource = invitationStatus.includes('REPLY RECEIVED')
     ? 'model'
     : 'authored-structured';
