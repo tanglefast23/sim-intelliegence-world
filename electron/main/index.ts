@@ -1570,6 +1570,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickZoomButton(window, 1);
   await panWorld(window, 0, 500);
   const lindaTile = parseLindaTile(await npcStateLabel(window));
+  const questOfferApproachTile = { x: lindaTile.x + 1, y: lindaTile.y };
+  await dispatchWorldTileClick(window, questOfferApproachTile);
+  await waitForWorldTile(window, questOfferApproachTile, 10_000);
   await dispatchWorldTileClick(window, lindaTile);
   const talkLabels = await window.webContents.executeJavaScript(
     `Array.from(document.querySelectorAll('[aria-label^="Talk to "]')).map((element) => element.getAttribute('aria-label'))`,
