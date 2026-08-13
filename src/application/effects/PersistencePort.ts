@@ -78,7 +78,7 @@ export const LoadResultSchema = z.discriminatedUnion('status', [
     state: WorldStateSchema,
     incompatibleCandidateCount: z.number().int().nonnegative(),
     corruptCandidateCount: z.number().int().nonnegative(),
-    migratedFromSchemaVersion: z.union([z.literal(5), z.literal(6)]),
+    migratedFromSchemaVersion: z.union([z.literal(5), z.literal(6), z.literal(7)]),
     migratedMapIds: z.array(z.string().min(1)),
   }).strict(),
 ]);

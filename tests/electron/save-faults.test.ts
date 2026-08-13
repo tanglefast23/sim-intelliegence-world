@@ -14,9 +14,17 @@ import { spawn } from 'node:child_process';
 
 import { SaveRequestSchema, type SaveTrigger } from '../../src/application/effects/PersistencePort';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
+import { reduceCommand } from '../../src/domain/commands/reducer';
+import { DomainCommandSchema } from '../../src/domain/commands/types';
 import { createInitialState } from '../../src/domain/state/initial-state';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
 import { WorldStateSchema, type WorldState } from '../../src/domain/state/schema';
+import type { VerbalMissionState } from '../../src/domain/verbal-missions/state';
+import {
+  PRIYA_ASSESSMENT_COMMITMENT_ID,
+  PRIYA_ASSESSMENT_MISSION_ID,
+  planOfferVerbalMission,
+} from '../../src/domain/verbal-missions/goal-planners';
 import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
 import {
   SaveManifestSchema,
@@ -114,6 +122,67 @@ describe('recoverable save repository', () => {
     expect(manifest.latestSaveGeneration).toBe(envelope.saveGeneration);
     expect(manifest.payloadChecksum).toBe(envelope.payloadChecksum);
     expect(manifest.pins.modelArtifactSha256).toBe(state.modelPin.artifactSha256);
+  });
+
+  test('load resolves due commitments and preserves the pre-resolution save as backup', async () => {
+    const root = await temporaryRoot();
+    const repository = new SaveRepository(root);
+    const initial = WorldStateSchema.parse({
+      ...createInitialState(),
+      quests: {
+        ...createInitialState().quests,
+        linda_boyfriend_check: {
+          id: 'linda_boyfriend_check', status: 'failed', flagIds: ['linda_protect_failed'],
+        },
+      },
+    });
+    const offered = planOfferVerbalMission(initial, PRIYA_ASSESSMENT_MISSION_ID).state;
+    const mission = offered.verbalMissions[PRIYA_ASSESSMENT_MISSION_ID]!;
+    if (mission.goalKind !== 'schedule_cooperation') throw new Error('Expected Priya schedule mission.');
+    const ready: VerbalMissionState = {
+      ...mission,
+      status: 'active',
+      concerns: mission.concerns.map((concern) => ({ ...concern, state: 'resolved' as const })),
+      terms: { ...mission.terms, proposedMinute: 600 },
+      creditedMoves: [{
+        leverId: 'schedule_600', concernId: 'capacity', supportFactIds: [], offerAmount: null,
+      }],
+    };
+    const readyState = WorldStateSchema.parse({
+      ...offered,
+      verbalMissions: { ...offered.verbalMissions, [PRIYA_ASSESSMENT_MISSION_ID]: ready },
+    });
+    const agreed = reduceCommand(readyState, DomainCommandSchema.parse({
+      type: 'create-scheduled-commitment',
+      commandId: 'command-load-priya-agreement',
+      eventId: 'event-load-priya-agreement',
+      scheduledMinute: 0,
+      priority: 0,
+      missionId: PRIYA_ASSESSMENT_MISSION_ID,
+      commitmentId: PRIYA_ASSESSMENT_COMMITMENT_ID,
+      commitmentMinute: 600,
+    })).state;
+    const due = WorldStateSchema.parse({
+      ...agreed,
+      clock: { ...agreed.clock, absoluteMinute: 600 },
+    });
+    await repository.save(request(due, null));
+
+    const loaded = await repository.load('slot-001');
+    expect(loaded).toEqual(expect.objectContaining({
+      status: 'migrated', saveGeneration: 2, migratedFromSchemaVersion: 7, migratedMapIds: [],
+    }));
+    if (loaded.status !== 'migrated') throw new Error('Expected load-time commitment settlement.');
+    expect(loaded.state.commitments[PRIYA_ASSESSMENT_COMMITMENT_ID]?.status).toBe('honoured');
+    expect(loaded.state.verbalMissions[PRIYA_ASSESSMENT_MISSION_ID]?.terminalResultId).toBe(
+      'priya_assessment_honoured',
+    );
+
+    const backup = parseSaveEnvelope(JSON.parse(await readFile(
+      join(root, 'save-slots', 'slot-001', 'state.json.bak'),
+      'utf8',
+    )) as unknown);
+    expect(backup.state.commitments[PRIYA_ASSESSMENT_COMMITMENT_ID]?.status).toBe('agreed');
   });
 
   test('fixture-driven stable boundaries rotate only the newest three autosaves', async () => {

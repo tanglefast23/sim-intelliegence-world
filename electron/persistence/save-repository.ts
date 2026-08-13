@@ -27,6 +27,7 @@ import {
 } from '../../src/application/effects/PersistencePort';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
+import { resolveDueCommitments } from '../../src/domain/commands/reducer';
 import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
 import { LayoutMigrationError, recoverWorldLayout } from '../../src/world/maps/layout-recovery';
 import {
@@ -151,14 +152,15 @@ export class SaveRepository {
         ? recovery.selected.envelope.state
         : migrateStateCopy(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId);
       const layout = recoverWorldLayout(currentState, this.#catalog);
-      if (sourceSchemaVersion === 7 && layout.migratedMapIds.length === 0) {
+      const settledState = resolveDueCommitments(layout.state);
+      if (sourceSchemaVersion === 7 && layout.migratedMapIds.length === 0 && settledState === layout.state) {
         return LoadResultSchema.parse({
           status: 'unchanged',
           slotId,
           saveGeneration: recovery.selected.envelope.saveGeneration,
           checksum: recovery.selected.envelope.payloadChecksum,
           source: recovery.selected.source,
-          state: layout.state,
+          state: settledState,
           incompatibleCandidateCount,
           corruptCandidateCount,
         });
@@ -167,7 +169,7 @@ export class SaveRepository {
         slotId,
         expectedSaveGeneration: recovery.selected.envelope.saveGeneration,
         trigger: 'manual',
-        state: layout.state,
+        state: settledState,
       }));
       if (saved.status !== 'saved') throw new Error('A load-time migration save was deferred.');
       return LoadResultSchema.parse({
@@ -176,7 +178,7 @@ export class SaveRepository {
         saveGeneration: saved.saveGeneration,
         checksum: saved.checksum,
         source: recovery.selected.source,
-        state: layout.state,
+        state: settledState,
         incompatibleCandidateCount,
         corruptCandidateCount,
         migratedFromSchemaVersion: sourceSchemaVersion,
