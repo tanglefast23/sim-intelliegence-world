@@ -116,6 +116,8 @@ import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wo
 import {
   buildWorldFrameState,
   compareWorldLayerTiles,
+  DESTINATION_PULSE_MS,
+  destinationPulseFrame,
   doorSpriteForFrame,
   type WorldActors,
   type WorldCharacterPlacement,
@@ -402,6 +404,7 @@ export function WorldScene({
   const [responsiveEvidence, setResponsiveEvidence] = useState('');
   const [vfxAgeStep, setVfxAgeStep] = useState(0);
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
+  const [destinationPulseElapsedMs, setDestinationPulseElapsedMs] = useState(0);
   const conversationPort = useMemo(
     () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
     [persistenceDisabled],
@@ -683,6 +686,7 @@ export function WorldScene({
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
     setWorldFeedback(undefined);
+    setDestinationMarker({ ...target });
     setRuntime((current) => {
       const currentMap = WORLD_MAP_CATALOG[current.worldState.protagonist.worldPosition.mapId as MapId];
       return {
@@ -750,15 +754,21 @@ export function WorldScene({
     if (resolved.tile) requestTile(resolved.tile);
   }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
-  const requestedMarkerTarget = runtime.movement.status === 'unreachable'
-    ? undefined
-    : runtime.movement.pendingTarget ?? runtime.movement.target;
   useEffect(() => {
-    if (!requestedMarkerTarget) return;
-    setDestinationMarker({ ...requestedMarkerTarget });
-    const timer = setTimeout(() => setDestinationMarker(undefined), 350);
-    return () => clearTimeout(timer);
-  }, [requestedMarkerTarget?.x, requestedMarkerTarget?.y]);
+    if (!destinationMarker) return;
+    let animationFrame = 0;
+    let startedAt: number | undefined;
+    const animate = (time: number) => {
+      startedAt ??= time;
+      const elapsedMs = time - startedAt;
+      setDestinationPulseElapsedMs(elapsedMs);
+      if (elapsedMs < DESTINATION_PULSE_MS) animationFrame = requestAnimationFrame(animate);
+      else setDestinationMarker((current) => current === destinationMarker ? undefined : current);
+    };
+    setDestinationPulseElapsedMs(0);
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [destinationMarker]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
@@ -1448,7 +1458,9 @@ export function WorldScene({
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
             {destinationMarker ? (() => {
               const screen = worldToScreen(camera, tileFootPoint(destinationMarker));
-              return <Circle color="#f5dd9d88" cx={screen.x} cy={screen.y} r={Math.max(2, camera.zoom * 2)} style="stroke" strokeWidth={camera.zoom} />;
+              const pulse = destinationPulseFrame(destinationPulseElapsedMs);
+              const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
+              return <Circle color={`#f5dd9d${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
             })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
             {journalMarkers.map((marker) => {

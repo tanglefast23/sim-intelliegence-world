@@ -10,7 +10,13 @@ import {
 } from '../../world/pathfinding/movement';
 import { advanceWorldMovement } from '../../application/runtime/world-runtime';
 import { compareGroundedDepth, WORLD_DEPTH } from '../depth';
-import { buildWorldFrameState, doorSpriteForFrame, WORLD_LAYER_ORDER } from '../world-frame';
+import {
+  buildWorldFrameState,
+  DESTINATION_PULSE_MS,
+  destinationPulseFrame,
+  doorSpriteForFrame,
+  WORLD_LAYER_ORDER,
+} from '../world-frame';
 
 const MAP = WORLD_MAP_CATALOG.northwest_residential;
 const ACTORS = {
@@ -35,6 +41,12 @@ function walkTo(target: { x: number; y: number }, initialState = createInitialSt
 }
 
 describe('authoritative world frame', () => {
+  test('runs exactly two destination pulses and then disappears', () => {
+    expect(destinationPulseFrame(0)).toMatchObject({ complete: false, opacity: 0.72, radius: 3 });
+    expect(destinationPulseFrame(DESTINATION_PULSE_MS / 2)).toMatchObject({ complete: false, opacity: 0.72, radius: 3 });
+    expect(destinationPulseFrame(DESTINATION_PULSE_MS)).toMatchObject({ complete: true, opacity: 0, radius: 16 });
+  });
+
   test('opens an unlocked door before crossing and closes it after clearing', () => {
     const door = MAP.doorById.get('bedroom-door')!;
     let movement = requestMovement(MAP, createMovementState({ x: 16, y: 13 }), { x: 16, y: 15 });

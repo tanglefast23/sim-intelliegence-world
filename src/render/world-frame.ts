@@ -77,6 +77,22 @@ export function doorSpriteForFrame(
   return open ? door.sprite.replace('closed-door', 'open-door') : door.sprite;
 }
 
+export const DESTINATION_PULSE_MS = 520;
+
+export function destinationPulseFrame(elapsedMs: number): Readonly<{
+  complete: boolean;
+  opacity: number;
+  radius: number;
+}> {
+  const progress = Math.max(0, Math.min(1, elapsedMs / DESTINATION_PULSE_MS));
+  const phase = progress === 1 ? 1 : (progress * 2) % 1;
+  return {
+    complete: progress === 1,
+    opacity: 0.72 * (1 - phase),
+    radius: 3 + 13 * phase,
+  };
+}
+
 export function buildWorldFrameState(
   map: CompiledMapV2,
   state: WorldState,
