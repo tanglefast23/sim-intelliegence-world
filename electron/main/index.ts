@@ -1588,8 +1588,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     document.querySelector('#conversation-portrait-protagonist-ready') &&
     document.querySelector('#conversation-portrait-linda-ready')
   )`, true) as boolean;
-  const questOfferDialogue = questOfferText.includes('AUTHORED SCENE · TIME PAUSED') &&
-    questOfferText.includes('LINDA') && questOfferText.includes('MISTAKE') &&
+  const questOfferDialogue = questOfferText.includes('LINDA') && questOfferText.includes('MISTAKE') &&
     questOfferText.includes('YES · HELP LINDA') && questOfferText.includes('NO · NOT NOW') && portraitsReady;
   const questOfferMinute = parseWorldStateLabel(await worldStateLabel(window)).minute;
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_100));

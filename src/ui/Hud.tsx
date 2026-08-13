@@ -21,6 +21,7 @@ type HudProps = Readonly<{
   saveStatus: string;
   accent: string;
   availableWidth: number;
+  hidden: boolean;
   uiScale: UiScale;
   onSpeed: (speed: 0 | 1 | 2) => void;
   onJournal: () => void;
@@ -35,7 +36,7 @@ type HudProps = Readonly<{
 }>;
 
 export function Hud({
-  state, mapName, areaName, zoom, saveStatus, accent, availableWidth, uiScale, onSpeed,
+  state, mapName, areaName, zoom, saveStatus, accent, availableWidth, hidden, uiScale, onSpeed,
   onJournal, onSocial, onSave, saveDisabled, onZoom, zoomOutDisabled, zoomInDisabled, onUiScale,
   onPressSound,
 }: HudProps) {
@@ -46,7 +47,8 @@ export function Hud({
   return (
     <View
       nativeID="world-ui-hud"
-      style={[styles.hud, { borderLeftColor: accent, padding: metrics.padding, width: Math.min(availableWidth - 28, Math.round(540 * uiScale)) }]}
+      pointerEvents={hidden ? 'none' : 'auto'}
+      style={[styles.hud, hidden && styles.hidden, { borderLeftColor: accent, padding: metrics.padding, width: Math.min(availableWidth - 28, Math.round(540 * uiScale)) }]}
     >
       <View style={styles.topRow}>
         <View style={styles.locationRow}>
@@ -148,6 +150,7 @@ const styles = StyleSheet.create({
     shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.58, shadowRadius: 0, top: 0, zIndex: 30,
   },
   hudFooter: { alignItems: 'center', borderTopColor: '#514838', borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 9, paddingTop: 7 },
+  hidden: { opacity: 0 },
   identity: { gap: 2 },
   locationMark: { backgroundColor: '#f1c65b', height: 4, marginTop: 4, width: 22 },
   locationRow: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', minWidth: 0 },

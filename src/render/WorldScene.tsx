@@ -1622,10 +1622,11 @@ export function WorldScene({
         <View nativeID="world-ui-location" pointerEvents="none" style={styles.proofState}>
           <Text>{`${map.source.displayName} TILE ${runtime.movement.player.x},${runtime.movement.player.y}`}</Text>
         </View>
-        {!questOfferOpen ? <Hud
+        <Hud
           accent={lighting.accent}
           areaName={currentAreaName}
           availableWidth={surface.width}
+          hidden={questOfferOpen}
           mapName={map.source.displayName}
           onJournal={toggleQuests}
           onPressSound={() => playInterfaceSound('press')}
@@ -1641,7 +1642,7 @@ export function WorldScene({
           zoom={camera.zoom}
           zoomInDisabled={camera.zoom >= MAX_WORLD_ZOOM}
           zoomOutDisabled={camera.zoom <= MIN_WORLD_ZOOM}
-        /> : null}
+        />
         {!questOfferOpen ? <SelectedCharacterCard
           accent={lighting.accent}
           availableWidth={surface.width}
