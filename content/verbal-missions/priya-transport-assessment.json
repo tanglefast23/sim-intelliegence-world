@@ -177,7 +177,8 @@
         "requiredPlayerFactIds": [],
         "requiredNpcFactIds": [],
         "fromStates": [
-          "open"
+          "open",
+          "eased"
         ],
         "toState": "resolved",
         "exactTerm": {
@@ -207,7 +208,7 @@
         "fromStates": [
           "open"
         ],
-        "toState": "resolved",
+        "toState": "eased",
         "newlySpeakableFactIds": [],
         "reactionId": "priya_progress"
       }

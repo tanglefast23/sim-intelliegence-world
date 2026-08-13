@@ -141,6 +141,9 @@ function exactScheduleTime(message: string, absoluteMinute: number): Readonly<{ 
   return { value: values[0]!, evidence: candidates[0]?.evidence };
 }
 
+const EXPLICIT_MONEY_OFFER = /\b(?:i\s+(?:(?:can|could|will|would)\s+)?(?:offer|pay|give|buy)|i(?:'ll|'d)\s+(?:offer|pay|give|buy)|my\s+offer(?:\s+is)?|(?:can|could|may|would)\s+i\s+(?:offer|pay|give|buy)|would\s+you\s+(?:take|accept)|how\s+about)[^.!?]{0,24}(?:\$\s*\d[\d,]*|\d[\d,]*\s*(?:dollars?|bucks?))\b/iu;
+const EXPLICIT_SCHEDULE_PROPOSAL = /\b(?:(?:can|could|will|would)\s+you\s+(?:assess|meet|come)|(?:let's|let\s+us|please)\s+(?:schedule|assess|meet)|(?:schedule|book)\s+(?:it|this|the\s+assessment)?|i\s+(?:propose|suggest)|how\s+about)[^.!?]{0,32}(?:\d{1,2}:\d{2}|\d{1,2}\s*(?:a\.?m\.?|p\.?m\.?)|minute\s+\d+)\b/iu;
+
 export function parseVerbalMissionExactTerms(
   message: string,
   mission: VerbalMissionState,
@@ -155,7 +158,7 @@ export function parseVerbalMissionExactTerms(
     return {
       exactOfferAmount: amount.value,
       exactProposedMinute: null,
-      ...(amount.value !== null && amount.evidence && /\b(?:offer|pay|buy|give)\b/iu.test(message)
+      ...(amount.value !== null && amount.evidence && EXPLICIT_MONEY_OFFER.test(message)
         ? { action: { act: 'offer' as const, evidenceText: amount.evidence, referentId: mission.terms.objectId } }
         : {}),
     };
@@ -165,7 +168,7 @@ export function parseVerbalMissionExactTerms(
     return {
       exactOfferAmount: null,
       exactProposedMinute: minute.value,
-      ...(minute.value !== null && minute.evidence && /\b(?:schedule|time|appointment|assess|minute)\b/iu.test(message)
+      ...(minute.value !== null && minute.evidence && EXPLICIT_SCHEDULE_PROPOSAL.test(message)
         ? { action: { act: 'offer' as const, evidenceText: minute.evidence, referentId: mission.terms.subjectNpcId } }
         : {}),
     };
@@ -190,8 +193,8 @@ function factLabel(content: VerbalMissionSessionContent, id: string): string {
   return label;
 }
 
-function confirmationFor(content: VerbalMissionSessionContent, mission: VerbalMissionState, canConfirm: boolean) {
-  if (!canConfirm) return null;
+export function confirmationFor(content: VerbalMissionSessionContent, mission: VerbalMissionState, canConfirm: boolean) {
+  if (!canConfirm || (mission.goalKind === 'schedule_cooperation' && mission.terms.commitmentId !== null)) return null;
   if (mission.goalKind === 'disclose_fact') {
     return {
       goalKind: mission.goalKind,

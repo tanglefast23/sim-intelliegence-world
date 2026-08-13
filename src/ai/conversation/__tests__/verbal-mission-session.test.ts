@@ -3,13 +3,18 @@ import { createInitialState } from '../../../domain/state/initial-state';
 import { parseWorldState, type WorldState } from '../../../domain/state/schema';
 import type { VerbalMissionDefinition } from '../../../domain/verbal-missions/contracts';
 import { planOfferVerbalMission } from '../../../domain/verbal-missions/goal-planners';
-import { openingMissionFor, PRIYA_ASSESSMENT_MISSION_ID } from '../../../domain/verbal-missions/goal-planners';
+import {
+  openingMissionFor,
+  PRIYA_ASSESSMENT_COMMITMENT_ID,
+  PRIYA_ASSESSMENT_MISSION_ID,
+} from '../../../domain/verbal-missions/goal-planners';
 import type { VerbalMissionState } from '../../../domain/verbal-missions/state';
 import { TEST_DEAL_DEFINITION, TEST_DEAL_DISPOSITION } from '../../../../tests/fixtures/verbal-missions/test-deal';
 import { FileCharacterWritingStore } from '../../registry/file-writing-store';
 import { buildVerbalMissionActorProjection } from '../../projection/prompt-projection';
 import { ConversationService } from '../service';
 import {
+  confirmationFor,
   parseVerbalMissionExactTerms,
   type VerbalMissionContentStore,
   type VerbalMissionSessionContent,
@@ -133,7 +138,15 @@ describe('split Verbal Mission conversation session', () => {
       'I can pay $95 now.',
       planOfferVerbalMission(missionState(), 'linda_marchetti_purse_sale').mission,
       480,
-    )).toEqual(expect.objectContaining({ exactOfferAmount: 95 }));
+    )).toEqual(expect.objectContaining({
+      exactOfferAmount: 95,
+      action: expect.objectContaining({ act: 'offer', referentId: 'linda_marchetti_purse' }),
+    }));
+    expect(parseVerbalMissionExactTerms(
+      'I heard the shop would only pay $85 for it.',
+      planOfferVerbalMission(missionState(), 'linda_marchetti_purse_sale').mission,
+      480,
+    )).toEqual({ exactOfferAmount: 85, exactProposedMinute: null });
     const schedule = openingMissionFor(PRIYA_ASSESSMENT_MISSION_ID);
     expect(parseVerbalMissionExactTerms('Can you assess them at 10:00?', schedule, 480)).toEqual(
       expect.objectContaining({ exactProposedMinute: 600 }),
@@ -142,6 +155,18 @@ describe('split Verbal Mission conversation session', () => {
       expect.objectContaining({ exactProposedMinute: 1_980 }),
     );
     expect(parseVerbalMissionExactTerms('Either 9am or 10am.', schedule, 480).exactProposedMinute).toBeNull();
+    expect(parseVerbalMissionExactTerms('The appointment is at 9am.', schedule, 480)).toEqual({
+      exactOfferAmount: null, exactProposedMinute: 540,
+    });
+  });
+
+  test('does not offer Priya confirmation again after creating her commitment', () => {
+    const mission = openingMissionFor(PRIYA_ASSESSMENT_MISSION_ID);
+    if (mission.goalKind !== 'schedule_cooperation') throw new Error('Expected schedule mission.');
+    expect(confirmationFor(content, {
+      ...mission,
+      terms: { ...mission.terms, proposedMinute: 600, commitmentId: PRIYA_ASSESSMENT_COMMITMENT_ID },
+    }, true)).toBeNull();
   });
 
   test('Actor projection excludes private NPC state and biography', async () => {

@@ -162,12 +162,12 @@ const linda = {
     }, {
       leverId: 'exact_private_offer', stableOrder: 8, concernId: 'payment', honest: true, credits: true,
       trigger: { actIds: ['offer'], referentId: 'linda_marchetti_purse', forbiddenRegisterIds: ['threatening'] },
-      requiredPlayerFactIds: [], requiredNpcFactIds: [], fromStates: ['open'], toState: 'resolved',
-      exactTerm: { kind: 'offer', minimumAmount: 80, maximumAmount: 99, requireAffordable: true }, newlySpeakableFactIds: [], reactionId: 'linda_progress',
+      requiredPlayerFactIds: [], requiredNpcFactIds: [], fromStates: ['open', 'eased'], toState: 'resolved',
+      exactTerm: { kind: 'offer', minimumAmount: 80, maximumAmount: null, requireAffordable: true }, newlySpeakableFactIds: [], reactionId: 'linda_progress',
     }, {
       leverId: 'cash_ready', stableOrder: 9, concernId: 'payment', honest: true, credits: true,
       trigger: { actIds: ['trade'], referentId: 'linda_marchetti_purse', claimFactIds: ['linda_cash_payment_ready'] },
-      requiredPlayerFactIds: ['linda_cash_payment_ready'], requiredNpcFactIds: [], fromStates: ['open'], toState: 'resolved', newlySpeakableFactIds: [], reactionId: 'linda_progress',
+      requiredPlayerFactIds: ['linda_cash_payment_ready'], requiredNpcFactIds: [], fromStates: ['open'], toState: 'eased', newlySpeakableFactIds: [], reactionId: 'linda_progress',
     }],
     allergies: [{
       allergyId: 'linda_generic_flattery', stableOrder: 1, trigger: { registerIds: ['flattering'] }, severity: 'mild',
@@ -258,12 +258,12 @@ const priya = {
       requiredPlayerFactIds: ['priya_patient_consent'], requiredNpcFactIds: [], fromStates: ['open'], toState: 'resolved', newlySpeakableFactIds: [], reactionId: 'priya_progress',
     }, {
       leverId: 'exact_assessment_time', stableOrder: 5, concernId: 'capacity', honest: true, credits: true,
-      trigger: { actIds: ['offer'], referentId: 'linda_boyfriend' }, requiredPlayerFactIds: [], requiredNpcFactIds: [], fromStates: ['open'], toState: 'resolved',
+      trigger: { actIds: ['offer'], referentId: 'linda_boyfriend' }, requiredPlayerFactIds: [], requiredNpcFactIds: [], fromStates: ['open', 'eased'], toState: 'resolved',
       exactTerm: { kind: 'schedule', requireWithinContract: true }, newlySpeakableFactIds: [], reactionId: 'priya_progress',
     }, {
       leverId: 'ask_clinic_window', stableOrder: 6, concernId: 'capacity', honest: true, credits: true,
       trigger: { actIds: ['ask'], registerIds: ['formal'], referentId: 'assess_off_island_transport' }, requiredPlayerFactIds: [], requiredNpcFactIds: [],
-      fromStates: ['open'], toState: 'resolved', newlySpeakableFactIds: [], reactionId: 'priya_progress',
+      fromStates: ['open'], toState: 'eased', newlySpeakableFactIds: [], reactionId: 'priya_progress',
     }],
     allergies: [], recoveries: [], reactions: reactions('priya', 'Priya'), defaultReactionIds: defaultReactionIds('priya'),
     goalContract: {

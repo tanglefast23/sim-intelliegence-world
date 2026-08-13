@@ -298,6 +298,16 @@ export function runOutcomeEngine(input: Readonly<{
   if (['resolved', 'failed', 'withdrawn'].includes(mission.status)) {
     return finish(definition, context, mission, 'refused', transitions, newCredits, speakable, blockedLeverIds);
   }
+  if (mission.cooldownUntilMinute !== null) {
+    if (context.absoluteMinute < mission.cooldownUntilMinute) {
+      return finish(definition, context, mission, 'refused', transitions, newCredits, speakable, blockedLeverIds);
+    }
+    mission = VerbalMissionStateSchema.parse({
+      ...mission,
+      cooldownUntilMinute: null,
+      roomState: 'open',
+    });
+  }
 
   const boundary = disposition.hardBoundaries.find(({ trigger }) => matchesTrigger(trigger, move));
   if (boundary) {

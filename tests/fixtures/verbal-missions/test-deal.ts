@@ -73,14 +73,14 @@ export const TEST_DEAL_DEFINITION: VerbalMissionDefinition = {
     {
       leverId: 'exact_payment', stableOrder: 3, concernId: 'payment', honest: true, credits: true,
       trigger: { actIds: ['offer'], referentId: 'test_purse' },
-      requiredPlayerFactIds: [], requiredNpcFactIds: [], fromStates: ['open'], toState: 'resolved',
+      requiredPlayerFactIds: [], requiredNpcFactIds: [], fromStates: ['open', 'eased'], toState: 'resolved',
       exactTerm: { kind: 'offer', minimumAmount: 80, maximumAmount: null, requireAffordable: true },
       newlySpeakableFactIds: [], reactionId: 'reaction_progress',
     },
     {
       leverId: 'cash_proof', stableOrder: 4, concernId: 'payment', honest: true, credits: true,
       trigger: { actIds: ['trade'], referentId: 'test_purse', claimFactIds: ['fact_cash_ready'] },
-      requiredPlayerFactIds: ['fact_cash_ready'], requiredNpcFactIds: [], fromStates: ['open'], toState: 'resolved',
+      requiredPlayerFactIds: ['fact_cash_ready'], requiredNpcFactIds: [], fromStates: ['open'], toState: 'eased',
       newlySpeakableFactIds: [], reactionId: 'reaction_progress',
     },
     {

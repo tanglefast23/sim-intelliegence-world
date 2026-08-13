@@ -256,13 +256,14 @@
         "requiredPlayerFactIds": [],
         "requiredNpcFactIds": [],
         "fromStates": [
-          "open"
+          "open",
+          "eased"
         ],
         "toState": "resolved",
         "exactTerm": {
           "kind": "offer",
           "minimumAmount": 80,
-          "maximumAmount": 99,
+          "maximumAmount": null,
           "requireAffordable": true
         },
         "newlySpeakableFactIds": [],
@@ -290,7 +291,7 @@
         "fromStates": [
           "open"
         ],
-        "toState": "resolved",
+        "toState": "eased",
         "newlySpeakableFactIds": [],
         "reactionId": "linda_progress"
       }

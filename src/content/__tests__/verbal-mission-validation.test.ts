@@ -68,6 +68,14 @@ describe('Verbal Mission content validation', () => {
     )).toThrow('required concern payment needs two credited levers');
   });
 
+  test('requires exact terms to remain reachable through a required concern', () => {
+    const mission = missionCopy();
+    mission.levers.find(({ leverId }: { leverId: string }) => leverId === 'cash_proof').toState = 'resolved';
+    expect(() => buildVerbalMissionCatalog(
+      [TEST_DEAL_DISPOSITION], [mission], TEST_DEAL_REFERENCES,
+    )).toThrow('exact terms must guard a required concern');
+  });
+
   test('requires a matching authored fallback for every outcome', () => {
     const mission = missionCopy();
     mission.defaultReactionIds.ready = 'reaction_progress';
