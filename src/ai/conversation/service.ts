@@ -2,7 +2,11 @@ import { StableIdSchema } from '../../domain/state/ids';
 import { parseWorldState, type WorldState } from '../../domain/state/schema';
 import type { InferencePort } from '../../application/effects/InferencePort';
 import type {
+  CompleteVerbalMissionTurnResult,
+  ConfirmVerbalMissionGoalRequest,
+  ConfirmVerbalMissionGoalResult,
   ConversationSocialOutcome,
+  ReadVerbalMissionTurnResult,
   StructuredConversationAction,
 } from '../../application/effects/ConversationPort';
 import {
@@ -32,19 +36,29 @@ import { validateConversationTurn, type ApprovedTurn } from '../validation/valid
 import { classifyQuestionScope, inventsHalcyraRelativeGeography } from '../knowledge/world-knowledge';
 import { ConversationTransaction } from './transaction';
 import { conversationPromptSuggestions, detectStructuredConversationAction, structuredActionFromModelActionId } from './intent';
+import { VerbalMissionSession, type VerbalMissionContentStore } from './verbal-mission-session';
 
 export interface CharacterWritingStore {
   get(npcId: string): Promise<CharacterWriting>;
 }
 
 export type ConversationDiagnostic = Readonly<{
-  stage: 'response-validation' | 'content-policy' | 'structured-response-validation';
+  stage: 'response-validation' | 'content-policy' | 'structured-response-validation' | 'verbal-mission-actor';
   attempt?: 1 | 2;
   reason: string;
 }>;
 
 export type BeginConversationResult =
-  | Readonly<{ kind: 'active'; conversationId: string; npcId: string; displayName: string; greeting: string; pausedState: WorldState }>
+  | Readonly<{
+    kind: 'active'; conversationId: string; npcId: string; displayName: string;
+    greeting: string; pausedState: WorldState;
+    verbalMission?: Readonly<{
+      missionId: string;
+      goalKind: 'disclose_fact' | 'buy_object' | 'schedule_cooperation';
+      status: 'available' | 'active';
+      roomState: 'open' | 'cooling' | 'guarded' | 'done';
+    }>;
+  }>
   | Readonly<{ kind: 'ambient'; npcId: string; displayName: string; dialogue: string; state: WorldState }>;
 
 export type ConversationTurnResult = Readonly<{
@@ -67,6 +81,7 @@ type ActiveConversation = {
   recentTurns: PromptTurn[];
   turnIds: Set<string>;
   structuredActionComplete: boolean;
+  verbalMission?: VerbalMissionSession;
 };
 
 function fallbackTurn(dialogue: string): ApprovedTurn {
@@ -155,6 +170,7 @@ export class ConversationService {
     private readonly inference: InferencePort,
     private readonly writing: CharacterWritingStore,
     private readonly onDiagnostic?: (diagnostic: ConversationDiagnostic) => void,
+    private readonly verbalMissionContent?: VerbalMissionContentStore,
   ) {}
 
   get activeSessionCount(): number {
@@ -191,19 +207,44 @@ export class ConversationService {
       const registry = buildSceneRegistry(state, writing, input.sources ?? {
         sceneObservationIds: [], npcReportIds: [], authoredEventIds: [],
       });
-      this.#sessions.set(conversationId, {
-        abortController: new AbortController(),
+      const abortController = new AbortController();
+      const recentTurns: PromptTurn[] = [{ speaker: 'npc', text: writing.authoredGreeting }];
+      const unresolvedMissions = Object.values(state.verbalMissions).filter((mission) => (
+        mission.npcId === npcId && ['available', 'active'].includes(mission.status)
+      ));
+      if (unresolvedMissions.length > 1) throw new Error('Conversation NPC has more than one unresolved Verbal Mission.');
+      const unresolvedMission = unresolvedMissions[0];
+      let verbalMission: VerbalMissionSession | undefined;
+      if (unresolvedMission) {
+        if (!this.verbalMissionContent) throw new Error('Verbal Mission content store is unavailable.');
+        verbalMission = new VerbalMissionSession(
+          unresolvedMission.missionId,
+          conversationId,
+          this.inference,
+          writing,
+          transaction,
+          await this.verbalMissionContent.get(unresolvedMission.missionId),
+          recentTurns,
+          abortController.signal,
+          (diagnostic) => this.onDiagnostic?.({ stage: 'verbal-mission-actor', ...diagnostic }),
+        );
+      }
+      const session: ActiveConversation = {
+        abortController,
         character: writing,
         registry,
         transaction,
         playerMessages: {},
-        recentTurns: [{ speaker: 'npc', text: writing.authoredGreeting }],
+        recentTurns,
         turnIds: new Set(),
         structuredActionComplete: false,
-      });
+        ...(verbalMission ? { verbalMission } : {}),
+      };
+      this.#sessions.set(conversationId, session);
       return {
         kind: 'active', conversationId, npcId, displayName: writing.displayName,
         greeting: writing.authoredGreeting, pausedState: transaction.pausedState,
+        ...(verbalMission ? { verbalMission: verbalMission.summary() } : {}),
       };
     } finally {
       this.#beginning = false;
@@ -216,6 +257,7 @@ export class ConversationService {
     message: string;
   }>): Promise<ConversationTurnResult> {
     const session = this.#session(input.conversationId);
+    if (session.verbalMission) throw new Error('Use readVerbalMissionTurn for this conversation.');
     if (session.structuredActionComplete) throw new Error('End the conversation after the structured social action.');
     const turnId = StableIdSchema.parse(input.turnId);
     const message = input.message.trim();
@@ -399,10 +441,37 @@ export class ConversationService {
     };
   }
 
+  readVerbalMissionTurn(input: Readonly<{
+    conversationId: string;
+    turnId: string;
+    message: string;
+  }>): Promise<ReadVerbalMissionTurnResult> {
+    const session = this.#session(input.conversationId);
+    if (!session.verbalMission) throw new Error('Conversation has no unresolved Verbal Mission.');
+    return session.verbalMission.read(StableIdSchema.parse(input.turnId), input.message);
+  }
+
+  completeVerbalMissionTurn(input: Readonly<{
+    conversationId: string;
+    turnId: string;
+  }>): Promise<CompleteVerbalMissionTurnResult> {
+    const session = this.#session(input.conversationId);
+    if (!session.verbalMission) throw new Error('Conversation has no unresolved Verbal Mission.');
+    return session.verbalMission.complete(StableIdSchema.parse(input.turnId));
+  }
+
+  confirmVerbalMissionGoal(request: ConfirmVerbalMissionGoalRequest): ConfirmVerbalMissionGoalResult {
+    const session = this.#session(request.conversationId);
+    if (!session.verbalMission) throw new Error('Conversation has no unresolved Verbal Mission.');
+    return session.verbalMission.confirm(request);
+  }
+
   end(conversationId: string): WorldState {
     const session = this.#session(conversationId);
     session.abortController.abort();
-    const state = session.transaction.commit();
+    const state = session.verbalMission
+      ? session.verbalMission.close(false)
+      : session.transaction.commit();
     this.#sessions.delete(conversationId);
     return state;
   }
@@ -410,7 +479,9 @@ export class ConversationService {
   abort(conversationId: string): WorldState {
     const session = this.#session(conversationId);
     session.abortController.abort();
-    const state = session.transaction.discard();
+    const state = session.verbalMission
+      ? session.verbalMission.close(true)
+      : session.transaction.discard();
     this.#sessions.delete(conversationId);
     return state;
   }
@@ -418,7 +489,8 @@ export class ConversationService {
   abortAll(): void {
     for (const session of this.#sessions.values()) {
       session.abortController.abort();
-      session.transaction.discard();
+      if (session.verbalMission) session.verbalMission.close(true);
+      else session.transaction.discard();
     }
     this.#sessions.clear();
   }

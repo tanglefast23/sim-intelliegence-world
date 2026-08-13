@@ -145,6 +145,9 @@ export function createBrowserConversationPort(): ConversationPort {
   return {
     beginConversation: (request) => service.begin(request),
     sendConversationTurn: (request) => service.turn(request),
+    readVerbalMissionTurn: (request) => service.readVerbalMissionTurn(request),
+    completeVerbalMissionTurn: (request) => service.completeVerbalMissionTurn(request),
+    confirmVerbalMissionGoal: async (request) => service.confirmVerbalMissionGoal(request),
     endConversation: async ({ conversationId }) => ({ state: service.end(conversationId) }),
     abortConversation: async ({ conversationId }) => ({ state: service.abort(conversationId) }),
   };

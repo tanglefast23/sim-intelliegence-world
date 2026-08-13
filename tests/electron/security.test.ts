@@ -217,6 +217,9 @@ describe('secure Electron boundary', () => {
     expect(preload).toContain("migrateSave: 'si-world:migrate-save'");
     expect(preload).toContain("beginConversation: 'si-world:begin-conversation'");
     expect(preload).toContain("sendConversationTurn: 'si-world:send-conversation-turn'");
+    expect(preload).toContain("readVerbalMissionTurn: 'si-world:read-verbal-mission-turn'");
+    expect(preload).toContain("completeVerbalMissionTurn: 'si-world:complete-verbal-mission-turn'");
+    expect(preload).toContain("confirmVerbalMissionGoal: 'si-world:confirm-verbal-mission-goal'");
     expect(preload).toContain("endConversation: 'si-world:end-conversation'");
     expect(preload).toContain("abortConversation: 'si-world:abort-conversation'");
     expect(preload).toMatch(/import type \{ RendererReadyReport, RuntimeInfo \}/u);

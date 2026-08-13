@@ -21,7 +21,7 @@ export type ConversationStagedState = ConversationPersistenceDraft & Readonly<{
   socialChangeCount: number;
 }>;
 
-function encodedIdPart(source: string): string {
+export function encodedIdPart(source: string): string {
   if (source.length === 0 || source.length > 64) throw new Error('Conversation ID length is invalid.');
   return [...new TextEncoder().encode(source)]
     .map((byte) => byte.toString(16).padStart(2, '0'))
@@ -186,6 +186,24 @@ export class ConversationTransaction {
     const event = this.#stageCommand(command);
     this.#structuredActionStaged = true;
     return event;
+  }
+
+  stageVerbalMissionCommands(commands: readonly DomainCommand[]): readonly DomainEvent[] {
+    this.#assertOpen();
+    const parsed = commands.map((command) => DomainCommandSchema.parse(command));
+    if (parsed.some(({ type }) => type !== 'apply-verbal-mission-outcome' && type !== 'record-player-knowledge')) {
+      throw new Error('Conversation transaction rejected a non-mission staged command.');
+    }
+    let preview = this.#previewState;
+    const events = parsed.map((command) => {
+      const result = reduceCommand(preview, command);
+      if (result.duplicate || !result.event) throw new Error('Conversation mission action was not staged uniquely.');
+      preview = result.state;
+      return result.event;
+    });
+    this.#previewState = preview;
+    this.#socialCommands.push(...parsed);
+    return events;
   }
 
   commit(): WorldState {

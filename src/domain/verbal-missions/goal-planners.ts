@@ -227,6 +227,19 @@ export function validatePlayerKnowledge(record: KnowledgeRecord): KnowledgeRecor
   return record;
 }
 
+export function authoredPlayerKnowledgeRecord(factId: string): KnowledgeRecord {
+  const authority = PLAYER_KNOWLEDGE_AUTHORITIES[factId];
+  const source = authority?.sources[0];
+  if (!authority || !source) throw new Error(`Unregistered player knowledge fact: ${factId}`);
+  return {
+    factId,
+    assertedValue: authority.assertedValue,
+    epistemicState: authority.epistemicState,
+    truthStatus: authority.truthStatus,
+    source,
+  };
+}
+
 export function planRecordPlayerKnowledge(state: WorldState, record: KnowledgeRecord) {
   const existing = state.playerKnowledge[record.factId];
   if (existing) return { state, record: existing, changed: false } as const;

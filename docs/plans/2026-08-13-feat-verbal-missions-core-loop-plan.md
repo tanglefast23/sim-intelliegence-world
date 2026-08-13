@@ -563,6 +563,19 @@ npm run check:boundaries
 - Small talk, repetition, and backfires cannot trigger the ordinary relationship or stage-advance path.
 - Ordinary conversation tests remain unchanged.
 
+### Completed implementation result
+
+Unresolved full-AI conversations now use a split Reader, deterministic Outcome Engine, and Actor path.
+
+- Reader input is schema-checked, retried once, narrowed to authored candidates, and overridden by exact money or schedule terms when needed.
+- Mission commands stage atomically against preview state. A failed batch cannot leave a partial outcome behind.
+- The deterministic reaction, portrait, cue, concern changes, room state, and confirmation data return before Actor dialogue starts.
+- Actor prompts contain only the exact outcome, safe terms, personality, recent turns, and newly speakable authored facts. Private NPC knowledge and biography stay out.
+- Actor validation rejects changed reaction IDs, premature completion, and contradicted exact terms. Two failures use authored fallback text without erasing state.
+- Pending input, repeated reads, decided exits, closer failure, duplicate confirmation, and settled close delivery are covered by tests.
+- Mission turns never call the ordinary mutual-interaction or relationship-stage path. Ordinary conversation tests remain unchanged.
+- Focused Phase 5 checks pass. The full suite passes with 81 suites and 816 tests.
+
 ### Commit
 
 `feat: wire verbal mission conversation pipeline`
