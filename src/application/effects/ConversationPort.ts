@@ -94,14 +94,18 @@ export const CloseConversationResultSchema = z.object({ state: WorldStateSchema 
 export const ReadVerbalMissionTurnRequestSchema = ConversationTurnRequestSchema;
 
 const VerbalMissionConfirmationSchema = z.discriminatedUnion('goalKind', [
-  z.object({ goalKind: z.literal('disclose_fact'), factId: StableIdSchema }).strict(),
   z.object({
-    goalKind: z.literal('buy_object'), objectId: StableIdSchema,
-    confirmedAmount: z.number().int().nonnegative(),
+    goalKind: z.literal('disclose_fact'), factId: StableIdSchema, factLabel: z.string().min(1).max(100),
+    recipientId: StableIdSchema, recipientLabel: z.string().min(1).max(100),
   }).strict(),
   z.object({
-    goalKind: z.literal('schedule_cooperation'), actionId: StableIdSchema,
-    subjectNpcId: StableIdSchema, locationId: StableIdSchema,
+    goalKind: z.literal('buy_object'), objectId: StableIdSchema,
+    objectLabel: z.string().min(1).max(100), confirmedAmount: z.number().int().nonnegative(),
+  }).strict(),
+  z.object({
+    goalKind: z.literal('schedule_cooperation'), actionId: StableIdSchema, actionLabel: z.string().min(1).max(100),
+    subjectNpcId: StableIdSchema, subjectLabel: z.string().min(1).max(100),
+    locationId: StableIdSchema, locationLabel: z.string().min(1).max(100),
     scheduledMinute: z.number().int().nonnegative(),
   }).strict(),
 ]);
@@ -131,6 +135,7 @@ export const ReadVerbalMissionTurnResultSchema = z.discriminatedUnion('kind', [
       to: z.enum(['hidden', 'open', 'eased', 'resolved', 'hardened']),
       reasonId: StableIdSchema,
     }).strict()).max(8),
+    recall: z.array(z.string().min(1).max(240)).max(8),
     roomState: z.enum(['open', 'cooling', 'guarded', 'done']),
     stagedChangeCount: z.number().int().nonnegative().max(16),
     confirmation: VerbalMissionConfirmationSchema.nullable(),
