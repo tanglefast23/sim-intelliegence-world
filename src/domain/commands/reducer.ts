@@ -239,14 +239,18 @@ export function reduceCommand(state: WorldState, candidate: DomainCommand): Comm
       });
     }
     case 'upsert-journal-entry': {
-      const quest = state.quests[command.entry.questId];
-      if (!quest) throw new Error(`Unknown journal quest: ${command.entry.questId}`);
+      if (command.entry.subject.kind !== 'quest') {
+        throw new Error('Verbal Mission journal entries require their mission command.');
+      }
+      const questId = command.entry.subject.questId;
+      const quest = state.quests[questId];
+      if (!quest) throw new Error(`Unknown journal quest: ${questId}`);
       const current = state.journal[command.entry.id];
       const entry = upsertJournalEntry(current, command.entry);
       const changed = JSON.stringify(current) !== JSON.stringify(entry);
       const event: DomainEvent = {
         ...eventBase(state, command, state.clock.absoluteMinute),
-        type: 'journal-entry-upserted', entryId: entry.id, questId: entry.questId,
+        type: 'journal-entry-upserted', entryId: entry.id, questId,
         locationPrecision: entry.locationPrecision, markerVisible: entry.markerVisible, changed,
       };
       return commitEvent(state, event, { journal: { ...state.journal, [entry.id]: entry } });

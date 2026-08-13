@@ -6,7 +6,7 @@ import {
   ScheduleBlockSchema,
 } from '../models';
 import { StableIdSchema } from '../ids';
-import { WorldStateBaseSchema } from '../schema';
+import { LegacyStateV6Schema } from './legacy-v6';
 import { routeBetween } from '../../../world/transfers/routes';
 import { LegacyStateV4Schema } from './v4-to-v5';
 
@@ -45,7 +45,7 @@ const LegacyTransferV3Schema = z.object({
   message: 'Transfer arrival must be after departure.',
 });
 
-export const LegacyStateV3Schema = WorldStateBaseSchema.omit({
+export const LegacyStateV3Schema = LegacyStateV6Schema.omit({
   schemaVersion: true,
   relationships: true,
   journal: true,

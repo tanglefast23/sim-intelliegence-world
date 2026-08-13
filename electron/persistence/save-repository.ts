@@ -27,7 +27,6 @@ import {
 } from '../../src/application/effects/PersistencePort';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { migrateStateCopy } from '../../src/domain/state/migrations';
-import { migrateV5ToV6 } from '../../src/domain/state/migrations/v5-to-v6';
 import type { WorldMapV2Catalog } from '../../src/world/maps/catalog';
 import { LayoutMigrationError, recoverWorldLayout } from '../../src/world/maps/layout-recovery';
 import {
@@ -148,11 +147,11 @@ export class SaveRepository {
     }
     const sourceSchemaVersion = recovery.selected.envelope.state.schemaVersion;
     try {
-      const currentState = sourceSchemaVersion === 5
-        ? migrateV5ToV6(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId)
-        : recovery.selected.envelope.state;
+      const currentState = sourceSchemaVersion === 7
+        ? recovery.selected.envelope.state
+        : migrateStateCopy(recovery.selected.envelope.state, recovery.selected.envelope.state.generationId);
       const layout = recoverWorldLayout(currentState, this.#catalog);
-      if (sourceSchemaVersion === 6 && layout.migratedMapIds.length === 0) {
+      if (sourceSchemaVersion === 7 && layout.migratedMapIds.length === 0) {
         return LoadResultSchema.parse({
           status: 'unchanged',
           slotId,

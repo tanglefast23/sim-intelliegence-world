@@ -1,7 +1,7 @@
 {
   "vagueLead": {
     "id": "linda_villa_lead",
-    "questId": "linda_boyfriend_check",
+    "subject": {"kind": "quest", "questId": "linda_boyfriend_check"},
     "summary": "Linda said the problem is near the residential beach.",
     "locationPrecision": "vague",
     "markerVisible": false,
@@ -12,7 +12,7 @@
   },
   "exactLead": {
     "id": "linda_villa_lead",
-    "questId": "linda_boyfriend_check",
+    "subject": {"kind": "quest", "questId": "linda_boyfriend_check"},
     "summary": "The exact villa door was observed.",
     "locationPrecision": "exact",
     "locationId": "linda_villa",

@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 import { StableIdSchema } from '../ids';
-import { WorldStateBaseSchema, WorldStateSchema, type WorldState } from '../schema';
+import { LegacyStateV6Schema, type LegacyStateV6 } from './legacy-v6';
 
-export const LegacyStateV5Schema = WorldStateBaseSchema.omit({
+export const LegacyStateV5Schema = LegacyStateV6Schema.omit({
   schemaVersion: true,
   layoutRevisions: true,
   layoutMigrationEvidence: true,
@@ -13,12 +13,12 @@ export const LegacyStateV5Schema = WorldStateBaseSchema.omit({
 
 export type LegacyStateV5 = z.infer<typeof LegacyStateV5Schema>;
 
-export function migrateV5ToV6(candidate: unknown, nextGenerationId: string): WorldState {
+export function migrateV5ToV6(candidate: unknown, nextGenerationId: string): LegacyStateV6 {
   const generationId = StableIdSchema.refine((value) => value.startsWith('generation-'), {
     message: 'Migration generation ID must start with generation-.',
   }).parse(nextGenerationId);
   const source = LegacyStateV5Schema.parse(candidate);
-  return WorldStateSchema.parse({
+  return LegacyStateV6Schema.parse({
     ...source,
     schemaVersion: 6,
     generationId,

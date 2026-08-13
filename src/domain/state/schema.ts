@@ -19,9 +19,15 @@ import {
   RelationshipStateSchema,
   ScheduleStateSchema,
   TransferStateSchema,
+  KnowledgeRecordSchema,
 } from './models';
+import {
+  CommitmentStateSchema,
+  VerbalMissionStateSchema,
+  WorldObjectStateSchema,
+} from '../verbal-missions/state';
 
-export const STATE_SCHEMA_VERSION = 6 as const;
+export const STATE_SCHEMA_VERSION = 7 as const;
 export const CONTENT_VERSION = 'content-0.1.0' as const;
 export const PROMPT_VERSION = 'prompt-0.1.0' as const;
 export const MODEL_CONTRACT_VERSION = 'qwen-json-v1' as const;
@@ -44,9 +50,9 @@ export const LayoutMigrationEvidenceSchema = z.object({
 }).strict();
 
 export const ModelPinSchema = z.object({
-  id: z.enum(['qwen3.5-9b', 'qwen3.5-4b']),
-  sourceRevision: z.string().regex(/^[a-f0-9]{40}$/u),
-  artifactSha256: z.string().regex(/^[a-f0-9]{64}$/u),
+  id: z.literal('qwen3.5-4b'),
+  sourceRevision: z.literal('851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a'),
+  artifactSha256: z.literal('32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14'),
 }).strict();
 
 export const WorldStateBaseSchema = z.object({
@@ -75,6 +81,10 @@ export const WorldStateBaseSchema = z.object({
   schedules: z.record(StableIdSchema, ScheduleStateSchema),
   transfers: z.record(StableIdSchema, TransferStateSchema),
   evidence: z.record(StableIdSchema, EvidenceStateSchema),
+  playerKnowledge: z.record(StableIdSchema, KnowledgeRecordSchema),
+  worldObjects: z.record(StableIdSchema, WorldObjectStateSchema),
+  verbalMissions: z.record(StableIdSchema, VerbalMissionStateSchema),
+  commitments: z.record(StableIdSchema, CommitmentStateSchema),
   policeAttention: PoliceAttentionSchema,
   eventReceipts: z.array(EventIdSchema),
   eventLedger: z.array(DomainEventSchema),
@@ -113,8 +123,11 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
     if (quest.id !== id) context.addIssue({ code: 'custom', path: ['quests', id], message: 'Quest record key must match its ID.' });
   }
   for (const [id, entry] of Object.entries(state.journal)) {
-    if (entry.id !== id || !state.quests[entry.questId]) {
-      context.addIssue({ code: 'custom', path: ['journal', id], message: 'Journal entry must match its key and reference an existing quest.' });
+    const subjectExists = entry.subject.kind === 'quest'
+      ? Boolean(state.quests[entry.subject.questId])
+      : Boolean(state.verbalMissions[entry.subject.missionId]);
+    if (entry.id !== id || !subjectExists) {
+      context.addIssue({ code: 'custom', path: ['journal', id], message: 'Journal entry must match its key and reference its subject.' });
     }
   }
   for (const [id, invitation] of Object.entries(state.invitations)) {
@@ -185,6 +198,51 @@ export const WorldStateSchema = WorldStateBaseSchema.superRefine((state, context
     if (evidence.id !== id || evidence.witnessNpcIds.some((npcId) => !state.npcs[npcId])) {
       context.addIssue({ code: 'custom', path: ['evidence', id], message: 'Evidence must match its key and reference existing witnesses.' });
     }
+  }
+  for (const [id, knowledge] of Object.entries(state.playerKnowledge)) {
+    if (knowledge.factId !== id) {
+      context.addIssue({ code: 'custom', path: ['playerKnowledge', id], message: 'Player knowledge key must match its fact ID.' });
+    }
+  }
+  for (const [id, object] of Object.entries(state.worldObjects)) {
+    if (object.objectId !== id || (object.ownerId !== state.protagonist.id && !state.npcs[object.ownerId])) {
+      context.addIssue({ code: 'custom', path: ['worldObjects', id], message: 'World object must match its key and reference an existing owner.' });
+    }
+  }
+  for (const [id, mission] of Object.entries(state.verbalMissions)) {
+    const targetExists = mission.goalKind === 'disclose_fact'
+      ? mission.terms.recipientId === state.protagonist.id || Boolean(state.npcs[mission.terms.recipientId])
+      : mission.goalKind === 'buy_object'
+        ? Boolean(state.worldObjects[mission.terms.objectId])
+        : Boolean(state.npcs[mission.terms.subjectNpcId]);
+    if (mission.missionId !== id || !state.npcs[mission.npcId] || !targetExists) {
+      context.addIssue({ code: 'custom', path: ['verbalMissions', id], message: 'Verbal Mission must match its key, NPC, goal, and target.' });
+    }
+    if (mission.goalKind === 'schedule_cooperation' && mission.terms.commitmentId !== null) {
+      const commitment = state.commitments[mission.terms.commitmentId];
+      if (!commitment || commitment.missionId !== id) {
+        context.addIssue({ code: 'custom', path: ['verbalMissions', id, 'terms', 'commitmentId'], message: 'Mission commitment must reference this mission.' });
+      }
+    }
+  }
+  const commitmentMissionIds: string[] = [];
+  for (const [id, commitment] of Object.entries(state.commitments)) {
+    const mission = state.verbalMissions[commitment.missionId];
+    commitmentMissionIds.push(commitment.missionId);
+    if (
+      commitment.commitmentId !== id ||
+      mission?.goalKind !== 'schedule_cooperation' ||
+      mission.npcId !== commitment.npcId ||
+      mission.terms.actionId !== commitment.actionId ||
+      mission.terms.subjectNpcId !== commitment.targetId ||
+      mission.terms.locationId !== commitment.locationId ||
+      mission.terms.commitmentId !== id
+    ) {
+      context.addIssue({ code: 'custom', path: ['commitments', id], message: 'Commitment must match its key and scheduled mission terms.' });
+    }
+  }
+  if (new Set(commitmentMissionIds).size !== commitmentMissionIds.length) {
+    context.addIssue({ code: 'custom', path: ['commitments'], message: 'A mission can own only one commitment.' });
   }
 });
 

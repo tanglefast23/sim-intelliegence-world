@@ -403,7 +403,7 @@ describe('save migrations and state invariants', () => {
         'southeast_docks',
         'southwest_commercial',
       ],
-      state: expect.objectContaining({ schemaVersion: 6 }),
+      state: expect.objectContaining({ schemaVersion: 7 }),
     }));
     const backupBytes = await readFile(join(slotPath, 'state.json.bak'), 'utf8');
     expect(backupBytes).toBe(fixtureBytes);
@@ -494,12 +494,12 @@ describe('save migrations and state invariants', () => {
     const migrated = migrateStateCopy(source, 'generation-migrated-001');
 
     expect(JSON.stringify(source)).toBe(before);
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.generationId).toBe('generation-migrated-001');
     expect(migrated.modelPin).toEqual({
-      id: 'qwen3.5-9b',
-      sourceRevision: 'c202236235762e1c871ad0ccb60c8ee5ba337b9a',
-      artifactSha256: '8a9256b233037ea081c2e606e49dba0851cd42e441800da8ee04597ae9798341',
+      id: 'qwen3.5-4b',
+      sourceRevision: '851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a',
+      artifactSha256: '32c8ff2d0972cc26d4c1f99d6655c7e0d4814bae9c23093a9213e23fd36e3d14',
     });
     expect(migrated.npcs.linda?.unlockedIds).toEqual([]);
     expect(migrated.protagonist.worldPosition).toEqual({
@@ -537,6 +537,10 @@ describe('save migrations and state invariants', () => {
     delete source.invitations;
     delete source.layoutRevisions;
     delete source.layoutMigrationEvidence;
+    delete source.playerKnowledge;
+    delete source.worldObjects;
+    delete source.verbalMissions;
+    delete source.commitments;
     const legacyRelationships = Object.fromEntries(Object.entries(current.relationships).map(([id, relationship]) => {
       const legacy: Partial<typeof relationship> = { ...relationship };
       delete legacy.policy;
@@ -575,14 +579,14 @@ describe('save migrations and state invariants', () => {
       sourceSlotId: 'slot-001',
       targetSlotId: 'slot-002',
       saveGeneration: 1,
-      stateSchemaVersion: 6,
+      stateSchemaVersion: 7,
     }));
     expect(await readFile(sourcePath, 'utf8')).toBe(legacyBytes);
     await expect(repository.load('slot-002')).resolves.toEqual(expect.objectContaining({
       status: 'unchanged',
       state: expect.objectContaining({
         generationId: 'generation-migrated-002',
-        schemaVersion: 6,
+        schemaVersion: 7,
         protagonist: expect.objectContaining({
           worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
         }),

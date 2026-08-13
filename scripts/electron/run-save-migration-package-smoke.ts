@@ -17,7 +17,7 @@ const LoadResultSchema = z.object({
   status: z.literal('unchanged'),
   saveGeneration: z.literal(8),
   state: z.object({
-    schemaVersion: z.literal(6),
+    schemaVersion: z.literal(7),
     protagonist: z.object({
       worldPosition: z.object({
         mapId: z.string().min(1),
@@ -133,8 +133,8 @@ async function main(): Promise<void> {
     const migratedEnvelope = parseSaveEnvelope(JSON.parse(readFileSync(statePath, 'utf8')) as unknown);
     const backupBytes = readFileSync(backupPath, 'utf8');
     const backupEnvelope = parseSupportedSaveEnvelope(JSON.parse(backupBytes) as unknown);
-    if (migratedEnvelope.saveGeneration !== 8 || migratedEnvelope.state.schemaVersion !== 6) {
-      throw new Error('Migrated main save is not a valid v6 generation 8 envelope.');
+    if (migratedEnvelope.saveGeneration !== 8 || migratedEnvelope.state.schemaVersion !== 7) {
+      throw new Error('Migrated main save is not a valid v7 generation 8 envelope.');
     }
     if (backupBytes !== fixtureBytes || backupEnvelope.state.schemaVersion !== 5) {
       throw new Error('Migration did not preserve the exact v5 source as its backup.');
@@ -142,7 +142,7 @@ async function main(): Promise<void> {
     const reload = await launch('reload', reloadScreenshot);
     const afterReloadEnvelope = parseSaveEnvelope(JSON.parse(readFileSync(statePath, 'utf8')) as unknown);
     if (afterReloadEnvelope.payloadChecksum !== migratedEnvelope.payloadChecksum) {
-      throw new Error('Reload changed the migrated v6 save.');
+      throw new Error('Reload changed the migrated v7 save.');
     }
     const migrationImage = PNG.sync.read(readFileSync(migrationScreenshot));
     const reloadImage = PNG.sync.read(readFileSync(reloadScreenshot));

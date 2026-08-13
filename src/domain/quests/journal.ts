@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { StableIdSchema } from '../state/ids';
+import { JournalSubjectSchema } from '../verbal-missions/state';
 
 export const JournalSourceSchema = z.object({
   type: z.enum(['npc_report', 'scene_observation', 'authored_event', 'item']),
@@ -15,7 +16,7 @@ export const JournalOutcomeReceiptSchema = z.object({
 
 export const JournalEntrySchema = z.object({
   id: StableIdSchema,
-  questId: StableIdSchema,
+  subject: JournalSubjectSchema,
   summary: z.string().trim().min(1).max(500),
   locationPrecision: z.enum(['none', 'vague', 'exact']),
   locationId: StableIdSchema.optional(),
@@ -46,8 +47,8 @@ const PRECISION_RANK = { none: 0, vague: 1, exact: 2 } as const;
 export function upsertJournalEntry(current: JournalEntry | undefined, candidate: JournalEntry): JournalEntry {
   const parsed = JournalEntrySchema.parse(candidate);
   if (!current) return parsed;
-  if (current.id !== parsed.id || current.questId !== parsed.questId) {
-    throw new Error('A journal update cannot change entry or quest identity.');
+  if (current.id !== parsed.id || JSON.stringify(current.subject) !== JSON.stringify(parsed.subject)) {
+    throw new Error('A journal update cannot change entry or subject identity.');
   }
   if (PRECISION_RANK[parsed.locationPrecision] < PRECISION_RANK[current.locationPrecision]) {
     throw new Error('A journal update cannot reduce known location precision.');
