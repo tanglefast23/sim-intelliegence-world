@@ -59,10 +59,12 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/package
 
-  package-macos-intel:
-    name: package-macos-intel
-    runs-on: macos-15-intel
+  package-macos-x64:
+    name: package-macos-x64
+    runs-on: macos-15
     timeout-minutes: 30
+    env:
+      SI_WORLD_PACKAGE_TARGET_ARCH: x64
     steps:
       - name: Check out tested commit
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -73,12 +75,12 @@ jobs:
           node-version: 22.13.1
           cache: npm
 
-      - name: Prove tested SHA and x64 runner
+      - name: Prove tested SHA and ARM64 host
         shell: bash
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(uname -m)" = "x86_64"
-          test "$(node -p 'process.arch')" = "x64"
+          test "$(uname -m)" = "arm64"
+          test "$(node -p 'process.arch')" = "arm64"
           printf 'tested_sha=%s\n' "$GITHUB_SHA"
 
       - name: Install locked dependencies

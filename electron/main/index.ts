@@ -1345,6 +1345,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'Enter');
   await waitForSelector(window, '#world-state', 20_000);
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
+  const geometry = await geometryEvidence(window);
   const protagonistLabel = await protagonistStateLabel(window);
   const stableProtagonist = protagonistLabel.includes('Protagonist protagonist') && protagonistLabel.includes('name MISTAKE');
   const allowanceReceipt = protagonistLabel.includes('allowance 800') && protagonistLabel.includes('money 800') &&
@@ -1472,11 +1473,12 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const tilePattern = /TILE \d+,\d+/u;
   const uiClickThrough = beforeUi.match(tilePattern)?.[0] === afterUi.match(tilePattern)?.[0];
 
-  await clickWorldTile(window, { x: 15, y: 25 });
-  await waitForWorldTile(window, { x: 15, y: 25 }, 10_000);
+  await clickWorldTile(window, geometry.roof.exteriorTile);
+  await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
   await waitForRoofLabel(window, 'Villa roof restored');
   const outsideText = await rendererText(window, '#world-ui-location');
-  const roofRestore = outsideText.includes('TILE 15,25') && await roofLabel(window) === 'Villa roof restored';
+  const roofRestore = outsideText.includes(`TILE ${geometry.roof.exteriorTile.x},${geometry.roof.exteriorTile.y}`) &&
+    await roofLabel(window) === 'Villa roof restored';
   let previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window,
     join(directory, 'world-roof-restored.png'),

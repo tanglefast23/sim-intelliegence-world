@@ -8,6 +8,14 @@ import { APP_URL } from '../../electron/protocol/app-protocol';
 
 const RESULT_PREFIX = 'SI_WORLD_SMOKE_RESULT ';
 
+function targetPackageArchitecture(): string {
+  const architecture = process.env.SI_WORLD_PACKAGE_TARGET_ARCH ?? process.arch;
+  if (architecture !== 'arm64' && architecture !== 'x64') {
+    throw new Error(`Unsupported packaged architecture: ${architecture}.`);
+  }
+  return architecture;
+}
+
 export type PackageSmokeProfile = 'qualification' | 'platform-shell';
 
 export interface RendererFpsEvidence {
@@ -53,7 +61,7 @@ function belongsToPackageTarget(filePath: string, platform: string, architecture
 export function findPackagedExecutable(
   outputRoot: string,
   platform = process.platform,
-  architecture = process.arch,
+  architecture = targetPackageArchitecture(),
 ): string {
   const candidates = filesUnder(outputRoot).filter((filePath) => {
     const name = basename(filePath).toLowerCase();
@@ -79,7 +87,7 @@ export function findPackagedExecutable(
 export function findPackageArchive(
   outputRoot: string,
   platform = process.platform,
-  architecture = process.arch,
+  architecture = targetPackageArchitecture(),
 ): string {
   const candidates = filesUnder(outputRoot).filter((filePath) =>
     basename(filePath) === 'app.asar' && belongsToPackageTarget(filePath, platform, architecture));

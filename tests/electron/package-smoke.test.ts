@@ -90,6 +90,28 @@ describe('packaged Electron smoke evidence', () => {
     }
   });
 
+  test('selects a cross-architecture package for a release smoke', () => {
+    const root = mkdtempSync(join(tmpdir(), 'si-world-package-cross-arch-'));
+    const previousArchitecture = process.env.SI_WORLD_PACKAGE_TARGET_ARCH;
+    try {
+      const executable = join(root, 'SI World-darwin-x64', 'SI World.app', 'Contents', 'MacOS', 'si-world');
+      const archive = join(root, 'SI World-darwin-x64', 'SI World.app', 'Contents', 'Resources', 'app.asar');
+      for (const file of [executable, archive]) {
+        mkdirSync(join(file, '..'), { recursive: true });
+        writeFileSync(file, 'fixture');
+      }
+      process.env.SI_WORLD_PACKAGE_TARGET_ARCH = 'x64';
+      expect(findPackagedExecutable(root, 'darwin')).toBe(executable);
+      expect(findPackageArchive(root, 'darwin')).toBe(archive);
+      process.env.SI_WORLD_PACKAGE_TARGET_ARCH = 'invalid';
+      expect(() => findPackagedExecutable(root, 'darwin')).toThrow('Unsupported packaged architecture');
+    } finally {
+      if (previousArchitecture === undefined) delete process.env.SI_WORLD_PACKAGE_TARGET_ARCH;
+      else process.env.SI_WORLD_PACKAGE_TARGET_ARCH = previousArchitecture;
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
   test('retries transient screenshot failures but keeps a bounded failure', async () => {
     let attempts = 0;
     const waits: number[] = [];

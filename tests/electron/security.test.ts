@@ -310,7 +310,7 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('npm run verify:ci-build');
     expect(workflow).toContain('npm run package:mac:arm64');
     expect(workflow).toContain('--webgl2-probe --expect-arch=arm64');
-    expect(workflow).toContain('runs-on: macos-15-intel');
+    expect(workflow).toContain('SI_WORLD_PACKAGE_TARGET_ARCH: x64');
     expect(workflow).toContain('npm run package:mac:x64');
     expect(workflow).toContain('--webgl2-probe --expect-arch=x64');
     expect(workflow).toContain('npm run sign:test:mac');
