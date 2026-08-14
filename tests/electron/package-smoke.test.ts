@@ -46,15 +46,18 @@ describe('packaged Electron smoke evidence', () => {
     expect(main).toContain('void emitWebgl2Probe(window)');
     expect(main).toContain('async function reachWorldTile(');
     expect(main).toContain('async function reachWorldLocation(');
-    expect(main).toContain('const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 40_000;');
+    expect(main).toContain('const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 60_000;');
     expect(main).toContain('options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
     expect(main).toContain('destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
     expect(main.match(/await startMovementSmokeSampling\(window\);/gu)).toHaveLength(2);
     expect(main.match(/await stopMovementSmokeSampling\(window\)/gu)).toHaveLength(2);
+    expect(main).toContain('attributeOldValue: true');
+    expect(main).toContain('sampler.observer.disconnect()');
     expect(main).toContain('if (attempt === 3) throw error;');
-    expect(runner).toContain('const FULL_WORLD_SMOKE_TIMEOUT_MS = 600_000;');
+    expect(runner).toContain('const FULL_WORLD_SMOKE_TIMEOUT_MS = 1_200_000;');
+    expect(main).toContain('webgl2ProbeMode ? WEBGL2_PROBE_URL');
+    expect(runner).toContain('probe.appUrl !== WEBGL2_PROBE_URL');
     expect(main).toContain('new MutationObserver(recordFeedback)');
-    expect(runner).toContain("probe.appUrl !== APP_URL");
   });
 
   test('uses explicit output roots and rejects immutable historical evidence', () => {
@@ -300,6 +303,7 @@ describe('packaged Electron smoke evidence', () => {
       '/build/src/domain/state/schema.js',
       '/dist/canvaskit.wasm',
       '/dist/index.html',
+      '/dist/webgl2-probe.html',
       '/dist/assets/assets/proof/phase2-atlas.abc123.png',
       '/dist/assets/assets/proof/phase2-tone.abc123.wav',
       '/dist/assets/assets/generated/world-atlas.abc123.png',

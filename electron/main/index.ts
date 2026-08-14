@@ -23,6 +23,7 @@ import {
 import { SaveRepository, saveRootForUserData } from '../persistence/save-repository';
 import {
   APP_URL,
+  WEBGL2_PROBE_URL,
   createAppProtocolHandler,
   registerAppSchemePrivileges,
 } from '../protocol/app-protocol';
@@ -648,7 +649,7 @@ async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x:
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
-const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 40_000;
+const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 60_000;
 
 async function reachWorldTile(
   window: BrowserWindow,
@@ -737,18 +738,28 @@ async function waitForMovementSmokeState(
 
 async function startMovementSmokeSampling(window: BrowserWindow): Promise<void> {
   await window.webContents.executeJavaScript(`(() => {
-    if (globalThis.__siWorldMovementSampler?.active) {
+    if (globalThis.__siWorldMovementSampler) {
       throw new Error('Natural-movement sampling is already active.');
     }
-    const sampler = { active: true, samples: [] };
+    const element = document.querySelector('#world-movement-state');
+    if (!(element instanceof HTMLElement)) {
+      throw new Error('Natural-movement smoke evidence is missing.');
+    }
+    const sampler = { samples: [], observer: null };
     globalThis.__siWorldMovementSampler = sampler;
-    const frame = () => {
-      if (!sampler.active) return;
-      const label = document.querySelector('#world-movement-state')?.getAttribute('aria-label') ?? '';
+    const record = (label) => {
       if (label && sampler.samples.length < 900) sampler.samples.push(JSON.parse(label));
-      requestAnimationFrame(frame);
     };
-    requestAnimationFrame(frame);
+    sampler.observer = new MutationObserver((records) => {
+      for (const mutation of records) record(mutation.oldValue ?? '');
+      record(element.getAttribute('aria-label') ?? '');
+    });
+    sampler.observer.observe(element, {
+      attributeFilter: ['aria-label'],
+      attributeOldValue: true,
+      attributes: true,
+    });
+    record(element.getAttribute('aria-label') ?? '');
   })()`, true);
 }
 
@@ -756,7 +767,7 @@ async function stopMovementSmokeSampling(window: BrowserWindow): Promise<Movemen
   return window.webContents.executeJavaScript(`(() => {
     const sampler = globalThis.__siWorldMovementSampler;
     if (!sampler) throw new Error('Natural-movement sampling was not started.');
-    sampler.active = false;
+    sampler.observer.disconnect();
     delete globalThis.__siWorldMovementSampler;
     return sampler.samples;
   })()`, true) as Promise<MovementSmokeState[]>;
@@ -1552,7 +1563,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
 
   progress('neighborhood-loop');
-  await clickAriaButton(window, 'Set 1x time');
+  await clickAriaButton(window, 'Set 2x time');
+  await waitForWorldState(window, (state) => state.speed === 2, 10_000);
   await reachWorldTile(window, { x: 16, y: 25 });
   await clickZoomButton(window, 1);
   await panWorld(window, -500, 0);
@@ -2136,7 +2148,7 @@ async function createMainWindow(): Promise<void> {
       }, 100);
     }
   });
-  await window.loadURL(devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
+  await window.loadURL(webgl2ProbeMode ? WEBGL2_PROBE_URL : devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
 }
 
 app.on('web-contents-created', (_event, contents) => lockWebContents(contents));

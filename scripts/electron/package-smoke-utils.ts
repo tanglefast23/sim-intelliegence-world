@@ -109,6 +109,7 @@ export function validatePackageListing(listing: string): void {
     '/build/src/domain/state/schema.js',
     '/dist/canvaskit.wasm',
     '/dist/index.html',
+    '/dist/webgl2-probe.html',
     '/node_modules/zod/package.json',
   ];
   for (const requiredEntry of required) {

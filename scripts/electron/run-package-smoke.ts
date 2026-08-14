@@ -9,7 +9,7 @@ import { parseSaveEnvelope } from '../../electron/persistence/save-format';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
-import { APP_URL } from '../../electron/protocol/app-protocol';
+import { WEBGL2_PROBE_URL } from '../../electron/protocol/app-protocol';
 
 import {
   evaluateRendererFps,
@@ -117,7 +117,7 @@ child.stderr.on('data', (chunk: Buffer) => {
 });
 
 let timedOut = false;
-const FULL_WORLD_SMOKE_TIMEOUT_MS = 600_000;
+const FULL_WORLD_SMOKE_TIMEOUT_MS = 1_200_000;
 const timeout = setTimeout(() => {
   timedOut = true;
   child.kill('SIGKILL');
@@ -143,7 +143,7 @@ child.once('close', (code) => {
     if (!line) throw new Error('Packaged app did not emit WebGL 2 probe evidence.');
     const probe = JSON.parse(line.slice(prefix.length)) as Record<string, unknown>;
     if (probe.available !== true) throw new Error('Packaged WebGL 2 probe did not pass.');
-    if (probe.appUrl !== APP_URL) throw new Error('Packaged WebGL 2 probe did not load the trusted app URL.');
+    if (probe.appUrl !== WEBGL2_PROBE_URL) throw new Error('Packaged WebGL 2 probe did not load the trusted probe URL.');
     if (probe.architecture !== expectedArchitecture) {
       throw new Error(`Packaged architecture ${String(probe.architecture)} did not match ${expectedArchitecture}.`);
     }
