@@ -732,7 +732,7 @@ async function captureMovementPass(
   const start = { x: 18, y: 18 };
   const target = { x: 22, y: 22 };
   await startMovementSmokeSampling(window);
-  await clickWorldTile(window, target);
+  await dispatchWorldTileClick(window, target);
   const samples: MovementSmokeSample[] = [];
   const screenshotNames: string[] = [];
   const screenshotBuffers: Buffer[] = [];
@@ -760,7 +760,7 @@ async function captureMovementPass(
   }
   const lastRouteSample = await movementSmokeState(window);
   if (lastRouteSample.player.committed.x !== target.x || lastRouteSample.player.committed.y !== target.y) {
-    throw new Error('Natural-movement package pass did not reach the diagonal target.');
+    throw new Error(`Natural-movement package pass did not reach the diagonal target. Last: ${JSON.stringify(lastRouteSample.player)}`);
   }
   const routeSamples = await stopMovementSmokeSampling(window);
   for (const sample of routeSamples) {
