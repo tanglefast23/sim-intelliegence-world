@@ -966,7 +966,13 @@ async function startResponsiveSmokeGame(window: BrowserWindow): Promise<void> {
 
 async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): Promise<Record<string, unknown>> {
   const lindaTile = parseLindaTile(await npcStateLabel(window));
+  const approachTile = { x: lindaTile.x + 1, y: lindaTile.y };
+  await clickAriaButton(window, 'Set 1x time');
+  await dispatchWorldTileClick(window, approachTile);
+  await waitForWorldTile(window, approachTile, 10_000);
+  await clickAriaButton(window, 'Pause time');
   await dispatchWorldTileClick(window, lindaTile);
+  await waitForAriaButtonEnabled(window, 'Talk to Linda');
   await clickAriaButton(window, 'Talk to Linda');
   await waitForSelector(window, '#world-ui-quest-offer-panel, #world-ui-conversation-panel');
   if (await window.webContents.executeJavaScript(`Boolean(document.querySelector('#world-ui-quest-offer-panel'))`, true) as boolean) {
