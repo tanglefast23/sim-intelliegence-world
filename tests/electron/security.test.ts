@@ -297,9 +297,11 @@ describe('secure Electron boundary', () => {
     expect(forgeConfig).toContain("const packagedApplicationName = 'SI World'");
     expect(mainProcess).not.toContain('app.disableHardwareAcceleration()');
     expect(mainProcess).toContain("'--si-world-smoke-mode=1'");
+    expect(mainProcess).toContain("'--si-world-freeze-npc-motion=1'");
     expect(mainProcess).toContain('`--si-world-art-mode=${responsiveArtMode}`');
     const preload = readFileSync(resolve('electron/preload/index.ts'), 'utf8');
     expect(preload).toContain("process.argv.includes('--si-world-smoke-mode=1')");
+    expect(preload).toContain("process.argv.includes('--si-world-freeze-npc-motion=1')");
     expect(preload).toContain("contextBridge.exposeInMainWorld('siWorldArtMode', smokeArtMode)");
   });
 

@@ -88,6 +88,12 @@ contextBridge.exposeInMainWorld(
   'siWorldSmokeMode',
   process.argv.includes('--si-world-smoke-mode=1'),
 );
+if (
+  process.argv.includes('--si-world-smoke-mode=1') &&
+  process.argv.includes('--si-world-freeze-npc-motion=1')
+) {
+  contextBridge.exposeInMainWorld('siWorldFreezeNpcMotion', true);
+}
 const smokeArtMode = process.argv.find((argument) => argument.startsWith('--si-world-art-mode='))?.split('=')[1];
 if (process.argv.includes('--si-world-smoke-mode=1') && (smokeArtMode === 'legacy' || smokeArtMode === 'enhanced')) {
   contextBridge.exposeInMainWorld('siWorldArtMode', smokeArtMode);

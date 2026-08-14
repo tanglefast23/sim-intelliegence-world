@@ -37,6 +37,7 @@ declare global {
     siWorldDevHarnessMode?: boolean;
     siWorldVfxMode?: 'circle' | 'procedural';
     siWorldSmokeMode?: boolean;
+    siWorldFreezeNpcMotion?: true;
     siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
     siWorldCloseConversationFixture?: () => void;
     siWorldSetAuthoredDialogueFixture?: (characterId?: 'linda-boyfriend') => void;

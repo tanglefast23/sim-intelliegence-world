@@ -677,6 +677,7 @@ export function WorldScene({
           current,
           elapsedMs,
           effectiveSpeed(current.worldState.clock),
+          window.siWorldFreezeNpcMotion !== true,
         ));
       }
       animationFrame = requestAnimationFrame(animate);

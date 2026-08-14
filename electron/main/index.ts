@@ -2038,6 +2038,7 @@ async function createMainWindow(): Promise<void> {
       additionalArguments: [
         ...(smokeMode ? [
           '--si-world-smoke-mode=1',
+          ...(!naturalMovementSmokeMode ? ['--si-world-freeze-npc-motion=1'] : []),
           ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
           ...(smokeVfxMode ? [`--si-world-vfx-mode=${smokeVfxMode}`] : []),
         ] : []),
