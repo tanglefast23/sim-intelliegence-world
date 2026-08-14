@@ -46,7 +46,13 @@ describe('packaged Electron smoke evidence', () => {
     expect(main).toContain('void emitWebgl2Probe(window)');
     expect(main).toContain('async function reachWorldTile(');
     expect(main).toContain('async function reachWorldLocation(');
+    expect(main).toContain('const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 40_000;');
+    expect(main).toContain('options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
+    expect(main).toContain('destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
+    expect(main.match(/await startMovementSmokeSampling\(window\);/gu)).toHaveLength(2);
+    expect(main.match(/await stopMovementSmokeSampling\(window\)/gu)).toHaveLength(2);
     expect(main).toContain('if (attempt === 3) throw error;');
+    expect(runner).toContain('const FULL_WORLD_SMOKE_TIMEOUT_MS = 600_000;');
     expect(main).toContain('new MutationObserver(recordFeedback)');
     expect(runner).toContain("probe.appUrl !== APP_URL");
   });

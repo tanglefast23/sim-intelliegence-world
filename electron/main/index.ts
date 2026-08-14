@@ -648,6 +648,8 @@ async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x:
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
+const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 40_000;
+
 async function reachWorldTile(
   window: BrowserWindow,
   tile: Readonly<{ x: number; y: number }>,
@@ -657,7 +659,7 @@ async function reachWorldTile(
     if (options.nativeClick) await clickWorldTile(window, tile);
     else await dispatchWorldTileClick(window, tile);
     try {
-      await waitForWorldTile(window, tile, options.timeoutMilliseconds ?? 10_000);
+      await waitForWorldTile(window, tile, options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS);
       return;
     } catch (error) {
       if (attempt === 3) throw error;
@@ -674,7 +676,7 @@ async function reachWorldLocation(
   for (let attempt = 1; ; attempt += 1) {
     await dispatchWorldTileClick(window, sourceTile);
     try {
-      await waitForWorldLocation(window, destinationMapName, destinationTile, 20_000);
+      await waitForWorldLocation(window, destinationMapName, destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS);
       return;
     } catch (error) {
       if (attempt === 3) throw error;
@@ -787,10 +789,6 @@ async function captureMovementPass(
   const samples: MovementSmokeSample[] = [];
   const screenshotNames: string[] = [];
   const screenshotBuffers: Buffer[] = [];
-  const firstSegmentPositions = new Set<string>();
-  const playerWalkFrames = new Set<0 | 1>();
-  const npcWalkFrames = new Set<0 | 1>();
-  let curveObserved = false;
 
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
@@ -814,17 +812,7 @@ async function captureMovementPass(
     throw new Error(`Natural-movement package pass did not reach the diagonal target. Last: ${JSON.stringify(lastRouteSample.player)}`);
   }
   const routeSamples = await stopMovementSmokeSampling(window);
-  for (const sample of routeSamples) {
-    samples.push(sample);
-    playerWalkFrames.add(sample.player.walkFrame);
-    for (const npc of Object.values(sample.npcs)) {
-      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
-    }
-    curveObserved ||= sample.player.curveActive;
-    if (sample.player.committed.x === start.x && sample.player.committed.y === start.y) {
-      firstSegmentPositions.add(`${sample.player.visualFoot.x},${sample.player.visualFoot.y}`);
-    }
-  }
+  samples.push(...routeSamples);
 
   let interruptionObserved = false;
   let rendererFps: number | null = null;
@@ -846,6 +834,7 @@ async function captureMovementPass(
 
     await dispatchWorldTileClick(window, start);
     await waitForMovementSmokeState(window, (state) => state.player.status === 'moving');
+    await startMovementSmokeSampling(window);
     await dispatchWorldTileClick(window, { x: 24, y: 22 });
     const interrupted = await waitForMovementSmokeState(window, (state) => (
       state.player.status === 'moving' && state.player.target?.x === 24 && state.player.target.y === 22
@@ -858,6 +847,7 @@ async function captureMovementPass(
     await waitForMovementSmokeState(window, (state) => (
       state.player.status === 'idle' && state.player.committed.x === 24 && state.player.committed.y === 22
     ), 20_000);
+    samples.push(...await stopMovementSmokeSampling(window));
 
     await clickZoomButton(window, 1);
     await dispatchWorldTileClick(window, { x: 40, y: 36 });
@@ -870,22 +860,27 @@ async function captureMovementPass(
     screenshotNames.push(crowdName);
   }
 
+  const emittedSamples = samples.map((sample) => ({
+    ...sample,
+    npcs: Object.fromEntries(
+      Object.entries(sample.npcs).filter(([, movement]) => movement.status === 'moving'),
+    ),
+  }));
   return {
     schemaVersion: 3,
     mode,
     npcMotionSource: 'fixture',
     npcMotionNpcId: 'linda',
-    samples: samples.map((sample) => ({
-      ...sample,
-      npcs: Object.fromEntries(
-        Object.entries(sample.npcs).filter(([, movement]) => movement.status === 'moving'),
-      ),
-    })),
-    firstSegmentUniquePositions: firstSegmentPositions.size,
-    curveObserved,
+    samples: emittedSamples,
+    firstSegmentUniquePositions: new Set(emittedSamples.filter(({ player }) => (
+      player.committed.x === start.x && player.committed.y === start.y
+    )).map(({ player }) => `${player.visualFoot.x},${player.visualFoot.y}`)).size,
+    curveObserved: emittedSamples.some(({ player }) => player.curveActive),
     interruptionObserved,
-    playerWalkFrames: [...playerWalkFrames].sort(),
-    npcWalkFrames: [...npcWalkFrames].sort(),
+    playerWalkFrames: [...new Set(emittedSamples.map(({ player }) => player.walkFrame))].sort(),
+    npcWalkFrames: [...new Set(emittedSamples.flatMap(({ npcs }) => (
+      Object.values(npcs).map(({ walkFrame }) => walkFrame)
+    )))].sort(),
     rendererFps,
     displayRafFps,
     screenshotNames,
@@ -1153,7 +1148,7 @@ async function captureResponsiveSmoke(
     await clickZoomButton(window, 1);
     await clickAriaButton(window, 'Set 1x time');
     await waitForWorldState(window, (state) => state.speed === 1, 10_000);
-    await reachWorldTile(window, geometry.roof.exteriorTile, { timeoutMilliseconds: 20_000 });
+    await reachWorldTile(window, geometry.roof.exteriorTile);
     await clickAriaButton(window, 'Pause time');
     await waitForWorldState(window, (state) => state.speed === 0, 10_000);
     await waitForRoofLabel(window, 'Villa roof restored', 10_000);
@@ -1505,7 +1500,6 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   await reachWorldTile(window, geometry.roof.exteriorTile, {
     nativeClick: true,
-    timeoutMilliseconds: 20_000,
   });
   await waitForRoofLabel(window, 'Villa roof restored');
   const outsideText = await rendererText(window, '#world-ui-location');

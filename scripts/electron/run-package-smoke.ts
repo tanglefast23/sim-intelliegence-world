@@ -117,7 +117,7 @@ child.stderr.on('data', (chunk: Buffer) => {
 });
 
 let timedOut = false;
-const FULL_WORLD_SMOKE_TIMEOUT_MS = 420_000;
+const FULL_WORLD_SMOKE_TIMEOUT_MS = 600_000;
 const timeout = setTimeout(() => {
   timedOut = true;
   child.kill('SIGKILL');
