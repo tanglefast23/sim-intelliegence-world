@@ -648,6 +648,40 @@ async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x:
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
+async function reachWorldTile(
+  window: BrowserWindow,
+  tile: Readonly<{ x: number; y: number }>,
+  options: Readonly<{ nativeClick?: boolean; timeoutMilliseconds?: number }> = {},
+): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    if (options.nativeClick) await clickWorldTile(window, tile);
+    else await dispatchWorldTileClick(window, tile);
+    try {
+      await waitForWorldTile(window, tile, options.timeoutMilliseconds ?? 10_000);
+      return;
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
+}
+
+async function reachWorldLocation(
+  window: BrowserWindow,
+  sourceTile: Readonly<{ x: number; y: number }>,
+  destinationMapName: string,
+  destinationTile: Readonly<{ x: number; y: number }>,
+): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    await dispatchWorldTileClick(window, sourceTile);
+    try {
+      await waitForWorldLocation(window, destinationMapName, destinationTile, 20_000);
+      return;
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
+}
+
 type MovementSmokeActor = Readonly<{
   committed: Readonly<{ x: number; y: number }>;
   visualFoot: Readonly<{ x: number; y: number }>;
@@ -968,8 +1002,7 @@ async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): P
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   const approachTile = { x: lindaTile.x + 1, y: lindaTile.y };
   await clickAriaButton(window, 'Set 1x time');
-  await dispatchWorldTileClick(window, approachTile);
-  await waitForWorldTile(window, approachTile, 10_000);
+  await reachWorldTile(window, approachTile);
   await clickAriaButton(window, 'Pause time');
   await dispatchWorldTileClick(window, lindaTile);
   await waitForAriaButtonEnabled(window, 'Talk to Linda');
@@ -1089,8 +1122,7 @@ async function captureResponsiveSmoke(
     clickAlternate = !clickAlternate;
     await clickAriaButton(window, 'Set 1x time');
     await waitForWorldState(window, (state) => state.speed === 1, 10_000);
-    await dispatchWorldTileClick(window, clickedTile);
-    await waitForWorldTile(window, clickedTile, 10_000);
+    await reachWorldTile(window, clickedTile);
     await clickAriaButton(window, 'Pause time');
     await waitForWorldState(window, (state) => state.speed === 0, 10_000);
 
@@ -1121,8 +1153,7 @@ async function captureResponsiveSmoke(
     await clickZoomButton(window, 1);
     await clickAriaButton(window, 'Set 1x time');
     await waitForWorldState(window, (state) => state.speed === 1, 10_000);
-    await dispatchWorldTileClick(window, geometry.roof.exteriorTile);
-    await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
+    await reachWorldTile(window, geometry.roof.exteriorTile, { timeoutMilliseconds: 20_000 });
     await clickAriaButton(window, 'Pause time');
     await waitForWorldState(window, (state) => state.speed === 0, 10_000);
     await waitForRoofLabel(window, 'Villa roof restored', 10_000);
@@ -1403,8 +1434,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickZoomButton(window, 2);
   let bounds = await surfaceBounds(window);
   const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-  await dispatchWorldTileClick(window, { x: 19, y: 20 });
-  await waitForWorldTile(window, { x: 19, y: 20 }, 10_000);
+  await reachWorldTile(window, { x: 19, y: 20 });
   const movedText = await rendererText(window, '#world-ui-location');
   const movement = movedText.includes('TILE 19,20');
 
@@ -1473,15 +1503,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const tilePattern = /TILE \d+,\d+/u;
   const uiClickThrough = beforeUi.match(tilePattern)?.[0] === afterUi.match(tilePattern)?.[0];
 
-  for (let attempt = 1; ; attempt += 1) {
-    await clickWorldTile(window, geometry.roof.exteriorTile);
-    try {
-      await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
-      break;
-    } catch (error) {
-      if (attempt === 3) throw error;
-    }
-  }
+  await reachWorldTile(window, geometry.roof.exteriorTile, {
+    nativeClick: true,
+    timeoutMilliseconds: 20_000,
+  });
   await waitForRoofLabel(window, 'Villa roof restored');
   const outsideText = await rendererText(window, '#world-ui-location');
   const roofRestore = outsideText.includes(`TILE ${geometry.roof.exteriorTile.x},${geometry.roof.exteriorTile.y}`) &&
@@ -1493,8 +1518,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   );
 
   progress('villa-interior');
-  await clickWorldTile(window, { x: 15, y: 23 });
-  await waitForWorldTile(window, { x: 15, y: 23 }, 10_000);
+  await reachWorldTile(window, { x: 15, y: 23 }, { nativeClick: true });
   await waitForRoofLabel(window, 'Villa roof hidden');
   const roofEntry = (await rendererText(window, '#world-ui-location')).includes('TILE 15,23') &&
     await roofLabel(window) === 'Villa roof hidden';
@@ -1510,8 +1534,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const afterFast = parseWorldStateLabel(await worldStateLabel(window));
   const doubleSpeedClock = afterFast.speed === 2 && afterFast.minute - afterPause.minute >= 2 && afterFast.minute - afterPause.minute <= 4;
 
-  await dispatchWorldTileClick(window, { x: 14, y: 13 });
-  await waitForWorldTile(window, { x: 14, y: 13 });
+  await reachWorldTile(window, { x: 14, y: 13 });
   const bedroomReached = (await rendererText(window, '#world-ui-location')).includes('TILE 14,13');
   await clickAriaButton(window, 'Pause time');
   const beforeNap = parseWorldStateLabel(await worldStateLabel(window));
@@ -1536,13 +1559,11 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
 
   progress('neighborhood-loop');
   await clickAriaButton(window, 'Set 1x time');
-  await dispatchWorldTileClick(window, { x: 16, y: 25 });
-  await waitForWorldTile(window, { x: 16, y: 25 });
+  await reachWorldTile(window, { x: 16, y: 25 });
   await clickZoomButton(window, 1);
   await panWorld(window, -500, 0);
   await panWorld(window, -500, 0);
-  await dispatchWorldTileClick(window, { x: 63, y: 24 });
-  await waitForWorldLocation(window, 'Neon Crescent', { x: 0, y: 24 });
+  await reachWorldLocation(window, { x: 63, y: 24 }, 'Neon Crescent', { x: 0, y: 24 });
   const afterTravel = parseWorldStateLabel(await worldStateLabel(window));
   const travel = afterTravel.mapName === 'Neon Crescent' && afterTravel.x === 0 && afterTravel.y === 24;
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 3');
@@ -1555,8 +1576,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
 
   await panWorld(window, 0, -500);
-  await dispatchWorldTileClick(window, { x: 32, y: 47 });
-  await waitForWorldLocation(window, 'Greywake Harbor', { x: 32, y: 0 });
+  await reachWorldLocation(window, { x: 32, y: 47 }, 'Greywake Harbor', { x: 32, y: 0 });
   const docks = parseWorldStateLabel(await worldStateLabel(window));
   await panWorld(window, 0, -500);
   await panWorld(window, -500, 0);
@@ -1580,8 +1600,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
 
   await panWorld(window, 500, 0);
-  await dispatchWorldTileClick(window, { x: 0, y: 24 });
-  await waitForWorldLocation(window, 'Saffron Bazaar', { x: 63, y: 24 });
+  await reachWorldLocation(window, { x: 0, y: 24 }, 'Saffron Bazaar', { x: 63, y: 24 });
   const commercial = parseWorldStateLabel(await worldStateLabel(window));
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-commercial.png'), [previousWorldBuffer],
@@ -1591,8 +1610,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
 
   await panWorld(window, 500, 500);
-  await dispatchWorldTileClick(window, { x: 32, y: 0 });
-  await waitForWorldLocation(window, 'Sunward Villas', { x: 32, y: 47 });
+  await reachWorldLocation(window, { x: 32, y: 0 }, 'Sunward Villas', { x: 32, y: 47 });
   const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
   const allNeighborhoods = commercial.mapName === 'Saffron Bazaar' &&
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
@@ -1607,8 +1625,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await panWorld(window, 0, 500);
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   const questOfferApproachTile = { x: lindaTile.x + 1, y: lindaTile.y };
-  await dispatchWorldTileClick(window, questOfferApproachTile);
-  await waitForWorldTile(window, questOfferApproachTile, 10_000);
+  await reachWorldTile(window, questOfferApproachTile);
   await dispatchWorldTileClick(window, lindaTile);
   const talkLabels = await window.webContents.executeJavaScript(
     `Array.from(document.querySelectorAll('[aria-label^="Talk to "]')).map((element) => element.getAttribute('aria-label'))`,
@@ -1719,10 +1736,19 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     const frameTimes = [];
     let feedbackMilliseconds = null;
     let finished = false;
+    let feedbackObserver = null;
+    const recordFeedback = () => {
+      const thinking = Boolean(document.querySelector('[aria-label="NPC is thinking"]'));
+      if (thinking && feedbackMilliseconds === null) {
+        feedbackMilliseconds = Math.max(0, performance.now() - startedAt);
+      }
+      return thinking;
+    };
     const finish = (timedOut) => {
       if (finished) return;
       finished = true;
       clearTimeout(timeout);
+      feedbackObserver?.disconnect();
       const measuredFrames = frameTimes.filter((time) => time >= startedAt + (feedbackMilliseconds ?? 0));
       const duration = measuredFrames.length > 1
         ? measuredFrames[measuredFrames.length - 1] - measuredFrames[0]
@@ -1731,11 +1757,13 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
       resolve({ feedbackMilliseconds, rendererFps, timedOut });
     };
     const timeout = setTimeout(() => finish(true), 30000);
+    feedbackObserver = new MutationObserver(recordFeedback);
+    feedbackObserver.observe(document.body, { childList: true, subtree: true });
     button.click();
+    recordFeedback();
     const frame = (now) => {
       frameTimes.push(now);
-      const thinking = Boolean(document.querySelector('[aria-label="NPC is thinking"]'));
-      if (thinking && feedbackMilliseconds === null) feedbackMilliseconds = Math.max(0, now - startedAt);
+      const thinking = recordFeedback();
       if (feedbackMilliseconds !== null && !thinking) {
         finish(false);
         return;
@@ -1804,8 +1832,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickAriaButton(window, 'Close relationships');
   const currentLindaTile = parseLindaTile(await npcStateLabel(window));
   const lindaApproachTile = { x: currentLindaTile.x + 1, y: currentLindaTile.y };
-  await dispatchWorldTileClick(window, lindaApproachTile);
-  await waitForWorldTile(window, lindaApproachTile, 10_000);
+  await reachWorldTile(window, lindaApproachTile);
   await dispatchWorldTileClick(window, currentLindaTile);
   await clickAriaButton(window, 'Open quests');
   await waitForRendererText(window, '#world-ui-journal-panel', 'LINDA · REJECTED');
@@ -1820,8 +1847,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickAriaButton(window, 'Close quests');
   progress('quest');
   const questPreparationPreserved = (await questStateLabel(window)).includes('flags security_report_purchased');
-  await dispatchWorldTileClick(window, { x: 22, y: 28 });
-  await waitForWorldTile(window, { x: 22, y: 28 }, 10_000);
+  await reachWorldTile(window, { x: 22, y: 28 });
   sendKey(window, 'Q');
   await waitForRendererText(window, '#world-ui-journal-panel', 'QUESTS');
   const questShortcut = (await rendererText(window, '#world-ui-journal-panel')).includes('QUEST 01');

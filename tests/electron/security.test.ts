@@ -307,6 +307,7 @@ describe('secure Electron boundary', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
     expect(workflow).toContain("branches: [main, 'codex/threejs-stage-*']");
     expect(workflow).toContain('runs-on: macos-15');
+    expect(workflow).toContain('runs-on: macos-15-intel');
     expect(workflow).toContain('npm run verify:ci-build');
     expect(workflow).toContain('npm run package:mac:arm64');
     expect(workflow).toContain('--webgl2-probe --expect-arch=arm64');

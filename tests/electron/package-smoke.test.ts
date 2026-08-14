@@ -44,6 +44,10 @@ describe('packaged Electron smoke evidence', () => {
     const runner = readFileSync(join(process.cwd(), 'scripts/electron/run-package-smoke.ts'), 'utf8');
     expect(main).toContain("window.webContents.on('did-finish-load'");
     expect(main).toContain('void emitWebgl2Probe(window)');
+    expect(main).toContain('async function reachWorldTile(');
+    expect(main).toContain('async function reachWorldLocation(');
+    expect(main).toContain('if (attempt === 3) throw error;');
+    expect(main).toContain('new MutationObserver(recordFeedback)');
     expect(runner).toContain("probe.appUrl !== APP_URL");
   });
 
