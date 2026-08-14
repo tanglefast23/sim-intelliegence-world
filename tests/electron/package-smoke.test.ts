@@ -39,6 +39,14 @@ describe('packaged Electron smoke evidence', () => {
     expect(main).toContain('capturePage(undefined, { stayHidden: true })');
   });
 
+  test('runs the packaged WebGL 2 probe before renderer asset readiness', () => {
+    const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
+    const runner = readFileSync(join(process.cwd(), 'scripts/electron/run-package-smoke.ts'), 'utf8');
+    expect(main).toContain("window.webContents.on('did-finish-load'");
+    expect(main).toContain('void emitWebgl2Probe(window)');
+    expect(runner).toContain("probe.appUrl !== APP_URL");
+  });
+
   test('uses explicit output roots and rejects immutable historical evidence', () => {
     const root = join(tmpdir(), 'si-world-evidence-root');
     expect(resolveEvidenceOutputRoot([], { defaultRelative: 'output/verification/package' }, root))

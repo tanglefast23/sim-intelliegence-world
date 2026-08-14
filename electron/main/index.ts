@@ -1473,8 +1473,15 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const tilePattern = /TILE \d+,\d+/u;
   const uiClickThrough = beforeUi.match(tilePattern)?.[0] === afterUi.match(tilePattern)?.[0];
 
-  await clickWorldTile(window, geometry.roof.exteriorTile);
-  await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
+  for (let attempt = 1; ; attempt += 1) {
+    await clickWorldTile(window, geometry.roof.exteriorTile);
+    try {
+      await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
+      break;
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
   await waitForRoofLabel(window, 'Villa roof restored');
   const outsideText = await rendererText(window, '#world-ui-location');
   const roofRestore = outsideText.includes(`TILE ${geometry.roof.exteriorTile.x},${geometry.roof.exteriorTile.y}`) &&
@@ -1883,29 +1890,35 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   };
 }
 
+async function emitWebgl2Probe(window: BrowserWindow): Promise<void> {
+  if (!webgl2ProbeMode || smokeFinished) return;
+  const available = await window.webContents.executeJavaScript(`(() => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('webgl2');
+    context?.getExtension('WEBGL_lose_context')?.loseContext();
+    return context !== null;
+  })()`, true) as boolean;
+  if (!available) throw new Error('Packaged renderer could not create a WebGL 2 context.');
+  smokeFinished = true;
+  process.stdout.write(`SI_WORLD_WEBGL2_PROBE_RESULT ${JSON.stringify({
+    schemaVersion: 1,
+    available,
+    appUrl: window.webContents.getURL(),
+    architecture: process.arch,
+    platform: process.platform,
+  })}\n`);
+  setTimeout(() => app.quit(), 50);
+}
+
 async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindow): Promise<void> {
-  if (!smokeMode || smokeFinished) {
+  if (!smokeMode || smokeFinished || webgl2ProbeMode) {
     return;
   }
   smokeFinished = true;
   process.stdout.write(`SI_WORLD_RENDERER_READY ${JSON.stringify({
     milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
   })}\n`);
-  if (webgl2ProbeMode) {
-    const available = await window.webContents.executeJavaScript(`(() => {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('webgl2');
-      context?.getExtension('WEBGL_lose_context')?.loseContext();
-      return context !== null;
-    })()`, true) as boolean;
-    if (!available) throw new Error('Packaged renderer could not create a WebGL 2 context.');
-    process.stdout.write(`SI_WORLD_WEBGL2_PROBE_RESULT ${JSON.stringify({
-      schemaVersion: 1,
-      available,
-      architecture: process.arch,
-      platform: process.platform,
-    })}\n`);
-  } else if (saveMigrationSmokeMode || saveReloadSmokeMode) {
+  if (saveMigrationSmokeMode || saveReloadSmokeMode) {
     const mode = saveMigrationSmokeMode ? 'migration' : 'reload';
     const migrationResult = await captureSaveMigrationSmoke(window, mode);
     const migrationScreenshot = process.env.SI_WORLD_SAVE_MIGRATION_SCREENSHOT;
@@ -2075,6 +2088,14 @@ async function createMainWindow(): Promise<void> {
     }
   });
   window.webContents.on('did-finish-load', () => {
+    if (webgl2ProbeMode) {
+      void emitWebgl2Probe(window).catch((error: unknown) => {
+        smokeFinished = true;
+        process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
+        app.exit(1);
+      });
+      return;
+    }
     if (devHarnessMode) {
       void window.webContents.executeJavaScript(`JSON.stringify({
         enabled: window.siWorldDevHarnessMode === true,

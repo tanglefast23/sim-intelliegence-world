@@ -86,7 +86,7 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Package Intel macOS shell
+      - name: Package x64 macOS shell
         run: npm run package:mac:x64
 
       - name: Apply and verify ad-hoc test signature
@@ -99,26 +99,26 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- --webgl2-probe --expect-arch=x64 --output-root output/verification/ci/macos-x64/webgl2
 
-      - name: Verify Intel macOS packaged art-quality world subset without model qualification claims
+      - name: Verify x64 macOS packaged art-quality world subset without model qualification claims
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
           SI_WORLD_TIER_B_ART_SMOKE: '1'
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-x64/package
 
-      - name: Verify Intel macOS natural movement
+      - name: Verify x64 macOS natural movement
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:natural-movement -- --output-root output/verification/ci/macos-x64/natural-movement
 
-      - name: Verify Intel macOS responsive matrix
+      - name: Verify x64 macOS responsive matrix
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:responsive -- --output-root output/verification/ci/macos-x64/responsive
 
-      - name: Verify Intel macOS presentation restart
+      - name: Verify x64 macOS presentation restart
         run: npm run smoke:presentation-restart -- --output-root output/verification/ci/macos-x64/presentation-restart
 
-      - name: Verify Intel macOS v5 save migration and reload
+      - name: Verify x64 macOS v5 save migration and reload
         run: npm run smoke:save-migration -- --output-root output/verification/ci/macos-x64/save-migration
 
   package-windows-x64:

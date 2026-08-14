@@ -9,6 +9,7 @@ import { parseSaveEnvelope } from '../../electron/persistence/save-format';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
+import { APP_URL } from '../../electron/protocol/app-protocol';
 
 import {
   evaluateRendererFps,
@@ -137,12 +138,12 @@ child.once('close', (code) => {
   }
   if (webgl2Probe) {
     rmSync(smokeUserData, { force: true, recursive: true });
-    parseSmokeResult(stdout);
     const prefix = 'SI_WORLD_WEBGL2_PROBE_RESULT ';
     const line = stdout.split(/\r?\n/u).find((candidate) => candidate.startsWith(prefix));
     if (!line) throw new Error('Packaged app did not emit WebGL 2 probe evidence.');
     const probe = JSON.parse(line.slice(prefix.length)) as Record<string, unknown>;
     if (probe.available !== true) throw new Error('Packaged WebGL 2 probe did not pass.');
+    if (probe.appUrl !== APP_URL) throw new Error('Packaged WebGL 2 probe did not load the trusted app URL.');
     if (probe.architecture !== expectedArchitecture) {
       throw new Error(`Packaged architecture ${String(probe.architecture)} did not match ${expectedArchitecture}.`);
     }
