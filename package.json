@@ -61,7 +61,8 @@
     "verify:phase22:packaged": "npm run smoke:responsive && npm run smoke:responsive:qualification && npm run smoke:presentation-restart && npm run smoke:save-migration",
     "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement",
     "verify:ci-build": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron",
-    "verify": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement && npm run verify:phase22:packaged"
+    "verify": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement && npm run verify:phase22:packaged",
+    "spike:threejs:check": "node spikes/001-threejs-pixel-villa/verify.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.8",
@@ -93,6 +94,7 @@
     "jest": "29.7.0",
     "jest-expo": "57.0.3",
     "pngjs": "7.0.0",
+    "three": "0.185.1",
     "tsx": "4.23.1",
     "typescript": "6.0.3"
   }

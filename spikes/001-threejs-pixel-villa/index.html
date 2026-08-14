@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SI World · Pixel Villa Renderer Spike</title>
+  <style>
+    :root { color-scheme: dark; font-family: Silkscreen, ui-monospace, monospace; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 1872px;
+      min-height: 760px;
+      overflow: hidden;
+      color: #f4dda0;
+      background: #101513;
+    }
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      height: 82px;
+      padding: 20px 20px 14px;
+      border-bottom: 2px solid #705434;
+      background: linear-gradient(180deg, #171d1a, #101513);
+    }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 2px; }
+    header p { margin: 0; color: #9daf99; font-size: 12px; letter-spacing: 1px; }
+    main { display: grid; grid-template-columns: repeat(3, 600px); gap: 16px; padding: 18px 20px; }
+    figure { margin: 0; border: 2px solid #5f4930; background: #1a1c1b; box-shadow: 0 14px 36px #0008; }
+    figcaption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+      padding: 0 12px;
+      border-bottom: 1px solid #705434;
+      background: #171a17;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+    figcaption span { color: #97aa99; font-size: 8px; }
+    .frame { position: relative; width: 596px; height: 596px; overflow: hidden; background: #202521; }
+    .baseline {
+      position: absolute;
+      left: -925px;
+      top: -870px;
+      width: 3789px;
+      height: 2842px;
+      max-width: none;
+      image-rendering: pixelated;
+    }
+    #three-2d-frame canvas,
+    #three-frame canvas {
+      display: block;
+      width: 596px !important;
+      height: 596px !important;
+      image-rendering: pixelated;
+    }
+    .badge {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      padding: 8px 10px;
+      border: 1px solid #d6aa4e;
+      color: #ffe294;
+      background: #111711dc;
+      font-size: 10px;
+      letter-spacing: 1px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PROTAGONIST VILLA · THREE-WAY RENDERER TEST</h1>
+    <p>SAME PALETTE · SAME 24×30 CHARACTER · STATIC FRAME</p>
+  </header>
+  <main>
+    <figure>
+      <figcaption>CURRENT · SKIA 2D <span>FLAT TILE + SPRITE LAYERS</span></figcaption>
+      <div class="frame">
+        <img class="baseline" src="/docs/art/review-2026-08-13/04-sunward-overview.png" alt="Current Skia-rendered social room">
+        <div class="badge">CURRENT SHIPPING ART</div>
+      </div>
+    </figure>
+    <figure>
+      <figcaption>TEST · THREE.JS PIXEL 2D <span>ATLAS SPRITES + GPU LIGHT MAP</span></figcaption>
+      <div class="frame" id="three-2d-frame">
+        <div class="badge">THREE.JS 2D TEST</div>
+      </div>
+    </figure>
+    <figure>
+      <figcaption>TEST · THREE.JS PIXEL 2.5D <span>DEPTH + LIGHT + PIXEL SHADOWS</span></figcaption>
+      <div class="frame" id="three-frame">
+        <div class="badge">THREE.JS TEST SLICE</div>
+      </div>
+    </figure>
+  </main>
+  <script type="module" src="./scene-2d.js"></script>
+  <script type="module" src="./scene.js"></script>
+</body>
+</html>
