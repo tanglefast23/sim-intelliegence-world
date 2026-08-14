@@ -968,6 +968,7 @@ async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): P
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   await dispatchWorldTileClick(window, lindaTile);
   await clickAriaButton(window, 'Talk to Linda');
+  await waitForSelector(window, '#world-ui-quest-offer-panel, #world-ui-conversation-panel');
   if (await window.webContents.executeJavaScript(`Boolean(document.querySelector('#world-ui-quest-offer-panel'))`, true) as boolean) {
     await clickAriaButton(window, "Accept Linda's request");
     await waitForSelectorMissing(window, '#world-ui-quest-offer-panel');
