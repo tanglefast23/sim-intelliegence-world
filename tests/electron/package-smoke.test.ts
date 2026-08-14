@@ -61,12 +61,13 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => resolveEvidenceOutputRoot([], { required: true }, root)).toThrow('requires --output-root');
   });
 
-  test('passes the high-DPI scale factor on the packaged process command line', () => {
+  test('passes the requested device scale factor on the packaged process command line', () => {
     const responsiveSmoke = readFileSync(
       join(process.cwd(), 'scripts/electron/run-responsive-package-smoke.ts'),
       'utf8',
     );
-    expect(responsiveSmoke).toContain("highDpi ? ['--force-device-scale-factor=2'] : []");
+    expect(responsiveSmoke).toContain('`--force-device-scale-factor=${requestedDeviceScaleFactor}`');
+    expect(responsiveSmoke).toContain("[1, 1.25, 1.5, 2].includes(requestedDeviceScaleFactor)");
   });
 
   test('selects the current platform and architecture from a multi-target output root', () => {

@@ -62,7 +62,9 @@ describe('natural-movement packaged evidence', () => {
         wobbleDegrees: 0,
       };
       const pass = {
-        schemaVersion: 2 as const,
+        schemaVersion: 3 as const,
+        npcMotionSource: 'fixture' as const,
+        npcMotionNpcId: 'linda' as const,
         samples: Array.from({ length: 5 }, (_, index) => ({
           player: {
             ...actor,
@@ -90,7 +92,7 @@ describe('natural-movement packaged evidence', () => {
         displayRafFps: 60,
       };
       const report = {
-        schemaVersion: 3,
+        schemaVersion: 4,
         testedCommit: 'a'.repeat(40),
         evidenceSource: { baseCommit: 'a'.repeat(40), sourceSha256: 'b'.repeat(64), sourcePaths: ['source.ts'] },
         traceDeterministic: true,

@@ -523,6 +523,33 @@ export function WorldScene({
       setAuthoredDialogueFixtureId(characterId);
       setQuestOfferOpen(true);
     };
+    window.siWorldStartNaturalMovementFixture = () => {
+      setRuntime((current) => {
+        const linda = current.worldState.npcs.linda;
+        if (!linda || linda.presence.kind !== 'active_local') {
+          throw new Error('Natural-movement fixture requires active Linda.');
+        }
+        const worldState = parseWorldState({
+          ...current.worldState,
+          npcs: {
+            ...current.worldState.npcs,
+            linda: {
+              ...linda,
+              scheduleGoal: {
+                mapId: 'northwest_residential',
+                locationId: 'linda_villa',
+                activityId: 'smoke-walk',
+                tileX: 23,
+                tileY: 28,
+                scheduledMinute: current.worldState.clock.absoluteMinute,
+              },
+            },
+          },
+        });
+        return { ...current, npcMovements: npcMovementState(worldState), worldState };
+      });
+      return { npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 } };
+    };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
       const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
@@ -588,6 +615,7 @@ export function WorldScene({
       delete window.siWorldCloseConversationFixture;
       delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
+      delete window.siWorldStartNaturalMovementFixture;
     };
   }, []);
 

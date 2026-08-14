@@ -289,18 +289,13 @@ describe('secure Electron boundary', () => {
     );
   });
 
-  test('Linux CI keeps the Chromium sandbox enabled for packaged smoke', () => {
+  test('release CI stays on macOS and Windows with hardware rendering', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
     const forgeConfig = readFileSync(resolve('forge.config.ts'), 'utf8');
     const mainProcess = readFileSync(resolve('electron/main/index.ts'), 'utf8');
-    expect(workflow).toContain("sandbox_path='out/si-world-linux-x64/chrome-sandbox'");
-    expect(workflow).toContain("sudo chown root:root \"$sandbox_path\"");
-    expect(workflow).toContain("sudo chmod 4755 \"$sandbox_path\"");
     expect(workflow).not.toContain('--no-sandbox');
-    expect(workflow).toContain("SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'");
-    expect(forgeConfig).toContain("process.platform === 'linux' ? 'si-world' : 'SI World'");
-    expect(mainProcess).toContain("smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1'");
-    expect(mainProcess).toContain('app.disableHardwareAcceleration()');
+    expect(forgeConfig).toContain("const packagedApplicationName = 'SI World'");
+    expect(mainProcess).not.toContain('app.disableHardwareAcceleration()');
     expect(mainProcess).toContain("'--si-world-smoke-mode=1'");
     expect(mainProcess).toContain('`--si-world-art-mode=${responsiveArtMode}`');
     const preload = readFileSync(resolve('electron/preload/index.ts'), 'utf8');
@@ -310,8 +305,14 @@ describe('secure Electron boundary', () => {
 
   test('CI packages platform shells without overwriting historical evidence', () => {
     const workflow = readFileSync(resolve('.github/workflows/ci.yml'), 'utf8');
+    expect(workflow).toContain("branches: [main, 'codex/threejs-stage-*']");
+    expect(workflow).toContain('runs-on: macos-15');
+    expect(workflow).toContain('npm run verify:ci-build');
+    expect(workflow).toContain('npm run package:mac:arm64');
+    expect(workflow).toContain('--webgl2-probe --expect-arch=arm64');
     expect(workflow).toContain('runs-on: macos-15-intel');
     expect(workflow).toContain('npm run package:mac:x64');
+    expect(workflow).toContain('--webgl2-probe --expect-arch=x64');
     expect(workflow).toContain('npm run sign:test:mac');
     expect(workflow).toContain('--output-root output/verification/ci/macos-x64/package');
     expect(workflow).toContain('runs-on: windows-2025');
@@ -327,12 +328,11 @@ describe('secure Electron boundary', () => {
       'npm run smoke:electron -- --output-root output/verification/ci/windows-x64/package',
     );
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/package');
-    expect(workflow).toContain('--output-root output/verification/ci/linux/natural-movement');
     expect(workflow).toContain('--output-root output/verification/ci/macos-x64/natural-movement');
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/natural-movement');
     expect(workflow).not.toMatch(/artifacts\/phase-(?:14|22|23)/u);
     expect(workflow).toContain('without model qualification claims');
-    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(9);
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(10);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
     expect(windowsSigner).toContain('Get-AuthenticodeSignature');

@@ -4,7 +4,7 @@ import { basename, isAbsolute, join } from 'node:path';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 
-const packagedApplicationName = process.platform === 'linux' ? 'si-world' : 'SI World';
+const packagedApplicationName = 'SI World';
 const modelResourceRoot = process.env.SI_WORLD_MODEL_RESOURCE_DIR;
 const packageOutputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT;
 if (

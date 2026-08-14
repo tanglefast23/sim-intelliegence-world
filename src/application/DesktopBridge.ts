@@ -41,6 +41,11 @@ declare global {
     siWorldCloseConversationFixture?: () => void;
     siWorldSetAuthoredDialogueFixture?: (characterId?: 'linda-boyfriend') => void;
     siWorldOpenVfxFixture?: (mapId: MapId, effectId: string) => void;
+    siWorldStartNaturalMovementFixture?: () => Readonly<{
+      npcId: 'linda';
+      source: 'fixture';
+      target: Readonly<{ x: 23; y: 28 }>;
+    }>;
   }
 }
 

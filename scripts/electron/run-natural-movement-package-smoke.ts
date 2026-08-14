@@ -116,7 +116,7 @@ async function main(): Promise<void> {
     'src/world/pathfinding/movement.ts',
   ]);
   const report: NaturalMovementReport = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     testedCommit: resolveTestedCommit(),
     evidenceSource: { ...evidenceSource, sourcePaths: [...evidenceSource.sourcePaths] },
     traceDeterministic: true,

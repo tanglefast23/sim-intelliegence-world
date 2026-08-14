@@ -103,6 +103,7 @@ const FullCastPortraitEntrySchema = z.object({
 const ResponsiveSmokeSchema = z.object({
   schemaVersion: z.literal(1),
   highDpi: z.boolean(),
+  requestedDeviceScaleFactor: z.union([z.literal(1), z.literal(1.25), z.literal(1.5), z.literal(2)]),
   geometry: z.object({
     schemaVersion: z.literal(1),
     mapId: z.literal('northwest_residential'),
@@ -132,7 +133,19 @@ if (compareArtModes && artMode) throw new Error('Art-mode comparison selects bot
 if (compareArtModes && !includeMaximumLoad) {
   throw new Error('--compare-art-modes requires --include-maximum-load.');
 }
+const deviceScaleArguments = commandArguments.filter((argument) => argument.startsWith('--device-scale-factor='));
+if (deviceScaleArguments.length > 1) throw new Error('Only one device scale factor can be supplied.');
+const requestedDeviceScaleFactor = Number(
+  deviceScaleArguments[0]?.slice('--device-scale-factor='.length) ??
+  (commandArguments.includes('--high-dpi') || includeMaximumLoad ? 2 : 1),
+);
+if (![1, 1.25, 1.5, 2].includes(requestedDeviceScaleFactor)) {
+  throw new Error('Device scale factor must be 1, 1.25, 1.5, or 2.');
+}
 const highDpi = commandArguments.includes('--high-dpi') || includeMaximumLoad;
+if (highDpi && requestedDeviceScaleFactor !== 2) {
+  throw new Error('High-DPI maximum-load smoke requires device scale factor 2.');
+}
 const qualification = commandArguments.includes('--qualification');
 const fullCastPortraitSmoke = process.env.SI_WORLD_FULL_CAST_PORTRAIT_SMOKE === '1';
 const performanceFixture = PerformanceFixtureSchema.parse(
@@ -191,8 +204,12 @@ const evidenceRoot = resolveEvidenceOutputRoot(commandArguments, {
     '--include-maximum-load',
     '--art-mode=legacy',
     '--art-mode=enhanced',
+    '--device-scale-factor=1',
+    '--device-scale-factor=1.25',
+    '--device-scale-factor=1.5',
+    '--device-scale-factor=2',
   ],
-  defaultRelative: `output/verification/${compareArtModes ? 'responsive-art-modes' : qualification ? 'responsive-qualification' : highDpi ? 'responsive-high-dpi' : 'responsive'}`,
+  defaultRelative: `output/verification/${compareArtModes ? 'responsive-art-modes' : qualification ? 'responsive-qualification' : highDpi ? 'responsive-high-dpi' : `responsive-dpr-${requestedDeviceScaleFactor}`}`,
 });
 mkdirSync(evidenceRoot, { recursive: true });
 const executable = findPackagedExecutable(outputRoot);
@@ -320,11 +337,12 @@ if (compareArtModes) {
 }
 
 const smokeUserData = mkdtempSync(join(tmpdir(), 'si-world-responsive-smoke-'));
-const child = spawn(executable, highDpi ? ['--force-device-scale-factor=2'] : [], {
+const child = spawn(executable, [`--force-device-scale-factor=${requestedDeviceScaleFactor}`], {
   detached: false,
   env: {
     ...process.env,
     SI_WORLD_RESPONSIVE_HIGH_DPI: highDpi ? '1' : '0',
+    SI_WORLD_RESPONSIVE_DEVICE_SCALE_FACTOR: String(requestedDeviceScaleFactor),
     SI_WORLD_RESPONSIVE_SCREENSHOT_DIR: evidenceRoot,
     SI_WORLD_RESPONSIVE_SMOKE: '1',
     SI_WORLD_SMOKE: '1',
@@ -370,6 +388,9 @@ child.once('close', (code) => {
     const line = stdout.split(/\r?\n/u).find((candidate) => candidate.startsWith(prefix));
     if (!line) throw new Error('Packaged app did not emit responsive smoke evidence.');
     const report = ResponsiveSmokeSchema.parse(JSON.parse(line.slice(prefix.length)) as unknown);
+    if (report.requestedDeviceScaleFactor !== requestedDeviceScaleFactor) {
+      throw new Error('Responsive smoke device scale factor did not match its request.');
+    }
     const expectedTargets = highDpi
       ? [{
         width: performanceFixture.maximumLoad.contentWidth,
@@ -386,6 +407,11 @@ child.once('close', (code) => {
       throw new Error('Responsive smoke target matrix is incomplete or out of order.');
     }
     for (const target of report.targets) {
+      if (Math.abs(target.afterResizeEvidence.devicePixelRatio - requestedDeviceScaleFactor) > 0.01) {
+        throw new Error(
+          `Responsive smoke requested DPR ${requestedDeviceScaleFactor} but measured ${target.afterResizeEvidence.devicePixelRatio}.`,
+        );
+      }
       if (target.afterResizeEvidence.content.width !== target.requested.width ||
           target.afterResizeEvidence.content.height !== target.requested.height) {
         throw new Error('Responsive evidence did not match the requested content size.');

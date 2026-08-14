@@ -36,6 +36,7 @@ const devHarnessMode = process.env.SI_WORLD_DEV_HARNESS === '1';
 const devHarnessRoot = process.env.SI_WORLD_DEV_HARNESS_ROOT;
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
+const webgl2ProbeMode = process.env.SI_WORLD_WEBGL2_PROBE === '1';
 const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE === '1';
 const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED === '1';
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
@@ -50,6 +51,20 @@ const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE =
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
 const saveReloadSmokeMode = process.env.SI_WORLD_SAVE_RELOAD_SMOKE === '1';
+if (process.platform !== 'darwin' && process.platform !== 'win32') {
+  throw new Error(`Unsupported release platform: ${process.platform}.`);
+}
+const runtimePlatform = process.platform;
+const responsiveDeviceScaleFactor = Number(process.env.SI_WORLD_RESPONSIVE_DEVICE_SCALE_FACTOR ?? '1');
+if (![1, 1.25, 1.5, 2].includes(responsiveDeviceScaleFactor)) {
+  throw new Error('Responsive smoke device scale factor must be 1, 1.25, 1.5, or 2.');
+}
+if (process.env.SI_WORLD_RESPONSIVE_DEVICE_SCALE_FACTOR !== undefined && !responsiveSmokeMode) {
+  throw new Error('Responsive smoke device scale factor requires responsive smoke mode.');
+}
+if (webgl2ProbeMode && !smokeMode) {
+  throw new Error('The WebGL 2 probe requires smoke mode.');
+}
 if (smokeMode && devHarnessMode) {
   throw new Error('The developer harness and automated smoke mode cannot run together.');
 }
@@ -76,10 +91,6 @@ if (smokeMode) {
   app.commandLine.appendSwitch('mute-audio');
 }
 
-if (responsiveHighDpiMode) {
-  app.commandLine.appendSwitch('force-device-scale-factor', '2');
-}
-
 if (responsiveArtMode !== undefined && (!responsiveSmokeMode || !['legacy', 'enhanced'].includes(responsiveArtMode))) {
   throw new Error('Art mode is available only to responsive smoke as legacy or enhanced.');
 }
@@ -90,10 +101,6 @@ if (smokeVfxMode !== undefined && (!smokeMode || !['circle', 'procedural'].inclu
 
 if (naturalMovementReducedMode || proceduralVfxReducedMode) {
   app.commandLine.appendSwitch('force-prefers-reduced-motion', 'reduce');
-}
-
-if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
-  app.disableHardwareAcceleration();
 }
 
 const waitForSmokeRetry = (milliseconds: number): Promise<void> =>
@@ -728,6 +735,16 @@ async function captureMovementPass(
   await clickZoomButton(window, 1);
   await clickAriaButton(window, 'Set 1x time');
   await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+  const npcMotionFixture = await window.webContents.executeJavaScript(`(() => {
+    if (typeof window.siWorldStartNaturalMovementFixture !== 'function') {
+      throw new Error('Natural-movement NPC fixture is unavailable.');
+    }
+    return window.siWorldStartNaturalMovementFixture();
+  })()`, true) as unknown;
+  if (JSON.stringify(npcMotionFixture) !== JSON.stringify({
+    npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 },
+  })) throw new Error('Natural-movement NPC fixture returned an invalid descriptor.');
+  await waitForRendererPaint(window);
 
   const start = { x: 18, y: 18 };
   const target = { x: 22, y: 22 };
@@ -820,8 +837,10 @@ async function captureMovementPass(
   }
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     mode,
+    npcMotionSource: 'fixture',
+    npcMotionNpcId: 'linda',
     samples: samples.map((sample) => ({
       ...sample,
       npcs: Object.fromEntries(
@@ -1135,6 +1154,7 @@ async function captureResponsiveSmoke(
   return {
     schemaVersion: 1,
     highDpi: responsiveHighDpiMode,
+    requestedDeviceScaleFactor: responsiveDeviceScaleFactor,
     geometry,
     targets: targetReports,
     fullCastPortraitMatrix,
@@ -1862,7 +1882,21 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
   process.stdout.write(`SI_WORLD_RENDERER_READY ${JSON.stringify({
     milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
   })}\n`);
-  if (saveMigrationSmokeMode || saveReloadSmokeMode) {
+  if (webgl2ProbeMode) {
+    const available = await window.webContents.executeJavaScript(`(() => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('webgl2');
+      context?.getExtension('WEBGL_lose_context')?.loseContext();
+      return context !== null;
+    })()`, true) as boolean;
+    if (!available) throw new Error('Packaged renderer could not create a WebGL 2 context.');
+    process.stdout.write(`SI_WORLD_WEBGL2_PROBE_RESULT ${JSON.stringify({
+      schemaVersion: 1,
+      available,
+      architecture: process.arch,
+      platform: process.platform,
+    })}\n`);
+  } else if (saveMigrationSmokeMode || saveReloadSmokeMode) {
     const mode = saveMigrationSmokeMode ? 'migration' : 'reload';
     const migrationResult = await captureSaveMigrationSmoke(window, mode);
     const migrationScreenshot = process.env.SI_WORLD_SAVE_MIGRATION_SCREENSHOT;
@@ -1980,7 +2014,7 @@ async function createMainWindow(): Promise<void> {
       appVersion: app.getVersion(),
       electronVersion: process.versions.electron,
       packaged: app.isPackaged,
-      platform: process.platform as 'darwin' | 'linux' | 'win32',
+      platform: runtimePlatform,
     },
     (report) => {
       void emitSmokeResult(report, window).catch((error: unknown) => {

@@ -1,0 +1,443 @@
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { PNG } from 'pngjs';
+import { z } from 'zod';
+
+const RectSchema = z.object({
+  x: z.number().int().nonnegative(),
+  y: z.number().int().nonnegative(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+}).strict();
+const PointSchema = z.object({ x: z.number().int().nonnegative(), y: z.number().int().nonnegative() }).strict();
+const MaskSchema = z.object({
+  id: z.string().min(1),
+  kind: z.enum(['player', 'npc', 'active-door', 'route', 'selection', 'destination', 'journal', 'failure']),
+  frameId: z.string().min(1),
+  logicalBounds: RectSchema,
+  hitBounds: RectSchema,
+  alphaFootprint: z.array(z.string().regex(/^[01]+$/u)).min(1),
+}).strict().superRefine((mask, context) => {
+  if (mask.alphaFootprint.length !== mask.logicalBounds.height ||
+      mask.alphaFootprint.some((row) => row.length !== mask.logicalBounds.width)) {
+    context.addIssue({ code: 'custom', message: 'Mask alpha footprint must match its logical bounds.' });
+  }
+});
+export const RendererMaskFrameSchema = z.object({
+  schemaVersion: z.literal(1),
+  masks: z.array(MaskSchema),
+}).strict();
+
+const CaptureSchema = z.object({
+  image: z.string().min(1),
+  masks: z.string().min(1),
+}).strict();
+const RegionSchema = z.object({ id: z.string().min(1), logicalBounds: RectSchema }).strict();
+const ComparisonManifestFields = {
+  schemaVersion: z.literal(1),
+  fixture: z.string().min(1),
+  sourceCommit: z.string().regex(/^[a-f0-9]{40}$/u),
+  mode: z.enum(['parity', 'enhanced']),
+  viewport: z.object({ width: z.number().int().positive(), height: z.number().int().positive() }).strict(),
+  devicePixelRatio: z.union([z.literal(1), z.literal(1.25), z.literal(1.5), z.literal(2)]),
+  camera: z.object({ x: z.number(), y: z.number() }).strict(),
+  toneMapping: z.enum(['none', 'aces']),
+  exposure: z.number().positive(),
+  baseline: CaptureSchema,
+  candidate: CaptureSchema,
+  requiredMaskIds: z.array(z.string().min(1)).min(1),
+  lightSamples: z.array(z.object({ id: z.string().min(1), lit: RectSchema, unlit: RectSchema }).strict()),
+  shadowSamples: z.array(z.object({
+    id: z.string().min(1),
+    direction: z.literal('lower-right'),
+    edges: z.array(z.object({ lit: PointSchema, shadow: PointSchema }).strict()).min(1),
+  }).strict()),
+  thresholds: z.object({
+    backgroundRingLogicalPixels: z.literal(2),
+    contrastRetention: z.literal(0.9),
+    outsideMaskChangedPixelRatio: z.literal(0.005),
+    outsideMaskMaximumChannelDelta: z.literal(2),
+    requiredMaskMaximumChannelDelta: z.literal(8),
+  }).strict(),
+} as const;
+
+function validateMode(
+  manifest: Readonly<{ mode: 'parity' | 'enhanced'; toneMapping: 'none' | 'aces'; requiredMaskIds: readonly string[] }>,
+  context: z.RefinementCtx,
+): void {
+  if (manifest.mode === 'parity' && manifest.toneMapping !== 'none') {
+    context.addIssue({ code: 'custom', message: 'Parity comparison requires no tone mapping.' });
+  }
+  if (manifest.mode === 'enhanced' && manifest.toneMapping !== 'aces') {
+    context.addIssue({ code: 'custom', message: 'Enhanced comparison requires ACES tone mapping.' });
+  }
+  if (new Set(manifest.requiredMaskIds).size !== manifest.requiredMaskIds.length) {
+    context.addIssue({ code: 'custom', message: 'Required mask IDs must be unique.' });
+  }
+}
+
+export const RendererComparisonManifestSchema = z.object({
+  ...ComparisonManifestFields,
+  zoom: z.number().min(1).max(3).multipleOf(0.05),
+}).strict().superRefine((manifest, context) => {
+  validateMode(manifest, context);
+});
+
+const ZoomSampleSchema = z.object({
+  zoom: z.number().min(1).max(3).multipleOf(0.05),
+  inputStep: z.boolean(),
+  savedBoundary: z.literal(true),
+  nearestNeighbor: z.literal(true),
+  noAtlasBleed: z.literal(true),
+  baseline: CaptureSchema.optional(),
+  candidate: CaptureSchema.optional(),
+}).strict();
+
+export const RendererZoomSamplingManifestSchema = z.object({
+  ...ComparisonManifestFields,
+  mode: z.literal('parity'),
+  toneMapping: z.literal('none'),
+  samples: z.array(ZoomSampleSchema).length(41),
+}).strict().superRefine((manifest, context) => {
+  validateMode(manifest, context);
+  const expectedZooms = Array.from({ length: 41 }, (_, index) => Math.round((1 + index * 0.05) * 100) / 100);
+  if (JSON.stringify(manifest.samples.map(({ zoom }) => zoom)) !== JSON.stringify(expectedZooms)) {
+    context.addIssue({ code: 'custom', message: 'Zoom samples must contain every 0.05 boundary from 1 through 3.' });
+  }
+  for (const sample of manifest.samples) {
+    if (sample.inputStep !== Number.isInteger(sample.zoom * 10)) {
+      context.addIssue({ code: 'custom', message: `Zoom ${sample.zoom} has an incorrect input-step flag.` });
+    }
+  }
+});
+
+type Manifest = z.infer<typeof RendererComparisonManifestSchema>;
+type Mask = z.infer<typeof MaskSchema>;
+type ComparisonMode = Manifest['mode'];
+
+export type RendererComparisonReport = Readonly<{
+  schemaVersion: 1;
+  fixture: string;
+  sourceCommit: string;
+  mode: ComparisonMode;
+  passed: boolean;
+  failures: readonly string[];
+  measurements: Readonly<{
+    changedOutsideMaskPixels: number;
+    outsideMaskPixelCount: number;
+    changedOutsideMaskRatio: number;
+    masks: readonly Readonly<{
+      id: string;
+      baselineVisiblePixels: number;
+      candidateVisiblePixels: number;
+      baselineContrast: number;
+      candidateContrast: number;
+      retainedContrast: number;
+      maximumChannelDelta: number;
+    }>[];
+  }>;
+}>;
+
+export type RendererZoomSamplingReport = Readonly<{
+  schemaVersion: 1;
+  fixture: string;
+  sourceCommit: string;
+  mode: 'parity';
+  passed: boolean;
+  failures: readonly string[];
+  samples: readonly Readonly<{
+    zoom: number;
+    inputStep: boolean;
+    savedBoundary: true;
+    nearestNeighbor: true;
+    noAtlasBleed: true;
+    report: RendererComparisonReport;
+  }>[];
+}>;
+
+const rounded = (value: number): number => Math.round(value * 1_000_000) / 1_000_000;
+const linear = (channel: number): number => {
+  const value = channel / 255;
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+};
+const luminance = (image: PNG, index: number): number => (
+  0.2126 * linear(image.data[index]!) +
+  0.7152 * linear(image.data[index + 1]!) +
+  0.0722 * linear(image.data[index + 2]!)
+);
+const median = (values: readonly number[]): number => {
+  if (values.length === 0) throw new Error('Luminance sample is empty.');
+  const ordered = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 === 0 ? (ordered[middle - 1]! + ordered[middle]!) / 2 : ordered[middle]!;
+};
+const contrast = (foreground: number, background: number): number => (
+  (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
+);
+
+function imagePixelsForRect(rectangle: z.infer<typeof RectSchema>, dpr: number, image: PNG): Set<number> {
+  const pixels = new Set<number>();
+  const left = Math.max(0, Math.floor(rectangle.x * dpr));
+  const top = Math.max(0, Math.floor(rectangle.y * dpr));
+  const right = Math.min(image.width, Math.ceil((rectangle.x + rectangle.width) * dpr));
+  const bottom = Math.min(image.height, Math.ceil((rectangle.y + rectangle.height) * dpr));
+  for (let y = top; y < bottom; y += 1) {
+    for (let x = left; x < right; x += 1) pixels.add(y * image.width + x);
+  }
+  return pixels;
+}
+
+function maskPixels(mask: Mask, dpr: number, image: PNG): Set<number> {
+  const pixels = new Set<number>();
+  for (let y = 0; y < mask.alphaFootprint.length; y += 1) {
+    const row = mask.alphaFootprint[y]!;
+    for (let x = 0; x < row.length; x += 1) {
+      if (row[x] !== '1') continue;
+      for (const pixel of imagePixelsForRect({
+        x: mask.logicalBounds.x + x,
+        y: mask.logicalBounds.y + y,
+        width: 1,
+        height: 1,
+      }, dpr, image)) pixels.add(pixel);
+    }
+  }
+  return pixels;
+}
+
+function pixelOffset(image: PNG, pixel: number): number {
+  return pixel * 4;
+}
+
+function visibleLuminances(image: PNG, pixels: ReadonlySet<number>): number[] {
+  return [...pixels].flatMap((pixel) => {
+    const offset = pixelOffset(image, pixel);
+    return image.data[offset + 3] === 0 ? [] : [luminance(image, offset)];
+  });
+}
+
+function visiblePixels(image: PNG, pixels: ReadonlySet<number>): number[] {
+  return [...pixels].filter((pixel) => image.data[pixelOffset(image, pixel) + 3] !== 0);
+}
+
+function maximumChannelDelta(baseline: PNG, candidate: PNG, pixels: ReadonlySet<number>): number {
+  let maximum = 0;
+  for (const pixel of pixels) {
+    const offset = pixelOffset(baseline, pixel);
+    if (baseline.data[offset + 3] === 0 && candidate.data[offset + 3] === 0) continue;
+    for (let channel = 0; channel < 4; channel += 1) {
+      maximum = Math.max(maximum, Math.abs(baseline.data[offset + channel]! - candidate.data[offset + channel]!));
+    }
+  }
+  return maximum;
+}
+
+function samplePoint(image: PNG, point: z.infer<typeof PointSchema>, dpr: number): number {
+  const x = Math.min(image.width - 1, Math.floor(point.x * dpr));
+  const y = Math.min(image.height - 1, Math.floor(point.y * dpr));
+  const offset = (y * image.width + x) * 4;
+  if (image.data[offset + 3] === 0) throw new Error(`Transparent sample point ${point.x},${point.y}.`);
+  return luminance(image, offset);
+}
+
+function readJson(path: string): unknown {
+  return JSON.parse(readFileSync(resolve(process.cwd(), path), 'utf8')) as unknown;
+}
+
+export function compareRendererFrames(candidate: unknown, requestedMode: ComparisonMode): RendererComparisonReport {
+  const manifest = RendererComparisonManifestSchema.parse(candidate);
+  if (manifest.mode !== requestedMode) throw new Error(`Manifest mode ${manifest.mode} does not match ${requestedMode}.`);
+  const baselineImage = PNG.sync.read(readFileSync(resolve(process.cwd(), manifest.baseline.image)));
+  const candidateImage = PNG.sync.read(readFileSync(resolve(process.cwd(), manifest.candidate.image)));
+  if (baselineImage.width !== candidateImage.width || baselineImage.height !== candidateImage.height) {
+    throw new Error('Matched renderer images must have identical dimensions.');
+  }
+  if (baselineImage.width !== Math.round(manifest.viewport.width * manifest.devicePixelRatio) ||
+      baselineImage.height !== Math.round(manifest.viewport.height * manifest.devicePixelRatio)) {
+    throw new Error('Renderer image dimensions do not match viewport and device pixel ratio.');
+  }
+  const baselineFrame = RendererMaskFrameSchema.parse(readJson(manifest.baseline.masks));
+  const candidateFrame = RendererMaskFrameSchema.parse(readJson(manifest.candidate.masks));
+  const required = [...manifest.requiredMaskIds].sort((left, right) => left.localeCompare(right, 'en'));
+  const frameMasks = (masks: readonly Mask[]) => masks
+    .filter(({ id }) => required.includes(id))
+    .sort((left, right) => left.id.localeCompare(right.id, 'en'));
+  const baselineMasks = frameMasks(baselineFrame.masks);
+  const candidateMasks = frameMasks(candidateFrame.masks);
+  if (JSON.stringify(baselineMasks.map(({ id }) => id)) !== JSON.stringify(required) ||
+      JSON.stringify(candidateMasks.map(({ id }) => id)) !== JSON.stringify(required)) {
+    throw new Error('Required renderer mask IDs are incomplete.');
+  }
+
+  const failures: string[] = [];
+  const requiredPixels = new Set<number>();
+  for (const mask of baselineMasks) {
+    for (const pixel of maskPixels(mask, manifest.devicePixelRatio, baselineImage)) requiredPixels.add(pixel);
+  }
+  const maskMeasurements = baselineMasks.map((baselineMask, index) => {
+    const candidateMask = candidateMasks[index]!;
+    if (JSON.stringify(baselineMask) !== JSON.stringify(candidateMask)) {
+      failures.push(`${baselineMask.id}: frame ID, bounds, hit bounds, or alpha footprint changed.`);
+    }
+    const baselinePixels = maskPixels(baselineMask, manifest.devicePixelRatio, baselineImage);
+    const candidatePixels = maskPixels(candidateMask, manifest.devicePixelRatio, candidateImage);
+    const baselineVisiblePixels = visiblePixels(baselineImage, baselinePixels);
+    const candidateVisiblePixels = visiblePixels(candidateImage, candidatePixels);
+    const baselineVisible = visibleLuminances(baselineImage, baselinePixels);
+    const candidateVisible = visibleLuminances(candidateImage, candidatePixels);
+    if (baselineVisible.length === 0 || candidateVisible.length === 0 ||
+        JSON.stringify(baselineVisiblePixels) !== JSON.stringify(candidateVisiblePixels)) {
+      failures.push(`${baselineMask.id}: visible pixel coverage changed or disappeared.`);
+    }
+    const ringLeft = Math.max(0, baselineMask.logicalBounds.x - manifest.thresholds.backgroundRingLogicalPixels);
+    const ringTop = Math.max(0, baselineMask.logicalBounds.y - manifest.thresholds.backgroundRingLogicalPixels);
+    const ringRight = Math.min(
+      manifest.viewport.width,
+      baselineMask.logicalBounds.x + baselineMask.logicalBounds.width + manifest.thresholds.backgroundRingLogicalPixels,
+    );
+    const ringBottom = Math.min(
+      manifest.viewport.height,
+      baselineMask.logicalBounds.y + baselineMask.logicalBounds.height + manifest.thresholds.backgroundRingLogicalPixels,
+    );
+    const ringBounds = { x: ringLeft, y: ringTop, width: ringRight - ringLeft, height: ringBottom - ringTop };
+    const ring = imagePixelsForRect(ringBounds, manifest.devicePixelRatio, baselineImage);
+    for (const pixel of requiredPixels) ring.delete(pixel);
+    for (const pixel of imagePixelsForRect(baselineMask.logicalBounds, manifest.devicePixelRatio, baselineImage)) {
+      ring.delete(pixel);
+    }
+    const baselineRing = visibleLuminances(baselineImage, ring);
+    const candidateRing = visibleLuminances(candidateImage, ring);
+    const baselineContrast = baselineVisible.length > 0 && baselineRing.length > 0
+      ? contrast(median(baselineVisible), median(baselineRing)) : 0;
+    const candidateContrast = candidateVisible.length > 0 && candidateRing.length > 0
+      ? contrast(median(candidateVisible), median(candidateRing)) : 0;
+    const retainedContrast = baselineContrast > 0 ? candidateContrast / baselineContrast : 0;
+    if (retainedContrast < manifest.thresholds.contrastRetention) {
+      failures.push(`${baselineMask.id}: retained contrast ${rounded(retainedContrast)} is below 0.9.`);
+    }
+    const channelDelta = maximumChannelDelta(baselineImage, candidateImage, baselinePixels);
+    if (manifest.mode === 'parity' && channelDelta > manifest.thresholds.requiredMaskMaximumChannelDelta) {
+      failures.push(`${baselineMask.id}: required-mask channel delta ${channelDelta} exceeds 8.`);
+    }
+    return {
+      id: baselineMask.id,
+      baselineVisiblePixels: baselineVisible.length,
+      candidateVisiblePixels: candidateVisible.length,
+      baselineContrast: rounded(baselineContrast),
+      candidateContrast: rounded(candidateContrast),
+      retainedContrast: rounded(retainedContrast),
+      maximumChannelDelta: channelDelta,
+    };
+  });
+
+  let changedOutsideMaskPixels = 0;
+  let outsideMaskPixelCount = 0;
+  for (let pixel = 0; pixel < baselineImage.width * baselineImage.height; pixel += 1) {
+    if (requiredPixels.has(pixel)) continue;
+    outsideMaskPixelCount += 1;
+    const offset = pixelOffset(baselineImage, pixel);
+    if (baselineImage.data[offset + 3] === 0 && candidateImage.data[offset + 3] === 0) continue;
+    if ([0, 1, 2, 3].some((channel) => (
+      Math.abs(baselineImage.data[offset + channel]! - candidateImage.data[offset + channel]!) >
+      manifest.thresholds.outsideMaskMaximumChannelDelta
+    ))) changedOutsideMaskPixels += 1;
+  }
+  const changedOutsideMaskRatio = outsideMaskPixelCount === 0 ? 0 : changedOutsideMaskPixels / outsideMaskPixelCount;
+  if (manifest.mode === 'parity' && changedOutsideMaskRatio > manifest.thresholds.outsideMaskChangedPixelRatio) {
+    failures.push(`Outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.005.`);
+  }
+
+  for (const sample of manifest.lightSamples) {
+    const lit = visibleLuminances(candidateImage, imagePixelsForRect(sample.lit, manifest.devicePixelRatio, candidateImage));
+    const unlit = visibleLuminances(candidateImage, imagePixelsForRect(sample.unlit, manifest.devicePixelRatio, candidateImage));
+    if (lit.length === 0 || unlit.length === 0 || median(lit) <= median(unlit)) {
+      failures.push(`${sample.id}: lamp center is not brighter than its unlit region.`);
+    }
+  }
+  for (const sample of manifest.shadowSamples) {
+    for (const edge of sample.edges) {
+      if (edge.shadow.x <= edge.lit.x || edge.shadow.y <= edge.lit.y ||
+          samplePoint(candidateImage, edge.shadow, manifest.devicePixelRatio) >=
+          samplePoint(candidateImage, edge.lit, manifest.devicePixelRatio)) {
+        failures.push(`${sample.id}: shadow edge is not darker and lower-right.`);
+        break;
+      }
+    }
+  }
+
+  return {
+    schemaVersion: 1,
+    fixture: manifest.fixture,
+    sourceCommit: manifest.sourceCommit,
+    mode: manifest.mode,
+    passed: failures.length === 0,
+    failures,
+    measurements: {
+      changedOutsideMaskPixels,
+      outsideMaskPixelCount,
+      changedOutsideMaskRatio: rounded(changedOutsideMaskRatio),
+      masks: maskMeasurements,
+    },
+  };
+}
+
+export function compareRendererManifest(
+  candidate: unknown,
+  requestedMode: ComparisonMode,
+): RendererComparisonReport | RendererZoomSamplingReport {
+  if (!candidate || typeof candidate !== 'object' || !('samples' in candidate)) {
+    return compareRendererFrames(candidate, requestedMode);
+  }
+  const manifest = RendererZoomSamplingManifestSchema.parse(candidate);
+  if (requestedMode !== manifest.mode) throw new Error(`Manifest mode ${manifest.mode} does not match ${requestedMode}.`);
+  const { samples, ...common } = manifest;
+  const reports = samples.map((sample) => {
+    const report = compareRendererFrames({
+      ...common,
+      zoom: sample.zoom,
+      baseline: sample.baseline ?? common.baseline,
+      candidate: sample.candidate ?? common.candidate,
+    }, requestedMode);
+    return { ...sample, report };
+  });
+  return {
+    schemaVersion: 1,
+    fixture: manifest.fixture,
+    sourceCommit: manifest.sourceCommit,
+    mode: manifest.mode,
+    passed: reports.every(({ report }) => report.passed),
+    failures: reports.flatMap(({ zoom, report }) => report.failures.map((failure) => `Zoom ${zoom}: ${failure}`)),
+    samples: reports,
+  };
+}
+
+function argumentValue(arguments_: readonly string[], name: string): string {
+  const index = arguments_.indexOf(name);
+  const value = index >= 0 ? arguments_[index + 1] : undefined;
+  if (!value) throw new Error(`${name} is required.`);
+  return value;
+}
+
+function main(): void {
+  const arguments_ = process.argv.slice(2);
+  const mode = argumentValue(arguments_, '--mode');
+  if (mode !== 'parity' && mode !== 'enhanced') throw new Error('--mode must be parity or enhanced.');
+  const manifestPath = argumentValue(arguments_, '--manifest');
+  const outputPath = argumentValue(arguments_, '--output');
+  const report = compareRendererManifest(readJson(manifestPath), mode);
+  const resolvedOutput = resolve(process.cwd(), outputPath);
+  mkdirSync(dirname(resolvedOutput), { recursive: true });
+  writeFileSync(resolvedOutput, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });
+  process.stdout.write(`Renderer comparison ${report.passed ? 'passed' : 'failed'}: ${outputPath}\n`);
+  if (!report.passed) process.exitCode = 1;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  try {
+    main();
+  } catch (error) {
+    process.stderr.write(`${error instanceof Error ? error.stack ?? error.message : String(error)}\n`);
+    process.exitCode = 1;
+  }
+}

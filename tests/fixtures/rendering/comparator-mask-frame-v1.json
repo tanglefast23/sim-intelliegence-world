@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "masks": [
+    {
+      "id": "player",
+      "kind": "player",
+      "frameId": "player:idle:down:0",
+      "logicalBounds": { "x": 4, "y": 4, "width": 1, "height": 1 },
+      "hitBounds": { "x": 3, "y": 3, "width": 3, "height": 3 },
+      "alphaFootprint": ["1"]
+    }
+  ]
+}

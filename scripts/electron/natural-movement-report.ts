@@ -32,8 +32,10 @@ const PackageSampleSchema = z.object({
   evidenceTag: z.literal('interruption').optional(),
 }).strict();
 const PackagePassSchema = z.object({
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   mode: z.enum(['standard', 'reduced']),
+  npcMotionSource: z.literal('fixture'),
+  npcMotionNpcId: z.literal('linda'),
   samples: z.array(PackageSampleSchema).min(2),
   firstSegmentUniquePositions: z.number().int().nonnegative(),
   curveObserved: z.boolean(),
@@ -55,7 +57,7 @@ const NaturalMovementFpsEvidenceSchema = z.object({
 }).strict();
 
 export const NaturalMovementReportSchema = z.object({
-  schemaVersion: z.literal(3),
+  schemaVersion: z.literal(4),
   testedCommit: z.string().regex(/^[a-f0-9]{40}$/u),
   evidenceSource: z.object({
     baseCommit: z.string().regex(/^[a-f0-9]{40}$/u),

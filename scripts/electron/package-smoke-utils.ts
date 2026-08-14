@@ -64,7 +64,7 @@ export function findPackagedExecutable(
     if (platform === 'win32') {
       return name === 'si-world.exe';
     }
-    return name === 'si-world' && filePath.includes('-linux-');
+    throw new Error(`Unsupported packaged platform: ${platform}.`);
   });
   if (candidates.length !== 1) {
     throw new Error(`Expected one packaged executable, found ${candidates.length}.`);
