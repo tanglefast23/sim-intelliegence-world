@@ -1910,7 +1910,8 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   progress('complete');
   return {
     newGameFlow, stableProtagonist, allowanceReceipt, newGameSave, accessibilityPolicy,
-    responsiveSurface, resizeCamera, uiScaleControls,
+    responsiveSurface, responsiveSurfaceDiagnostic: responsiveSurface ? undefined : responsiveDto,
+    resizeCamera, uiScaleControls,
     zoomButtons, movement, middlePan, wheelZoom, gradualZoomPersistence, centerKey, cancelKey, uiClickThrough,
     roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
