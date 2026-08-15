@@ -569,7 +569,7 @@ export class ThreeWorldRenderer {
     // Stage 2 shares the legacy atmosphere overlay so both renderers keep the same composite order.
     this.#set('atmosphere', emptyGeometryData());
 
-    // Stage 2 shares these feedback layers above lighting; Stage 3 moves them into the matching GPU batches.
+    // Stage 3 keeps feedback in the shared above-lighting overlay; Stage 4 moves the complete overlay stack here.
     this.#set('destination-pulse', emptyGeometryData());
     this.#set('journal-markers', emptyGeometryData());
     this.#set('failure-marker', emptyGeometryData());

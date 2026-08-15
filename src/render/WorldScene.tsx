@@ -1170,6 +1170,10 @@ export function WorldScene({
     [map, smokeMode],
   );
   const rendererParityEvidence = useMemo(() => smokeMode ? JSON.stringify({
+    mapId: worldFrame.mapId,
+    mapHash: worldFrame.mapHash,
+    presentationHash: worldFrame.presentationHash,
+    atlasHash: worldFrame.atlasHash,
     camera: worldFrame.camera,
     viewport: worldFrame.viewport,
     devicePixelRatio: worldFrame.devicePixelRatio,
@@ -1187,6 +1191,8 @@ export function WorldScene({
     destinationPulse: worldFrame.destinationPulse ?? null,
     journalMarkers: worldFrame.journalMarkers,
     failureMarker: worldFrame.failureMarker ?? null,
+    visibleEffectIds: worldFrame.visibleEffectIds,
+    fallbackEmitterIds: worldFrame.fallbackEmitterIds,
   }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
   const selectedScreen = worldToScreen(camera, {
     x: worldFrame.selectionRing.worldX,

@@ -3,9 +3,22 @@ import { dirname, resolve } from 'node:path';
 
 import { PNG } from 'pngjs';
 
-const REPORT = 'output/verification/threejs-2d/stage-2/parity-package/renderer-parity-package-report.json';
-const CAPTURE_OUTPUT = 'artifacts/threejs-2d/stage-2/captures';
-const FIXTURE_OUTPUT = 'tests/fixtures/rendering/threejs-villa';
+const stageIndex = process.argv.indexOf('--stage');
+const stageArgument = stageIndex === -1 ? '2' : process.argv[stageIndex + 1];
+if (stageArgument !== '2' && stageArgument !== '3') throw new Error('--stage must be 2 or 3.');
+const stage = Number(stageArgument);
+const REPORT = stage === 2
+  ? 'output/verification/threejs-2d/stage-2/parity-package/renderer-parity-package-report.json'
+  : 'output/verification/threejs-2d/stage-3/specialized-package/renderer-parity-package-report.json';
+const CAPTURE_OUTPUT = stage === 2
+  ? 'artifacts/threejs-2d/stage-2/captures'
+  : 'artifacts/threejs-2d/stage-3/captures/specialized';
+const FIXTURE_OUTPUT = stage === 2
+  ? 'tests/fixtures/rendering/threejs-villa'
+  : 'tests/fixtures/rendering/threejs-stage-3-specialized';
+const FIXTURE_SET_OUTPUT = stage === 2
+  ? 'tests/fixtures/rendering/threejs-villa-v1.json'
+  : 'tests/fixtures/rendering/threejs-stage-3-specialized-v1.json';
 const THRESHOLDS = {
   backgroundRingLogicalPixels: 2,
   contrastRetention: 0.9,
@@ -315,7 +328,7 @@ for (const pass of passes) {
     );
   }
 }
-copyFileSync(resolve(REPORT), resolve('artifacts/threejs-2d/stage-2/renderer-parity-package-report.json'));
+copyFileSync(resolve(REPORT), resolve(`artifacts/threejs-2d/stage-${stage}/renderer-parity-specialized-package-report.json`));
 
 const fixtureEntries = report.fixtureIds.map((id) => {
   const entry = fixture(id);
@@ -363,9 +376,9 @@ const fixtureEntries = report.fixtureIds.map((id) => {
   return { id, manifest: manifestPath };
 });
 
-writeJson('tests/fixtures/rendering/threejs-villa-v1.json', {
+writeJson(FIXTURE_SET_OUTPUT, {
   schemaVersion: 1,
-  fixtureSet: 'threejs-villa-stage-2',
+  fixtureSet: stage === 2 ? 'threejs-villa-stage-2' : 'threejs-specialized-stage-3',
   sourceCommit: report.testedCommit,
   mode: 'parity',
   fixtures: fixtureEntries,

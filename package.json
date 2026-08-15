@@ -53,6 +53,7 @@
     "test:model": "jest --runInBand --runTestsByPath src/ai/__tests__/spike-response.test.ts tests/electron/model-lifecycle.test.ts",
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
     "smoke:renderer-parity": "tsx scripts/electron/run-renderer-parity-package-smoke.ts",
+    "smoke:renderer-all-maps": "tsx scripts/electron/run-renderer-all-maps-package-smoke.ts",
     "smoke:natural-movement": "tsx scripts/electron/run-natural-movement-package-smoke.ts",
     "smoke:art-quality": "tsx scripts/electron/run-art-quality-package-smoke.ts",
     "smoke:procedural-vfx": "tsx scripts/electron/run-procedural-vfx-package-smoke.ts",
