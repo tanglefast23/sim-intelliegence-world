@@ -337,6 +337,7 @@ export function WorldScene({
   const [vfxAgeStep, setVfxAgeStep] = useState(0);
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
   const [destinationPulseElapsedMs, setDestinationPulseElapsedMs] = useState(0);
+  const [rendererParityPulseFrozen, setRendererParityPulseFrozen] = useState(false);
   const [rendererContextState, setRendererContextState] = useState<'ready' | 'lost' | 'timed-out'>('ready');
   const rendererSuspended = rendererContextState !== 'ready';
   const conversationPort = useMemo(
@@ -519,6 +520,7 @@ export function WorldScene({
       setReactionId(undefined);
       setDestinationMarker({ x: 22, y: 28 });
       setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
       setRuntime((current) => ({
         movement: { ...current.movement, feedbackTile: { x: 24, y: 28 } },
         npcMovements: current.npcMovements,
@@ -551,6 +553,8 @@ export function WorldScene({
       setConversationNpcId(undefined);
       setSelected('protagonist');
       setDestinationMarker(target);
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
       setRuntime((current) => {
         const worldState = parseWorldState({
           ...current.worldState,
@@ -758,6 +762,7 @@ export function WorldScene({
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
     setWorldFeedback(undefined);
+    setRendererParityPulseFrozen(false);
     setDestinationMarker({ ...target });
     setRuntime((current) => {
       const currentMap = WORLD_MAP_CATALOG[current.worldState.protagonist.worldPosition.mapId as MapId];
@@ -827,7 +832,7 @@ export function WorldScene({
   }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   useEffect(() => {
-    if (!destinationMarker || rendererSuspended) return;
+    if (!destinationMarker || rendererSuspended || rendererParityPulseFrozen) return;
     let animationFrame = 0;
     let startedAt: number | undefined;
     const animate = (time: number) => {
@@ -840,7 +845,7 @@ export function WorldScene({
     setDestinationPulseElapsedMs(0);
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [destinationMarker, rendererSuspended]);
+  }, [destinationMarker, rendererParityPulseFrozen, rendererSuspended]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
