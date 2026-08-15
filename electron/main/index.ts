@@ -154,11 +154,12 @@ async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPa
     `Boolean(document.querySelector('#loading-shell'))`,
     true,
   ) as Promise<boolean>;
-  const image = await captureLoadingSmokeFrame(
+  const { frame: image, loadingShellObserved } = await captureLoadingSmokeFrame(
     () => window.webContents.capturePage(undefined, { stayHidden: true }),
     loadingVisible,
     waitForSmokeRetry,
   );
+  process.stdout.write(`SI_WORLD_SMOKE_LOADING_SHELL_OBSERVED ${String(loadingShellObserved)}\n`);
   return writeSmokeScreenshot(screenshotPath, image);
 }
 
