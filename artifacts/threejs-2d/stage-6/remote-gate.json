@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "workflow": "Verify",
+  "conclusion": "success",
+  "jobs": {
+    "package-macos-arm64": "success",
+    "package-macos-x64": "success",
+    "package-macos-x64-functional": "success",
+    "package-windows-x64": "success"
+  },
+  "note": "The remote gate is recorded from the actual GitHub Actions run on this exact SHA, not from a local result."
+}

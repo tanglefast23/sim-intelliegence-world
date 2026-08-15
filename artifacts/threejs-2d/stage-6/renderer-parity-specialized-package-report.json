@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "dd5e09dd25ba7be13c844d3149f55783e5d7f7d4",
+  "testedCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
   "evidenceSource": {
-    "baseCommit": "dd5e09dd25ba7be13c844d3149f55783e5d7f7d4",
-    "sourceSha256": "b472ec9d6f85333f52e53bc15b46e7d829cf1e2c142297f6b1d1bcc0b52e7e63",
+    "baseCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+    "sourceSha256": "1d4da10b74e37d4b926c37960a50ff892316a07cfb6a80a7e7a11efc3b55bbcb",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-parity-package-smoke.ts",

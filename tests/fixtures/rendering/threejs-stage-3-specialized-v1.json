@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureSet": "threejs-specialized-stage-3",
-  "sourceCommit": "dd5e09dd25ba7be13c844d3149f55783e5d7f7d4",
+  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
   "mode": "parity",
   "fixtures": [
     {
