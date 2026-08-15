@@ -369,8 +369,6 @@ export class ThreeWorldRenderer {
     // The legacy atmosphere was plain React Native Views composited by the browser as sRGB CSS,
     // never through a Skia surface, so the legacy P3 matrix must not apply to it. Applying it
     // shifted the whole frame by about one count, because the wash covers every pixel.
-    // The feedback batches join it: saturated marker colours such as #ef5b43 clip out of gamut
-    // through that matrix, which eroded the failure marker's contrast well past its floor.
     const overlayMaterial = shaderMaterial(undefined, false);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial, overlayMaterial];
     const atlasBatches = new Set<BatchId>(['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']);
@@ -379,9 +377,7 @@ export class ThreeWorldRenderer {
       const material = atlasBatches.has(id)
         ? atlasMaterial
         : id === 'district-light-pools' ? glowMaterial
-          : id === 'atmosphere' || id === 'destination-pulse' || id === 'journal-markers' || id === 'failure-marker'
-            ? overlayMaterial
-            : primitiveMaterial;
+          : id === 'atmosphere' ? overlayMaterial : primitiveMaterial;
       const mesh = new Mesh(geometry, material);
       mesh.frustumCulled = false;
       mesh.renderOrder = renderOrder;
