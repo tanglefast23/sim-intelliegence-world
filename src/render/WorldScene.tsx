@@ -1450,7 +1450,7 @@ export function WorldScene({
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
             /> : null}
-            {rendererKind === 'skia' ? <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
+            <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
               {worldFrame.destinationPulse ? (() => {
                 const pulse = worldFrame.destinationPulse;
                 const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
@@ -1477,7 +1477,7 @@ export function WorldScene({
                   <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
                 </>
               ) : null}
-            </Canvas> : null}
+            </Canvas>
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}

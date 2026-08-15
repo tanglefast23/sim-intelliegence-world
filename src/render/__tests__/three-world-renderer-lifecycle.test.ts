@@ -215,7 +215,7 @@ describe('Three.js renderer lifecycle', () => {
   // Stage 4 moves feedback ownership onto the Three.js path. The React lighting and atmosphere
   // overlays no longer mount there, so these batches composite above them as the locked order
   // requires. Stage 3 held them empty for exactly that reason.
-  test('owns every above-lighting feedback batch', async () => {
+  test('owns lighting and atmosphere while feedback stays in the overlay above the canvas', async () => {
     const animation = installAnimationFrameQueue();
     try {
       const renderer = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', true, jest.fn(), jest.fn());
@@ -223,9 +223,9 @@ describe('Three.js renderer lifecycle', () => {
       renderer.start();
       animation.callbacks.shift()!(0);
       const triangles = renderer.evidence().trianglesByBatch;
-      expect(triangles['destination-pulse']).toBeGreaterThan(0);
-      expect(triangles['journal-markers']).toBeGreaterThan(0);
-      expect(triangles['failure-marker']).toBeGreaterThan(0);
+      expect(triangles['destination-pulse']).toBe(0);
+      expect(triangles['journal-markers']).toBe(0);
+      expect(triangles['failure-marker']).toBe(0);
       expect(triangles['district-shadows']).toBeGreaterThan(0);
       expect(triangles['district-light-pools']).toBeGreaterThan(0);
       expect(triangles['atmosphere']).toBeGreaterThan(0);
