@@ -62,7 +62,9 @@
     "test:electron": "npm run test:electron:unit && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement",
     "verify:ci-build": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron",
     "verify": "npm run content:check && npm run validate:content && npm run art:check && npm run audio:check && npm run proof:check && npm run verify:first-hour && npm run check:boundaries && npm run typecheck && npm test && npm run export:web && npm run test:electron:unit && npm run test:model && npm run package:electron && npm run smoke:electron && npm run smoke:natural-movement && npm run verify:phase22:packaged",
-    "spike:threejs:check": "node spikes/001-threejs-pixel-villa/verify.mjs"
+    "spike:threejs:check": "node spikes/001-threejs-pixel-villa/verify.mjs",
+    "spike:animated-sketch:build": "esbuild spikes/002-threejs-animated-sketch/scene.js --bundle --format=iife --minify --outfile=spikes/002-threejs-animated-sketch/scene.bundle.js",
+    "spike:animated-sketch:check": "npm run spike:animated-sketch:build && node spikes/002-threejs-animated-sketch/verify.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "57.0.8",
