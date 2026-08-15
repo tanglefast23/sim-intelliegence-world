@@ -23,6 +23,24 @@ const StateSchema = z.object({
   viewport: z.object({ width: z.number().positive(), height: z.number().positive() }).strict(),
   devicePixelRatio: z.literal(1),
 }).passthrough();
+const RendererEvidenceSchema = z.object({
+  geometries: z.number().int().nonnegative(),
+  materials: z.number().int().nonnegative(),
+  textures: z.number().int().nonnegative(),
+  gpu: z.object({
+    drawCalls: z.number().int().nonnegative(),
+    geometries: z.number().int().nonnegative(),
+    programs: z.number().int().nonnegative(),
+    textures: z.number().int().nonnegative(),
+  }).strict(),
+}).passthrough();
+const ContextLifecycleSchema = z.object({
+  supported: z.literal(true),
+  lossOverlayObserved: z.literal(true),
+  restored: z.literal(true),
+  before: RendererEvidenceSchema,
+  after: RendererEvidenceSchema,
+}).strict();
 const PassSchema = z.object({
   schemaVersion: z.literal(1),
   rendererKind: z.enum(['skia', 'threejs-2d']),
@@ -31,7 +49,7 @@ const PassSchema = z.object({
     screenshot: z.string().min(1),
     state: StateSchema,
   }).strict()).length(6),
-  contextLifecycle: z.record(z.string(), z.unknown()).nullable(),
+  contextLifecycle: ContextLifecycleSchema.nullable(),
 }).strict();
 
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
@@ -115,8 +133,18 @@ async function main(): Promise<void> {
       throw new Error(`Renderer parity state changed between Skia and Three.js for ${id}.`);
     }
   }
-  if (three.contextLifecycle?.supported !== true || three.contextLifecycle.restored !== true) {
+  if (!three.contextLifecycle) {
     throw new Error('Three.js context lifecycle evidence did not pass.');
+  }
+  for (const resource of ['geometries', 'textures', 'programs'] as const) {
+    if (three.contextLifecycle.after.gpu[resource] > three.contextLifecycle.before.gpu[resource]) {
+      throw new Error(`Three.js GPU ${resource} grew across context recovery.`);
+    }
+  }
+  for (const resource of ['geometries', 'materials', 'textures'] as const) {
+    if (three.contextLifecycle.after[resource] !== three.contextLifecycle.before[resource]) {
+      throw new Error(`Three.js owned ${resource} changed across context recovery.`);
+    }
   }
 
   const report = {

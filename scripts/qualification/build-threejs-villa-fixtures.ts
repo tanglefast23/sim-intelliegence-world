@@ -139,7 +139,7 @@ const placementMask = (state: FrameState, placement: Placement, kind: MaskKind, 
     hitBounds: kind === 'active-door'
       ? logicalBounds
       : integerRect(logicalBounds.x - 4, logicalBounds.y - 2, 32, 32),
-    alphaFootprint: atlasFootprint(placement.source, kind === 'player'),
+    alphaFootprint: atlasFootprint(placement.source, kind === 'player' || kind === 'active-door'),
   };
 };
 const ellipseMask = (

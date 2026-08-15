@@ -105,6 +105,13 @@ describe('renderer frame comparison', () => {
       value.masks.push(second);
       writeFileSync(path, `${JSON.stringify(value)}\n`);
     }
+    const baseline = PNG.sync.read(readFileSync(join(root, 'baseline.png')));
+    const secondOffset = (4 * 32 + 5) * 4;
+    baseline.data[secondOffset] = 220;
+    baseline.data[secondOffset + 1] = 220;
+    baseline.data[secondOffset + 2] = 220;
+    writeImage(join(root, 'baseline.png'), baseline);
+    writeImage(join(root, 'candidate.png'), baseline);
     const value = manifest(root);
     value.requiredMaskIds = ['player', 'npc:linda'];
     expect(compareRendererFrames(value, 'parity').passed).toBe(true);
@@ -139,6 +146,12 @@ describe('renderer frame comparison', () => {
   test('clips the two-logical-pixel ring at image boundaries', () => {
     frame(join(root, 'baseline.json'), { logicalBounds: { x: 0, y: 0, width: 1, height: 1 } });
     frame(join(root, 'candidate.json'), { logicalBounds: { x: 0, y: 0, width: 1, height: 1 } });
+    const baseline = PNG.sync.read(readFileSync(join(root, 'baseline.png')));
+    baseline.data[0] = 220;
+    baseline.data[1] = 220;
+    baseline.data[2] = 220;
+    writeImage(join(root, 'baseline.png'), baseline);
+    writeImage(join(root, 'candidate.png'), baseline);
     expect(compareRendererFrames(manifest(root), 'parity').passed).toBe(true);
   });
 
@@ -173,6 +186,19 @@ describe('renderer frame comparison', () => {
     const report = compareRendererFrames(manifest(root, 'enhanced'), 'enhanced');
     expect(report.passed).toBe(false);
     expect(report.failures.join(' ')).toContain('visible pixel coverage');
+  });
+
+  test('rejects a mask whose baseline carries no readable contrast', () => {
+    const baseline = PNG.sync.read(readFileSync(join(root, 'baseline.png')));
+    const offset = (4 * 32 + 4) * 4;
+    baseline.data[offset] = 48;
+    baseline.data[offset + 1] = 48;
+    baseline.data[offset + 2] = 48;
+    writeImage(join(root, 'baseline.png'), baseline);
+    writeImage(join(root, 'candidate.png'), baseline);
+    const report = compareRendererFrames(manifest(root), 'parity');
+    expect(report.passed).toBe(false);
+    expect(report.failures.join(' ')).toContain('carries no readable signal');
   });
 
   test.each([

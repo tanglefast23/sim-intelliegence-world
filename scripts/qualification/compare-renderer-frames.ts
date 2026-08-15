@@ -200,6 +200,7 @@ const median = (values: readonly number[]): number => {
 const contrast = (foreground: number, background: number): number => (
   (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
 );
+const MINIMUM_BASELINE_CONTRAST = 1.05;
 
 function imagePixelsForRect(rectangle: z.infer<typeof RectSchema>, dpr: number, image: PNG): Set<number> {
   const pixels = new Set<number>();
@@ -337,6 +338,9 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     const candidateContrast = candidateVisible.length > 0 && candidateRing.length > 0
       ? contrast(median(candidateVisible), median(candidateRing)) : 0;
     const retainedContrast = baselineContrast > 0 ? candidateContrast / baselineContrast : 0;
+    if (baselineContrast < MINIMUM_BASELINE_CONTRAST) {
+      failures.push(`${baselineMask.id}: baseline contrast ${rounded(baselineContrast)} carries no readable signal.`);
+    }
     if (retainedContrast < manifest.thresholds.contrastRetention) {
       failures.push(`${baselineMask.id}: retained contrast ${rounded(retainedContrast)} is below 0.9.`);
     }

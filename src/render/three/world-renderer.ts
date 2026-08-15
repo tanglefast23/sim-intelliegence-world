@@ -228,7 +228,8 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
 }
 
 function updateGeometry(geometry: BufferGeometry, data: GeometryData): void {
-  const sameSize = geometry.getAttribute('position')?.count === data.positions.length / 3;
+  const sameSize = geometry.getAttribute('position')?.count === data.positions.length / 3 &&
+    geometry.getIndex()?.count === data.indices.length;
   if (!sameSize) {
     geometry.dispose();
     geometry.setAttribute('position', new Float32BufferAttribute(data.positions, 3));
@@ -276,8 +277,8 @@ export type ThreeRendererEvidence = Readonly<{
   legacyColorParity: boolean;
   drawCalls: number;
   atlasDrawCalls: number;
-  textures: 2;
-  materials: 3;
+  textures: number;
+  materials: number;
   geometries: number;
   gpu: Readonly<{
     drawCalls: number;
@@ -308,6 +309,7 @@ export class ThreeWorldRenderer {
   #timedOut = false;
   #restorePending = false;
   #ready = false;
+  #disposed = false;
   #lossTimer?: ReturnType<typeof setTimeout>;
 
   private constructor(
@@ -381,24 +383,31 @@ export class ThreeWorldRenderer {
   }
 
   start(): void {
-    if (this.#animationFrame !== 0) return;
+    if (this.#animationFrame !== 0 || this.#disposed) return;
     const present = () => {
-      if (!this.#lost && !this.#timedOut && this.#latestFrame) {
-        if (this.#presentedFrame !== this.#latestFrame) {
-          this.#update(this.#latestFrame);
-          this.#presentedFrame = this.#latestFrame;
+      try {
+        if (!this.#lost && !this.#timedOut && this.#latestFrame) {
+          if (this.#presentedFrame !== this.#latestFrame) {
+            this.#update(this.#latestFrame);
+            this.#presentedFrame = this.#latestFrame;
+          }
+          this.#renderer.render(this.#scene, this.#camera);
+          if (!this.#ready) {
+            this.#ready = true;
+            this.onReady();
+          }
+          if (this.#restorePending) {
+            this.#restorePending = false;
+            this.onContextStateChange('restored');
+          }
         }
-        this.#renderer.render(this.#scene, this.#camera);
-        if (!this.#ready) {
-          this.#ready = true;
-          this.onReady();
-        }
-        if (this.#restorePending) {
-          this.#restorePending = false;
-          this.onContextStateChange('restored');
-        }
+      } catch (error) {
+        this.#timedOut = true;
+        this.onContextStateChange('timed-out');
+        console.error(`SI_WORLD_THREE_RENDERER_FRAME_FAILURE ${error instanceof Error ? error.message : String(error)}`);
+      } finally {
+        this.#animationFrame = this.#disposed ? 0 : requestAnimationFrame(present);
       }
-      this.#animationFrame = requestAnimationFrame(present);
     };
     this.#animationFrame = requestAnimationFrame(present);
   }
@@ -413,8 +422,8 @@ export class ThreeWorldRenderer {
       drawCalls: COMPOSITE_BATCHES.filter((id) => this.#geometries.get(id)!.drawRange.count > 0).length,
       atlasDrawCalls: ['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']
         .filter((id) => this.#geometries.get(id as BatchId)!.drawRange.count > 0).length,
-      textures: 2,
-      materials: 3,
+      textures: [this.#atlasTexture, this.#glowTexture].length,
+      materials: this.#materials.length,
       geometries: this.#geometries.size,
       gpu: {
         drawCalls: this.#renderer.info.render.calls,
@@ -428,7 +437,10 @@ export class ThreeWorldRenderer {
   }
 
   dispose(): void {
+    if (this.#disposed) return;
+    this.#disposed = true;
     if (this.#animationFrame !== 0) cancelAnimationFrame(this.#animationFrame);
+    this.#animationFrame = 0;
     if (this.#lossTimer) clearTimeout(this.#lossTimer);
     this.canvas.removeEventListener('webglcontextlost', this.#handleContextLost);
     this.canvas.removeEventListener('webglcontextrestored', this.#handleContextRestored);
