@@ -1,17 +1,18 @@
 {
   "schemaVersion": 1,
-  "check": "the default shipping path does not load CanvasKit",
+  "check": "the default shipping path does not load or require CanvasKit",
   "urlVariant": "?testRenderer=threejs-2d",
   "headless": true,
   "audioMutedInTestSession": true,
   "canvaskitWasmRequested": false,
-  "note": "Network capture for the served export shows no request for canvaskit.wasm. The root mount no longer uses WithSkiaWeb; the renderer-neutral GameSurfaceShell replaces it. Skia module imports remain in six files for the temporary Skia path and are deleted in Stage 7.",
+  "codeSplitProof": "GameScreen is served as its own chunk, so the Skia module body never evaluates on the Three.js path",
+  "packagedSmoke": "both skia and threejs-2d renderer variants pass the packaged parity smoke",
   "remainingSkiaImporters": [
-    "src/ui/CharacterPortrait.tsx",
     "src/render/AtlasProof.tsx",
+    "src/render/GameSurfaceShell.tsx",
+    "src/render/SkiaWorldSurface.tsx",
     "src/render/DistrictLightingOverlay.tsx",
-    "src/render/WorldScene.tsx",
-    "src/render/vfx/ProceduralMapEffects.tsx",
-    "src/application/NewGameFlow.tsx"
-  ]
+    "src/render/vfx/ProceduralMapEffects.tsx"
+  ],
+  "note": "All remaining importers sit behind the lazy Skia boundary or load CanvasKit themselves. Stage 7 deletes them."
 }
