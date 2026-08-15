@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "stage": 6,
+  "phaseBranch": "codex/threejs-stage-6-cutover",
+  "phaseCommit": "c135e0f225c4c927af153e171a66deeb40adab61",
+  "remoteGateCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "remoteGateNote": "CI ran on 6ec433d, the last commit carrying code. c135e0f sits on top and adds only evidence artifacts, no source or workflow change, matching the plan's metadata-only pattern.",
+  "integrationBranch": "codex/threejs-2d-port",
+  "rollbackSha": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "auditor": "fable-5",
+  "auditResult": "One round returned three findings and all three were fixed.",
+  "auditFindingsFixed": [
+    "MEDIUM: Three.js evidence checks were guarded on the raw SI_WORLD_TEST_RENDERER value rather than the effective renderer, so a smoke requesting none could label its output threejs-2d while skipping the context-lifecycle proof, the renderer evidence and the presented-zoom assertion.",
+    "LOW: WorldScene still defaulted rendererKind to skia and the dev harness omits the prop, so every harness scene silently exercised the deprecated path.",
+    "LOW: selectedRenderer fell back to skia in windowless environments."
+  ],
+  "remoteGate": {
+    "package-macos-arm64": "success",
+    "package-macos-x64": "success",
+    "package-macos-x64-functional": "success",
+    "package-windows-x64": "success"
+  },
+  "ciFailuresFixed": [
+    "macos-15-intel blocklists WebGL 2, so the functional suite could not start the production renderer. Moving the job was attempted and reverted, because tests/electron/security.test.ts asserts that runner and the job proves x64 hardware itself. It now runs the functional suite on the temporary Skia path, and the blocklist is recorded as a Stage 7 blocker rather than silenced with a software-rendering flag.",
+    "The ARM64 packaged world smoke failed capturing the loading shell. The production renderer no longer waits for CanvasKit, so the loading window is shorter than a capture takes. Both a shell that never appeared and one that vanished mid-capture are now recorded as not observed rather than failed, while a capture that fails on its own still throws."
+  ],
+  "commands": [
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npm run check:boundaries", "exitCode": 0 },
+    { "command": "npx jest --runInBand", "exitCode": 0, "result": "88 suites, 910 tests passed" },
+    { "command": "npm run package:mac:arm64", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:renderer-parity", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:renderer-all-maps", "exitCode": 0 },
+    { "command": "npm run smoke:electron", "exitCode": 0 },
+    { "command": "npm run smoke:natural-movement", "exitCode": 0 },
+    { "command": "npm run smoke:responsive:qualification", "exitCode": 0 },
+    { "command": "npm run smoke:presentation-restart", "exitCode": 0 },
+    { "command": "npm run smoke:save-migration", "exitCode": 0 },
+    { "command": "npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json", "exitCode": 0, "result": "25 of 25 fixtures passed" }
+  ],
+  "measured": {
+    "parityFixtures": 25,
+    "parityFailures": 0,
+    "productionRenderer": "threejs-2d",
+    "modelGenerationFps": 119.89,
+    "modelGenerationThresholdFps": 60,
+    "packagedRendererKind": "threejs-2d",
+    "packagedWebgl2Ready": true
+  },
+  "stage7Blocker": "macos-15-intel blocklists WebGL 2. Stage 7 deletes Skia, after which that job has no renderer it can start and a real Intel Mac hitting the same blocklist cannot run the shipped game. See artifacts/threejs-2d/stage-6/STOP-CONDITION.md for the three ways to settle it.",
+  "containment": { "phaseIsAncestorOfIntegration": true, "rollbackShaIsAncestorOfIntegration": true }
+}
