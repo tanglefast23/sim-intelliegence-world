@@ -69,7 +69,9 @@ function rgba(color: string, opacity = 1): readonly [number, number, number, num
   const rgb = normalized.length >= 6 ? normalized.slice(0, 6) : 'ffffff';
   const alpha = normalized.length === 8 ? Number.parseInt(normalized.slice(6), 16) / 255 : 1;
   const parsed = new Color(`#${rgb}`);
-  return [parsed.r, parsed.g, parsed.b, Math.round(alpha * opacity * 255) / 255];
+  // Keep float alpha. The browser composites the legacy overlays without quantizing to 8 bits,
+  // so rounding here introduced a systematic error wherever translucent quads stack.
+  return [parsed.r, parsed.g, parsed.b, alpha * opacity];
 }
 
 function addQuad(

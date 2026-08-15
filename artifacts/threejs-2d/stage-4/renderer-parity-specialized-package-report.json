@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "c2d6225427e2c3cb98d5943c7a8b7db99c74ad2c",
+  "testedCommit": "c5ef654ea3cf69c5de7c62b1fecfcc10cb665d84",
   "evidenceSource": {
-    "baseCommit": "c2d6225427e2c3cb98d5943c7a8b7db99c74ad2c",
-    "sourceSha256": "e98950e4cb370e8f10df268eca1035f3367e852d06b13b1344017682cc9983ea",
+    "baseCommit": "c5ef654ea3cf69c5de7c62b1fecfcc10cb665d84",
+    "sourceSha256": "78ccf93d106497620cb309080730e1efd86ea58a059d292fd964207563b3b261",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-parity-package-smoke.ts",
@@ -4545,12 +4545,12 @@
         "restored": true,
         "before": {
           "geometries": 17,
-          "materials": 3,
+          "materials": 4,
           "textures": 2,
           "gpu": {
             "drawCalls": 17,
             "geometries": 17,
-            "programs": 2,
+            "programs": 3,
             "textures": 2
           },
           "rendererKind": "threejs-2d",
@@ -4595,12 +4595,12 @@
         },
         "after": {
           "geometries": 17,
-          "materials": 3,
+          "materials": 4,
           "textures": 2,
           "gpu": {
             "drawCalls": 17,
             "geometries": 17,
-            "programs": 2,
+            "programs": 3,
             "textures": 2
           },
           "rendererKind": "threejs-2d",
