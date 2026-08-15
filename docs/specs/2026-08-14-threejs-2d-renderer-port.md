@@ -454,6 +454,8 @@ Scaled frames therefore keep exact state, hashes, mask IDs, logical bounds, hit 
 - no more than `0.2%` of comparable pixels have a maximum RGB channel delta above `32/255`.
 
 Both-transparent pixels are excluded from those three measurements.
+Native player and active-door readability masks keep the Stage 2 atlas-silhouette footprint.
+Scaled player masks use the full opaque atlas footprint so enlarged interiors contribute to the `90%` contrast check.
 The report still records native outside-mask and required-mask deltas for every scaled frame, but does not use them as scaled pass/fail gates.
 Any threshold change requires a dated specification amendment with captured evidence before code changes.
 

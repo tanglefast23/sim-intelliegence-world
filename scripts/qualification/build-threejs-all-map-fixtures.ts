@@ -98,12 +98,16 @@ const atlasOpaque = (source: Rect, x: number, y: number): boolean => (
   x >= 0 && y >= 0 && x < source.width && y < source.height &&
   atlas.data[((source.y + y) * atlas.width + source.x + x) * 4 + 3] !== 0
 );
-const playerFootprint = (source: Rect, zoom: number): string[] => Array.from(
+const playerFootprint = (source: Rect, zoom: number, silhouetteOnly: boolean): string[] => Array.from(
   { length: source.height * zoom },
   (_, y) => Array.from({ length: source.width * zoom }, (_, x) => {
     const sourceX = Math.floor(x / zoom);
     const sourceY = Math.floor(y / zoom);
-    return atlasOpaque(source, sourceX, sourceY) ? '1' : '0';
+    if (!atlasOpaque(source, sourceX, sourceY)) return '0';
+    if (!silhouetteOnly) return '1';
+    return [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dx, dy]) => (
+      !atlasOpaque(source, sourceX + dx!, sourceY + dy!)
+    )) ? '1' : '0';
   }).join(''),
 );
 const sourceCapture = (rendererKind: 'skia' | 'threejs-2d', fixture: Fixture): string => resolve(
@@ -164,7 +168,11 @@ const fixtureEntries = report.caseIds.map((id) => {
       32 * baseline.zoom,
       32 * baseline.zoom,
     ),
-    alphaFootprint: playerFootprint(player.source, baseline.zoom),
+    alphaFootprint: playerFootprint(
+      player.source,
+      baseline.zoom,
+      baseline.devicePixelRatio === 1 && baseline.zoom === 1,
+    ),
   };
   const maskPath = `${FIXTURE_OUTPUT}/${id}-mask-v1.json`;
   const manifestPath = `${FIXTURE_OUTPUT}/${id}-v1.json`;
