@@ -770,7 +770,7 @@ export class ThreeWorldRenderer {
       const strokeWidth = 3 / camera.zoom;
       // Skia antialiased this diagonal, so a hard-edged stroke of the same width fills fewer
       // pixels inside the locked mask, dropping its median below the contrast floor.
-      const fringe = 0.5 / camera.zoom;
+      const fringe = 1 / camera.zoom;
       addSoftLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color, fringe);
       addSoftLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color, fringe);
     }
