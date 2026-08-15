@@ -40,7 +40,7 @@ const StateSchema = z.object({
     sprite: z.string().min(1),
     worldX: z.number(),
     worldY: z.number(),
-    source: z.object({ x: z.number(), y: z.number(), width: z.number().positive(), height: z.number().positive() }).strict(),
+    source: z.object({ x: z.number(), y: z.number(), width: z.number().positive(), height: z.number().positive() }).passthrough(),
   }).passthrough()),
   visibleEffectIds: z.array(z.string()),
   fallbackEmitterIds: z.array(z.string()),
