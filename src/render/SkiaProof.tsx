@@ -1,6 +1,6 @@
 import { Canvas, Rect } from '@shopify/react-native-skia';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
 import { GameScreen } from '../application/GameScreen';
 import { getDesktopBridge } from '../application/DesktopBridge';
@@ -45,9 +45,10 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   const devHarnessMode = typeof window !== 'undefined' && (
     window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
   );
+  const windowDimensions = useWindowDimensions();
   const [surface, setSurface] = useState<ViewportSize>(() => responsiveSurface(
-    typeof document === 'undefined' ? 1 : Math.max(1, document.documentElement.clientWidth),
-    typeof document === 'undefined' ? 1 : Math.max(1, document.documentElement.clientHeight),
+    Math.max(1, windowDimensions.width),
+    Math.max(1, windowDimensions.height),
   ).surface);
   const [runtime, setRuntime] = useState('Browser proof');
   const [gameReady, setGameReady] = useState(false);
@@ -56,18 +57,6 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   useEffect(() => {
     if (devHarnessMode) markGameReady();
   }, [devHarnessMode, markGameReady]);
-
-  useEffect(() => {
-    const measureViewport = () => {
-      const next = responsiveSurface(
-        Math.max(1, document.documentElement.clientWidth),
-        Math.max(1, document.documentElement.clientHeight),
-      ).surface;
-      setSurface((current) => current.width === next.width && current.height === next.height ? current : next);
-    };
-    window.addEventListener('resize', measureViewport);
-    return () => window.removeEventListener('resize', measureViewport);
-  }, []);
 
   useEffect(() => {
     if (!gameReady) {
@@ -112,13 +101,19 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
       });
   }, [assetsLoaded, gameReady]);
 
+  const measureSurface = useCallback((event: LayoutChangeEvent) => {
+    const width = Math.max(1, Math.floor(event.nativeEvent.layout.width));
+    const height = Math.max(1, Math.floor(event.nativeEvent.layout.height));
+    setSurface((current) => current.width === width && current.height === height ? current : { width, height });
+  }, []);
+
   return (
     <View style={styles.screen}>
       <Canvas nativeID="active-surface-canvas" style={StyleSheet.flatten([styles.surfaceCanvas, surface])}>
         <Rect color="#17201b" height={surface.height} width={surface.width} x={0} y={0} />
       </Canvas>
       <View style={styles.surfaceFrame}>
-        <View nativeID="active-game-surface" style={styles.surface}>
+        <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
           {devHarnessMode
             ? <DevHarnessScreen surface={surface} />
             : <GameScreen onReady={markGameReady} surface={surface} />}

@@ -142,13 +142,16 @@ async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPa
 }
 
 async function waitForRendererPaint(window: BrowserWindow): Promise<void> {
-  await window.webContents.executeJavaScript(
+  const painted = window.webContents.executeJavaScript(
     `Promise.race([
       new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)))),
-      new Promise((resolve) => setTimeout(() => resolve(false), 250)),
+      new Promise((resolve) => setTimeout(() => resolve(false), 1_000)),
     ])`,
     true,
-  );
+  ) as Promise<boolean>;
+  await window.webContents.capturePage(undefined, { stayHidden: true });
+  await window.webContents.capturePage(undefined, { stayHidden: true });
+  if (!await painted) throw new Error('Hidden renderer did not produce two paint frames.');
 }
 
 async function captureDistinctSmokeScreenshot(
@@ -457,6 +460,7 @@ async function waitForResponsiveEvidence(
   const deadline = Date.now() + timeoutMilliseconds;
   let last: Record<string, unknown> = {};
   while (Date.now() < deadline) {
+    await waitForRendererPaint(window);
     try {
       last = await responsiveEvidence(window);
       if (predicate(last)) return last;
