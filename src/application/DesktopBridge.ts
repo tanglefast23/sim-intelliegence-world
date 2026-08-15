@@ -51,6 +51,8 @@ declare global {
       source: 'fixture';
       target: Readonly<{ x: 23; y: 28 }>;
     }>;
+    siWorldOpenRendererFeedbackFixture?: () => void;
+    siWorldOpenRendererMotionFixture?: (fixture: 'door-transition' | 'walk-east-frame-1') => void;
     siWorldThreeRendererEvidence?: () => ThreeRendererEvidence;
   }
 }

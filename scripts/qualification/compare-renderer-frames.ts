@@ -115,6 +115,20 @@ export const RendererZoomSamplingManifestSchema = z.object({
   }
 });
 
+export const RendererFixtureSetManifestSchema = z.object({
+  schemaVersion: z.literal(1),
+  fixtureSet: z.string().min(1),
+  sourceCommit: z.string().regex(/^[a-f0-9]{40}$/u),
+  mode: z.enum(['parity', 'enhanced']),
+  fixtures: z.array(z.object({
+    id: z.string().min(1),
+    manifest: z.string().min(1),
+  }).strict()).min(1),
+}).strict().superRefine((manifest, context) => {
+  const ids = manifest.fixtures.map(({ id }) => id);
+  if (new Set(ids).size !== ids.length) context.addIssue({ code: 'custom', message: 'Fixture-set IDs must be unique.' });
+});
+
 type Manifest = z.infer<typeof RendererComparisonManifestSchema>;
 type Mask = z.infer<typeof MaskSchema>;
 type ComparisonMode = Manifest['mode'];
@@ -155,6 +169,16 @@ export type RendererZoomSamplingReport = Readonly<{
     savedBoundary: true;
     report: RendererComparisonReport;
   }>[];
+}>;
+
+export type RendererFixtureSetReport = Readonly<{
+  schemaVersion: 1;
+  fixtureSet: string;
+  sourceCommit: string;
+  mode: ComparisonMode;
+  passed: boolean;
+  failures: readonly string[];
+  fixtures: readonly Readonly<{ id: string; report: RendererComparisonReport }>[];
 }>;
 
 const rounded = (value: number): number => Math.round(value * 1_000_000) / 1_000_000;
@@ -385,7 +409,26 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
 export function compareRendererManifest(
   candidate: unknown,
   requestedMode: ComparisonMode,
-): RendererComparisonReport | RendererZoomSamplingReport {
+): RendererComparisonReport | RendererZoomSamplingReport | RendererFixtureSetReport {
+  if (candidate && typeof candidate === 'object' && 'fixtures' in candidate) {
+    const manifest = RendererFixtureSetManifestSchema.parse(candidate);
+    if (requestedMode !== manifest.mode) throw new Error(`Manifest mode ${manifest.mode} does not match ${requestedMode}.`);
+    const fixtures = manifest.fixtures.map(({ id, manifest: path }) => {
+      const report = compareRendererFrames(readJson(path), requestedMode);
+      if (report.fixture !== id) throw new Error(`Fixture-set ID ${id} does not match nested fixture ${report.fixture}.`);
+      if (report.sourceCommit !== manifest.sourceCommit) throw new Error(`Fixture ${id} does not match the fixture-set source commit.`);
+      return { id, report };
+    });
+    return {
+      schemaVersion: 1,
+      fixtureSet: manifest.fixtureSet,
+      sourceCommit: manifest.sourceCommit,
+      mode: manifest.mode,
+      passed: fixtures.every(({ report }) => report.passed),
+      failures: fixtures.flatMap(({ id, report }) => report.failures.map((failure) => `${id}: ${failure}`)),
+      fixtures,
+    };
+  }
   if (!candidate || typeof candidate !== 'object' || !('samples' in candidate)) {
     return compareRendererFrames(candidate, requestedMode);
   }

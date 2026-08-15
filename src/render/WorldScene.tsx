@@ -511,6 +511,75 @@ export function WorldScene({
       });
       return { npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 } };
     };
+    window.siWorldOpenRendererFeedbackFixture = () => {
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setSelected('protagonist');
+      setReactionId(undefined);
+      setDestinationMarker({ x: 22, y: 28 });
+      setDestinationPulseElapsedMs(420);
+      setRuntime((current) => ({
+        movement: { ...current.movement, feedbackTile: { x: 24, y: 28 } },
+        npcMovements: current.npcMovements,
+        worldState: parseWorldState({
+          ...current.worldState,
+          journal: {
+            ...current.worldState.journal,
+            journal_renderer_parity: {
+              id: 'journal_renderer_parity',
+              subject: { kind: 'quest', questId: 'linda_boyfriend_check' },
+              summary: 'Renderer parity marker.',
+              locationPrecision: 'exact',
+              locationId: 'linda_villa',
+              markerVisible: true,
+              source: { type: 'scene_observation', sourceId: 'renderer_parity_fixture' },
+              resolutionState: 'open',
+              outcomeReceipts: [],
+            },
+          },
+        }),
+      }));
+      setCamera((current) => centerCameraOnTile({ x: 23, y: 28 }, current.zoom, surfaceRef.current, MAP_PIXELS));
+    };
+    window.siWorldOpenRendererMotionFixture = (fixture) => {
+      const start = fixture === 'door-transition' ? { x: 17, y: 25 } : { x: 17, y: 23 };
+      const target = fixture === 'door-transition' ? { x: 17, y: 23 } : { x: 20, y: 23 };
+      const fixtureMap = WORLD_MAP_CATALOG.northwest_residential;
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setSelected('protagonist');
+      setDestinationMarker(target);
+      setRuntime((current) => {
+        const worldState = parseWorldState({
+          ...current.worldState,
+          protagonist: {
+            ...current.worldState.protagonist,
+            locationId: 'protagonist_villa',
+            worldPosition: { mapId: 'northwest_residential', tileX: start.x, tileY: start.y },
+          },
+        });
+        let staged: RuntimeViewState = {
+          movement: requestMovement(fixtureMap, createMovementState(start), target),
+          npcMovements: npcMovementState(worldState),
+          worldState,
+        };
+        for (let step = 0; step < 120; step += 1) {
+          staged = advanceMovementFrame(staged, 16, 1, false);
+          const activeDoor = Object.values(doorMotionPhases(staged.movement)).some((phase) => phase === 'opening');
+          const walkingEast = staged.movement.status === 'moving' && staged.movement.direction === 'right' && staged.movement.walkFrame === 1;
+          if ((fixture === 'door-transition' && activeDoor) || (fixture === 'walk-east-frame-1' && walkingEast)) return staged;
+        }
+        throw new Error(`Renderer motion fixture did not reach ${fixture}.`);
+      });
+      setCamera((current) => centerCameraOnTile(
+        fixture === 'door-transition' ? { x: 17, y: 24 } : { x: 18, y: 23 },
+        current.zoom,
+        surfaceRef.current,
+        MAP_PIXELS,
+      ));
+    };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
       const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
@@ -577,6 +646,8 @@ export function WorldScene({
       delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
       delete window.siWorldStartNaturalMovementFixture;
+      delete window.siWorldOpenRendererFeedbackFixture;
+      delete window.siWorldOpenRendererMotionFixture;
     };
   }, []);
 
@@ -1086,6 +1157,25 @@ export function WorldScene({
     () => smokeMode && map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map, smokeMode],
   );
+  const rendererParityEvidence = useMemo(() => smokeMode ? JSON.stringify({
+    camera: worldFrame.camera,
+    viewport: worldFrame.viewport,
+    devicePixelRatio: worldFrame.devicePixelRatio,
+    hiddenRoofGroupId: worldFrame.hiddenRoofGroupId ?? null,
+    characters: worldFrame.characters.filter(({ id }) => ['protagonist', 'linda', 'generic_resident'].includes(id)),
+    doors: worldFrame.doors,
+    doorPhases,
+    movement: {
+      direction: runtime.movement.direction,
+      status: runtime.movement.status,
+      walkFrame: runtime.movement.walkFrame,
+      visualFoot: runtime.movement.visualFoot,
+    },
+    selectionRing: worldFrame.selectionRing,
+    destinationPulse: worldFrame.destinationPulse ?? null,
+    journalMarkers: worldFrame.journalMarkers,
+    failureMarker: worldFrame.failureMarker ?? null,
+  }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
   const selectedScreen = worldToScreen(camera, {
     x: worldFrame.selectionRing.worldX,
     y: worldFrame.selectionRing.worldY,
@@ -1296,33 +1386,7 @@ export function WorldScene({
               strokeWidth={worldFrame.selectionRing.strokeWidth}
             />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
-            {worldFrame.destinationPulse ? (() => {
-              const pulse = worldFrame.destinationPulse;
-              const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
-              const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
-              return <Circle color={`${pulse.color}${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
-            })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
-            {worldFrame.journalMarkers.map((marker) => {
-              const foot = worldToScreen(camera, tileFootPoint(marker.tile));
-              const centerX = foot.x - 10 * camera.zoom;
-              const centerY = foot.y - 30 * camera.zoom;
-              return (
-                <Group key={`journal-marker-${marker.journalEntryId}`}>
-                  <Line color={marker.darkColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
-                  <Line color={marker.lightColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
-                  <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={7 * camera.zoom} />
-                  <Circle color={marker.lightColor} cx={centerX} cy={centerY} r={5 * camera.zoom} />
-                  <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={2 * camera.zoom} />
-                </Group>
-              );
-            })}
-            {feedbackScreen && worldFrame.failureMarker ? (
-              <>
-                <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
-                <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
-              </>
-            ) : null}
             </Canvas>}
             {rendererKind === 'skia' ? shelterCells.map((shelter) => {
               const shelterScreen = worldToScreen(camera, { x: shelter.x * TILE_SIZE, y: shelter.y * TILE_SIZE });
@@ -1346,10 +1410,38 @@ export function WorldScene({
               lighting={worldFrame.lighting}
               surface={surface}
             />
-            {rendererKind === 'skia' ? <AtmosphereOverlay
+            <AtmosphereOverlay
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
-            /> : null}
+            />
+            <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
+              {worldFrame.destinationPulse ? (() => {
+                const pulse = worldFrame.destinationPulse;
+                const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
+                const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
+                return <Circle color={`${pulse.color}${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
+              })() : null}
+              {worldFrame.journalMarkers.map((marker) => {
+                const foot = worldToScreen(camera, tileFootPoint(marker.tile));
+                const centerX = foot.x - 10 * camera.zoom;
+                const centerY = foot.y - 30 * camera.zoom;
+                return (
+                  <Group key={`journal-marker-${marker.journalEntryId}`}>
+                    <Line color={marker.darkColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
+                    <Line color={marker.lightColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
+                    <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={7 * camera.zoom} />
+                    <Circle color={marker.lightColor} cx={centerX} cy={centerY} r={5 * camera.zoom} />
+                    <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={2 * camera.zoom} />
+                  </Group>
+                );
+              })}
+              {feedbackScreen && worldFrame.failureMarker ? (
+                <>
+                  <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
+                  <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
+                </>
+              ) : null}
+            </Canvas>
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}
@@ -1448,6 +1540,14 @@ export function WorldScene({
               }])),
             })}
             nativeID="world-movement-state"
+            pointerEvents="none"
+            style={styles.proofState}
+          />
+        ) : null}
+        {smokeMode ? (
+          <View
+            accessibilityLabel={rendererParityEvidence}
+            nativeID="world-renderer-parity-state"
             pointerEvents="none"
             style={styles.proofState}
           />
@@ -1632,7 +1732,8 @@ const styles = StyleSheet.create({
   },
   canvas: { backgroundColor: '#b77945' },
   buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
-  canvasHost: { overflow: 'hidden' },
+      canvasHost: { overflow: 'hidden' },
+      feedbackCanvas: { left: 0, position: 'absolute', top: 0 },
   frame: { overflow: 'hidden', position: 'relative' },
   loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },

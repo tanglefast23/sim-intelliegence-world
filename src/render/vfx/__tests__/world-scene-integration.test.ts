@@ -24,7 +24,7 @@ describe('WorldScene procedural VFX integration', () => {
 
   test('keeps time in the controller and gives the renderer sampled geometry only', () => {
     expect(scene).toContain('const speed = effectiveSpeed(runtime.worldState.clock);');
-    expect(scene).toContain("const running = vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);");
+    expect(scene).toContain("const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);");
     expect(scene).toContain('advanceAmbientVfxClock');
     expect(scene).toContain('animationTimestampMilliseconds: vfxClock.current.ageMilliseconds');
     expect(scene).toContain('geometries={worldFrame.effects}');

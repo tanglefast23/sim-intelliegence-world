@@ -191,6 +191,24 @@ describe('renderer frame comparison', () => {
     }
   });
 
+  test('aggregates a fixture set through the same parity gate', () => {
+    const fixture = JSON.parse(readFileSync(resolve(
+      'tests/fixtures/rendering/comparator-parity-pass-v1.json',
+    ), 'utf8')) as { sourceCommit: string };
+    const report = compareRendererManifest({
+      schemaVersion: 1,
+      fixtureSet: 'unit-set',
+      sourceCommit: fixture.sourceCommit,
+      mode: 'parity',
+      fixtures: [{
+        id: 'stage-0-parity-pass',
+        manifest: 'tests/fixtures/rendering/comparator-parity-pass-v1.json',
+      }],
+    }, 'parity');
+    expect(report.passed).toBe(true);
+    expect('fixtures' in report && report.fixtures).toHaveLength(1);
+  });
+
   test('runs every saved 0.05 zoom boundary through the comparator tool', () => {
     const fixture = JSON.parse(readFileSync(
       resolve('tests/fixtures/rendering/zoom-sampling-v1.json'),

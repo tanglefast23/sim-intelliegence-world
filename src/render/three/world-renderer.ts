@@ -268,11 +268,18 @@ export type ThreeRendererEvidence = Readonly<{
   webgl2: true;
   toneMapping: 'none';
   explicitSort: true;
+  legacyAtlasParity: boolean;
   drawCalls: number;
   atlasDrawCalls: number;
   textures: 2;
   materials: 3;
   geometries: number;
+  gpu: Readonly<{
+    drawCalls: number;
+    geometries: number;
+    programs: number;
+    textures: number;
+  }>;
   atlasSize: Readonly<{ width: number; height: number }>;
   trianglesByBatch: Readonly<Record<string, number>>;
 }>;
@@ -288,6 +295,7 @@ export class ThreeWorldRenderer {
   readonly #materials: readonly ShaderMaterial[];
   readonly #atlasWidth: number;
   readonly #atlasHeight: number;
+  readonly #matchLegacyAtlas: boolean;
   #latestFrame?: WorldFrameState;
   #presentedFrame?: WorldFrameState;
   #animationFrame = 0;
@@ -302,16 +310,18 @@ export class ThreeWorldRenderer {
     renderer: WebGLRenderer,
     atlasTexture: Texture,
     glowTexture: CanvasTexture,
+    matchLegacyAtlas: boolean,
     private readonly onReady: () => void,
     private readonly onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
   ) {
     this.#renderer = renderer;
     this.#atlasTexture = atlasTexture;
     this.#glowTexture = glowTexture;
+    this.#matchLegacyAtlas = matchLegacyAtlas;
     const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
     this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
-    const atlasMaterial = shaderMaterial(atlasTexture, true);
+    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyAtlas);
     const primitiveMaterial = shaderMaterial();
     const glowMaterial = shaderMaterial(glowTexture);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
@@ -335,6 +345,7 @@ export class ThreeWorldRenderer {
   static async create(
     canvas: HTMLCanvasElement,
     atlasUrl: string,
+    matchLegacyAtlas: boolean,
     onReady: () => void,
     onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
   ): Promise<ThreeWorldRenderer> {
@@ -357,7 +368,7 @@ export class ThreeWorldRenderer {
     atlasTexture.anisotropy = 1;
     atlasTexture.wrapS = ClampToEdgeWrapping;
     atlasTexture.wrapT = ClampToEdgeWrapping;
-    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), onReady, onContextStateChange);
+    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), matchLegacyAtlas, onReady, onContextStateChange);
   }
 
   setFrame(frame: WorldFrameState): void {
@@ -393,12 +404,19 @@ export class ThreeWorldRenderer {
       webgl2: true,
       toneMapping: 'none',
       explicitSort: true,
+      legacyAtlasParity: this.#matchLegacyAtlas,
       drawCalls: COMPOSITE_BATCHES.filter((id) => this.#geometries.get(id)!.drawRange.count > 0).length,
       atlasDrawCalls: ['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']
         .filter((id) => this.#geometries.get(id as BatchId)!.drawRange.count > 0).length,
       textures: 2,
       materials: 3,
       geometries: this.#geometries.size,
+      gpu: {
+        drawCalls: this.#renderer.info.render.calls,
+        geometries: this.#renderer.info.memory.geometries,
+        programs: this.#renderer.info.programs?.length ?? 0,
+        textures: this.#renderer.info.memory.textures,
+      },
       atlasSize: { width: this.#atlasWidth, height: this.#atlasHeight },
       trianglesByBatch: Object.fromEntries(COMPOSITE_BATCHES.map((id) => [id, this.#geometries.get(id)!.drawRange.count / 3])),
     };
@@ -531,44 +549,12 @@ export class ThreeWorldRenderer {
     this.#set('district-shadows', emptyGeometryData());
     this.#set('district-light-pools', emptyGeometryData());
 
-    const atmosphere = emptyGeometryData();
-    const worldWidth = viewport.width / camera.zoom;
-    const worldHeight = viewport.height / camera.zoom;
-    addRect(atmosphere, camera.x, camera.y, worldWidth, worldHeight, frame.atmosphere.wash);
-    addRect(atmosphere, camera.x, camera.y, worldWidth, 16 / camera.zoom, frame.atmosphere.shade, 0.25);
-    addRect(atmosphere, camera.x, camera.y + worldHeight - 22 / camera.zoom, worldWidth, 22 / camera.zoom, frame.atmosphere.shade, 0.34);
-    addRect(atmosphere, camera.x, camera.y, 16 / camera.zoom, worldHeight, frame.atmosphere.shade, 0.18);
-    addRect(atmosphere, camera.x + worldWidth - 16 / camera.zoom, camera.y, 16 / camera.zoom, worldHeight, frame.atmosphere.shade, 0.18);
-    const moteShift = frame.reducedMotion ? 0 : -8 * (0.5 + Math.sin(frame.animationTimestampMilliseconds / 4_200) / 2) / camera.zoom;
-    [[0.18, 0.24], [0.36, 0.64], [0.58, 0.31], [0.74, 0.53], [0.87, 0.18]].forEach(([x, y]) => {
-      addRect(atmosphere, camera.x + worldWidth * x!, camera.y + worldHeight * y! + moteShift, 2 / camera.zoom, 2 / camera.zoom, frame.atmosphere.accent, frame.reducedMotion ? 0.28 : 0.45);
-    });
-    this.#set('atmosphere', atmosphere);
+    // Stage 2 shares the legacy atmosphere overlay so both renderers keep the same composite order.
+    this.#set('atmosphere', emptyGeometryData());
 
-    const destination = emptyGeometryData();
-    if (frame.destinationPulse) addEllipse(destination, frame.destinationPulse.worldX, frame.destinationPulse.worldY, frame.destinationPulse.radius, frame.destinationPulse.radius, frame.destinationPulse.color, frame.destinationPulse.opacity, 1 / camera.zoom);
-    this.#set('destination-pulse', destination);
-
-    const journal = emptyGeometryData();
-    frame.journalMarkers.forEach((marker) => {
-      const footX = marker.tile.x * TILE_SIZE + TILE_SIZE / 2;
-      const footY = marker.tile.y * TILE_SIZE + TILE_SIZE;
-      const centerX = footX - 10;
-      const centerY = footY - 30;
-      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 4, marker.darkColor);
-      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 2, marker.lightColor);
-      addEllipse(journal, centerX, centerY, 7, 7, marker.darkColor);
-      addEllipse(journal, centerX, centerY, 5, 5, marker.lightColor);
-      addEllipse(journal, centerX, centerY, 2, 2, marker.darkColor);
-    });
-    this.#set('journal-markers', journal);
-
-    const failure = emptyGeometryData();
-    if (frame.failureMarker) {
-      const radius = frame.failureMarker.radiusPixels / camera.zoom;
-      addLine(failure, frame.failureMarker.worldX - radius, frame.failureMarker.worldY - radius, frame.failureMarker.worldX + radius, frame.failureMarker.worldY + radius, 3 / camera.zoom, frame.failureMarker.color);
-      addLine(failure, frame.failureMarker.worldX + radius, frame.failureMarker.worldY - radius, frame.failureMarker.worldX - radius, frame.failureMarker.worldY + radius, 3 / camera.zoom, frame.failureMarker.color);
-    }
-    this.#set('failure-marker', failure);
+    // Stage 2 shares these feedback layers above lighting; Stage 3 moves them into the matching GPU batches.
+    this.#set('destination-pulse', emptyGeometryData());
+    this.#set('journal-markers', emptyGeometryData());
+    this.#set('failure-marker', emptyGeometryData());
   }
 }
