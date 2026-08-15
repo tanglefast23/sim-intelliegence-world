@@ -12,9 +12,9 @@ describe('Three.js 2D coordinate contract', () => {
     expect(threeQuadIndices(8)).toEqual([8, 10, 9, 8, 11, 10]);
   });
 
-  test('rounds fractional-DPR drawing buffers outward like the host canvas', () => {
-    expect(threeDrawingBufferSize({ width: 1_411, height: 871 }, 1.25)).toEqual({ width: 1_764, height: 1_089 });
-    expect(threeDrawingBufferSize({ width: 1_571, height: 691 }, 1.5)).toEqual({ width: 2_357, height: 1_037 });
-    expect(threeRasterViewport({ width: 1_411, height: 871 }, 1.25)).toEqual({ width: 1_411.2, height: 871.2 });
+  test('truncates fractional-DPR drawing buffers like the Skia baseline', () => {
+    expect(threeDrawingBufferSize({ width: 1_411, height: 871 }, 1.25)).toEqual({ width: 1_763, height: 1_088 });
+    expect(threeDrawingBufferSize({ width: 1_571, height: 691 }, 1.5)).toEqual({ width: 2_356, height: 1_036 });
+    expect(threeRasterViewport({ width: 1_411, height: 871 }, 1.25)).toEqual({ width: 1_410.4, height: 870.4 });
   });
 });

@@ -2,8 +2,8 @@ import type { CameraState, ViewportSize } from '../camera';
 
 export function threeDrawingBufferSize(viewport: ViewportSize, devicePixelRatio: number): ViewportSize {
   return {
-    width: Math.ceil(viewport.width * devicePixelRatio),
-    height: Math.ceil(viewport.height * devicePixelRatio),
+    width: Math.trunc(viewport.width * devicePixelRatio),
+    height: Math.trunc(viewport.height * devicePixelRatio),
   };
 }
 

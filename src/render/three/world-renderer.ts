@@ -481,8 +481,6 @@ export class ThreeWorldRenderer {
     const drawingBuffer = threeDrawingBufferSize(viewport, frame.devicePixelRatio);
     this.#renderer.setPixelRatio(1);
     this.#renderer.setSize(drawingBuffer.width, drawingBuffer.height, false);
-    this.canvas.style.width = `${drawingBuffer.width / frame.devicePixelRatio}px`;
-    this.canvas.style.height = `${drawingBuffer.height / frame.devicePixelRatio}px`;
     const bounds = threeCameraBounds(camera, threeRasterViewport(viewport, frame.devicePixelRatio));
     this.#camera.left = bounds.left;
     this.#camera.right = bounds.right;

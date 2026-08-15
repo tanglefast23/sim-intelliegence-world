@@ -41,9 +41,6 @@ type FrameState = Readonly<{
 type RendererEvidence = Readonly<{
   drawCalls: number;
   atlasDrawCalls: number;
-  textures: number;
-  materials: number;
-  geometries: number;
   gpu: Readonly<{ drawCalls: number; geometries: number; programs: number; textures: number }>;
 }>;
 type Fixture = Readonly<{
@@ -199,15 +196,6 @@ writeJson('tests/fixtures/rendering/threejs-all-maps-v1.json', {
   fixtures: [...specialized.fixtures, ...fixtureEntries],
 });
 
-const zoomSamplingPath = resolve('tests/fixtures/rendering/zoom-sampling-v1.json');
-const zoomSampling = readFileSync(zoomSamplingPath, 'utf8');
-const updatedZoomSampling = zoomSampling.replace(
-  /"sourceCommit": "[a-f0-9]{40}"/u,
-  `"sourceCommit": "${report.testedCommit}"`,
-);
-if (updatedZoomSampling === zoomSampling) throw new Error('Zoom-sampling source commit was not updated.');
-writeFileSync(zoomSamplingPath, updatedZoomSampling);
-
 const rendererEvidence = report.passes.threejs2d.fixtures.map(({ rendererEvidence: evidence }) => evidence!);
 const maximum = (select: (evidence: RendererEvidence) => number): number => Math.max(...rendererEvidence.map(select));
 writeJson('artifacts/threejs-2d/stage-3/all-map-matrix.json', {
@@ -215,18 +203,19 @@ writeJson('artifacts/threejs-2d/stage-3/all-map-matrix.json', {
   testedCommit: report.testedCommit,
   cases: ALL_MAP_PARITY_CASES,
   coverage: {
-    maps: [...new Set(ALL_MAP_PARITY_CASES.map(({ mapId }) => mapId))],
-    viewports: [...new Set(ALL_MAP_PARITY_CASES.map(({ viewport }) => `${viewport.width}x${viewport.height}`))],
-    devicePixelRatios: [...new Set(ALL_MAP_PARITY_CASES.map(({ devicePixelRatio }) => devicePixelRatio))],
-    fullMapZooms: [...new Set(ALL_MAP_PARITY_CASES.map(({ zoom }) => zoom))],
+    sampledTuples: ALL_MAP_PARITY_CASES.map(({ id: caseId, mapId, viewport, devicePixelRatio, zoom }) => ({
+      id: caseId,
+      mapId,
+      viewport,
+      devicePixelRatio,
+      zoom,
+    })),
+    maximumLoadCaseId: 'maximum-load-2560x1440-dpr2-zoom1',
     specializedFixtures: specialized.fixtures.map(({ id: fixtureId }) => fixtureId),
   },
   maximumResources: {
     drawCalls: maximum(({ drawCalls }) => drawCalls),
     atlasDrawCalls: maximum(({ atlasDrawCalls }) => atlasDrawCalls),
-    textures: maximum(({ textures }) => textures),
-    materials: maximum(({ materials }) => materials),
-    geometries: maximum(({ geometries }) => geometries),
     gpuDrawCalls: maximum(({ gpu }) => gpu.drawCalls),
     gpuTextures: maximum(({ gpu }) => gpu.textures),
     gpuPrograms: maximum(({ gpu }) => gpu.programs),

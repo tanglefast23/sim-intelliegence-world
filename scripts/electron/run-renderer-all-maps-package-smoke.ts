@@ -17,9 +17,6 @@ const RendererEvidenceSchema = z.object({
   explicitSort: z.literal(true),
   drawCalls: z.number().int().nonnegative().max(24),
   atlasDrawCalls: z.number().int().nonnegative().max(12),
-  textures: z.number().int().nonnegative().max(2),
-  materials: z.number().int().nonnegative().max(3),
-  geometries: z.number().int().nonnegative().max(17),
   gpu: z.object({
     drawCalls: z.number().int().nonnegative().max(24),
     geometries: z.number().int().nonnegative().max(17),
