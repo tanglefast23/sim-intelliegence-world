@@ -89,14 +89,16 @@ const ZoomSampleSchema = z.object({
   zoom: z.number().min(1).max(3).multipleOf(0.05),
   inputStep: z.boolean(),
   savedBoundary: z.literal(true),
-  nearestNeighbor: z.literal(true),
-  noAtlasBleed: z.literal(true),
-  baseline: CaptureSchema.optional(),
-  candidate: CaptureSchema.optional(),
 }).strict();
+
+const ZoomCaptureSchema = CaptureSchema.extend({
+  image: z.string().refine((path) => path.includes('{zoom}'), 'Zoom capture image must include {zoom}.'),
+});
 
 export const RendererZoomSamplingManifestSchema = z.object({
   ...ComparisonManifestFields,
+  baseline: ZoomCaptureSchema,
+  candidate: ZoomCaptureSchema,
   mode: z.literal('parity'),
   toneMapping: z.literal('none'),
   samples: z.array(ZoomSampleSchema).length(41),
@@ -151,8 +153,6 @@ export type RendererZoomSamplingReport = Readonly<{
     zoom: number;
     inputStep: boolean;
     savedBoundary: true;
-    nearestNeighbor: true;
-    noAtlasBleed: true;
     report: RendererComparisonReport;
   }>[];
 }>;
@@ -179,10 +179,10 @@ const contrast = (foreground: number, background: number): number => (
 
 function imagePixelsForRect(rectangle: z.infer<typeof RectSchema>, dpr: number, image: PNG): Set<number> {
   const pixels = new Set<number>();
-  const left = Math.max(0, Math.floor(rectangle.x * dpr));
-  const top = Math.max(0, Math.floor(rectangle.y * dpr));
-  const right = Math.min(image.width, Math.ceil((rectangle.x + rectangle.width) * dpr));
-  const bottom = Math.min(image.height, Math.ceil((rectangle.y + rectangle.height) * dpr));
+  const left = Math.max(0, Math.ceil(rectangle.x * dpr - 0.5));
+  const top = Math.max(0, Math.ceil(rectangle.y * dpr - 0.5));
+  const right = Math.min(image.width, Math.ceil((rectangle.x + rectangle.width) * dpr - 0.5));
+  const bottom = Math.min(image.height, Math.ceil((rectangle.y + rectangle.height) * dpr - 0.5));
   for (let y = top; y < bottom; y += 1) {
     for (let x = left; x < right; x += 1) pixels.add(y * image.width + x);
   }
@@ -393,11 +393,15 @@ export function compareRendererManifest(
   if (requestedMode !== manifest.mode) throw new Error(`Manifest mode ${manifest.mode} does not match ${requestedMode}.`);
   const { samples, ...common } = manifest;
   const reports = samples.map((sample) => {
+    const captureAtZoom = (capture: z.infer<typeof ZoomCaptureSchema>) => ({
+      ...capture,
+      image: capture.image.replaceAll('{zoom}', sample.zoom.toFixed(2)),
+    });
     const report = compareRendererFrames({
       ...common,
       zoom: sample.zoom,
-      baseline: sample.baseline ?? common.baseline,
-      candidate: sample.candidate ?? common.candidate,
+      baseline: captureAtZoom(common.baseline),
+      candidate: captureAtZoom(common.candidate),
     }, requestedMode);
     return { ...sample, report };
   });

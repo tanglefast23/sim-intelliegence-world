@@ -1815,7 +1815,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
         ? measuredFrames[measuredFrames.length - 1] - measuredFrames[0]
         : 0;
       const rendererFps = duration > 0 ? ((measuredFrames.length - 1) * 1000) / duration : 0;
-      resolve({ feedbackMilliseconds, rendererFps, timedOut });
+      resolve({ feedbackMilliseconds, rendererFps, sampledFrames: measuredFrames.length, timedOut });
     };
     const timeout = setTimeout(() => finish(true), 30000);
     feedbackObserver = new MutationObserver(recordFeedback);
@@ -1825,7 +1825,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     const frame = (now) => {
       frameTimes.push(now);
       const thinking = recordFeedback();
-      if (feedbackMilliseconds !== null && !thinking) {
+      const measuredFrameCount = feedbackMilliseconds === null
+        ? 0
+        : frameTimes.filter((time) => time >= startedAt + feedbackMilliseconds).length;
+      if (feedbackMilliseconds !== null && !thinking && measuredFrameCount >= 2) {
         finish(false);
         return;
       }
@@ -1835,6 +1838,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   })`, true) as Readonly<{
     feedbackMilliseconds: number | null;
     rendererFps: number;
+    sampledFrames: number;
     timedOut: boolean;
   }>;
   const conversationFeedbackMilliseconds = Math.round((generationMetrics.feedbackMilliseconds ?? 99_999) * 100) / 100;
@@ -1971,6 +1975,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     closedFerry, allNeighborhoods, allTravelAutosaves,
     conversationPause, conversationInputLocked, conversationSocialNavLocked, conversationResponsiveState, promptIdeasContextual, conversationBuffered,
     conversationFeedbackMilliseconds, rendererFpsDuringGeneration,
+    rendererFpsSampledFrames: generationMetrics.sampledFrames,
     conversationFallback, firstFreeTextTurnSource, modelFailureFeedback, audioCaptions, conversationCommitSave,
     structuredInvitation, structuredInvitationSource, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
     questOfferDialogue, questOfferPause, questStarted, questPreparationPreserved, questShortcut,

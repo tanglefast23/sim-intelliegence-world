@@ -13,6 +13,19 @@ describe('VFX-mode performance acceptance', () => {
     });
   });
 
+  test('records a below-floor platform-shell baseline when no FPS gate applies', () => {
+    expect(validateVfxModePerformance(
+      { roundedFps: 12, medianFrameTimeMilliseconds: 10 },
+      { roundedFps: 11, medianFrameTimeMilliseconds: 11 },
+      0,
+    )).toEqual({
+      proceduralToCircleMedianRatio: 1.1,
+      maximumMedianRatio: 1.1,
+      minimumRoundedFps: 0,
+      passed: true,
+    });
+  });
+
   test('rejects a low frame rate, invalid median, or regression above ten percent', () => {
     expect(() => validateVfxModePerformance(
       { roundedFps: 59, medianFrameTimeMilliseconds: 10 },

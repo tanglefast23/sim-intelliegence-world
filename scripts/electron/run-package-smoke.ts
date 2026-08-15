@@ -209,6 +209,9 @@ child.once('close', (code) => {
     worldResult.rendererFpsDuringGeneration,
     process.env.SI_WORLD_SMOKE_PROFILE,
   );
+  if (!Number.isInteger(worldResult.rendererFpsSampledFrames) || Number(worldResult.rendererFpsSampledFrames) < 2) {
+    throw new Error(`Packaged renderer FPS sample is incomplete: ${String(worldResult.rendererFpsSampledFrames)} frames.`);
+  }
   worldResult.rendererFpsEvidence = rendererFpsEvidence;
   if (readFileSync(worldZoomPaths[0]!).equals(readFileSync(worldZoomPaths[2]!))) {
     throw new Error('Packaged 1x and 3x world evidence is identical.');
@@ -262,7 +265,12 @@ child.once('close', (code) => {
         memoryBytes: totalmem(), hostFingerprint: createHash('sha256').update(hostname()).digest('hex'),
       },
       package: { executableName: basename(executable), bundledModelRuntime: process.env.SI_WORLD_MODEL_RESOURCE_DIR ? true : false },
-      measurements: { rendererReadyMilliseconds, nonTextFeedbackMilliseconds: feedbackMilliseconds, rendererFpsDuringGeneration: rendererFps },
+      measurements: {
+        rendererReadyMilliseconds,
+        nonTextFeedbackMilliseconds: feedbackMilliseconds,
+        rendererFpsDuringGeneration: rendererFps,
+        rendererFpsSampledFrames: worldResult.rendererFpsSampledFrames,
+      },
       worldChecks: worldResult,
       thresholds: {
         nonTextFeedback: feedbackMilliseconds <= 100,

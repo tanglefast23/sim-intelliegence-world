@@ -142,6 +142,18 @@ describe('renderer frame comparison', () => {
     expect(compareRendererFrames(manifest(root), 'parity').passed).toBe(true);
   });
 
+  test('assigns fractional-DPR device pixels to one logical mask cell', () => {
+    const baseline = image(join(root, 'baseline.png'), 40, 40);
+    baseline.data[(5 * 40 + 5) * 4] = 220;
+    baseline.data[(5 * 40 + 5) * 4 + 1] = 220;
+    baseline.data[(5 * 40 + 5) * 4 + 2] = 220;
+    writeImage(join(root, 'baseline.png'), baseline);
+    writeImage(join(root, 'candidate.png'), baseline);
+    const value = manifest(root);
+    value.devicePixelRatio = 1.25;
+    expect(compareRendererFrames(value, 'parity').measurements.masks[0]?.baselineVisiblePixels).toBe(1);
+  });
+
   test('enforces channel thresholds inside and outside masks', () => {
     const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
     const maskOffset = (4 * 32 + 4) * 4;
@@ -192,6 +204,29 @@ describe('renderer frame comparison', () => {
       Array.from({ length: 41 }, (_, index) => Math.round((1 + index * 0.05) * 100) / 100),
     );
     expect(samples.every(({ zoom, inputStep }) => inputStep === Number.isInteger(zoom * 10))).toBe(true);
-    expect(samples.every(({ nearestNeighbor, noAtlasBleed }) => nearestNeighbor && noAtlasBleed)).toBe(true);
+    expect(samples.every(({ report }) => report.passed)).toBe(true);
+  });
+
+  test('fails the exact zoom whose candidate capture changes', () => {
+    const fixture = JSON.parse(readFileSync(
+      resolve('tests/fixtures/rendering/zoom-sampling-v1.json'),
+      'utf8',
+    )) as {
+      candidate: { image: string };
+      samples: Array<{ zoom: number }>;
+    };
+    fixture.candidate.image = join(root, '{zoom}-candidate.png');
+    for (const { zoom } of fixture.samples) {
+      writeFileSync(
+        fixture.candidate.image.replace('{zoom}', zoom.toFixed(2)),
+        readFileSync(resolve(
+          'tests/fixtures/rendering',
+          zoom === 1.05 ? 'comparator-parity-changed.png' : 'comparator-identical.png',
+        )),
+      );
+    }
+    const report = compareRendererManifest(fixture, 'parity');
+    expect(report.passed).toBe(false);
+    expect(report.failures.join(' ')).toContain('Zoom 1.05');
   });
 });

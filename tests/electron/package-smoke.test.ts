@@ -235,6 +235,8 @@ describe('packaged Electron smoke evidence', () => {
   });
 
   test('keeps renderer FPS qualification strict while recording hosted shell measurements', () => {
+    const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
+    const runner = readFileSync(join(process.cwd(), 'scripts/electron/run-package-smoke.ts'), 'utf8');
     expect(evaluateRendererFps(60)).toEqual(expect.objectContaining({
       profile: 'qualification', thresholdPassed: true, thresholdRequired: true,
     }));
@@ -242,13 +244,13 @@ describe('packaged Electron smoke evidence', () => {
     expect(evaluateRendererFps(19.99, 'platform-shell')).toEqual(expect.objectContaining({
       measuredFps: 19.99, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
     }));
-    expect(evaluateRendererFps(0, 'platform-shell')).toEqual(expect.objectContaining({
-      measuredFps: 0, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
-    }));
-    expect(() => evaluateRendererFps(0)).toThrow('rounded 60 FPS');
+    expect(() => evaluateRendererFps(0, 'platform-shell')).toThrow('measurement is invalid');
+    expect(() => evaluateRendererFps(0)).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps(-1, 'platform-shell')).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps('unknown', 'platform-shell')).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps(60, 'weakened')).toThrow('Unknown package smoke profile');
+    expect(main).toContain('measuredFrameCount >= 2');
+    expect(runner).toContain('rendererFpsSampledFrames');
   });
 
   test('accepts one complete renderer readiness report', () => {

@@ -27,6 +27,7 @@ describe('procedural VFX package smoke wiring', () => {
     expect(runner).toContain('writeGrayscaleProof');
     expect(runner).toContain('resolveEvidenceSource');
     expect(runner).toContain('validateVfxModePerformance');
+    expect(runner).toContain('qualification ? 60 : 0');
     expect(runner).toContain('SI_WORLD_PROCEDURAL_VFX_SMOKE_RESULT');
   });
 });

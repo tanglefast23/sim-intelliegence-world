@@ -1,5 +1,5 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { PNG } from 'pngjs';
@@ -33,11 +33,21 @@ export function rendererComparatorFixturePngs(): Readonly<Record<string, Buffer>
   enhancedChanged.data[MASK_PIXEL * 4] = 48;
   enhancedChanged.data[MASK_PIXEL * 4 + 1] = 48;
   enhancedChanged.data[MASK_PIXEL * 4 + 2] = 48;
+  const baselineBytes = PNG.sync.write(baseline);
+  const identicalBytes = PNG.sync.write(identical);
+  const zoomFixtures = Object.fromEntries(
+    Array.from({ length: 41 }, (_, index) => (1 + index * 0.05).toFixed(2))
+      .flatMap((zoom) => [
+        [`zoom-sampling/${zoom}-baseline.png`, baselineBytes],
+        [`zoom-sampling/${zoom}-candidate.png`, identicalBytes],
+      ]),
+  );
   return {
-    'comparator-baseline.png': PNG.sync.write(baseline),
-    'comparator-identical.png': PNG.sync.write(identical),
+    'comparator-baseline.png': baselineBytes,
+    'comparator-identical.png': identicalBytes,
     'comparator-parity-changed.png': PNG.sync.write(parityChanged),
     'comparator-enhanced-changed.png': PNG.sync.write(enhancedChanged),
+    ...zoomFixtures,
   };
 }
 
@@ -45,7 +55,9 @@ function main(): void {
   const output = resolve('tests/fixtures/rendering');
   mkdirSync(output, { recursive: true });
   for (const [name, bytes] of Object.entries(rendererComparatorFixturePngs())) {
-    writeFileSync(resolve(output, name), bytes, { flush: true });
+    const destination = resolve(output, name);
+    mkdirSync(dirname(destination), { recursive: true });
+    writeFileSync(destination, bytes, { flush: true });
   }
   process.stdout.write('Renderer comparator PNG fixtures generated.\n');
 }

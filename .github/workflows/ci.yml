@@ -60,6 +60,8 @@ jobs:
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/package
 
       - name: Record ARM64 macOS maximum-load baseline
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
         run: |
           npm run smoke:responsive -- --high-dpi --include-maximum-load --output-root output/verification/ci/macos-arm64/maximum-load
           jq '{ testedCommit, requestedDeviceScaleFactor, maximumLoad }' output/verification/ci/macos-arm64/maximum-load/responsive-report.json
