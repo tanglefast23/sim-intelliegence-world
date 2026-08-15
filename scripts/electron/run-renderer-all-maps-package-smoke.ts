@@ -24,6 +24,24 @@ const RendererEvidenceSchema = z.object({
     textures: z.number().int().nonnegative().max(2),
   }).strict(),
 }).passthrough();
+const AtlasSamplingSchema = z.object({
+  magFilter: z.literal('nearest'),
+  minFilter: z.literal('nearest'),
+  generateMipmaps: z.literal(false),
+  anisotropy: z.literal(1),
+  wrapS: z.literal('clamp-to-edge'),
+  wrapT: z.literal('clamp-to-edge'),
+}).strict();
+const ZoomSamplingSchema = z.object({
+  schemaVersion: z.literal(1),
+  samples: z.array(z.object({
+    zoom: z.number().min(1).max(3).multipleOf(0.05),
+    inputStep: z.boolean(),
+    savedBoundary: z.literal(true),
+    presentedZoom: z.number().min(1).max(3).multipleOf(0.05),
+    atlasSampling: AtlasSamplingSchema,
+  }).strict()).length(41),
+}).strict();
 const StateSchema = z.object({
   mapId: z.string().min(1),
   mapHash: z.string().min(1),
@@ -58,6 +76,7 @@ const PassSchema = z.object({
   rendererKind: z.enum(['skia', 'threejs-2d']),
   devicePixelRatio: z.union([z.literal(1), z.literal(1.25), z.literal(1.5), z.literal(2)]),
   fixtures: z.array(FixtureSchema).min(1),
+  zoomSampling: ZoomSamplingSchema.nullable(),
 }).strict();
 type Pass = z.infer<typeof PassSchema>;
 
@@ -138,13 +157,21 @@ const ordered = (passes: readonly Pass[]) => passes
 
 async function main(): Promise<void> {
   const dprs = [1, 1.25, 1.5, 2] as const;
-  const collect = async (rendererKind: 'skia' | 'threejs-2d'): Promise<ReturnType<typeof ordered>> => {
+  const collect = async (rendererKind: 'skia' | 'threejs-2d'): Promise<Readonly<{
+    fixtures: ReturnType<typeof ordered>;
+    zoomSampling: z.infer<typeof ZoomSamplingSchema> | null;
+  }>> => {
     const passes: Pass[] = [];
     for (const dpr of dprs) passes.push(await run(rendererKind, dpr));
-    return ordered(passes);
+    return {
+      fixtures: ordered(passes),
+      zoomSampling: passes.find(({ zoomSampling }) => zoomSampling !== null)?.zoomSampling ?? null,
+    };
   };
-  const skia = await collect('skia');
-  const three = await collect('threejs-2d');
+  const skiaPass = await collect('skia');
+  const threePass = await collect('threejs-2d');
+  const skia = skiaPass.fixtures;
+  const three = threePass.fixtures;
   const expected = ALL_MAP_PARITY_CASES.map(({ id }) => id);
   if (JSON.stringify(skia.map(({ id }) => id)) !== JSON.stringify(expected) ||
       JSON.stringify(three.map(({ id }) => id)) !== JSON.stringify(expected)) {
@@ -162,6 +189,16 @@ async function main(): Promise<void> {
     if (baseline.rendererEvidence !== null || candidate.rendererEvidence === null) {
       throw new Error(`All-map renderer evidence ownership is invalid for ${entry.id}.`);
     }
+  }
+  if (skiaPass.zoomSampling !== null || threePass.zoomSampling === null) {
+    throw new Error('Only the packaged Three.js DPR 1 pass may own zoom-sampling evidence.');
+  }
+  const expectedZooms = Array.from({ length: 41 }, (_, index) => Math.round((1 + index * 0.05) * 100) / 100);
+  if (JSON.stringify(threePass.zoomSampling.samples.map(({ zoom }) => zoom)) !== JSON.stringify(expectedZooms) ||
+      threePass.zoomSampling.samples.some(({ zoom, inputStep, presentedZoom }) => (
+        zoom !== presentedZoom || inputStep !== Number.isInteger(zoom * 10)
+      ))) {
+    throw new Error('Packaged Three.js zoom sampling did not cover every saved boundary exactly.');
   }
 
   const report = {
@@ -183,6 +220,11 @@ async function main(): Promise<void> {
     encoding: 'utf8',
     flush: true,
   });
+  writeFileSync(join(evidenceRoot, 'zoom-sampling.json'), `${JSON.stringify({
+    ...threePass.zoomSampling,
+    testedCommit: report.testedCommit,
+    evidenceSource: report.evidenceSource,
+  }, null, 2)}\n`, { encoding: 'utf8', flush: true });
   process.stdout.write(`All-map renderer package smoke passed: ${evidenceRoot}\n`);
 }
 

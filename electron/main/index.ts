@@ -985,12 +985,45 @@ async function captureRendererAllMapsSmoke(
     fixtures.push({ ...entry, screenshot, state, rendererEvidence });
   }
 
+  const zoomSampling = smokeRenderer === 'threejs-2d' && devicePixelRatio === 1
+    ? await captureRendererZoomSampling(window)
+    : null;
   return {
     schemaVersion: 1,
     rendererKind: smokeRenderer ?? 'skia',
     devicePixelRatio,
     fixtures,
+    zoomSampling,
   };
+}
+
+async function captureRendererZoomSampling(window: BrowserWindow): Promise<Record<string, unknown>> {
+  await resizeContentAndWait(window, 1_280, 720);
+  const samples: Record<string, unknown>[] = [];
+  for (let index = 0; index <= 40; index += 1) {
+    const zoom = Math.round((1 + index * 0.05) * 100) / 100;
+    await window.webContents.executeJavaScript(`window.siWorldSetRendererTestZoom?.(${zoom})`, true);
+    await waitForRendererParityState(window, (state) => state.camera.zoom === zoom);
+    const deadline = Date.now() + 4_000;
+    let evidence: Record<string, unknown> | null = null;
+    while (Date.now() < deadline) {
+      await waitForRendererPaint(window);
+      evidence = await window.webContents.executeJavaScript(
+        'window.siWorldThreeRendererEvidence?.() ?? null',
+        true,
+      ) as Record<string, unknown> | null;
+      if (evidence?.presentedZoom === zoom) break;
+    }
+    if (evidence?.presentedZoom !== zoom) throw new Error(`Three.js did not present saved zoom ${zoom}.`);
+    samples.push({
+      zoom,
+      inputStep: Number.isInteger(zoom * 10),
+      savedBoundary: true,
+      presentedZoom: evidence.presentedZoom,
+      atlasSampling: evidence.atlasSampling,
+    });
+  }
+  return { schemaVersion: 1, samples };
 }
 
 async function startMovementSmokeSampling(window: BrowserWindow): Promise<void> {

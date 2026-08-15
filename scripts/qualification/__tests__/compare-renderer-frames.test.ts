@@ -179,6 +179,31 @@ describe('renderer frame comparison', () => {
     expect(report.failures.join(' ')).toContain('exceeds 0.005');
   });
 
+  test('uses raster-neutral RGB gates for scaled frames', () => {
+    const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+    const maskOffset = (4 * 32 + 4) * 4;
+    candidate.data[maskOffset] = candidate.data[maskOffset]! - 9;
+    for (let pixel = 10; pixel < 16; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! + 3;
+    writeImage(join(root, 'candidate.png'), candidate);
+    const value = manifest(root);
+    value.zoom = 2;
+    const report = compareRendererFrames(value, 'parity');
+    expect(report.rasterComparison).toBe('scaled');
+    expect(report.passed).toBe(true);
+    expect(report.measurements.meanAbsoluteChannelDelta).toBeGreaterThan(0);
+  });
+
+  test('rejects too many large RGB changes in a scaled frame', () => {
+    const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+    for (let pixel = 10; pixel < 13; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! + 64;
+    writeImage(join(root, 'candidate.png'), candidate);
+    const value = manifest(root);
+    value.zoom = 2;
+    const report = compareRendererFrames(value, 'parity');
+    expect(report.passed).toBe(false);
+    expect(report.failures.join(' ')).toContain('Scaled large changed-pixel ratio');
+  });
+
   test('rejects changed visible coverage', () => {
     const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
     candidate.data[(4 * 32 + 4) * 4 + 3] = 0;
@@ -261,12 +286,16 @@ describe('renderer frame comparison', () => {
     };
     fixture.candidate.image = join(root, '{zoom}-candidate.png');
     for (const { zoom } of fixture.samples) {
+      const source = PNG.sync.read(readFileSync(resolve(
+        'tests/fixtures/rendering',
+        zoom === 1.05 ? 'comparator-parity-changed.png' : 'comparator-identical.png',
+      )));
+      if (zoom === 1.05) {
+        for (let pixel = 10; pixel < 13; pixel += 1) source.data[pixel * 4] = source.data[pixel * 4]! + 64;
+      }
       writeFileSync(
         fixture.candidate.image.replace('{zoom}', zoom.toFixed(2)),
-        readFileSync(resolve(
-          'tests/fixtures/rendering',
-          zoom === 1.05 ? 'comparator-parity-changed.png' : 'comparator-identical.png',
-        )),
+        PNG.sync.write(source),
       );
     }
     const report = compareRendererManifest(fixture, 'parity');

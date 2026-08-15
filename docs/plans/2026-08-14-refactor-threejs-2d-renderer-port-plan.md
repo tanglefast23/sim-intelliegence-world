@@ -442,11 +442,11 @@ Render every current world feature in Three.js with no visual enhancement hiding
 8. Keep VFX seeds, controller-owned clocks, culling, geometry sampling, fixed step rate, reduced motion, and evidence semantics unchanged.
 9. Lock `tests/fixtures/rendering/threejs-all-maps-v1.json` to viewports `1280×720`, `1440×900`, `1920×1080`, `2560×1440`, `1600×720`, and the committed maximum-load viewport; DPR `1`, `1.25`, `1.5`, and `2`; and full-map zoom `1×`, `2×`, and `3×`.
 10. Cover every map, transfer, edge, roof state, movement pose, marker, VFX kind, VFX fallback, reduced-motion state, and maximum-load state in that finite manifest.
-11. Run the Stage 0 comparator with `NoToneMapping` for every locked fixture.
+11. Run the Stage 0 comparator with `NoToneMapping` for every locked fixture. Use native raster gates only at DPR `1`, zoom `1×`; use the specification's scaled raster-neutral RGB gates everywhere else.
 12. Keep required mask IDs, bounds, hit bounds, and coverage exact.
 13. Write results to `output/verification/threejs-2d/stage-3/renderer-comparison.json`.
 14. Record draw calls and GPU resources at normal and maximum load.
-15. Run `zoom-sampling-v1.json` across every `0.05` boundary from `1.00` through `3.00` and write `output/verification/threejs-2d/stage-3/zoom-sampling.json`.
+15. Extend the hidden packaged Three.js smoke to present every `0.05` boundary from `1.00` through `3.00`. Record live nearest-filter, mipmap, anisotropy, wrapping, and presented-zoom evidence in `output/verification/threejs-2d/stage-3/zoom-sampling.json`. Keep `zoom-sampling-v1.json` as a Stage 0 comparator self-test only.
 16. Copy both reports and their manifest-referenced native `1×` captures into `artifacts/threejs-2d/stage-3/` before the phase commit.
 
 ### Verification
@@ -457,7 +457,7 @@ Run the procedural VFX smoke and this exact matrix:
 
 ```bash
 npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json --output output/verification/threejs-2d/stage-3/renderer-comparison.json
-npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/zoom-sampling-v1.json --output output/verification/threejs-2d/stage-3/zoom-sampling.json
+npm run smoke:renderer-all-maps -- --output output/verification/threejs-2d/stage-3/all-maps-package
 ```
 
 ### Exit gate

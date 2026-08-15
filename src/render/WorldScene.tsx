@@ -78,6 +78,7 @@ import {
   type CharacterId,
 } from './atlas';
 import {
+  assertWorldZoom,
   MAX_WORLD_ZOOM,
   MIN_WORLD_ZOOM,
   stepWorldZoom,
@@ -484,6 +485,16 @@ export function WorldScene({
       setDestinationPulseElapsedMs(420);
       setRendererParityPulseFrozen(true);
     };
+    window.siWorldSetRendererTestZoom = (zoom) => {
+      setExplicitWorldZoom(true);
+      setCamera((current) => zoomCameraAt(
+        current,
+        assertWorldZoom(zoom),
+        { x: surfaceRef.current.width / 2, y: surfaceRef.current.height / 2 },
+        surfaceRef.current,
+        MAP_PIXELS,
+      ));
+    };
     window.siWorldSetAuthoredDialogueFixture = (characterId) => {
       setOpenPanel(undefined);
       setConversationFixtureId(undefined);
@@ -659,6 +670,7 @@ export function WorldScene({
       delete window.siWorldOpenRendererFeedbackFixture;
       delete window.siWorldOpenRendererMotionFixture;
       delete window.siWorldFreezeRendererParityFrame;
+      delete window.siWorldSetRendererTestZoom;
     };
   }, []);
 

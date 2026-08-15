@@ -287,6 +287,15 @@ export type ThreeRendererEvidence = Readonly<{
     textures: number;
   }>;
   atlasSize: Readonly<{ width: number; height: number }>;
+  atlasSampling: Readonly<{
+    magFilter: 'nearest';
+    minFilter: 'nearest';
+    generateMipmaps: false;
+    anisotropy: 1;
+    wrapS: 'clamp-to-edge';
+    wrapT: 'clamp-to-edge';
+  }>;
+  presentedZoom: number | null;
   trianglesByBatch: Readonly<Record<string, number>>;
 }>;
 
@@ -413,6 +422,11 @@ export class ThreeWorldRenderer {
   }
 
   evidence(): ThreeRendererEvidence {
+    if (this.#atlasTexture.magFilter !== NearestFilter || this.#atlasTexture.minFilter !== NearestFilter ||
+        this.#atlasTexture.generateMipmaps !== false || this.#atlasTexture.anisotropy !== 1 ||
+        this.#atlasTexture.wrapS !== ClampToEdgeWrapping || this.#atlasTexture.wrapT !== ClampToEdgeWrapping) {
+      throw new Error('Atlas sampling contract changed.');
+    }
     return {
       rendererKind: 'threejs-2d',
       webgl2: true,
@@ -432,6 +446,15 @@ export class ThreeWorldRenderer {
         textures: this.#renderer.info.memory.textures,
       },
       atlasSize: { width: this.#atlasWidth, height: this.#atlasHeight },
+      atlasSampling: {
+        magFilter: 'nearest',
+        minFilter: 'nearest',
+        generateMipmaps: false,
+        anisotropy: 1,
+        wrapS: 'clamp-to-edge',
+        wrapT: 'clamp-to-edge',
+      },
+      presentedZoom: this.#presentedFrame?.camera.zoom ?? null,
       trianglesByBatch: Object.fromEntries(COMPOSITE_BATCHES.map((id) => [id, this.#geometries.get(id)!.drawRange.count / 3])),
     };
   }

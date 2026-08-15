@@ -54,6 +54,7 @@ declare global {
     siWorldOpenRendererFeedbackFixture?: () => void;
     siWorldOpenRendererMotionFixture?: (fixture: 'door-transition' | 'walk-east-frame-1') => void;
     siWorldFreezeRendererParityFrame?: () => void;
+    siWorldSetRendererTestZoom?: (zoom: number) => void;
     siWorldThreeRendererEvidence?: () => ThreeRendererEvidence;
   }
 }

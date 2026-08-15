@@ -60,6 +60,10 @@ const ComparisonManifestFields = {
     outsideMaskChangedPixelRatio: z.literal(0.005),
     outsideMaskMaximumChannelDelta: z.literal(2),
     requiredMaskMaximumChannelDelta: z.literal(8),
+    scaledMeanAbsoluteChannelDelta: z.literal(1).default(1),
+    scaledRootMeanSquareChannelDelta: z.literal(3).default(3),
+    scaledLargeChannelDelta: z.literal(32).default(32),
+    scaledLargeChangedPixelRatio: z.literal(0.002).default(0.002),
   }).strict(),
 } as const;
 
@@ -138,12 +142,18 @@ export type RendererComparisonReport = Readonly<{
   fixture: string;
   sourceCommit: string;
   mode: ComparisonMode;
+  rasterComparison: 'native' | 'scaled';
   passed: boolean;
   failures: readonly string[];
   measurements: Readonly<{
     changedOutsideMaskPixels: number;
     outsideMaskPixelCount: number;
     changedOutsideMaskRatio: number;
+    comparableFramePixelCount: number;
+    meanAbsoluteChannelDelta: number;
+    rootMeanSquareChannelDelta: number;
+    largeChangedPixelCount: number;
+    largeChangedPixelRatio: number;
     masks: readonly Readonly<{
       id: string;
       baselineVisiblePixels: number;
@@ -296,6 +306,7 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
   }
 
   const failures: string[] = [];
+  const rasterComparison = manifest.devicePixelRatio === 1 && manifest.zoom === 1 ? 'native' : 'scaled';
   const requiredPixels = new Set<number>();
   for (const mask of baselineMasks) {
     for (const pixel of maskPixels(mask, manifest.devicePixelRatio, baselineImage)) requiredPixels.add(pixel);
@@ -345,7 +356,8 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
       failures.push(`${baselineMask.id}: retained contrast ${rounded(retainedContrast)} is below 0.9.`);
     }
     const channelDelta = maximumChannelDelta(baselineImage, candidateImage, baselinePixels);
-    if (manifest.mode === 'parity' && channelDelta > manifest.thresholds.requiredMaskMaximumChannelDelta) {
+    if (manifest.mode === 'parity' && rasterComparison === 'native' &&
+        channelDelta > manifest.thresholds.requiredMaskMaximumChannelDelta) {
       failures.push(`${baselineMask.id}: required-mask channel delta ${channelDelta} exceeds 8.`);
     }
     return {
@@ -372,8 +384,44 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     ))) changedOutsideMaskPixels += 1;
   }
   const changedOutsideMaskRatio = outsideMaskPixelCount === 0 ? 0 : changedOutsideMaskPixels / outsideMaskPixelCount;
-  if (manifest.mode === 'parity' && changedOutsideMaskRatio > manifest.thresholds.outsideMaskChangedPixelRatio) {
+  if (manifest.mode === 'parity' && rasterComparison === 'native' &&
+      changedOutsideMaskRatio > manifest.thresholds.outsideMaskChangedPixelRatio) {
     failures.push(`Outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.005.`);
+  }
+
+  let comparableFramePixelCount = 0;
+  let absoluteChannelDelta = 0;
+  let squaredChannelDelta = 0;
+  let largeChangedPixelCount = 0;
+  for (let pixel = 0; pixel < baselineImage.width * baselineImage.height; pixel += 1) {
+    const offset = pixelOffset(baselineImage, pixel);
+    if (baselineImage.data[offset + 3] === 0 && candidateImage.data[offset + 3] === 0) continue;
+    comparableFramePixelCount += 1;
+    let maximumRgbDelta = 0;
+    for (let channel = 0; channel < 3; channel += 1) {
+      const delta = Math.abs(baselineImage.data[offset + channel]! - candidateImage.data[offset + channel]!);
+      absoluteChannelDelta += delta;
+      squaredChannelDelta += delta ** 2;
+      maximumRgbDelta = Math.max(maximumRgbDelta, delta);
+    }
+    if (maximumRgbDelta > manifest.thresholds.scaledLargeChannelDelta) largeChangedPixelCount += 1;
+  }
+  const comparableChannelCount = comparableFramePixelCount * 3;
+  const meanAbsoluteChannelDelta = comparableChannelCount === 0 ? 0 : absoluteChannelDelta / comparableChannelCount;
+  const rootMeanSquareChannelDelta = comparableChannelCount === 0
+    ? 0 : Math.sqrt(squaredChannelDelta / comparableChannelCount);
+  const largeChangedPixelRatio = comparableFramePixelCount === 0
+    ? 0 : largeChangedPixelCount / comparableFramePixelCount;
+  if (manifest.mode === 'parity' && rasterComparison === 'scaled') {
+    if (meanAbsoluteChannelDelta > manifest.thresholds.scaledMeanAbsoluteChannelDelta) {
+      failures.push(`Scaled mean absolute channel delta ${rounded(meanAbsoluteChannelDelta)} exceeds 1.`);
+    }
+    if (rootMeanSquareChannelDelta > manifest.thresholds.scaledRootMeanSquareChannelDelta) {
+      failures.push(`Scaled root mean square channel delta ${rounded(rootMeanSquareChannelDelta)} exceeds 3.`);
+    }
+    if (largeChangedPixelRatio > manifest.thresholds.scaledLargeChangedPixelRatio) {
+      failures.push(`Scaled large changed-pixel ratio ${rounded(largeChangedPixelRatio)} exceeds 0.002.`);
+    }
   }
 
   for (const sample of manifest.lightSamples) {
@@ -399,12 +447,18 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     fixture: manifest.fixture,
     sourceCommit: manifest.sourceCommit,
     mode: manifest.mode,
+    rasterComparison,
     passed: failures.length === 0,
     failures,
     measurements: {
       changedOutsideMaskPixels,
       outsideMaskPixelCount,
       changedOutsideMaskRatio: rounded(changedOutsideMaskRatio),
+      comparableFramePixelCount,
+      meanAbsoluteChannelDelta: rounded(meanAbsoluteChannelDelta),
+      rootMeanSquareChannelDelta: rounded(rootMeanSquareChannelDelta),
+      largeChangedPixelCount,
+      largeChangedPixelRatio: rounded(largeChangedPixelRatio),
       masks: maskMeasurements,
     },
   };

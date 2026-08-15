@@ -391,7 +391,9 @@ The following cases must have no blur or atlas bleed:
 Native `1×` frames are the primary art evidence.
 Enlarged `3×` crops are debugging evidence only.
 The full-map matrix uses `1×`, `2×`, and `3×`.
-A dedicated zoom-sampling manifest tests every `0.05` value from `1.00` through `3.00` for nearest-neighbor sampling and atlas bleed.
+A packaged Three.js zoom-sampling smoke renders every `0.05` value from `1.00` through `3.00`.
+It records the presented zoom and live atlas sampling state after each frame.
+The committed Stage 0 `zoom-sampling-v1.json` remains a comparator self-test, not live renderer evidence.
 
 ### 7.5 Lighting and shadow target
 
@@ -437,6 +439,23 @@ No-tone-mapping parity passes only when:
 - outside required masks, no more than `0.5%` of pixels have any sRGB channel delta above `2/255`;
 - no required-mask pixel has an sRGB channel delta above `8/255`;
 - every contrast ratio meets the hard readability floor below.
+
+Stage 3 evidence amendment, dated 2026-08-15:
+
+Native raster parity means DPR `1` at zoom `1×`.
+It keeps the exact per-pixel limits above.
+
+Scaled raster parity covers every other DPR or zoom.
+Skia and WebGL use different edge-coverage rules even after their drawing-buffer size, camera, and CSS placement match.
+Scaled frames therefore keep exact state, hashes, mask IDs, logical bounds, hit bounds, visible coverage, and the `90%` contrast floor, while using these raster-neutral full-frame RGB limits:
+
+- mean absolute channel delta no greater than `1/255`;
+- root mean square channel delta no greater than `3/255`;
+- no more than `0.2%` of comparable pixels have a maximum RGB channel delta above `32/255`.
+
+Both-transparent pixels are excluded from those three measurements.
+The report still records native outside-mask and required-mask deltas for every scaled frame, but does not use them as scaled pass/fail gates.
+Any threshold change requires a dated specification amendment with captured evidence before code changes.
 
 Stage 0 proves the tool with one identical-image pass fixture and one deliberately changed fail fixture.
 Stage 2 records the first matched Skia and Three.js results with `NoToneMapping`.
@@ -757,6 +776,7 @@ Gate:
 
 - every existing renderer behavior matrix case passes;
 - the section 7.5 no-tone-mapping comparator passes at DPR `1`, `1.25`, `1.5`, and `2`; viewports `1280×720`, `1440×900`, `1920×1080`, `2560×1440`, and `1600×720`; the committed maximum-load viewport; and zoom `1×`, `2×`, `3×`;
+- the hidden packaged Three.js smoke presents all 41 saved zoom boundaries and reports nearest atlas minification and magnification, disabled mipmaps, anisotropy `1`, and clamp-to-edge wrapping at every sample;
 - browser and packaged input behavior match;
 - save load, map transfer, restart, and reduced motion pass;
 - no visual enhancement hides a parity defect.

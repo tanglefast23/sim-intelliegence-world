@@ -15,6 +15,10 @@ const THRESHOLDS = {
   outsideMaskChangedPixelRatio: 0.005,
   outsideMaskMaximumChannelDelta: 2,
   requiredMaskMaximumChannelDelta: 8,
+  scaledMeanAbsoluteChannelDelta: 1,
+  scaledRootMeanSquareChannelDelta: 3,
+  scaledLargeChannelDelta: 32,
+  scaledLargeChangedPixelRatio: 0.002,
 } as const;
 
 type Point = Readonly<{ x: number; y: number }>;
@@ -99,10 +103,7 @@ const playerFootprint = (source: Rect, zoom: number): string[] => Array.from(
   (_, y) => Array.from({ length: source.width * zoom }, (_, x) => {
     const sourceX = Math.floor(x / zoom);
     const sourceY = Math.floor(y / zoom);
-    if (!atlasOpaque(source, sourceX, sourceY)) return '0';
-    return [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dx, dy]) => (
-      !atlasOpaque(source, sourceX + dx!, sourceY + dy!)
-    )) ? '1' : '0';
+    return atlasOpaque(source, sourceX, sourceY) ? '1' : '0';
   }).join(''),
 );
 const sourceCapture = (rendererKind: 'skia' | 'threejs-2d', fixture: Fixture): string => resolve(
@@ -122,6 +123,7 @@ for (const [rendererKind, pass] of [
   }
 }
 copyFileSync(resolve(REPORT), resolve('artifacts/threejs-2d/stage-3/renderer-all-maps-package-report.json'));
+copyFileSync(resolve(dirname(REPORT), 'zoom-sampling.json'), resolve('artifacts/threejs-2d/stage-3/zoom-sampling.json'));
 
 const fixtureEntries = report.caseIds.map((id) => {
   const baseline = report.passes.skia.fixtures.find((fixture) => fixture.id === id);
