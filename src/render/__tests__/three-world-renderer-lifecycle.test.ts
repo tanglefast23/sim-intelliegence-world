@@ -184,7 +184,7 @@ describe('Three.js renderer lifecycle', () => {
     const secondGpu = jest.mocked(WebGLRenderer).mock.results.at(-1)?.value as unknown as { dispose: jest.Mock };
     second.dispose();
     expect(geometryDispose).toHaveBeenCalledTimes(34);
-    expect(materialDispose).toHaveBeenCalledTimes(6);
+    expect(materialDispose).toHaveBeenCalledTimes(8); // 4 materials across two mounts
     expect(textureDispose).toHaveBeenCalledTimes(4);
     expect(firstGpu.dispose).toHaveBeenCalledTimes(1);
     expect(secondGpu.dispose).toHaveBeenCalledTimes(1);
