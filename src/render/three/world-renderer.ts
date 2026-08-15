@@ -134,27 +134,6 @@ function addLine(
   }
 }
 
-/**
- * Stage 5: approximates Skia's antialiased coverage for thin vector strokes.
- *
- * Skia drew feedback markers with antialiasing, so a width-w stroke covered about w pixels fully
- * plus a partial fringe either side. A hard-edged quad covers less, which drops the mask median
- * below its contrast floor. This lays a feathered quad under the core so the fringe is present.
- */
-function addSoftLine(
-  data: GeometryData,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  width: number,
-  color: string,
-  fringe: number,
-): void {
-  addLine(data, x1, y1, x2, y2, width + fringe * 2, color, true);
-  addLine(data, x1, y1, x2, y2, width, color, true);
-}
-
 function addEllipse(
   data: GeometryData,
   centerX: number,
@@ -770,9 +749,8 @@ export class ThreeWorldRenderer {
       const strokeWidth = 3 / camera.zoom;
       // Skia antialiased this diagonal, so a hard-edged stroke of the same width fills fewer
       // pixels inside the locked mask, dropping its median below the contrast floor.
-      const fringe = 1 / camera.zoom;
-      addSoftLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color, fringe);
-      addSoftLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color, fringe);
+      addLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color, true);
+      addLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color, true);
     }
     this.#set('failure-marker', failure);
   }

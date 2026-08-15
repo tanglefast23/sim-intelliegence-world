@@ -114,23 +114,39 @@ edges and `antialias: false`. The mask footprint comes from Skia's geometry, so
 the median inside it is dominated by background unless the stroke covers enough
 of it. Antialiasing covers enough to flip that median; hard edges do not.
 
-Two changes were tried and measured, and BOTH are disproved:
+Five changes were tried and measured. ALL are disproved and reverted:
 
 - round caps on the X: coverage `0.844` to `0.874`, contrast unchanged;
 - removing the legacy P3 matrix from the feedback batches: contrast identical to
-  six decimals, mask delta slightly worse. Reverted.
+  six decimals, mask delta slightly worse;
+- a feathered stroke at half a pixel: coverage `0.874` to `0.889`, contrast fell
+  slightly;
+- widening that feather to a full pixel: every number identical to six decimals,
+  because the extra width lands outside the mask footprint, which only covers
+  distance `1.5` from the centre line;
+- snapping the failure mask to the rendered pixel lattice in the builder: no
+  change, so the centre was already on integer coordinates.
 
-Contrast being identical to six decimals across both is the useful signal. The
-metric is insensitive to stroke colour and end caps, so the gap is stroke
-coverage alone.
+The measured constants across all five are `candidateContrast 1.0151` against a
+baseline of `1.6982`, retention `0.5977`, readable `120` of `135`. Colour is not
+the cause: sampled pixels read `239,91,67` on Skia and `236,91,67` on Three.js.
+The arms are simply thinner, so the median inside the footprint stays on
+background.
+
+The conclusion is that no geometric approximation reaches this. The stroke needs
+real per-pixel coverage, not a wider hard-edged quad.
 
 ## Next step
 
-Give thin feedback primitives antialiased coverage. The smallest version is a
-signed-distance quad for the failure X and the destination ring rather than
-tessellated line and annulus geometry, with the existing primitive shader
-returning a smoothstep alpha. That raises mask coverage to Skia's and lifts the
-median with it.
+Give thin feedback primitives real antialiased coverage in the shader. Add a
+per-vertex signed distance attribute to the line and annulus geometry, and have
+the primitive fragment shader return `smoothstep` alpha across the last half
+pixel. Widening geometry cannot substitute, because extra width falls outside
+the mask footprint while the fringe pixels inside it stay uncovered.
+
+Note that `destination-pulse` and `journal-markers` already pass, at retention
+`1.0000` and `0.9665`, so Three.js feedback rendering is sound in general. Only
+the thin diagonal X is short.
 
 Do NOT relax the contrast floor. The measurement is telling the truth: the
 hard-edged X really is less readable than the antialiased one, and the floor
