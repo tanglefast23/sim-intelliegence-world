@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "stage": 1,
+  "status": "complete",
+  "qualifiedCodeCommit": "cf26a561e83110186c9a756a38261beb736693b4",
+  "evidenceCommit": "40f2cb355c00af74007702b93dd3550982042f55",
+  "mergeCommit": "2ad701b3ce8d7ddcf7286e643f0a41bffcb8afb7",
+  "phaseBaseCommit": "43899e2111d32c7febfcddb006acd20b43566010",
+  "rollbackAuthority": {
+    "kind": "commit-sha",
+    "commit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+    "convenienceTag": "threejs-2d-stage-0-skia-qualified",
+    "stageRevertTarget": "43899e2111d32c7febfcddb006acd20b43566010"
+  },
+  "opusAudit": {
+    "status": "passed-after-fixes",
+    "confirmedFindings": 5,
+    "fixedFindings": 5,
+    "fixes": [
+      "Preserved degraded-emitter fallback evidence across VFX modes.",
+      "Restored circle and reduced-motion VFX clock behavior.",
+      "Locked the complete serialized frame through fixture hashes.",
+      "Added the frame builder to packaged VFX evidence provenance.",
+      "Blocked time and random sources in renderer-neutral files."
+    ]
+  },
+  "verification": {
+    "commands": [
+      { "command": "npm run check:boundaries", "exitCode": 0 },
+      { "command": "npm run typecheck", "exitCode": 0 },
+      { "command": "npm test", "exitCode": 0, "testSuites": 85, "tests": 876 },
+      { "command": "npm run package:mac:arm64", "exitCode": 0 },
+      { "command": "npm run smoke:electron", "exitCode": 0, "rendererFps": 119.96 },
+      { "command": "npm run smoke:natural-movement", "exitCode": 0, "rendererFps": 119.96 },
+      { "command": "npm run smoke:responsive", "exitCode": 0 },
+      { "command": "npm run smoke:procedural-vfx -- --compare-vfx-modes --include-maximum-load --qualification", "exitCode": 0, "minimumRoundedFps": 120 }
+    ],
+    "frameBuild": {
+      "iterations": 1000,
+      "elapsedMilliseconds": 51.172417,
+      "maximumMilliseconds": 1500,
+      "passed": true
+    },
+    "remoteGate": "not-required-for-stage-1"
+  },
+  "containment": {
+    "qualifiedCodeInMerge": true,
+    "evidenceCommitInMerge": true,
+    "rollbackCommitExists": true,
+    "rollbackCommitInIntegrationHistory": true,
+    "integrationWorktreeCleanBeforeCloseout": true,
+    "localPhaseWorktreeAndBranchPruned": true,
+    "remotePhaseBranch": "retained-until-main-contains-phase"
+  }
+}
