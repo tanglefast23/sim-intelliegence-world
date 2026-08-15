@@ -29,6 +29,7 @@ import { VFX_ROLE_COLORS } from '../vfx/types';
 function fakeCanvas(): HTMLCanvasElement {
   const canvas = new EventTarget();
   Object.defineProperty(canvas, 'getContext', { value: () => ({}) });
+  Object.defineProperty(canvas, 'style', { value: {} });
   return canvas as HTMLCanvasElement;
 }
 
@@ -83,7 +84,20 @@ function frameWithEffects(rectCount: number, fallbackCount: number): WorldFrameS
       worldY: 0,
       color: '#ffffff',
     })),
+    journalMarkers: [],
   } as unknown as WorldFrameState;
+}
+
+function frameWithFeedback(): WorldFrameState {
+  return {
+    ...frameWithEffects(0, 0),
+    destinationPulse: { id: 'destination-pulse', worldX: 40, worldY: 40, opacity: 0.8, radius: 8, color: '#ffffff' },
+    journalMarkers: [{
+      journalEntryId: 'entry', locationId: 'location', tile: { x: 2, y: 2 },
+      darkColor: '#111111', lightColor: '#ffffff',
+    }],
+    failureMarker: { id: 'failure-marker', worldX: 80, worldY: 80, radiusPixels: 7, color: '#ff0000' },
+  };
 }
 
 function installAnimationFrameQueue(): Readonly<{ callbacks: FrameRequestCallback[]; restore: () => void }> {
@@ -179,6 +193,28 @@ describe('Three.js renderer lifecycle', () => {
       animation.callbacks.shift()!(16);
       expect(states).toEqual([]);
       expect(gpuRenderer.render).toHaveBeenCalledTimes(2);
+      renderer.dispose();
+    } finally {
+      animation.restore();
+    }
+  });
+
+  // Stage 3 keeps feedback in the shared above-lighting overlay. District lighting and atmosphere are
+  // still React siblings mounted above the Three.js canvas, so feedback drawn here would composite
+  // below them. Stage 4 task 7 removes those overlays from the Three.js path, and Stage 4 task 6 then
+  // draws feedback after all lighting batches. This test locks the Stage 3 contract so that move is
+  // deliberate rather than accidental.
+  test('leaves every above-lighting feedback batch to the shared overlay', async () => {
+    const animation = installAnimationFrameQueue();
+    try {
+      const renderer = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', true, jest.fn(), jest.fn());
+      renderer.setFrame(frameWithFeedback());
+      renderer.start();
+      animation.callbacks.shift()!(0);
+      const triangles = renderer.evidence().trianglesByBatch;
+      expect(triangles['destination-pulse']).toBe(0);
+      expect(triangles['journal-markers']).toBe(0);
+      expect(triangles['failure-marker']).toBe(0);
       renderer.dispose();
     } finally {
       animation.restore();

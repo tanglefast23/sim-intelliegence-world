@@ -8,6 +8,7 @@ import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-st
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { CHARACTER_IDS } from '../../src/render/atlas';
 import { coalescedResizeDelay, responsiveSurface } from '../../src/render/responsive-layout';
+import { ALL_MAP_PARITY_CASES } from '../../src/render/three/all-map-parity';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
 import { FileVerbalMissionContentStore } from '../conversation/file-verbal-mission-content-store';
@@ -40,6 +41,7 @@ const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
 const webgl2ProbeMode = process.env.SI_WORLD_WEBGL2_PROBE === '1';
 const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE === '1';
 const rendererParitySmokeMode = process.env.SI_WORLD_RENDERER_PARITY_SMOKE === '1';
+const rendererAllMapsSmokeMode = process.env.SI_WORLD_RENDERER_ALL_MAPS_SMOKE === '1';
 const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED === '1';
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
@@ -128,9 +130,10 @@ async function captureSmokeScreenshot(
   window: BrowserWindow,
   screenshotPath: string,
   deadlineMilliseconds?: number,
+  rect?: Readonly<{ x: number; y: number; width: number; height: number }>,
 ): Promise<Buffer> {
   const image = await captureNonEmptySmokeFrame(
-    () => window.webContents.capturePage(undefined, { stayHidden: true }),
+    () => window.webContents.capturePage(rect, { stayHidden: true }),
     waitForSmokeRetry,
     { deadlineMilliseconds },
   );
@@ -806,6 +809,10 @@ async function waitForMovementSmokeState(
 }
 
 type RendererParityState = Readonly<{
+  mapId: string;
+  mapHash: string;
+  presentationHash: string;
+  atlasHash: string;
   camera: Readonly<{ x: number; y: number; zoom: number }>;
   viewport: Readonly<{ width: number; height: number }>;
   devicePixelRatio: number;
@@ -818,6 +825,8 @@ type RendererParityState = Readonly<{
   destinationPulse: Record<string, unknown> | null;
   journalMarkers: readonly Record<string, unknown>[];
   failureMarker: Record<string, unknown> | null;
+  visibleEffectIds: readonly string[];
+  fallbackEmitterIds: readonly string[];
 }>;
 
 async function rendererParityState(window: BrowserWindow): Promise<RendererParityState> {
@@ -933,6 +942,118 @@ async function captureRendererParitySmoke(
     fixtures,
     contextLifecycle,
   };
+}
+
+async function captureRendererAllMapsSmoke(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await mkdir(directory, { recursive: true });
+  const devicePixelRatio = await window.webContents.executeJavaScript('window.devicePixelRatio', true) as number;
+  // Stage 3 amendment 2026-08-15: each packaged window owns one DPR and one VFX mode.
+  const vfxMode = smokeVfxMode === 'circle' ? 'circle' : 'procedural';
+  const cases = ALL_MAP_PARITY_CASES.filter((entry) => (
+    entry.devicePixelRatio === devicePixelRatio && entry.vfxMode === vfxMode
+  ));
+  if (cases.length === 0) {
+    throw new Error(`No all-map parity cases are locked for DPR ${devicePixelRatio} in ${vfxMode} mode.`);
+  }
+  if (parseWorldStateLabel(await worldStateLabel(window)).speed !== 0) await clickAriaButton(window, 'Pause time');
+
+  const fixtures: Record<string, unknown>[] = [];
+  for (const entry of cases) {
+    await resizeContentAndWait(window, entry.viewport.width, entry.viewport.height);
+    await clickZoomButton(window, entry.zoom);
+    await window.webContents.executeJavaScript(
+      `window.siWorldOpenVfxFixture?.(${JSON.stringify(entry.mapId)}, ${JSON.stringify(entry.effectId)})`,
+      true,
+    );
+    await waitForVfxEvidence(window, (candidate) => (
+      candidate.mapId === entry.mapId &&
+      Array.isArray(candidate.visibleEmitterIds) &&
+      candidate.visibleEmitterIds.includes(entry.effectId)
+    ));
+    await window.webContents.executeJavaScript('window.siWorldFreezeRendererParityFrame?.()', true);
+    const state = await waitForRendererParityState(window, (candidate) => (
+      candidate.mapId === entry.mapId &&
+      candidate.camera.zoom === entry.zoom &&
+      candidate.devicePixelRatio === entry.devicePixelRatio
+    ));
+    await waitForRendererPaint(window);
+    await waitForRendererPaint(window);
+    const screenshot = `${entry.id}-${smokeRenderer ?? 'skia'}.png`;
+    await captureSmokeScreenshot(window, join(directory, screenshot));
+    const rendererEvidence = smokeRenderer === 'threejs-2d'
+      ? await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.() ?? null', true) as Record<string, unknown> | null
+      : null;
+    if (smokeRenderer === 'threejs-2d' && !rendererEvidence) {
+      throw new Error(`Three.js renderer evidence is missing for ${entry.id}.`);
+    }
+    fixtures.push({ ...entry, screenshot, state, rendererEvidence });
+  }
+
+  const zoomSampling = devicePixelRatio === 1 && vfxMode === 'procedural'
+    ? await captureRendererZoomSampling(window, join(directory, 'zoom'))
+    : null;
+  return {
+    schemaVersion: 1,
+    rendererKind: smokeRenderer ?? 'skia',
+    devicePixelRatio,
+    vfxMode,
+    fixtures,
+    zoomSampling,
+  };
+}
+
+/**
+ * Stage 3 amendment 2026-08-15: every saved zoom now yields a rendered crop as well as
+ * presentation evidence, so the report can prove pixels instead of texture settings alone.
+ * The crop rect is fixed and identical for both renderers.
+ */
+const ZOOM_SAMPLING_CROP = Object.freeze({ x: 560, y: 280, width: 160, height: 160 });
+
+async function captureRendererZoomSampling(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await resizeContentAndWait(window, 1_280, 720);
+  await mkdir(directory, { recursive: true });
+  // Center the camera so the fixed crop holds the player for both renderers.
+  sendKey(window, 'F');
+  await waitForRendererPaint(window);
+  const samples: Record<string, unknown>[] = [];
+  for (let index = 0; index <= 40; index += 1) {
+    const zoom = Math.round((1 + index * 0.05) * 100) / 100;
+    await window.webContents.executeJavaScript(`window.siWorldSetRendererTestZoom?.(${zoom})`, true);
+    await waitForRendererParityState(window, (state) => state.camera.zoom === zoom);
+    const deadline = Date.now() + 4_000;
+    let evidence: Record<string, unknown> | null = null;
+    while (Date.now() < deadline) {
+      await waitForRendererPaint(window);
+      evidence = await window.webContents.executeJavaScript(
+        'window.siWorldThreeRendererEvidence?.() ?? null',
+        true,
+      ) as Record<string, unknown> | null;
+      if (smokeRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
+    }
+    if (smokeRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
+      throw new Error(`Three.js did not present saved zoom ${zoom}.`);
+    }
+    const crop = `zoom-${zoom.toFixed(2)}-${smokeRenderer ?? 'skia'}.png`;
+    await waitForRendererPaint(window);
+    await captureSmokeScreenshot(window, join(directory, crop), undefined, ZOOM_SAMPLING_CROP);
+    samples.push({
+      zoom,
+      inputStep: Number.isInteger(zoom * 10),
+      savedBoundary: true,
+      crop,
+      ...(smokeRenderer === 'threejs-2d' && evidence ? {
+        presentedZoom: evidence.presentedZoom,
+        atlasSampling: evidence.atlasSampling,
+      } : {}),
+    });
+  }
+  return { schemaVersion: 1, crop: ZOOM_SAMPLING_CROP, samples };
 }
 
 async function startMovementSmokeSampling(window: BrowserWindow): Promise<void> {
@@ -2218,6 +2339,13 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     }
     const vfxResult = await captureProceduralVfxSmoke(window, vfxDirectory);
     process.stdout.write(`SI_WORLD_PROCEDURAL_VFX_SMOKE_RESULT ${JSON.stringify(vfxResult)}\n`);
+  } else if (rendererAllMapsSmokeMode) {
+    const parityDirectory = process.env.SI_WORLD_RENDERER_PARITY_SCREENSHOT_DIR;
+    if (!parityDirectory || !isAbsolute(parityDirectory)) {
+      throw new Error('All-map renderer smoke screenshot directory must be absolute.');
+    }
+    const parityResult = await captureRendererAllMapsSmoke(window, parityDirectory);
+    process.stdout.write(`SI_WORLD_RENDERER_ALL_MAPS_SMOKE_RESULT ${JSON.stringify(parityResult)}\n`);
   } else if (rendererParitySmokeMode) {
     const parityDirectory = process.env.SI_WORLD_RENDERER_PARITY_SCREENSHOT_DIR;
     if (!parityDirectory || !isAbsolute(parityDirectory)) {

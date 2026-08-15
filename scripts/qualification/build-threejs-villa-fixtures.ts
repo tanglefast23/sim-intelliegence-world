@@ -3,9 +3,22 @@ import { dirname, resolve } from 'node:path';
 
 import { PNG } from 'pngjs';
 
-const REPORT = 'output/verification/threejs-2d/stage-2/parity-package/renderer-parity-package-report.json';
-const CAPTURE_OUTPUT = 'artifacts/threejs-2d/stage-2/captures';
-const FIXTURE_OUTPUT = 'tests/fixtures/rendering/threejs-villa';
+const stageIndex = process.argv.indexOf('--stage');
+const stageArgument = stageIndex === -1 ? '2' : process.argv[stageIndex + 1];
+if (stageArgument !== '2' && stageArgument !== '3') throw new Error('--stage must be 2 or 3.');
+const stage = Number(stageArgument);
+const REPORT = stage === 2
+  ? 'output/verification/threejs-2d/stage-2/parity-package/renderer-parity-package-report.json'
+  : 'output/verification/threejs-2d/stage-3/specialized-package/renderer-parity-package-report.json';
+const CAPTURE_OUTPUT = stage === 2
+  ? 'artifacts/threejs-2d/stage-2/captures'
+  : 'artifacts/threejs-2d/stage-3/captures/specialized';
+const FIXTURE_OUTPUT = stage === 2
+  ? 'tests/fixtures/rendering/threejs-villa'
+  : 'tests/fixtures/rendering/threejs-stage-3-specialized';
+const FIXTURE_SET_OUTPUT = stage === 2
+  ? 'tests/fixtures/rendering/threejs-villa-v1.json'
+  : 'tests/fixtures/rendering/threejs-stage-3-specialized-v1.json';
 const THRESHOLDS = {
   backgroundRingLogicalPixels: 2,
   contrastRetention: 0.9,
@@ -198,8 +211,9 @@ const pulseMask = (state: FrameState, kind: 'route' | 'destination'): Mask => {
       ? `route:${state.movement.status}:${state.movement.direction}:${state.movement.walkFrame}:${pulse.worldX},${pulse.worldY}`
       : `destination:${pulse.worldX},${pulse.worldY}:${pulse.radius}`,
     worldCenter,
-    pulse.radius,
-    pulse.radius,
+    // Skia draws the ring at `radius * zoom` screen pixels with a `zoom` stroke.
+    pulse.radius * state.camera.zoom,
+    pulse.radius * state.camera.zoom,
     state.camera.zoom,
     tileHitBounds(state, worldCenter),
   );
@@ -237,12 +251,15 @@ const selectionMask = (state: FrameState): Mask => {
 const journalMask = (state: FrameState): Mask => {
   const marker = state.journalMarkers[0];
   if (!marker) throw new Error('Journal fixture is missing its marker.');
-  const worldFoot = { x: marker.tile.x * 32 + 16, y: marker.tile.y * 32 + 32 };
+  // Skia scales every journal-pin offset and radius by zoom, so the mask does too.
+  const zoom = state.camera.zoom;
+  // Both renderers place the pin from tileFootPoint, which is +29, not the tile bottom at +32.
+  const worldFoot = { x: marker.tile.x * 32 + 16, y: marker.tile.y * 32 + 29 };
   const foot = screen(state, worldFoot);
-  const center = { x: foot.x - 10, y: foot.y - 30 };
-  const start = { x: center.x, y: center.y + 4 };
-  const end = { x: foot.x - 4, y: foot.y - 5 };
-  const logicalBounds = integerRect(center.x - 8, center.y - 8, 17, 36);
+  const center = { x: foot.x - 10 * zoom, y: foot.y - 30 * zoom };
+  const start = { x: center.x, y: center.y + 4 * zoom };
+  const end = { x: foot.x - 4 * zoom, y: foot.y - 5 * zoom };
+  const logicalBounds = integerRect(center.x - 8 * zoom, center.y - 8 * zoom, 17 * zoom, 36 * zoom);
   return {
     id: `journal-${marker.journalEntryId}`,
     kind: 'journal',
@@ -250,8 +267,8 @@ const journalMask = (state: FrameState): Mask => {
     logicalBounds,
     hitBounds: tileHitBounds(state, worldFoot),
     alphaFootprint: raster(logicalBounds, (point) => (
-      Math.hypot(point.x - center.x, point.y - center.y) <= 7 ||
-      distanceToSegment(point, start, end) <= 2
+      Math.hypot(point.x - center.x, point.y - center.y) <= 7 * zoom ||
+      distanceToSegment(point, start, end) <= 2 * zoom
     )),
   };
 };
@@ -300,7 +317,7 @@ const masksFor = (entry: Fixture): readonly Mask[] => {
   }
   if (entry.id === 'villa-walk-east-frame-1') return [pulseMask(state, 'route')];
   if (entry.id === 'villa-selected-npc') return [selectionMask(state)];
-  if (entry.id === 'villa-destination-journal-failure') {
+  if (entry.id.startsWith('villa-destination-journal-failure')) {
     return [pulseMask(state, 'destination'), journalMask(state), failureMask(state)];
   }
   throw new Error(`No mask contract for ${entry.id}.`);
@@ -315,7 +332,7 @@ for (const pass of passes) {
     );
   }
 }
-copyFileSync(resolve(REPORT), resolve('artifacts/threejs-2d/stage-2/renderer-parity-package-report.json'));
+copyFileSync(resolve(REPORT), resolve(`artifacts/threejs-2d/stage-${stage}/renderer-parity-specialized-package-report.json`));
 
 const fixtureEntries = report.fixtureIds.map((id) => {
   const entry = fixture(id);
@@ -363,9 +380,9 @@ const fixtureEntries = report.fixtureIds.map((id) => {
   return { id, manifest: manifestPath };
 });
 
-writeJson('tests/fixtures/rendering/threejs-villa-v1.json', {
+writeJson(FIXTURE_SET_OUTPUT, {
   schemaVersion: 1,
-  fixtureSet: 'threejs-villa-stage-2',
+  fixtureSet: stage === 2 ? 'threejs-villa-stage-2' : 'threejs-specialized-stage-3',
   sourceCommit: report.testedCommit,
   mode: 'parity',
   fixtures: fixtureEntries,

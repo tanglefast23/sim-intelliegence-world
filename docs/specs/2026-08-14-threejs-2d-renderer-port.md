@@ -391,7 +391,9 @@ The following cases must have no blur or atlas bleed:
 Native `1×` frames are the primary art evidence.
 Enlarged `3×` crops are debugging evidence only.
 The full-map matrix uses `1×`, `2×`, and `3×`.
-A dedicated zoom-sampling manifest tests every `0.05` value from `1.00` through `3.00` for nearest-neighbor sampling and atlas bleed.
+A packaged Three.js zoom-sampling smoke renders every `0.05` value from `1.00` through `3.00`.
+It records the presented zoom and live atlas sampling state after each frame.
+The committed Stage 0 `zoom-sampling-v1.json` remains a comparator self-test, not live renderer evidence.
 
 ### 7.5 Lighting and shadow target
 
@@ -438,6 +440,120 @@ No-tone-mapping parity passes only when:
 - no required-mask pixel has an sRGB channel delta above `8/255`;
 - every contrast ratio meets the hard readability floor below.
 
+Stage 3 evidence amendment, dated 2026-08-15:
+
+Native raster parity means DPR `1` at zoom `1×`.
+It keeps the exact per-pixel limits above.
+
+Scaled raster parity covers every other DPR or zoom.
+Skia and WebGL use different edge-coverage rules even after their drawing-buffer size, camera, and CSS placement match.
+Scaled frames therefore keep exact state, hashes, mask IDs, logical bounds, hit bounds, visible coverage, and the `90%` contrast floor, while using these raster-neutral full-frame RGB limits:
+
+- mean absolute channel delta no greater than `1/255`;
+- root mean square channel delta no greater than `3/255`;
+- no more than `0.2%` of comparable pixels have a maximum RGB channel delta above `32/255`.
+
+Both-transparent pixels are excluded from those three measurements.
+Native player and active-door readability masks keep the Stage 2 atlas-silhouette footprint.
+Scaled player masks use the full opaque atlas footprint so enlarged interiors contribute to the `90%` contrast check.
+The report still records native outside-mask and required-mask deltas for every scaled frame, but does not use them as scaled pass/fail gates.
+Any threshold change requires a dated specification amendment with captured evidence before code changes.
+
+Stage 3 audit amendment, dated 2026-08-15:
+
+The final Stage 3 Opus audit found four measurement defects and one ownership defect.
+This amendment defines their replacements before the comparator changes.
+
+**Three.js feedback ownership stays a Stage 4 move.**
+
+The ownership finding asked Stage 3 to draw destination, journal, and failure feedback
+from Three.js instead of the shared Skia overlay.
+A Stage 3 Fable audit proved that move breaks the locked composite order.
+`DistrictLightingOverlay` and `AtmosphereOverlay` are React siblings mounted after the
+Three.js canvas, and no sibling sets a stacking order, so DOM order is paint order.
+Feedback drawn inside the Three.js canvas therefore composites BELOW lighting and
+atmosphere, while the Skia overlay composites above them.
+That inverts the order this specification locks and would diverge under any non-neutral
+lighting.
+
+Stage 3 therefore keeps feedback in the shared above-lighting overlay.
+Stage 4 already owns the correct sequence: task 7 stops mounting the three React overlays
+on the Three.js path, and task 6 then draws feedback after all lighting and atmosphere
+batches. Feedback ownership moves there, with the same zoom `1`, `2`, and `3` geometry
+check.
+
+While that move is pending, the three Stage 3 feedback masks — `destination-pulse`,
+`journal-*`, and `failure-marker` — are drawn by the same shared Skia overlay on both
+sides. They therefore prove that feedback still renders, not that Three.js renders it.
+Stage 3 records that limit here rather than in the fixture schema, and Stage 4 makes
+those masks renderer-discriminating.
+
+**Scaled parity gains bounded mask-local limits.**
+
+The full-frame raster-neutral limits above stay unchanged.
+They are a frame average, so a small mask can drift far while the frame still passes.
+The native `8/255` per-pixel maximum stays forbidden for scaled frames, because measured Skia and WebGL edge coverage makes it invalid.
+Scaled frames therefore add these bounded limits, measured over required-mask pixels only:
+
+- mask mean absolute RGB channel delta no greater than `10/255`;
+- mask RGB root mean square channel delta no greater than `20/255`;
+- no more than `12%` of mask pixels have a maximum RGB channel delta above `32/255`.
+
+Scaled frames also gain one outside-mask ceiling:
+
+- no more than `12%` of outside-mask pixels have any channel delta above `2/255`.
+
+The measured maxima from the passing Stage 3 captures were `8.4167`, `17.4373`, `0.10442`, and `0.10372`.
+Each ceiling therefore keeps evidence margin above the observed worst case.
+Native DPR `1`, zoom `1×` gates stay exactly as written above.
+
+**Saved-zoom evidence must compare rendered images.**
+
+The Stage 3 zoom report recorded presented zoom and atlas texture settings only.
+Those prove frame presentation and sampling state, not rendered pixels.
+Zoom sampling therefore runs for both Skia and Three.js at DPR `1`.
+At every value from `1.00` through `3.00` in `0.05` steps, both renderers capture the same fixed player crop from the hidden packaged window.
+The main-process crop geometry is identical between renderers.
+The runner decodes the paired PNG crops and measures them with the exported comparator RGB helper.
+It records per-zoom mean absolute RGB delta, RMSE, and ratio above delta `32`, and fails any zoom above the approved native or scaled metric.
+
+Zoom-crop limits are whole-crop averages and are NOT the mask-local ceilings above.
+The player sprite covers a small share of a `160×160` crop, so mask-local ceilings would let a badly wrong sprite pass.
+Zoom `1` at DPR `1` is a native raster comparison and keeps the native limits `1`, `3`, and `0.002`.
+Every other saved zoom uses crop limits derived from the observed crop maxima with margin:
+
+- mean absolute RGB channel delta no greater than `3/255`, against an observed `1.85`;
+- RGB root mean square channel delta no greater than `12/255`, against an observed `7.86`;
+- no more than `4%` of crop pixels above delta `32`, against an observed `0.0204`.
+
+Raw zoom crops stay in ignored `output/` scratch space.
+The measured report is committed.
+
+**Visible coverage becomes content-derived readable coverage.**
+
+Visible coverage counted non-transparent canvas pixels.
+Every packaged screenshot is opaque, so that count could never fall and proved nothing about sprite presence.
+Readable coverage replaces it and uses the existing two-logical-pixel ring median.
+A mask pixel is readable when its local contrast against that ring median is at least `1.02`.
+
+- Native frames keep the exact readable-pixel set and count.
+- Scaled frames keep at least `95%` of baseline readable coverage.
+
+The measured scaled minimum retention was about `0.9861`, so `95%` keeps evidence margin.
+The existing `1.05` minimum baseline median contrast and `90%` contrast-retention rules stay unchanged.
+The report records baseline readable pixels, candidate readable pixels, and retention.
+
+**The finite parity manifest gains a fallback-rendering case.**
+
+The procedural-VFX package report covers fallback behavior separately.
+The Stage 3 parity fixture set never exercised the Three.js fallback-circle batch.
+Locked all-map cases therefore carry `vfxMode: 'procedural' | 'circle'`.
+One DPR `1` circle-mode case uses the known visible `patio-fire` effect.
+The all-map package runner launches only the required DPR and mode combinations.
+Renderer parity state gains `fallbackEffectIds` from `worldFrame.fallbackEffects`, and the fallback case asserts its locked effect is present.
+Both renderers capture that case and it joins the committed fixture set.
+The procedural cases stay unchanged.
+
 Stage 0 proves the tool with one identical-image pass fixture and one deliberately changed fail fixture.
 Stage 2 records the first matched Skia and Three.js results with `NoToneMapping`.
 ACES is forbidden until no-tone-mapping parity passes.
@@ -453,7 +569,7 @@ The hard readability floor is:
 
 Codex is the autonomous visual decider under the user's direction.
 It inspects the decoded native `1×` captures and the manifest.
-The stage-specific Opus audit reviews the manifest, implementation, and evidence contract.
+The stage-specific Fable audit reviews the manifest, implementation, and evidence contract.
 If any locked threshold regresses, the stage fails and must be fixed or rolled back without asking the user to intervene.
 
 ### 7.6 Effects
@@ -673,7 +789,7 @@ The final packaged app must pass with the tighter CSP.
 Every implementation stage ends with the same closeout:
 
 1. run its named verification;
-2. ask Claude Opus 5 for a read-only audit of that stage only;
+2. ask Claude Fable 5 for a read-only audit of that stage only;
 3. verify each finding locally and fix confirmed defects;
 4. rerun the affected verification;
 5. commit the stage, merge it into the integration branch, and prune its branch only after Git proves containment and a clean state.
@@ -757,6 +873,7 @@ Gate:
 
 - every existing renderer behavior matrix case passes;
 - the section 7.5 no-tone-mapping comparator passes at DPR `1`, `1.25`, `1.5`, and `2`; viewports `1280×720`, `1440×900`, `1920×1080`, `2560×1440`, and `1600×720`; the committed maximum-load viewport; and zoom `1×`, `2×`, `3×`;
+- the hidden packaged Three.js smoke presents all 41 saved zoom boundaries and reports nearest atlas minification and magnification, disabled mipmaps, anisotropy `1`, and clamp-to-edge wrapping at every sample;
 - browser and packaged input behavior match;
 - save load, map transfer, restart, and reduced motion pass;
 - no visual enhancement hides a parity defect.

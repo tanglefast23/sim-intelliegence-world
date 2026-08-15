@@ -78,6 +78,7 @@ import {
   type CharacterId,
 } from './atlas';
 import {
+  assertWorldZoom,
   MAX_WORLD_ZOOM,
   MIN_WORLD_ZOOM,
   stepWorldZoom,
@@ -484,6 +485,16 @@ export function WorldScene({
       setDestinationPulseElapsedMs(420);
       setRendererParityPulseFrozen(true);
     };
+    window.siWorldSetRendererTestZoom = (zoom) => {
+      setExplicitWorldZoom(true);
+      setCamera((current) => zoomCameraAt(
+        current,
+        assertWorldZoom(zoom),
+        { x: surfaceRef.current.width / 2, y: surfaceRef.current.height / 2 },
+        surfaceRef.current,
+        MAP_PIXELS,
+      ));
+    };
     window.siWorldSetAuthoredDialogueFixture = (characterId) => {
       setOpenPanel(undefined);
       setConversationFixtureId(undefined);
@@ -659,6 +670,7 @@ export function WorldScene({
       delete window.siWorldOpenRendererFeedbackFixture;
       delete window.siWorldOpenRendererMotionFixture;
       delete window.siWorldFreezeRendererParityFrame;
+      delete window.siWorldSetRendererTestZoom;
     };
   }, []);
 
@@ -1170,6 +1182,10 @@ export function WorldScene({
     [map, smokeMode],
   );
   const rendererParityEvidence = useMemo(() => smokeMode ? JSON.stringify({
+    mapId: worldFrame.mapId,
+    mapHash: worldFrame.mapHash,
+    presentationHash: worldFrame.presentationHash,
+    atlasHash: worldFrame.atlasHash,
     camera: worldFrame.camera,
     viewport: worldFrame.viewport,
     devicePixelRatio: worldFrame.devicePixelRatio,
@@ -1187,6 +1203,12 @@ export function WorldScene({
     destinationPulse: worldFrame.destinationPulse ?? null,
     journalMarkers: worldFrame.journalMarkers,
     failureMarker: worldFrame.failureMarker ?? null,
+    visibleEffectIds: worldFrame.visibleEffectIds,
+    fallbackEmitterIds: worldFrame.fallbackEmitterIds,
+    // Stage 3 amendment 2026-08-15: proves which effects the fallback-circle batch actually draws.
+    fallbackEffectIds: worldFrame.fallbackEffects
+      .map(({ id }) => id)
+      .sort((left, right) => left.localeCompare(right, 'en')),
   }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
   const selectedScreen = worldToScreen(camera, {
     x: worldFrame.selectionRing.worldX,

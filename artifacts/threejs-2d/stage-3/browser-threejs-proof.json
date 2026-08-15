@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "ec14e15d7f6cbbbfd9ea22d9a07821bab9d43605",
+  "urlVariant": "?testRenderer=threejs-2d",
+  "headless": true,
+  "audioMutedInTestSession": true,
+  "checks": {
+    "threeCanvasMounted": true,
+    "skiaWorldCanvasMounted": false,
+    "worldLoaded": true,
+    "webgl2": true,
+    "toneMapping": "none",
+    "explicitSort": true,
+    "drawCalls": 17,
+    "atlasDrawCalls": 5,
+    "atlasSampling": {
+      "magFilter": "nearest",
+      "minFilter": "nearest",
+      "generateMipmaps": false,
+      "anisotropy": 1,
+      "wrapS": "clamp-to-edge",
+      "wrapT": "clamp-to-edge"
+    },
+    "zoomChangedFrom": 1,
+    "zoomChangedTo": 1.2,
+    "questsOpenedFromKeyboard": true,
+    "browserErrors": []
+  }
+}

@@ -47,6 +47,24 @@ function frame(path: string, overrides: Record<string, unknown> = {}): void {
   })}\n`);
 }
 
+/**
+ * A 4x4 mask on a 32x32 frame. The mask is large enough to trip each scaled mask-local gate
+ * on its own while the full-frame gates stay under their limits.
+ */
+function squareMaskFrame(path: string): void {
+  frame(path, {
+    logicalBounds: { x: 4, y: 4, width: 4, height: 4 },
+    hitBounds: { x: 3, y: 3, width: 6, height: 6 },
+    alphaFootprint: ['1111', '1111', '1111', '1111'],
+  });
+}
+
+const squareMaskOffsets = (): number[] => {
+  const offsets: number[] = [];
+  for (let y = 4; y < 8; y += 1) for (let x = 4; x < 8; x += 1) offsets.push((y * 32 + x) * 4);
+  return offsets;
+};
+
 function manifest(root: string, mode: 'parity' | 'enhanced' = 'parity') {
   return {
     schemaVersion: 1,
@@ -164,7 +182,7 @@ describe('renderer frame comparison', () => {
     writeImage(join(root, 'candidate.png'), baseline);
     const value = manifest(root);
     value.devicePixelRatio = 1.25;
-    expect(compareRendererFrames(value, 'parity').measurements.masks[0]?.baselineVisiblePixels).toBe(1);
+    expect(compareRendererFrames(value, 'parity').measurements.masks[0]?.baselineReadablePixels).toBe(1);
   });
 
   test('enforces channel thresholds inside and outside masks', () => {
@@ -179,13 +197,122 @@ describe('renderer frame comparison', () => {
     expect(report.failures.join(' ')).toContain('exceeds 0.005');
   });
 
-  test('rejects changed visible coverage', () => {
+  test('uses raster-neutral RGB gates for scaled frames', () => {
+    const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+    const maskOffset = (4 * 32 + 4) * 4;
+    candidate.data[maskOffset] = candidate.data[maskOffset]! - 9;
+    for (let pixel = 10; pixel < 16; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! + 3;
+    writeImage(join(root, 'candidate.png'), candidate);
+    const value = manifest(root);
+    value.zoom = 2;
+    const report = compareRendererFrames(value, 'parity');
+    expect(report.rasterComparison).toBe('scaled');
+    expect(report.passed).toBe(true);
+    expect(report.measurements.meanAbsoluteChannelDelta).toBeGreaterThan(0);
+  });
+
+  test('rejects too many large RGB changes in a scaled frame', () => {
+    const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+    for (let pixel = 10; pixel < 13; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! + 64;
+    writeImage(join(root, 'candidate.png'), candidate);
+    const value = manifest(root);
+    value.zoom = 2;
+    const report = compareRendererFrames(value, 'parity');
+    expect(report.passed).toBe(false);
+    expect(report.failures.join(' ')).toContain('Scaled large changed-pixel ratio');
+  });
+
+  describe('scaled mask-local gates', () => {
+    // Stage 3 amendment 2026-08-15. Each case keeps every full-frame gate under its limit,
+    // so the named mask-local gate is the only one that can fail.
+    const scaledSquareMask = (paint: (candidate: PNG) => void) => {
+      const baseline = image(join(root, 'baseline.png'));
+      for (const offset of squareMaskOffsets()) {
+        baseline.data[offset] = 220;
+        baseline.data[offset + 1] = 220;
+        baseline.data[offset + 2] = 220;
+      }
+      writeImage(join(root, 'baseline.png'), baseline);
+      squareMaskFrame(join(root, 'baseline.json'));
+      squareMaskFrame(join(root, 'candidate.json'));
+      const candidate = PNG.sync.read(readFileSync(join(root, 'baseline.png')));
+      paint(candidate);
+      writeImage(join(root, 'candidate.png'), candidate);
+      const value = manifest(root);
+      value.zoom = 2;
+      return compareRendererFrames(value, 'parity');
+    };
+
+    test('passes when every mask-local measurement stays under its ceiling', () => {
+      const report = scaledSquareMask((candidate) => {
+        for (const offset of squareMaskOffsets().slice(0, 2)) candidate.data[offset] = candidate.data[offset]! - 5;
+      });
+      expect(report.rasterComparison).toBe('scaled');
+      expect(report.failures).toEqual([]);
+      expect(report.passed).toBe(true);
+      expect(report.measurements.maskLocal.comparablePixelCount).toBe(16);
+    });
+
+    test('rejects a scaled mask mean absolute delta above 10', () => {
+      const report = scaledSquareMask((candidate) => {
+        for (const offset of squareMaskOffsets()) candidate.data[offset] = candidate.data[offset]! - 31;
+      });
+      expect(report.passed).toBe(false);
+      expect(report.failures.join(' ')).toContain('Scaled mask mean absolute channel delta');
+      expect(report.failures.join(' ')).not.toContain('root mean square');
+    });
+
+    test('rejects a scaled mask RMSE above 20', () => {
+      const report = scaledSquareMask((candidate) => {
+        const offset = squareMaskOffsets()[0]!;
+        candidate.data[offset] = candidate.data[offset]! - 90;
+        candidate.data[offset + 1] = candidate.data[offset + 1]! - 90;
+        candidate.data[offset + 2] = candidate.data[offset + 2]! - 90;
+      });
+      expect(report.passed).toBe(false);
+      expect(report.failures.join(' ')).toContain('Scaled mask root mean square channel delta');
+      expect(report.failures.join(' ')).not.toContain('mean absolute');
+    });
+
+    test('rejects a scaled mask large changed-pixel ratio above 0.12', () => {
+      const report = scaledSquareMask((candidate) => {
+        for (const offset of squareMaskOffsets().slice(0, 2)) candidate.data[offset] = candidate.data[offset]! - 33;
+      });
+      expect(report.passed).toBe(false);
+      expect(report.failures.join(' ')).toContain('Scaled mask large changed-pixel ratio');
+    });
+
+    test('rejects a scaled outside-mask changed ratio above 0.12', () => {
+      const report = scaledSquareMask((candidate) => {
+        // Rows 20 and up sit outside both the mask and its two-pixel ring.
+        for (let pixel = 20 * 32; pixel < 20 * 32 + 130; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! - 3;
+      });
+      expect(report.passed).toBe(false);
+      expect(report.failures.join(' ')).toContain('Scaled outside-mask changed-pixel ratio');
+    });
+  });
+
+  test('rejects changed readable coverage', () => {
     const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
     candidate.data[(4 * 32 + 4) * 4 + 3] = 0;
     writeImage(join(root, 'candidate.png'), candidate);
     const report = compareRendererFrames(manifest(root, 'enhanced'), 'enhanced');
     expect(report.passed).toBe(false);
-    expect(report.failures.join(' ')).toContain('visible pixel coverage');
+    expect(report.failures.join(' ')).toContain('native readable-pixel set changed');
+  });
+
+  test('fails when the candidate object disappears into its background', () => {
+    // Alpha stays 255, so the retired alpha-coverage check could never catch this.
+    const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+    const offset = (4 * 32 + 4) * 4;
+    candidate.data[offset] = 48;
+    candidate.data[offset + 1] = 48;
+    candidate.data[offset + 2] = 48;
+    writeImage(join(root, 'candidate.png'), candidate);
+    const report = compareRendererFrames(manifest(root), 'parity');
+    expect(report.passed).toBe(false);
+    expect(report.failures.join(' ')).toContain('native readable-pixel set changed');
+    expect(report.measurements.masks[0]?.candidateReadablePixels).toBe(0);
   });
 
   test('rejects a mask whose baseline carries no readable contrast', () => {
@@ -261,12 +388,16 @@ describe('renderer frame comparison', () => {
     };
     fixture.candidate.image = join(root, '{zoom}-candidate.png');
     for (const { zoom } of fixture.samples) {
+      const source = PNG.sync.read(readFileSync(resolve(
+        'tests/fixtures/rendering',
+        zoom === 1.05 ? 'comparator-parity-changed.png' : 'comparator-identical.png',
+      )));
+      if (zoom === 1.05) {
+        for (let pixel = 10; pixel < 13; pixel += 1) source.data[pixel * 4] = source.data[pixel * 4]! + 64;
+      }
       writeFileSync(
         fixture.candidate.image.replace('{zoom}', zoom.toFixed(2)),
-        readFileSync(resolve(
-          'tests/fixtures/rendering',
-          zoom === 1.05 ? 'comparator-parity-changed.png' : 'comparator-identical.png',
-        )),
+        PNG.sync.write(source),
       );
     }
     const report = compareRendererManifest(fixture, 'parity');

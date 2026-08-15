@@ -26,7 +26,7 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
-import { threeCameraBounds, threeQuadIndices } from './coordinate-contract';
+import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
 
 const TILE_SIZE = 32;
 const COMPOSITE_BATCHES = [
@@ -287,6 +287,15 @@ export type ThreeRendererEvidence = Readonly<{
     textures: number;
   }>;
   atlasSize: Readonly<{ width: number; height: number }>;
+  atlasSampling: Readonly<{
+    magFilter: 'nearest';
+    minFilter: 'nearest';
+    generateMipmaps: false;
+    anisotropy: 1;
+    wrapS: 'clamp-to-edge';
+    wrapT: 'clamp-to-edge';
+  }>;
+  presentedZoom: number | null;
   trianglesByBatch: Readonly<Record<string, number>>;
 }>;
 
@@ -366,7 +375,7 @@ export class ThreeWorldRenderer {
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = NoToneMapping;
     renderer.sortObjects = false;
-    renderer.setClearColor('#17201b', 1);
+    renderer.setClearColor('#b77945', 1);
     const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
     atlasTexture.colorSpace = SRGBColorSpace;
     atlasTexture.magFilter = NearestFilter;
@@ -413,6 +422,11 @@ export class ThreeWorldRenderer {
   }
 
   evidence(): ThreeRendererEvidence {
+    if (this.#atlasTexture.magFilter !== NearestFilter || this.#atlasTexture.minFilter !== NearestFilter ||
+        this.#atlasTexture.generateMipmaps !== false || this.#atlasTexture.anisotropy !== 1 ||
+        this.#atlasTexture.wrapS !== ClampToEdgeWrapping || this.#atlasTexture.wrapT !== ClampToEdgeWrapping) {
+      throw new Error('Atlas sampling contract changed.');
+    }
     return {
       rendererKind: 'threejs-2d',
       webgl2: true,
@@ -432,6 +446,15 @@ export class ThreeWorldRenderer {
         textures: this.#renderer.info.memory.textures,
       },
       atlasSize: { width: this.#atlasWidth, height: this.#atlasHeight },
+      atlasSampling: {
+        magFilter: 'nearest',
+        minFilter: 'nearest',
+        generateMipmaps: false,
+        anisotropy: 1,
+        wrapS: 'clamp-to-edge',
+        wrapT: 'clamp-to-edge',
+      },
+      presentedZoom: this.#presentedFrame?.camera.zoom ?? null,
       trianglesByBatch: Object.fromEntries(COMPOSITE_BATCHES.map((id) => [id, this.#geometries.get(id)!.drawRange.count / 3])),
     };
   }
@@ -478,9 +501,10 @@ export class ThreeWorldRenderer {
 
   #update(frame: WorldFrameState): void {
     const { camera, viewport } = frame;
-    this.#renderer.setPixelRatio(frame.devicePixelRatio);
-    this.#renderer.setSize(viewport.width, viewport.height, false);
-    const bounds = threeCameraBounds(camera, viewport);
+    const drawingBuffer = threeDrawingBufferSize(viewport, frame.devicePixelRatio);
+    this.#renderer.setPixelRatio(1);
+    this.#renderer.setSize(drawingBuffer.width, drawingBuffer.height, false);
+    const bounds = threeCameraBounds(camera, threeRasterViewport(viewport, frame.devicePixelRatio));
     this.#camera.left = bounds.left;
     this.#camera.right = bounds.right;
     this.#camera.top = bounds.top;
@@ -569,7 +593,10 @@ export class ThreeWorldRenderer {
     // Stage 2 shares the legacy atmosphere overlay so both renderers keep the same composite order.
     this.#set('atmosphere', emptyGeometryData());
 
-    // Stage 2 shares these feedback layers above lighting; Stage 3 moves them into the matching GPU batches.
+    // Stage 3 keeps feedback in the shared above-lighting overlay; Stage 4 moves the complete overlay stack here.
+    // District lighting and atmosphere are still React siblings mounted above this canvas, so feedback drawn
+    // here would composite BELOW them and break the locked composite order. Stage 4 task 7 removes those
+    // overlays from the Three.js path, and only then can Stage 4 task 6 draw feedback after all lighting.
     this.#set('destination-pulse', emptyGeometryData());
     this.#set('journal-markers', emptyGeometryData());
     this.#set('failure-marker', emptyGeometryData());

@@ -100,7 +100,7 @@ For Stages 0, 6, and 7:
 3. Push that exact phase branch under the narrow authorization obtained before Stage 0.
 4. Wait for the required macOS and Windows release jobs plus platform-neutral CI checks on that SHA.
 5. Keep the phase branch and worktree until the remote gate passes.
-6. If a job fails, fix it on that phase branch, rerun the Opus audit when the diff changes materially, recommit, push the new SHA, and repeat.
+6. If a job fails, fix it on that phase branch, rerun the Fable audit when the diff changes materially, recommit, push the new SHA, and repeat.
 7. Do not mark the remote gate complete from a local result.
 
 Final main push remains separately unauthorized.
@@ -129,7 +129,7 @@ Only one stage is active at a time.
 1. Run the stage's narrow checks.
 2. Run its broader non-visible checks.
 3. Run hidden packaged checks only after confirming the harness keeps Electron hidden and muted.
-4. Ask Claude Opus 5 at `xhigh` for one read-only audit of the stage diff against the integration branch.
+4. Ask Claude Fable 5 at `xhigh` for one read-only audit of the stage diff against the integration branch. Opus writes this port, so Opus may not audit it.
 5. Verify every finding locally.
 6. Fix only confirmed in-scope defects.
 7. Rerun affected checks and the stage exit gate.
@@ -139,7 +139,7 @@ Only one stage is active at a time.
 11. Merge the stage branch into `codex/threejs-2d-port` with a merge commit.
 12. Prove the phase commit is an ancestor of the integration tip.
 13. Run `git cat-file -e <rollback-sha>^{commit}` and `git merge-base --is-ancestor <rollback-sha> codex/threejs-2d-port`; both must exit `0`.
-14. Write `docs/qualification/threejs-2d/stage-N/closeout.json` on the integration branch with the phase commit SHA, integration merge SHA, commands, exit codes, Opus result, remote result when required, containment result, and rollback-SHA results.
+14. Write `docs/qualification/threejs-2d/stage-N/closeout.json` on the integration branch with the phase commit SHA, integration merge SHA, commands, exit codes, Fable result, remote result when required, containment result, and rollback-SHA results.
 15. Commit that closeout file as one metadata-only integration commit.
 16. Prove the integration worktree is clean again.
 17. Remove the phase worktree.
@@ -227,7 +227,7 @@ Make every later comparison executable before renderer code changes.
 19. If a release runner cannot create WebGL 2, stop and select a WebGL2-capable runner; do not add an unsafe runtime flag or weaken the production hard-failure rule.
 20. Add `npm run package:mac:arm64`.
 21. Add a macOS ARM64 package-and-smoke CI job with an explicit packaged `process.arch === "arm64"` assertion.
-22. Complete the Stage 0 Opus audit, fixes, and checks, then create the qualified-Skia code commit.
+22. Complete the Stage 0 Fable audit, fixes, and checks, then create the qualified-Skia code commit.
 23. Push that exact phase SHA and wait for the three release-platform WebGL 2 probes, macOS ARM64, all existing required macOS and Windows jobs, and platform-neutral checks.
 24. Restore that commit SHA into a separate clean worktree, run `npm ci`, package it, and run the recorded Skia smoke suite.
 25. Copy required reports and native `1×` captures from ignored `output/` scratch space into `artifacts/threejs-2d/stage-0/`.
@@ -442,12 +442,25 @@ Render every current world feature in Three.js with no visual enhancement hiding
 8. Keep VFX seeds, controller-owned clocks, culling, geometry sampling, fixed step rate, reduced motion, and evidence semantics unchanged.
 9. Lock `tests/fixtures/rendering/threejs-all-maps-v1.json` to viewports `1280×720`, `1440×900`, `1920×1080`, `2560×1440`, `1600×720`, and the committed maximum-load viewport; DPR `1`, `1.25`, `1.5`, and `2`; and full-map zoom `1×`, `2×`, and `3×`.
 10. Cover every map, transfer, edge, roof state, movement pose, marker, VFX kind, VFX fallback, reduced-motion state, and maximum-load state in that finite manifest.
-11. Run the Stage 0 comparator with `NoToneMapping` for every locked fixture.
+11. Run the Stage 0 comparator with `NoToneMapping` for every locked fixture. Use native raster gates only at DPR `1`, zoom `1×`; use the specification's scaled raster-neutral RGB gates everywhere else.
 12. Keep required mask IDs, bounds, hit bounds, and coverage exact.
 13. Write results to `output/verification/threejs-2d/stage-3/renderer-comparison.json`.
 14. Record draw calls and GPU resources at normal and maximum load.
-15. Run `zoom-sampling-v1.json` across every `0.05` boundary from `1.00` through `3.00` and write `output/verification/threejs-2d/stage-3/zoom-sampling.json`.
+15. Extend the hidden packaged Three.js smoke to present every `0.05` boundary from `1.00` through `3.00`. Record live nearest-filter, mipmap, anisotropy, wrapping, and presented-zoom evidence in `output/verification/threejs-2d/stage-3/zoom-sampling.json`. Keep `zoom-sampling-v1.json` as a Stage 0 comparator self-test only.
 16. Copy both reports and their manifest-referenced native `1×` captures into `artifacts/threejs-2d/stage-3/` before the phase commit.
+
+### Stage 3 audit amendment, dated 2026-08-15
+
+The final Stage 3 Opus audit found one ownership defect and four measurement defects.
+The specification amendment of the same date defines the measurement contracts.
+These tasks implement them. They replace nothing above except where stated.
+
+17. Keep feedback in the shared above-lighting overlay and leave the three Three.js feedback batches empty. A Stage 3 Fable audit proved the ownership move breaks the locked composite order while `DistrictLightingOverlay` and `AtmosphereOverlay` remain React siblings mounted above the Three.js canvas with no stacking order set. Lock this contract with a focused test so the Stage 4 move is deliberate. Feedback ownership moves in Stage 4 under tasks 6 and 7, and Stage 4 adds the zoom `1`, `2`, and `3` geometry check with it.
+18. Add the scaled mask-local RGB limits and the scaled outside-mask ceiling from the specification amendment. Keep the existing global scaled limits and the native DPR `1`, zoom `1×` gates unchanged. Do not restore the native `8/255` per-pixel maximum for scaled frames. Add one focused pass test and one focused fail test for each new scaled gate.
+19. Replace alpha-based visible coverage with content-derived readable coverage. Reuse the existing two-logical-pixel ring median. Mark a mask pixel readable when its local contrast against that ring is at least `1.02`. Require the exact readable-pixel set and count on native frames, and at least `95%` of baseline readable coverage on scaled frames. Keep the `1.05` minimum baseline median contrast and the `90%` contrast-retention rule. Report baseline readable pixels, candidate readable pixels, and retention. Add a focused test where the candidate object disappears into its background and must fail.
+20. Replace task 15's presentation-only zoom evidence with rendered-image evidence. Run zoom sampling for both Skia and Three.js at DPR `1`. Capture the same fixed player crop from the hidden packaged window at every `0.05` value from `1.00` through `3.00`, keeping the main-process crop geometry identical between renderers. Decode the paired PNG crops in `run-renderer-all-maps-package-smoke.ts` and measure them with the exported comparator RGB helper rather than duplicating its math. Record per-zoom mean absolute RGB delta, RMSE, and ratio above delta `32`, and fail any zoom that exceeds the approved metrics. Keep raw crops in ignored `output/` scratch space and commit the measured report to `artifacts/threejs-2d/stage-3/zoom-sampling.json`. The smoke stays hidden and game-muted.
+21. Add `vfxMode: 'procedural' | 'circle'` to the locked all-map cases and add one DPR `1` circle-mode case using `patio-fire`. Make the all-map package runner launch only the required DPR and mode combinations, passing `SI_WORLD_VFX_MODE=circle` for the fallback case. Add `fallbackEffectIds` to renderer parity state from `worldFrame.fallbackEffects` and assert the fallback case contains the locked effect. Capture both Skia and Three.js for that case and include it in the fixture set. Keep the procedural cases unchanged. Add focused matrix and schema tests.
+22. Regenerate the specialized feedback fixture and the all-map fixtures after the code commit, so package evidence names an immutable tested SHA.
 
 ### Verification
 
@@ -457,14 +470,18 @@ Run the procedural VFX smoke and this exact matrix:
 
 ```bash
 npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json --output output/verification/threejs-2d/stage-3/renderer-comparison.json
-npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/zoom-sampling-v1.json --output output/verification/threejs-2d/stage-3/zoom-sampling.json
+npm run smoke:renderer-all-maps -- --output-root output/verification/threejs-2d/stage-3/all-maps-package
 ```
 
 ### Exit gate
 
 - Every behavior-matrix case passes.
-- Every no-tone-mapping parity report passes.
+- Every no-tone-mapping parity report passes, including the scaled mask-local limits and the scaled outside-mask ceiling.
 - Every supported input and saved zoom value keeps nearest-neighbor sampling with no atlas bleed.
+- Every saved zoom value passes its measured Skia-versus-Three.js rendered-crop comparison.
+- Readable coverage holds its native exact-set rule and its scaled `95%` retention rule.
+- The fixture set exercises the Three.js fallback-circle batch through the locked circle-mode case.
+- Feedback stays in the shared above-lighting overlay and the three Three.js feedback batches stay empty.
 - Draw-call ceilings hold.
 - Browser and packaged input match.
 - Save and map hashes remain unchanged.
@@ -497,7 +514,7 @@ Add the approved visual gain only after complete no-tone-mapping parity.
 3. Add district tint and shelter shade from current deterministic data.
 4. Add small additive pixel glow sprites at authored lamp and effect positions.
 5. Add the existing atmosphere treatment.
-6. Draw destination, journal, and failure feedback after all lighting and atmosphere batches.
+6. Draw destination, journal, and failure feedback after all lighting and atmosphere batches. This is the deferred Stage 3 ownership move: build `destination-pulse`, `journal-markers`, and `failure-marker` as Three.js batches, stop mounting the shared feedback Skia canvas on the Three.js path, and require Three.js evidence to report non-zero triangles for each active batch. Match the Skia destination ring, journal pin, and failure X geometry at zoom `1`, `2`, and `3`, and capture the feedback fixture at all three zooms so those masks stop being shared-overlay evidence. Task 7 must land in the same change, because the order is only correct once the overlays leave the Three.js path.
 7. On the Three.js path, do not also mount `DistrictLightingOverlay`, `AtmosphereOverlay`, or inline shelter-shade views; keep all three only for the temporary Skia path.
 8. Keep the selection ring at its locked composite position and enforce its contrast floor.
 9. Enable ACES in production only in this stage; keep unsaved `SI_WORLD_TEST_TONE_MAPPING=none|aces` for packaged smoke and `?testToneMapping=none|aces` for browser development or test capture, with production ignoring both outside those modes.
@@ -730,7 +747,7 @@ SI_WORLD_TEST_TONE_MAPPING=aces npm run qualify:renderer -- --mode enhanced --ma
 
 ### Final Stage 7 audits before commit
 
-1. Run the normal Stage 7 Claude Opus 5 `xhigh` audit.
+1. Run the normal Stage 7 Claude Fable 5 `xhigh` audit.
 2. Run one additional Grok 4.6 `high` read-only audit of the complete Stage 7 diff.
 3. Verify every finding locally and fix only confirmed in-scope defects.
 4. Rerun every affected Stage 7 check and the full exit gate.
@@ -816,7 +833,7 @@ The committed fixture manifest is the complete case list; no unrecorded screensh
 `output/` is ignored scratch space.
 Every report and native `1×` capture needed by a later stage is committed under `artifacts/threejs-2d/stage-N/` before its phase branch merges.
 
-| Stage | Fixture manifest or input | Scratch output | Committed evidence | Primary command | Opus audit scope |
+| Stage | Fixture manifest or input | Scratch output | Committed evidence | Primary command | Fable audit scope |
 |---:|---|---|---|---|---|
 | 0 | `tests/fixtures/rendering/skia-baseline-v1.json` | `output/verification/threejs-2d/stage-0/` | `artifacts/threejs-2d/stage-0/` and `docs/qualification/threejs-2d/stage-0/rollback.json` | `npm run verify` plus both comparator mode self-tests | measurement math, masks, harness, ARM64 job, rollback drill |
 | 1 | `tests/fixtures/rendering/world-frame-v1.json` | `output/verification/threejs-2d/stage-1/frame-equality.json` | `artifacts/threejs-2d/stage-1/` | the Stage 1 Jest command and hidden affected smokes | frame completeness, deterministic order, immutability, time ownership, import boundary |
@@ -845,7 +862,7 @@ Apply the remote-branch retention rule from section 4.4.
 ## 18. Required evidence at completion
 
 - approved spec and implementation plan with three review rounds each;
-- one Opus audit record per implementation stage;
+- one Fable audit record per implementation stage;
 - phase commit and merge commit SHAs;
 - branch-containment and prune evidence;
 - renderer-neutral frame fixtures;
