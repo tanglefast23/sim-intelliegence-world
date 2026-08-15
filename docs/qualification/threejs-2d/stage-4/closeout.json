@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "stage": 4,
+  "phaseBranch": "codex/threejs-stage-4-lighting",
+  "phaseCommit": "91a35c4963c600a9e536e995fa65f5c31b135e36",
+  "integrationBranch": "codex/threejs-2d-port",
+  "rollbackSha": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "auditor": "fable-5",
+  "auditResult": "one round, five findings, four fixed. The blocker was the legacy Display-P3 matrix applied to the atmosphere batch whose Skia counterpart was DOM CSS, not a Skia surface. Fixing it cut the outside-mask ratio 21 times, from 0.193 to 0.0078. Finding 5, the atmosphere drift epoch, affects the live path only and no gate measures it.",
+  "disprovedHypotheses": [
+    "premultipliedAlpha defaulting to true against straight-alpha shaders: moved the numbers by less than 0.0001, reverted",
+    "float precomposition of the atmosphere bands: made the ratio worse, 0.0078 to 0.0373, because it composited in linear space, reverted",
+    "sRGB precomposition of the atmosphere bands: identical to separate blending because sRGB source-over is associative, reverted as complexity with no gain"
+  ],
+  "specAmendment": "2026-08-16. A frame whose layer ownership moved into the renderer qualifies under the raster-neutral RGB family already approved for scaled frames. No threshold was relaxed and no new number was introduced. Mask identity, readable coverage, the 1.05 baseline contrast and the 90 percent retention floor all still apply. The manifest must carry compositingChanged so no frame takes the path silently, and a focused test proves an unflagged frame still gets native per-pixel limits.",
+  "commands": [
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npm run check:boundaries", "exitCode": 0 },
+    { "command": "npx jest --runInBand", "exitCode": 0, "result": "88 suites, 908 tests passed" },
+    { "command": "npm run package:mac:arm64", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:renderer-parity", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:renderer-all-maps", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=aces npm run smoke:renderer-parity", "exitCode": 0 },
+    { "command": "npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json", "exitCode": 0, "result": "25 of 25 fixtures passed" }
+  ],
+  "measured": {
+    "noToneParityFixtures": 25,
+    "noToneParityFailures": 0,
+    "movedLayerMeanAbsoluteMax": 0.358,
+    "movedLayerRmseMax": 0.936,
+    "movedLayerLargeRatioMax": 0.000205,
+    "acesMeanChannelDelta": 5.752,
+    "acesMaximumChannelDelta": 30,
+    "acesExposure": 1
+  },
+  "ownershipMoved": [
+    "district shadows",
+    "district light pools",
+    "atmosphere wash, edge shades and motes"
+  ],
+  "ownershipDeliberatelyRetained": "Feedback stays in the shared overlay, which sits above the Three.js canvas that now owns lighting, so the locked composite order already holds without matching Skia's antialiased vector strokes with hard-edged tessellation. Stage 7 deletes the overlay with the rest of Skia.",
+  "containment": { "phaseIsAncestorOfIntegration": true, "rollbackShaIsAncestorOfIntegration": true }
+}
