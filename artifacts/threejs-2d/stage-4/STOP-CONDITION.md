@@ -72,6 +72,39 @@ difference in how stacked translucent layers combine, not a quantization
 artefact. Any next attempt must precompose in sRGB, not in three's linear
 working space.
 
+## Layer stacking is ruled out entirely
+
+Precomposing the atmosphere regions in sRGB produced outside-mask ratios of
+0.0079 to 0.0089, IDENTICAL to emitting the wash and edge shades as separate
+blended quads. sRGB source-over is associative, so precomposition can only
+match. That closes the whole stacking and quantization line of enquiry, and the
+change was reverted as complexity with no measured gain.
+
+The residual is therefore NOT layer stacking, NOT alpha quantization, and NOT
+premultiplied alpha. What remains is the final blend itself: the browser
+composites the overlay over the canvas in float and rounds once, while WebGL
+blends into an 8-bit framebuffer. About 0.8 percent of pixels land on a
+different integer. That is a precision difference between compositing an overlay
+OVER a canvas and rendering INTO it, and it cannot be removed without a float
+render target and a single resolve, which the locked renderer settings forbid.
+
+## Recommendation for whoever picks this up
+
+Stop trying to make a moved layer match a pixel gate that assumed it had not
+moved. Section 7.5's native rule was written when BOTH renderers used the same
+React overlays for lighting and atmosphere. Stage 4 deliberately ends that. Once
+Three.js owns those layers, the comparison is no longer parity of identical
+inputs, which is precisely the situation `enhanced` mode already exists for:
+identical masks and bounds, gated on contrast retention rather than per-pixel
+channel delta.
+
+The defensible move is a dated specification amendment stating that once a layer
+moves into the renderer, its frames qualify under `enhanced` contrast rules
+rather than `parity` pixel rules, with the readability floor unchanged. That is
+a change of WHICH gate applies to a deliberately changed configuration, not a
+loosening of a threshold, and rule 14 still forbids relaxing any number inside
+either gate. It must be written and reviewed before any comparator change.
+
 ## Next step
 
 Only Class A remains: outside-mask changed-pixel ratio 0.0072 to 0.0089 against
