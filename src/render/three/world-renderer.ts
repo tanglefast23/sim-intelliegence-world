@@ -280,7 +280,8 @@ function generatedGlowTexture(): CanvasTexture {
   if (!context) throw new Error('The generated glow canvas is unavailable.');
   context.fillStyle = '#ffffff';
   context.beginPath();
-  context.arc(32, 32, 30, 0, Math.PI * 2);
+  // The rim UVs sit on the radius-32 circle, so fill to 32 or every pool fades early.
+  context.arc(32, 32, 32, 0, Math.PI * 2);
   context.fill();
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
@@ -295,7 +296,7 @@ function generatedGlowTexture(): CanvasTexture {
 export type ThreeRendererEvidence = Readonly<{
   rendererKind: 'threejs-2d';
   webgl2: true;
-  toneMapping: 'none';
+  toneMapping: ToneMappingKind;
   explicitSort: true;
   legacyColorParity: boolean;
   drawCalls: number;
@@ -363,13 +364,18 @@ export class ThreeWorldRenderer {
     const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors);
     const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors);
     const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors);
-    this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
+    // The legacy atmosphere was plain React Native Views composited by the browser as sRGB CSS,
+    // never through a Skia surface, so the legacy P3 matrix must not apply to it. Applying it
+    // shifted the whole frame by about one count, because the wash covers every pixel.
+    const overlayMaterial = shaderMaterial(undefined, false);
+    this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial, overlayMaterial];
     const atlasBatches = new Set<BatchId>(['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']);
     COMPOSITE_BATCHES.forEach((id, renderOrder) => {
       const geometry = new BufferGeometry();
       const material = atlasBatches.has(id)
         ? atlasMaterial
-        : id === 'district-light-pools' ? glowMaterial : primitiveMaterial;
+        : id === 'district-light-pools' ? glowMaterial
+          : id === 'atmosphere' ? overlayMaterial : primitiveMaterial;
       const mesh = new Mesh(geometry, material);
       mesh.frustumCulled = false;
       mesh.renderOrder = renderOrder;
@@ -456,7 +462,7 @@ export class ThreeWorldRenderer {
     return {
       rendererKind: 'threejs-2d',
       webgl2: true,
-      toneMapping: 'none',
+      toneMapping: this.#renderer.toneMapping === ACESFilmicToneMapping ? 'aces' : 'none',
       explicitSort: true,
       legacyColorParity: this.#matchLegacyColors,
       drawCalls: COMPOSITE_BATCHES.filter((id) => this.#geometries.get(id)!.drawRange.count > 0).length,
@@ -702,17 +708,24 @@ export class ThreeWorldRenderer {
     // Stage 4 owns feedback now that the React lighting and atmosphere overlays no longer mount
     // on this path, so these batches composite above them exactly as the locked order requires.
     // Skia drew the ring and pin scaled by zoom, but the failure X in fixed screen pixels.
+    // Skia snapped every feedback anchor to a whole screen pixel through worldToScreen, so the
+    // Three.js port must land on the same lattice or thin strokes straddle a pixel boundary.
+    const snapWorld = (worldX: number, worldY: number): readonly [number, number] => [
+      camera.x + Math.round((worldX - camera.x) * camera.zoom) / camera.zoom,
+      camera.y + Math.round((worldY - camera.y) * camera.zoom) / camera.zoom,
+    ];
+
     const destination = emptyGeometryData();
     if (frame.destinationPulse) {
       const pulse = frame.destinationPulse;
-      addEllipse(destination, pulse.worldX, pulse.worldY, pulse.radius, pulse.radius, pulse.color, pulse.opacity, 1);
+      const [px, py] = snapWorld(pulse.worldX, pulse.worldY);
+      addEllipse(destination, px, py, pulse.radius, pulse.radius, pulse.color, pulse.opacity, 1);
     }
     this.#set('destination-pulse', destination);
 
     const journal = emptyGeometryData();
     frame.journalMarkers.forEach((marker) => {
-      const footX = marker.tile.x * TILE_SIZE + 16;
-      const footY = marker.tile.y * TILE_SIZE + 29;
+      const [footX, footY] = snapWorld(marker.tile.x * TILE_SIZE + 16, marker.tile.y * TILE_SIZE + 29);
       const centerX = footX - 10;
       const centerY = footY - 30;
       addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 4, marker.darkColor);
@@ -726,10 +739,11 @@ export class ThreeWorldRenderer {
     const failure = emptyGeometryData();
     if (frame.failureMarker) {
       const marker = frame.failureMarker;
+      const [fx, fy] = snapWorld(marker.worldX, marker.worldY);
       const radius = marker.radiusPixels / camera.zoom;
       const strokeWidth = 3 / camera.zoom;
-      addLine(failure, marker.worldX - radius, marker.worldY - radius, marker.worldX + radius, marker.worldY + radius, strokeWidth, marker.color);
-      addLine(failure, marker.worldX + radius, marker.worldY - radius, marker.worldX - radius, marker.worldY + radius, strokeWidth, marker.color);
+      addLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color);
+      addLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color);
     }
     this.#set('failure-marker', failure);
   }
