@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "a642fd4a7a9aa882ffe012c68fd61b55cf5f0bdf",
+  "testedCommit": "bf604895c8745df80bf268557ca8ec041cea1cec",
   "evidenceSource": {
-    "baseCommit": "a642fd4a7a9aa882ffe012c68fd61b55cf5f0bdf",
-    "sourceSha256": "fb53e2947dfe6ac044a2d3873f62b44f6194814ea49e5ad3ab42cae3da31b6d7",
+    "baseCommit": "bf604895c8745df80bf268557ca8ec041cea1cec",
+    "sourceSha256": "8a101a393eebbbc242857df6fe193f05f28affbed8b0767f915568bedd69cbfe",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-parity-package-smoke.ts",
@@ -4558,7 +4558,7 @@
           "toneMapping": "none",
           "explicitSort": true,
           "legacyColorParity": true,
-          "drawCalls": 13,
+          "drawCalls": 16,
           "atlasDrawCalls": 5,
           "atlasSize": {
             "width": 1024,
@@ -4588,9 +4588,9 @@
             "district-shadows": 198,
             "district-light-pools": 288,
             "atmosphere": 20,
-            "destination-pulse": 0,
-            "journal-markers": 0,
-            "failure-marker": 0
+            "destination-pulse": 64,
+            "journal-markers": 100,
+            "failure-marker": 4
           }
         },
         "after": {
@@ -4608,7 +4608,7 @@
           "toneMapping": "none",
           "explicitSort": true,
           "legacyColorParity": true,
-          "drawCalls": 13,
+          "drawCalls": 16,
           "atlasDrawCalls": 5,
           "atlasSize": {
             "width": 1024,
@@ -4638,9 +4638,9 @@
             "district-shadows": 198,
             "district-light-pools": 288,
             "atmosphere": 20,
-            "destination-pulse": 0,
-            "journal-markers": 0,
-            "failure-marker": 0
+            "destination-pulse": 64,
+            "journal-markers": 100,
+            "failure-marker": 4
           }
         }
       }
