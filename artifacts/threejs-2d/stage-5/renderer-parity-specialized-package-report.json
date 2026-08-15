@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
+  "testedCommit": "14ed90c325fe5d53024f9d1d43d534fb5fabba8b",
   "evidenceSource": {
-    "baseCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
-    "sourceSha256": "cb3fc1ce83f7c94cdf6bea69ebe74bff101394ca2f4f7cd44ec721b2f6b82100",
+    "baseCommit": "14ed90c325fe5d53024f9d1d43d534fb5fabba8b",
+    "sourceSha256": "1663d6c9b6802c9c2c52fff4e821ae099d90f3cbe9069cf7e174e3f600341feb",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-parity-package-smoke.ts",
@@ -4590,7 +4590,7 @@
             "atmosphere": 20,
             "destination-pulse": 64,
             "journal-markers": 100,
-            "failure-marker": 4
+            "failure-marker": 132
           }
         },
         "after": {
@@ -4640,7 +4640,7 @@
             "atmosphere": 20,
             "destination-pulse": 64,
             "journal-markers": 100,
-            "failure-marker": 4
+            "failure-marker": 132
           }
         }
       }
