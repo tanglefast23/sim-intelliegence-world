@@ -305,6 +305,11 @@ async function surfaceLayoutDiagnostic(window: BrowserWindow): Promise<Record<st
       ? (() => { const value = element.getBoundingClientRect(); return { x: value.x, y: value.y, width: value.width, height: value.height }; })()
       : null;
     const gameSurface = document.querySelector('#active-game-surface');
+    const worldSurface = document.querySelector('#world-input-viewport');
+    const worldCanvasHost = document.querySelector('#world-canvas');
+    const worldCanvas = worldCanvasHost instanceof HTMLCanvasElement
+      ? worldCanvasHost
+      : worldCanvasHost?.querySelector('canvas');
     return {
       document: { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight },
       window: {
@@ -319,7 +324,18 @@ async function surfaceLayoutDiagnostic(window: BrowserWindow): Promise<Record<st
       root: rect(document.querySelector('#root')),
       gameSurfaceFrame: rect(gameSurface?.parentElement),
       gameSurface: rect(gameSurface),
-      worldSurface: rect(document.querySelector('#world-input-viewport')),
+      worldSurface: rect(worldSurface),
+      worldSurfaceClass: worldSurface instanceof HTMLElement ? worldSurface.className : null,
+      worldSurfaceInlineStyle: worldSurface instanceof HTMLElement ? worldSurface.getAttribute('style') : null,
+      worldSurfaceMatches: document.querySelectorAll('#world-input-viewport').length,
+      worldCanvas: worldCanvas instanceof HTMLCanvasElement ? {
+        backingWidth: worldCanvas.width,
+        backingHeight: worldCanvas.height,
+        rect: rect(worldCanvas),
+      } : null,
+      surfaceProp: document.querySelector('#world-surface-state')?.getAttribute('aria-label') ?? null,
+      cameraState: document.querySelector('#world-camera-state')?.getAttribute('aria-label') ?? null,
+      responsiveState: document.querySelector('#world-responsive-state')?.getAttribute('aria-label') ?? null,
     };
   })()`, true) as Promise<Record<string, unknown>>;
 }

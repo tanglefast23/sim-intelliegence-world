@@ -1581,6 +1581,12 @@ export function WorldScene({
           style={styles.proofState}
         />
         <View
+          accessibilityLabel={`Surface prop ${surface.width}x${surface.height}`}
+          nativeID="world-surface-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
+        <View
           accessibilityLabel={vfxEvidence}
           nativeID="world-vfx-state"
           pointerEvents="none"
