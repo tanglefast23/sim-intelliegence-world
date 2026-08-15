@@ -4,12 +4,14 @@ import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } f
 import { LoadingShell } from '../application/LoadingShell';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererShellReadyReport, createRendererWorldReadyReport } from '../application/RendererReadiness';
-import { DevHarnessScreen } from '../ui/dev-harness/DevHarnessScreen';
 
 // The Skia modules read global.CanvasKit when their module body evaluates, so the game screen
 // must stay behind a dynamic import until CanvasKit has loaded on the temporary Skia path.
 // WithSkiaWeb provided this property before Stage 5; keeping it is what lets the Three.js path
 // skip CanvasKit entirely without breaking the Skia path.
+const LazyDevHarnessScreen = lazy(async () => ({
+  default: (await import('../ui/dev-harness/DevHarnessScreen')).DevHarnessScreen,
+}));
 const LazyGameScreen = lazy(async () => ({ default: (await import('../application/GameScreen')).GameScreen }));
 import { OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
 import type { ViewportSize } from './camera';
@@ -171,7 +173,11 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
       <View style={styles.surfaceFrame}>
         <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
           {devHarnessMode
-            ? <DevHarnessScreen surface={surface} />
+            ? (
+              <Suspense fallback={null}>
+                <LazyDevHarnessScreen surface={surface} />
+              </Suspense>
+            )
             : (
               <Suspense fallback={null}>
                 <LazyGameScreen onWorldReady={markWorldReady} rendererKind={rendererKind} surface={surface} />
