@@ -1341,11 +1341,11 @@ export function WorldScene({
                 ]}
               />;
             }) : null}
-            {rendererKind === 'skia' ? <DistrictLightingOverlay
+            <DistrictLightingOverlay
               camera={camera}
               lighting={worldFrame.lighting}
               surface={surface}
-            /> : null}
+            />
             {rendererKind === 'skia' ? <AtmosphereOverlay
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}

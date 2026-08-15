@@ -1,4 +1,4 @@
-import { threeCameraBounds, threeQuadIndices } from '../three/world-renderer';
+import { threeCameraBounds, threeQuadIndices } from '../three/coordinate-contract';
 
 describe('Three.js 2D coordinate contract', () => {
   test('maps the y-down world into the orthographic camera exactly', () => {

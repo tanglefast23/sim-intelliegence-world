@@ -3,20 +3,15 @@ import {
   CanvasTexture,
   ClampToEdgeWrapping,
   Color,
-  ColorManagement,
   Float32BufferAttribute,
   LinearFilter,
-  Material,
-  Matrix3,
   Mesh,
-  MeshBasicMaterial,
   NearestFilter,
   NoToneMapping,
   OrthographicCamera,
   Scene,
   ShaderMaterial,
   SRGBColorSpace,
-  SRGBTransfer,
   Texture,
   TextureLoader,
   Uint32BufferAttribute,
@@ -31,29 +26,9 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
-import type { CameraState, ViewportSize } from '../camera';
+import { threeCameraBounds, threeQuadIndices } from './coordinate-contract';
 
 const TILE_SIZE = 32;
-const DISPLAY_P3_COLOR_SPACE = 'display-p3';
-// CanvasKit interprets the untagged legacy atlas as Display P3; preserve that established output.
-ColorManagement.define({
-  [DISPLAY_P3_COLOR_SPACE]: {
-    primaries: [0.68, 0.32, 0.265, 0.69, 0.15, 0.06],
-    whitePoint: [0.3127, 0.329],
-    transfer: SRGBTransfer,
-    toXYZ: new Matrix3().set(
-      0.4865709, 0.2656677, 0.1982173,
-      0.2289746, 0.6917385, 0.0792869,
-      0, 0.0451134, 1.0439444,
-    ),
-    fromXYZ: new Matrix3().set(
-      2.4934969, -0.9313836, -0.4027108,
-      -0.829489, 1.7626641, 0.0236247,
-      0.0358458, -0.0761724, 0.9568845,
-    ),
-    luminanceCoefficients: [0.2289, 0.6917, 0.0793],
-  },
-});
 const COMPOSITE_BATCHES = [
   'floor-and-ground-detail',
   'doors',
@@ -85,23 +60,12 @@ type GeometryData = Readonly<{
 
 const emptyGeometryData = (): GeometryData => ({ positions: [], uvs: [], tints: [], indices: [] });
 
-export const threeQuadIndices = (base: number): readonly number[] => [base, base + 2, base + 1, base, base + 3, base + 2];
-
-export function threeCameraBounds(camera: CameraState, viewport: ViewportSize) {
-  return {
-    left: camera.x,
-    right: camera.x + viewport.width / camera.zoom,
-    top: -camera.y,
-    bottom: -(camera.y + viewport.height / camera.zoom),
-  } as const;
-}
-
 function rgba(color: string, opacity = 1): readonly [number, number, number, number] {
   const normalized = color.startsWith('#') ? color.slice(1) : color;
   const rgb = normalized.length >= 6 ? normalized.slice(0, 6) : 'ffffff';
   const alpha = normalized.length === 8 ? Number.parseInt(normalized.slice(6), 16) / 255 : 1;
   const parsed = new Color(`#${rgb}`);
-  return [parsed.r, parsed.g, parsed.b, alpha * opacity];
+  return [parsed.r, parsed.g, parsed.b, Math.round(alpha * opacity * 255) / 255];
 }
 
 function addQuad(
@@ -132,12 +96,17 @@ function addLine(
   y2: number,
   width: number,
   color: string,
+  roundCaps = false,
 ): void {
   const length = Math.hypot(x2 - x1, y2 - y1);
   if (length === 0) return;
   const px = -(y2 - y1) * width / length / 2;
   const py = (x2 - x1) * width / length / 2;
   addQuad(data, [[x1 + px, y1 + py], [x2 + px, y2 + py], [x2 - px, y2 - py], [x1 - px, y1 - py]], color);
+  if (roundCaps) {
+    addEllipse(data, x1, y1, width / 2, width / 2, color);
+    addEllipse(data, x2, y2, width / 2, width / 2, color);
+  }
 }
 
 function addEllipse(
@@ -207,7 +176,7 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture): ShaderMaterial {
+function shaderMaterial(texture?: Texture, matchLegacyAtlas = false): ShaderMaterial {
   return new ShaderMaterial({
     depthTest: false,
     depthWrite: false,
@@ -228,7 +197,17 @@ function shaderMaterial(texture?: Texture): ShaderMaterial {
       varying vec2 vUv;
       varying vec4 vTint;
       void main() {
-        gl_FragColor = texture2D(map, vUv) * vTint;
+        vec4 sampled = texture2D(map, vUv);
+        ${matchLegacyAtlas ? `
+          // CanvasKit treats the untagged atlas as Display P3. Match its established sRGB output.
+          sampled.rgb = mat3(
+            1.2249401, -0.0420569, -0.0196376,
+            -0.2249404, 1.0420571, -0.0786361,
+            0.0, 0.0, 1.0982735
+          ) * sampled.rgb;
+        ` : ''}
+        gl_FragColor = sampled * vTint;
+        if (gl_FragColor.a <= 0.001) discard;
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
@@ -306,7 +285,7 @@ export class ThreeWorldRenderer {
   readonly #meshes = new Map<BatchId, Mesh>();
   readonly #atlasTexture: Texture;
   readonly #glowTexture: CanvasTexture;
-  readonly #materials: readonly Material[];
+  readonly #materials: readonly ShaderMaterial[];
   readonly #atlasWidth: number;
   readonly #atlasHeight: number;
   #latestFrame?: WorldFrameState;
@@ -332,13 +311,7 @@ export class ThreeWorldRenderer {
     const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
     this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
-    const atlasMaterial = new MeshBasicMaterial({
-      alphaTest: 0.001,
-      depthTest: false,
-      depthWrite: false,
-      map: atlasTexture,
-      transparent: true,
-    });
+    const atlasMaterial = shaderMaterial(atlasTexture, true);
     const primitiveMaterial = shaderMaterial();
     const glowMaterial = shaderMaterial(glowTexture);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
@@ -377,7 +350,7 @@ export class ThreeWorldRenderer {
     renderer.sortObjects = false;
     renderer.setClearColor('#17201b', 1);
     const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
-    atlasTexture.colorSpace = DISPLAY_P3_COLOR_SPACE;
+    atlasTexture.colorSpace = SRGBColorSpace;
     atlasTexture.magFilter = NearestFilter;
     atlasTexture.minFilter = NearestFilter;
     atlasTexture.generateMipmaps = false;
@@ -499,14 +472,22 @@ export class ThreeWorldRenderer {
 
     const doorWear = emptyGeometryData();
     frame.doorWear.forEach((door) => {
-      addRect(doorWear, door.worldX + 8, door.worldY + 7, 16, 3, door.darkColor);
-      addRect(doorWear, door.worldX + 10, door.worldY + 8, 12, 1, door.lightColor);
+      const horizontal = door.horizontal;
+      addLine(doorWear,
+        door.worldX + (horizontal ? 5 : 24), door.worldY + (horizontal ? 29 : 6),
+        door.worldX + (horizontal ? 15 : 27), door.worldY + (horizontal ? 31 : 16),
+        2, door.darkColor, true);
+      addLine(doorWear,
+        door.worldX + (horizontal ? 17 : 27), door.worldY + (horizontal ? 28 : 18),
+        door.worldX + (horizontal ? 25 : 25), door.worldY + (horizontal ? 30 : 26),
+        1, door.lightColor, true);
     });
     this.#set('door-wear', doorWear);
 
     const shadows = emptyGeometryData();
     frame.propShadows.forEach((shadow) => {
-      if (shadow.long) addLine(shadows, shadow.worldX + 6, shadow.worldY + 1, shadow.worldX + 6 + frame.lighting.shadow.x, shadow.worldY + 1 + frame.lighting.shadow.y, 7, frame.lighting.shadow.color);
+      const centerX = shadow.worldX + shadow.width / 2;
+      if (shadow.long) addLine(shadows, centerX, shadow.worldY, centerX + frame.lighting.shadow.x, shadow.worldY + frame.lighting.shadow.y, 4, frame.lighting.shadow.color, true);
       addRect(shadows, shadow.worldX, shadow.worldY, shadow.width, 4, shadow.color);
     });
     frame.thresholds.forEach((door) => {
@@ -514,7 +495,7 @@ export class ThreeWorldRenderer {
       addRect(shadows, door.worldX + 6, door.worldY + 26, 20, 1, door.lightColor);
     });
     frame.characterShadows.forEach((character) => {
-      addLine(shadows, character.worldX + 5, character.worldY + 1, character.worldX + character.castX, character.worldY + character.castY, 9, frame.lighting.shadow.color);
+      addLine(shadows, character.worldX + 5, character.worldY + 1, character.worldX + character.castX, character.worldY + character.castY, 9, frame.lighting.shadow.color, true);
       addEllipse(shadows, character.worldX + 7, character.worldY + 3.5, 11, 3.5, character.color);
     });
     this.#set('contact-shadows-and-thresholds', shadows);
@@ -546,29 +527,9 @@ export class ThreeWorldRenderer {
     frame.shelterCells.forEach((cell) => addRect(shelter, cell.x * TILE_SIZE, cell.y * TILE_SIZE, cell.width * TILE_SIZE, cell.height * TILE_SIZE, frame.lighting.shelterShade));
     this.#set('shelter-shade', shelter);
 
-    const districtShadows = emptyGeometryData();
-    frame.lighting.casters.forEach((caster) => {
-      const x = caster.x * TILE_SIZE + TILE_SIZE / 2;
-      const y = caster.y * TILE_SIZE + TILE_SIZE / 2;
-      addLine(districtShadows, x, y, x + frame.lighting.shadow.x * 1.5, y + frame.lighting.shadow.y * 1.5, 5, frame.lighting.shadow.color);
-    });
-    this.#set('district-shadows', districtShadows);
-
-    const pools = emptyGeometryData();
-    frame.lighting.pools.forEach((pool) => {
-      const x = pool.x * TILE_SIZE + TILE_SIZE / 2;
-      const y = pool.y * TILE_SIZE + TILE_SIZE / 2;
-      const addPool = (scaleX: number, scaleY: number, opacity: number) => addQuad(
-        pools,
-        [[x - pool.radius * scaleX, y - pool.radius * scaleY], [x + pool.radius * scaleX, y - pool.radius * scaleY], [x + pool.radius * scaleX, y + pool.radius * scaleY], [x - pool.radius * scaleX, y + pool.radius * scaleY]],
-        frame.lighting.accent,
-        frame.lighting.poolOpacity * opacity,
-      );
-      addPool(1.18, 0.58, 0.18);
-      addPool(0.72, 0.34, 0.45);
-      addPool(0.38, 0.17, 0.8);
-    });
-    this.#set('district-light-pools', pools);
+    // Stage 2 keeps matched district lighting shared; Stage 4 replaces these empty GPU batches.
+    this.#set('district-shadows', emptyGeometryData());
+    this.#set('district-light-pools', emptyGeometryData());
 
     const atmosphere = emptyGeometryData();
     const worldWidth = viewport.width / camera.zoom;
