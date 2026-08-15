@@ -126,9 +126,9 @@ function addEllipse(
       const end = (index + 1) * Math.PI * 2 / segments;
       addQuad(data, [
         [centerX + Math.cos(start) * Math.max(0, radiusX - strokeWidth), centerY + Math.sin(start) * Math.max(0, radiusY - strokeWidth)],
-        [centerX + Math.cos(end) * Math.max(0, radiusX - strokeWidth), centerY + Math.sin(end) * Math.max(0, radiusY - strokeWidth)],
-        [centerX + Math.cos(end) * radiusX, centerY + Math.sin(end) * radiusY],
         [centerX + Math.cos(start) * radiusX, centerY + Math.sin(start) * radiusY],
+        [centerX + Math.cos(end) * radiusX, centerY + Math.sin(end) * radiusY],
+        [centerX + Math.cos(end) * Math.max(0, radiusX - strokeWidth), centerY + Math.sin(end) * Math.max(0, radiusY - strokeWidth)],
       ], color, opacity);
     }
     return;
@@ -176,7 +176,7 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture, matchLegacyAtlas = false): ShaderMaterial {
+function shaderMaterial(texture?: Texture): ShaderMaterial {
   return new ShaderMaterial({
     depthTest: false,
     depthWrite: false,
@@ -198,14 +198,6 @@ function shaderMaterial(texture?: Texture, matchLegacyAtlas = false): ShaderMate
       varying vec4 vTint;
       void main() {
         vec4 sampled = texture2D(map, vUv);
-        ${matchLegacyAtlas ? `
-          // CanvasKit treats the untagged atlas as Display P3. Match its established sRGB output.
-          sampled.rgb = mat3(
-            1.2249401, -0.0420569, -0.0196376,
-            -0.2249404, 1.0420571, -0.0786361,
-            0.0, 0.0, 1.0982735
-          ) * sampled.rgb;
-        ` : ''}
         gl_FragColor = sampled * vTint;
         if (gl_FragColor.a <= 0.001) discard;
         #include <tonemapping_fragment>
@@ -268,7 +260,6 @@ export type ThreeRendererEvidence = Readonly<{
   webgl2: true;
   toneMapping: 'none';
   explicitSort: true;
-  legacyAtlasParity: boolean;
   drawCalls: number;
   atlasDrawCalls: number;
   textures: 2;
@@ -295,7 +286,6 @@ export class ThreeWorldRenderer {
   readonly #materials: readonly ShaderMaterial[];
   readonly #atlasWidth: number;
   readonly #atlasHeight: number;
-  readonly #matchLegacyAtlas: boolean;
   #latestFrame?: WorldFrameState;
   #presentedFrame?: WorldFrameState;
   #animationFrame = 0;
@@ -310,18 +300,16 @@ export class ThreeWorldRenderer {
     renderer: WebGLRenderer,
     atlasTexture: Texture,
     glowTexture: CanvasTexture,
-    matchLegacyAtlas: boolean,
     private readonly onReady: () => void,
     private readonly onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
   ) {
     this.#renderer = renderer;
     this.#atlasTexture = atlasTexture;
     this.#glowTexture = glowTexture;
-    this.#matchLegacyAtlas = matchLegacyAtlas;
     const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
     this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
-    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyAtlas);
+    const atlasMaterial = shaderMaterial(atlasTexture);
     const primitiveMaterial = shaderMaterial();
     const glowMaterial = shaderMaterial(glowTexture);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
@@ -345,7 +333,6 @@ export class ThreeWorldRenderer {
   static async create(
     canvas: HTMLCanvasElement,
     atlasUrl: string,
-    matchLegacyAtlas: boolean,
     onReady: () => void,
     onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
   ): Promise<ThreeWorldRenderer> {
@@ -368,7 +355,7 @@ export class ThreeWorldRenderer {
     atlasTexture.anisotropy = 1;
     atlasTexture.wrapS = ClampToEdgeWrapping;
     atlasTexture.wrapT = ClampToEdgeWrapping;
-    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), matchLegacyAtlas, onReady, onContextStateChange);
+    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), onReady, onContextStateChange);
   }
 
   setFrame(frame: WorldFrameState): void {
@@ -404,7 +391,6 @@ export class ThreeWorldRenderer {
       webgl2: true,
       toneMapping: 'none',
       explicitSort: true,
-      legacyAtlasParity: this.#matchLegacyAtlas,
       drawCalls: COMPOSITE_BATCHES.filter((id) => this.#geometries.get(id)!.drawRange.count > 0).length,
       atlasDrawCalls: ['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']
         .filter((id) => this.#geometries.get(id as BatchId)!.drawRange.count > 0).length,
