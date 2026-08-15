@@ -1,10 +1,12 @@
 import { rendererForEnvironment, toneMappingForEnvironment } from '../renderer-selection';
 
 describe('temporary renderer selector', () => {
+  // Stage 6 made Three.js the production renderer. The Skia selector survives only for
+  // localhost development and packaged smoke, as the temporary rollback path until Stage 7.
   test('accepts only the unsaved packaged smoke selector', () => {
-    const input = { hostname: 'game', search: '', smokeMode: false, smokeRenderer: 'threejs-2d' as const };
-    expect(rendererForEnvironment(input)).toBe('skia');
-    expect(rendererForEnvironment({ ...input, smokeMode: true })).toBe('threejs-2d');
+    const input = { hostname: 'game', search: '', smokeMode: false, smokeRenderer: 'skia' as const };
+    expect(rendererForEnvironment(input)).toBe('threejs-2d');
+    expect(rendererForEnvironment({ ...input, smokeMode: true })).toBe('skia');
   });
 
   test.each(['skia', 'threejs-2d'] as const)('accepts localhost query selector %s', (renderer) => {
@@ -16,8 +18,14 @@ describe('temporary renderer selector', () => {
   });
 
   test('ignores production and unknown query values', () => {
-    expect(rendererForEnvironment({ hostname: 'game', search: '?testRenderer=threejs-2d', smokeMode: false })).toBe('skia');
-    expect(rendererForEnvironment({ hostname: 'localhost', search: '?testRenderer=webgpu', smokeMode: false })).toBe('skia');
+    expect(rendererForEnvironment({ hostname: 'game', search: '?testRenderer=skia', smokeMode: false })).toBe('threejs-2d');
+    expect(rendererForEnvironment({ hostname: 'localhost', search: '?testRenderer=webgpu', smokeMode: false })).toBe('threejs-2d');
+  });
+
+  test('never lets a player reach the temporary Skia renderer in production', () => {
+    for (const search of ['', '?testRenderer=skia', '?testRenderer=SKIA', '?testRenderer=']) {
+      expect(rendererForEnvironment({ hostname: 'siworld.example', search, smokeMode: false })).toBe('threejs-2d');
+    }
   });
 });
 
