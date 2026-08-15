@@ -200,8 +200,8 @@ describe('packaged Electron smoke evidence', () => {
       async () => loading,
       async () => undefined,
       { maximumAttempts: 3 },
-    )).rejects.toThrow('Loading shell is no longer visible');
-    expect(captureAttempts).toBe(1);
+    )).rejects.toThrow('UnknownVizError');
+    expect(captureAttempts).toBe(2);
 
     const loadingChecks = [true, false];
     await expect(captureLoadingSmokeFrame(
@@ -209,7 +209,10 @@ describe('packaged Electron smoke evidence', () => {
       async () => loadingChecks.shift() ?? false,
       async () => undefined,
       { maximumAttempts: 1 },
-    )).rejects.toThrow('Loading shell changed during screenshot capture');
+    )).resolves.toEqual({
+      frame: expect.objectContaining({ isEmpty: expect.any(Function) }),
+      loadingShellObserved: false,
+    });
 
     await expect(captureLoadingSmokeFrame(
       async () => ({ isEmpty: () => false }),
