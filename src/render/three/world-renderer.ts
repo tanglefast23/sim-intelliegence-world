@@ -2,6 +2,7 @@ import {
   BufferGeometry,
   CanvasTexture,
   ClampToEdgeWrapping,
+  DoubleSide,
   Color,
   Float32BufferAttribute,
   LinearFilter,
@@ -216,6 +217,10 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
   return new ShaderMaterial({
     depthTest: false,
     depthWrite: false,
+    // addLine emits its quad wound by segment direction, so a line running the other way is
+    // back-facing. FrontSide culled those quads and left only the round caps, which is why the
+    // failure marker's X rendered as four corner blobs with a hole through the middle.
+    side: DoubleSide,
     transparent: true,
     uniforms: texture ? { map: { value: texture } } : {},
     vertexShader: `
@@ -710,12 +715,48 @@ export class ThreeWorldRenderer {
     // Stage 4 owns feedback now that the React lighting and atmosphere overlays no longer mount
     // on this path, so these batches composite above them exactly as the locked order requires.
     // Skia drew the ring and pin scaled by zoom, but the failure X in fixed screen pixels.
-    // Stage 4 keeps feedback in the shared overlay, which now sits ABOVE the Three.js canvas that
-    // owns lighting and atmosphere. That already satisfies the locked composite order, and it
-    // avoids matching Skia's antialiased vector strokes with hard-edged tessellation.
-    // Stage 7 deletes the overlay with the rest of Skia; nothing then needs a pixel match.
-    this.#set('destination-pulse', emptyGeometryData());
-    this.#set('journal-markers', emptyGeometryData());
-    this.#set('failure-marker', emptyGeometryData());
+    // Stage 5: the shared Skia feedback overlay no longer mounts on this path, because keeping it
+    // would force the default path to load CanvasKit. Three.js owns lighting and atmosphere since
+    // Stage 4, so these batches sit last in the composite order and land above both, exactly as
+    // the locked order requires. Skia snapped every anchor to a whole screen pixel via
+    // worldToScreen, so the same lattice is reproduced here.
+    const snapWorld = (worldX: number, worldY: number): readonly [number, number] => [
+      camera.x + Math.round((worldX - camera.x) * camera.zoom) / camera.zoom,
+      camera.y + Math.round((worldY - camera.y) * camera.zoom) / camera.zoom,
+    ];
+
+    const destination = emptyGeometryData();
+    if (frame.destinationPulse) {
+      const pulse = frame.destinationPulse;
+      const [px, py] = snapWorld(pulse.worldX, pulse.worldY);
+      addEllipse(destination, px, py, pulse.radius, pulse.radius, pulse.color, pulse.opacity, 1);
+    }
+    this.#set('destination-pulse', destination);
+
+    const journal = emptyGeometryData();
+    frame.journalMarkers.forEach((marker) => {
+      const [footX, footY] = snapWorld(marker.tile.x * TILE_SIZE + 16, marker.tile.y * TILE_SIZE + 29);
+      const centerX = footX - 10;
+      const centerY = footY - 30;
+      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 4, marker.darkColor);
+      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 2, marker.lightColor);
+      addEllipse(journal, centerX, centerY, 7, 7, marker.darkColor);
+      addEllipse(journal, centerX, centerY, 5, 5, marker.lightColor);
+      addEllipse(journal, centerX, centerY, 2, 2, marker.darkColor);
+    });
+    this.#set('journal-markers', journal);
+
+    const failure = emptyGeometryData();
+    if (frame.failureMarker) {
+      const marker = frame.failureMarker;
+      const [fx, fy] = snapWorld(marker.worldX, marker.worldY);
+      const radius = marker.radiusPixels / camera.zoom;
+      const strokeWidth = 3 / camera.zoom;
+      // Skia antialiased this diagonal, so a hard-edged stroke of the same width fills fewer
+      // pixels inside the locked mask, dropping its median below the contrast floor.
+      addLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color, true);
+      addLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color, true);
+    }
+    this.#set('failure-marker', failure);
   }
 }

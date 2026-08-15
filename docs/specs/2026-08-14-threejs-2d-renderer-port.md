@@ -581,6 +581,29 @@ The manifest records the change with `compositingChanged: true`, so no frame can
 Measured on the Stage 4 villa fixtures: mean `0.327` to `0.358`, RMSE `0.848` to `0.936`, ratio above delta 32 `0.00005` to `0.000205`.
 Those sit three to ten times inside the limits.
 
+Stage 5 audit amendment, dated 2026-08-16:
+
+Stage 5 moves the destination, journal and failure feedback into the renderer, so
+`compositingChanged` now also covers those masks.
+
+Mask-local per-pixel limits assume both sides rasterize the same way.
+A moved vector layer does not: Skia antialiased its strokes, and the Three.js batches draw hard-edged geometry by design.
+On a moved-layer frame the mask-local limits are therefore not applied.
+
+Readability is still enforced per mask, and nothing about it is relaxed:
+
+- required mask IDs, logical bounds and hit bounds still match exactly;
+- readable coverage still holds its native exact-set rule and its scaled `95%` retention rule;
+- the `1.05` minimum baseline contrast and the `90%` contrast-retention floor still apply.
+
+Measured on the Stage 5 failure marker after the renderer defect below was fixed: retained contrast `0.9887` against the `0.9` floor, readable coverage `136` against a baseline of `135`.
+A focused test proves a frame without `compositingChanged` still receives the mask-local limits.
+
+That defect is worth recording, because it was the real cause rather than any threshold.
+`addLine` emits its quad wound by segment direction, so a line running the other way was back-facing, and the material's default `FrontSide` culled it.
+The failure marker rendered as four corner blobs with a hole through its middle, and its mask median sat on background.
+Setting `DoubleSide` restored it and moved retained contrast from `0.5977` to `0.9887`.
+
 Stage 0 proves the tool with one identical-image pass fixture and one deliberately changed fail fixture.
 Stage 2 records the first matched Skia and Three.js results with `NoToneMapping`.
 ACES is forbidden until no-tone-mapping parity passes.

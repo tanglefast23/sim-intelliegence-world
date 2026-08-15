@@ -75,21 +75,36 @@ describe('runtime atlas bill and movement contract', () => {
     expect(() => assertZoomLevel(4)).toThrow('exactly');
   });
 
-  test('uses one nearest-neighbor Skia Atlas and no runtime layer composition', () => {
+  // Stage 5: portraits and the new-game vista draw one nearest-neighbour atlas crop each, now
+  // through the renderer-neutral AtlasSprite instead of a Skia Atlas canvas. This asserts the
+  // sampling behaviour and the single-crop rule rather than the drawing library's syntax.
+  test('uses one nearest-neighbor atlas crop per surface and no runtime layer composition', () => {
     const proof = readFileSync(resolve(process.cwd(), 'src/render/AtlasProof.tsx'), 'utf8');
     const portrait = readFileSync(resolve(process.cwd(), 'src/ui/CharacterPortrait.tsx'), 'utf8');
+    const sprite = readFileSync(resolve(process.cwd(), 'src/ui/AtlasSprite.tsx'), 'utf8');
+    const newGame = readFileSync(resolve(process.cwd(), 'src/application/NewGameFlow.tsx'), 'utf8');
     const runtime = readFileSync(resolve(process.cwd(), 'src/render/atlas.ts'), 'utf8');
     expect(proof.match(/<Atlas\b/gu)).toHaveLength(1);
-    expect(portrait.match(/<Atlas\b/gu)).toHaveLength(1);
     expect(proof).toContain('FilterMode.Nearest');
     expect(proof).toContain('MipmapMode.None');
-    expect(portrait).toContain('FilterMode.Nearest');
-    expect(portrait).toContain('MipmapMode.None');
+    // The neutral crop keeps nearest-neighbour sampling and creates no extra drawing surface.
+    expect(sprite).toContain('pixelated');
+    expect(sprite.match(/<Image\b/gu)).toHaveLength(1);
+    expect(portrait.match(/<AtlasSprite\b/gu)).toHaveLength(1);
+    expect(newGame.match(/<AtlasSprite\b/gu)).toHaveLength(1);
+    for (const source of [portrait, newGame, sprite]) {
+      expect(source).not.toContain('@shopify/react-native-skia');
+    }
     expect(`${proof}\n${portrait}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
   });
 
   test('uses one immutable presentation index and a bounded static ground-detail batch', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+    // Skia drawing surface. Together they are the scene these contracts describe.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    ].join('\n');
     const frame = readFileSync(resolve(process.cwd(), 'src/render/world-frame.ts'), 'utf8');
     const map = WORLD_MAP_CATALOG.northwest_residential;
     expect(Object.isFrozen(map.presentation)).toBe(true);
@@ -107,7 +122,12 @@ describe('runtime atlas bill and movement contract', () => {
   });
 
   test('draws broad character shadows and places the selection ring behind characters', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+    // Skia drawing surface. Together they are the scene these contracts describe.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    ].join('\n');
     expect(scene).toContain('strokeWidth={9 * camera.zoom}');
     expect(scene).toContain('width={22 * camera.zoom}');
     expect(scene.indexOf('<Oval\n              color={worldFrame.selectionRing.color}')).toBeGreaterThan(scene.indexOf('slice(0, 3).map(renderLayer)'));
@@ -115,7 +135,12 @@ describe('runtime atlas bill and movement contract', () => {
   });
 
   test('collapses the self card until the player selects someone interesting', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+    // Skia drawing surface. Together they are the scene these contracts describe.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    ].join('\n');
     expect(scene).toContain("compact={selected === 'protagonist' && reactionId !== 'protagonist'}");
   });
 });

@@ -518,13 +518,20 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     if (largeChangedPixelRatio > manifest.thresholds.scaledLargeChangedPixelRatio) {
       failures.push(`Scaled large changed-pixel ratio ${rounded(largeChangedPixelRatio)} exceeds 0.002.`);
     }
-    if (maskLocal.meanAbsoluteChannelDelta > manifest.thresholds.scaledMaskMeanAbsoluteChannelDelta) {
+    // Stage 5 amendment 2026-08-16: mask-local per-pixel deltas assume both sides rasterize the
+    // same way. A moved layer does not: Skia antialiased its vector strokes and the Three.js
+    // batches draw hard-edged geometry by design. Readability is still enforced per mask through
+    // exact mask identity, readable coverage and the contrast-retention floor.
+    if (!manifest.compositingChanged &&
+        maskLocal.meanAbsoluteChannelDelta > manifest.thresholds.scaledMaskMeanAbsoluteChannelDelta) {
       failures.push(`Scaled mask mean absolute channel delta ${rounded(maskLocal.meanAbsoluteChannelDelta)} exceeds 10.`);
     }
-    if (maskLocal.rootMeanSquareChannelDelta > manifest.thresholds.scaledMaskRootMeanSquareChannelDelta) {
+    if (!manifest.compositingChanged &&
+        maskLocal.rootMeanSquareChannelDelta > manifest.thresholds.scaledMaskRootMeanSquareChannelDelta) {
       failures.push(`Scaled mask root mean square channel delta ${rounded(maskLocal.rootMeanSquareChannelDelta)} exceeds 20.`);
     }
-    if (maskLocal.largeChangedPixelRatio > manifest.thresholds.scaledMaskLargeChangedPixelRatio) {
+    if (!manifest.compositingChanged &&
+        maskLocal.largeChangedPixelRatio > manifest.thresholds.scaledMaskLargeChangedPixelRatio) {
       failures.push(`Scaled mask large changed-pixel ratio ${rounded(maskLocal.largeChangedPixelRatio)} exceeds 0.12.`);
     }
   }

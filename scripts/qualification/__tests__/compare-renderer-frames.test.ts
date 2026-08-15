@@ -425,6 +425,18 @@ describe('renderer frame comparison', () => {
       expect(report.passed).toBe(true);
     });
 
+    test('keeps mask-local gates when compositing did not change', () => {
+      const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+      const maskOffset = (4 * 32 + 4) * 4;
+      candidate.data[maskOffset] = candidate.data[maskOffset]! - 40;
+      writeImage(join(root, 'candidate.png'), candidate);
+      const value = manifest(root);
+      value.zoom = 2;
+      const report = compareRendererFrames(value, 'parity');
+      expect(report.passed).toBe(false);
+      expect(report.failures.join(' ')).toContain('Scaled mask');
+    });
+
     test('still fails a moved-layer frame that breaks the raster-neutral family', () => {
       const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
       for (let pixel = 0; pixel < 900; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! - 40;

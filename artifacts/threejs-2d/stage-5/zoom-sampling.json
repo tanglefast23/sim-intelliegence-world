@@ -1,0 +1,983 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
+  "evidenceSource": {
+    "baseCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
+    "sourceSha256": "21fbe89f99de7cab3384c18dcc03a579dfe6b9fdb7cfbaaa52e27cc55e539c55",
+    "sourcePaths": [
+      "electron/main/index.ts",
+      "scripts/electron/run-renderer-all-maps-package-smoke.ts",
+      "src/render/ThreeWorldSurface.tsx",
+      "src/render/WorldScene.tsx",
+      "src/render/three/all-map-parity.ts",
+      "src/render/three/world-renderer.ts",
+      "src/render/world-frame.ts"
+    ]
+  },
+  "crop": {
+    "x": 560,
+    "y": 280,
+    "width": 160,
+    "height": 160
+  },
+  "rendererKinds": [
+    "skia",
+    "threejs-2d"
+  ],
+  "nativeLimits": {
+    "meanAbsoluteChannelDelta": 1,
+    "rootMeanSquareChannelDelta": 3,
+    "largeChangedPixelRatio": 0.002
+  },
+  "scaledLimits": {
+    "meanAbsoluteChannelDelta": 3,
+    "rootMeanSquareChannelDelta": 12,
+    "largeChangedPixelRatio": 0.04
+  },
+  "passed": true,
+  "samples": [
+    {
+      "zoom": 1,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "native",
+      "presentedZoom": 1,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.5611067708333334,
+        "rootMeanSquareChannelDelta": 1.8031475662943766,
+        "largeChangedPixelCount": 44,
+        "largeChangedPixelRatio": 0.00171875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.05,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.05,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.5831119791666667,
+        "rootMeanSquareChannelDelta": 2.039745056577741,
+        "largeChangedPixelCount": 67,
+        "largeChangedPixelRatio": 0.0026171875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.1,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.1,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.6274088541666667,
+        "rootMeanSquareChannelDelta": 2.75179155657425,
+        "largeChangedPixelCount": 86,
+        "largeChangedPixelRatio": 0.003359375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.15,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.15,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.6545833333333333,
+        "rootMeanSquareChannelDelta": 2.8750135869244167,
+        "largeChangedPixelCount": 85,
+        "largeChangedPixelRatio": 0.0033203125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.2,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.2,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.65734375,
+        "rootMeanSquareChannelDelta": 2.8686115616560333,
+        "largeChangedPixelCount": 94,
+        "largeChangedPixelRatio": 0.003671875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.25,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.25,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.3379166666666666,
+        "rootMeanSquareChannelDelta": 4.92689261434967,
+        "largeChangedPixelCount": 117,
+        "largeChangedPixelRatio": 0.0045703125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.3,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.3,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7102213541666667,
+        "rootMeanSquareChannelDelta": 3.2678655591226513,
+        "largeChangedPixelCount": 117,
+        "largeChangedPixelRatio": 0.0045703125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.35,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.35,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.668671875,
+        "rootMeanSquareChannelDelta": 2.681485518016708,
+        "largeChangedPixelCount": 89,
+        "largeChangedPixelRatio": 0.0034765625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.4,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.4,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.6927734375,
+        "rootMeanSquareChannelDelta": 2.8527421931947043,
+        "largeChangedPixelCount": 111,
+        "largeChangedPixelRatio": 0.0043359375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.45,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.45,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7481119791666667,
+        "rootMeanSquareChannelDelta": 3.5029990870918972,
+        "largeChangedPixelCount": 138,
+        "largeChangedPixelRatio": 0.005390625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.5,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.5,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 2.0238671875,
+        "rootMeanSquareChannelDelta": 8.011699615510222,
+        "largeChangedPixelCount": 529,
+        "largeChangedPixelRatio": 0.0206640625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.55,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.55,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7240885416666667,
+        "rootMeanSquareChannelDelta": 2.881283893509975,
+        "largeChangedPixelCount": 107,
+        "largeChangedPixelRatio": 0.0041796875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.6,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.6,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7631380208333334,
+        "rootMeanSquareChannelDelta": 3.266478656366822,
+        "largeChangedPixelCount": 130,
+        "largeChangedPixelRatio": 0.005078125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.65,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.65,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7453515625,
+        "rootMeanSquareChannelDelta": 3.1415830835477414,
+        "largeChangedPixelCount": 108,
+        "largeChangedPixelRatio": 0.00421875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.7,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.7,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7217708333333334,
+        "rootMeanSquareChannelDelta": 2.652858128509702,
+        "largeChangedPixelCount": 83,
+        "largeChangedPixelRatio": 0.0032421875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.75,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.75,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.8485026041666667,
+        "rootMeanSquareChannelDelta": 3.7922258058427905,
+        "largeChangedPixelCount": 117,
+        "largeChangedPixelRatio": 0.0045703125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.8,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.8,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7763541666666667,
+        "rootMeanSquareChannelDelta": 3.352653644254553,
+        "largeChangedPixelCount": 113,
+        "largeChangedPixelRatio": 0.0044140625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.85,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.85,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.8482552083333333,
+        "rootMeanSquareChannelDelta": 4.084765905165191,
+        "largeChangedPixelCount": 141,
+        "largeChangedPixelRatio": 0.0055078125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.9,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.9,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.7713802083333333,
+        "rootMeanSquareChannelDelta": 3.0785675443296676,
+        "largeChangedPixelCount": 95,
+        "largeChangedPixelRatio": 0.0037109375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 1.95,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 1.95,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.8240885416666667,
+        "rootMeanSquareChannelDelta": 3.499546101520405,
+        "largeChangedPixelCount": 122,
+        "largeChangedPixelRatio": 0.004765625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.8181119791666667,
+        "rootMeanSquareChannelDelta": 3.0914427423400013,
+        "largeChangedPixelCount": 119,
+        "largeChangedPixelRatio": 0.0046484375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.05,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.05,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.8436458333333333,
+        "rootMeanSquareChannelDelta": 3.2613463796924935,
+        "largeChangedPixelCount": 130,
+        "largeChangedPixelRatio": 0.005078125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.1,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.1,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.9227734375,
+        "rootMeanSquareChannelDelta": 4.283615526534409,
+        "largeChangedPixelCount": 162,
+        "largeChangedPixelRatio": 0.006328125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.15,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.15,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.9429036458333333,
+        "rootMeanSquareChannelDelta": 4.182890809097619,
+        "largeChangedPixelCount": 156,
+        "largeChangedPixelRatio": 0.00609375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.2,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.2,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.9554817708333333,
+        "rootMeanSquareChannelDelta": 4.284724867188091,
+        "largeChangedPixelCount": 157,
+        "largeChangedPixelRatio": 0.0061328125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.25,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.25,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.9547265625,
+        "rootMeanSquareChannelDelta": 6.67408799169095,
+        "largeChangedPixelCount": 523,
+        "largeChangedPixelRatio": 0.0204296875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.3,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.3,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.9568229166666666,
+        "rootMeanSquareChannelDelta": 4.0125876158658516,
+        "largeChangedPixelCount": 149,
+        "largeChangedPixelRatio": 0.0058203125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.35,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.35,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.9723828125,
+        "rootMeanSquareChannelDelta": 4.065852783139924,
+        "largeChangedPixelCount": 137,
+        "largeChangedPixelRatio": 0.0053515625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.4,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.4,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 0.9649348958333334,
+        "rootMeanSquareChannelDelta": 3.854253940453327,
+        "largeChangedPixelCount": 151,
+        "largeChangedPixelRatio": 0.0058984375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.45,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.45,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0041145833333334,
+        "rootMeanSquareChannelDelta": 4.361437310872033,
+        "largeChangedPixelCount": 158,
+        "largeChangedPixelRatio": 0.006171875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.5,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.5,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.8357942708333332,
+        "rootMeanSquareChannelDelta": 7.156884979106948,
+        "largeChangedPixelCount": 291,
+        "largeChangedPixelRatio": 0.0113671875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.55,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.55,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0088802083333333,
+        "rootMeanSquareChannelDelta": 4.149111978283225,
+        "largeChangedPixelCount": 161,
+        "largeChangedPixelRatio": 0.0062890625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.6,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.6,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0037630208333332,
+        "rootMeanSquareChannelDelta": 4.091939803341035,
+        "largeChangedPixelCount": 169,
+        "largeChangedPixelRatio": 0.0066015625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.65,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.65,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0094140625,
+        "rootMeanSquareChannelDelta": 3.8200931898537065,
+        "largeChangedPixelCount": 155,
+        "largeChangedPixelRatio": 0.0060546875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.7,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.7,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0711067708333333,
+        "rootMeanSquareChannelDelta": 4.514235296536945,
+        "largeChangedPixelCount": 174,
+        "largeChangedPixelRatio": 0.006796875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.75,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.75,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.7275,
+        "rootMeanSquareChannelDelta": 6.376954357293142,
+        "largeChangedPixelCount": 400,
+        "largeChangedPixelRatio": 0.015625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.8,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.8,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0657682291666666,
+        "rootMeanSquareChannelDelta": 4.317827325461267,
+        "largeChangedPixelCount": 166,
+        "largeChangedPixelRatio": 0.006484375
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.85,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.85,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.1580338541666666,
+        "rootMeanSquareChannelDelta": 5.057972512529107,
+        "largeChangedPixelCount": 202,
+        "largeChangedPixelRatio": 0.007890625
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.9,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.9,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.0926302083333332,
+        "rootMeanSquareChannelDelta": 4.252330855934582,
+        "largeChangedPixelCount": 190,
+        "largeChangedPixelRatio": 0.007421875
+      },
+      "failures": []
+    },
+    {
+      "zoom": 2.95,
+      "inputStep": false,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 2.95,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.1624609375,
+        "rootMeanSquareChannelDelta": 4.824383326308832,
+        "largeChangedPixelCount": 208,
+        "largeChangedPixelRatio": 0.008125
+      },
+      "failures": []
+    },
+    {
+      "zoom": 3,
+      "inputStep": true,
+      "savedBoundary": true,
+      "rasterComparison": "scaled",
+      "presentedZoom": 3,
+      "atlasSampling": {
+        "magFilter": "nearest",
+        "minFilter": "nearest",
+        "generateMipmaps": false,
+        "anisotropy": 1,
+        "wrapS": "clamp-to-edge",
+        "wrapT": "clamp-to-edge"
+      },
+      "measurement": {
+        "comparablePixelCount": 25600,
+        "meanAbsoluteChannelDelta": 1.1144401041666667,
+        "rootMeanSquareChannelDelta": 4.183868138955465,
+        "largeChangedPixelCount": 203,
+        "largeChangedPixelRatio": 0.0079296875
+      },
+      "failures": []
+    }
+  ]
+}

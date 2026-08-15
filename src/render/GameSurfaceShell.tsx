@@ -1,11 +1,18 @@
-import { Canvas, Rect } from '@shopify/react-native-skia';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
-import { GameScreen } from '../application/GameScreen';
+import { LoadingShell } from '../application/LoadingShell';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererShellReadyReport, createRendererWorldReadyReport } from '../application/RendererReadiness';
-import { DevHarnessScreen } from '../ui/dev-harness/DevHarnessScreen';
+
+// The Skia modules read global.CanvasKit when their module body evaluates, so the game screen
+// must stay behind a dynamic import until CanvasKit has loaded on the temporary Skia path.
+// WithSkiaWeb provided this property before Stage 5; keeping it is what lets the Three.js path
+// skip CanvasKit entirely without breaking the Skia path.
+const LazyDevHarnessScreen = lazy(async () => ({
+  default: (await import('../ui/dev-harness/DevHarnessScreen')).DevHarnessScreen,
+}));
+const LazyGameScreen = lazy(async () => ({ default: (await import('../application/GameScreen')).GameScreen }));
 import { OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
 import type { ViewportSize } from './camera';
 import { selectedRenderer } from './renderer-selection';
@@ -29,7 +36,7 @@ function localhostDevHarnessMode(): boolean {
   return localHost && new URLSearchParams(window.location.search).get('devHarness') === '1';
 }
 
-type SkiaProofProps = Readonly<{
+type GameSurfaceShellProps = Readonly<{
   assetsLoaded: boolean;
 }>;
 
@@ -42,7 +49,14 @@ async function afterTwoPaints(): Promise<void> {
   await afterNextPaint();
 }
 
-export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
+/**
+ * Stage 5: the renderer-neutral game-surface shell. It replaces SkiaProof and the root
+ * WithSkiaWeb mount, so the default shipping path never loads CanvasKit. The surface backdrop
+ * was a Skia Canvas drawing a single solid rect, which a plain View reproduces exactly.
+ * Readiness reporting, surface measurement, dev-harness routing and the public proof-node IDs
+ * keep their existing meaning.
+ */
+export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps) {
   const devHarnessMode = typeof window !== 'undefined' && (
     window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
   );
@@ -57,6 +71,22 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
   const reportedShell = useRef(false);
   const reportedWorld = useRef(false);
   const markWorldReady = useCallback(() => setWorldReady(true), []);
+  // Stage 5: only the temporary Skia path needs CanvasKit, and it must be loaded before any
+  // Skia surface mounts. The Three.js path never loads it, which is the point of this stage.
+  const [canvasKitReady, setCanvasKitReady] = useState(rendererKind !== 'skia');
+
+  useEffect(() => {
+    if (rendererKind !== 'skia' || canvasKitReady) return;
+    let cancelled = false;
+    void import('@shopify/react-native-skia/lib/module/web')
+      .then(({ LoadSkiaWeb }) => LoadSkiaWeb({ locateFile: () => '/canvaskit.wasm' }))
+      .then(() => { if (!cancelled) setCanvasKitReady(true); })
+      .catch((error: unknown) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        console.error(`SI_WORLD_CANVASKIT_LOAD_FAILURE ${detail}`);
+      });
+    return () => { cancelled = true; };
+  }, [canvasKitReady, rendererKind]);
 
   useEffect(() => {
     if (devHarnessMode) markWorldReady();
@@ -88,7 +118,7 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
 
   useEffect(() => {
     const bridge = getDesktopBridge();
-    if (!bridge || !worldReady || reportedWorld.current) return;
+    if (!bridge || !worldReady || reportedWorld.current || devHarnessMode) return;
     reportedWorld.current = true;
     void afterTwoPaints()
       .then(() => {
@@ -113,7 +143,7 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
           canvasWidth: canvas?.width ?? 0,
           nodeAccessBlocked: hasNoNodeAccess(),
           rendererKind,
-          webgl2Ready: rendererKind === 'threejs-2d' && canvas?.getContext('webgl2') !== null,
+          webgl2Ready: rendererKind === 'threejs-2d' && (canvas?.getContext('webgl2') ?? null) !== null,
         });
         return bridge.reportRendererReady(report);
       })
@@ -123,7 +153,7 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
         setRuntime(`Desktop bridge rejected world readiness: ${detail}`);
         console.error(`SI_WORLD_RENDERER_READY_FAILURE ${detail}`);
       });
-  }, [assetsLoaded, rendererKind, worldReady]);
+  }, [assetsLoaded, devHarnessMode, rendererKind, worldReady]);
 
   const measureSurface = useCallback((event: LayoutChangeEvent) => {
     const width = Math.max(1, Math.floor(event.nativeEvent.layout.width));
@@ -131,16 +161,28 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
     setSurface((current) => current.width === width && current.height === height ? current : { width, height });
   }, []);
 
+  if (!canvasKitReady) return <LoadingShell detail="Loading CanvasKit…" />;
+
   return (
     <View style={styles.screen}>
-      <Canvas nativeID="active-surface-canvas" style={StyleSheet.flatten([styles.surfaceCanvas, surface])}>
-        <Rect color="#17201b" height={surface.height} width={surface.width} x={0} y={0} />
-      </Canvas>
+      <View
+        nativeID="active-surface-canvas"
+        pointerEvents="none"
+        style={StyleSheet.flatten([styles.surfaceCanvas, surface])}
+      />
       <View style={styles.surfaceFrame}>
         <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
           {devHarnessMode
-            ? <DevHarnessScreen surface={surface} />
-            : <GameScreen onWorldReady={markWorldReady} rendererKind={rendererKind} surface={surface} />}
+            ? (
+              <Suspense fallback={null}>
+                <LazyDevHarnessScreen surface={surface} />
+              </Suspense>
+            )
+            : (
+              <Suspense fallback={null}>
+                <LazyGameScreen onWorldReady={markWorldReady} rendererKind={rendererKind} surface={surface} />
+              </Suspense>
+            )}
         </View>
       </View>
       {__DEV__ ? <Text nativeID="development-runtime" style={styles.runtime}>{runtime}</Text> : null}
@@ -158,6 +200,7 @@ const styles = StyleSheet.create({
     right: 12,
   },
   surfaceCanvas: {
+    backgroundColor: '#17201b',
     left: OUTER_MARGIN + SURFACE_BORDER,
     position: 'absolute',
     top: OUTER_MARGIN + SURFACE_BORDER,
