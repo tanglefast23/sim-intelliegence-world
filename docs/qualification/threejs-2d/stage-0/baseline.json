@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "stage": 0,
+  "renderer": "skia",
+  "sourceCommit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+  "integrationBaseCommit": "667540e6b0715e00ce4dccb90e6c1f9443c07e39",
+  "initialDirtyPaths": [
+    "package.json",
+    "spikes/002-threejs-animated-sketch/index.html",
+    "spikes/002-threejs-animated-sketch/scene.bundle.js",
+    "spikes/002-threejs-animated-sketch/scene.js",
+    "spikes/002-threejs-animated-sketch/verify.mjs"
+  ],
+  "environment": {
+    "node": "v22.23.1",
+    "npm": "10.9.8",
+    "os": "macOS 26.5.2 (25F84)",
+    "architecture": "arm64",
+    "hardware": "Apple M5 Max",
+    "memoryBytes": 137438953472,
+    "viewports": [
+      { "width": 1280, "height": 720 },
+      { "width": 1440, "height": 900 },
+      { "width": 1920, "height": 1080 },
+      { "width": 2560, "height": 1440 },
+      { "width": 1600, "height": 720 }
+    ],
+    "devicePixelRatios": [1, 1.25, 1.5, 2],
+    "zoomRange": { "minimum": 1, "maximum": 3, "savedStep": 0.05, "inputStep": 0.1 }
+  },
+  "measurements": {
+    "webgl2Available": true,
+    "packageRendererFps": 119.89,
+    "packageRendererFpsSampledFrames": 23,
+    "naturalMovementRendererFps": 120,
+    "maximumLoadDpr2RendererFps": 120,
+    "maximumLoadDpr2SampledFrames": 241,
+    "vfxRoundedFps": 120
+  },
+  "checks": {
+    "verifyCiBuild": { "passed": true, "testSuites": 85, "tests": 867 },
+    "verify": { "passed": true },
+    "rollbackCleanWorktreeVerify": { "passed": true, "testSuites": 85, "tests": 867 },
+    "comparatorPositiveAndNegativeSelfTests": true,
+    "zoomSampleCount": 41,
+    "vfxModes": ["circle", "procedural"],
+    "motionModes": ["standard", "reduced"]
+  },
+  "fixtures": [
+    { "id": "northwest-map-1x", "path": "artifacts/threejs-2d/stage-0/captures/northwest-1x.png", "sha256": "c52786d8c1f650c208256f2b8d7e10d059fb65c32e4dab9aa6ebc1fb4495e48a" },
+    { "id": "northeast-map-1x", "path": "artifacts/threejs-2d/stage-0/captures/northeast-1x.png", "sha256": "4c7368dded0dd87d60c3b2d90e4ac0f3a3762a67afd43b367c01ac0ba67010e4" },
+    { "id": "southeast-map-1x", "path": "artifacts/threejs-2d/stage-0/captures/southeast-1x.png", "sha256": "1b46b3b7b257f196ea512e1fc9881a74202837c0c3d4648b8ed569fe93b30599" },
+    { "id": "southwest-map-1x", "path": "artifacts/threejs-2d/stage-0/captures/southwest-1x.png", "sha256": "4422f58a44de3f7691a8fb819a4fbb17c8866f339018958dc10a2d14d1b2b5b3" },
+    { "id": "roof-restored-1x", "path": "artifacts/threejs-2d/stage-0/captures/roof-restored-1x.png", "sha256": "a69dceb529782d3009573e10d32e82eb4a2a0f964993ceb3919a4d5d3eb80143" },
+    { "id": "journal-marker-1x", "path": "artifacts/threejs-2d/stage-0/captures/journal-marker-1x.png", "sha256": "fbb4cf479962e10716cf1432bff0d58d6b53d0144e42d93f67f479ce5f75056a" },
+    { "id": "movement-1x", "path": "artifacts/threejs-2d/stage-0/captures/movement-1x.png", "sha256": "be74e11f1e546b972d82ee0a9611b100bea635bac555f7f0770899398c90a1c8" },
+    { "id": "maximum-load-dpr-2", "path": "artifacts/threejs-2d/stage-0/captures/maximum-load-dpr-2.png", "sha256": "8e593b5e041342cf9f11a771a85297aa88792ac46ac7048a97ef4ed02d671203" },
+    { "id": "vfx-circle-standard-fire-1x", "path": "artifacts/threejs-2d/stage-0/captures/vfx-circle-standard-fire-1x.png", "sha256": "4553b04e0755acb044172e833f397ba506595b597e4f6d81e8d6b05818b40637" },
+    { "id": "vfx-procedural-standard-fire-1x", "path": "artifacts/threejs-2d/stage-0/captures/vfx-procedural-standard-fire-1x.png", "sha256": "19934fdbbd402955eeaa73a0317d74b674e12a250ca09b9c5ae8ea6423eaac39" },
+    { "id": "vfx-circle-reduced-fire-1x", "path": "artifacts/threejs-2d/stage-0/captures/vfx-circle-reduced-fire-1x.png", "sha256": "30fcf759168a916bc7a30f2fbf7006d850bc3b434a65b488b31459ca5d3247f5" },
+    { "id": "vfx-procedural-reduced-fire-1x", "path": "artifacts/threejs-2d/stage-0/captures/vfx-procedural-reduced-fire-1x.png", "sha256": "0117f7d33e0929edeef7bf15e23885d3bd735939b504d5048a4ede5782247a1d" },
+    { "id": "vfx-fire-grayscale-1x", "path": "artifacts/threejs-2d/stage-0/captures/vfx-fire-grayscale-1x.png", "sha256": "5619aa84efbd4f6c057bf7b4206d70c922a4db420c75244cb1ea89057bc28f3e" },
+    { "id": "vfx-sparkle-grayscale-1x", "path": "artifacts/threejs-2d/stage-0/captures/vfx-sparkle-grayscale-1x.png", "sha256": "49f5570d8e1ab14ba3e31d153d3ff5d2b25f6b4c666d28db309ab772932dd8b6" },
+    { "id": "dpr-1-report", "path": "artifacts/threejs-2d/stage-0/reports/dpr-1.json", "sha256": "d924ff4049b134b4b53ce2a5ea554ccc92a32f9ef96b7ca63c180e5261030a1f" },
+    { "id": "dpr-1.25-report", "path": "artifacts/threejs-2d/stage-0/reports/dpr-1.25.json", "sha256": "4b1143d874430b18f52d30cad26a6070305d5f57caa8d96fc519904d9ea57170" },
+    { "id": "dpr-1.5-report", "path": "artifacts/threejs-2d/stage-0/reports/dpr-1.5.json", "sha256": "e01e6dac97781cea19fa72288e4bcdfb96b3c898f535f44d8523c4d774fd07d0" },
+    { "id": "dpr-2-report", "path": "artifacts/threejs-2d/stage-0/reports/dpr-2.json", "sha256": "cdc5112d1584009ab735eb73e3b3620ba777bc1c14491fc0f14eccc777559bfb" },
+    { "id": "natural-movement-report", "path": "artifacts/threejs-2d/stage-0/reports/natural-movement.json", "sha256": "8f9fe9d31de365ec556b4074eb5ce080891befa6a093903cd324e398a91c1d01" },
+    { "id": "webgl2-probe-report", "path": "artifacts/threejs-2d/stage-0/reports/webgl2-probe.json", "sha256": "44e65870a0bbd5329568bca25980575b2c265bf227cd2eaa5c1537821edd606b" },
+    { "id": "maximum-load-report", "path": "artifacts/threejs-2d/stage-0/reports/maximum-load.json", "sha256": "04314c318817b6b75f848ed73a5c483b8e89c81b53348699d2912e320e17d766" },
+    { "id": "package-smoke-report", "path": "artifacts/threejs-2d/stage-0/reports/package-smoke.json", "sha256": "4e42e099833499fe2d4ed65e1b1813053f1232cc996a898406836c246a76d5e4" },
+    { "id": "zoom-sampling-report", "path": "artifacts/threejs-2d/stage-0/reports/zoom-sampling.json", "sha256": "81ce1141a09b1772fd0e1ac735dd02a5ef13eed5631975fb61898595c81c49dc" },
+    { "id": "vfx-full-report", "path": "artifacts/threejs-2d/stage-0/reports/vfx-full.json", "sha256": "cb2ff277ebc9d2259fa0c0373e18ff8079119c143cd17606c6b37dc0cf2b859c" },
+    { "id": "parity-pass-self-test", "path": "artifacts/threejs-2d/stage-0/reports/self-test-parity-pass.json", "sha256": "a9b90c53b530ea1b8a623132ae7c2ef0fe06090b25148719a048098be85b567d" },
+    { "id": "parity-fail-self-test", "path": "artifacts/threejs-2d/stage-0/reports/self-test-parity-fail.json", "sha256": "8c6291e7318dc74009861ffcd3e18aadb35530396035d001c5a7d15e3b0c0119" },
+    { "id": "enhanced-pass-self-test", "path": "artifacts/threejs-2d/stage-0/reports/self-test-enhanced-pass.json", "sha256": "72f235ea853b36e7113ba3bd1ec0c82ba625ba5a429e72cabdc10eedd6beb214" },
+    { "id": "enhanced-fail-self-test", "path": "artifacts/threejs-2d/stage-0/reports/self-test-enhanced-fail.json", "sha256": "2a9a938c9bbbaf79009635db9aa9f422b3039d1cf4a34875dba9251393707e12" }
+  ],
+  "remoteGate": {
+    "status": "passed",
+    "runId": 31871797137,
+    "url": "https://github.com/tanglefast23/sim-intelliegence-world/actions/runs/31871797137",
+    "requiredPlatforms": ["macos-arm64", "macos-x64", "windows-x64"]
+  }
+}

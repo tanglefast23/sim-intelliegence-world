@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "available": true,
+  "appUrl": "app://game/webgl2-probe.html",
+  "architecture": "arm64",
+  "platform": "darwin",
+  "testedCommit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4"
+}
