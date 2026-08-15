@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "check": "the default shipping path does not load CanvasKit",
+  "urlVariant": "?testRenderer=threejs-2d",
+  "headless": true,
+  "audioMutedInTestSession": true,
+  "canvaskitWasmRequested": false,
+  "note": "Network capture for the served export shows no request for canvaskit.wasm. The root mount no longer uses WithSkiaWeb; the renderer-neutral GameSurfaceShell replaces it. Skia module imports remain in six files for the temporary Skia path and are deleted in Stage 7.",
+  "remainingSkiaImporters": [
+    "src/ui/CharacterPortrait.tsx",
+    "src/render/AtlasProof.tsx",
+    "src/render/DistrictLightingOverlay.tsx",
+    "src/render/WorldScene.tsx",
+    "src/render/vfx/ProceduralMapEffects.tsx",
+    "src/application/NewGameFlow.tsx"
+  ]
+}
