@@ -193,6 +193,8 @@ const fixtureEntries = report.caseIds.map((id) => {
     zoom: baseline.zoom,
     camera: { x: baseline.state.camera.x, y: baseline.state.camera.y },
     toneMapping: 'none',
+    // Stage 4 moved district lighting and atmosphere into the renderer.
+    compositingChanged: stage >= 4,
     exposure: 1,
     baseline: { image: `${CAPTURE_OUTPUT}/${baseline.screenshot}`, masks: maskPath },
     candidate: { image: `${CAPTURE_OUTPUT}/${candidate.screenshot}`, masks: maskPath },

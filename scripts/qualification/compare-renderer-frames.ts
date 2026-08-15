@@ -44,6 +44,9 @@ const ComparisonManifestFields = {
   devicePixelRatio: z.union([z.literal(1), z.literal(1.25), z.literal(1.5), z.literal(2)]),
   camera: z.object({ x: z.number(), y: z.number() }).strict(),
   toneMapping: z.enum(['none', 'aces']),
+  // Stage 4 amendment 2026-08-16: set when a layer moved into the renderer, so this frame
+  // qualifies under the approved raster-neutral RGB family instead of native per-pixel limits.
+  compositingChanged: z.boolean().default(false),
   exposure: z.number().positive(),
   baseline: CaptureSchema,
   candidate: CaptureSchema,
@@ -378,7 +381,11 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
   }
 
   const failures: string[] = [];
-  const rasterComparison = manifest.devicePixelRatio === 1 && manifest.zoom === 1 ? 'native' : 'scaled';
+  const nativeRaster = manifest.devicePixelRatio === 1 && manifest.zoom === 1;
+  const rasterComparison = nativeRaster ? 'native' : 'scaled';
+  // A moved layer changes the compositing path, so per-pixel native limits no longer apply.
+  const perPixelNative = nativeRaster && !manifest.compositingChanged;
+  const rasterNeutral = !nativeRaster || manifest.compositingChanged;
   const requiredPixels = new Set<number>();
   for (const mask of baselineMasks) {
     for (const pixel of maskPixels(mask, manifest.devicePixelRatio, baselineImage)) requiredPixels.add(pixel);
@@ -432,18 +439,18 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
       ? candidateReadable.length / baselineReadable.length : 0;
     if (baselineReadable.length === 0) {
       failures.push(`${baselineMask.id}: baseline has no readable pixels against its ring.`);
-    } else if (rasterComparison === 'native') {
+    } else if (perPixelNative) {
       if (JSON.stringify(baselineReadable) !== JSON.stringify(candidateReadable)) {
         failures.push(`${baselineMask.id}: native readable-pixel set changed.`);
       }
-    } else if (readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
+    } else if (perPixelNative ? false : readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
       failures.push(
         `${baselineMask.id}: scaled readable coverage ${rounded(readableRetention)} is below 0.95.`,
       );
     }
 
     const channelDelta = maximumChannelDelta(baselineImage, candidateImage, baselinePixels);
-    if (manifest.mode === 'parity' && rasterComparison === 'native' &&
+    if (manifest.mode === 'parity' && perPixelNative &&
         channelDelta > manifest.thresholds.requiredMaskMaximumChannelDelta) {
       failures.push(`${baselineMask.id}: required-mask channel delta ${channelDelta} exceeds 8.`);
     }
@@ -472,12 +479,12 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     ))) changedOutsideMaskPixels += 1;
   }
   const changedOutsideMaskRatio = outsideMaskPixelCount === 0 ? 0 : changedOutsideMaskPixels / outsideMaskPixelCount;
-  if (manifest.mode === 'parity' && rasterComparison === 'native' &&
+  if (manifest.mode === 'parity' && perPixelNative &&
       changedOutsideMaskRatio > manifest.thresholds.outsideMaskChangedPixelRatio) {
     failures.push(`Outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.005.`);
   }
   // Stage 3 amendment 2026-08-15: scaled frames keep a bounded outside-mask ceiling.
-  if (manifest.mode === 'parity' && rasterComparison === 'scaled' &&
+  if (manifest.mode === 'parity' && rasterNeutral &&
       changedOutsideMaskRatio > manifest.thresholds.scaledOutsideMaskChangedPixelRatio) {
     failures.push(`Scaled outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.12.`);
   }
@@ -501,7 +508,7 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     requiredPixels,
     manifest.thresholds.scaledLargeChannelDelta,
   );
-  if (manifest.mode === 'parity' && rasterComparison === 'scaled') {
+  if (manifest.mode === 'parity' && rasterNeutral) {
     if (meanAbsoluteChannelDelta > manifest.thresholds.scaledMeanAbsoluteChannelDelta) {
       failures.push(`Scaled mean absolute channel delta ${rounded(meanAbsoluteChannelDelta)} exceeds 1.`);
     }

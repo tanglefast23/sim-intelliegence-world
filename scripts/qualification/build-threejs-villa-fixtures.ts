@@ -364,6 +364,8 @@ const fixtureEntries = report.fixtureIds.map((id) => {
     zoom: entry.state.camera.zoom,
     camera: { x: entry.state.camera.x, y: entry.state.camera.y },
     toneMapping: 'none',
+    // Stage 4 moved district lighting and atmosphere into the renderer.
+    compositingChanged: stage >= 4,
     exposure: 1,
     baseline: {
       image: `${CAPTURE_OUTPUT}/${id}-skia-1x.png`,
