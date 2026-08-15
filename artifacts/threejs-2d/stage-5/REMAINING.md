@@ -53,3 +53,29 @@ Stage 7 deletes the whole boundary with the rest of Skia.
 That is the last thing standing between this branch and the Stage 5 exit gate,
 which requires the default shipping path to neither load nor require CanvasKit
 while the temporary Skia selector still works.
+
+### Measured prop surface for the extraction
+
+A first crude count suggested 212 identifiers, which counted every token and was
+wrong. Restricting to identifiers declared in `WorldScene` scope and used by the
+Skia region gives 43, and that still includes loop locals declared inside the
+region itself (`base`, `batch`, `cancel`, `center`, `effect`, `foot`, `frame`,
+`key`, `map`, `movement`, `placement`, `screen`, `tile`, `transform`) and the
+input handlers that belong to `WorldInput` rather than the Skia canvas
+(`handlePan`, `handlePrimary`, `handleZoom`, `isPointInteractive`,
+`toggleQuests`, `rendererSuspended`, `handleRendererContextState`).
+
+The real props for `SkiaWorldSurface` are about twenty:
+
+  atlasCameraTransform, atlasData, characterAtlasData, feedbackScreen,
+  floorAtlas, groundBatches, groundDetailAtlas, image, lighting, reducedMotion,
+  roofAtlas, selectedScreen, shelterCells, vfxCamera, vfxMode, wallAtlas,
+  worldFrame, camera, surface, absoluteMinute, worldState, speed
+
+`NEAREST` and `TILE_SIZE` are module constants and move with the component.
+
+So the extraction is a single new file plus one JSX swap in `WorldScene`, not the
+large refactor the first estimate implied. Move `renderLayer`, the world
+`<Canvas>`, `ProceduralMapEffects`, `DistrictLightingOverlay`,
+`AtmosphereOverlay` and the feedback `<Canvas>` into it, then mount it through
+`lazy()` only when `rendererKind === 'skia'`.
