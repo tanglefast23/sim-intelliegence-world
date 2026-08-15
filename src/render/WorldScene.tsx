@@ -255,7 +255,7 @@ export function WorldScene({
   onWorldReady = () => undefined,
   playInterfaceSound = () => undefined,
   persistenceDisabled = false,
-  rendererKind = 'skia',
+  rendererKind = 'threejs-2d',
   surface,
 }: WorldSceneProps) {
   const reducedMotion = useReducedMotion();

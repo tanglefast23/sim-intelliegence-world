@@ -52,6 +52,10 @@ const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
 const smokeRenderer = process.env.SI_WORLD_TEST_RENDERER;
+// Stage 6: the world renders with the production renderer when a smoke requests none, so every
+// renderer-specific guard must read the effective renderer rather than the raw request. Reading
+// the raw value let a default run label its output threejs-2d while skipping the Three.js checks.
+const effectiveRenderer = smokeRenderer ?? 'threejs-2d';
 // Stage 4: unsaved, smoke-only tone-mapping override so no-tone parity and ACES both rerun.
 const smokeToneMapping = process.env.SI_WORLD_TEST_TONE_MAPPING;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
@@ -872,7 +876,7 @@ async function captureRendererParitySmoke(
     await window.webContents.executeJavaScript('window.siWorldFreezeRendererParityFrame?.()', true);
     await waitForRendererPaint(window);
     await waitForRendererPaint(window);
-    const screenshot = `${id}-${smokeRenderer ?? 'threejs-2d'}-1x.png`;
+    const screenshot = `${id}-${effectiveRenderer}-1x.png`;
     const state = await rendererParityState(window);
     await captureSmokeScreenshot(window, join(directory, screenshot));
     fixtures.push({ id, screenshot, state });
@@ -922,7 +926,7 @@ async function captureRendererParitySmoke(
   await capture('villa-destination-journal-failure');
 
   let contextLifecycle: Record<string, unknown> | null = null;
-  if (smokeRenderer === 'threejs-2d') {
+  if (effectiveRenderer === 'threejs-2d') {
     const before = await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.()', true) as Record<string, unknown>;
     const supported = await window.webContents.executeJavaScript(`(() => {
       const canvas = document.querySelector('#threejs-world-canvas canvas');
@@ -943,7 +947,7 @@ async function captureRendererParitySmoke(
 
   return {
     schemaVersion: 1,
-    rendererKind: smokeRenderer ?? 'threejs-2d',
+    rendererKind: effectiveRenderer,
     fixtures,
     contextLifecycle,
   };
@@ -986,12 +990,12 @@ async function captureRendererAllMapsSmoke(
     ));
     await waitForRendererPaint(window);
     await waitForRendererPaint(window);
-    const screenshot = `${entry.id}-${smokeRenderer ?? 'threejs-2d'}.png`;
+    const screenshot = `${entry.id}-${effectiveRenderer}.png`;
     await captureSmokeScreenshot(window, join(directory, screenshot));
-    const rendererEvidence = smokeRenderer === 'threejs-2d'
+    const rendererEvidence = effectiveRenderer === 'threejs-2d'
       ? await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.() ?? null', true) as Record<string, unknown> | null
       : null;
-    if (smokeRenderer === 'threejs-2d' && !rendererEvidence) {
+    if (effectiveRenderer === 'threejs-2d' && !rendererEvidence) {
       throw new Error(`Three.js renderer evidence is missing for ${entry.id}.`);
     }
     fixtures.push({ ...entry, screenshot, state, rendererEvidence });
@@ -1002,7 +1006,7 @@ async function captureRendererAllMapsSmoke(
     : null;
   return {
     schemaVersion: 1,
-    rendererKind: smokeRenderer ?? 'threejs-2d',
+    rendererKind: effectiveRenderer,
     devicePixelRatio,
     vfxMode,
     fixtures,
@@ -1039,12 +1043,12 @@ async function captureRendererZoomSampling(
         'window.siWorldThreeRendererEvidence?.() ?? null',
         true,
       ) as Record<string, unknown> | null;
-      if (smokeRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
+      if (effectiveRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
     }
-    if (smokeRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
+    if (effectiveRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
       throw new Error(`Three.js did not present saved zoom ${zoom}.`);
     }
-    const crop = `zoom-${zoom.toFixed(2)}-${smokeRenderer ?? 'threejs-2d'}.png`;
+    const crop = `zoom-${zoom.toFixed(2)}-${effectiveRenderer}.png`;
     await waitForRendererPaint(window);
     await captureSmokeScreenshot(window, join(directory, crop), undefined, ZOOM_SAMPLING_CROP);
     samples.push({
@@ -2310,7 +2314,7 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
   }
   if (!rendererShellReady) throw new Error('World readiness arrived before shell readiness.');
   // Stage 6: Three.js is the production renderer, so a smoke that requests none expects it.
-  const expectedRenderer = smokeRenderer ?? 'threejs-2d';
+  const expectedRenderer = effectiveRenderer;
   if (report.rendererKind !== expectedRenderer) {
     throw new Error(`Expected ${expectedRenderer} readiness but received ${report.rendererKind}.`);
   }

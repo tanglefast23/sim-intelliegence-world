@@ -15,7 +15,8 @@ export function rendererForEnvironment(input: Readonly<{
 }
 
 export function selectedRenderer(): RendererKind {
-  if (typeof window === 'undefined' || !window.location) return 'skia';
+  // Stage 6: Three.js is the production renderer, including in windowless evaluation.
+  if (typeof window === 'undefined' || !window.location) return 'threejs-2d';
   return rendererForEnvironment({
     hostname: window.location.hostname,
     search: window.location.search,
