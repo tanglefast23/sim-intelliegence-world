@@ -1514,7 +1514,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle' });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle', clickCount: 1 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  await waitForRendererPaint(window);
   const afterPan = await cameraLabel(window);
   const beforePanState = parseCameraLabel(beforePan);
   const afterPanState = parseCameraLabel(afterPan);
@@ -1546,7 +1546,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
       deltaY: -100,
     }));
   })()`, true);
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  await waitForRendererPaint(window);
   const wheelZoom = (await cameraLabel(window)).endsWith('at 2.1x');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 300));
   const presentationAfterWheel = await window.webContents.executeJavaScript(
