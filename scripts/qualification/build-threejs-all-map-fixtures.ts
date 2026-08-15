@@ -7,7 +7,7 @@ import { ALL_MAP_PARITY_CASES } from '../../src/render/three/all-map-parity';
 
 const stageIndex = process.argv.indexOf('--stage');
 const stageArgument = stageIndex === -1 ? '3' : process.argv[stageIndex + 1];
-if (stageArgument !== '3' && stageArgument !== '4' && stageArgument !== '5') throw new Error('--stage must be 3, 4 or 5.');
+if (stageArgument !== '3' && stageArgument !== '4' && stageArgument !== '5' && stageArgument !== '6') throw new Error('--stage must be 3, 4, 5 or 6.');
 const stage = Number(stageArgument);
 const REPORT = `output/verification/threejs-2d/stage-${stage}/all-maps-package/renderer-all-maps-package-report.json`;
 const SPECIALIZED = 'tests/fixtures/rendering/threejs-stage-3-specialized-v1.json';

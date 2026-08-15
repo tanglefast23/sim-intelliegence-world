@@ -5,7 +5,7 @@ import { PNG } from 'pngjs';
 
 const stageIndex = process.argv.indexOf('--stage');
 const stageArgument = stageIndex === -1 ? '2' : process.argv[stageIndex + 1];
-if (stageArgument !== '2' && stageArgument !== '3' && stageArgument !== '4' && stageArgument !== '5') throw new Error('--stage must be 2, 3, 4 or 5.');
+if (stageArgument !== '2' && stageArgument !== '3' && stageArgument !== '4' && stageArgument !== '5' && stageArgument !== '6') throw new Error('--stage must be 2, 3, 4, 5 or 6.');
 const stage = Number(stageArgument);
 const REPORT = stage === 2
   ? 'output/verification/threejs-2d/stage-2/parity-package/renderer-parity-package-report.json'
