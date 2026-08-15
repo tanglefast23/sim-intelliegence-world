@@ -79,3 +79,59 @@ large refactor the first estimate implied. Move `renderLayer`, the world
 `<Canvas>`, `ProceduralMapEffects`, `DistrictLightingOverlay`,
 `AtmosphereOverlay` and the feedback `<Canvas>` into it, then mount it through
 `lazy()` only when `rendererKind === 'skia'`.
+
+
+---
+
+# Stage 5 update, 2026-08-16 — 24 of 25 fixtures pass
+
+## Resolved since the first note
+
+- `SkiaWorldSurface` now holds every Skia drawing surface behind one lazy
+  boundary. `WorldScene` no longer imports Skia, so the Three.js path never
+  evaluates the Skia module body. Both packaged renderer variants pass their
+  smoke, and the served export requests no `canvaskit.wasm`. `GameScreen` ships
+  as its own chunk, which proves the split.
+- Three.js took the feedback batches back. It has owned lighting and atmosphere
+  since Stage 4, so the batches sit last in the composite order and land above
+  both. That discharges the Stage 3 deferral.
+- Two extraction defects found and fixed by measurement, not guesswork:
+  the world canvas style was invented rather than copied, dropping the `#b77945`
+  clear colour that matches the Three.js renderer, so uncovered area read as
+  shell backdrop and failed every 2560x1440 fixture; and Skia readiness fired
+  before a large canvas had painted.
+
+## The one remaining failure
+
+`villa-destination-journal-failure`, mask `failure-marker`:
+
+- retained contrast `0.607` against a `0.9` floor;
+- readable coverage `0.874` against a `0.95` floor;
+- scaled mask mean absolute delta `25.7` against `10`.
+
+Skia drew this 3 pixel diagonal X antialiased. Three.js tessellates it with hard
+edges and `antialias: false`. The mask footprint comes from Skia's geometry, so
+the median inside it is dominated by background unless the stroke covers enough
+of it. Antialiasing covers enough to flip that median; hard edges do not.
+
+Two changes were tried and measured, and BOTH are disproved:
+
+- round caps on the X: coverage `0.844` to `0.874`, contrast unchanged;
+- removing the legacy P3 matrix from the feedback batches: contrast identical to
+  six decimals, mask delta slightly worse. Reverted.
+
+Contrast being identical to six decimals across both is the useful signal. The
+metric is insensitive to stroke colour and end caps, so the gap is stroke
+coverage alone.
+
+## Next step
+
+Give thin feedback primitives antialiased coverage. The smallest version is a
+signed-distance quad for the failure X and the destination ring rather than
+tessellated line and annulus geometry, with the existing primitive shader
+returning a smoothstep alpha. That raises mask coverage to Skia's and lifts the
+median with it.
+
+Do NOT relax the contrast floor. The measurement is telling the truth: the
+hard-edged X really is less readable than the antialiased one, and the floor
+exists for exactly that.
