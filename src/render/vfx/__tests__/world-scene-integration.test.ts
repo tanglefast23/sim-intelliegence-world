@@ -12,6 +12,7 @@ describe('WorldScene procedural VFX integration', () => {
     expect(responsiveEvidence).toContain('schemaVersion: 1');
     expect(scene).toContain('drawCounts');
     expect(scene).toContain('effect: visibleEffects.length');
+    expect(scene).toContain('window.siWorldMeasureResponsiveEvidence = () =>');
   });
 
   test('keeps circle mode smoke-only and does not mount the procedural driver in that mode', () => {

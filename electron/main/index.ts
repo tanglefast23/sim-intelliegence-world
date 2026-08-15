@@ -399,12 +399,12 @@ async function clickUiScaleButton(window: BrowserWindow, percentage: 100 | 125 |
 }
 
 async function responsiveEvidence(window: BrowserWindow): Promise<Record<string, unknown>> {
-  const label = await window.webContents.executeJavaScript(
-    `document.querySelector('#world-responsive-state')?.getAttribute('aria-label') ?? ''`,
+  const evidence = await window.webContents.executeJavaScript(
+    `window.siWorldMeasureResponsiveEvidence?.() ?? null`,
     true,
-  ) as string;
-  if (!label) throw new Error('Responsive evidence is missing.');
-  return JSON.parse(label) as Record<string, unknown>;
+  ) as Record<string, unknown> | null;
+  if (!evidence) throw new Error('Responsive evidence is missing.');
+  return evidence;
 }
 
 async function vfxEvidence(window: BrowserWindow): Promise<Record<string, unknown>> {

@@ -1236,6 +1236,26 @@ export function WorldScene({
     return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
   }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
   const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
+  const responsiveEvidenceInput = useRef({
+    camera,
+    mapId,
+    artMode,
+    presentationHash: map.presentation.hash,
+    roofGroupId: worldFrame.hiddenRoofGroupId,
+    uiScale,
+    drawCounts,
+    staticBatchCount,
+  });
+  responsiveEvidenceInput.current = {
+    camera,
+    mapId,
+    artMode,
+    presentationHash: map.presentation.hash,
+    roofGroupId: worldFrame.hiddenRoofGroupId,
+    uiScale,
+    drawCounts,
+    staticBatchCount,
+  };
   const vfxEvidence = useMemo(() => {
     if (!smokeMode) return '';
     const geometries = vfxMode === 'procedural'
@@ -1307,28 +1327,17 @@ export function WorldScene({
   const shelterCells = map.source.roofGroups.find(({ id }) => id === worldFrame.hiddenRoofGroupId)?.interiorCells ?? [];
 
   useEffect(() => {
-    if (!smokeMode || typeof document === 'undefined') return;
-    let frameId = 0;
-    const timer = setTimeout(() => {
-      frameId = requestAnimationFrame(() => {
-        const evidence = measureResponsiveEvidence(document, {
-          camera,
-          mapId,
-          artMode,
-          presentationHash: map.presentation.hash,
-          roofGroupId: worldFrame.hiddenRoofGroupId,
-          uiScale,
-          drawCounts,
-          staticBatchCount,
-        });
-        if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
-      });
-    }, 80);
-    return () => {
-      clearTimeout(timer);
-      if (frameId) cancelAnimationFrame(frameId);
+    if (!smokeMode || typeof document === 'undefined') return undefined;
+    window.siWorldMeasureResponsiveEvidence = () => {
+      const evidence = measureResponsiveEvidence(document, responsiveEvidenceInput.current);
+      if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
+      return evidence;
     };
-  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, smokeMode, staticBatchCount, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+    window.siWorldMeasureResponsiveEvidence();
+    return () => {
+      delete window.siWorldMeasureResponsiveEvidence;
+    };
+  }, [smokeMode]);
 
   if (!image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
