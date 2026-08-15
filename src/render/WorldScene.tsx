@@ -545,8 +545,8 @@ export function WorldScene({
       setCamera((current) => centerCameraOnTile({ x: 23, y: 28 }, current.zoom, surfaceRef.current, MAP_PIXELS));
     };
     window.siWorldOpenRendererMotionFixture = (fixture) => {
-      const start = fixture === 'door-transition' ? { x: 17, y: 25 } : { x: 17, y: 23 };
-      const target = fixture === 'door-transition' ? { x: 17, y: 23 } : { x: 20, y: 23 };
+      const start = { x: 17, y: 23 };
+      const target = fixture === 'door-transition' ? { x: 14, y: 23 } : { x: 20, y: 23 };
       const fixtureMap = WORLD_MAP_CATALOG.northwest_residential;
       setOpenPanel(undefined);
       setConversationFixtureId(undefined);
@@ -578,7 +578,7 @@ export function WorldScene({
         throw new Error(`Renderer motion fixture did not reach ${fixture}.`);
       });
       setCamera((current) => centerCameraOnTile(
-        fixture === 'door-transition' ? { x: 17, y: 24 } : { x: 18, y: 23 },
+        fixture === 'door-transition' ? { x: 15, y: 23 } : { x: 18, y: 23 },
         current.zoom,
         surfaceRef.current,
         MAP_PIXELS,
@@ -1082,11 +1082,11 @@ export function WorldScene({
       destinationPulseElapsedMs,
       failureTile: runtime.movement.feedbackTile,
       reducedMotion,
-      animationTimestampMilliseconds: vfxClock.current.ageMilliseconds,
-      vfxAgeStep,
+      animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds,
+      vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep,
       vfxMode,
     }),
-    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
+    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, rendererParityPulseFrozen, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
   );
   const floorAtlas = useMemo(() => atlasData(worldFrame.floors, camera.zoom), [camera.zoom, worldFrame.floors]);
   const groundDetailAtlas = useMemo(() => atlasData(worldFrame.groundDetails, camera.zoom), [camera.zoom, worldFrame.groundDetails]);

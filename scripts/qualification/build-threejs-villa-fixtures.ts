@@ -29,6 +29,7 @@ type FrameState = Readonly<{
   devicePixelRatio: number;
   characters: readonly Placement[];
   doors: readonly Placement[];
+  doorPhases: Readonly<Record<string, string>>;
   movement: Readonly<{ direction: string; status: string; walkFrame: number }>;
   selectionRing: Readonly<Point & { id: string; worldX: number; worldY: number; radiusX: number; radiusY: number; strokeWidth: number }>;
   destinationPulse: null | Readonly<{ id: string; worldX: number; worldY: number; radius: number }>;
@@ -293,9 +294,9 @@ const masksFor = (entry: Fixture): readonly Mask[] => {
     return [placementMask(state, npc, 'npc', 'npc-generic-resident')];
   }
   if (entry.id === 'villa-door-transition') {
-    const door = state.doors.find(({ id }) => id === 'villa-front-door');
+    const door = state.doors.find(({ id }) => state.doorPhases[id] === 'opening');
     if (!door) throw new Error('Door fixture is missing the active door.');
-    return [placementMask(state, door, 'active-door', 'active-door-villa-front')];
+    return [placementMask(state, door, 'active-door', `active-door-${door.id}`)];
   }
   if (entry.id === 'villa-walk-east-frame-1') return [pulseMask(state, 'route')];
   if (entry.id === 'villa-selected-npc') return [selectionMask(state)];
