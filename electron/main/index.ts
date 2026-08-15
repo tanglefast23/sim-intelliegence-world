@@ -48,6 +48,7 @@ const proceduralVfxReducedMode = process.env.SI_WORLD_PROCEDURAL_VFX_REDUCED ===
 const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
+const smokeRenderer = process.env.SI_WORLD_TEST_RENDERER;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
@@ -74,6 +75,9 @@ if (devHarnessRoot && (!devHarnessMode || !isAbsolute(devHarnessRoot))) {
 }
 const processStartedAt = performance.now();
 let smokeFinished = false;
+let rendererShellReady = false;
+let smokePreparationPromise: Promise<void> | undefined;
+let smokePreparationError: unknown;
 let activeMainWindow: BrowserWindow | undefined;
 let conversationService: ConversationService | undefined;
 let conversationInference: BundledConversationInference | undefined;
@@ -98,6 +102,10 @@ if (responsiveArtMode !== undefined && (!responsiveSmokeMode || !['legacy', 'enh
 
 if (smokeVfxMode !== undefined && (!smokeMode || !['circle', 'procedural'].includes(smokeVfxMode))) {
   throw new Error('VFX mode is available only to smoke runs as circle or procedural.');
+}
+
+if (smokeRenderer !== undefined && (!smokeMode || !['skia', 'threejs-2d'].includes(smokeRenderer))) {
+  throw new Error('Test renderer is available only to smoke runs as skia or threejs-2d.');
 }
 
 if (naturalMovementReducedMode || proceduralVfxReducedMode) {
@@ -1049,7 +1057,9 @@ async function measureRendererFps(window: BrowserWindow, durationMilliseconds = 
 }
 
 async function startResponsiveSmokeGame(window: BrowserWindow): Promise<void> {
-  await waitForSelector(window, '#new-game-flow');
+  await waitForSelector(window, '#new-game-flow, #world-state');
+  const active = await window.webContents.executeJavaScript("Boolean(document.querySelector('#world-state'))", true) as boolean;
+  if (active) return;
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Player name"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Player name input is missing.');
@@ -1422,7 +1432,10 @@ async function captureSaveMigrationSmoke(
   };
 }
 
-async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number | string>> {
+type WorldSmokeBootstrap = Readonly<{ newGameFlow: boolean; newGameText: string }>;
+let worldSmokeBootstrap: WorldSmokeBootstrap | undefined;
+
+async function beginWorldSmoke(window: BrowserWindow, directory: string): Promise<WorldSmokeBootstrap> {
   const progress = (stage: string): void => {
     process.stdout.write(`SI_WORLD_SMOKE_PROGRESS ${stage}\n`);
   };
@@ -1442,6 +1455,15 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'Enter');
   await waitForSelector(window, '#world-state', 20_000);
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
+  return { newGameFlow, newGameText };
+}
+
+async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number | string>> {
+  const progress = (stage: string): void => {
+    process.stdout.write(`SI_WORLD_SMOKE_PROGRESS ${stage}\n`);
+  };
+  const bootstrap = worldSmokeBootstrap ?? await beginWorldSmoke(window, directory);
+  const { newGameFlow, newGameText } = bootstrap;
   const geometry = await geometryEvidence(window);
   const protagonistLabel = await protagonistStateLabel(window);
   const stableProtagonist = protagonistLabel.includes('Protagonist protagonist') && protagonistLabel.includes('name MISTAKE');
@@ -2011,6 +2033,31 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
   if (!smokeMode || smokeFinished || webgl2ProbeMode) {
     return;
   }
+  if (report.phase === 'shell') {
+    if (rendererShellReady) return;
+    rendererShellReady = true;
+    process.stdout.write(`SI_WORLD_RENDERER_SHELL_READY ${JSON.stringify({
+      milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
+    })}\n`);
+    smokePreparationPromise = (async () => {
+      if (saveMigrationSmokeMode || saveReloadSmokeMode || presentationRestartSmokeMode) return;
+      const worldScreenshotDirectory = process.env.SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR;
+      if (!naturalMovementSmokeMode && !responsiveSmokeMode && !proceduralVfxSmokeMode &&
+          !presentationSeedSmokeMode && worldScreenshotDirectory) {
+        worldSmokeBootstrap = await beginWorldSmoke(window, worldScreenshotDirectory);
+      } else {
+        await startResponsiveSmokeGame(window);
+      }
+    })().catch((error: unknown) => { smokePreparationError = error; });
+    return;
+  }
+  if (!rendererShellReady) throw new Error('World readiness arrived before shell readiness.');
+  const expectedRenderer = smokeRenderer ?? 'skia';
+  if (report.rendererKind !== expectedRenderer) {
+    throw new Error(`Expected ${expectedRenderer} readiness but received ${report.rendererKind}.`);
+  }
+  await smokePreparationPromise;
+  if (smokePreparationError) throw smokePreparationError;
   smokeFinished = true;
   process.stdout.write(`SI_WORLD_RENDERER_READY ${JSON.stringify({
     milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
@@ -2112,6 +2159,7 @@ async function createMainWindow(): Promise<void> {
           ...(!naturalMovementSmokeMode ? ['--si-world-freeze-npc-motion=1'] : []),
           ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
           ...(smokeVfxMode ? [`--si-world-vfx-mode=${smokeVfxMode}`] : []),
+          ...(smokeRenderer ? [`--si-world-test-renderer=${smokeRenderer}`] : []),
         ] : []),
         ...(devHarnessMode ? ['--si-world-dev-harness=1'] : []),
       ],

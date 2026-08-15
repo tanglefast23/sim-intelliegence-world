@@ -259,6 +259,8 @@ describe('packaged Electron smoke evidence', () => {
     const stdout = [
       'startup',
       `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
+        schemaVersion: 2,
+        phase: 'world',
         appUrl: 'app://game/',
         assetsLoaded: true,
         bridgeKeys: [
@@ -269,6 +271,8 @@ describe('packaged Electron smoke evidence', () => {
         ],
         canvasKitReady: true,
         nodeAccessBlocked: true,
+        rendererKind: 'skia',
+        worldFrameReady: true,
       })}`,
     ].join('\n');
 
@@ -287,6 +291,8 @@ describe('packaged Electron smoke evidence', () => {
       parseSmokeResult(
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'app://game/',
+          schemaVersion: 2,
+          phase: 'world',
           assetsLoaded: true,
           bridgeKeys: [
             'abortConversation', 'beginConversation', 'completeVerbalMissionTurn', 'confirmVerbalMissionGoal',
@@ -296,6 +302,8 @@ describe('packaged Electron smoke evidence', () => {
           ],
           canvasKitReady: false,
           nodeAccessBlocked: true,
+          rendererKind: 'skia',
+          worldFrameReady: true,
         })}`,
       ),
     ).toThrow();
@@ -303,6 +311,8 @@ describe('packaged Electron smoke evidence', () => {
       parseSmokeResult(
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'https://example.com/',
+          schemaVersion: 2,
+          phase: 'world',
           assetsLoaded: true,
           bridgeKeys: [
             'abortConversation', 'beginConversation', 'completeVerbalMissionTurn', 'confirmVerbalMissionGoal',
@@ -312,6 +322,8 @@ describe('packaged Electron smoke evidence', () => {
           ],
           canvasKitReady: true,
           nodeAccessBlocked: true,
+          rendererKind: 'skia',
+          worldFrameReady: true,
         })}`,
       ),
     ).toThrow('untrusted renderer URL');
@@ -336,6 +348,7 @@ describe('packaged Electron smoke evidence', () => {
       '/dist/assets/assets/generated/audio/consequence.abc123.wav',
       '/dist/assets/node_modules/@expo-google-fonts/silkscreen/400Regular/Silkscreen_400Regular.abc123.ttf',
       '/node_modules/zod/package.json',
+      '/node_modules/three/package.json',
     ].join('\n');
     expect(() => validatePackageListing(requiredListing)).not.toThrow();
     expect(() => validatePackageListing(requiredListing.replaceAll('/', '\\'))).not.toThrow();

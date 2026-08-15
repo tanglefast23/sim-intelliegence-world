@@ -111,6 +111,7 @@ export function validatePackageListing(listing: string): void {
     '/dist/index.html',
     '/dist/webgl2-probe.html',
     '/node_modules/zod/package.json',
+    '/node_modules/three/package.json',
   ];
   for (const requiredEntry of required) {
     if (!entries.has(requiredEntry)) {
@@ -161,6 +162,7 @@ export function parseSmokeResult(stdout: string): RendererReadyReport {
     throw new Error('Packaged app did not emit a renderer readiness result.');
   }
   const report = RendererReadySchema.parse(JSON.parse(line.slice(RESULT_PREFIX.length)));
+  if (report.phase !== 'world') throw new Error('Packaged app did not emit world renderer readiness.');
   if (!isTrustedAppUrl(report.appUrl) || report.appUrl !== APP_URL) {
     throw new Error('Packaged app reported an untrusted renderer URL.');
   }

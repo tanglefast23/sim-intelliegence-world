@@ -1,13 +1,14 @@
 import { Canvas, Rect } from '@shopify/react-native-skia';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
 import { GameScreen } from '../application/GameScreen';
 import { getDesktopBridge } from '../application/DesktopBridge';
-import { createRendererReadyReport } from '../application/RendererReadiness';
+import { createRendererShellReadyReport, createRendererWorldReadyReport } from '../application/RendererReadiness';
 import { DevHarnessScreen } from '../ui/dev-harness/DevHarnessScreen';
 import { OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
 import type { ViewportSize } from './camera';
+import { selectedRenderer } from './renderer-selection';
 
 function hasNoNodeAccess(): boolean {
   const candidate = globalThis as typeof globalThis & {
@@ -46,28 +47,51 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
     window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
   );
   const windowDimensions = useWindowDimensions();
+  const rendererKind = selectedRenderer();
   const [surface, setSurface] = useState<ViewportSize>(() => responsiveSurface(
     Math.max(1, windowDimensions.width),
     Math.max(1, windowDimensions.height),
   ).surface);
   const [runtime, setRuntime] = useState('Browser proof');
-  const [gameReady, setGameReady] = useState(false);
-  const markGameReady = useCallback(() => setGameReady(true), []);
+  const [worldReady, setWorldReady] = useState(false);
+  const reportedShell = useRef(false);
+  const reportedWorld = useRef(false);
+  const markWorldReady = useCallback(() => setWorldReady(true), []);
 
   useEffect(() => {
-    if (devHarnessMode) markGameReady();
-  }, [devHarnessMode, markGameReady]);
+    if (devHarnessMode) markWorldReady();
+  }, [devHarnessMode, markWorldReady]);
 
   useEffect(() => {
-    if (!gameReady) {
-      return;
-    }
     const bridge = getDesktopBridge();
-    if (!bridge) {
-      return;
-    }
+    if (!bridge || !assetsLoaded || reportedShell.current) return;
+    reportedShell.current = true;
+    const common = {
+      appUrl: window.location.href,
+      assetsLoaded,
+      bridgeKeys: Object.keys(window.siWorldDesktop ?? {}).sort(),
+      nodeAccessBlocked: hasNoNodeAccess(),
+    };
     void afterTwoPaints()
       .then(async () => {
+        const report = createRendererShellReadyReport(common);
+        return Promise.all([bridge.getRuntimeInfo(), bridge.reportRendererReady(report)]);
+      })
+      .then(([info]) => setRuntime(`Electron ${info.electronVersion} · sandboxed`))
+      .catch((error: unknown) => {
+        reportedShell.current = false;
+        const detail = error instanceof Error ? error.message : String(error);
+        setRuntime(`Desktop bridge rejected shell readiness: ${detail}`);
+        console.error(`SI_WORLD_RENDERER_READY_FAILURE ${detail}`);
+      });
+  }, [assetsLoaded]);
+
+  useEffect(() => {
+    const bridge = getDesktopBridge();
+    if (!bridge || !worldReady || reportedWorld.current) return;
+    reportedWorld.current = true;
+    void afterTwoPaints()
+      .then(() => {
         const canvasHost = document.querySelector('#world-canvas') ?? document.querySelector('#active-surface-canvas');
         const identifiedCanvas = canvasHost instanceof HTMLCanvasElement
           ? canvasHost
@@ -81,25 +105,25 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
             right.getBoundingClientRect().width * right.getBoundingClientRect().height -
             left.getBoundingClientRect().width * left.getBoundingClientRect().height
           ))[0];
-        const report = createRendererReadyReport({
+        const report = createRendererWorldReadyReport({
           appUrl: window.location.href,
           assetsLoaded,
           bridgeKeys: Object.keys(window.siWorldDesktop ?? {}).sort(),
           canvasHeight: canvas?.height ?? 0,
           canvasWidth: canvas?.width ?? 0,
           nodeAccessBlocked: hasNoNodeAccess(),
+          rendererKind,
+          webgl2Ready: rendererKind === 'threejs-2d' && canvas?.getContext('webgl2') !== null,
         });
-        return Promise.all([bridge.getRuntimeInfo(), bridge.reportRendererReady(report)]);
-      })
-      .then(([info]) => {
-        setRuntime(`Electron ${info.electronVersion} · sandboxed`);
+        return bridge.reportRendererReady(report);
       })
       .catch((error: unknown) => {
+        reportedWorld.current = false;
         const detail = error instanceof Error ? error.message : String(error);
-        setRuntime(`Desktop bridge rejected the readiness proof: ${detail}`);
+        setRuntime(`Desktop bridge rejected world readiness: ${detail}`);
         console.error(`SI_WORLD_RENDERER_READY_FAILURE ${detail}`);
       });
-  }, [assetsLoaded, gameReady]);
+  }, [assetsLoaded, rendererKind, worldReady]);
 
   const measureSurface = useCallback((event: LayoutChangeEvent) => {
     const width = Math.max(1, Math.floor(event.nativeEvent.layout.width));
@@ -116,7 +140,7 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
         <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
           {devHarnessMode
             ? <DevHarnessScreen surface={surface} />
-            : <GameScreen onReady={markGameReady} surface={surface} />}
+            : <GameScreen onWorldReady={markWorldReady} rendererKind={rendererKind} surface={surface} />}
         </View>
       </View>
       {__DEV__ ? <Text nativeID="development-runtime" style={styles.runtime}>{runtime}</Text> : null}

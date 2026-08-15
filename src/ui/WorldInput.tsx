@@ -5,6 +5,7 @@ import { View } from 'react-native';
 type ScreenPoint = Readonly<{ x: number; y: number }>;
 
 type WorldInputProps = PropsWithChildren<Readonly<{
+  disabled?: boolean;
   onCancel: () => void;
   onCenter: () => void;
   onQuests: () => void;
@@ -21,10 +22,10 @@ function eventPoint(event: PointerEvent | WheelEvent, element: HTMLElement): Scr
   return { x: Math.floor(event.clientX - bounds.left), y: Math.floor(event.clientY - bounds.top) };
 }
 
-export function WorldInput({ children, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom }: WorldInputProps) {
+export function WorldInput({ children, disabled = false, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom }: WorldInputProps) {
   const rootRef = useRef<View>(null);
-  const handlersRef = useRef({ isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom });
-  handlersRef.current = { isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom };
+  const handlersRef = useRef({ disabled, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom });
+  handlersRef.current = { disabled, isPointInteractive, onCancel, onCenter, onPan, onPrimary, onQuests, onZoom };
 
   useEffect(() => {
     const element = rootRef.current as unknown as HTMLElement | null;
@@ -57,6 +58,7 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
     const isUiTarget = (target: EventTarget | null) =>
       target instanceof Element && Boolean(target.closest('[id^="world-ui-"]'));
     const handlePointerDown = (event: PointerEvent) => {
+      if (handlersRef.current.disabled) return;
       if (isUiTarget(event.target)) return;
       const point = eventPoint(event, element);
       if (!handlersRef.current.isPointInteractive(point)) return;
@@ -70,6 +72,7 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
       }
     };
     const handlePointerMove = (event: PointerEvent) => {
+      if (handlersRef.current.disabled) return;
       if (event.pointerId !== middlePointerId || !lastMiddlePoint) return;
       const point = eventPoint(event, element);
       queuePan({ x: point.x - lastMiddlePoint.x, y: point.y - lastMiddlePoint.y });
@@ -82,6 +85,7 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
       lastMiddlePoint = undefined;
     };
     const handleWheel = (event: WheelEvent) => {
+      if (handlersRef.current.disabled) return;
       if (isUiTarget(event.target)) return;
       const point = eventPoint(event, element);
       if (!handlersRef.current.isPointInteractive(point)) return;
@@ -90,6 +94,7 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
       queueZoom(event.deltaY < 0 ? 1 : -1, point);
     };
     const handleKey = (event: KeyboardEvent) => {
+      if (handlersRef.current.disabled) return;
       const target = event.target;
       if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ||
         (target instanceof HTMLElement && target.isContentEditable)) return;
@@ -106,6 +111,7 @@ export function WorldInput({ children, isPointInteractive, onCancel, onCenter, o
       if (event.button === 1) event.preventDefault();
     };
     const handleActivePanProof = (event: Event) => {
+      if (handlersRef.current.disabled) return;
       if (!(event instanceof CustomEvent)) return;
       const detail = event.detail as Partial<ScreenPoint> | undefined;
       if (!detail || !Number.isFinite(detail.x) || !Number.isFinite(detail.y)) return;

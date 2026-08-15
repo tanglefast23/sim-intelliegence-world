@@ -102,3 +102,7 @@ const smokeVfxMode = process.argv.find((argument) => argument.startsWith('--si-w
 if (process.argv.includes('--si-world-smoke-mode=1') && (smokeVfxMode === 'circle' || smokeVfxMode === 'procedural')) {
   contextBridge.exposeInMainWorld('siWorldVfxMode', smokeVfxMode);
 }
+const smokeRenderer = process.argv.find((argument) => argument.startsWith('--si-world-test-renderer='))?.split('=')[1];
+if (process.argv.includes('--si-world-smoke-mode=1') && (smokeRenderer === 'skia' || smokeRenderer === 'threejs-2d')) {
+  contextBridge.exposeInMainWorld('siWorldTestRenderer', smokeRenderer);
+}

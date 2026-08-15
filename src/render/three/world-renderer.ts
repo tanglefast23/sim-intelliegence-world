@@ -1,0 +1,590 @@
+import {
+  BufferGeometry,
+  CanvasTexture,
+  ClampToEdgeWrapping,
+  Color,
+  Float32BufferAttribute,
+  LinearFilter,
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  NearestFilter,
+  NoToneMapping,
+  OrthographicCamera,
+  Scene,
+  ShaderMaterial,
+  SRGBColorSpace,
+  Texture,
+  TextureLoader,
+  Uint32BufferAttribute,
+  WebGLRenderer,
+} from 'three';
+
+import type {
+  WorldCharacterPlacement,
+  WorldFloorPlacement,
+  WorldFrameState,
+  WorldPropPlacement,
+  WorldRoofPlacement,
+  WorldWallPlacement,
+} from '../world-frame';
+import type { CameraState, ViewportSize } from '../camera';
+
+const TILE_SIZE = 32;
+const COMPOSITE_BATCHES = [
+  'floor-and-ground-detail',
+  'doors',
+  'door-wear',
+  'contact-shadows-and-thresholds',
+  'selection-ring',
+  'grounded-props-and-characters',
+  'effects',
+  'walls',
+  'wall-bases',
+  'roofs',
+  'shelter-shade',
+  'district-shadows',
+  'district-light-pools',
+  'atmosphere',
+  'destination-pulse',
+  'journal-markers',
+  'failure-marker',
+] as const;
+type BatchId = typeof COMPOSITE_BATCHES[number];
+
+type AtlasPlacement = WorldFloorPlacement | WorldPropPlacement | WorldCharacterPlacement | WorldWallPlacement | WorldRoofPlacement;
+type GeometryData = Readonly<{
+  positions: number[];
+  uvs: number[];
+  tints: number[];
+  indices: number[];
+}>;
+
+const emptyGeometryData = (): GeometryData => ({ positions: [], uvs: [], tints: [], indices: [] });
+
+export const threeQuadIndices = (base: number): readonly number[] => [base, base + 2, base + 1, base, base + 3, base + 2];
+
+export function threeCameraBounds(camera: CameraState, viewport: ViewportSize) {
+  return {
+    left: camera.x,
+    right: camera.x + viewport.width / camera.zoom,
+    top: -camera.y,
+    bottom: -(camera.y + viewport.height / camera.zoom),
+  } as const;
+}
+
+function rgba(color: string, opacity = 1): readonly [number, number, number, number] {
+  const normalized = color.startsWith('#') ? color.slice(1) : color;
+  const rgb = normalized.length >= 6 ? normalized.slice(0, 6) : 'ffffff';
+  const alpha = normalized.length === 8 ? Number.parseInt(normalized.slice(6), 16) / 255 : 1;
+  const parsed = new Color(`#${rgb}`);
+  return [parsed.r, parsed.g, parsed.b, alpha * opacity];
+}
+
+function addQuad(
+  data: GeometryData,
+  points: readonly [number, number][],
+  color: string,
+  opacity = 1,
+  uv: readonly [number, number, number, number] = [0, 0, 1, 1],
+): void {
+  const base = data.positions.length / 3;
+  for (const [x, y] of points) data.positions.push(x, -y, 0);
+  const [u0, v0, u1, v1] = uv;
+  data.uvs.push(u0, v1, u1, v1, u1, v0, u0, v0);
+  const tint = rgba(color, opacity);
+  for (let index = 0; index < 4; index += 1) data.tints.push(...tint);
+  data.indices.push(...threeQuadIndices(base));
+}
+
+function addRect(data: GeometryData, x: number, y: number, width: number, height: number, color: string, opacity = 1): void {
+  addQuad(data, [[x, y], [x + width, y], [x + width, y + height], [x, y + height]], color, opacity);
+}
+
+function addLine(
+  data: GeometryData,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  width: number,
+  color: string,
+): void {
+  const length = Math.hypot(x2 - x1, y2 - y1);
+  if (length === 0) return;
+  const px = -(y2 - y1) * width / length / 2;
+  const py = (x2 - x1) * width / length / 2;
+  addQuad(data, [[x1 + px, y1 + py], [x2 + px, y2 + py], [x2 - px, y2 - py], [x1 - px, y1 - py]], color);
+}
+
+function addEllipse(
+  data: GeometryData,
+  centerX: number,
+  centerY: number,
+  radiusX: number,
+  radiusY: number,
+  color: string,
+  opacity = 1,
+  strokeWidth = 0,
+): void {
+  const segments = 32;
+  if (strokeWidth > 0) {
+    for (let index = 0; index < segments; index += 1) {
+      const start = index * Math.PI * 2 / segments;
+      const end = (index + 1) * Math.PI * 2 / segments;
+      addQuad(data, [
+        [centerX + Math.cos(start) * Math.max(0, radiusX - strokeWidth), centerY + Math.sin(start) * Math.max(0, radiusY - strokeWidth)],
+        [centerX + Math.cos(end) * Math.max(0, radiusX - strokeWidth), centerY + Math.sin(end) * Math.max(0, radiusY - strokeWidth)],
+        [centerX + Math.cos(end) * radiusX, centerY + Math.sin(end) * radiusY],
+        [centerX + Math.cos(start) * radiusX, centerY + Math.sin(start) * radiusY],
+      ], color, opacity);
+    }
+    return;
+  }
+  const center = data.positions.length / 3;
+  data.positions.push(centerX, -centerY, 0);
+  data.uvs.push(0.5, 0.5);
+  data.tints.push(...rgba(color, opacity));
+  for (let index = 0; index <= segments; index += 1) {
+    const angle = index * Math.PI * 2 / segments;
+    data.positions.push(centerX + Math.cos(angle) * radiusX, -(centerY + Math.sin(angle) * radiusY), 0);
+    data.uvs.push(0.5 + Math.cos(angle) / 2, 0.5 - Math.sin(angle) / 2);
+    data.tints.push(...rgba(color, opacity));
+    if (index > 0) data.indices.push(center, center + index + 1, center + index);
+  }
+}
+
+function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasWidth: number, atlasHeight: number): void {
+  const width = placement.source.width * placement.scale;
+  const height = placement.source.height * placement.scale;
+  const radians = placement.rotationDegrees * Math.PI / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  const pivotX = placement.pivot.x * placement.scale;
+  const pivotY = placement.pivot.y * placement.scale;
+  const point = (x: number, y: number): [number, number] => {
+    const localX = x - pivotX;
+    const localY = y - pivotY;
+    return [
+      placement.worldX + pivotX + cosine * localX - sine * localY,
+      placement.worldY + pivotY + sine * localX + cosine * localY,
+    ];
+  };
+  addQuad(
+    data,
+    [point(0, 0), point(width, 0), point(width, height), point(0, height)],
+    placement.color,
+    placement.opacity,
+    [
+      placement.source.x / atlasWidth,
+      1 - (placement.source.y + placement.source.height) / atlasHeight,
+      (placement.source.x + placement.source.width) / atlasWidth,
+      1 - placement.source.y / atlasHeight,
+    ],
+  );
+}
+
+function shaderMaterial(texture?: Texture): ShaderMaterial {
+  return new ShaderMaterial({
+    depthTest: false,
+    depthWrite: false,
+    transparent: true,
+    uniforms: texture ? { map: { value: texture } } : {},
+    vertexShader: `
+      attribute vec4 tint;
+      varying vec2 vUv;
+      varying vec4 vTint;
+      void main() {
+        vUv = uv;
+        vTint = tint;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: texture ? `
+      uniform sampler2D map;
+      varying vec2 vUv;
+      varying vec4 vTint;
+      void main() {
+        gl_FragColor = texture2D(map, vUv) * vTint;
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    ` : `
+      varying vec4 vTint;
+      void main() {
+        gl_FragColor = vTint;
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+  });
+}
+
+function updateGeometry(geometry: BufferGeometry, data: GeometryData): void {
+  const sameSize = geometry.getAttribute('position')?.count === data.positions.length / 3;
+  if (!sameSize) {
+    geometry.dispose();
+    geometry.setAttribute('position', new Float32BufferAttribute(data.positions, 3));
+    geometry.setAttribute('uv', new Float32BufferAttribute(data.uvs, 2));
+    geometry.setAttribute('tint', new Float32BufferAttribute(data.tints, 4));
+    geometry.setIndex(new Uint32BufferAttribute(data.indices, 1));
+  } else {
+    (geometry.getAttribute('position') as Float32BufferAttribute).copyArray(data.positions);
+    (geometry.getAttribute('uv') as Float32BufferAttribute).copyArray(data.uvs);
+    (geometry.getAttribute('tint') as Float32BufferAttribute).copyArray(data.tints);
+    (geometry.getIndex() as Uint32BufferAttribute).copyArray(data.indices);
+    geometry.getAttribute('position').needsUpdate = true;
+    geometry.getAttribute('uv').needsUpdate = true;
+    geometry.getAttribute('tint').needsUpdate = true;
+    if (geometry.getIndex()) geometry.getIndex()!.needsUpdate = true;
+  }
+  geometry.setDrawRange(0, data.indices.length);
+}
+
+function generatedGlowTexture(): CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('The generated glow canvas is unavailable.');
+  context.fillStyle = '#ffffff';
+  context.beginPath();
+  context.arc(32, 32, 30, 0, Math.PI * 2);
+  context.fill();
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearFilter;
+  texture.generateMipmaps = false;
+  texture.wrapS = ClampToEdgeWrapping;
+  texture.wrapT = ClampToEdgeWrapping;
+  return texture;
+}
+
+export type ThreeRendererEvidence = Readonly<{
+  rendererKind: 'threejs-2d';
+  webgl2: true;
+  toneMapping: 'none';
+  explicitSort: true;
+  drawCalls: number;
+  atlasDrawCalls: number;
+  textures: 2;
+  materials: 3;
+  geometries: number;
+  atlasSize: Readonly<{ width: number; height: number }>;
+  trianglesByBatch: Readonly<Record<string, number>>;
+}>;
+
+export class ThreeWorldRenderer {
+  readonly #renderer: WebGLRenderer;
+  readonly #scene = new Scene();
+  readonly #camera = new OrthographicCamera();
+  readonly #geometries = new Map<BatchId, BufferGeometry>();
+  readonly #meshes = new Map<BatchId, Mesh>();
+  readonly #atlasTexture: Texture;
+  readonly #glowTexture: CanvasTexture;
+  readonly #materials: readonly Material[];
+  readonly #atlasWidth: number;
+  readonly #atlasHeight: number;
+  #latestFrame?: WorldFrameState;
+  #presentedFrame?: WorldFrameState;
+  #animationFrame = 0;
+  #lost = false;
+  #timedOut = false;
+  #restorePending = false;
+  #ready = false;
+  #lossTimer?: ReturnType<typeof setTimeout>;
+
+  private constructor(
+    readonly canvas: HTMLCanvasElement,
+    renderer: WebGLRenderer,
+    atlasTexture: Texture,
+    glowTexture: CanvasTexture,
+    private readonly onReady: () => void,
+    private readonly onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
+  ) {
+    this.#renderer = renderer;
+    this.#atlasTexture = atlasTexture;
+    this.#glowTexture = glowTexture;
+    const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
+    this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
+    this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
+    const atlasMaterial = new MeshBasicMaterial({
+      alphaTest: 0.001,
+      depthTest: false,
+      depthWrite: false,
+      map: atlasTexture,
+      transparent: true,
+    });
+    const primitiveMaterial = shaderMaterial();
+    const glowMaterial = shaderMaterial(glowTexture);
+    this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
+    const atlasBatches = new Set<BatchId>(['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']);
+    COMPOSITE_BATCHES.forEach((id, renderOrder) => {
+      const geometry = new BufferGeometry();
+      const material = atlasBatches.has(id)
+        ? atlasMaterial
+        : id === 'district-light-pools' ? glowMaterial : primitiveMaterial;
+      const mesh = new Mesh(geometry, material);
+      mesh.frustumCulled = false;
+      mesh.renderOrder = renderOrder;
+      this.#geometries.set(id, geometry);
+      this.#meshes.set(id, mesh);
+      this.#scene.add(mesh);
+    });
+    canvas.addEventListener('webglcontextlost', this.#handleContextLost);
+    canvas.addEventListener('webglcontextrestored', this.#handleContextRestored);
+  }
+
+  static async create(
+    canvas: HTMLCanvasElement,
+    atlasUrl: string,
+    onReady: () => void,
+    onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
+  ): Promise<ThreeWorldRenderer> {
+    const context = canvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false,
+      powerPreference: 'high-performance',
+    });
+    if (!context) throw new Error('Three.js requires WebGL 2.');
+    const renderer = new WebGLRenderer({ canvas, context, alpha: false, antialias: false, powerPreference: 'high-performance' });
+    renderer.outputColorSpace = SRGBColorSpace;
+    renderer.toneMapping = NoToneMapping;
+    renderer.sortObjects = false;
+    renderer.setClearColor('#17201b', 1);
+    const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
+    atlasTexture.colorSpace = SRGBColorSpace;
+    atlasTexture.magFilter = NearestFilter;
+    atlasTexture.minFilter = NearestFilter;
+    atlasTexture.generateMipmaps = false;
+    atlasTexture.anisotropy = 1;
+    atlasTexture.wrapS = ClampToEdgeWrapping;
+    atlasTexture.wrapT = ClampToEdgeWrapping;
+    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), onReady, onContextStateChange);
+  }
+
+  setFrame(frame: WorldFrameState): void {
+    this.#latestFrame = frame;
+  }
+
+  start(): void {
+    if (this.#animationFrame !== 0) return;
+    const present = () => {
+      if (!this.#lost && !this.#timedOut && this.#latestFrame) {
+        if (this.#presentedFrame !== this.#latestFrame) {
+          this.#update(this.#latestFrame);
+          this.#presentedFrame = this.#latestFrame;
+        }
+        this.#renderer.render(this.#scene, this.#camera);
+        if (!this.#ready) {
+          this.#ready = true;
+          this.onReady();
+        }
+        if (this.#restorePending) {
+          this.#restorePending = false;
+          this.onContextStateChange('restored');
+        }
+      }
+      this.#animationFrame = requestAnimationFrame(present);
+    };
+    this.#animationFrame = requestAnimationFrame(present);
+  }
+
+  evidence(): ThreeRendererEvidence {
+    return {
+      rendererKind: 'threejs-2d',
+      webgl2: true,
+      toneMapping: 'none',
+      explicitSort: true,
+      drawCalls: COMPOSITE_BATCHES.filter((id) => this.#geometries.get(id)!.drawRange.count > 0).length,
+      atlasDrawCalls: ['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']
+        .filter((id) => this.#geometries.get(id as BatchId)!.drawRange.count > 0).length,
+      textures: 2,
+      materials: 3,
+      geometries: this.#geometries.size,
+      atlasSize: { width: this.#atlasWidth, height: this.#atlasHeight },
+      trianglesByBatch: Object.fromEntries(COMPOSITE_BATCHES.map((id) => [id, this.#geometries.get(id)!.drawRange.count / 3])),
+    };
+  }
+
+  dispose(): void {
+    if (this.#animationFrame !== 0) cancelAnimationFrame(this.#animationFrame);
+    if (this.#lossTimer) clearTimeout(this.#lossTimer);
+    this.canvas.removeEventListener('webglcontextlost', this.#handleContextLost);
+    this.canvas.removeEventListener('webglcontextrestored', this.#handleContextRestored);
+    this.#geometries.forEach((geometry) => geometry.dispose());
+    this.#materials.forEach((material) => material.dispose());
+    this.#atlasTexture.dispose();
+    this.#glowTexture.dispose();
+    this.#renderer.dispose();
+  }
+
+  readonly #handleContextLost = (event: Event): void => {
+    event.preventDefault();
+    if (this.#lost || this.#timedOut) return;
+    this.#lost = true;
+    this.onContextStateChange('lost');
+    this.#lossTimer = setTimeout(() => {
+      this.#timedOut = true;
+      this.onContextStateChange('timed-out');
+    }, 10_000);
+  };
+
+  readonly #handleContextRestored = (): void => {
+    if (this.#lossTimer) clearTimeout(this.#lossTimer);
+    if (this.#timedOut) return;
+    this.#lost = false;
+    this.#restorePending = true;
+    this.#presentedFrame = undefined;
+    this.#atlasTexture.needsUpdate = true;
+    this.#glowTexture.needsUpdate = true;
+  };
+
+  #set(id: BatchId, data: GeometryData): void {
+    updateGeometry(this.#geometries.get(id)!, data);
+  }
+
+  #update(frame: WorldFrameState): void {
+    const { camera, viewport } = frame;
+    this.#renderer.setPixelRatio(frame.devicePixelRatio);
+    this.#renderer.setSize(viewport.width, viewport.height, false);
+    const bounds = threeCameraBounds(camera, viewport);
+    this.#camera.left = bounds.left;
+    this.#camera.right = bounds.right;
+    this.#camera.top = bounds.top;
+    this.#camera.bottom = bounds.bottom;
+    this.#camera.near = -1;
+    this.#camera.far = 1;
+    this.#camera.updateProjectionMatrix();
+
+    const atlas = (...placements: ReadonlyArray<readonly AtlasPlacement[]>): GeometryData => {
+      const data = emptyGeometryData();
+      placements.flat().forEach((placement) => addAtlasPlacement(data, placement, this.#atlasWidth, this.#atlasHeight));
+      return data;
+    };
+    this.#set('floor-and-ground-detail', atlas(frame.floors, frame.groundDetails));
+    this.#set('doors', atlas(frame.doors));
+    const props = new Map(frame.props.map((placement) => [placement.id, placement]));
+    const characters = new Map(frame.characters.map((placement) => [placement.id, placement]));
+    this.#set('grounded-props-and-characters', atlas(frame.groundedOrder.flatMap((entry) => {
+      const placement = entry.kind === 'prop' ? props.get(entry.id) : characters.get(entry.id);
+      return placement ? [placement] : [];
+    })));
+    this.#set('walls', atlas(frame.walls));
+    this.#set('roofs', atlas(frame.roofs));
+
+    const doorWear = emptyGeometryData();
+    frame.doorWear.forEach((door) => {
+      addRect(doorWear, door.worldX + 8, door.worldY + 7, 16, 3, door.darkColor);
+      addRect(doorWear, door.worldX + 10, door.worldY + 8, 12, 1, door.lightColor);
+    });
+    this.#set('door-wear', doorWear);
+
+    const shadows = emptyGeometryData();
+    frame.propShadows.forEach((shadow) => {
+      if (shadow.long) addLine(shadows, shadow.worldX + 6, shadow.worldY + 1, shadow.worldX + 6 + frame.lighting.shadow.x, shadow.worldY + 1 + frame.lighting.shadow.y, 7, frame.lighting.shadow.color);
+      addRect(shadows, shadow.worldX, shadow.worldY, shadow.width, 4, shadow.color);
+    });
+    frame.thresholds.forEach((door) => {
+      addRect(shadows, door.worldX + 3, door.worldY + 26, 26, 5, door.darkColor);
+      addRect(shadows, door.worldX + 6, door.worldY + 26, 20, 1, door.lightColor);
+    });
+    frame.characterShadows.forEach((character) => {
+      addLine(shadows, character.worldX + 5, character.worldY + 1, character.worldX + character.castX, character.worldY + character.castY, 9, frame.lighting.shadow.color);
+      addEllipse(shadows, character.worldX + 7, character.worldY + 3.5, 11, 3.5, character.color);
+    });
+    this.#set('contact-shadows-and-thresholds', shadows);
+
+    const selection = emptyGeometryData();
+    addEllipse(selection, frame.selectionRing.worldX, frame.selectionRing.worldY, frame.selectionRing.radiusX, frame.selectionRing.radiusY, frame.selectionRing.color, 1, frame.selectionRing.strokeWidth / camera.zoom);
+    this.#set('selection-ring', selection);
+
+    const effects = emptyGeometryData();
+    frame.effects.forEach((geometry) => geometry.rects.forEach((rectangle) => addRect(
+      effects,
+      rectangle.x,
+      rectangle.y,
+      rectangle.width,
+      rectangle.height,
+      frame.effectRoleColors[rectangle.role],
+    )));
+    frame.fallbackEffects.forEach((effect) => addEllipse(effects, effect.worldX, effect.worldY, 3, 3, effect.color));
+    this.#set('effects', effects);
+
+    const wallBases = emptyGeometryData();
+    frame.wallBases.forEach((wall) => {
+      addRect(wallBases, wall.worldX + 1, wall.worldY + 26, 30, 5, wall.darkColor);
+      addRect(wallBases, wall.worldX + 3, wall.worldY + 26, 26, 1, wall.lightColor);
+    });
+    this.#set('wall-bases', wallBases);
+
+    const shelter = emptyGeometryData();
+    frame.shelterCells.forEach((cell) => addRect(shelter, cell.x * TILE_SIZE, cell.y * TILE_SIZE, cell.width * TILE_SIZE, cell.height * TILE_SIZE, frame.lighting.shelterShade));
+    this.#set('shelter-shade', shelter);
+
+    const districtShadows = emptyGeometryData();
+    frame.lighting.casters.forEach((caster) => {
+      const x = caster.x * TILE_SIZE + TILE_SIZE / 2;
+      const y = caster.y * TILE_SIZE + TILE_SIZE / 2;
+      addLine(districtShadows, x, y, x + frame.lighting.shadow.x * 1.5, y + frame.lighting.shadow.y * 1.5, 5, frame.lighting.shadow.color);
+    });
+    this.#set('district-shadows', districtShadows);
+
+    const pools = emptyGeometryData();
+    frame.lighting.pools.forEach((pool) => {
+      const x = pool.x * TILE_SIZE + TILE_SIZE / 2;
+      const y = pool.y * TILE_SIZE + TILE_SIZE / 2;
+      const addPool = (scaleX: number, scaleY: number, opacity: number) => addQuad(
+        pools,
+        [[x - pool.radius * scaleX, y - pool.radius * scaleY], [x + pool.radius * scaleX, y - pool.radius * scaleY], [x + pool.radius * scaleX, y + pool.radius * scaleY], [x - pool.radius * scaleX, y + pool.radius * scaleY]],
+        frame.lighting.accent,
+        frame.lighting.poolOpacity * opacity,
+      );
+      addPool(1.18, 0.58, 0.18);
+      addPool(0.72, 0.34, 0.45);
+      addPool(0.38, 0.17, 0.8);
+    });
+    this.#set('district-light-pools', pools);
+
+    const atmosphere = emptyGeometryData();
+    const worldWidth = viewport.width / camera.zoom;
+    const worldHeight = viewport.height / camera.zoom;
+    addRect(atmosphere, camera.x, camera.y, worldWidth, worldHeight, frame.atmosphere.wash);
+    addRect(atmosphere, camera.x, camera.y, worldWidth, 16 / camera.zoom, frame.atmosphere.shade, 0.25);
+    addRect(atmosphere, camera.x, camera.y + worldHeight - 22 / camera.zoom, worldWidth, 22 / camera.zoom, frame.atmosphere.shade, 0.34);
+    addRect(atmosphere, camera.x, camera.y, 16 / camera.zoom, worldHeight, frame.atmosphere.shade, 0.18);
+    addRect(atmosphere, camera.x + worldWidth - 16 / camera.zoom, camera.y, 16 / camera.zoom, worldHeight, frame.atmosphere.shade, 0.18);
+    const moteShift = frame.reducedMotion ? 0 : -8 * (0.5 + Math.sin(frame.animationTimestampMilliseconds / 4_200) / 2) / camera.zoom;
+    [[0.18, 0.24], [0.36, 0.64], [0.58, 0.31], [0.74, 0.53], [0.87, 0.18]].forEach(([x, y]) => {
+      addRect(atmosphere, camera.x + worldWidth * x!, camera.y + worldHeight * y! + moteShift, 2 / camera.zoom, 2 / camera.zoom, frame.atmosphere.accent, frame.reducedMotion ? 0.28 : 0.45);
+    });
+    this.#set('atmosphere', atmosphere);
+
+    const destination = emptyGeometryData();
+    if (frame.destinationPulse) addEllipse(destination, frame.destinationPulse.worldX, frame.destinationPulse.worldY, frame.destinationPulse.radius, frame.destinationPulse.radius, frame.destinationPulse.color, frame.destinationPulse.opacity, 1 / camera.zoom);
+    this.#set('destination-pulse', destination);
+
+    const journal = emptyGeometryData();
+    frame.journalMarkers.forEach((marker) => {
+      const footX = marker.tile.x * TILE_SIZE + TILE_SIZE / 2;
+      const footY = marker.tile.y * TILE_SIZE + TILE_SIZE;
+      const centerX = footX - 10;
+      const centerY = footY - 30;
+      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 4, marker.darkColor);
+      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 2, marker.lightColor);
+      addEllipse(journal, centerX, centerY, 7, 7, marker.darkColor);
+      addEllipse(journal, centerX, centerY, 5, 5, marker.lightColor);
+      addEllipse(journal, centerX, centerY, 2, 2, marker.darkColor);
+    });
+    this.#set('journal-markers', journal);
+
+    const failure = emptyGeometryData();
+    if (frame.failureMarker) {
+      const radius = frame.failureMarker.radiusPixels / camera.zoom;
+      addLine(failure, frame.failureMarker.worldX - radius, frame.failureMarker.worldY - radius, frame.failureMarker.worldX + radius, frame.failureMarker.worldY + radius, 3 / camera.zoom, frame.failureMarker.color);
+      addLine(failure, frame.failureMarker.worldX + radius, frame.failureMarker.worldY - radius, frame.failureMarker.worldX - radius, frame.failureMarker.worldY + radius, 3 / camera.zoom, frame.failureMarker.color);
+    }
+    this.#set('failure-marker', failure);
+  }
+}

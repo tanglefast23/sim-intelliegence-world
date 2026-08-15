@@ -17,11 +17,11 @@ export const RuntimeInfoSchema = z
   })
   .strict();
 
-export const RendererReadySchema = z
-  .object({
-    appUrl: z.string().max(512),
-    assetsLoaded: z.literal(true),
-    bridgeKeys: z.tuple([
+const RendererReadyCommon = {
+  schemaVersion: z.literal(2),
+  appUrl: z.string().max(512),
+  assetsLoaded: z.literal(true),
+  bridgeKeys: z.tuple([
       z.literal('abortConversation'),
       z.literal('beginConversation'),
       z.literal('completeVerbalMissionTurn'),
@@ -36,11 +36,31 @@ export const RendererReadySchema = z
       z.literal('requestSave'),
       z.literal('savePresentationPreferences'),
       z.literal('sendConversationTurn'),
-    ]),
+  ]),
+  nodeAccessBlocked: z.literal(true),
+} as const;
+
+export const RendererReadySchema = z.union([
+  z.object({
+    ...RendererReadyCommon,
+    phase: z.literal('shell'),
+    shellReady: z.literal(true),
+  }).strict(),
+  z.object({
+    ...RendererReadyCommon,
+    phase: z.literal('world'),
+    rendererKind: z.literal('skia'),
     canvasKitReady: z.literal(true),
-    nodeAccessBlocked: z.literal(true),
-  })
-  .strict();
+    worldFrameReady: z.literal(true),
+  }).strict(),
+  z.object({
+    ...RendererReadyCommon,
+    phase: z.literal('world'),
+    rendererKind: z.literal('threejs-2d'),
+    webgl2Ready: z.literal(true),
+    worldFrameReady: z.literal(true),
+  }).strict(),
+]);
 
 export type RuntimeInfo = z.infer<typeof RuntimeInfoSchema>;
 export type RendererReadyReport = z.infer<typeof RendererReadySchema>;

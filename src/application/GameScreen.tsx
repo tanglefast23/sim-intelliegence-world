@@ -4,10 +4,10 @@ import { createInitialState } from '../domain/state/initial-state';
 import { useAudioEnabled, useInterfaceSounds } from '../audio/halcyra-audio';
 import type { WorldState } from '../domain/state/schema';
 import { WorldScene } from '../render/WorldScene';
+import type { RendererKind } from '../render/renderer-selection';
 import { getDesktopBridge } from './DesktopBridge';
 import { LoadingShell } from './LoadingShell';
 import { NewGameFlow } from './NewGameFlow';
-import { shouldReportGameReady } from './game-readiness';
 import {
   DEFAULT_PRESENTATION_PREFERENCES,
   type PresentationPreferences,
@@ -31,9 +31,9 @@ type BootState =
   | Readonly<{ status: 'active'; session: GameSession }>
   | Readonly<{ status: 'failed'; detail: string }>;
 
-type GameScreenProps = Readonly<{ onReady: () => void; surface: ViewportSize }>;
+type GameScreenProps = Readonly<{ onWorldReady: () => void; rendererKind: RendererKind; surface: ViewportSize }>;
 
-export function GameScreen({ onReady, surface }: GameScreenProps) {
+export function GameScreen({ onWorldReady, rendererKind, surface }: GameScreenProps) {
   const [boot, setBoot] = useState<BootState>({ status: 'loading' });
   const audioEnabled = useAudioEnabled();
   const playInterfaceSound = useInterfaceSounds(audioEnabled);
@@ -83,12 +83,6 @@ export function GameScreen({ onReady, surface }: GameScreenProps) {
     });
     return () => { active = false; };
   }, []);
-
-  useEffect(() => {
-    if (!shouldReportGameReady(boot.status)) return;
-    const firstPaint = requestAnimationFrame(() => requestAnimationFrame(onReady));
-    return () => cancelAnimationFrame(firstPaint);
-  }, [boot.status, onReady]);
 
   const startNewGame = useCallback((displayName: string) => {
     playInterfaceSound('confirm');
@@ -155,7 +149,9 @@ export function GameScreen({ onReady, surface }: GameScreenProps) {
       audioEnabled={audioEnabled}
       newGame={boot.session.newGame}
       onPresentationPreferencesChange={savePresentationPreferences}
+      onWorldReady={onWorldReady}
       playInterfaceSound={playInterfaceSound}
+      rendererKind={rendererKind}
       surface={surface}
       key={boot.session.key}
     />

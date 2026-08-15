@@ -101,6 +101,8 @@ import {
 import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
 import { AtmosphereOverlay } from './AtmosphereOverlay';
 import { DistrictLightingOverlay } from './DistrictLightingOverlay';
+import { ThreeWorldSurface } from './ThreeWorldSurface';
+import type { RendererKind } from './renderer-selection';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
@@ -266,8 +268,10 @@ type WorldSceneProps = Readonly<{
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  onWorldReady?: () => void;
   playInterfaceSound?: (sound: InterfaceSoundId) => void;
   persistenceDisabled?: boolean;
+  rendererKind?: RendererKind;
   surface: ViewportSize;
 }>;
 
@@ -283,11 +287,13 @@ export function WorldScene({
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  onWorldReady = () => undefined,
   playInterfaceSound = () => undefined,
   persistenceDisabled = false,
+  rendererKind = 'skia',
   surface,
 }: WorldSceneProps) {
-  const image = useImage(atlasImage);
+  const image = useImage(rendererKind === 'skia' ? atlasImage : null);
   const reducedMotion = useReducedMotion();
   const playVocalCue = useVocalCues();
   const initialTile = useMemo(() => ({
@@ -331,6 +337,8 @@ export function WorldScene({
   const [vfxAgeStep, setVfxAgeStep] = useState(0);
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
   const [destinationPulseElapsedMs, setDestinationPulseElapsedMs] = useState(0);
+  const [rendererContextState, setRendererContextState] = useState<'ready' | 'lost' | 'timed-out'>('ready');
+  const rendererSuspended = rendererContextState !== 'ready';
   const conversationPort = useMemo(
     () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
     [persistenceDisabled],
@@ -351,7 +359,7 @@ export function WorldScene({
   useWorldAudio({
     absoluteMinute: runtime.worldState.clock.absoluteMinute,
     doorPhases,
-    enabled: audioEnabled,
+    enabled: audioEnabled && !rendererSuspended,
     mapId,
     materialId: movementMaterialId,
     segment: runtime.movement.segment,
@@ -390,7 +398,7 @@ export function WorldScene({
   }, [mapId]);
 
   useEffect(() => {
-    const running = vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
+    const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
     if (!running) {
       vfxClock.current = advanceAmbientVfxClock(vfxClock.current, 0, { running: false });
       return undefined;
@@ -410,16 +418,17 @@ export function WorldScene({
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [forceAmbientMotion, mapId, speed, vfxMode]);
+  }, [forceAmbientMotion, mapId, rendererSuspended, speed, vfxMode]);
 
   useEffect(() => {
     if (reducedMotion) {
       setPoseFrame(0);
       return undefined;
     }
+    if (rendererSuspended) return undefined;
     const timer = setInterval(() => setPoseFrame((current) => current === 0 ? 1 : 0), 720);
     return () => clearInterval(timer);
-  }, [reducedMotion]);
+  }, [reducedMotion, rendererSuspended]);
 
   const selectCharacter = useCallback((id: string) => {
     setSelected(id);
@@ -575,6 +584,7 @@ export function WorldScene({
     state: WorldState,
     trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
   ) => {
+    if (rendererSuspended) return;
     if (persistenceDisabled) {
       setSaveStatus('DEV HARNESS · NO DISK SAVE');
       return;
@@ -606,19 +616,20 @@ export function WorldScene({
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, [persistenceDisabled, playInterfaceSound]);
+  }, [persistenceDisabled, playInterfaceSound, rendererSuspended]);
 
   useEffect(() => {
+    if (rendererSuspended) return undefined;
     const timer = setInterval(() => {
       setRuntime((current) => questOfferOpen || effectiveSpeed(current.worldState.clock) === 0
         ? current
         : { ...current, worldState: tickWorld(current.worldState, 1_000) });
     }, 1_000);
     return () => clearInterval(timer);
-  }, [questOfferOpen]);
+  }, [questOfferOpen, rendererSuspended]);
 
   useEffect(() => {
-    if (speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
+    if (rendererSuspended || speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
     let animationFrame = 0;
     let previousTime: number | undefined;
     const animate = (time: number) => {
@@ -636,12 +647,13 @@ export function WorldScene({
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [conversationNpcId, openPanel, questOfferOpen, speed, transitioning]);
+  }, [conversationNpcId, openPanel, questOfferOpen, rendererSuspended, speed, transitioning]);
 
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
     const key = `${position.mapId}:${position.tileX},${position.tileY}`;
     if (arrivalLock && arrivalLock !== key) setArrivalLock(undefined);
+    if (rendererSuspended) return;
     if (!canStartPortalTransition({
       arrivalLocked: arrivalLock === key,
       transitioning,
@@ -670,7 +682,7 @@ export function WorldScene({
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
       if (result.completed) void requestAutosave(result.state, 'travel');
     }).finally(() => setTransitioning(false));
-  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
+  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, rendererSuspended, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
 
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
@@ -744,7 +756,7 @@ export function WorldScene({
   }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   useEffect(() => {
-    if (!destinationMarker) return;
+    if (!destinationMarker || rendererSuspended) return;
     let animationFrame = 0;
     let startedAt: number | undefined;
     const animate = (time: number) => {
@@ -757,7 +769,7 @@ export function WorldScene({
     setDestinationPulseElapsedMs(0);
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [destinationMarker]);
+  }, [destinationMarker, rendererSuspended]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
@@ -1112,7 +1124,17 @@ export function WorldScene({
     };
   }, [smokeMode]);
 
-  if (!image) {
+  useEffect(() => {
+    if (rendererKind !== 'skia' || !image) return undefined;
+    const frame = requestAnimationFrame(() => requestAnimationFrame(onWorldReady));
+    return () => cancelAnimationFrame(frame);
+  }, [image, onWorldReady, rendererKind]);
+
+  const handleRendererContextState = useCallback((state: 'lost' | 'restored' | 'timed-out') => {
+    setRendererContextState(state === 'restored' ? 'ready' : state);
+  }, []);
+
+  if (rendererKind === 'skia' && !image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
   }
 
@@ -1238,6 +1260,7 @@ export function WorldScene({
 
   return (
     <WorldInput
+      disabled={rendererSuspended}
       isPointInteractive={isPointInteractive}
       onCancel={cancel}
       onCenter={center}
@@ -1253,7 +1276,13 @@ export function WorldScene({
       >
         <View nativeID="world-input-viewport" style={[styles.viewport, surface]}>
           <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
-            <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
+            {rendererKind === 'threejs-2d' ? (
+              <ThreeWorldSurface
+                frame={worldFrame}
+                onContextStateChange={handleRendererContextState}
+                onReady={onWorldReady}
+              />
+            ) : <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
             <Oval
               color={worldFrame.selectionRing.color}
@@ -1294,8 +1323,8 @@ export function WorldScene({
                 <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
               </>
             ) : null}
-            </Canvas>
-            {shelterCells.map((shelter) => {
+            </Canvas>}
+            {rendererKind === 'skia' ? shelterCells.map((shelter) => {
               const shelterScreen = worldToScreen(camera, { x: shelter.x * TILE_SIZE, y: shelter.y * TILE_SIZE });
               return <View
                 key={`${shelter.x},${shelter.y}`}
@@ -1311,16 +1340,16 @@ export function WorldScene({
                   },
                 ]}
               />;
-            })}
-            <DistrictLightingOverlay
+            }) : null}
+            {rendererKind === 'skia' ? <DistrictLightingOverlay
               camera={camera}
               lighting={worldFrame.lighting}
               surface={surface}
-            />
-            <AtmosphereOverlay
+            /> : null}
+            {rendererKind === 'skia' ? <AtmosphereOverlay
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
-            />
+            /> : null}
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}
@@ -1509,6 +1538,11 @@ export function WorldScene({
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
         ) : null}
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
+        {rendererContextState !== 'ready' ? (
+          <View nativeID="world-renderer-recovery-overlay" style={styles.transitionOverlay}>
+            <Text style={styles.transitionText}>{rendererContextState === 'lost' ? 'RESTORING GRAPHICS…' : 'GRAPHICS RESTART REQUIRED'}</Text>
+          </View>
+        ) : null}
         {conversationNpcId ? (
           <ConversationPanel
             accent={lighting.accent}
