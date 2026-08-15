@@ -457,7 +457,7 @@ Run the procedural VFX smoke and this exact matrix:
 
 ```bash
 npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json --output output/verification/threejs-2d/stage-3/renderer-comparison.json
-npm run smoke:renderer-all-maps -- --output output/verification/threejs-2d/stage-3/all-maps-package
+npm run smoke:renderer-all-maps -- --output-root output/verification/threejs-2d/stage-3/all-maps-package
 ```
 
 ### Exit gate
