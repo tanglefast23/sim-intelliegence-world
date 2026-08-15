@@ -180,7 +180,32 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture): ShaderMaterial {
+function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
+  const legacyColorFunctions = matchLegacyColors ? `
+      float siLinearToSrgb(float channel) {
+        return channel <= 0.0031308 ? channel * 12.92 : 1.055 * pow(channel, 1.0 / 2.4) - 0.055;
+      }
+      float siSrgbToLinear(float channel) {
+        return channel <= 0.04045 ? channel / 12.92 : pow((channel + 0.055) / 1.055, 2.4);
+      }
+  ` : '';
+  const legacyColorTransform = matchLegacyColors ? `
+        vec3 encodedColor = vec3(
+          siLinearToSrgb(gl_FragColor.r),
+          siLinearToSrgb(gl_FragColor.g),
+          siLinearToSrgb(gl_FragColor.b)
+        );
+        encodedColor = mat3(
+          1.2249401, -0.0420569, -0.0196376,
+          -0.2249404, 1.0420571, -0.0786361,
+          0.0, 0.0, 1.0982735
+        ) * encodedColor;
+        gl_FragColor.rgb = vec3(
+          siSrgbToLinear(clamp(encodedColor.r, 0.0, 1.0)),
+          siSrgbToLinear(clamp(encodedColor.g, 0.0, 1.0)),
+          siSrgbToLinear(clamp(encodedColor.b, 0.0, 1.0))
+        );
+  ` : '';
   return new ShaderMaterial({
     depthTest: false,
     depthWrite: false,
@@ -200,17 +225,21 @@ function shaderMaterial(texture?: Texture): ShaderMaterial {
       uniform sampler2D map;
       varying vec2 vUv;
       varying vec4 vTint;
+      ${legacyColorFunctions}
       void main() {
         vec4 sampled = texture2D(map, vUv);
         gl_FragColor = sampled * vTint;
+        ${legacyColorTransform}
         if (gl_FragColor.a <= 0.001) discard;
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
     ` : `
       varying vec4 vTint;
+      ${legacyColorFunctions}
       void main() {
         gl_FragColor = vTint;
+        ${legacyColorTransform}
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
@@ -264,6 +293,7 @@ export type ThreeRendererEvidence = Readonly<{
   webgl2: true;
   toneMapping: 'none';
   explicitSort: true;
+  legacyColorParity: boolean;
   drawCalls: number;
   atlasDrawCalls: number;
   textures: 2;
@@ -290,6 +320,7 @@ export class ThreeWorldRenderer {
   readonly #materials: readonly ShaderMaterial[];
   readonly #atlasWidth: number;
   readonly #atlasHeight: number;
+  readonly #matchLegacyColors: boolean;
   #latestFrame?: WorldFrameState;
   #presentedFrame?: WorldFrameState;
   #animationFrame = 0;
@@ -304,18 +335,20 @@ export class ThreeWorldRenderer {
     renderer: WebGLRenderer,
     atlasTexture: Texture,
     glowTexture: CanvasTexture,
+    matchLegacyColors: boolean,
     private readonly onReady: () => void,
     private readonly onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
   ) {
     this.#renderer = renderer;
     this.#atlasTexture = atlasTexture;
     this.#glowTexture = glowTexture;
+    this.#matchLegacyColors = matchLegacyColors;
     const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
     this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
-    const atlasMaterial = shaderMaterial(atlasTexture);
-    const primitiveMaterial = shaderMaterial();
-    const glowMaterial = shaderMaterial(glowTexture);
+    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors);
+    const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors);
+    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
     const atlasBatches = new Set<BatchId>(['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']);
     COMPOSITE_BATCHES.forEach((id, renderOrder) => {
@@ -337,6 +370,7 @@ export class ThreeWorldRenderer {
   static async create(
     canvas: HTMLCanvasElement,
     atlasUrl: string,
+    matchLegacyColors: boolean,
     onReady: () => void,
     onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
   ): Promise<ThreeWorldRenderer> {
@@ -359,7 +393,7 @@ export class ThreeWorldRenderer {
     atlasTexture.anisotropy = 1;
     atlasTexture.wrapS = ClampToEdgeWrapping;
     atlasTexture.wrapT = ClampToEdgeWrapping;
-    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), onReady, onContextStateChange);
+    return new ThreeWorldRenderer(canvas, renderer, atlasTexture, generatedGlowTexture(), matchLegacyColors, onReady, onContextStateChange);
   }
 
   setFrame(frame: WorldFrameState): void {
@@ -395,6 +429,7 @@ export class ThreeWorldRenderer {
       webgl2: true,
       toneMapping: 'none',
       explicitSort: true,
+      legacyColorParity: this.#matchLegacyColors,
       drawCalls: COMPOSITE_BATCHES.filter((id) => this.#geometries.get(id)!.drawRange.count > 0).length,
       atlasDrawCalls: ['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']
         .filter((id) => this.#geometries.get(id as BatchId)!.drawRange.count > 0).length,

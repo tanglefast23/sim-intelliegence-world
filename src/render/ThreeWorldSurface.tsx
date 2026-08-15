@@ -35,9 +35,11 @@ export function ThreeWorldSurface({
     host.append(canvas);
     let disposed = false;
     const local = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const matchLegacyColors = window.siWorldSmokeMode === true || local;
     void ThreeWorldRenderer.create(
       canvas,
       Asset.fromModule(atlasImage).uri,
+      matchLegacyColors,
       () => onReadyRef.current(),
       (state) => onContextStateChangeRef.current(state),
     ).then((renderer) => {
