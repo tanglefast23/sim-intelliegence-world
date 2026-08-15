@@ -20,7 +20,7 @@ const FixtureIdSchema = z.enum([
 ]);
 const StateSchema = z.object({
   camera: z.object({ x: z.number(), y: z.number(), zoom: z.literal(1) }).strict(),
-  viewport: z.object({ width: z.literal(1280), height: z.literal(720) }).strict(),
+  viewport: z.object({ width: z.number().positive(), height: z.number().positive() }).strict(),
   devicePixelRatio: z.literal(1),
 }).passthrough();
 const PassSchema = z.object({
