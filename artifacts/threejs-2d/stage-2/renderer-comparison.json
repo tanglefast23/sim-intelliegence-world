@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "fixtureSet": "threejs-villa-stage-2",
+  "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+  "mode": "parity",
+  "passed": true,
+  "failures": [],
+  "fixtures": [
+    {
+      "id": "villa-exterior-idle",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-exterior-idle",
+        "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+        "mode": "parity",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 2467,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.002677,
+          "masks": [
+            {
+              "id": "player-protagonist",
+              "baselineVisiblePixels": 76,
+              "candidateVisiblePixels": 76,
+              "baselineContrast": 2.235021,
+              "candidateContrast": 2.221381,
+              "retainedContrast": 0.993897,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-interior-roof-hidden",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-interior-roof-hidden",
+        "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+        "mode": "parity",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 3607,
+          "outsideMaskPixelCount": 921130,
+          "changedOutsideMaskRatio": 0.003916,
+          "masks": [
+            {
+              "id": "npc-generic-resident",
+              "baselineVisiblePixels": 470,
+              "candidateVisiblePixels": 470,
+              "baselineContrast": 1.362484,
+              "candidateContrast": 1.336166,
+              "retainedContrast": 0.980684,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-door-transition",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-door-transition",
+        "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+        "mode": "parity",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 3605,
+          "outsideMaskPixelCount": 921444,
+          "changedOutsideMaskRatio": 0.003912,
+          "masks": [
+            {
+              "id": "active-door-entry-hall-door",
+              "baselineVisiblePixels": 156,
+              "candidateVisiblePixels": 156,
+              "baselineContrast": 1.535727,
+              "candidateContrast": 1.543145,
+              "retainedContrast": 1.00483,
+              "maximumChannelDelta": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-walk-east-frame-1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-walk-east-frame-1",
+        "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+        "mode": "parity",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 3566,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.00387,
+          "masks": [
+            {
+              "id": "route-destination-pulse",
+              "baselineVisiblePixels": 76,
+              "candidateVisiblePixels": 76,
+              "baselineContrast": 1.610746,
+              "candidateContrast": 1.61694,
+              "retainedContrast": 1.003845,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-selected-npc",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-selected-npc",
+        "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+        "mode": "parity",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 2319,
+          "outsideMaskPixelCount": 921542,
+          "changedOutsideMaskRatio": 0.002516,
+          "masks": [
+            {
+              "id": "selection-ring",
+              "baselineVisiblePixels": 58,
+              "candidateVisiblePixels": 58,
+              "baselineContrast": 3.41123,
+              "candidateContrast": 3.183385,
+              "retainedContrast": 0.933207,
+              "maximumChannelDelta": 8
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-destination-journal-failure",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-destination-journal-failure",
+        "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+        "mode": "parity",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 2416,
+          "outsideMaskPixelCount": 921149,
+          "changedOutsideMaskRatio": 0.002623,
+          "masks": [
+            {
+              "id": "destination-pulse",
+              "baselineVisiblePixels": 76,
+              "candidateVisiblePixels": 76,
+              "baselineContrast": 1.362008,
+              "candidateContrast": 1.358673,
+              "retainedContrast": 0.997551,
+              "maximumChannelDelta": 1
+            },
+            {
+              "id": "failure-marker",
+              "baselineVisiblePixels": 136,
+              "candidateVisiblePixels": 136,
+              "baselineContrast": 1.656307,
+              "candidateContrast": 1.656307,
+              "retainedContrast": 1,
+              "maximumChannelDelta": 1
+            },
+            {
+              "id": "journal-journal_renderer_parity",
+              "baselineVisiblePixels": 239,
+              "candidateVisiblePixels": 239,
+              "baselineContrast": 1.065172,
+              "candidateContrast": 1.06599,
+              "retainedContrast": 1.000767,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

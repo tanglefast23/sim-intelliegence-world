@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "stage": 2,
+  "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+  "decision": "accept",
+  "fixtureIds": [
+    "villa-exterior-idle",
+    "villa-interior-roof-hidden",
+    "villa-door-transition",
+    "villa-walk-east-frame-1",
+    "villa-selected-npc",
+    "villa-destination-journal-failure"
+  ],
+  "requiredMaskKinds": [
+    "player",
+    "npc",
+    "active-door",
+    "route",
+    "selection",
+    "destination",
+    "journal",
+    "failure"
+  ],
+  "threeJsRenderedMaskKinds": [
+    "player",
+    "npc",
+    "active-door",
+    "selection"
+  ],
+  "sharedCompositeMaskKinds": [
+    "route",
+    "destination",
+    "journal",
+    "failure"
+  ],
+  "matchedPreview": {
+    "reference": "spikes/001-threejs-pixel-villa/comparison-three-way.png",
+    "panel": "TEST - THREE.JS PIXEL 2D",
+    "productionToneMapping": "none",
+    "productionAcesEnabled": false,
+    "gpuLightingDeferredToStage": 4
+  },
+  "parity": {
+    "report": "artifacts/threejs-2d/stage-2/renderer-comparison.json",
+    "packageReport": "artifacts/threejs-2d/stage-2/renderer-parity-package-report.json",
+    "passed": true,
+    "fixtureCount": 6,
+    "requiredMaskCount": 8,
+    "threeJsRenderedMaskCount": 4,
+    "sharedCompositeMaskCount": 4,
+    "maximumChangedOutsideMaskRatio": 0.003916,
+    "maximumRequiredMaskChannelDelta": 8,
+    "minimumRequiredMaskContrastRetention": 0.933207,
+    "minimumBaselineMaskContrast": 1.065172,
+    "qualifiedRendererConfiguration": "local and smoke no-tone comparison variant",
+    "shippingThreeJsShaderQualified": false
+  },
+  "readability": {
+    "contrastFloor": 0.9,
+    "minimumBaselineContrast": 1.05,
+    "allMeasuredMasksPassed": true,
+    "sharedOverlayLampCenterBrighterThanUnlitRegion": true,
+    "shadowDirection": "lower-right",
+    "sharedOverlayShadowDirectionPassed": true,
+    "feedbackAboveLightingAndAtmosphere": true
+  },
+  "sharedStage2Layers": [
+    "district lighting",
+    "atmosphere",
+    "destination pulse",
+    "journal markers",
+    "failure marker"
+  ],
+  "qualificationColor": {
+    "atlasMetadata": "untagged",
+    "transform": "standard linear Display P3 to linear sRGB matrix",
+    "scope": "temporary local and smoke renderer comparison only",
+    "shippingThreeJsTransformEnabled": false,
+    "shippingThreeJsShaderQualified": false,
+    "stage2DecisionScope": "accept the comparison configuration only; production cutover remains prohibited",
+    "stage7Requirement": "remove or requalify the comparison-only transform against the shipping shader before final cutover"
+  },
+  "lifecycle": {
+    "contextLossObserved": true,
+    "contextRestored": true,
+    "timeoutMilliseconds": 10000,
+    "gpuCountsStableAcrossPackagedContextRecovery": true,
+    "rendererResourcesDisposedAcrossFocusedUnmountAndRemountTest": true,
+    "resourceCeilings": {
+      "geometries": 17,
+      "materials": 3,
+      "textures": 2,
+      "programs": 2
+    }
+  },
+  "rationale": [
+    "The hidden packaged runs use the same serialized state for Skia and Three.js across all six locked villa fixtures.",
+    "Four masks exercise Three.js output. Four feedback masks and the light and shadow samples exercise the shared Stage 2 Skia and React Native composite.",
+    "Every measured mask passes the locked baseline-signal, contrast-retention, channel-delta, coverage, and outside-mask thresholds.",
+    "The shared Stage 2 district-lighting and atmosphere overlays preserve the approved treatment without hiding atlas or geometry defects.",
+    "Destination, journal, and failure feedback stay above district lighting and atmosphere.",
+    "The temporary color transform qualifies only local and smoke comparison output. The shipping Three.js shader is not qualified in Stage 2.",
+    "The approved richer GPU lighting and ACES tone mapping remain deferred until Stage 4."
+  ]
+}

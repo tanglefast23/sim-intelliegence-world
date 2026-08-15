@@ -101,6 +101,8 @@ import {
 import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
 import { AtmosphereOverlay } from './AtmosphereOverlay';
 import { DistrictLightingOverlay } from './DistrictLightingOverlay';
+import { ThreeWorldSurface } from './ThreeWorldSurface';
+import type { RendererKind } from './renderer-selection';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
@@ -266,8 +268,10 @@ type WorldSceneProps = Readonly<{
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  onWorldReady?: () => void;
   playInterfaceSound?: (sound: InterfaceSoundId) => void;
   persistenceDisabled?: boolean;
+  rendererKind?: RendererKind;
   surface: ViewportSize;
 }>;
 
@@ -283,11 +287,13 @@ export function WorldScene({
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  onWorldReady = () => undefined,
   playInterfaceSound = () => undefined,
   persistenceDisabled = false,
+  rendererKind = 'skia',
   surface,
 }: WorldSceneProps) {
-  const image = useImage(atlasImage);
+  const image = useImage(rendererKind === 'skia' ? atlasImage : null);
   const reducedMotion = useReducedMotion();
   const playVocalCue = useVocalCues();
   const initialTile = useMemo(() => ({
@@ -331,6 +337,9 @@ export function WorldScene({
   const [vfxAgeStep, setVfxAgeStep] = useState(0);
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
   const [destinationPulseElapsedMs, setDestinationPulseElapsedMs] = useState(0);
+  const [rendererParityPulseFrozen, setRendererParityPulseFrozen] = useState(false);
+  const [rendererContextState, setRendererContextState] = useState<'ready' | 'lost' | 'timed-out'>('ready');
+  const rendererSuspended = rendererContextState !== 'ready';
   const conversationPort = useMemo(
     () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
     [persistenceDisabled],
@@ -351,7 +360,7 @@ export function WorldScene({
   useWorldAudio({
     absoluteMinute: runtime.worldState.clock.absoluteMinute,
     doorPhases,
-    enabled: audioEnabled,
+    enabled: audioEnabled && !rendererSuspended,
     mapId,
     materialId: movementMaterialId,
     segment: runtime.movement.segment,
@@ -390,7 +399,7 @@ export function WorldScene({
   }, [mapId]);
 
   useEffect(() => {
-    const running = vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
+    const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
     if (!running) {
       vfxClock.current = advanceAmbientVfxClock(vfxClock.current, 0, { running: false });
       return undefined;
@@ -410,16 +419,17 @@ export function WorldScene({
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [forceAmbientMotion, mapId, speed, vfxMode]);
+  }, [forceAmbientMotion, mapId, rendererSuspended, speed, vfxMode]);
 
   useEffect(() => {
     if (reducedMotion) {
       setPoseFrame(0);
       return undefined;
     }
+    if (rendererSuspended) return undefined;
     const timer = setInterval(() => setPoseFrame((current) => current === 0 ? 1 : 0), 720);
     return () => clearInterval(timer);
-  }, [reducedMotion]);
+  }, [reducedMotion, rendererSuspended]);
 
   const selectCharacter = useCallback((id: string) => {
     setSelected(id);
@@ -468,6 +478,12 @@ export function WorldScene({
       setConversationFixtureId(undefined);
       setConversationNpcId(undefined);
     };
+    window.siWorldFreezeRendererParityFrame = () => {
+      vfxClock.current = INITIAL_AMBIENT_VFX_CLOCK;
+      setVfxAgeStep(0);
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+    };
     window.siWorldSetAuthoredDialogueFixture = (characterId) => {
       setOpenPanel(undefined);
       setConversationFixtureId(undefined);
@@ -501,6 +517,78 @@ export function WorldScene({
         return { ...current, npcMovements: npcMovementState(worldState), worldState };
       });
       return { npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 } };
+    };
+    window.siWorldOpenRendererFeedbackFixture = () => {
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setSelected('protagonist');
+      setReactionId(undefined);
+      setDestinationMarker({ x: 22, y: 28 });
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+      setRuntime((current) => ({
+        movement: { ...current.movement, feedbackTile: { x: 24, y: 28 } },
+        npcMovements: current.npcMovements,
+        worldState: parseWorldState({
+          ...current.worldState,
+          journal: {
+            ...current.worldState.journal,
+            journal_renderer_parity: {
+              id: 'journal_renderer_parity',
+              subject: { kind: 'quest', questId: 'linda_boyfriend_check' },
+              summary: 'Renderer parity marker.',
+              locationPrecision: 'exact',
+              locationId: 'linda_villa',
+              markerVisible: true,
+              source: { type: 'scene_observation', sourceId: 'renderer_parity_fixture' },
+              resolutionState: 'open',
+              outcomeReceipts: [],
+            },
+          },
+        }),
+      }));
+      setCamera((current) => centerCameraOnTile({ x: 23, y: 28 }, current.zoom, surfaceRef.current, MAP_PIXELS));
+    };
+    window.siWorldOpenRendererMotionFixture = (fixture) => {
+      const start = { x: 17, y: 23 };
+      const target = fixture === 'door-transition' ? { x: 14, y: 23 } : { x: 20, y: 23 };
+      const fixtureMap = WORLD_MAP_CATALOG.northwest_residential;
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setSelected('protagonist');
+      setDestinationMarker(target);
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+      setRuntime((current) => {
+        const worldState = parseWorldState({
+          ...current.worldState,
+          protagonist: {
+            ...current.worldState.protagonist,
+            locationId: 'protagonist_villa',
+            worldPosition: { mapId: 'northwest_residential', tileX: start.x, tileY: start.y },
+          },
+        });
+        let staged: RuntimeViewState = {
+          movement: requestMovement(fixtureMap, createMovementState(start), target),
+          npcMovements: npcMovementState(worldState),
+          worldState,
+        };
+        for (let step = 0; step < 120; step += 1) {
+          staged = advanceMovementFrame(staged, 16, 1, false);
+          const activeDoor = Object.values(doorMotionPhases(staged.movement)).some((phase) => phase === 'opening');
+          const walkingEast = staged.movement.status === 'moving' && staged.movement.direction === 'right' && staged.movement.walkFrame === 1;
+          if ((fixture === 'door-transition' && activeDoor) || (fixture === 'walk-east-frame-1' && walkingEast)) return staged;
+        }
+        throw new Error(`Renderer motion fixture did not reach ${fixture}.`);
+      });
+      setCamera((current) => centerCameraOnTile(
+        fixture === 'door-transition' ? { x: 15, y: 23 } : { x: 18, y: 23 },
+        current.zoom,
+        surfaceRef.current,
+        MAP_PIXELS,
+      ));
     };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
@@ -568,6 +656,9 @@ export function WorldScene({
       delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
       delete window.siWorldStartNaturalMovementFixture;
+      delete window.siWorldOpenRendererFeedbackFixture;
+      delete window.siWorldOpenRendererMotionFixture;
+      delete window.siWorldFreezeRendererParityFrame;
     };
   }, []);
 
@@ -575,6 +666,7 @@ export function WorldScene({
     state: WorldState,
     trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
   ) => {
+    if (rendererSuspended) return;
     if (persistenceDisabled) {
       setSaveStatus('DEV HARNESS · NO DISK SAVE');
       return;
@@ -606,19 +698,20 @@ export function WorldScene({
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, [persistenceDisabled, playInterfaceSound]);
+  }, [persistenceDisabled, playInterfaceSound, rendererSuspended]);
 
   useEffect(() => {
+    if (rendererSuspended) return undefined;
     const timer = setInterval(() => {
       setRuntime((current) => questOfferOpen || effectiveSpeed(current.worldState.clock) === 0
         ? current
         : { ...current, worldState: tickWorld(current.worldState, 1_000) });
     }, 1_000);
     return () => clearInterval(timer);
-  }, [questOfferOpen]);
+  }, [questOfferOpen, rendererSuspended]);
 
   useEffect(() => {
-    if (speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
+    if (rendererSuspended || speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
     let animationFrame = 0;
     let previousTime: number | undefined;
     const animate = (time: number) => {
@@ -636,12 +729,13 @@ export function WorldScene({
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [conversationNpcId, openPanel, questOfferOpen, speed, transitioning]);
+  }, [conversationNpcId, openPanel, questOfferOpen, rendererSuspended, speed, transitioning]);
 
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
     const key = `${position.mapId}:${position.tileX},${position.tileY}`;
     if (arrivalLock && arrivalLock !== key) setArrivalLock(undefined);
+    if (rendererSuspended) return;
     if (!canStartPortalTransition({
       arrivalLocked: arrivalLock === key,
       transitioning,
@@ -670,11 +764,12 @@ export function WorldScene({
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
       if (result.completed) void requestAutosave(result.state, 'travel');
     }).finally(() => setTransitioning(false));
-  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
+  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, rendererSuspended, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
 
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
     setWorldFeedback(undefined);
+    setRendererParityPulseFrozen(false);
     setDestinationMarker({ ...target });
     setRuntime((current) => {
       const currentMap = WORLD_MAP_CATALOG[current.worldState.protagonist.worldPosition.mapId as MapId];
@@ -744,7 +839,7 @@ export function WorldScene({
   }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   useEffect(() => {
-    if (!destinationMarker) return;
+    if (!destinationMarker || rendererSuspended || rendererParityPulseFrozen) return;
     let animationFrame = 0;
     let startedAt: number | undefined;
     const animate = (time: number) => {
@@ -757,7 +852,7 @@ export function WorldScene({
     setDestinationPulseElapsedMs(0);
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [destinationMarker]);
+  }, [destinationMarker, rendererParityPulseFrozen, rendererSuspended]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
@@ -991,14 +1086,14 @@ export function WorldScene({
       movements: [runtime.movement, ...Object.values(runtime.npcMovements)],
       selectedFoot,
       destinationMarker,
-      destinationPulseElapsedMs,
+      destinationPulseElapsedMs: rendererParityPulseFrozen ? 420 : destinationPulseElapsedMs,
       failureTile: runtime.movement.feedbackTile,
       reducedMotion,
-      animationTimestampMilliseconds: vfxClock.current.ageMilliseconds,
-      vfxAgeStep,
+      animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds,
+      vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep,
       vfxMode,
     }),
-    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
+    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, rendererParityPulseFrozen, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
   );
   const floorAtlas = useMemo(() => atlasData(worldFrame.floors, camera.zoom), [camera.zoom, worldFrame.floors]);
   const groundDetailAtlas = useMemo(() => atlasData(worldFrame.groundDetails, camera.zoom), [camera.zoom, worldFrame.groundDetails]);
@@ -1074,6 +1169,25 @@ export function WorldScene({
     () => smokeMode && map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map, smokeMode],
   );
+  const rendererParityEvidence = useMemo(() => smokeMode ? JSON.stringify({
+    camera: worldFrame.camera,
+    viewport: worldFrame.viewport,
+    devicePixelRatio: worldFrame.devicePixelRatio,
+    hiddenRoofGroupId: worldFrame.hiddenRoofGroupId ?? null,
+    characters: worldFrame.characters.filter(({ id }) => ['protagonist', 'linda', 'generic_resident'].includes(id)),
+    doors: worldFrame.doors,
+    doorPhases,
+    movement: {
+      direction: runtime.movement.direction,
+      status: runtime.movement.status,
+      walkFrame: runtime.movement.walkFrame,
+      visualFoot: runtime.movement.visualFoot,
+    },
+    selectionRing: worldFrame.selectionRing,
+    destinationPulse: worldFrame.destinationPulse ?? null,
+    journalMarkers: worldFrame.journalMarkers,
+    failureMarker: worldFrame.failureMarker ?? null,
+  }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
   const selectedScreen = worldToScreen(camera, {
     x: worldFrame.selectionRing.worldX,
     y: worldFrame.selectionRing.worldY,
@@ -1112,7 +1226,17 @@ export function WorldScene({
     };
   }, [smokeMode]);
 
-  if (!image) {
+  useEffect(() => {
+    if (rendererKind !== 'skia' || !image) return undefined;
+    const frame = requestAnimationFrame(() => requestAnimationFrame(onWorldReady));
+    return () => cancelAnimationFrame(frame);
+  }, [image, onWorldReady, rendererKind]);
+
+  const handleRendererContextState = useCallback((state: 'lost' | 'restored' | 'timed-out') => {
+    setRendererContextState(state === 'restored' ? 'ready' : state);
+  }, []);
+
+  if (rendererKind === 'skia' && !image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
   }
 
@@ -1238,6 +1362,7 @@ export function WorldScene({
 
   return (
     <WorldInput
+      disabled={rendererSuspended}
       isPointInteractive={isPointInteractive}
       onCancel={cancel}
       onCenter={center}
@@ -1253,7 +1378,13 @@ export function WorldScene({
       >
         <View nativeID="world-input-viewport" style={[styles.viewport, surface]}>
           <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
-            <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
+            {rendererKind === 'threejs-2d' ? (
+              <ThreeWorldSurface
+                frame={worldFrame}
+                onContextStateChange={handleRendererContextState}
+                onReady={onWorldReady}
+              />
+            ) : <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
             <Oval
               color={worldFrame.selectionRing.color}
@@ -1267,35 +1398,9 @@ export function WorldScene({
               strokeWidth={worldFrame.selectionRing.strokeWidth}
             />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
-            {worldFrame.destinationPulse ? (() => {
-              const pulse = worldFrame.destinationPulse;
-              const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
-              const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
-              return <Circle color={`${pulse.color}${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
-            })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
-            {worldFrame.journalMarkers.map((marker) => {
-              const foot = worldToScreen(camera, tileFootPoint(marker.tile));
-              const centerX = foot.x - 10 * camera.zoom;
-              const centerY = foot.y - 30 * camera.zoom;
-              return (
-                <Group key={`journal-marker-${marker.journalEntryId}`}>
-                  <Line color={marker.darkColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
-                  <Line color={marker.lightColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
-                  <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={7 * camera.zoom} />
-                  <Circle color={marker.lightColor} cx={centerX} cy={centerY} r={5 * camera.zoom} />
-                  <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={2 * camera.zoom} />
-                </Group>
-              );
-            })}
-            {feedbackScreen && worldFrame.failureMarker ? (
-              <>
-                <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
-                <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
-              </>
-            ) : null}
-            </Canvas>
-            {shelterCells.map((shelter) => {
+            </Canvas>}
+            {rendererKind === 'skia' ? shelterCells.map((shelter) => {
               const shelterScreen = worldToScreen(camera, { x: shelter.x * TILE_SIZE, y: shelter.y * TILE_SIZE });
               return <View
                 key={`${shelter.x},${shelter.y}`}
@@ -1311,7 +1416,7 @@ export function WorldScene({
                   },
                 ]}
               />;
-            })}
+            }) : null}
             <DistrictLightingOverlay
               camera={camera}
               lighting={worldFrame.lighting}
@@ -1321,6 +1426,34 @@ export function WorldScene({
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
             />
+            <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
+              {worldFrame.destinationPulse ? (() => {
+                const pulse = worldFrame.destinationPulse;
+                const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
+                const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
+                return <Circle color={`${pulse.color}${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
+              })() : null}
+              {worldFrame.journalMarkers.map((marker) => {
+                const foot = worldToScreen(camera, tileFootPoint(marker.tile));
+                const centerX = foot.x - 10 * camera.zoom;
+                const centerY = foot.y - 30 * camera.zoom;
+                return (
+                  <Group key={`journal-marker-${marker.journalEntryId}`}>
+                    <Line color={marker.darkColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
+                    <Line color={marker.lightColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
+                    <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={7 * camera.zoom} />
+                    <Circle color={marker.lightColor} cx={centerX} cy={centerY} r={5 * camera.zoom} />
+                    <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={2 * camera.zoom} />
+                  </Group>
+                );
+              })}
+              {feedbackScreen && worldFrame.failureMarker ? (
+                <>
+                  <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
+                  <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
+                </>
+              ) : null}
+            </Canvas>
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}
@@ -1423,6 +1556,14 @@ export function WorldScene({
             style={styles.proofState}
           />
         ) : null}
+        {smokeMode ? (
+          <View
+            accessibilityLabel={rendererParityEvidence}
+            nativeID="world-renderer-parity-state"
+            pointerEvents="none"
+            style={styles.proofState}
+          />
+        ) : null}
         <View
           accessibilityLabel={`Linda quest ${runtime.worldState.quests.linda_boyfriend_check?.status ?? 'missing'}; flags ${(runtime.worldState.quests.linda_boyfriend_check?.flagIds ?? []).join(',') || 'none'}; police ${runtime.worldState.policeAttention}; evidence ${Object.keys(runtime.worldState.evidence).length}`}
           nativeID="world-quest-state"
@@ -1509,6 +1650,11 @@ export function WorldScene({
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
         ) : null}
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
+        {rendererContextState !== 'ready' ? (
+          <View nativeID="world-renderer-recovery-overlay" style={styles.transitionOverlay}>
+            <Text style={styles.transitionText}>{rendererContextState === 'lost' ? 'RESTORING GRAPHICS…' : 'GRAPHICS RESTART REQUIRED'}</Text>
+          </View>
+        ) : null}
         {conversationNpcId ? (
           <ConversationPanel
             accent={lighting.accent}
@@ -1598,7 +1744,8 @@ const styles = StyleSheet.create({
   },
   canvas: { backgroundColor: '#b77945' },
   buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
-  canvasHost: { overflow: 'hidden' },
+      canvasHost: { overflow: 'hidden' },
+      feedbackCanvas: { left: 0, position: 'absolute', top: 0 },
   frame: { overflow: 'hidden', position: 'relative' },
   loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },

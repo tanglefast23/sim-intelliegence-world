@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "fixtureSet": "threejs-villa-stage-2",
+  "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+  "mode": "parity",
+  "fixtures": [
+    {
+      "id": "villa-exterior-idle",
+      "manifest": "tests/fixtures/rendering/threejs-villa/villa-exterior-idle-v1.json"
+    },
+    {
+      "id": "villa-interior-roof-hidden",
+      "manifest": "tests/fixtures/rendering/threejs-villa/villa-interior-roof-hidden-v1.json"
+    },
+    {
+      "id": "villa-door-transition",
+      "manifest": "tests/fixtures/rendering/threejs-villa/villa-door-transition-v1.json"
+    },
+    {
+      "id": "villa-walk-east-frame-1",
+      "manifest": "tests/fixtures/rendering/threejs-villa/villa-walk-east-frame-1-v1.json"
+    },
+    {
+      "id": "villa-selected-npc",
+      "manifest": "tests/fixtures/rendering/threejs-villa/villa-selected-npc-v1.json"
+    },
+    {
+      "id": "villa-destination-journal-failure",
+      "manifest": "tests/fixtures/rendering/threejs-villa/villa-destination-journal-failure-v1.json"
+    }
+  ]
+}

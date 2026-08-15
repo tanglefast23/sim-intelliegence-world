@@ -52,6 +52,7 @@
     "test:electron:unit": "jest --runInBand --runTestsByPath tests/electron/security.test.ts tests/electron/package-smoke.test.ts tests/electron/conversation-ipc.test.ts",
     "test:model": "jest --runInBand --runTestsByPath src/ai/__tests__/spike-response.test.ts tests/electron/model-lifecycle.test.ts",
     "smoke:electron": "tsx scripts/electron/run-package-smoke.ts",
+    "smoke:renderer-parity": "tsx scripts/electron/run-renderer-parity-package-smoke.ts",
     "smoke:natural-movement": "tsx scripts/electron/run-natural-movement-package-smoke.ts",
     "smoke:art-quality": "tsx scripts/electron/run-art-quality-package-smoke.ts",
     "smoke:procedural-vfx": "tsx scripts/electron/run-procedural-vfx-package-smoke.ts",
@@ -69,8 +70,8 @@
     "spike:animated-sketch:check": "npm run spike:animated-sketch:build && node spikes/002-threejs-animated-sketch/verify.mjs"
   },
   "dependencies": {
-    "@expo/metro-runtime": "57.0.8",
     "@expo-google-fonts/silkscreen": "0.4.2",
+    "@expo/metro-runtime": "57.0.8",
     "@shopify/react-native-skia": "2.6.2",
     "expo": "57.0.11",
     "expo-asset": "57.0.9",
@@ -83,6 +84,7 @@
     "react-native-reanimated": "4.5.1",
     "react-native-web": "0.21.2",
     "react-native-worklets": "0.10.1",
+    "three": "0.185.1",
     "zod": "4.4.3",
     "zustand": "5.0.14"
   },
@@ -94,11 +96,11 @@
     "@types/node": "22.20.1",
     "@types/pngjs": "6.0.5",
     "@types/react": "19.2.17",
+    "@types/three": "0.185.4",
     "electron": "43.3.0",
     "jest": "29.7.0",
     "jest-expo": "57.0.3",
     "pngjs": "7.0.0",
-    "three": "0.185.1",
     "tsx": "4.23.1",
     "typescript": "6.0.3"
   }

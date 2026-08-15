@@ -432,6 +432,7 @@ Masks come from stable frame IDs, logical bounds, and the atlas alpha footprint 
 
 No-tone-mapping parity passes only when:
 
+- every matched Skia baseline mask first reaches `1.05` absolute local contrast; a lower value invalidates the mask instead of passing by ratio;
 - required mask IDs, logical bounds, hit bounds, and visible pixel coverage match exactly;
 - outside required masks, no more than `0.5%` of pixels have any sRGB channel delta above `2/255`;
 - no required-mask pixel has an sRGB channel delta above `8/255`;
