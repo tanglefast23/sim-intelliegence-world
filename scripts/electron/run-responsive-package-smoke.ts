@@ -367,10 +367,13 @@ child.stdout.on('data', (chunk: Buffer) => {
 child.stderr.on('data', (chunk: Buffer) => { stderr = appendBounded(stderr, chunk); });
 
 let timedOut = false;
+const responsiveSmokeTimeoutMilliseconds = process.env.SI_WORLD_SMOKE_PROFILE === 'platform-shell'
+  ? 1_200_000
+  : 300_000;
 const timeout = setTimeout(() => {
   timedOut = true;
   child.kill('SIGKILL');
-}, 300_000);
+}, responsiveSmokeTimeoutMilliseconds);
 
 child.once('error', (error) => {
   clearTimeout(timeout);

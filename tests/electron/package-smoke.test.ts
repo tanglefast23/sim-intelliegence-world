@@ -43,6 +43,7 @@ describe('packaged Electron smoke evidence', () => {
   test('runs the packaged WebGL 2 probe before renderer asset readiness', () => {
     const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
     const runner = readFileSync(join(process.cwd(), 'scripts/electron/run-package-smoke.ts'), 'utf8');
+    const responsiveSmoke = readFileSync(join(process.cwd(), 'scripts/electron/run-responsive-package-smoke.ts'), 'utf8');
     expect(main).toContain("window.webContents.on('did-finish-load'");
     expect(main).toContain('void emitWebgl2Probe(window)');
     expect(main).toContain('async function reachWorldTile(');
@@ -67,6 +68,7 @@ describe('packaged Electron smoke evidence', () => {
     expect(main).toContain('sampler.observer.disconnect()');
     expect(main).toContain('if (attempt === 3) throw error;');
     expect(runner).toContain('const FULL_WORLD_SMOKE_TIMEOUT_MS = 1_200_000;');
+    expect(responsiveSmoke).toContain("process.env.SI_WORLD_SMOKE_PROFILE === 'platform-shell'\n  ? 1_200_000\n  : 300_000");
     expect(main).toContain('webgl2ProbeMode ? WEBGL2_PROBE_URL');
     expect(runner).toContain('probe.appUrl !== WEBGL2_PROBE_URL');
     expect(main).toContain('new MutationObserver(recordFeedback)');
