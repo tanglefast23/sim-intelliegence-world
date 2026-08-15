@@ -48,11 +48,37 @@ Class B, localised and large. The journal pin and failure X now differ by up to
 port tessellates hard-edged geometry with `antialias: false`. A one-pixel ring
 and a three-pixel X cannot match an antialiased original per pixel.
 
+## Class B is closed
+
+Drawing feedback inside the Three.js canvas was self-inflicted. The locked order
+only requires feedback ABOVE lighting and atmosphere. Three.js now owns both
+inside the canvas, and the shared feedback overlay sits above that canvas in the
+DOM, so the order already holds with no antialiasing mismatch. Every Class B
+failure disappeared: per-channel deltas of 134 and 158, the changed readable
+sets, and retained contrast 0.609 are all gone. Failure lines fell from 14 to 7.
+
+## Two further hypotheses tested and DISPROVED
+
+- `premultipliedAlpha` defaulting to true against straight-alpha shaders. Moved
+  the numbers by less than 0.0001. Reverted.
+- Precomposing the atmosphere wash and edge shades into nine float-composited
+  regions, to avoid 8-bit quantization between stacked layers. This made the
+  outside-mask ratio WORSE, 0.0078 to 0.0373, because `new Color()` converts to
+  linear working space, so the precomposition happens in LINEAR space while the
+  browser composites in sRGB. Reverted.
+
+That last result is the sharpest remaining clue. The residual is a colour-space
+difference in how stacked translucent layers combine, not a quantization
+artefact. Any next attempt must precompose in sRGB, not in three's linear
+working space.
+
 ## Next step
 
-Class B is the real design question and should be settled before Class A.
-Either give the feedback primitives shader-based antialiasing so their edges
-match Skia's coverage, or amend the specification to compare feedback masks by
-coverage and contrast rather than per-pixel channel delta. The second option is
-a specification change, not a threshold weakening, and needs to be written as a
-dated amendment before any comparator change.
+Only Class A remains: outside-mask changed-pixel ratio 0.0072 to 0.0089 against
+a native limit of 0.005, plus one borderline mask delta of 11 against a limit of
+8 on `npc-generic-resident`.
+
+Precompose the atmosphere regions in sRGB rather than in three's linear working
+space: parse the hex channels directly to 0..255 without `new Color()`, composite
+source-over there, then convert once to linear for the tint attribute. The linear
+attempt is committed and reverted, so the two results can be compared directly.
