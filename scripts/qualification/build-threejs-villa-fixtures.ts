@@ -325,13 +325,16 @@ const fixtureEntries = report.fixtureIds.map((id) => {
   writeJson(maskPath, { schemaVersion: 1, masks });
   const lightSamples = id === 'villa-interior-roof-hidden' ? [{
     id: 'villa-patio-fire-pool',
-    lit: { x: 893, y: 614, width: 4, height: 4 },
-    unlit: { x: 955, y: 614, width: 4, height: 4 },
+    lit: { ...screen(entry.state, { x: 878, y: 1_038 }), width: 4, height: 4 },
+    unlit: { ...screen(entry.state, { x: 940, y: 1_038 }), width: 4, height: 4 },
   }] : [];
   const shadowSamples = id === 'villa-interior-roof-hidden' ? [{
     id: 'villa-patio-fire-shadow',
     direction: 'lower-right',
-    edges: [{ lit: { x: 891, y: 612 }, shadow: { x: 901, y: 621 } }],
+    edges: [{
+      lit: screen(entry.state, { x: 876, y: 1_036 }),
+      shadow: screen(entry.state, { x: 886, y: 1_045 }),
+    }],
   }] : [];
   writeJson(manifestPath, {
     schemaVersion: 1,

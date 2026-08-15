@@ -26,7 +26,8 @@ describe('WorldScene procedural VFX integration', () => {
     expect(scene).toContain('const speed = effectiveSpeed(runtime.worldState.clock);');
     expect(scene).toContain("const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);");
     expect(scene).toContain('advanceAmbientVfxClock');
-    expect(scene).toContain('animationTimestampMilliseconds: vfxClock.current.ageMilliseconds');
+    expect(scene).toContain('animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds');
+    expect(scene).toContain('vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep');
     expect(scene).toContain('geometries={worldFrame.effects}');
     expect(scene).toContain('worldFrame.fallbackEffects');
   });
