@@ -404,4 +404,33 @@ describe('renderer frame comparison', () => {
     expect(report.passed).toBe(false);
     expect(report.failures.join(' ')).toContain('Zoom 1.05');
   });
+// Stage 4 amendment 2026-08-16.
+    describe('moved-layer compositing', () => {
+    test('keeps native per-pixel limits when compositing did not change', () => {
+      const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+      const maskOffset = (4 * 32 + 4) * 4;
+      candidate.data[maskOffset] = candidate.data[maskOffset]! - 9;
+      writeImage(join(root, 'candidate.png'), candidate);
+      const report = compareRendererFrames(manifest(root), 'parity');
+      expect(report.passed).toBe(false);
+      expect(report.failures.join(' ')).toContain('exceeds 8');
+    });
+
+    test('applies the raster-neutral family once a layer moved into the renderer', () => {
+      const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+      const maskOffset = (4 * 32 + 4) * 4;
+      candidate.data[maskOffset] = candidate.data[maskOffset]! - 9;
+      writeImage(join(root, 'candidate.png'), candidate);
+      const report = compareRendererFrames({ ...manifest(root), compositingChanged: true }, 'parity');
+      expect(report.passed).toBe(true);
+    });
+
+    test('still fails a moved-layer frame that breaks the raster-neutral family', () => {
+      const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
+      for (let pixel = 0; pixel < 900; pixel += 1) candidate.data[pixel * 4] = candidate.data[pixel * 4]! - 40;
+      writeImage(join(root, 'candidate.png'), candidate);
+      const report = compareRendererFrames({ ...manifest(root), compositingChanged: true }, 'parity');
+      expect(report.passed).toBe(false);
+    });
+  });
 });

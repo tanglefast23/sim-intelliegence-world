@@ -5,9 +5,13 @@ import { PNG } from 'pngjs';
 
 import { ALL_MAP_PARITY_CASES } from '../../src/render/three/all-map-parity';
 
-const REPORT = 'output/verification/threejs-2d/stage-3/all-maps-package/renderer-all-maps-package-report.json';
+const stageIndex = process.argv.indexOf('--stage');
+const stageArgument = stageIndex === -1 ? '3' : process.argv[stageIndex + 1];
+if (stageArgument !== '3' && stageArgument !== '4') throw new Error('--stage must be 3 or 4.');
+const stage = Number(stageArgument);
+const REPORT = `output/verification/threejs-2d/stage-${stage}/all-maps-package/renderer-all-maps-package-report.json`;
 const SPECIALIZED = 'tests/fixtures/rendering/threejs-stage-3-specialized-v1.json';
-const CAPTURE_OUTPUT = 'artifacts/threejs-2d/stage-3/captures/all-maps';
+const CAPTURE_OUTPUT = `artifacts/threejs-2d/stage-${stage}/captures/all-maps`;
 const FIXTURE_OUTPUT = 'tests/fixtures/rendering/threejs-all-maps';
 const THRESHOLDS = {
   backgroundRingLogicalPixels: 2,
@@ -128,8 +132,8 @@ for (const [rendererKind, pass] of [
     copyFileSync(sourceCapture(rendererKind, fixture), resolve(CAPTURE_OUTPUT, fixture.screenshot));
   }
 }
-copyFileSync(resolve(REPORT), resolve('artifacts/threejs-2d/stage-3/renderer-all-maps-package-report.json'));
-copyFileSync(resolve(dirname(REPORT), 'zoom-sampling.json'), resolve('artifacts/threejs-2d/stage-3/zoom-sampling.json'));
+copyFileSync(resolve(REPORT), resolve(`artifacts/threejs-2d/stage-${stage}/renderer-all-maps-package-report.json`));
+copyFileSync(resolve(dirname(REPORT), 'zoom-sampling.json'), resolve(`artifacts/threejs-2d/stage-${stage}/zoom-sampling.json`));
 
 const fixtureEntries = report.caseIds.map((id) => {
   const baseline = report.passes.skia.fixtures.find((fixture) => fixture.id === id);
@@ -189,6 +193,8 @@ const fixtureEntries = report.caseIds.map((id) => {
     zoom: baseline.zoom,
     camera: { x: baseline.state.camera.x, y: baseline.state.camera.y },
     toneMapping: 'none',
+    // Stage 4 moved district lighting and atmosphere into the renderer.
+    compositingChanged: stage >= 4,
     exposure: 1,
     baseline: { image: `${CAPTURE_OUTPUT}/${baseline.screenshot}`, masks: maskPath },
     candidate: { image: `${CAPTURE_OUTPUT}/${candidate.screenshot}`, masks: maskPath },

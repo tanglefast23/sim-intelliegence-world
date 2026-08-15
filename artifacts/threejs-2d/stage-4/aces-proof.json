@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "check": "ACES override reaches the renderer and changes output",
+  "comparison": "same fixture, SI_WORLD_TEST_TONE_MAPPING=none versus aces",
+  "fixture": "villa-exterior-idle",
+  "meanChannelDelta": 5.752,
+  "maximumChannelDelta": 30,
+  "acesActive": true,
+  "exposure": 1
+}

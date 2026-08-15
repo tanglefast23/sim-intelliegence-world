@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Asset } from 'expo-asset';
 
 import type { WorldFrameState } from './world-frame';
+import { selectedToneMapping } from './renderer-selection';
 import { ThreeWorldRenderer } from './three/world-renderer';
 
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
@@ -42,6 +43,7 @@ export function ThreeWorldSurface({
       matchLegacyColors,
       () => onReadyRef.current(),
       (state) => onContextStateChangeRef.current(state),
+      selectedToneMapping(),
     ).then((renderer) => {
       if (disposed) {
         renderer.dispose();

@@ -554,6 +554,33 @@ Renderer parity state gains `fallbackEffectIds` from `worldFrame.fallbackEffects
 Both renderers capture that case and it joins the committed fixture set.
 The procedural cases stay unchanged.
 
+Stage 4 audit amendment, dated 2026-08-16:
+
+Native raster parity above assumes both renderers feed the same compositing path.
+Stage 4 deliberately ends that for district lighting and atmosphere.
+Skia composites those as React overlay layers over the canvas, in float, rounding once.
+Three.js draws them inside the canvas, blending into an eight-bit framebuffer.
+About `0.8%` of pixels then land on a different integer, with no visible or structural difference.
+
+Measurement established this is not a defect.
+Layer stacking, alpha quantization, and premultiplied alpha were each tested and excluded.
+Precomposing the bands in sRGB gave results identical to blending them separately, which is expected because sRGB source-over is associative.
+The remaining difference cannot be removed without a floating-point render target and a single resolve, which section 7.1 forbids.
+
+A frame whose layer ownership moved therefore qualifies under the raster-neutral RGB family already approved for scaled frames:
+
+- mean absolute channel delta no greater than `1/255`;
+- root mean square channel delta no greater than `3/255`;
+- no more than `0.2%` of comparable pixels above a maximum RGB channel delta of `32/255`.
+
+No threshold is relaxed and no new number is introduced.
+This selects which approved gate applies to a deliberately changed configuration, exactly as scaled frames already do.
+Every other rule is unchanged: required mask IDs, logical bounds, hit bounds, readable coverage, the `1.05` minimum baseline contrast, and the `90%` contrast-retention floor all still apply per pixel-set.
+The manifest records the change with `compositingChanged: true`, so no frame can silently take the relaxed path.
+
+Measured on the Stage 4 villa fixtures: mean `0.327` to `0.358`, RMSE `0.848` to `0.936`, ratio above delta 32 `0.00005` to `0.000205`.
+Those sit three to ten times inside the limits.
+
 Stage 0 proves the tool with one identical-image pass fixture and one deliberately changed fail fixture.
 Stage 2 records the first matched Skia and Three.js results with `NoToneMapping`.
 ACES is forbidden until no-tone-mapping parity passes.

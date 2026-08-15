@@ -17,7 +17,7 @@ import type {
 } from './presentation/preferences';
 import type { CharacterId } from '../render/atlas';
 import type { MapId } from '../world/maps/catalog';
-import type { RendererKind } from '../render/renderer-selection';
+import type { RendererKind, ToneMappingKind } from '../render/renderer-selection';
 import type { ThreeRendererEvidence } from '../render/three/world-renderer';
 
 export type DesktopBridge = ConversationPort & Readonly<{
@@ -40,6 +40,7 @@ declare global {
     siWorldVfxMode?: 'circle' | 'procedural';
     siWorldSmokeMode?: boolean;
     siWorldTestRenderer?: RendererKind;
+    siWorldTestToneMapping?: ToneMappingKind;
     siWorldFreezeNpcMotion?: true;
     siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
     siWorldCloseConversationFixture?: () => void;

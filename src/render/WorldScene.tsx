@@ -1439,15 +1439,17 @@ export function WorldScene({
                 ]}
               />;
             }) : null}
-            <DistrictLightingOverlay
+            {/* Stage 4: Three.js owns district lighting, atmosphere and feedback. These React
+                overlays stay only on the temporary Skia path, and Stage 7 deletes them. */}
+            {rendererKind === 'skia' ? <DistrictLightingOverlay
               camera={camera}
               lighting={worldFrame.lighting}
               surface={surface}
-            />
-            <AtmosphereOverlay
+            /> : null}
+            {rendererKind === 'skia' ? <AtmosphereOverlay
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
-            />
+            /> : null}
             <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
               {worldFrame.destinationPulse ? (() => {
                 const pulse = worldFrame.destinationPulse;
