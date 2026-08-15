@@ -315,7 +315,9 @@ export function SkiaWorldSurface({
 }
 
 const styles = StyleSheet.create({
-  canvas: { left: 0, position: 'absolute', top: 0 },
+  // Copied verbatim from WorldScene. The clear colour matches the Three.js renderer, so any area
+  // the world does not cover reads the same on both paths.
+  canvas: { backgroundColor: '#b77945' },
   feedbackCanvas: { left: 0, position: 'absolute', top: 0 },
   shelterShade: { position: 'absolute' },
 });
