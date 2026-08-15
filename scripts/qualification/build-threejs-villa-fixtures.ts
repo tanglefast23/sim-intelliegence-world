@@ -114,11 +114,20 @@ const screen = (state: FrameState, world: Point): Point => {
     y: offset.y + (world.y - state.camera.y) * state.camera.zoom,
   };
 };
-const atlasFootprint = (source: Rect): string[] => Array.from({ length: source.height }, (_, y) => (
-  Array.from({ length: source.width }, (_, x) => (
-    atlas.data[((source.y + y) * atlas.width + source.x + x) * 4 + 3] === 0 ? '0' : '1'
-  )).join('')
-));
+const atlasOpaque = (source: Rect, x: number, y: number): boolean => (
+  x >= 0 && y >= 0 && x < source.width && y < source.height &&
+  atlas.data[((source.y + y) * atlas.width + source.x + x) * 4 + 3] !== 0
+);
+const atlasFootprint = (source: Rect, silhouetteOnly = false): string[] => Array.from(
+  { length: source.height },
+  (_, y) => Array.from({ length: source.width }, (_, x) => {
+    if (!atlasOpaque(source, x, y)) return '0';
+    if (!silhouetteOnly) return '1';
+    return [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dx, dy]) => (
+      !atlasOpaque(source, x + dx!, y + dy!)
+    )) ? '1' : '0';
+  }).join(''),
+);
 const placementMask = (state: FrameState, placement: Placement, kind: MaskKind, id: string): Mask => {
   const topLeft = screen(state, { x: placement.worldX, y: placement.worldY });
   const logicalBounds = integerRect(topLeft.x, topLeft.y, placement.source.width, placement.source.height);
@@ -130,7 +139,7 @@ const placementMask = (state: FrameState, placement: Placement, kind: MaskKind, 
     hitBounds: kind === 'active-door'
       ? logicalBounds
       : integerRect(logicalBounds.x - 4, logicalBounds.y - 2, 32, 32),
-    alphaFootprint: atlasFootprint(placement.source),
+    alphaFootprint: atlasFootprint(placement.source, kind === 'player'),
   };
 };
 const ellipseMask = (
@@ -152,10 +161,11 @@ const ellipseMask = (
     radiusX * 2 + padding * 2,
     radiusY * 2 + padding * 2,
   );
-  const outerX = radiusX + strokeWidth / 2;
-  const outerY = radiusY + strokeWidth / 2;
-  const innerX = Math.max(0.5, radiusX - strokeWidth / 2);
-  const innerY = Math.max(0.5, radiusY - strokeWidth / 2);
+  const footprintStrokeWidth = kind === 'selection' ? Math.max(1, strokeWidth - 1) : strokeWidth;
+  const outerX = radiusX + footprintStrokeWidth / 2;
+  const outerY = radiusY + footprintStrokeWidth / 2;
+  const innerX = Math.max(0.5, radiusX - footprintStrokeWidth / 2);
+  const innerY = Math.max(0.5, radiusY - footprintStrokeWidth / 2);
   return {
     id,
     kind,
@@ -198,10 +208,11 @@ const selectionMask = (state: FrameState): Mask => {
   const selected = state.characters.find(({ worldX, worldY }) => (
     worldX + 12 === ring.worldX && worldY + 27 === ring.worldY
   ));
-  const hit = selected
-    ? placementMask(state, selected, 'npc', 'selection-hit').hitBounds
+  const selectedMask = selected ? placementMask(state, selected, 'npc', 'selection-hit') : undefined;
+  const hit = selectedMask
+    ? selectedMask.hitBounds
     : tileHitBounds(state, { x: ring.worldX, y: ring.worldY });
-  return ellipseMask(
+  const mask = ellipseMask(
     state,
     'selection',
     ring.id,
@@ -212,6 +223,15 @@ const selectionMask = (state: FrameState): Mask => {
     ring.strokeWidth,
     hit,
   );
+  if (!selected || !selectedMask) return mask;
+  return {
+    ...mask,
+    alphaFootprint: mask.alphaFootprint.map((row, y) => Array.from(row, (pixel, x) => {
+      const selectedX = mask.logicalBounds.x + x - selectedMask.logicalBounds.x;
+      const selectedY = mask.logicalBounds.y + y - selectedMask.logicalBounds.y;
+      return pixel === '1' && atlasOpaque(selected.source, selectedX, selectedY) ? '0' : pixel;
+    }).join('')),
+  };
 };
 const journalMask = (state: FrameState): Mask => {
   const marker = state.journalMarkers[0];

@@ -810,10 +810,11 @@ type RendererParityState = Readonly<{
   viewport: Readonly<{ width: number; height: number }>;
   devicePixelRatio: number;
   hiddenRoofGroupId: string | null;
-  characters: readonly Record<string, unknown>[];
+  characters: readonly Readonly<{ id: string; worldX: number; worldY: number }>[];
   doors: readonly Record<string, unknown>[];
   doorPhases: Readonly<Record<string, string>>;
   movement: Readonly<{ direction: string; status: string; walkFrame: number }>;
+  selectionRing: Readonly<{ worldX: number; worldY: number }>;
   destinationPulse: Record<string, unknown> | null;
   journalMarkers: readonly Record<string, unknown>[];
   failureMarker: Record<string, unknown> | null;
@@ -888,11 +889,15 @@ async function captureRendererParitySmoke(
   await clickAriaButton(window, 'Set 1x time');
   await waitForWorldTile(window, { x: 20, y: 23 });
 
-  const lindaTile = parseLindaTile(await npcStateLabel(window));
-  await reachWorldTile(window, { x: lindaTile.x + 1, y: lindaTile.y });
+  const selectionNpcTile = { x: 27, y: 28 };
+  await reachWorldTile(window, { x: selectionNpcTile.x + 1, y: selectionNpcTile.y });
   await clickAriaButton(window, 'Pause time');
-  await dispatchWorldTileClick(window, lindaTile);
-  await waitForAriaButtonEnabled(window, 'Talk to Linda');
+  await dispatchWorldTileClick(window, selectionNpcTile);
+  await waitForRendererParityState(window, ({ characters, selectionRing }) => {
+    const selectedNpc = characters.find(({ id }) => id === 'generic_resident');
+    return selectedNpc !== undefined && selectionRing.worldX === selectedNpc.worldX + 12 &&
+      selectionRing.worldY === selectedNpc.worldY + 27;
+  });
   await capture('villa-selected-npc');
 
   await window.webContents.executeJavaScript('window.siWorldOpenRendererFeedbackFixture?.()', true);
