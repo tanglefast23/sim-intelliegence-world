@@ -54,11 +54,10 @@ import { selectedCharacterSummary } from '../ui/selected-character';
 import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
 import { uiMetrics } from '../ui/ui-metrics';
-import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
+import type { CompiledMapV2 } from '../world/maps/compiled-v2';
 import { selectOwnerInteractionApproach } from '../world/maps/compiler';
 import { resolveClickTarget, worldClickCandidates } from '../world/maps/hit-testing';
 import { presentationGroundAt } from '../world/presentation/art-presentation';
-import { visualBoundsIntersectTileWindow } from '../world/presentation/visual-bounds';
 import { tileKey, type TilePoint } from '../world/maps/schema';
 import type { MapId } from '../world/maps/catalog';
 import {
@@ -75,7 +74,7 @@ import {
 import {
   ATLAS_INDEX,
   CHARACTER_IDS,
-  atlasRectangle,
+  type AtlasRectangle,
   type CharacterId,
 } from './atlas';
 import {
@@ -99,43 +98,40 @@ import {
   type CameraState,
   type ViewportSize,
 } from './camera';
-import { compareGroundedDepth, WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
 import { AtmosphereOverlay } from './AtmosphereOverlay';
 import { DistrictLightingOverlay } from './DistrictLightingOverlay';
-import { districtLighting } from './district-lighting';
-import { journalMapMarkers } from './journal-markers';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
 import { ProceduralMapEffects, PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
-import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
-import { partitionVfxEmitters } from './vfx/seed';
-import { VFX_KINDS, VFX_REVISION, VFX_STEP_MILLISECONDS, type AuthoredMapEffect } from './vfx/types';
+import { advanceAmbientVfxClock, INITIAL_AMBIENT_VFX_CLOCK } from './vfx/clock';
+import {
+  VFX_KINDS,
+  VFX_REVISION,
+  VFX_STEP_MILLISECONDS,
+  VFX_SUSPENSION_GAP_MILLISECONDS,
+} from './vfx/types';
 import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wobble';
 import {
   buildWorldFrameState,
-  compareWorldLayerTiles,
   DESTINATION_PULSE_MS,
-  destinationPulseFrame,
-  doorSpriteForFrame,
   type WorldActors,
   type WorldCharacterPlacement,
+  type WorldGroundedEntry,
   type WorldLayer,
+  type WorldPropPlacement,
 } from './world-frame';
 
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
 const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
-type SpritePlacement = Readonly<{ id: string; scale?: number; sprite: string; worldX: number; worldY: number }>;
-type PropPlacement = SpritePlacement & Readonly<{ isDoor: boolean; objectId: string; tile: TilePoint }>;
-type PropShadow = Readonly<{ id: string; long: boolean; width: number; worldX: number; worldY: number }>;
 type GroundedVisual = Readonly<{
   groundY: number;
   id: string;
   kind: 'character' | 'prop';
-  placement: PropPlacement | WorldCharacterPlacement;
+  placement: WorldPropPlacement | WorldCharacterPlacement;
 }>;
 type RuntimeViewState = Readonly<{
   movement: MovementState;
@@ -143,34 +139,15 @@ type RuntimeViewState = Readonly<{
   worldState: WorldState;
 }>;
 
-type VisibleTileBounds = Readonly<{
-  minimumX: number;
-  minimumY: number;
-  maximumX: number;
-  maximumY: number;
-}>;
-
-function visibleTileBounds(camera: CameraState, viewport: ViewportSize, margin = 1): VisibleTileBounds {
+function atlasData(placements: readonly Readonly<{
+  scale: number;
+  source: AtlasRectangle;
+  worldX: number;
+  worldY: number;
+}>[], zoom: number) {
   return {
-    minimumX: Math.floor(camera.x / TILE_SIZE) - margin,
-    minimumY: Math.floor(camera.y / TILE_SIZE) - margin,
-    maximumX: Math.ceil((camera.x + viewport.width / camera.zoom) / TILE_SIZE) + margin,
-    maximumY: Math.ceil((camera.y + viewport.height / camera.zoom) / TILE_SIZE) + margin,
-  };
-}
-
-function isVisible(tile: TilePoint, bounds: VisibleTileBounds): boolean {
-  return tile.x >= bounds.minimumX && tile.x <= bounds.maximumX &&
-    tile.y >= bounds.minimumY && tile.y <= bounds.maximumY;
-}
-
-function atlasData(placements: readonly SpritePlacement[], zoom: number) {
-  return {
-    sprites: placements.map(({ sprite }) => {
-      const source = atlasRectangle(sprite);
-      return rect(source.x, source.y, source.width, source.height);
-    }),
-    transforms: placements.map(({ scale = 1, worldX, worldY }) => {
+    sprites: placements.map(({ source }) => rect(source.x, source.y, source.width, source.height)),
+    transforms: placements.map(({ scale, worldX, worldY }) => {
       return Skia.RSXform(zoom * scale, 0, worldX * zoom, worldY * zoom);
     }),
   };
@@ -178,10 +155,7 @@ function atlasData(placements: readonly SpritePlacement[], zoom: number) {
 
 function characterAtlasData(placements: readonly WorldCharacterPlacement[], zoom: number) {
   return {
-    sprites: placements.map(({ sprite }) => {
-      const source = atlasRectangle(sprite);
-      return rect(source.x, source.y, source.width, source.height);
-    }),
+    sprites: placements.map(({ source }) => rect(source.x, source.y, source.width, source.height)),
     transforms: placements.map(({ worldX, worldY, angleDegrees = 0 }) => {
       if (angleDegrees === 0) return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
       const transform = bottomPivotTransform({ worldX, worldY, zoom, angleDegrees });
@@ -197,55 +171,6 @@ function groundedBatches(visuals: readonly GroundedVisual[]): readonly GroundedV
     else batches.push([visual]);
     return batches;
   }, []);
-}
-
-function propShadowWidth(sprite: string): number {
-  if (/(counter|sofa|table|stall|bench|rack|cargo|ferry|crane|canopy|car)/u.test(sprite)) return 26;
-  if (sprite.includes('flowering-market-planter')) return 18;
-  if (/(lamp|sign|palm|planter|bollard)/u.test(sprite)) return 12;
-  return 18;
-}
-
-function propShadows(props: readonly PropPlacement[]): readonly PropShadow[] {
-  const groups = new Map<string, PropPlacement[]>();
-  for (const prop of props) {
-    if (prop.isDoor) continue;
-    const parts = groups.get(prop.objectId);
-    if (parts) parts.push(prop);
-    else groups.set(prop.objectId, [prop]);
-  }
-  return [...groups].flatMap(([id, parts]) => {
-    const remaining = new Set(parts);
-    const clusters: PropPlacement[][] = [];
-    while (remaining.size > 0) {
-      const seed = remaining.values().next().value as PropPlacement;
-      const cluster = [seed];
-      remaining.delete(seed);
-      for (let index = 0; index < cluster.length; index += 1) {
-        const current = cluster[index]!;
-        for (const candidate of remaining) {
-          if (Math.abs(current.worldX - candidate.worldX) <= TILE_SIZE && Math.abs(current.worldY - candidate.worldY) <= TILE_SIZE) {
-            cluster.push(candidate);
-            remaining.delete(candidate);
-          }
-        }
-      }
-      clusters.push(cluster);
-    }
-    return clusters.map((cluster, index) => {
-      const bottom = Math.max(...cluster.map(({ worldY }) => worldY));
-      const feet = cluster.filter(({ worldY }) => worldY === bottom);
-      const left = Math.min(...feet.map(({ worldX }) => worldX));
-      const right = Math.max(...feet.map(({ sprite, worldX }) => worldX + propShadowWidth(sprite)));
-      return {
-        id: `${id}-${index}`,
-        long: cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
-        width: right - left,
-        worldX: left,
-        worldY: bottom + 25,
-      };
-    });
-  });
 }
 
 function areaName(map: CompiledMapV2, tile: TilePoint): string {
@@ -411,6 +336,7 @@ export function WorldScene({
     [persistenceDisabled],
   );
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
+  const vfxClock = useRef(INITIAL_AMBIENT_VFX_CLOCK);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const previousSurface = useRef(surface);
@@ -458,7 +384,33 @@ export function WorldScene({
   const lindaOfferReady = lindaOfferAction?.enabled ?? false;
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
 
-  useEffect(() => setVfxAgeStep(0), [mapId]);
+  useEffect(() => {
+    vfxClock.current = INITIAL_AMBIENT_VFX_CLOCK;
+    setVfxAgeStep(0);
+  }, [mapId]);
+
+  useEffect(() => {
+    const running = vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
+    if (!running) {
+      vfxClock.current = advanceAmbientVfxClock(vfxClock.current, 0, { running: false });
+      return undefined;
+    }
+    let animationFrame = 0;
+    let previousTime: number | undefined;
+    const animate = (time: number) => {
+      const rawDelta = previousTime === undefined ? 0 : time - previousTime;
+      previousTime = time;
+      vfxClock.current = advanceAmbientVfxClock(vfxClock.current, rawDelta, {
+        running: true,
+        resumedFromSuspension: rawDelta > VFX_SUSPENSION_GAP_MILLISECONDS,
+      });
+      const nextAgeStep = Math.floor(vfxClock.current.ageMilliseconds / VFX_STEP_MILLISECONDS);
+      setVfxAgeStep((current) => current === nextAgeStep ? current : nextAgeStep);
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [forceAmbientMotion, mapId, speed, vfxMode]);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -1018,128 +970,10 @@ export function WorldScene({
     if (event.mode === 'overnight') void requestAutosave(runtime.worldState, 'sleep');
   }, [requestAutosave, runtime.worldState]);
 
-  const visibility = visibleTileBounds(camera, surface);
-  const visibleFloors = useMemo(() => {
-    const placements: SpritePlacement[] = [];
-    const covered = new Set<string>();
-    for (let y = 0; y < map.source.height; y += 1) {
-      for (let x = 0; x < map.source.width; x += 1) {
-        if (covered.has(`${x},${y}`)) continue;
-        const tile = { x, y };
-        const cell = presentationGroundAt(map.presentation, tile, map.source.width);
-        const size = artMode === 'legacy' ? 1 : cell.compositionSize;
-        const complete = x % size === 0 && y % size === 0 &&
-          x + size <= map.source.width && y + size <= map.source.height &&
-          Array.from({ length: size * size }, (_unused, offset) => {
-            const candidate = presentationGroundAt(map.presentation, {
-              x: x + offset % size,
-              y: y + Math.floor(offset / size),
-            }, map.source.width);
-            return candidate.materialId === cell.materialId && candidate.logicalVariantId === cell.logicalVariantId;
-          }).every(Boolean);
-        if (complete) {
-          for (let offsetY = 0; offsetY < size; offsetY += 1) {
-            for (let offsetX = 0; offsetX < size; offsetX += 1) covered.add(`${x + offsetX},${y + offsetY}`);
-          }
-        }
-        const visible = complete
-          ? x <= visibility.maximumX && x + size - 1 >= visibility.minimumX &&
-            y <= visibility.maximumY && y + size - 1 >= visibility.minimumY
-          : visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility);
-        if (visible) {
-          placements.push({
-            id: `floor-${x}-${y}`,
-            scale: complete ? size : 1,
-            sprite: artMode === 'legacy' ? groundSpriteAtV2(map, tile) : cell.sprite,
-            worldX: x * TILE_SIZE,
-            worldY: y * TILE_SIZE,
-          });
-        }
-      }
-    }
-    return placements;
-  }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
-  const visibleGroundDetails = useMemo(() => {
-    if (artMode === 'legacy') return [];
-    const details = [
-      ...map.presentation.transitions.flatMap((transition) => transition.sprite ? [{
-        id: transition.id,
-        offsetX: 0,
-        offsetY: 0,
-        sprite: transition.sprite,
-        tile: transition.tile,
-      }] : []),
-      ...map.presentation.decals.map((decal) => ({
-        id: decal.id,
-        offsetX: decal.offsetX,
-        offsetY: decal.offsetY,
-        sprite: decal.sprite,
-        tile: decal.tile,
-      })),
-    ];
-    return details.filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
-      tile,
-      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
-      visibility,
-    )).map((detail) => ({
-      id: detail.id,
-      sprite: detail.sprite,
-      worldX: detail.tile.x * TILE_SIZE + detail.offsetX,
-      worldY: detail.tile.y * TILE_SIZE + detail.offsetY,
-    }));
-  }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
-  const visibleProps = useMemo<readonly PropPlacement[]>(() => [
-    ...[...map.objectPartById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
-      tile,
-      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
-      visibility,
-    )).map((part) => ({
-      id: part.id,
-      isDoor: false,
-      objectId: part.objectId,
-      sprite: part.sprite,
-      tile: part.tile,
-      worldX: part.tile.x * TILE_SIZE,
-      worldY: part.tile.y * TILE_SIZE,
-    })),
-    ...[...map.doorById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
-      tile,
-      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
-      visibility,
-    )).map((door) => ({
-      id: door.id,
-      isDoor: true,
-      objectId: door.id,
-      sprite: doorSpriteForFrame(door, [runtime.movement, ...Object.values(runtime.npcMovements)]),
-      tile: door.tile,
-      worldX: door.tile.x * TILE_SIZE,
-      worldY: door.tile.y * TILE_SIZE,
-    })),
-  ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right)), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-    runtime.movement,
-    runtime.npcMovements,
-  ]);
-  const visibleWalls = useMemo(() => map.wallTiles.filter(({ tile }) => isVisible(tile, visibility))
-    .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
-    .map((wall) => ({
-      id: wall.id,
-      exposedBase: !map.wallTiles.some(({ tile }) => tile.x === wall.tile.x && tile.y === wall.tile.y + 1),
-      sprite: wall.sprite,
-      worldX: wall.tile.x * TILE_SIZE,
-      worldY: wall.tile.y * TILE_SIZE,
-    })), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-  ]);
   const playerVisualFoot = snapWorldPoint(runtime.movement.visualFoot, camera.zoom, dpr);
+  const selectedFoot = selected === 'protagonist'
+    ? playerVisualFoot
+    : npcTiles[selected]?.visualFoot ?? tileFootPoint(npcTiles[selected]?.tile ?? runtime.movement.player);
   const worldFrame = useMemo(
     () => buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, 0, {
       visualFoot: playerVisualFoot,
@@ -1149,93 +983,46 @@ export function WorldScene({
       horizontalRunDistance: runtime.movement.horizontalRunDistance,
       pose: selected === 'protagonist' ? (reactionId === 'protagonist' ? 'reaction' : 'idle') : 'idle',
       poseFrame: selected === 'protagonist' ? poseFrame : 0,
+    }, {
+      camera,
+      viewport: surface,
+      devicePixelRatio: dpr,
+      artMode,
+      movements: [runtime.movement, ...Object.values(runtime.npcMovements)],
+      selectedFoot,
+      destinationMarker,
+      destinationPulseElapsedMs,
+      failureTile: runtime.movement.feedbackTile,
+      reducedMotion,
+      animationTimestampMilliseconds: vfxClock.current.ageMilliseconds,
+      vfxAgeStep,
+      vfxMode,
     }),
-    [map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.segment, runtime.movement.walkFrame, runtime.worldState, selected],
+    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
   );
-  const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-    worldFrame.characters,
-  ]);
-  const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
-  const groundDetailAtlas = useMemo(() => atlasData(visibleGroundDetails, camera.zoom), [camera.zoom, visibleGroundDetails]);
-  const groundBatches = useMemo(() => groundedBatches([
-    ...visibleProps.filter(({ isDoor }) => !isDoor).map((placement) => ({
-      groundY: (placement.tile.y + 1) * TILE_SIZE,
-      id: placement.id,
-      kind: 'prop' as const,
-      placement,
-    })),
-    ...characters.map((placement) => ({
-      groundY: placement.shadowWorldY,
-      id: placement.id,
-      kind: 'character' as const,
-      placement,
-    })),
-  ].sort(compareGroundedDepth)), [characters, visibleProps]);
-  const visiblePropShadows = useMemo(() => propShadows(visibleProps), [visibleProps]);
-  const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
-  const visibleRoofTiles = useMemo(() => map.presentation.roofs
-    .filter(({ roofGroupId }) => worldFrame.visibleRoofGroupIds.includes(roofGroupId))
-    .filter(({ tile, visualBounds }) => visualBoundsIntersectTileWindow(tile, visualBounds, visibility))
-    .map((roof) => ({
-      id: roof.id,
-      sprite: roof.sprite,
-      worldX: roof.tile.x * TILE_SIZE,
-      worldY: roof.tile.y * TILE_SIZE,
-    })), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-    worldFrame.visibleRoofGroupIds,
-  ]);
-  const vfxViewport = useMemo(() => ({
-    left: camera.x - TILE_SIZE,
-    top: camera.y - TILE_SIZE,
-    right: camera.x + surface.width / camera.zoom + TILE_SIZE,
-    bottom: camera.y + surface.height / camera.zoom + TILE_SIZE,
-  }), [camera.x, camera.y, camera.zoom, surface.height, surface.width]);
-  const activeEffects = useMemo(() => map.source.effects.filter((effect) => (
-    mapEffectVisible(effect.kind, runtime.worldState.clock.absoluteMinute)
-  )), [map, runtime.worldState.clock.absoluteMinute]);
-  const visibleEffects = useMemo(() => activeEffects.filter((effect) => (
-    vfxBoundsIntersectWorldRect(effect, vfxViewport)
-  )), [activeEffects, vfxViewport]);
-  const culledEffects = useMemo(() => activeEffects.filter((effect) => (
-    !vfxBoundsIntersectWorldRect(effect, vfxViewport)
-  )), [activeEffects, vfxViewport]);
-  const vfxEmitters = useMemo(
-    () => partitionVfxEmitters(mapId, visibleEffects),
-    [mapId, visibleEffects],
-  );
+  const floorAtlas = useMemo(() => atlasData(worldFrame.floors, camera.zoom), [camera.zoom, worldFrame.floors]);
+  const groundDetailAtlas = useMemo(() => atlasData(worldFrame.groundDetails, camera.zoom), [camera.zoom, worldFrame.groundDetails]);
+  const propById = new Map(worldFrame.props.map((prop) => [prop.id, prop]));
+  const characterById = new Map(worldFrame.characters.map((character) => [character.id, character]));
+  const groundedVisuals = worldFrame.groundedOrder.flatMap((entry: WorldGroundedEntry): GroundedVisual[] => {
+    const placement = entry.kind === 'prop' ? propById.get(entry.id) : characterById.get(entry.id);
+    return placement ? [{ ...entry, placement }] : [];
+  });
+  const groundBatches = groundedBatches(groundedVisuals);
+  const wallAtlas = useMemo(() => atlasData(worldFrame.walls, camera.zoom), [camera.zoom, worldFrame.walls]);
   const vfxCamera = useMemo(() => ({
     x: camera.x,
     y: camera.y,
     zoom: camera.zoom,
     dpr,
   }), [camera.x, camera.y, camera.zoom, dpr]);
-  const roofAtlas = useMemo(() => atlasData(visibleRoofTiles, camera.zoom), [camera.zoom, visibleRoofTiles]);
+  const roofAtlas = useMemo(() => atlasData(worldFrame.roofs, camera.zoom), [camera.zoom, worldFrame.roofs]);
   const atlasCameraTransform = useMemo(() => [
     { translateX: -camera.x * camera.zoom },
     { translateY: -camera.y * camera.zoom },
   ], [camera.x, camera.y, camera.zoom]);
-  const drawCounts = useMemo(() => {
-    const counts = {
-      floor: visibleFloors.length + visibleGroundDetails.length,
-      prop: visibleProps.length,
-      shadow: characters.length,
-      character: characters.length,
-      effect: visibleEffects.length,
-      wall: visibleWalls.length,
-      roof: visibleRoofTiles.length,
-    } as const;
-    return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
-  }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
-  const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
+  const drawCounts = worldFrame.drawCounts;
+  const staticBatchCount = 1 + (worldFrame.groundDetails.length > 0 ? 1 : 0);
   const responsiveEvidenceInput = useRef({
     camera,
     mapId,
@@ -1258,18 +1045,11 @@ export function WorldScene({
   };
   const vfxEvidence = useMemo(() => {
     if (!smokeMode) return '';
-    const geometries = vfxMode === 'procedural'
-      ? vfxEmitters.valid.map((emitter) => sampleVfxGeometry(
-        emitter,
-        vfxAgeStep * VFX_STEP_MILLISECONDS,
-        reducedMotion,
-      ))
-      : [];
-    const primitiveCount = (kind: AuthoredMapEffect['kind']) => vfxMode === 'procedural'
-      ? geometries.filter((geometry) => geometry.kind === kind).reduce((total, geometry) => total + geometry.rects.length, 0) +
-        vfxEmitters.fallback.filter((effect) => effect.kind === kind).length
-      : visibleEffects.filter((effect) => effect.kind === kind).length;
-    const primitiveCounts = Object.fromEntries(VFX_KINDS.map((kind) => [kind, primitiveCount(kind)])) as Record<AuthoredMapEffect['kind'], number>;
+    const primitiveCount = (kind: typeof VFX_KINDS[number]) => vfxMode === 'procedural'
+      ? worldFrame.effects.filter((geometry) => geometry.kind === kind).reduce((total, geometry) => total + geometry.rects.length, 0) +
+        worldFrame.fallbackEffects.filter((effect) => effect.kind === kind).length
+      : worldFrame.fallbackEffects.filter((effect) => effect.kind === kind).length;
+    const primitiveCounts = Object.fromEntries(VFX_KINDS.map((kind) => [kind, primitiveCount(kind)])) as Record<typeof VFX_KINDS[number], number>;
     return JSON.stringify(parseVfxEvidence({
       schemaVersion: 1,
       mode: vfxMode,
@@ -1277,27 +1057,27 @@ export function WorldScene({
       vfxRevision: VFX_REVISION,
       ageStep: vfxAgeStep,
       reducedMotion,
-      visibleEmitterIds: visibleEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
-      culledEmitterIds: culledEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
-      fallbackEmitterIds: vfxEmitters.fallback.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
+      visibleEmitterIds: worldFrame.visibleEffectIds,
+      culledEmitterIds: worldFrame.culledEffectIds,
+      fallbackEmitterIds: worldFrame.fallbackEmitterIds,
       primitiveCounts: {
         ...primitiveCounts,
         total: Object.values(primitiveCounts).reduce((total, count) => total + count, 0),
       },
       renderNodeCount: vfxMode === 'procedural'
-        ? PROCEDURAL_VFX_RENDER_NODE_COUNT + vfxEmitters.fallback.length
-        : visibleEffects.length,
+        ? PROCEDURAL_VFX_RENDER_NODE_COUNT + worldFrame.fallbackEffects.length
+        : worldFrame.fallbackEffects.length,
       updateRateHz: vfxMode === 'procedural' && !reducedMotion ? 1_000 / VFX_STEP_MILLISECONDS : 0,
     }));
-  }, [culledEffects, mapId, reducedMotion, smokeMode, vfxAgeStep, vfxEmitters, vfxMode, visibleEffects]);
+  }, [mapId, reducedMotion, smokeMode, vfxAgeStep, vfxMode, worldFrame]);
   const smokeGeometry = useMemo(
     () => smokeMode && map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map, smokeMode],
   );
-  const selectedFoot = selected === 'protagonist'
-    ? playerVisualFoot
-    : npcTiles[selected]?.visualFoot ?? tileFootPoint(npcTiles[selected]?.tile ?? runtime.movement.player);
-  const selectedScreen = worldToScreen(camera, selectedFoot);
+  const selectedScreen = worldToScreen(camera, {
+    x: worldFrame.selectionRing.worldX,
+    y: worldFrame.selectionRing.worldY,
+  });
   const selectedName = selected === 'protagonist'
     ? runtime.worldState.protagonist.displayName
     : npcLabel(selected, npcTiles);
@@ -1311,20 +1091,13 @@ export function WorldScene({
       ? runtime.movement.status === 'moving'
       : runtime.npcMovements[selected]?.status === 'moving',
   );
-  const feedbackScreen = runtime.movement.feedbackTile
-    ? worldToScreen(camera, {
-      x: runtime.movement.feedbackTile.x * TILE_SIZE + 16,
-      y: runtime.movement.feedbackTile.y * TILE_SIZE + 16,
-    })
+  const feedbackScreen = worldFrame.failureMarker
+    ? worldToScreen(camera, { x: worldFrame.failureMarker.worldX, y: worldFrame.failureMarker.worldY })
     : undefined;
-  const journalMarkers = useMemo(
-    () => journalMapMarkers(runtime.worldState.journal, map),
-    [map, runtime.worldState.journal],
-  );
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
-  const lighting = districtLighting(mapId, runtime.worldState.clock.absoluteMinute);
-  const shelterCells = map.source.roofGroups.find(({ id }) => id === worldFrame.hiddenRoofGroupId)?.interiorCells ?? [];
+  const lighting = worldFrame.lighting;
+  const shelterCells = worldFrame.shelterCells;
 
   useEffect(() => {
     if (!smokeMode || typeof document === 'undefined') return undefined;
@@ -1349,16 +1122,15 @@ export function WorldScene({
         return (
           <Group key={layer} transform={atlasCameraTransform}>
             <Atlas image={image} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} />
-            {visibleGroundDetails.length > 0 ? (
+            {worldFrame.groundDetails.length > 0 ? (
               <Atlas image={image} sampling={NEAREST} sprites={groundDetailAtlas.sprites} transforms={groundDetailAtlas.transforms} />
             ) : null}
-            {visibleProps.filter(({ isDoor }) => isDoor).map((door) => {
-              const openingId = map.doorById.get(door.id)?.openingId;
-              const horizontal = map.wallOpeningById.get(openingId ?? '')?.orientation !== 'vertical';
+            {worldFrame.doorWear.map((door) => {
+              const horizontal = door.horizontal;
               return (
                 <Group key={`door-wear-${door.id}`}>
-                  <Line color="#2c26204f" p1={vec((door.worldX + (horizontal ? 5 : 24)) * camera.zoom, (door.worldY + (horizontal ? 29 : 6)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 15 : 27)) * camera.zoom, (door.worldY + (horizontal ? 31 : 16)) * camera.zoom)} strokeCap="round" strokeWidth={2 * camera.zoom} />
-                  <Line color="#f0c16a3d" p1={vec((door.worldX + (horizontal ? 17 : 27)) * camera.zoom, (door.worldY + (horizontal ? 28 : 18)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 25 : 25)) * camera.zoom, (door.worldY + (horizontal ? 30 : 26)) * camera.zoom)} strokeCap="round" strokeWidth={camera.zoom} />
+                  <Line color={door.darkColor} p1={vec((door.worldX + (horizontal ? 5 : 24)) * camera.zoom, (door.worldY + (horizontal ? 29 : 6)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 15 : 27)) * camera.zoom, (door.worldY + (horizontal ? 31 : 16)) * camera.zoom)} strokeCap="round" strokeWidth={2 * camera.zoom} />
+                  <Line color={door.lightColor} p1={vec((door.worldX + (horizontal ? 17 : 27)) * camera.zoom, (door.worldY + (horizontal ? 28 : 18)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 25 : 25)) * camera.zoom, (door.worldY + (horizontal ? 30 : 26)) * camera.zoom)} strokeCap="round" strokeWidth={camera.zoom} />
                 </Group>
               );
             })}
@@ -1368,7 +1140,7 @@ export function WorldScene({
         return (
           <Group key={layer} transform={atlasCameraTransform}>
             {(() => {
-              const doors = atlasData(visibleProps.filter(({ isDoor }) => isDoor), camera.zoom);
+              const doors = atlasData(worldFrame.doors, camera.zoom);
               return <Atlas image={image} sampling={NEAREST} sprites={doors.sprites} transforms={doors.transforms} />;
             })()}
           </Group>
@@ -1376,7 +1148,7 @@ export function WorldScene({
       case 'shadow':
         return (
           <Group key={layer} transform={atlasCameraTransform}>
-            {visiblePropShadows.map((shadow) => (
+            {worldFrame.propShadows.map((shadow) => (
               <Group key={`prop-shadow-${shadow.id}`}>
                 {shadow.long ? (
                   <Line
@@ -1397,22 +1169,22 @@ export function WorldScene({
                 />
               </Group>
             ))}
-            {visibleProps.filter(({ isDoor }) => isDoor).map((door) => (
+            {worldFrame.thresholds.map((door) => (
               <Group key={`threshold-${door.id}`}>
-                <RoundedRect color="#15120f8c" height={5 * camera.zoom} r={camera.zoom} width={26 * camera.zoom} x={(door.worldX + 3) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
-                <RoundedRect color={`${lighting.accent}8c`} height={camera.zoom} r={camera.zoom / 2} width={20 * camera.zoom} x={(door.worldX + 6) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
+                <RoundedRect color={door.darkColor} height={5 * camera.zoom} r={camera.zoom} width={26 * camera.zoom} x={(door.worldX + 3) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
+                <RoundedRect color={door.lightColor} height={camera.zoom} r={camera.zoom / 2} width={20 * camera.zoom} x={(door.worldX + 6) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
               </Group>
             ))}
-            {characters.map((character) => (
+            {worldFrame.characterShadows.map((character) => (
               <Group key={`shadow-${character.id}`}>
                 <Line
                   color={lighting.shadow.color}
-                  p1={vec((character.shadowWorldX + 5) * camera.zoom, (character.shadowWorldY + 1) * camera.zoom)}
-                  p2={vec((character.shadowWorldX + lighting.shadow.x) * camera.zoom, (character.shadowWorldY + lighting.shadow.y) * camera.zoom)}
+                  p1={vec((character.worldX + 5) * camera.zoom, (character.worldY + 1) * camera.zoom)}
+                  p2={vec((character.worldX + character.castX) * camera.zoom, (character.worldY + character.castY) * camera.zoom)}
                   strokeCap="round"
                   strokeWidth={9 * camera.zoom}
                 />
-                <RoundedRect color={lighting.shadow.color} height={7 * camera.zoom} r={3.5 * camera.zoom} width={22 * camera.zoom} x={(character.shadowWorldX - 4) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
+                <RoundedRect color={character.color} height={7 * camera.zoom} r={3.5 * camera.zoom} width={22 * camera.zoom} x={(character.worldX - 4) * camera.zoom} y={character.worldY * camera.zoom} />
               </Group>
             ))}
           </Group>
@@ -1424,40 +1196,25 @@ export function WorldScene({
               const kind = batch[0]?.kind;
               if (!kind) return null;
               const data = kind === 'prop'
-                ? atlasData(batch.map(({ placement }) => placement as PropPlacement), camera.zoom)
+                ? atlasData(batch.map(({ placement }) => placement as WorldPropPlacement), camera.zoom)
                 : characterAtlasData(batch.map(({ placement }) => placement as WorldCharacterPlacement), camera.zoom);
               return <Atlas image={image} key={`${kind}-${index}`} sampling={NEAREST} sprites={data.sprites} transforms={data.transforms} />;
             })}
           </Group>
         );
       case 'effect': {
-        const circleEffects: readonly AuthoredMapEffect[] = vfxMode === 'circle'
-          ? visibleEffects
-          : vfxEmitters.fallback;
         return (
           <Group key={layer}>
             {vfxMode === 'procedural' ? (
               <ProceduralMapEffects
                 camera={vfxCamera}
-                emitters={vfxEmitters.valid}
-                key={mapId}
-                mapEntryIdentity={mapId}
-                onAgeStepChange={smokeMode ? setVfxAgeStep : undefined}
-                reducedMotion={reducedMotion}
-                running={forceAmbientMotion || speed > 0}
+                colors={worldFrame.effectRoleColors}
+                geometries={worldFrame.effects}
               />
             ) : null}
-            {circleEffects.map((effect) => {
-          const screen = worldToScreen(camera, { x: effect.tile.x * 32 + 16, y: effect.tile.y * 32 + 16 });
-          const color = effect.kind === 'fire' ? '#f07832'
-            : effect.kind === 'insects' ? '#ffe889'
-              : effect.kind === 'leaves' ? '#e0a14e'
-              : effect.kind === 'neon' ? '#ff67d9'
-                : effect.kind === 'palm' ? '#86a451'
-                  : effect.kind === 'steam' ? '#fff0d6'
-                  : effect.kind === 'water' ? '#8ef1e6'
-                    : '#f5dd9d';
-          return <Circle color={color} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
+            {worldFrame.fallbackEffects.map((effect) => {
+          const screen = worldToScreen(camera, { x: effect.worldX, y: effect.worldY });
+          return <Circle color={effect.color} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
             })}
           </Group>
         );
@@ -1466,10 +1223,10 @@ export function WorldScene({
         return (
           <Group key={layer} transform={atlasCameraTransform}>
             <Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} />
-            {visibleWalls.filter(({ exposedBase }) => exposedBase).map((wall) => (
+            {worldFrame.wallBases.map((wall) => (
               <Group key={`wall-base-${wall.id}`}>
-                <RoundedRect color="#1714109c" height={5 * camera.zoom} r={camera.zoom} width={30 * camera.zoom} x={(wall.worldX + 1) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
-                <RoundedRect color={`${lighting.accent}52`} height={camera.zoom} r={camera.zoom / 2} width={26 * camera.zoom} x={(wall.worldX + 3) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
+                <RoundedRect color={wall.darkColor} height={5 * camera.zoom} r={camera.zoom} width={30 * camera.zoom} x={(wall.worldX + 1) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
+                <RoundedRect color={wall.lightColor} height={camera.zoom} r={camera.zoom / 2} width={26 * camera.zoom} x={(wall.worldX + 3) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
               </Group>
             ))}
           </Group>
@@ -1499,37 +1256,42 @@ export function WorldScene({
             <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
             {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
             <Oval
-              color={lighting.accent}
-              rect={rect(selectedScreen.x - 17 * Math.min(1.5, camera.zoom), selectedScreen.y - 9 * Math.min(1.5, camera.zoom), 34 * Math.min(1.5, camera.zoom), 18 * Math.min(1.5, camera.zoom))}
+              color={worldFrame.selectionRing.color}
+              rect={rect(
+                selectedScreen.x - worldFrame.selectionRing.radiusX * camera.zoom,
+                selectedScreen.y - worldFrame.selectionRing.radiusY * camera.zoom,
+                worldFrame.selectionRing.radiusX * camera.zoom * 2,
+                worldFrame.selectionRing.radiusY * camera.zoom * 2,
+              )}
               style="stroke"
-              strokeWidth={2}
+              strokeWidth={worldFrame.selectionRing.strokeWidth}
             />
             {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
-            {destinationMarker ? (() => {
-              const screen = worldToScreen(camera, tileFootPoint(destinationMarker));
-              const pulse = destinationPulseFrame(destinationPulseElapsedMs);
+            {worldFrame.destinationPulse ? (() => {
+              const pulse = worldFrame.destinationPulse;
+              const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
               const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
-              return <Circle color={`#f5dd9d${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
+              return <Circle color={`${pulse.color}${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
             })() : null}
             {worldFrame.layerOrder.slice(6).map(renderLayer)}
-            {journalMarkers.map((marker) => {
+            {worldFrame.journalMarkers.map((marker) => {
               const foot = worldToScreen(camera, tileFootPoint(marker.tile));
               const centerX = foot.x - 10 * camera.zoom;
               const centerY = foot.y - 30 * camera.zoom;
               return (
                 <Group key={`journal-marker-${marker.journalEntryId}`}>
-                  <Line color="#201915" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
-                  <Line color="#f1c65b" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
-                  <Circle color="#201915" cx={centerX} cy={centerY} r={7 * camera.zoom} />
-                  <Circle color="#f1c65b" cx={centerX} cy={centerY} r={5 * camera.zoom} />
-                  <Circle color="#201915" cx={centerX} cy={centerY} r={2 * camera.zoom} />
+                  <Line color={marker.darkColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
+                  <Line color={marker.lightColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
+                  <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={7 * camera.zoom} />
+                  <Circle color={marker.lightColor} cx={centerX} cy={centerY} r={5 * camera.zoom} />
+                  <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={2 * camera.zoom} />
                 </Group>
               );
             })}
-            {feedbackScreen ? (
+            {feedbackScreen && worldFrame.failureMarker ? (
               <>
-                <Line color="#ef5b43" p1={vec(feedbackScreen.x - 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x + 7, feedbackScreen.y + 7)} strokeWidth={3} />
-                <Line color="#ef5b43" p1={vec(feedbackScreen.x + 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x - 7, feedbackScreen.y + 7)} strokeWidth={3} />
+                <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
+                <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
               </>
             ) : null}
             </Canvas>
@@ -1551,13 +1313,12 @@ export function WorldScene({
               />;
             })}
             <DistrictLightingOverlay
-              absoluteMinute={runtime.worldState.clock.absoluteMinute}
               camera={camera}
-              mapId={mapId}
+              lighting={worldFrame.lighting}
               surface={surface}
             />
             <AtmosphereOverlay
-              absoluteMinute={runtime.worldState.clock.absoluteMinute}
+              atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
             />
             <SelectionMarker

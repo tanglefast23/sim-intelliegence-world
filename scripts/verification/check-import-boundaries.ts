@@ -1,10 +1,18 @@
 import { relative } from 'node:path';
 import process from 'node:process';
 
-import { scanPureRoots } from './import-boundaries';
+import {
+  scanPureRoots,
+  scanRendererNeutralManifest,
+  scanWorldSceneBoundary,
+} from './import-boundaries';
 
 const repositoryRoot = process.cwd();
-const violations = scanPureRoots(repositoryRoot);
+const violations = [
+  ...scanPureRoots(repositoryRoot),
+  ...scanRendererNeutralManifest(repositoryRoot),
+  ...scanWorldSceneBoundary(repositoryRoot),
+];
 if (violations.length > 0) {
   for (const violation of violations) {
     console.error(
@@ -13,5 +21,5 @@ if (violations.length > 0) {
   }
   process.exitCode = 1;
 } else {
-  console.log('Pure-module import boundaries: valid');
+  console.log('Pure and renderer-neutral import boundaries: valid');
 }

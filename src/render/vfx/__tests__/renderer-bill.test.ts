@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { VFX_ROLE_COLORS } from '../types';
+
 describe('procedural VFX renderer bill', () => {
   const source = readFileSync(resolve(process.cwd(), 'src/render/vfx/ProceduralMapEffects.tsx'), 'utf8');
 
@@ -11,25 +13,22 @@ describe('procedural VFX renderer bill', () => {
   });
 
   test('keeps animated fire at 50 percent opacity and sparkle light at 90 percent', () => {
-    expect(source).toContain('<Path color="#c64f2280" path={fireOuter} />');
-    expect(source).toContain('<Path color="#ffe49a80" path={fireEmber} />');
-    expect(source).toContain('<Path color="#fff4c8e6" path={sparklePrimary} />');
-    expect(source).toContain('<Path color="#fff3c4e6" path={sparkleSatellite} />');
+    expect(VFX_ROLE_COLORS['fire-outer']).toBe('#c64f2280');
+    expect(VFX_ROLE_COLORS['fire-ember']).toBe('#ffe49a80');
+    expect(VFX_ROLE_COLORS['sparkle-primary']).toBe('#fff4c8e6');
+    expect(VFX_ROLE_COLORS['sparkle-satellite']).toBe('#fff3c4e6');
+    expect(source).toContain("<Path color={colors['fire-outer']} path={fireOuter} />");
   });
 
-  test('uses one platform frame loop and no timer, random, or wall-clock source', () => {
-    expect(source.match(/const animate = \(time: number\)/gu)).toHaveLength(1);
-    expect(source.match(/requestAnimationFrame\(animate\)/gu)).toHaveLength(2);
-    expect(source).toContain('cancelAnimationFrame(animationFrame)');
-    expect(source).not.toMatch(/setInterval|setTimeout|Math\.random|Date\b|performance\.now/u);
+  test('receives immutable sampled geometry and owns no clock', () => {
+    expect(source).toContain('geometries: readonly VfxGeometry[];');
+    expect(source).toContain('appendRole(builder, geometriesValue.value, cameraValue.value');
+    expect(source).not.toMatch(/requestAnimationFrame|cancelAnimationFrame|setInterval|setTimeout|Math\.random|Date\b|performance\.now/u);
   });
 
-  test('contains pause, suspension, clamp, and map-entry reset contracts', () => {
-    expect(source).toContain('if (!running)');
-    expect(source).toContain('rawDelta > VFX_SUSPENSION_GAP_MILLISECONDS');
-    expect(source).toContain('Math.min(rawDelta, VFX_MAX_DELTA_MILLISECONDS)');
-    expect(source).toContain('ageStepValue.value = ageStep');
-    expect(source).toContain('mapEntryIdentity');
-    expect(source).toContain('ageMilliseconds.value = 0');
+  test('only converts world rectangles to screen paths', () => {
+    expect(source).toContain('primitive?.role === role');
+    expect(source).toContain('addScreenRect(builder, camera');
+    expect(source).not.toMatch(/running|ageMilliseconds|ageStep|mapEntryIdentity/u);
   });
 });

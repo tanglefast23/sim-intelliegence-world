@@ -39,11 +39,11 @@ export function declaredVfxBounds(effect: Readonly<Pick<AuthoredMapEffect, 'kind
 
 export function vfxBoundsIntersectWorldRect(
   effect: Readonly<Pick<AuthoredMapEffect, 'kind' | 'tile'>>,
-  window: VfxWorldRect,
+  worldRect: VfxWorldRect,
 ): boolean {
   const bounds = declaredVfxBounds(effect);
-  return bounds.right >= window.left && bounds.left <= window.right &&
-    bounds.bottom >= window.top && bounds.top <= window.bottom;
+  return bounds.right >= worldRect.left && bounds.left <= worldRect.right &&
+    bounds.bottom >= worldRect.top && bounds.top <= worldRect.bottom;
 }
 
 function rect(

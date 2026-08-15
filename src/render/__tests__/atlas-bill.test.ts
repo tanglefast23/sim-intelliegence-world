@@ -90,16 +90,17 @@ describe('runtime atlas bill and movement contract', () => {
 
   test('uses one immutable presentation index and a bounded static ground-detail batch', () => {
     const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    const frame = readFileSync(resolve(process.cwd(), 'src/render/world-frame.ts'), 'utf8');
     const map = WORLD_MAP_CATALOG.northwest_residential;
     expect(Object.isFrozen(map.presentation)).toBe(true);
     expect(Object.isFrozen(map.presentation.ground)).toBe(true);
     expect(map.presentation.ground).toBe(WORLD_MAP_CATALOG.northwest_residential.presentation.ground);
     expect(scene.match(/<Atlas\b/gu)?.length).toBeLessThanOrEqual(7);
-    expect(scene).toContain('map.presentation.transitions');
-    expect(scene).toContain('map.presentation.decals');
-    expect(scene).toContain('map.presentation.roofs');
-    expect(scene).not.toContain("sprite: 'tile.boardwalk'");
-    expect(scene).not.toContain('color="#4b211f55"');
+    expect(frame).toContain('map.presentation.transitions');
+    expect(frame).toContain('map.presentation.decals');
+    expect(frame).toContain('map.presentation.roofs');
+    expect(`${scene}\n${frame}`).not.toContain("sprite: 'tile.boardwalk'");
+    expect(`${scene}\n${frame}`).not.toContain('color="#4b211f55"');
     const publicIds = new Set(ATLAS_INDEX.publicSpriteIds);
     expect(map.presentation.ground.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
     expect(map.presentation.roofs.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
@@ -109,8 +110,8 @@ describe('runtime atlas bill and movement contract', () => {
     const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
     expect(scene).toContain('strokeWidth={9 * camera.zoom}');
     expect(scene).toContain('width={22 * camera.zoom}');
-    expect(scene.indexOf('<Oval\n              color={lighting.accent}')).toBeGreaterThan(scene.indexOf('slice(0, 3).map(renderLayer)'));
-    expect(scene.indexOf('<Oval\n              color={lighting.accent}')).toBeLessThan(scene.indexOf('slice(3, 6).map(renderLayer)'));
+    expect(scene.indexOf('<Oval\n              color={worldFrame.selectionRing.color}')).toBeGreaterThan(scene.indexOf('slice(0, 3).map(renderLayer)'));
+    expect(scene.indexOf('<Oval\n              color={worldFrame.selectionRing.color}')).toBeLessThan(scene.indexOf('slice(3, 6).map(renderLayer)'));
   });
 
   test('collapses the self card until the player selects someone interesting', () => {
