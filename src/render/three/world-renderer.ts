@@ -2,6 +2,7 @@ import {
   BufferGeometry,
   CanvasTexture,
   ClampToEdgeWrapping,
+  DoubleSide,
   Color,
   Float32BufferAttribute,
   LinearFilter,
@@ -216,6 +217,10 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
   return new ShaderMaterial({
     depthTest: false,
     depthWrite: false,
+    // addLine emits its quad wound by segment direction, so a line running the other way is
+    // back-facing. FrontSide culled those quads and left only the round caps, which is why the
+    // failure marker's X rendered as four corner blobs with a hole through the middle.
+    side: DoubleSide,
     transparent: true,
     uniforms: texture ? { map: { value: texture } } : {},
     vertexShader: `
@@ -746,7 +751,7 @@ export class ThreeWorldRenderer {
       const marker = frame.failureMarker;
       const [fx, fy] = snapWorld(marker.worldX, marker.worldY);
       const radius = marker.radiusPixels / camera.zoom;
-      const strokeWidth = 9 / camera.zoom; // DIAGNOSTIC: 3x width
+      const strokeWidth = 3 / camera.zoom;
       // Skia antialiased this diagonal, so a hard-edged stroke of the same width fills fewer
       // pixels inside the locked mask, dropping its median below the contrast floor.
       addLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color, true);
