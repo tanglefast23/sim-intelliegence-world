@@ -26,7 +26,7 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
-import { threeCameraBounds, threeQuadIndices } from './coordinate-contract';
+import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices } from './coordinate-contract';
 
 const TILE_SIZE = 32;
 const COMPOSITE_BATCHES = [
@@ -366,7 +366,7 @@ export class ThreeWorldRenderer {
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.toneMapping = NoToneMapping;
     renderer.sortObjects = false;
-    renderer.setClearColor('#17201b', 1);
+    renderer.setClearColor('#b77945', 1);
     const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
     atlasTexture.colorSpace = SRGBColorSpace;
     atlasTexture.magFilter = NearestFilter;
@@ -478,8 +478,9 @@ export class ThreeWorldRenderer {
 
   #update(frame: WorldFrameState): void {
     const { camera, viewport } = frame;
-    this.#renderer.setPixelRatio(frame.devicePixelRatio);
-    this.#renderer.setSize(viewport.width, viewport.height, false);
+    const drawingBuffer = threeDrawingBufferSize(viewport, frame.devicePixelRatio);
+    this.#renderer.setPixelRatio(1);
+    this.#renderer.setSize(drawingBuffer.width, drawingBuffer.height, false);
     const bounds = threeCameraBounds(camera, viewport);
     this.#camera.left = bounds.left;
     this.#camera.right = bounds.right;
