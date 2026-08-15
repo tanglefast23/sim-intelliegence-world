@@ -855,6 +855,7 @@ async function captureRendererParitySmoke(
 
   const fixtures: Record<string, unknown>[] = [];
   const capture = async (id: string): Promise<void> => {
+    await window.webContents.executeJavaScript('window.siWorldFreezeRendererParityFrame?.()', true);
     await waitForRendererPaint(window);
     await waitForRendererPaint(window);
     const screenshot = `${id}-${smokeRenderer ?? 'skia'}-1x.png`;

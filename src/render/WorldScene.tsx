@@ -478,6 +478,12 @@ export function WorldScene({
       setConversationFixtureId(undefined);
       setConversationNpcId(undefined);
     };
+    window.siWorldFreezeRendererParityFrame = () => {
+      vfxClock.current = INITIAL_AMBIENT_VFX_CLOCK;
+      setVfxAgeStep(0);
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+    };
     window.siWorldSetAuthoredDialogueFixture = (characterId) => {
       setOpenPanel(undefined);
       setConversationFixtureId(undefined);
@@ -652,6 +658,7 @@ export function WorldScene({
       delete window.siWorldStartNaturalMovementFixture;
       delete window.siWorldOpenRendererFeedbackFixture;
       delete window.siWorldOpenRendererMotionFixture;
+      delete window.siWorldFreezeRendererParityFrame;
     };
   }, []);
 
