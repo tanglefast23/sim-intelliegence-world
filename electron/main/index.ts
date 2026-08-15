@@ -2529,13 +2529,16 @@ async function createMainWindow(): Promise<void> {
     }
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
+      // Stage 6: the production renderer clears the loading shell sooner than Skia did, so a
+      // fixed delay could miss the whole window on a fast runner. Start immediately and let the
+      // capture retry policy handle a frame that has not painted yet.
       setTimeout(() => {
         void captureLoadingSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
           smokeFinished = true;
           process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
           app.exit(1);
         });
-      }, 100);
+      }, 0);
     }
   });
   await window.loadURL(webgl2ProbeMode ? WEBGL2_PROBE_URL : devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
