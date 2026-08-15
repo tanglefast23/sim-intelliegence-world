@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+  "testedCommit": "824529f8d9b986675460d90d363d028bb17487a6",
   "evidenceSource": {
-    "baseCommit": "3286542a3e50214172171d368218c04fdd3821a4",
-    "sourceSha256": "149e09e9e5ee9043e9272eb40057d9bb1e19e89ecc66129a1093337fc1d85e85",
+    "baseCommit": "824529f8d9b986675460d90d363d028bb17487a6",
+    "sourceSha256": "3d246f6254aae7164bab415cf705d316622dad53e37ace7f2544700e88d24166",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-all-maps-package-smoke.ts",
@@ -4095,7 +4095,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -4120,7 +4120,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -4311,7 +4311,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -4336,7 +4336,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -4457,7 +4457,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -4482,7 +4482,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -4742,7 +4742,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -4767,7 +4767,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -5206,7 +5206,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -5231,7 +5231,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -5533,7 +5533,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -5558,7 +5558,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -5715,7 +5715,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -5740,7 +5740,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -5862,7 +5862,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -5887,7 +5887,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -6147,7 +6147,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -6172,7 +6172,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -6368,7 +6368,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -6393,7 +6393,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -6550,7 +6550,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -6575,7 +6575,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -6801,7 +6801,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -6826,7 +6826,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -6947,7 +6947,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -6972,7 +6972,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -7168,7 +7168,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -7193,7 +7193,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -7486,7 +7486,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -7511,7 +7511,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -7632,7 +7632,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -7657,7 +7657,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -7778,7 +7778,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -7803,7 +7803,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -8242,7 +8242,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -8267,7 +8267,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,
@@ -8539,7 +8539,7 @@
             "gpu": {
               "drawCalls": 17,
               "geometries": 17,
-              "programs": 2,
+              "programs": 3,
               "textures": 2
             },
             "trianglesByBatch": {
@@ -8564,7 +8564,7 @@
             "webgl2": true,
             "legacyColorParity": true,
             "textures": 2,
-            "materials": 3,
+            "materials": 4,
             "geometries": 17,
             "atlasSize": {
               "width": 1024,

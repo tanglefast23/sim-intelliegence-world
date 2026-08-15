@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+  "testedCommit": "824529f8d9b986675460d90d363d028bb17487a6",
   "cases": [
     {
       "id": "northwest-1280x720-dpr1-zoom1",
@@ -439,7 +439,7 @@
     "atlasDrawCalls": 5,
     "gpuDrawCalls": 17,
     "gpuTextures": 2,
-    "gpuPrograms": 2,
+    "gpuPrograms": 3,
     "gpuGeometries": 17
   }
 }

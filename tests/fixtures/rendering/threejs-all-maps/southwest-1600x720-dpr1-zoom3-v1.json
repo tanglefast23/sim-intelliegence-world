@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "southwest-1600x720-dpr1-zoom3",
-  "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+  "sourceCommit": "824529f8d9b986675460d90d363d028bb17487a6",
   "mode": "parity",
   "viewport": {
     "width": 1600,
@@ -14,6 +14,7 @@
     "y": 1021
   },
   "toneMapping": "none",
+  "compositingChanged": true,
   "exposure": 1,
   "baseline": {
     "image": "artifacts/threejs-2d/stage-4/captures/all-maps/southwest-1600x720-dpr1-zoom3-skia.png",
