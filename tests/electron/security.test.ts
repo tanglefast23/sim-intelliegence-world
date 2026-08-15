@@ -337,7 +337,7 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/package');
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/natural-movement');
     expect(workflow).not.toMatch(/artifacts\/phase-(?:14|22|23)/u);
-    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(9);
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(10);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
     expect(windowsSigner).toContain('Get-AuthenticodeSignature');

@@ -59,6 +59,12 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/package
 
+      - name: Verify ARM64 macOS packaged art-quality world subset without model qualification claims
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+          SI_WORLD_TIER_B_ART_SMOKE: '1'
+        run: npm run smoke:art-quality
+
       - name: Record ARM64 macOS maximum-load baseline
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
