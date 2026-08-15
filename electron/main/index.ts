@@ -296,6 +296,31 @@ async function surfaceBounds(window: BrowserWindow): Promise<SurfaceBounds> {
   })()`, true) as Promise<SurfaceBounds>;
 }
 
+async function surfaceLayoutDiagnostic(window: BrowserWindow): Promise<Record<string, unknown>> {
+  return window.webContents.executeJavaScript(`(() => {
+    const rect = (element) => element instanceof HTMLElement
+      ? (() => { const value = element.getBoundingClientRect(); return { x: value.x, y: value.y, width: value.width, height: value.height }; })()
+      : null;
+    const gameSurface = document.querySelector('#active-game-surface');
+    return {
+      document: { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight },
+      window: {
+        innerWidth: globalThis.innerWidth,
+        innerHeight: globalThis.innerHeight,
+        visualViewportWidth: globalThis.visualViewport?.width ?? null,
+        visualViewportHeight: globalThis.visualViewport?.height ?? null,
+        screenWidth: globalThis.screen.width,
+        screenHeight: globalThis.screen.height,
+      },
+      body: rect(document.body),
+      root: rect(document.querySelector('#root')),
+      gameSurfaceFrame: rect(gameSurface?.parentElement),
+      gameSurface: rect(gameSurface),
+      worldSurface: rect(document.querySelector('#world-input-viewport')),
+    };
+  })()`, true) as Promise<Record<string, unknown>>;
+}
+
 function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom: number }> {
   const match = /^World camera (-?\d+),(-?\d+) at (\d+(?:\.\d+)?)x$/u.exec(label);
   if (!match) throw new Error(`Invalid camera label: ${label}`);
@@ -470,7 +495,11 @@ async function resizeContentAndWait(
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   }
-  throw new Error(`Responsive surface did not reach ${expected.width}x${expected.height}. Last: ${JSON.stringify(last)}`);
+  const diagnostic = await surfaceLayoutDiagnostic(window);
+  throw new Error(
+    `Responsive surface did not reach ${expected.width}x${expected.height}. ` +
+    `Last: ${JSON.stringify(last)} Layout: ${JSON.stringify(diagnostic)}`,
+  );
 }
 
 async function clickAriaButton(window: BrowserWindow, label: string): Promise<void> {
