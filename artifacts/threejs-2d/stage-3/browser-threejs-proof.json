@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "urlVariant": "?testRenderer=threejs-2d",
+  "headless": true,
+  "audioMutedInTestSession": true,
+  "checks": {
+    "threeCanvasMounted": true,
+    "skiaCanvasMounted": false,
+    "worldLoaded": true,
+    "zoomChangedFrom": 1,
+    "zoomChangedTo": 1.2,
+    "questsOpenedFromKeyboard": true,
+    "browserErrors": []
+  }
+}

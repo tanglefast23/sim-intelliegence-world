@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "fixture": "northwest-1440x900-dpr1_25-zoom1",
+  "sourceCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "mode": "parity",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "devicePixelRatio": 1.25,
+  "zoom": 1,
+  "camera": {
+    "x": 175,
+    "y": 605
+  },
+  "toneMapping": "none",
+  "exposure": 1,
+  "baseline": {
+    "image": "artifacts/threejs-2d/stage-3/captures/all-maps/northwest-1440x900-dpr1_25-zoom1-skia.png",
+    "masks": "tests/fixtures/rendering/threejs-all-maps/northwest-1440x900-dpr1_25-zoom1-mask-v1.json"
+  },
+  "candidate": {
+    "image": "artifacts/threejs-2d/stage-3/captures/all-maps/northwest-1440x900-dpr1_25-zoom1-threejs-2d.png",
+    "masks": "tests/fixtures/rendering/threejs-all-maps/northwest-1440x900-dpr1_25-zoom1-mask-v1.json"
+  },
+  "requiredMaskIds": [
+    "player-protagonist-northwest-1440x900-dpr1_25-zoom1"
+  ],
+  "lightSamples": [],
+  "shadowSamples": [],
+  "thresholds": {
+    "backgroundRingLogicalPixels": 2,
+    "contrastRetention": 0.9,
+    "outsideMaskChangedPixelRatio": 0.005,
+    "outsideMaskMaximumChannelDelta": 2,
+    "requiredMaskMaximumChannelDelta": 8,
+    "scaledMeanAbsoluteChannelDelta": 1,
+    "scaledRootMeanSquareChannelDelta": 3,
+    "scaledLargeChannelDelta": 32,
+    "scaledLargeChangedPixelRatio": 0.002
+  }
+}
