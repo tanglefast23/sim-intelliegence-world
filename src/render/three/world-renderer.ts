@@ -180,31 +180,15 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
-  const legacyColorFunctions = matchLegacyColors ? `
-      float siLinearToSrgb(float channel) {
-        return channel <= 0.0031308 ? channel * 12.92 : 1.055 * pow(channel, 1.0 / 2.4) - 0.055;
-      }
-      float siSrgbToLinear(float channel) {
-        return channel <= 0.04045 ? channel / 12.92 : pow((channel + 0.055) / 1.055, 2.4);
-      }
-  ` : '';
-  const legacyColorTransform = matchLegacyColors ? `
-        vec3 encodedColor = vec3(
-          siLinearToSrgb(gl_FragColor.r),
-          siLinearToSrgb(gl_FragColor.g),
-          siLinearToSrgb(gl_FragColor.b)
-        );
-        encodedColor = mat3(
+function shaderMaterial(texture?: Texture, legacyColorTransformCount = 0): ShaderMaterial {
+  const legacyColorTransform = legacyColorTransformCount > 0 ? `
+        mat3 legacyColorMatrix = mat3(
           1.2249401, -0.0420569, -0.0196376,
           -0.2249404, 1.0420571, -0.0786361,
           0.0, 0.0, 1.0982735
-        ) * encodedColor;
-        gl_FragColor.rgb = vec3(
-          siSrgbToLinear(clamp(encodedColor.r, 0.0, 1.0)),
-          siSrgbToLinear(clamp(encodedColor.g, 0.0, 1.0)),
-          siSrgbToLinear(clamp(encodedColor.b, 0.0, 1.0))
         );
+        gl_FragColor.rgb = legacyColorMatrix * gl_FragColor.rgb;
+        ${legacyColorTransformCount === 2 ? 'gl_FragColor.rgb = legacyColorMatrix * gl_FragColor.rgb;' : ''}
   ` : '';
   return new ShaderMaterial({
     depthTest: false,
@@ -225,7 +209,6 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
       uniform sampler2D map;
       varying vec2 vUv;
       varying vec4 vTint;
-      ${legacyColorFunctions}
       void main() {
         vec4 sampled = texture2D(map, vUv);
         gl_FragColor = sampled * vTint;
@@ -236,7 +219,6 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
       }
     ` : `
       varying vec4 vTint;
-      ${legacyColorFunctions}
       void main() {
         gl_FragColor = vTint;
         ${legacyColorTransform}
@@ -346,9 +328,9 @@ export class ThreeWorldRenderer {
     const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
     this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
-    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors);
-    const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors);
-    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors);
+    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors ? 2 : 0);
+    const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors ? 1 : 0);
+    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors ? 1 : 0);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
     const atlasBatches = new Set<BatchId>(['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']);
     COMPOSITE_BATCHES.forEach((id, renderOrder) => {
