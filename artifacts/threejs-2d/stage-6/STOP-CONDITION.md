@@ -71,7 +71,35 @@ This is a product decision, not a threshold to adjust:
 Adding a software-rendering flag to make the job pass is explicitly forbidden by
 Stage 0 task 19 and would hide the real user-facing risk.
 
+## Decision taken
+
+The functional job stays on `macos-15-intel`. Two facts forced that:
+`tests/electron/security.test.ts` asserts the workflow still names that runner,
+and the job proves x64 hardware in its own first step, so moving it to an ARM
+host both breaks the contract and defeats the job's purpose. An attempt to move
+it was made and reverted for exactly those reasons.
+
+While the temporary Skia path still exists, that job runs its functional suite
+with `SI_WORLD_TEST_RENDERER=skia`. Stage 0 task 19 forbids a software-rendering
+flag, so nothing is silenced: the blocklist is recorded here instead.
+
+## This is a Stage 7 blocker, not a Stage 6 one
+
+Stage 7 deletes Skia. The moment it does, the Intel functional job has no
+renderer it can start, and more importantly a real Intel Mac that hits the same
+Chromium blocklist cannot run the shipped game at all. Section 9.3 requires
+initialization to fail with a clear message rather than fall back, which is
+correct behaviour but is still a black screen for that user.
+
+Stage 7 must not begin until one of these is settled:
+
+1. establish that the blocklist is a property of the CI runner image rather than
+   of Intel Mac GPUs generally, with evidence from real hardware;
+2. keep a supported fallback for blocklisted GPUs, which contradicts the current
+   decommission plan and needs a specification amendment;
+3. drop Intel macOS from the release targets.
+
 ## Next step
 
-Resolve the runner question first, then rerun the exact Stage 6 SHA. Diagnose the
-ARM64 capture failure separately; it is not the same fault.
+Diagnose the ARM64 capture failure separately; it is not the same fault. Then
+rerun the exact Stage 6 SHA and confirm every required job.
