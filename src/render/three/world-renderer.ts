@@ -7,6 +7,7 @@ import {
   LinearFilter,
   Mesh,
   NearestFilter,
+  NoColorSpace,
   NoToneMapping,
   OrthographicCamera,
   Scene,
@@ -181,6 +182,7 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
 }
 
 function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
+  const legacyTextureDecode = texture && matchLegacyColors ? 'sampled = sRGBTransferEOTF(sampled);' : '';
   const legacyColorTransform = matchLegacyColors ? `
         gl_FragColor.rgb = clamp(mat3(
           1.2249401, -0.0420569, -0.0196376,
@@ -209,6 +211,7 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
       varying vec4 vTint;
       void main() {
         vec4 sampled = texture2D(map, vUv);
+        ${legacyTextureDecode}
         gl_FragColor = sampled * vTint;
         ${legacyColorTransform}
         if (gl_FragColor.a <= 0.001) discard;
@@ -366,7 +369,7 @@ export class ThreeWorldRenderer {
     renderer.sortObjects = false;
     renderer.setClearColor('#17201b', 1);
     const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
-    atlasTexture.colorSpace = SRGBColorSpace;
+    atlasTexture.colorSpace = matchLegacyColors ? NoColorSpace : SRGBColorSpace;
     atlasTexture.magFilter = NearestFilter;
     atlasTexture.minFilter = NearestFilter;
     atlasTexture.generateMipmaps = false;
