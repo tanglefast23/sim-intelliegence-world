@@ -16,9 +16,49 @@ const FORBIDDEN_PACKAGES = [
   'react-native-reanimated',
   'react-native-web',
   'react-native-worklets',
+  'three',
   'zustand',
 ] as const;
 const FORBIDDEN_INTERNAL_SEGMENTS = ['/electron/', '/src/application/', '/src/render/', '/src/ui/'] as const;
+export const RENDERER_NEUTRAL_FILES = [
+  'src/render/world-frame.ts',
+  'src/render/atlas.ts',
+  'src/render/depth.ts',
+  'src/render/protagonist-wobble.ts',
+  'src/render/camera.ts',
+  'src/render/journal-markers.ts',
+  'src/render/district-lighting.ts',
+  'src/render/atmosphere.ts',
+  'src/render/smoke-geometry.ts',
+  'src/render/vfx/procedural-effects.ts',
+  'src/render/vfx/clock.ts',
+  'src/render/vfx/seed.ts',
+  'src/render/vfx/types.ts',
+] as const;
+const DOM_GLOBALS = new Set([
+  'document',
+  'window',
+  'HTMLElement',
+  'HTMLCanvasElement',
+  'OffscreenCanvas',
+  'WebGLRenderingContext',
+  'WebGL2RenderingContext',
+]);
+const TIME_GLOBAL_CALLS = new Set(['requestAnimationFrame', 'setInterval', 'setTimeout']);
+const TIME_PROPERTY_CALLS = new Set(['Date.now', 'Math.random', 'performance.now']);
+const THREE_CONSTRUCTORS = new Set([
+  'Scene',
+  'WebGLRenderer',
+  'OrthographicCamera',
+  'Texture',
+  'CanvasTexture',
+  'BufferGeometry',
+  'InstancedBufferGeometry',
+  'ShaderMaterial',
+  'MeshBasicMaterial',
+  'Mesh',
+  'Group',
+]);
 
 export type ImportBoundaryViolation = Readonly<{
   file: string;
@@ -115,6 +155,124 @@ export function findImportBoundaryViolations(
   return violations;
 }
 
+function manifestPathMatches(target: string, repositoryRoot: string): boolean {
+  const normalized = target.replaceAll('\\', '/').replace(/\.(?:js|jsx|ts|tsx)$/u, '');
+  return RENDERER_NEUTRAL_FILES.some((file) => (
+    resolve(repositoryRoot, file).replaceAll('\\', '/').replace(/\.(?:js|jsx|ts|tsx)$/u, '') === normalized
+  ));
+}
+
+function rendererNeutralImportAllowed(
+  filePath: string,
+  moduleName: string,
+  repositoryRoot: string,
+): boolean {
+  if (!moduleName.startsWith('.')) return false;
+  const target = resolve(filePath, '..', moduleName);
+  const allowedRoots = ['src/domain', 'src/world'].map((root) => resolve(repositoryRoot, root));
+  if (allowedRoots.some((root) => {
+    const relativeTarget = relative(root, target);
+    return relativeTarget === '' || (!relativeTarget.startsWith('..') && !isAbsolute(relativeTarget));
+  })) return true;
+  if (manifestPathMatches(target, repositoryRoot)) return true;
+  return target.replaceAll('\\', '/').endsWith('/assets/generated/atlas-index.json');
+}
+
+export function findRendererNeutralBoundaryViolations(
+  source: string,
+  filePath: string,
+  repositoryRoot: string,
+): ImportBoundaryViolation[] {
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true);
+  const violations: ImportBoundaryViolation[] = [];
+  const record = (moduleName: string, node: ts.Node): void => {
+    if (!rendererNeutralImportAllowed(filePath, moduleName, repositoryRoot)) {
+      const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+      violations.push({ file: filePath, line: position.line + 1, moduleName });
+    }
+  };
+  const recordForbiddenGlobal = (moduleName: string, node: ts.Node): void => {
+    const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    violations.push({ file: filePath, line: position.line + 1, moduleName });
+  };
+  const visit = (node: ts.Node): void => {
+    if (
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier &&
+      ts.isStringLiteral(node.moduleSpecifier)
+    ) record(node.moduleSpecifier.text, node.moduleSpecifier);
+    if (
+      ts.isImportEqualsDeclaration(node) &&
+      ts.isExternalModuleReference(node.moduleReference) &&
+      node.moduleReference.expression &&
+      ts.isStringLiteral(node.moduleReference.expression)
+    ) record(node.moduleReference.expression.text, node.moduleReference.expression);
+    if (
+      ts.isCallExpression(node) &&
+      node.arguments.length === 1 &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
+    ) {
+      const [argument] = node.arguments;
+      if (argument && ts.isStringLiteral(argument)) record(argument.text, argument);
+    }
+    if (ts.isCallExpression(node)) {
+      if (ts.isIdentifier(node.expression) && TIME_GLOBAL_CALLS.has(node.expression.text)) {
+        recordForbiddenGlobal(`TIME:${node.expression.text}`, node.expression);
+      }
+      if (
+        ts.isPropertyAccessExpression(node.expression) &&
+        ts.isIdentifier(node.expression.expression) &&
+        TIME_PROPERTY_CALLS.has(`${node.expression.expression.text}.${node.expression.name.text}`)
+      ) {
+        recordForbiddenGlobal(
+          `TIME:${node.expression.expression.text}.${node.expression.name.text}`,
+          node.expression,
+        );
+      }
+    }
+    if (ts.isIdentifier(node) && DOM_GLOBALS.has(node.text)) {
+      const parent = node.parent;
+      const declarationName =
+        (ts.isPropertySignature(parent) || ts.isPropertyDeclaration(parent) || ts.isPropertyAssignment(parent)) &&
+        parent.name === node;
+      if (!declarationName) {
+        const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+        violations.push({ file: filePath, line: position.line + 1, moduleName: `DOM:${node.text}` });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return violations;
+}
+
+export function findWorldSceneThreeViolations(
+  source: string,
+  filePath: string,
+): ImportBoundaryViolation[] {
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const violations: ImportBoundaryViolation[] = [];
+  const visit = (node: ts.Node): void => {
+    const directThreeImport =
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier &&
+      ts.isStringLiteral(node.moduleSpecifier) &&
+      (node.moduleSpecifier.text === 'three' || node.moduleSpecifier.text.startsWith('three/'));
+    const threeNamespace = ts.isIdentifier(node) && node.text === 'THREE';
+    const directThreeObject = ts.isNewExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      THREE_CONSTRUCTORS.has(node.expression.text);
+    if (directThreeImport || threeNamespace || directThreeObject) {
+      const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+      violations.push({ file: filePath, line: position.line + 1, moduleName: 'three' });
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return violations;
+}
+
 function sourceFilesUnder(path: string): string[] {
   try {
     return readdirSync(path)
@@ -139,4 +297,16 @@ export function scanPureRoots(repositoryRoot: string): ImportBoundaryViolation[]
   return PURE_ROOTS.flatMap((root) => sourceFilesUnder(join(repositoryRoot, root))).flatMap((filePath) =>
     findImportBoundaryViolations(readFileSync(filePath, 'utf8'), filePath, repositoryRoot),
   );
+}
+
+export function scanRendererNeutralManifest(repositoryRoot: string): ImportBoundaryViolation[] {
+  return RENDERER_NEUTRAL_FILES.flatMap((file) => {
+    const filePath = resolve(repositoryRoot, file);
+    return findRendererNeutralBoundaryViolations(readFileSync(filePath, 'utf8'), filePath, repositoryRoot);
+  });
+}
+
+export function scanWorldSceneBoundary(repositoryRoot: string): ImportBoundaryViolation[] {
+  const filePath = resolve(repositoryRoot, 'src/render/WorldScene.tsx');
+  return findWorldSceneThreeViolations(readFileSync(filePath, 'utf8'), filePath);
 }

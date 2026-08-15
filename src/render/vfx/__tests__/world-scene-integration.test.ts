@@ -11,7 +11,7 @@ describe('WorldScene procedural VFX integration', () => {
     expect(WORLD_LAYER_ORDER).toEqual(['floor', 'prop', 'shadow', 'character', 'effect', 'wall', 'roof']);
     expect(responsiveEvidence).toContain('schemaVersion: 1');
     expect(scene).toContain('drawCounts');
-    expect(scene).toContain('effect: visibleEffects.length');
+    expect(scene).toContain('const drawCounts = worldFrame.drawCounts;');
     expect(scene).toContain('window.siWorldMeasureResponsiveEvidence = () =>');
   });
 
@@ -19,16 +19,16 @@ describe('WorldScene procedural VFX integration', () => {
     expect(scene).toContain("const vfxMode = smokeMode && window.siWorldVfxMode === 'circle'");
     expect(scene).toContain("vfxMode === 'procedural' ? (");
     expect(scene).toContain('<ProceduralMapEffects');
-    expect(scene).toContain("vfxMode === 'circle'");
+    expect(scene).toContain("window.siWorldVfxMode === 'circle'");
   });
 
-  test('uses effective speed, full bounds, map identity, and per-emitter fallback', () => {
+  test('keeps time in the controller and gives the renderer sampled geometry only', () => {
     expect(scene).toContain('const speed = effectiveSpeed(runtime.worldState.clock);');
-    expect(scene).toContain('running={forceAmbientMotion || speed > 0}');
-    expect(scene).toContain('vfxBoundsIntersectWorldRect(effect, vfxViewport)');
-    expect(scene).toContain('partitionVfxEmitters(mapId, visibleEffects)');
-    expect(scene).toContain('mapEntryIdentity={mapId}');
-    expect(scene).toContain('vfxEmitters.fallback');
+    expect(scene).toContain("const running = vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);");
+    expect(scene).toContain('advanceAmbientVfxClock');
+    expect(scene).toContain('animationTimestampMilliseconds: vfxClock.current.ageMilliseconds');
+    expect(scene).toContain('geometries={worldFrame.effects}');
+    expect(scene).toContain('worldFrame.fallbackEffects');
   });
 
   test('publishes separate strict VFX evidence without changing save or preference data', () => {

@@ -1,9 +1,8 @@
 import { Canvas, Line, Oval, rect, vec } from '@shopify/react-native-skia';
 import { StyleSheet, View } from 'react-native';
 
-import type { MapId } from '../world/maps/catalog';
 import { worldToScreen, type CameraState, type ViewportSize } from './camera';
-import { districtLighting } from './district-lighting';
+import type { DistrictLighting } from './district-lighting';
 
 const TILE_SIZE = 32;
 
@@ -13,17 +12,14 @@ function withOpacity(color: string, opacity: number): string {
 }
 
 export function DistrictLightingOverlay({
-  absoluteMinute,
   camera,
-  mapId,
+  lighting,
   surface,
 }: Readonly<{
-  absoluteMinute: number;
   camera: CameraState;
-  mapId: MapId;
+  lighting: DistrictLighting;
   surface: ViewportSize;
 }>) {
-  const lighting = districtLighting(mapId, absoluteMinute);
   return (
     <View
       accessibilityLabel={`${lighting.name} district lighting`}

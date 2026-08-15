@@ -94,6 +94,7 @@ const evidenceSource = resolveEvidenceSource([
   'scripts/electron/vfx-mode-performance.ts',
   'src/application/DesktopBridge.ts',
   'src/render/WorldScene.tsx',
+  'src/render/world-frame.ts',
   'src/render/vfx/ProceduralMapEffects.tsx',
   'src/render/vfx/clock.ts',
   'src/render/vfx/evidence.ts',

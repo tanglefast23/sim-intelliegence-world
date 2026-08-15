@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Platform, StyleSheet, View } from 'react-native';
 
-import { worldAtmosphere } from './atmosphere';
+import type { WorldAtmosphere } from './atmosphere';
 
 type AtmosphereOverlayProps = Readonly<{
-  absoluteMinute: number;
+  atmosphere: WorldAtmosphere;
   reducedMotion: boolean;
 }>;
 
@@ -16,8 +16,7 @@ const MOTES = [
   { left: '87%', top: '18%' },
 ] as const;
 
-export function AtmosphereOverlay({ absoluteMinute, reducedMotion }: AtmosphereOverlayProps) {
-  const atmosphere = worldAtmosphere(absoluteMinute);
+export function AtmosphereOverlay({ atmosphere, reducedMotion }: AtmosphereOverlayProps) {
   const drift = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
