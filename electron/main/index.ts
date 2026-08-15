@@ -94,6 +94,7 @@ if (smokeMode && smokeUserData) {
 if (smokeMode) {
   app.commandLine.appendSwitch('disable-background-timer-throttling');
   app.commandLine.appendSwitch('disable-renderer-backgrounding');
+  app.commandLine.appendSwitch('force-color-profile', 'srgb');
   app.commandLine.appendSwitch('mute-audio');
 }
 
