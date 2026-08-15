@@ -48,6 +48,8 @@ describe('packaged Electron smoke evidence', () => {
     expect(main).toContain('async function reachWorldTile(');
     expect(main).toContain('async function reachWorldLocation(');
     expect(main).toContain('const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 60_000;');
+    expect(main).toContain('setTimeout(resolveDelay, coalescedResizeDelay() * 2)');
+    expect(main).toContain('Math.abs(Number(measuredSurface?.width) - resizedBounds.width) <= 1');
     expect(main).toContain('options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
     expect(main).toContain('destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
     expect(main.match(/await startMovementSmokeSampling\(window\);/gu)).toHaveLength(2);

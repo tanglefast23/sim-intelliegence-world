@@ -7,7 +7,7 @@ import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { CHARACTER_IDS } from '../../src/render/atlas';
-import { responsiveSurface } from '../../src/render/responsive-layout';
+import { coalescedResizeDelay, responsiveSurface } from '../../src/render/responsive-layout';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
 import { FileVerbalMissionContentStore } from '../conversation/file-verbal-mission-content-store';
@@ -460,8 +460,13 @@ async function resizeContentAndWait(
   while (Date.now() < deadline) {
     last = await surfaceBounds(window);
     if (Math.abs(last.width - expected.width) <= 1 && Math.abs(last.height - expected.height) <= 1) {
-      await waitForRendererPaint(window);
-      return last;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, coalescedResizeDelay() * 2));
+      const settled = await surfaceBounds(window);
+      if (Math.abs(settled.width - expected.width) <= 1 && Math.abs(settled.height - expected.height) <= 1) {
+        await waitForRendererPaint(window);
+        return settled;
+      }
+      last = settled;
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   }
@@ -1427,7 +1432,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     Math.abs(resizedCenter.y - responsiveCenterBefore.y) <= 1;
   const responsiveDto = await waitForResponsiveEvidence(window, (evidence) => {
     const content = evidence.content as { width?: number; height?: number } | undefined;
-    return content?.width === 1_440 && content.height === 900;
+    const measuredSurface = evidence.surface as { width?: number; height?: number } | undefined;
+    return content?.width === 1_440 && content.height === 900 &&
+      Math.abs(Number(measuredSurface?.width) - resizedBounds.width) <= 1 &&
+      Math.abs(Number(measuredSurface?.height) - resizedBounds.height) <= 1;
   });
   const coverage = responsiveDto.coverage as { width?: number; height?: number } | undefined;
   const responsiveSurface = Number(coverage?.width) >= 0.9 && Number(coverage?.height) >= 0.85 &&
