@@ -11,6 +11,7 @@ import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
 import { findPackagedExecutable } from './package-smoke-utils';
 import {
   evaluateNaturalMovementRendererFps,
+  summarizeNaturalMovementPass,
   validateNaturalMovementReport,
   type NaturalMovementReport,
 } from './natural-movement-report';
@@ -130,10 +131,18 @@ async function main(): Promise<void> {
       profile,
     ),
   };
-  validateNaturalMovementReport(report, evidenceRoot, {
-    validateScreenshots: true,
-    requiredProfile: profile,
-  });
+  const diagnostic = summarizeNaturalMovementPass(report.package.standard);
+  const diagnosticPath = join(evidenceRoot, 'natural-movement-diagnostic.json');
+  writeFileSync(diagnosticPath, `${JSON.stringify(diagnostic, null, 2)}\n`, { encoding: 'utf8', flush: true });
+  try {
+    validateNaturalMovementReport(report, evidenceRoot, {
+      validateScreenshots: true,
+      requiredProfile: profile,
+    });
+  } catch (error) {
+    process.stderr.write(`SI_WORLD_NATURAL_MOVEMENT_DIAGNOSTIC ${JSON.stringify(diagnostic)}\n`);
+    throw error;
+  }
   const reportPath = join(evidenceRoot, 'natural-movement-report.json');
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, { encoding: 'utf8', flush: true });
   process.stdout.write(`Natural movement smoke: ${reportPath}\n`);

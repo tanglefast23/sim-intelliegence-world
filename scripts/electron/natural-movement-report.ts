@@ -72,6 +72,56 @@ export const NaturalMovementReportSchema = z.object({
 
 export type NaturalMovementReport = z.infer<typeof NaturalMovementReportSchema>;
 
+export function summarizeNaturalMovementPass(
+  pass: NaturalMovementReport['package']['standard'],
+): Readonly<Record<string, unknown>> {
+  const indexed = pass.samples.map(({ player }, index) => ({
+    index,
+    committed: player.committed,
+    visualFoot: player.visualFoot,
+    direction: player.direction,
+    status: player.status,
+    horizontalRunDistance: player.horizontalRunDistance,
+    protagonistWobbleDegrees: player.protagonistWobbleDegrees,
+    target: player.target ?? null,
+    curveActive: player.curveActive,
+  }));
+  const horizontal = indexed.filter(({ direction }) => direction === 'left' || direction === 'right');
+  const boundedSamples = horizontal.length <= 80
+    ? horizontal
+    : [...horizontal.slice(0, 40), ...horizontal.slice(-40)];
+  const countBy = <T extends string>(values: readonly T[]): Record<T, number> => values.reduce((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {} as Record<T, number>);
+  const distances = [...new Set(horizontal.map(({ horizontalRunDistance }) => horizontalRunDistance))]
+    .sort((left, right) => left - right);
+  const wobbleValues = horizontal.map(({ protagonistWobbleDegrees }) => protagonistWobbleDegrees);
+  return {
+    schemaVersion: 1,
+    mode: pass.mode,
+    sampleCount: indexed.length,
+    horizontalSampleCount: horizontal.length,
+    directionCounts: countBy(indexed.map(({ direction }) => direction)),
+    statusCounts: countBy(indexed.map(({ status }) => status)),
+    horizontalRunDistance: {
+      min: distances[0] ?? null,
+      max: distances.at(-1) ?? null,
+      uniqueCount: distances.length,
+      values: distances.slice(0, 80),
+      valuesTruncated: distances.length > 80,
+    },
+    wobble: {
+      nonZeroCount: wobbleValues.filter((value) => value !== 0).length,
+      maxAbsoluteDegrees: Math.max(0, ...wobbleValues.map(Math.abs)),
+    },
+    rendererFps: pass.rendererFps,
+    displayRafFps: pass.displayRafFps,
+    horizontalSamples: boundedSamples,
+    horizontalSamplesTruncated: horizontal.length > 80,
+  };
+}
+
 export function evaluateNaturalMovementRendererFps(
   value: unknown,
   requestedProfile: unknown,
