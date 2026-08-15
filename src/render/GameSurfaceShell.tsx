@@ -1,4 +1,3 @@
-import { Canvas, Rect } from '@shopify/react-native-skia';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
@@ -29,7 +28,7 @@ function localhostDevHarnessMode(): boolean {
   return localHost && new URLSearchParams(window.location.search).get('devHarness') === '1';
 }
 
-type SkiaProofProps = Readonly<{
+type GameSurfaceShellProps = Readonly<{
   assetsLoaded: boolean;
 }>;
 
@@ -42,7 +41,14 @@ async function afterTwoPaints(): Promise<void> {
   await afterNextPaint();
 }
 
-export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
+/**
+ * Stage 5: the renderer-neutral game-surface shell. It replaces SkiaProof and the root
+ * WithSkiaWeb mount, so the default shipping path never loads CanvasKit. The surface backdrop
+ * was a Skia Canvas drawing a single solid rect, which a plain View reproduces exactly.
+ * Readiness reporting, surface measurement, dev-harness routing and the public proof-node IDs
+ * keep their existing meaning.
+ */
+export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps) {
   const devHarnessMode = typeof window !== 'undefined' && (
     window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
   );
@@ -133,9 +139,11 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
 
   return (
     <View style={styles.screen}>
-      <Canvas nativeID="active-surface-canvas" style={StyleSheet.flatten([styles.surfaceCanvas, surface])}>
-        <Rect color="#17201b" height={surface.height} width={surface.width} x={0} y={0} />
-      </Canvas>
+      <View
+        nativeID="active-surface-canvas"
+        pointerEvents="none"
+        style={StyleSheet.flatten([styles.surfaceCanvas, surface])}
+      />
       <View style={styles.surfaceFrame}>
         <View nativeID="active-game-surface" onLayout={measureSurface} style={styles.surface}>
           {devHarnessMode
@@ -158,6 +166,7 @@ const styles = StyleSheet.create({
     right: 12,
   },
   surfaceCanvas: {
+    backgroundColor: '#17201b',
     left: OUTER_MARGIN + SURFACE_BORDER,
     position: 'absolute',
     top: OUTER_MARGIN + SURFACE_BORDER,

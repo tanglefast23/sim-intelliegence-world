@@ -1,5 +1,4 @@
 import { Silkscreen_400Regular } from '@expo-google-fonts/silkscreen';
-import { WithSkiaWeb } from '@shopify/react-native-skia/lib/module/web';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
@@ -11,6 +10,7 @@ import { LoadingShell } from './src/application/LoadingShell';
 import { type ResourceState, settleResourceGate } from './src/application/ResourceGate';
 import { VOCAL_CUE_ASSETS } from './src/audio/vocal-cues';
 import { ATLAS_INDEX } from './src/render/atlas';
+import GameSurfaceShell from './src/render/GameSurfaceShell';
 
 const proofAtlas = require('./assets/proof/phase2-atlas.png') as number;
 const proofAudio = require('./assets/proof/phase2-tone.wav') as number;
@@ -93,12 +93,7 @@ export default function App() {
 
   return (
     <>
-      <WithSkiaWeb
-        componentProps={{ assetsLoaded: resources.assetsLoaded }}
-        fallback={<LoadingShell detail="Loading CanvasKit…" />}
-        getComponent={() => import('./src/render/SkiaProof')}
-        opts={{ locateFile: () => '/canvaskit.wasm' }}
-      />
+      <GameSurfaceShell assetsLoaded={resources.assetsLoaded} />
       <StatusBar style="light" />
     </>
   );
