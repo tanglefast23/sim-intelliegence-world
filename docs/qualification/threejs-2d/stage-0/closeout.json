@@ -52,6 +52,7 @@
     "qualifiedCodeInMerge": true,
     "evidenceCommitInMerge": true,
     "integrationWorktreeCleanBeforeCloseout": true,
-    "phaseWorktreePrune": "pending-closeout-commit"
+    "localPhaseWorktreeAndBranchPruned": true,
+    "remotePhaseBranch": "retained-until-main-contains-phase"
   }
 }
