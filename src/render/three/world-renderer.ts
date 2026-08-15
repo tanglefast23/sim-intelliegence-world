@@ -180,15 +180,13 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture, legacyColorTransformCount = 0): ShaderMaterial {
-  const legacyColorTransform = legacyColorTransformCount > 0 ? `
-        mat3 legacyColorMatrix = mat3(
+function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
+  const legacyColorTransform = matchLegacyColors ? `
+        gl_FragColor.rgb = mat3(
           1.2249401, -0.0420569, -0.0196376,
           -0.2249404, 1.0420571, -0.0786361,
           0.0, 0.0, 1.0982735
-        );
-        gl_FragColor.rgb = legacyColorMatrix * gl_FragColor.rgb;
-        ${legacyColorTransformCount === 2 ? 'gl_FragColor.rgb = legacyColorMatrix * gl_FragColor.rgb;' : ''}
+        ) * gl_FragColor.rgb;
   ` : '';
   return new ShaderMaterial({
     depthTest: false,
@@ -328,9 +326,9 @@ export class ThreeWorldRenderer {
     const image = atlasTexture.image as Readonly<{ naturalHeight?: number; naturalWidth?: number; height?: number; width?: number }>;
     this.#atlasWidth = image.naturalWidth ?? image.width ?? 1;
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
-    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors ? 2 : 0);
-    const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors ? 1 : 0);
-    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors ? 1 : 0);
+    const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors);
+    const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors);
+    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors);
     this.#materials = [atlasMaterial, primitiveMaterial, glowMaterial];
     const atlasBatches = new Set<BatchId>(['floor-and-ground-detail', 'doors', 'grounded-props-and-characters', 'walls', 'roofs']);
     COMPOSITE_BATCHES.forEach((id, renderOrder) => {
