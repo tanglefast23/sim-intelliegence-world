@@ -26,7 +26,7 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
-import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices } from './coordinate-contract';
+import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
 
 const TILE_SIZE = 32;
 const COMPOSITE_BATCHES = [
@@ -481,7 +481,9 @@ export class ThreeWorldRenderer {
     const drawingBuffer = threeDrawingBufferSize(viewport, frame.devicePixelRatio);
     this.#renderer.setPixelRatio(1);
     this.#renderer.setSize(drawingBuffer.width, drawingBuffer.height, false);
-    const bounds = threeCameraBounds(camera, viewport);
+    this.canvas.style.width = `${drawingBuffer.width / frame.devicePixelRatio}px`;
+    this.canvas.style.height = `${drawingBuffer.height / frame.devicePixelRatio}px`;
+    const bounds = threeCameraBounds(camera, threeRasterViewport(viewport, frame.devicePixelRatio));
     this.#camera.left = bounds.left;
     this.#camera.right = bounds.right;
     this.#camera.top = bounds.top;

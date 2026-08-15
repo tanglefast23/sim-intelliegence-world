@@ -29,6 +29,7 @@ import { VFX_ROLE_COLORS } from '../vfx/types';
 function fakeCanvas(): HTMLCanvasElement {
   const canvas = new EventTarget();
   Object.defineProperty(canvas, 'getContext', { value: () => ({}) });
+  Object.defineProperty(canvas, 'style', { value: {} });
   return canvas as HTMLCanvasElement;
 }
 
