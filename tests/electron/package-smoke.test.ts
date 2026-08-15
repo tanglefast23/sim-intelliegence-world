@@ -72,6 +72,8 @@ describe('packaged Electron smoke evidence', () => {
     expect(main).toContain('webgl2ProbeMode ? WEBGL2_PROBE_URL');
     expect(runner).toContain('probe.appUrl !== WEBGL2_PROBE_URL');
     expect(main).toContain('new MutationObserver(recordFeedback)');
+    expect(main).toContain("await waitForRendererText(window, '#world-ui-quest-offer-panel', 'MISTAKE');");
+    expect(main).toContain("await waitForSelector(window, '#conversation-portrait-linda-ready');");
   });
 
   test('uses explicit output roots and rejects immutable historical evidence', () => {

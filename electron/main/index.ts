@@ -1697,6 +1697,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
   await clickAriaButton(window, 'Talk to Linda');
   await waitForRendererText(window, '#world-ui-quest-offer-panel', 'YES · HELP LINDA');
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'MISTAKE');
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'NO · NOT NOW');
+  await waitForSelector(window, '#conversation-portrait-protagonist-ready');
+  await waitForSelector(window, '#conversation-portrait-linda-ready');
   const questOfferText = await rendererText(window, '#world-ui-quest-offer-panel');
   const portraitsReady = await window.webContents.executeJavaScript(`Boolean(
     document.querySelector('#conversation-portrait-protagonist-ready') &&
