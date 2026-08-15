@@ -129,6 +129,18 @@ const screen = (state: FrameState, world: Point): Point => {
     y: offset.y + (world.y - state.camera.y) * state.camera.zoom,
   };
 };
+/**
+ * Both renderers place feedback through worldToScreen, which rounds to a whole screen pixel.
+ * A mask built from the unrounded position sits up to half a pixel off from where either
+ * renderer draws. Skia's antialiasing covered that slack; hard-edged geometry does not.
+ */
+const snappedScreen = (state: FrameState, world: Point): Point => {
+  const offset = screenOffset(state);
+  return {
+    x: offset.x + Math.round((world.x - state.camera.x) * state.camera.zoom),
+    y: offset.y + Math.round((world.y - state.camera.y) * state.camera.zoom),
+  };
+};
 const atlasOpaque = (source: Rect, x: number, y: number): boolean => (
   x >= 0 && y >= 0 && x < source.width && y < source.height &&
   atlas.data[((source.y + y) * atlas.width + source.x + x) * 4 + 3] !== 0
@@ -276,7 +288,7 @@ const journalMask = (state: FrameState): Mask => {
 const failureMask = (state: FrameState): Mask => {
   const marker = state.failureMarker;
   if (!marker) throw new Error('Failure fixture is missing its marker.');
-  const center = screen(state, { x: marker.worldX, y: marker.worldY });
+  const center = snappedScreen(state, { x: marker.worldX, y: marker.worldY });
   const radius = marker.radiusPixels;
   const logicalBounds = integerRect(center.x - radius - 2, center.y - radius - 2, radius * 2 + 4, radius * 2 + 4);
   return {
