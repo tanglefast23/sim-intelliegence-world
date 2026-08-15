@@ -75,16 +75,26 @@ describe('runtime atlas bill and movement contract', () => {
     expect(() => assertZoomLevel(4)).toThrow('exactly');
   });
 
-  test('uses one nearest-neighbor Skia Atlas and no runtime layer composition', () => {
+  // Stage 5: portraits and the new-game vista draw one nearest-neighbour atlas crop each, now
+  // through the renderer-neutral AtlasSprite instead of a Skia Atlas canvas. This asserts the
+  // sampling behaviour and the single-crop rule rather than the drawing library's syntax.
+  test('uses one nearest-neighbor atlas crop per surface and no runtime layer composition', () => {
     const proof = readFileSync(resolve(process.cwd(), 'src/render/AtlasProof.tsx'), 'utf8');
     const portrait = readFileSync(resolve(process.cwd(), 'src/ui/CharacterPortrait.tsx'), 'utf8');
+    const sprite = readFileSync(resolve(process.cwd(), 'src/ui/AtlasSprite.tsx'), 'utf8');
+    const newGame = readFileSync(resolve(process.cwd(), 'src/application/NewGameFlow.tsx'), 'utf8');
     const runtime = readFileSync(resolve(process.cwd(), 'src/render/atlas.ts'), 'utf8');
     expect(proof.match(/<Atlas\b/gu)).toHaveLength(1);
-    expect(portrait.match(/<Atlas\b/gu)).toHaveLength(1);
     expect(proof).toContain('FilterMode.Nearest');
     expect(proof).toContain('MipmapMode.None');
-    expect(portrait).toContain('FilterMode.Nearest');
-    expect(portrait).toContain('MipmapMode.None');
+    // The neutral crop keeps nearest-neighbour sampling and creates no extra drawing surface.
+    expect(sprite).toContain('pixelated');
+    expect(sprite.match(/<Image\b/gu)).toHaveLength(1);
+    expect(portrait.match(/<AtlasSprite\b/gu)).toHaveLength(1);
+    expect(newGame.match(/<AtlasSprite\b/gu)).toHaveLength(1);
+    for (const source of [portrait, newGame, sprite]) {
+      expect(source).not.toContain('@shopify/react-native-skia');
+    }
     expect(`${proof}\n${portrait}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
   });
 

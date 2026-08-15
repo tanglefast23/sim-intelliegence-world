@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
 import { GameScreen } from '../application/GameScreen';
+import { LoadingShell } from '../application/LoadingShell';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererShellReadyReport, createRendererWorldReadyReport } from '../application/RendererReadiness';
 import { DevHarnessScreen } from '../ui/dev-harness/DevHarnessScreen';
@@ -63,6 +64,22 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
   const reportedShell = useRef(false);
   const reportedWorld = useRef(false);
   const markWorldReady = useCallback(() => setWorldReady(true), []);
+  // Stage 5: only the temporary Skia path needs CanvasKit, and it must be loaded before any
+  // Skia surface mounts. The Three.js path never loads it, which is the point of this stage.
+  const [canvasKitReady, setCanvasKitReady] = useState(rendererKind !== 'skia');
+
+  useEffect(() => {
+    if (rendererKind !== 'skia' || canvasKitReady) return;
+    let cancelled = false;
+    void import('@shopify/react-native-skia/lib/module/web')
+      .then(({ LoadSkiaWeb }) => LoadSkiaWeb({ locateFile: () => '/canvaskit.wasm' }))
+      .then(() => { if (!cancelled) setCanvasKitReady(true); })
+      .catch((error: unknown) => {
+        const detail = error instanceof Error ? error.message : String(error);
+        console.error(`SI_WORLD_CANVASKIT_LOAD_FAILURE ${detail}`);
+      });
+    return () => { cancelled = true; };
+  }, [canvasKitReady, rendererKind]);
 
   useEffect(() => {
     if (devHarnessMode) markWorldReady();
@@ -94,7 +111,7 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
 
   useEffect(() => {
     const bridge = getDesktopBridge();
-    if (!bridge || !worldReady || reportedWorld.current) return;
+    if (!bridge || !worldReady || reportedWorld.current || devHarnessMode) return;
     reportedWorld.current = true;
     void afterTwoPaints()
       .then(() => {
@@ -119,7 +136,7 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
           canvasWidth: canvas?.width ?? 0,
           nodeAccessBlocked: hasNoNodeAccess(),
           rendererKind,
-          webgl2Ready: rendererKind === 'threejs-2d' && canvas?.getContext('webgl2') !== null,
+          webgl2Ready: rendererKind === 'threejs-2d' && (canvas?.getContext('webgl2') ?? null) !== null,
         });
         return bridge.reportRendererReady(report);
       })
@@ -129,13 +146,15 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
         setRuntime(`Desktop bridge rejected world readiness: ${detail}`);
         console.error(`SI_WORLD_RENDERER_READY_FAILURE ${detail}`);
       });
-  }, [assetsLoaded, rendererKind, worldReady]);
+  }, [assetsLoaded, devHarnessMode, rendererKind, worldReady]);
 
   const measureSurface = useCallback((event: LayoutChangeEvent) => {
     const width = Math.max(1, Math.floor(event.nativeEvent.layout.width));
     const height = Math.max(1, Math.floor(event.nativeEvent.layout.height));
     setSurface((current) => current.width === width && current.height === height ? current : { width, height });
   }, []);
+
+  if (!canvasKitReady) return <LoadingShell detail="Loading CanvasKit…" />;
 
   return (
     <View style={styles.screen}>

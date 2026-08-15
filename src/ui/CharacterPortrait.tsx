@@ -1,18 +1,8 @@
-import {
-  Atlas,
-  Canvas,
-  FilterMode,
-  MipmapMode,
-  Skia,
-  rect,
-  useImage,
-} from '@shopify/react-native-skia';
 import { StyleSheet, View } from 'react-native';
 
 import { ATLAS_INDEX, CHARACTER_IDS, atlasRectangle, type CharacterId } from '../render/atlas';
+import { AtlasSprite } from './AtlasSprite';
 
-const atlasImage = require('../../assets/generated/world-atlas.png') as number;
-const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
 const PORTRAIT_SCALE = 2;
 
 function portraitCharacterId(npcId: string): CharacterId {
@@ -31,7 +21,6 @@ export function CharacterPortrait({
   npcId: string;
   scale?: 2 | 3 | 6 | 9 | 20;
 }>) {
-  const image = useImage(atlasImage);
   const characterId = portraitCharacterId(npcId);
   const portraitId = ATLAS_INDEX.characters[characterId].portraits[expression]
     ?? ATLAS_INDEX.characters[characterId].portrait;
@@ -43,19 +32,15 @@ export function CharacterPortrait({
       nativeID={`conversation-portrait-${characterId}`}
       style={[styles.frame, scale === 3 && styles.largeFrame, scale === 6 && styles.cinematicFrame, scale === 9 && styles.cutsceneFrame, scale === 20 && styles.dialogueFrame]}
     >
-      {image ? (
-        <>
-          <Canvas key={characterId} style={scale === 20 ? styles.dialogueCanvas : scale === 9 ? styles.cutsceneCanvas : scale === 6 ? styles.cinematicCanvas : scale === 3 ? styles.largeCanvas : styles.canvas}>
-            <Atlas
-              image={image}
-              sampling={NEAREST}
-              sprites={[rect(source.x, source.y, source.width, source.height)]}
-              transforms={[Skia.RSXform(scale, 0, 0, 0)]}
-            />
-          </Canvas>
-          <View nativeID={`conversation-portrait-${characterId}-ready`} style={styles.ready} />
-        </>
-      ) : null}
+      <AtlasSprite
+        height={source.height}
+        key={characterId}
+        scale={scale}
+        width={source.width}
+        x={source.x}
+        y={source.y}
+      />
+      <View nativeID={`conversation-portrait-${characterId}-ready`} style={styles.ready} />
     </View>
   );
 }
