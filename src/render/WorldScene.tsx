@@ -1079,7 +1079,7 @@ export function WorldScene({
       movements: [runtime.movement, ...Object.values(runtime.npcMovements)],
       selectedFoot,
       destinationMarker,
-      destinationPulseElapsedMs,
+      destinationPulseElapsedMs: rendererParityPulseFrozen ? 420 : destinationPulseElapsedMs,
       failureTile: runtime.movement.feedbackTile,
       reducedMotion,
       animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds,
