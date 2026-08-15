@@ -108,7 +108,11 @@ jobs:
 
   package-macos-x64-functional:
     name: package-macos-x64-functional
-    runs-on: macos-15-intel
+    # Stage 6: macos-15-intel blocklists WebGL 2, so the functional suite cannot run the
+    # production renderer there. The x64 binary runs here instead, on a WebGL2-capable host,
+    # exactly as the x64 packaging job already does. The real-Intel blocklist is recorded as a
+    # release risk in artifacts/threejs-2d/stage-6/, not silenced with a software-rendering flag.
+    runs-on: macos-15
     timeout-minutes: 30
     env:
       SI_WORLD_PACKAGE_TARGET_ARCH: x64
