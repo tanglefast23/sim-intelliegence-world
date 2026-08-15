@@ -7,6 +7,7 @@ import {
   LinearFilter,
   Mesh,
   NearestFilter,
+  ACESFilmicToneMapping,
   NoToneMapping,
   OrthographicCamera,
   Scene,
@@ -26,9 +27,12 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
+import type { ToneMappingKind } from '../renderer-selection';
 import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
 
 const TILE_SIZE = 32;
+/** Stage 4 recorded ACES calibration value, not a hidden magic number. */
+export const ACES_EXPOSURE = 1;
 const COMPOSITE_BATCHES = [
   'floor-and-ground-detail',
   'doors',
@@ -82,6 +86,25 @@ function addQuad(
   const tint = rgba(color, opacity);
   for (let index = 0; index < 4; index += 1) data.tints.push(...tint);
   data.indices.push(...threeQuadIndices(base));
+}
+
+/** Mote positions as viewport percentages, matching the legacy atmosphere overlay. */
+const ATMOSPHERE_MOTES: readonly (readonly [number, number])[] = Object.freeze([
+  [18, 24], [36, 64], [58, 31], [74, 53], [87, 18],
+] as const);
+
+/**
+ * Rebuilds the legacy atmosphere drift from a sampled timestamp.
+ * The overlay looped 0 to 1 over 3800 ms then back over 4600 ms, easing in and out of a sine.
+ */
+function atmosphereDrift(timestampMilliseconds: number): number {
+  const inOutSin = (t: number): number => (
+    t < 0.5 ? (1 - Math.cos(t * Math.PI)) / 2 : 1 - (1 - Math.cos((1 - t) * Math.PI)) / 2
+  );
+  const phase = ((timestampMilliseconds % 8_400) + 8_400) % 8_400;
+  return phase < 3_800
+    ? inOutSin(phase / 3_800)
+    : 1 - inOutSin((phase - 3_800) / 4_600);
 }
 
 function addRect(data: GeometryData, x: number, y: number, width: number, height: number, color: string, opacity = 1): void {
@@ -364,6 +387,7 @@ export class ThreeWorldRenderer {
     matchLegacyColors: boolean,
     onReady: () => void,
     onContextStateChange: (state: 'lost' | 'restored' | 'timed-out') => void,
+    toneMapping: ToneMappingKind = 'none',
   ): Promise<ThreeWorldRenderer> {
     const context = canvas.getContext('webgl2', {
       alpha: false,
@@ -373,7 +397,9 @@ export class ThreeWorldRenderer {
     if (!context) throw new Error('Three.js requires WebGL 2.');
     const renderer = new WebGLRenderer({ canvas, context, alpha: false, antialias: false, powerPreference: 'high-performance' });
     renderer.outputColorSpace = SRGBColorSpace;
-    renderer.toneMapping = NoToneMapping;
+    // Stage 4 enables ACES in production. Exposure is a recorded calibration value.
+    renderer.toneMapping = toneMapping === 'aces' ? ACESFilmicToneMapping : NoToneMapping;
+    renderer.toneMappingExposure = ACES_EXPOSURE;
     renderer.sortObjects = false;
     renderer.setClearColor('#b77945', 1);
     const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
@@ -586,19 +612,125 @@ export class ThreeWorldRenderer {
     frame.shelterCells.forEach((cell) => addRect(shelter, cell.x * TILE_SIZE, cell.y * TILE_SIZE, cell.width * TILE_SIZE, cell.height * TILE_SIZE, frame.lighting.shelterShade));
     this.#set('shelter-shade', shelter);
 
-    // Stage 2 keeps matched district lighting shared; Stage 4 replaces these empty GPU batches.
-    this.#set('district-shadows', emptyGeometryData());
-    this.#set('district-light-pools', emptyGeometryData());
+    // Stage 4 owns district lighting on the Three.js path. The legacy overlay drew in screen
+    // pixels, so every screen length divides by zoom to reach world units.
+    const lighting = frame.lighting;
+    const districtShadows = emptyGeometryData();
+    lighting.casters.forEach((caster) => {
+      const footX = caster.x * TILE_SIZE + TILE_SIZE / 2;
+      const footY = caster.y * TILE_SIZE + TILE_SIZE / 2;
+      addLine(
+        districtShadows,
+        footX,
+        footY,
+        footX + lighting.shadow.x * 1.5,
+        footY + lighting.shadow.y * 1.5,
+        5,
+        lighting.shadow.color,
+        true,
+      );
+    });
+    this.#set('district-shadows', districtShadows);
 
-    // Stage 2 shares the legacy atmosphere overlay so both renderers keep the same composite order.
-    this.#set('atmosphere', emptyGeometryData());
+    const pools = emptyGeometryData();
+    lighting.pools.forEach((pool) => {
+      const centerX = pool.x * TILE_SIZE + TILE_SIZE / 2;
+      const centerY = pool.y * TILE_SIZE + TILE_SIZE / 2;
+      const radius = pool.radius;
+      ([[1.18, 0.58, 0.18], [0.72, 0.34, 0.45], [0.38, 0.17, 0.8]] as const).forEach(
+        ([scaleX, scaleY, opacityScale]) => {
+          addEllipse(
+            pools,
+            centerX,
+            centerY,
+            radius * scaleX,
+            radius * scaleY,
+            lighting.accent,
+            lighting.poolOpacity * opacityScale,
+          );
+        },
+      );
+    });
+    this.#set('district-light-pools', pools);
 
-    // Stage 3 keeps feedback in the shared above-lighting overlay; Stage 4 moves the complete overlay stack here.
-    // District lighting and atmosphere are still React siblings mounted above this canvas, so feedback drawn
-    // here would composite BELOW them and break the locked composite order. Stage 4 task 7 removes those
-    // overlays from the Three.js path, and only then can Stage 4 task 6 draw feedback after all lighting.
-    this.#set('destination-pulse', emptyGeometryData());
-    this.#set('journal-markers', emptyGeometryData());
-    this.#set('failure-marker', emptyGeometryData());
+    // Stage 4 owns the atmosphere treatment. The legacy overlay was viewport-relative, so the
+    // wash, edge shades, and motes are converted from screen space through the camera.
+    const atmosphere = emptyGeometryData();
+    const screenRect = (
+      sx: number,
+      sy: number,
+      sw: number,
+      sh: number,
+      color: string,
+      opacity: number,
+    ): void => {
+      addRect(
+        atmosphere,
+        camera.x + sx / camera.zoom,
+        camera.y + sy / camera.zoom,
+        sw / camera.zoom,
+        sh / camera.zoom,
+        color,
+        opacity,
+      );
+    };
+    const width = viewport.width;
+    const height = viewport.height;
+    screenRect(0, 0, width, height, frame.atmosphere.wash, 1);
+    screenRect(0, 0, width, 16, frame.atmosphere.shade, 0.25);
+    screenRect(0, height - 22, width, 22, frame.atmosphere.shade, 0.34);
+    screenRect(0, 0, 16, height, frame.atmosphere.shade, 0.18);
+    screenRect(width - 16, 0, 16, height, frame.atmosphere.shade, 0.18);
+    // Reduced motion is the qualified packaged path: fixed opacity and no drift.
+    // Otherwise the drift is rebuilt from the controller-sampled timestamp, so the renderer
+    // still owns no clock of its own.
+    const drift = frame.reducedMotion ? 0 : atmosphereDrift(frame.animationTimestampMilliseconds);
+    const moteOpacity = frame.reducedMotion ? 0.28 : 0.18 + drift * 0.54;
+    const moteShift = frame.reducedMotion ? 0 : drift * -8;
+    ATMOSPHERE_MOTES.forEach(([leftPercent, topPercent]) => {
+      screenRect(
+        (leftPercent / 100) * width,
+        (topPercent / 100) * height + moteShift,
+        2,
+        2,
+        frame.atmosphere.accent,
+        moteOpacity,
+      );
+    });
+    this.#set('atmosphere', atmosphere);
+
+    // Stage 4 owns feedback now that the React lighting and atmosphere overlays no longer mount
+    // on this path, so these batches composite above them exactly as the locked order requires.
+    // Skia drew the ring and pin scaled by zoom, but the failure X in fixed screen pixels.
+    const destination = emptyGeometryData();
+    if (frame.destinationPulse) {
+      const pulse = frame.destinationPulse;
+      addEllipse(destination, pulse.worldX, pulse.worldY, pulse.radius, pulse.radius, pulse.color, pulse.opacity, 1);
+    }
+    this.#set('destination-pulse', destination);
+
+    const journal = emptyGeometryData();
+    frame.journalMarkers.forEach((marker) => {
+      const footX = marker.tile.x * TILE_SIZE + 16;
+      const footY = marker.tile.y * TILE_SIZE + 29;
+      const centerX = footX - 10;
+      const centerY = footY - 30;
+      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 4, marker.darkColor);
+      addLine(journal, centerX, centerY + 4, footX - 4, footY - 5, 2, marker.lightColor);
+      addEllipse(journal, centerX, centerY, 7, 7, marker.darkColor);
+      addEllipse(journal, centerX, centerY, 5, 5, marker.lightColor);
+      addEllipse(journal, centerX, centerY, 2, 2, marker.darkColor);
+    });
+    this.#set('journal-markers', journal);
+
+    const failure = emptyGeometryData();
+    if (frame.failureMarker) {
+      const marker = frame.failureMarker;
+      const radius = marker.radiusPixels / camera.zoom;
+      const strokeWidth = 3 / camera.zoom;
+      addLine(failure, marker.worldX - radius, marker.worldY - radius, marker.worldX + radius, marker.worldY + radius, strokeWidth, marker.color);
+      addLine(failure, marker.worldX + radius, marker.worldY - radius, marker.worldX - radius, marker.worldY + radius, strokeWidth, marker.color);
+    }
+    this.#set('failure-marker', failure);
   }
 }

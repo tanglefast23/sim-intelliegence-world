@@ -85,6 +85,19 @@ function frameWithEffects(rectCount: number, fallbackCount: number): WorldFrameS
       color: '#ffffff',
     })),
     journalMarkers: [],
+    // Stage 4: the renderer now draws district lighting and atmosphere itself.
+    lighting: {
+      accent: '#ffc45c',
+      casters: [{ x: 1, y: 1 }],
+      name: 'TEST',
+      poolOpacity: 0.5,
+      pools: [{ x: 2, y: 2, radius: 8 }],
+      shadow: { color: '#101018', x: 6, y: 6 },
+      shelterShade: '#00000040',
+    },
+    atmosphere: { period: 'dawn', wash: '#20304430', shade: '#090b12a6', accent: '#9edbd8' },
+    reducedMotion: true,
+    animationTimestampMilliseconds: 0,
   } as unknown as WorldFrameState;
 }
 
@@ -199,12 +212,10 @@ describe('Three.js renderer lifecycle', () => {
     }
   });
 
-  // Stage 3 keeps feedback in the shared above-lighting overlay. District lighting and atmosphere are
-  // still React siblings mounted above the Three.js canvas, so feedback drawn here would composite
-  // below them. Stage 4 task 7 removes those overlays from the Three.js path, and Stage 4 task 6 then
-  // draws feedback after all lighting batches. This test locks the Stage 3 contract so that move is
-  // deliberate rather than accidental.
-  test('leaves every above-lighting feedback batch to the shared overlay', async () => {
+  // Stage 4 moves feedback ownership onto the Three.js path. The React lighting and atmosphere
+  // overlays no longer mount there, so these batches composite above them as the locked order
+  // requires. Stage 3 held them empty for exactly that reason.
+  test('owns every above-lighting feedback batch', async () => {
     const animation = installAnimationFrameQueue();
     try {
       const renderer = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', true, jest.fn(), jest.fn());
@@ -212,9 +223,12 @@ describe('Three.js renderer lifecycle', () => {
       renderer.start();
       animation.callbacks.shift()!(0);
       const triangles = renderer.evidence().trianglesByBatch;
-      expect(triangles['destination-pulse']).toBe(0);
-      expect(triangles['journal-markers']).toBe(0);
-      expect(triangles['failure-marker']).toBe(0);
+      expect(triangles['destination-pulse']).toBeGreaterThan(0);
+      expect(triangles['journal-markers']).toBeGreaterThan(0);
+      expect(triangles['failure-marker']).toBeGreaterThan(0);
+      expect(triangles['district-shadows']).toBeGreaterThan(0);
+      expect(triangles['district-light-pools']).toBeGreaterThan(0);
+      expect(triangles['atmosphere']).toBeGreaterThan(0);
       renderer.dispose();
     } finally {
       animation.restore();

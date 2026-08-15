@@ -52,6 +52,8 @@ const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
 const smokeRenderer = process.env.SI_WORLD_TEST_RENDERER;
+// Stage 4: unsaved, smoke-only tone-mapping override so no-tone parity and ACES both rerun.
+const smokeToneMapping = process.env.SI_WORLD_TEST_TONE_MAPPING;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
@@ -107,6 +109,9 @@ if (smokeVfxMode !== undefined && (!smokeMode || !['circle', 'procedural'].inclu
   throw new Error('VFX mode is available only to smoke runs as circle or procedural.');
 }
 
+if (smokeToneMapping !== undefined && (!smokeMode || !['none', 'aces'].includes(smokeToneMapping))) {
+  throw new Error('SI_WORLD_TEST_TONE_MAPPING requires smoke mode and must be none or aces.');
+}
 if (smokeRenderer !== undefined && (!smokeMode || !['skia', 'threejs-2d'].includes(smokeRenderer))) {
   throw new Error('Test renderer is available only to smoke runs as skia or threejs-2d.');
 }
@@ -2426,6 +2431,7 @@ async function createMainWindow(): Promise<void> {
           ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
           ...(smokeVfxMode ? [`--si-world-vfx-mode=${smokeVfxMode}`] : []),
           ...(smokeRenderer ? [`--si-world-test-renderer=${smokeRenderer}`] : []),
+          ...(smokeToneMapping ? [`--si-world-test-tone-mapping=${smokeToneMapping}`] : []),
         ] : []),
         ...(devHarnessMode ? ['--si-world-dev-harness=1'] : []),
       ],

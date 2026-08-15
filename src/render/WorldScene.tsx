@@ -1439,16 +1439,18 @@ export function WorldScene({
                 ]}
               />;
             }) : null}
-            <DistrictLightingOverlay
+            {/* Stage 4: Three.js owns district lighting, atmosphere and feedback. These React
+                overlays stay only on the temporary Skia path, and Stage 7 deletes them. */}
+            {rendererKind === 'skia' ? <DistrictLightingOverlay
               camera={camera}
               lighting={worldFrame.lighting}
               surface={surface}
-            />
-            <AtmosphereOverlay
+            /> : null}
+            {rendererKind === 'skia' ? <AtmosphereOverlay
               atmosphere={worldFrame.atmosphere}
               reducedMotion={reducedMotion}
-            />
-            <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
+            /> : null}
+            {rendererKind === 'skia' ? <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
               {worldFrame.destinationPulse ? (() => {
                 const pulse = worldFrame.destinationPulse;
                 const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
@@ -1475,7 +1477,7 @@ export function WorldScene({
                   <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
                 </>
               ) : null}
-            </Canvas>
+            </Canvas> : null}
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}
