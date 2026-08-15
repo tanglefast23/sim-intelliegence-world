@@ -50,13 +50,13 @@
       "frameId": "journal:journal_renderer_parity:23,28",
       "logicalBounds": {
         "x": 622,
-        "y": 338,
+        "y": 335,
         "width": 17,
         "height": 36
       },
       "hitBounds": {
         "x": 624,
-        "y": 344,
+        "y": 341,
         "width": 32,
         "height": 32
       },

@@ -56,6 +56,7 @@ type Fixture = Readonly<{
   screenshot: string;
   state: FrameState;
   viewport: Readonly<{ width: number; height: number }>;
+  vfxMode: 'procedural' | 'circle';
   zoom: 1 | 2 | 3;
 }>;
 type Report = Readonly<{
@@ -113,7 +114,8 @@ const playerFootprint = (source: Rect, zoom: number, silhouetteOnly: boolean): s
 const sourceCapture = (rendererKind: 'skia' | 'threejs-2d', fixture: Fixture): string => resolve(
   dirname(REPORT),
   rendererKind,
-  `dpr-${fixture.devicePixelRatio}`,
+  // Stage 3 amendment 2026-08-15: one capture directory per DPR and VFX mode.
+  `dpr-${fixture.devicePixelRatio}-${fixture.vfxMode}`,
   fixture.screenshot,
 );
 

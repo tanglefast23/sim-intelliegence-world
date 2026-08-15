@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "testedCommit": "cc9d21a609f1a067e12aa071d25e303d2ca90d12",
   "evidenceSource": {
-    "baseCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
-    "sourceSha256": "840d81cdd70de976aeb6a59054e2611d2c44ab8f850514133548aa91401cfe88",
+    "baseCommit": "cc9d21a609f1a067e12aa071d25e303d2ca90d12",
+    "sourceSha256": "d281d2a95fa65b0c3c89f0d7262b2fa3ac8036f139a5f786b35a035e1759f730",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-parity-package-smoke.ts",
@@ -356,7 +356,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -765,7 +766,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -1174,7 +1176,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -1581,7 +1584,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -1981,7 +1985,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -2269,7 +2274,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         }
       ],
@@ -2610,7 +2616,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -3019,7 +3026,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -3428,7 +3436,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -3835,7 +3844,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -4235,7 +4245,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         },
         {
@@ -4523,7 +4534,8 @@
               "patio-leaves",
               "patio-palm"
             ],
-            "fallbackEmitterIds": []
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
           }
         }
       ],

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "villa-selected-npc",
-  "sourceCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "sourceCommit": "cc9d21a609f1a067e12aa071d25e303d2ca90d12",
   "mode": "parity",
   "viewport": {
     "width": 1280,
