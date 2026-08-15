@@ -211,8 +211,9 @@ const pulseMask = (state: FrameState, kind: 'route' | 'destination'): Mask => {
       ? `route:${state.movement.status}:${state.movement.direction}:${state.movement.walkFrame}:${pulse.worldX},${pulse.worldY}`
       : `destination:${pulse.worldX},${pulse.worldY}:${pulse.radius}`,
     worldCenter,
-    pulse.radius,
-    pulse.radius,
+    // Skia draws the ring at `radius * zoom` screen pixels with a `zoom` stroke.
+    pulse.radius * state.camera.zoom,
+    pulse.radius * state.camera.zoom,
     state.camera.zoom,
     tileHitBounds(state, worldCenter),
   );
@@ -250,12 +251,15 @@ const selectionMask = (state: FrameState): Mask => {
 const journalMask = (state: FrameState): Mask => {
   const marker = state.journalMarkers[0];
   if (!marker) throw new Error('Journal fixture is missing its marker.');
-  const worldFoot = { x: marker.tile.x * 32 + 16, y: marker.tile.y * 32 + 32 };
+  // Skia scales every journal-pin offset and radius by zoom, so the mask does too.
+  const zoom = state.camera.zoom;
+  // Both renderers place the pin from tileFootPoint, which is +29, not the tile bottom at +32.
+  const worldFoot = { x: marker.tile.x * 32 + 16, y: marker.tile.y * 32 + 29 };
   const foot = screen(state, worldFoot);
-  const center = { x: foot.x - 10, y: foot.y - 30 };
-  const start = { x: center.x, y: center.y + 4 };
-  const end = { x: foot.x - 4, y: foot.y - 5 };
-  const logicalBounds = integerRect(center.x - 8, center.y - 8, 17, 36);
+  const center = { x: foot.x - 10 * zoom, y: foot.y - 30 * zoom };
+  const start = { x: center.x, y: center.y + 4 * zoom };
+  const end = { x: foot.x - 4 * zoom, y: foot.y - 5 * zoom };
+  const logicalBounds = integerRect(center.x - 8 * zoom, center.y - 8 * zoom, 17 * zoom, 36 * zoom);
   return {
     id: `journal-${marker.journalEntryId}`,
     kind: 'journal',
@@ -263,8 +267,8 @@ const journalMask = (state: FrameState): Mask => {
     logicalBounds,
     hitBounds: tileHitBounds(state, worldFoot),
     alphaFootprint: raster(logicalBounds, (point) => (
-      Math.hypot(point.x - center.x, point.y - center.y) <= 7 ||
-      distanceToSegment(point, start, end) <= 2
+      Math.hypot(point.x - center.x, point.y - center.y) <= 7 * zoom ||
+      distanceToSegment(point, start, end) <= 2 * zoom
     )),
   };
 };
@@ -313,7 +317,7 @@ const masksFor = (entry: Fixture): readonly Mask[] => {
   }
   if (entry.id === 'villa-walk-east-frame-1') return [pulseMask(state, 'route')];
   if (entry.id === 'villa-selected-npc') return [selectionMask(state)];
-  if (entry.id === 'villa-destination-journal-failure') {
+  if (entry.id.startsWith('villa-destination-journal-failure')) {
     return [pulseMask(state, 'destination'), journalMask(state), failureMask(state)];
   }
   throw new Error(`No mask contract for ${entry.id}.`);

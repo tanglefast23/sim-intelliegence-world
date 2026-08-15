@@ -459,6 +459,86 @@ Scaled player masks use the full opaque atlas footprint so enlarged interiors co
 The report still records native outside-mask and required-mask deltas for every scaled frame, but does not use them as scaled pass/fail gates.
 Any threshold change requires a dated specification amendment with captured evidence before code changes.
 
+Stage 3 audit amendment, dated 2026-08-15:
+
+The final Stage 3 Opus audit found four measurement defects and one ownership defect.
+This amendment defines their replacements before the comparator changes.
+
+**Three.js feedback ownership stays a Stage 4 move.**
+
+The ownership finding asked Stage 3 to draw destination, journal, and failure feedback
+from Three.js instead of the shared Skia overlay.
+A Stage 3 Fable audit proved that move breaks the locked composite order.
+`DistrictLightingOverlay` and `AtmosphereOverlay` are React siblings mounted after the
+Three.js canvas, and no sibling sets a stacking order, so DOM order is paint order.
+Feedback drawn inside the Three.js canvas therefore composites BELOW lighting and
+atmosphere, while the Skia overlay composites above them.
+That inverts the order this specification locks and would diverge under any non-neutral
+lighting.
+
+Stage 3 therefore keeps feedback in the shared above-lighting overlay.
+Stage 4 already owns the correct sequence: task 7 stops mounting the three React overlays
+on the Three.js path, and task 6 then draws feedback after all lighting and atmosphere
+batches. Feedback ownership moves there, with the same zoom `1`, `2`, and `3` geometry
+check, and the Stage 3 fixture set records that its feedback masks are shared-overlay
+evidence rather than Three.js evidence.
+
+**Scaled parity gains bounded mask-local limits.**
+
+The full-frame raster-neutral limits above stay unchanged.
+They are a frame average, so a small mask can drift far while the frame still passes.
+The native `8/255` per-pixel maximum stays forbidden for scaled frames, because measured Skia and WebGL edge coverage makes it invalid.
+Scaled frames therefore add these bounded limits, measured over required-mask pixels only:
+
+- mask mean absolute RGB channel delta no greater than `10/255`;
+- mask RGB root mean square channel delta no greater than `20/255`;
+- no more than `12%` of mask pixels have a maximum RGB channel delta above `32/255`.
+
+Scaled frames also gain one outside-mask ceiling:
+
+- no more than `12%` of outside-mask pixels have any channel delta above `2/255`.
+
+The measured maxima from the passing Stage 3 captures were `8.4167`, `17.4373`, `0.10442`, and `0.10372`.
+Each ceiling therefore keeps evidence margin above the observed worst case.
+Native DPR `1`, zoom `1×` gates stay exactly as written above.
+
+**Saved-zoom evidence must compare rendered images.**
+
+The Stage 3 zoom report recorded presented zoom and atlas texture settings only.
+Those prove frame presentation and sampling state, not rendered pixels.
+Zoom sampling therefore runs for both Skia and Three.js at DPR `1`.
+At every value from `1.00` through `3.00` in `0.05` steps, both renderers capture the same fixed player crop from the hidden packaged window.
+The main-process crop geometry is identical between renderers.
+The runner decodes the paired PNG crops and measures them with the exported comparator RGB helper.
+It records per-zoom mean absolute RGB delta, RMSE, and ratio above delta `32`, and fails any zoom above the approved native or scaled metric.
+Raw zoom crops stay in ignored `output/` scratch space.
+The measured report is committed.
+
+**Visible coverage becomes content-derived readable coverage.**
+
+Visible coverage counted non-transparent canvas pixels.
+Every packaged screenshot is opaque, so that count could never fall and proved nothing about sprite presence.
+Readable coverage replaces it and uses the existing two-logical-pixel ring median.
+A mask pixel is readable when its local contrast against that ring median is at least `1.02`.
+
+- Native frames keep the exact readable-pixel set and count.
+- Scaled frames keep at least `95%` of baseline readable coverage.
+
+The measured scaled minimum retention was about `0.9861`, so `95%` keeps evidence margin.
+The existing `1.05` minimum baseline median contrast and `90%` contrast-retention rules stay unchanged.
+The report records baseline readable pixels, candidate readable pixels, and retention.
+
+**The finite parity manifest gains a fallback-rendering case.**
+
+The procedural-VFX package report covers fallback behavior separately.
+The Stage 3 parity fixture set never exercised the Three.js fallback-circle batch.
+Locked all-map cases therefore carry `vfxMode: 'procedural' | 'circle'`.
+One DPR `1` circle-mode case uses the known visible `patio-fire` effect.
+The all-map package runner launches only the required DPR and mode combinations.
+Renderer parity state gains `fallbackEffectIds` from `worldFrame.fallbackEffects`, and the fallback case asserts its locked effect is present.
+Both renderers capture that case and it joins the committed fixture set.
+The procedural cases stay unchanged.
+
 Stage 0 proves the tool with one identical-image pass fixture and one deliberately changed fail fixture.
 Stage 2 records the first matched Skia and Three.js results with `NoToneMapping`.
 ACES is forbidden until no-tone-mapping parity passes.

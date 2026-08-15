@@ -130,9 +130,10 @@ async function captureSmokeScreenshot(
   window: BrowserWindow,
   screenshotPath: string,
   deadlineMilliseconds?: number,
+  rect?: Readonly<{ x: number; y: number; width: number; height: number }>,
 ): Promise<Buffer> {
   const image = await captureNonEmptySmokeFrame(
-    () => window.webContents.capturePage(undefined, { stayHidden: true }),
+    () => window.webContents.capturePage(rect, { stayHidden: true }),
     waitForSmokeRetry,
     { deadlineMilliseconds },
   );
@@ -949,8 +950,14 @@ async function captureRendererAllMapsSmoke(
 ): Promise<Record<string, unknown>> {
   await mkdir(directory, { recursive: true });
   const devicePixelRatio = await window.webContents.executeJavaScript('window.devicePixelRatio', true) as number;
-  const cases = ALL_MAP_PARITY_CASES.filter((entry) => entry.devicePixelRatio === devicePixelRatio);
-  if (cases.length === 0) throw new Error(`No all-map parity cases are locked for DPR ${devicePixelRatio}.`);
+  // Stage 3 amendment 2026-08-15: each packaged window owns one DPR and one VFX mode.
+  const vfxMode = smokeVfxMode === 'circle' ? 'circle' : 'procedural';
+  const cases = ALL_MAP_PARITY_CASES.filter((entry) => (
+    entry.devicePixelRatio === devicePixelRatio && entry.vfxMode === vfxMode
+  ));
+  if (cases.length === 0) {
+    throw new Error(`No all-map parity cases are locked for DPR ${devicePixelRatio} in ${vfxMode} mode.`);
+  }
   if (parseWorldStateLabel(await worldStateLabel(window)).speed !== 0) await clickAriaButton(window, 'Pause time');
 
   const fixtures: Record<string, unknown>[] = [];
@@ -985,20 +992,35 @@ async function captureRendererAllMapsSmoke(
     fixtures.push({ ...entry, screenshot, state, rendererEvidence });
   }
 
-  const zoomSampling = smokeRenderer === 'threejs-2d' && devicePixelRatio === 1
-    ? await captureRendererZoomSampling(window)
+  const zoomSampling = devicePixelRatio === 1 && vfxMode === 'procedural'
+    ? await captureRendererZoomSampling(window, join(directory, 'zoom'))
     : null;
   return {
     schemaVersion: 1,
     rendererKind: smokeRenderer ?? 'skia',
     devicePixelRatio,
+    vfxMode,
     fixtures,
     zoomSampling,
   };
 }
 
-async function captureRendererZoomSampling(window: BrowserWindow): Promise<Record<string, unknown>> {
+/**
+ * Stage 3 amendment 2026-08-15: every saved zoom now yields a rendered crop as well as
+ * presentation evidence, so the report can prove pixels instead of texture settings alone.
+ * The crop rect is fixed and identical for both renderers.
+ */
+const ZOOM_SAMPLING_CROP = Object.freeze({ x: 560, y: 280, width: 160, height: 160 });
+
+async function captureRendererZoomSampling(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
   await resizeContentAndWait(window, 1_280, 720);
+  await mkdir(directory, { recursive: true });
+  // Center the camera so the fixed crop holds the player for both renderers.
+  sendKey(window, 'F');
+  await waitForRendererPaint(window);
   const samples: Record<string, unknown>[] = [];
   for (let index = 0; index <= 40; index += 1) {
     const zoom = Math.round((1 + index * 0.05) * 100) / 100;
@@ -1012,18 +1034,26 @@ async function captureRendererZoomSampling(window: BrowserWindow): Promise<Recor
         'window.siWorldThreeRendererEvidence?.() ?? null',
         true,
       ) as Record<string, unknown> | null;
-      if (evidence?.presentedZoom === zoom) break;
+      if (smokeRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
     }
-    if (evidence?.presentedZoom !== zoom) throw new Error(`Three.js did not present saved zoom ${zoom}.`);
+    if (smokeRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
+      throw new Error(`Three.js did not present saved zoom ${zoom}.`);
+    }
+    const crop = `zoom-${zoom.toFixed(2)}-${smokeRenderer ?? 'skia'}.png`;
+    await waitForRendererPaint(window);
+    await captureSmokeScreenshot(window, join(directory, crop), undefined, ZOOM_SAMPLING_CROP);
     samples.push({
       zoom,
       inputStep: Number.isInteger(zoom * 10),
       savedBoundary: true,
-      presentedZoom: evidence.presentedZoom,
-      atlasSampling: evidence.atlasSampling,
+      crop,
+      ...(smokeRenderer === 'threejs-2d' && evidence ? {
+        presentedZoom: evidence.presentedZoom,
+        atlasSampling: evidence.atlasSampling,
+      } : {}),
     });
   }
-  return { schemaVersion: 1, samples };
+  return { schemaVersion: 1, crop: ZOOM_SAMPLING_CROP, samples };
 }
 
 async function startMovementSmokeSampling(window: BrowserWindow): Promise<void> {

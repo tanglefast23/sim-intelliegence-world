@@ -594,6 +594,9 @@ export class ThreeWorldRenderer {
     this.#set('atmosphere', emptyGeometryData());
 
     // Stage 3 keeps feedback in the shared above-lighting overlay; Stage 4 moves the complete overlay stack here.
+    // District lighting and atmosphere are still React siblings mounted above this canvas, so feedback drawn
+    // here would composite BELOW them and break the locked composite order. Stage 4 task 7 removes those
+    // overlays from the Three.js path, and only then can Stage 4 task 6 draw feedback after all lighting.
     this.#set('destination-pulse', emptyGeometryData());
     this.#set('journal-markers', emptyGeometryData());
     this.#set('failure-marker', emptyGeometryData());

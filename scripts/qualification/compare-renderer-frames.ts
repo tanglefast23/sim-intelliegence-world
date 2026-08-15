@@ -64,6 +64,12 @@ const ComparisonManifestFields = {
     scaledRootMeanSquareChannelDelta: z.literal(3).default(3),
     scaledLargeChannelDelta: z.literal(32).default(32),
     scaledLargeChangedPixelRatio: z.literal(0.002).default(0.002),
+    // Stage 3 amendment 2026-08-15: bounded mask-local limits for scaled frames.
+    scaledOutsideMaskChangedPixelRatio: z.literal(0.12).default(0.12),
+    scaledMaskMeanAbsoluteChannelDelta: z.literal(10).default(10),
+    scaledMaskRootMeanSquareChannelDelta: z.literal(20).default(20),
+    scaledMaskLargeChangedPixelRatio: z.literal(0.12).default(0.12),
+    scaledReadableCoverageRetention: z.literal(0.95).default(0.95),
   }).strict(),
 } as const;
 
@@ -154,10 +160,12 @@ export type RendererComparisonReport = Readonly<{
     rootMeanSquareChannelDelta: number;
     largeChangedPixelCount: number;
     largeChangedPixelRatio: number;
+    maskLocal: RgbDeltaMeasurement;
     masks: readonly Readonly<{
       id: string;
-      baselineVisiblePixels: number;
-      candidateVisiblePixels: number;
+      baselineReadablePixels: number;
+      candidateReadablePixels: number;
+      readableRetention: number;
       baselineContrast: number;
       candidateContrast: number;
       retainedContrast: number;
@@ -211,6 +219,62 @@ const contrast = (foreground: number, background: number): number => (
   (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
 );
 const MINIMUM_BASELINE_CONTRAST = 1.05;
+// Stage 3 amendment 2026-08-15: a mask pixel is readable when it separates from its ring median.
+const READABLE_CONTRAST = 1.02;
+
+export type RgbDeltaMeasurement = Readonly<{
+  comparablePixelCount: number;
+  meanAbsoluteChannelDelta: number;
+  rootMeanSquareChannelDelta: number;
+  largeChangedPixelCount: number;
+  largeChangedPixelRatio: number;
+}>;
+
+/**
+ * Measures RGB deltas over a pixel set. Both-transparent pixels are excluded.
+ * Stage 3 uses this for the full frame, for required-mask pixels, and for packaged zoom crops,
+ * so the zoom smoke never duplicates this math.
+ */
+export function measureRgbDeltas(
+  baseline: PNG,
+  candidate: PNG,
+  pixels: Iterable<number>,
+  largeChannelDelta: number,
+): RgbDeltaMeasurement {
+  let comparablePixelCount = 0;
+  let absoluteChannelDelta = 0;
+  let squaredChannelDelta = 0;
+  let largeChangedPixelCount = 0;
+  for (const pixel of pixels) {
+    const offset = pixelOffset(baseline, pixel);
+    if (baseline.data[offset + 3] === 0 && candidate.data[offset + 3] === 0) continue;
+    comparablePixelCount += 1;
+    let maximumRgbDelta = 0;
+    for (let channel = 0; channel < 3; channel += 1) {
+      const delta = Math.abs(baseline.data[offset + channel]! - candidate.data[offset + channel]!);
+      absoluteChannelDelta += delta;
+      squaredChannelDelta += delta ** 2;
+      maximumRgbDelta = Math.max(maximumRgbDelta, delta);
+    }
+    if (maximumRgbDelta > largeChannelDelta) largeChangedPixelCount += 1;
+  }
+  const comparableChannelCount = comparablePixelCount * 3;
+  return {
+    comparablePixelCount,
+    meanAbsoluteChannelDelta: comparableChannelCount === 0 ? 0 : absoluteChannelDelta / comparableChannelCount,
+    rootMeanSquareChannelDelta: comparableChannelCount === 0
+      ? 0 : Math.sqrt(squaredChannelDelta / comparableChannelCount),
+    largeChangedPixelCount,
+    largeChangedPixelRatio: comparablePixelCount === 0 ? 0 : largeChangedPixelCount / comparablePixelCount,
+  };
+}
+
+function allPixels(image: PNG): Iterable<number> {
+  return (function* generate(): Generator<number> {
+    const total = image.width * image.height;
+    for (let pixel = 0; pixel < total; pixel += 1) yield pixel;
+  })();
+}
 
 function imagePixelsForRect(rectangle: z.infer<typeof RectSchema>, dpr: number, image: PNG): Set<number> {
   const pixels = new Set<number>();
@@ -252,8 +316,16 @@ function visibleLuminances(image: PNG, pixels: ReadonlySet<number>): number[] {
   });
 }
 
-function visiblePixels(image: PNG, pixels: ReadonlySet<number>): number[] {
-  return [...pixels].filter((pixel) => image.data[pixelOffset(image, pixel) + 3] !== 0);
+/**
+ * Stage 3 amendment 2026-08-15: content-derived readable coverage.
+ * A mask pixel counts only when its own luminance separates from the mask's ring median.
+ */
+function readablePixels(image: PNG, pixels: ReadonlySet<number>, ringMedian: number): number[] {
+  return [...pixels].filter((pixel) => {
+    const offset = pixelOffset(image, pixel);
+    if (image.data[offset + 3] === 0) return false;
+    return contrast(luminance(image, offset), ringMedian) >= READABLE_CONTRAST;
+  }).sort((left, right) => left - right);
 }
 
 function maximumChannelDelta(baseline: PNG, candidate: PNG, pixels: ReadonlySet<number>): number {
@@ -318,14 +390,8 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     }
     const baselinePixels = maskPixels(baselineMask, manifest.devicePixelRatio, baselineImage);
     const candidatePixels = maskPixels(candidateMask, manifest.devicePixelRatio, candidateImage);
-    const baselineVisiblePixels = visiblePixels(baselineImage, baselinePixels);
-    const candidateVisiblePixels = visiblePixels(candidateImage, candidatePixels);
     const baselineVisible = visibleLuminances(baselineImage, baselinePixels);
     const candidateVisible = visibleLuminances(candidateImage, candidatePixels);
-    if (baselineVisible.length === 0 || candidateVisible.length === 0 ||
-        JSON.stringify(baselineVisiblePixels) !== JSON.stringify(candidateVisiblePixels)) {
-      failures.push(`${baselineMask.id}: visible pixel coverage changed or disappeared.`);
-    }
     const ringLeft = Math.max(0, baselineMask.logicalBounds.x - manifest.thresholds.backgroundRingLogicalPixels);
     const ringTop = Math.max(0, baselineMask.logicalBounds.y - manifest.thresholds.backgroundRingLogicalPixels);
     const ringRight = Math.min(
@@ -355,6 +421,27 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     if (retainedContrast < manifest.thresholds.contrastRetention) {
       failures.push(`${baselineMask.id}: retained contrast ${rounded(retainedContrast)} is below 0.9.`);
     }
+
+    // Stage 3 amendment 2026-08-15: alpha coverage was inert because every packaged frame is opaque.
+    // Readable coverage counts mask pixels that separate from their own ring median.
+    const baselineReadable = baselineRing.length > 0
+      ? readablePixels(baselineImage, baselinePixels, median(baselineRing)) : [];
+    const candidateReadable = candidateRing.length > 0
+      ? readablePixels(candidateImage, candidatePixels, median(candidateRing)) : [];
+    const readableRetention = baselineReadable.length > 0
+      ? candidateReadable.length / baselineReadable.length : 0;
+    if (baselineReadable.length === 0) {
+      failures.push(`${baselineMask.id}: baseline has no readable pixels against its ring.`);
+    } else if (rasterComparison === 'native') {
+      if (JSON.stringify(baselineReadable) !== JSON.stringify(candidateReadable)) {
+        failures.push(`${baselineMask.id}: native readable-pixel set changed.`);
+      }
+    } else if (readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
+      failures.push(
+        `${baselineMask.id}: scaled readable coverage ${rounded(readableRetention)} is below 0.95.`,
+      );
+    }
+
     const channelDelta = maximumChannelDelta(baselineImage, candidateImage, baselinePixels);
     if (manifest.mode === 'parity' && rasterComparison === 'native' &&
         channelDelta > manifest.thresholds.requiredMaskMaximumChannelDelta) {
@@ -362,8 +449,9 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     }
     return {
       id: baselineMask.id,
-      baselineVisiblePixels: baselineVisible.length,
-      candidateVisiblePixels: candidateVisible.length,
+      baselineReadablePixels: baselineReadable.length,
+      candidateReadablePixels: candidateReadable.length,
+      readableRetention: rounded(readableRetention),
       baselineContrast: rounded(baselineContrast),
       candidateContrast: rounded(candidateContrast),
       retainedContrast: rounded(retainedContrast),
@@ -388,30 +476,31 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
       changedOutsideMaskRatio > manifest.thresholds.outsideMaskChangedPixelRatio) {
     failures.push(`Outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.005.`);
   }
-
-  let comparableFramePixelCount = 0;
-  let absoluteChannelDelta = 0;
-  let squaredChannelDelta = 0;
-  let largeChangedPixelCount = 0;
-  for (let pixel = 0; pixel < baselineImage.width * baselineImage.height; pixel += 1) {
-    const offset = pixelOffset(baselineImage, pixel);
-    if (baselineImage.data[offset + 3] === 0 && candidateImage.data[offset + 3] === 0) continue;
-    comparableFramePixelCount += 1;
-    let maximumRgbDelta = 0;
-    for (let channel = 0; channel < 3; channel += 1) {
-      const delta = Math.abs(baselineImage.data[offset + channel]! - candidateImage.data[offset + channel]!);
-      absoluteChannelDelta += delta;
-      squaredChannelDelta += delta ** 2;
-      maximumRgbDelta = Math.max(maximumRgbDelta, delta);
-    }
-    if (maximumRgbDelta > manifest.thresholds.scaledLargeChannelDelta) largeChangedPixelCount += 1;
+  // Stage 3 amendment 2026-08-15: scaled frames keep a bounded outside-mask ceiling.
+  if (manifest.mode === 'parity' && rasterComparison === 'scaled' &&
+      changedOutsideMaskRatio > manifest.thresholds.scaledOutsideMaskChangedPixelRatio) {
+    failures.push(`Scaled outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.12.`);
   }
-  const comparableChannelCount = comparableFramePixelCount * 3;
-  const meanAbsoluteChannelDelta = comparableChannelCount === 0 ? 0 : absoluteChannelDelta / comparableChannelCount;
-  const rootMeanSquareChannelDelta = comparableChannelCount === 0
-    ? 0 : Math.sqrt(squaredChannelDelta / comparableChannelCount);
-  const largeChangedPixelRatio = comparableFramePixelCount === 0
-    ? 0 : largeChangedPixelCount / comparableFramePixelCount;
+
+  const frame = measureRgbDeltas(
+    baselineImage,
+    candidateImage,
+    allPixels(baselineImage),
+    manifest.thresholds.scaledLargeChannelDelta,
+  );
+  const comparableFramePixelCount = frame.comparablePixelCount;
+  const meanAbsoluteChannelDelta = frame.meanAbsoluteChannelDelta;
+  const rootMeanSquareChannelDelta = frame.rootMeanSquareChannelDelta;
+  const largeChangedPixelCount = frame.largeChangedPixelCount;
+  const largeChangedPixelRatio = frame.largeChangedPixelRatio;
+  // Stage 3 amendment 2026-08-15: the frame average can hide a small mask drifting far,
+  // so scaled frames also measure required-mask pixels on their own.
+  const maskLocal = measureRgbDeltas(
+    baselineImage,
+    candidateImage,
+    requiredPixels,
+    manifest.thresholds.scaledLargeChannelDelta,
+  );
   if (manifest.mode === 'parity' && rasterComparison === 'scaled') {
     if (meanAbsoluteChannelDelta > manifest.thresholds.scaledMeanAbsoluteChannelDelta) {
       failures.push(`Scaled mean absolute channel delta ${rounded(meanAbsoluteChannelDelta)} exceeds 1.`);
@@ -421,6 +510,15 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     }
     if (largeChangedPixelRatio > manifest.thresholds.scaledLargeChangedPixelRatio) {
       failures.push(`Scaled large changed-pixel ratio ${rounded(largeChangedPixelRatio)} exceeds 0.002.`);
+    }
+    if (maskLocal.meanAbsoluteChannelDelta > manifest.thresholds.scaledMaskMeanAbsoluteChannelDelta) {
+      failures.push(`Scaled mask mean absolute channel delta ${rounded(maskLocal.meanAbsoluteChannelDelta)} exceeds 10.`);
+    }
+    if (maskLocal.rootMeanSquareChannelDelta > manifest.thresholds.scaledMaskRootMeanSquareChannelDelta) {
+      failures.push(`Scaled mask root mean square channel delta ${rounded(maskLocal.rootMeanSquareChannelDelta)} exceeds 20.`);
+    }
+    if (maskLocal.largeChangedPixelRatio > manifest.thresholds.scaledMaskLargeChangedPixelRatio) {
+      failures.push(`Scaled mask large changed-pixel ratio ${rounded(maskLocal.largeChangedPixelRatio)} exceeds 0.12.`);
     }
   }
 
@@ -459,6 +557,13 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
       rootMeanSquareChannelDelta: rounded(rootMeanSquareChannelDelta),
       largeChangedPixelCount,
       largeChangedPixelRatio: rounded(largeChangedPixelRatio),
+      maskLocal: {
+        comparablePixelCount: maskLocal.comparablePixelCount,
+        meanAbsoluteChannelDelta: rounded(maskLocal.meanAbsoluteChannelDelta),
+        rootMeanSquareChannelDelta: rounded(maskLocal.rootMeanSquareChannelDelta),
+        largeChangedPixelCount: maskLocal.largeChangedPixelCount,
+        largeChangedPixelRatio: rounded(maskLocal.largeChangedPixelRatio),
+      },
       masks: maskMeasurements,
     },
   };
