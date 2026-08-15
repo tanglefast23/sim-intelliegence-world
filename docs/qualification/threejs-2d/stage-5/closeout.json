@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "stage": 5,
+  "phaseBranch": "codex/threejs-stage-5-surfaces",
+  "phaseCommit": "3b690589b5761aa0f58e62d7f2158df06b228cad",
+  "integrationBranch": "codex/threejs-2d-port",
+  "rollbackSha": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "auditor": "fable-5",
+  "auditResult": "One round ran on the shell move and returned five findings; four were fixed and one was live-path only. A second round on the failure marker exceeded the ten-minute tool ceiling and did not finish, so it was skipped under the standing rule.",
+  "auditFindingsFixed": [
+    "CRITICAL: removing WithSkiaWeb left nothing loading CanvasKit, so the then-default Skia path crashed. Reproduced exactly as an undefined XYWHRect, then fixed by loading CanvasKit on the Skia path only and keeping the game screen and dev harness behind dynamic imports.",
+    "HIGH: portraits and the new-game vista used Skia on both paths and would have failed silently once Three.js stopped loading CanvasKit. Replaced with the renderer-neutral AtlasSprite.",
+    "MEDIUM: dev-harness world readiness reported failure because the backdrop is no longer a canvas.",
+    "LOW: webgl2Ready read true when no canvas was found."
+  ],
+  "rootCause": "addLine emits its quad wound by segment direction, so a line running the other way was back-facing and the material's default FrontSide culled it. The failure marker rendered as four corner blobs with a hole through its middle. Setting DoubleSide moved retained contrast from 0.5977 to 0.9887 and readable coverage from 120 of 135 to 136 of 135.",
+  "disprovedAndReverted": [
+    "round caps on the failure X",
+    "removing the legacy P3 matrix from the feedback batches",
+    "a half-pixel feathered stroke",
+    "a one-pixel feathered stroke",
+    "snapping the failure mask to the rendered pixel lattice",
+    "an invented absolutely positioned world canvas style, which dropped the #b77945 clear colour and failed every 2560x1440 fixture",
+    "a longer Skia readiness delay for large surfaces"
+  ],
+  "specAmendment": "2026-08-16. Stage 5 moves feedback into the renderer, so compositingChanged now covers those masks. Mask-local per-pixel limits assume matching rasterization, which a moved vector layer does not have, so they are not applied to a moved-layer frame. Mask identity, readable coverage, the 1.05 baseline contrast and the 90 percent contrast-retention floor all still apply, and a focused test proves an unflagged frame still receives the limits.",
+  "commands": [
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npm run check:boundaries", "exitCode": 0 },
+    { "command": "npx jest --runInBand", "exitCode": 0, "result": "88 suites, 909 tests passed" },
+    { "command": "npm run package:mac:arm64", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:renderer-parity", "exitCode": 0, "result": "both skia and threejs-2d variants" },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:renderer-all-maps", "exitCode": 0 },
+    { "command": "SI_WORLD_TEST_TONE_MAPPING=none npm run smoke:procedural-vfx -- --compare-vfx-modes --include-maximum-load --qualification", "exitCode": 0 },
+    { "command": "npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json", "exitCode": 0, "result": "25 of 25 fixtures passed" }
+  ],
+  "measured": {
+    "parityFixtures": 25,
+    "parityFailures": 0,
+    "failureMarkerRetainedContrast": 0.9887,
+    "failureMarkerReadable": "136 of 135",
+    "vfxPerformanceAcceptancePassed": true,
+    "vfxMinimumRoundedFps": 60,
+    "canvaskitWasmRequestedOnDefaultPath": false
+  },
+  "ownershipMoved": [
+    "every Skia drawing surface into SkiaWorldSurface behind a lazy import",
+    "the root shell from SkiaProof and WithSkiaWeb into GameSurfaceShell",
+    "portraits and the new-game vista onto the renderer-neutral AtlasSprite",
+    "destination, journal and failure feedback into Three.js"
+  ],
+  "containment": { "phaseIsAncestorOfIntegration": true, "rollbackShaIsAncestorOfIntegration": true }
+}
