@@ -1205,6 +1205,10 @@ export function WorldScene({
     failureMarker: worldFrame.failureMarker ?? null,
     visibleEffectIds: worldFrame.visibleEffectIds,
     fallbackEmitterIds: worldFrame.fallbackEmitterIds,
+    // Stage 3 amendment 2026-08-15: proves which effects the fallback-circle batch actually draws.
+    fallbackEffectIds: worldFrame.fallbackEffects
+      .map(({ id }) => id)
+      .sort((left, right) => left.localeCompare(right, 'en')),
   }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
   const selectedScreen = worldToScreen(camera, {
     x: worldFrame.selectionRing.worldX,
