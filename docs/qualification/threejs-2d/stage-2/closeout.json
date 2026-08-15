@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "stage": 2,
+  "status": "complete",
+  "qualifiedCodeCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+  "evidenceCommit": "6519f4d265f5f246e26a1e5241753fb1829f9208",
+  "mergeCommit": "edcba97d84174fc67a1f810b606801d2efc9311e",
+  "phaseBaseCommit": "0e1e9f3ff03a903ab4d34c956f8821528ae60991",
+  "rollbackAuthority": {
+    "kind": "commit-sha",
+    "commit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+    "convenienceTag": "threejs-2d-stage-0-skia-qualified",
+    "stageRevertTarget": "0e1e9f3ff03a903ab4d34c956f8821528ae60991"
+  },
+  "opusAudit": {
+    "status": "passed-after-fixes",
+    "confirmedFindings": 5,
+    "fixedFindings": 5,
+    "fixes": [
+      "Split Three.js-rendered masks from shared Stage 2 composite masks and restored the shared-overlay disclosure.",
+      "Marked the shipping Three.js shader unqualified until the comparison-only color transform is removed or requalified.",
+      "Prevented equal-vertex index-buffer overflow and converted frame failures into the renderer recovery state.",
+      "Rejected zero-signal masks and replaced the hidden exterior door sample with a visible active interior door.",
+      "Asserted packaged GPU counts across context recovery and tested resource disposal across unmount and remount."
+    ]
+  },
+  "verification": {
+    "commands": [
+      { "command": "npm run check:boundaries", "exitCode": 0 },
+      { "command": "npm run typecheck", "exitCode": 0 },
+      { "command": "npm test", "exitCode": 0, "testSuites": 87, "tests": 889 },
+      { "command": "npm run package:electron", "exitCode": 0, "platform": "macos-arm64" },
+      { "command": "npm run smoke:renderer-parity", "exitCode": 0, "fixtures": 6, "requiredMasks": 8 },
+      { "command": "npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-villa-v1.json", "exitCode": 0 },
+      { "command": "SI_WORLD_TEST_RENDERER=skia npm run smoke:electron", "exitCode": 0, "rendererFps": 130.02 },
+      { "command": "SI_WORLD_TEST_RENDERER=threejs-2d npm run smoke:electron", "exitCode": 0, "rendererFps": 137.69 }
+    ],
+    "visualParity": {
+      "maximumChangedOutsideMaskRatio": 0.003916,
+      "maximumAllowedChangedOutsideMaskRatio": 0.005,
+      "maximumRequiredMaskChannelDelta": 8,
+      "maximumAllowedRequiredMaskChannelDelta": 8,
+      "minimumContrastRetention": 0.933207,
+      "minimumAllowedContrastRetention": 0.9,
+      "minimumBaselineContrast": 1.065172,
+      "minimumAllowedBaselineContrast": 1.05,
+      "passed": true
+    },
+    "contextLifecycle": {
+      "lossOverlayObserved": true,
+      "restored": true,
+      "gpuBefore": { "geometries": 17, "programs": 2, "textures": 2 },
+      "gpuAfter": { "geometries": 17, "programs": 2, "textures": 2 },
+      "passed": true
+    },
+    "qualificationScope": {
+      "threeJsRenderedMasks": 4,
+      "sharedCompositeMasks": 4,
+      "shippingThreeJsShaderQualified": false,
+      "finalCutoverBlockedUntilStage7Requalification": true
+    },
+    "remoteGate": "not-required-for-stage-2"
+  },
+  "containment": {
+    "qualifiedCodeInMerge": true,
+    "evidenceCommitInMerge": true,
+    "rollbackCommitExists": true,
+    "rollbackCommitInIntegrationHistory": true,
+    "integrationWorktreeCleanBeforeCloseout": true,
+    "localPhaseWorktreeAndBranchPruned": true,
+    "remotePhaseBranch": "retained-until-main-contains-phase"
+  }
+}
