@@ -3,9 +3,11 @@ import {
   CanvasTexture,
   ClampToEdgeWrapping,
   Color,
+  ColorManagement,
   Float32BufferAttribute,
   LinearFilter,
   Material,
+  Matrix3,
   Mesh,
   MeshBasicMaterial,
   NearestFilter,
@@ -14,6 +16,7 @@ import {
   Scene,
   ShaderMaterial,
   SRGBColorSpace,
+  SRGBTransfer,
   Texture,
   TextureLoader,
   Uint32BufferAttribute,
@@ -31,6 +34,26 @@ import type {
 import type { CameraState, ViewportSize } from '../camera';
 
 const TILE_SIZE = 32;
+const DISPLAY_P3_COLOR_SPACE = 'display-p3';
+// CanvasKit interprets the untagged legacy atlas as Display P3; preserve that established output.
+ColorManagement.define({
+  [DISPLAY_P3_COLOR_SPACE]: {
+    primaries: [0.68, 0.32, 0.265, 0.69, 0.15, 0.06],
+    whitePoint: [0.3127, 0.329],
+    transfer: SRGBTransfer,
+    toXYZ: new Matrix3().set(
+      0.4865709, 0.2656677, 0.1982173,
+      0.2289746, 0.6917385, 0.0792869,
+      0, 0.0451134, 1.0439444,
+    ),
+    fromXYZ: new Matrix3().set(
+      2.4934969, -0.9313836, -0.4027108,
+      -0.829489, 1.7626641, 0.0236247,
+      0.0358458, -0.0761724, 0.9568845,
+    ),
+    luminanceCoefficients: [0.2289, 0.6917, 0.0793],
+  },
+});
 const COMPOSITE_BATCHES = [
   'floor-and-ground-detail',
   'doors',
@@ -354,7 +377,7 @@ export class ThreeWorldRenderer {
     renderer.sortObjects = false;
     renderer.setClearColor('#17201b', 1);
     const atlasTexture = await new TextureLoader().loadAsync(atlasUrl);
-    atlasTexture.colorSpace = SRGBColorSpace;
+    atlasTexture.colorSpace = DISPLAY_P3_COLOR_SPACE;
     atlasTexture.magFilter = NearestFilter;
     atlasTexture.minFilter = NearestFilter;
     atlasTexture.generateMipmaps = false;
