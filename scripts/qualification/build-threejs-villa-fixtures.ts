@@ -5,17 +5,18 @@ import { PNG } from 'pngjs';
 
 const stageIndex = process.argv.indexOf('--stage');
 const stageArgument = stageIndex === -1 ? '2' : process.argv[stageIndex + 1];
-if (stageArgument !== '2' && stageArgument !== '3') throw new Error('--stage must be 2 or 3.');
+if (stageArgument !== '2' && stageArgument !== '3' && stageArgument !== '4') throw new Error('--stage must be 2, 3 or 4.');
 const stage = Number(stageArgument);
 const REPORT = stage === 2
   ? 'output/verification/threejs-2d/stage-2/parity-package/renderer-parity-package-report.json'
-  : 'output/verification/threejs-2d/stage-3/specialized-package/renderer-parity-package-report.json';
+  : `output/verification/threejs-2d/stage-${stage}/specialized-package/renderer-parity-package-report.json`;
 const CAPTURE_OUTPUT = stage === 2
   ? 'artifacts/threejs-2d/stage-2/captures'
-  : 'artifacts/threejs-2d/stage-3/captures/specialized';
+  : `artifacts/threejs-2d/stage-${stage}/captures/specialized`;
 const FIXTURE_OUTPUT = stage === 2
   ? 'tests/fixtures/rendering/threejs-villa'
   : 'tests/fixtures/rendering/threejs-stage-3-specialized';
+// Stage 4 reuses the Stage 3 specialized fixture paths; only its evidence source differs.
 const FIXTURE_SET_OUTPUT = stage === 2
   ? 'tests/fixtures/rendering/threejs-villa-v1.json'
   : 'tests/fixtures/rendering/threejs-stage-3-specialized-v1.json';
