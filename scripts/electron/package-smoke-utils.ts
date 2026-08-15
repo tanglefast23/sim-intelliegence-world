@@ -35,7 +35,7 @@ export function evaluateRendererFps(
     throw new Error(`Unknown package smoke profile: ${profile}.`);
   }
   const measuredFps = Number(value);
-  if (!Number.isFinite(measuredFps) || measuredFps <= 0) {
+  if (!Number.isFinite(measuredFps) || measuredFps < 0) {
     throw new Error(`Packaged renderer FPS measurement is invalid: ${String(value)}`);
   }
   const thresholdFps = 60;

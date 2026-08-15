@@ -1510,7 +1510,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const beforePan = await cameraLabel(window);
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(center.x), y: Math.round(center.y), button: 'middle', clickCount: 1 });
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 32), y: Math.round(center.y), button: 'middle' });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  await waitForRendererPaint(window);
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle' });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle', clickCount: 1 });
@@ -1535,17 +1535,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   bounds = await surfaceBounds(window);
   const wheelX = Math.round(bounds.x + bounds.width / 2);
   const wheelY = Math.round(bounds.y + bounds.height / 2);
-  await window.webContents.executeJavaScript(`(() => {
-    const element = document.querySelector('#world-input-surface');
-    if (!(element instanceof HTMLElement)) throw new Error('World input surface is missing.');
-    element.dispatchEvent(new WheelEvent('wheel', {
-      bubbles: true,
-      cancelable: true,
-      clientX: ${wheelX},
-      clientY: ${wheelY},
-      deltaY: -100,
-    }));
-  })()`, true);
+  window.webContents.sendInputEvent({
+    type: 'mouseWheel', x: wheelX, y: wheelY, deltaY: 100, canScroll: false,
+  });
   await waitForRendererPaint(window);
   const wheelZoom = (await cameraLabel(window)).endsWith('at 2.1x');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 300));

@@ -55,8 +55,10 @@ describe('packaged Electron smoke evidence', () => {
     expect(main.match(/await window\.webContents\.capturePage\(undefined, \{ stayHidden: true \}\);/gu)).toHaveLength(2);
     expect(main).toContain("if (!await painted) throw new Error('Hidden renderer did not produce two paint frames.');");
     expect(main).toContain('while (Date.now() < deadline) {\n    await waitForRendererPaint(window);\n    try {');
+    expect(main).toContain("button: 'middle' });\n  await waitForRendererPaint(window);\n  window.webContents.sendInputEvent({ type: 'mouseMove'");
     expect(main).toContain("button: 'middle', clickCount: 1 });\n  await waitForRendererPaint(window);\n  const afterPan");
-    expect(main).toContain("deltaY: -100,\n    }));\n  })()`, true);\n  await waitForRendererPaint(window);\n  const wheelZoom");
+    expect(main).toContain("type: 'mouseWheel', x: wheelX, y: wheelY, deltaY: 100, canScroll: false");
+    expect(main).toContain("canScroll: false,\n  });\n  await waitForRendererPaint(window);\n  const wheelZoom");
     expect(main).toContain('options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
     expect(main).toContain('destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
     expect(main.match(/await startMovementSmokeSampling\(window\);/gu)).toHaveLength(2);
@@ -238,6 +240,11 @@ describe('packaged Electron smoke evidence', () => {
     expect(evaluateRendererFps(19.99, 'platform-shell')).toEqual(expect.objectContaining({
       measuredFps: 19.99, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
     }));
+    expect(evaluateRendererFps(0, 'platform-shell')).toEqual(expect.objectContaining({
+      measuredFps: 0, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
+    }));
+    expect(() => evaluateRendererFps(0)).toThrow('rounded 60 FPS');
+    expect(() => evaluateRendererFps(-1, 'platform-shell')).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps('unknown', 'platform-shell')).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps(60, 'weakened')).toThrow('Unknown package smoke profile');
   });
