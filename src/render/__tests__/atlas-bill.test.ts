@@ -99,7 +99,12 @@ describe('runtime atlas bill and movement contract', () => {
   });
 
   test('uses one immutable presentation index and a bounded static ground-detail batch', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+    // Skia drawing surface. Together they are the scene these contracts describe.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    ].join('\n');
     const frame = readFileSync(resolve(process.cwd(), 'src/render/world-frame.ts'), 'utf8');
     const map = WORLD_MAP_CATALOG.northwest_residential;
     expect(Object.isFrozen(map.presentation)).toBe(true);
@@ -117,7 +122,12 @@ describe('runtime atlas bill and movement contract', () => {
   });
 
   test('draws broad character shadows and places the selection ring behind characters', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+    // Skia drawing surface. Together they are the scene these contracts describe.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    ].join('\n');
     expect(scene).toContain('strokeWidth={9 * camera.zoom}');
     expect(scene).toContain('width={22 * camera.zoom}');
     expect(scene.indexOf('<Oval\n              color={worldFrame.selectionRing.color}')).toBeGreaterThan(scene.indexOf('slice(0, 3).map(renderLayer)'));
@@ -125,7 +135,12 @@ describe('runtime atlas bill and movement contract', () => {
   });
 
   test('collapses the self card until the player selects someone interesting', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+    // Skia drawing surface. Together they are the scene these contracts describe.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    ].join('\n');
     expect(scene).toContain("compact={selected === 'protagonist' && reactionId !== 'protagonist'}");
   });
 });

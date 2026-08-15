@@ -1,20 +1,11 @@
-import {
-  Atlas,
-  Canvas,
-  Circle,
-  FilterMode,
-  Group,
-  Line,
-  MipmapMode,
-  Oval,
-  RoundedRect,
-  Skia,
-  rect,
-  useImage,
-  vec,
-} from '@shopify/react-native-skia';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+// Every Skia drawing surface lives behind this boundary so the Three.js path never evaluates the
+// Skia module body, which reads global.CanvasKit at import time. Stage 7 deletes it.
+const LazySkiaWorldSurface = lazy(async () => ({
+  default: (await import('./SkiaWorldSurface')).SkiaWorldSurface,
+}));
 
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { useReducedMotion } from '../application/accessibility';
@@ -100,14 +91,12 @@ import {
   type ViewportSize,
 } from './camera';
 import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
-import { AtmosphereOverlay } from './AtmosphereOverlay';
-import { DistrictLightingOverlay } from './DistrictLightingOverlay';
 import { ThreeWorldSurface } from './ThreeWorldSurface';
 import type { RendererKind } from './renderer-selection';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
-import { ProceduralMapEffects, PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
+import { PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
 import { advanceAmbientVfxClock, INITIAL_AMBIENT_VFX_CLOCK } from './vfx/clock';
 import {
   VFX_KINDS,
@@ -127,7 +116,6 @@ import {
 } from './world-frame';
 
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
-const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
 type GroundedVisual = Readonly<{
@@ -142,30 +130,6 @@ type RuntimeViewState = Readonly<{
   worldState: WorldState;
 }>;
 
-function atlasData(placements: readonly Readonly<{
-  scale: number;
-  source: AtlasRectangle;
-  worldX: number;
-  worldY: number;
-}>[], zoom: number) {
-  return {
-    sprites: placements.map(({ source }) => rect(source.x, source.y, source.width, source.height)),
-    transforms: placements.map(({ scale, worldX, worldY }) => {
-      return Skia.RSXform(zoom * scale, 0, worldX * zoom, worldY * zoom);
-    }),
-  };
-}
-
-function characterAtlasData(placements: readonly WorldCharacterPlacement[], zoom: number) {
-  return {
-    sprites: placements.map(({ source }) => rect(source.x, source.y, source.width, source.height)),
-    transforms: placements.map(({ worldX, worldY, angleDegrees = 0 }) => {
-      if (angleDegrees === 0) return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
-      const transform = bottomPivotTransform({ worldX, worldY, zoom, angleDegrees });
-      return Skia.RSXform(transform.scos, transform.ssin, transform.tx, transform.ty);
-    }),
-  };
-}
 
 function groundedBatches(visuals: readonly GroundedVisual[]): readonly GroundedVisual[][] {
   return visuals.reduce<GroundedVisual[][]>((batches, visual) => {
@@ -294,7 +258,6 @@ export function WorldScene({
   rendererKind = 'skia',
   surface,
 }: WorldSceneProps) {
-  const image = useImage(rendererKind === 'skia' ? atlasImage : null);
   const reducedMotion = useReducedMotion();
   const playVocalCue = useVocalCues();
   const initialTile = useMemo(() => ({
@@ -1107,8 +1070,6 @@ export function WorldScene({
     }),
     [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, rendererParityPulseFrozen, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
   );
-  const floorAtlas = useMemo(() => atlasData(worldFrame.floors, camera.zoom), [camera.zoom, worldFrame.floors]);
-  const groundDetailAtlas = useMemo(() => atlasData(worldFrame.groundDetails, camera.zoom), [camera.zoom, worldFrame.groundDetails]);
   const propById = new Map(worldFrame.props.map((prop) => [prop.id, prop]));
   const characterById = new Map(worldFrame.characters.map((character) => [character.id, character]));
   const groundedVisuals = worldFrame.groundedOrder.flatMap((entry: WorldGroundedEntry): GroundedVisual[] => {
@@ -1116,18 +1077,12 @@ export function WorldScene({
     return placement ? [{ ...entry, placement }] : [];
   });
   const groundBatches = groundedBatches(groundedVisuals);
-  const wallAtlas = useMemo(() => atlasData(worldFrame.walls, camera.zoom), [camera.zoom, worldFrame.walls]);
   const vfxCamera = useMemo(() => ({
     x: camera.x,
     y: camera.y,
     zoom: camera.zoom,
     dpr,
   }), [camera.x, camera.y, camera.zoom, dpr]);
-  const roofAtlas = useMemo(() => atlasData(worldFrame.roofs, camera.zoom), [camera.zoom, worldFrame.roofs]);
-  const atlasCameraTransform = useMemo(() => [
-    { translateX: -camera.x * camera.zoom },
-    { translateY: -camera.y * camera.zoom },
-  ], [camera.x, camera.y, camera.zoom]);
   const drawCounts = worldFrame.drawCounts;
   const staticBatchCount = 1 + (worldFrame.groundDetails.length > 0 ? 1 : 0);
   const responsiveEvidenceInput = useRef({
@@ -1248,139 +1203,9 @@ export function WorldScene({
     };
   }, [smokeMode]);
 
-  useEffect(() => {
-    if (rendererKind !== 'skia' || !image) return undefined;
-    const frame = requestAnimationFrame(() => requestAnimationFrame(onWorldReady));
-    return () => cancelAnimationFrame(frame);
-  }, [image, onWorldReady, rendererKind]);
-
   const handleRendererContextState = useCallback((state: 'lost' | 'restored' | 'timed-out') => {
     setRendererContextState(state === 'restored' ? 'ready' : state);
   }, []);
-
-  if (rendererKind === 'skia' && !image) {
-    return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
-  }
-
-  const renderLayer = (layer: WorldLayer) => {
-    switch (layer) {
-      case 'floor':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            <Atlas image={image} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} />
-            {worldFrame.groundDetails.length > 0 ? (
-              <Atlas image={image} sampling={NEAREST} sprites={groundDetailAtlas.sprites} transforms={groundDetailAtlas.transforms} />
-            ) : null}
-            {worldFrame.doorWear.map((door) => {
-              const horizontal = door.horizontal;
-              return (
-                <Group key={`door-wear-${door.id}`}>
-                  <Line color={door.darkColor} p1={vec((door.worldX + (horizontal ? 5 : 24)) * camera.zoom, (door.worldY + (horizontal ? 29 : 6)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 15 : 27)) * camera.zoom, (door.worldY + (horizontal ? 31 : 16)) * camera.zoom)} strokeCap="round" strokeWidth={2 * camera.zoom} />
-                  <Line color={door.lightColor} p1={vec((door.worldX + (horizontal ? 17 : 27)) * camera.zoom, (door.worldY + (horizontal ? 28 : 18)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 25 : 25)) * camera.zoom, (door.worldY + (horizontal ? 30 : 26)) * camera.zoom)} strokeCap="round" strokeWidth={camera.zoom} />
-                </Group>
-              );
-            })}
-          </Group>
-        );
-      case 'prop':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            {(() => {
-              const doors = atlasData(worldFrame.doors, camera.zoom);
-              return <Atlas image={image} sampling={NEAREST} sprites={doors.sprites} transforms={doors.transforms} />;
-            })()}
-          </Group>
-        );
-      case 'shadow':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            {worldFrame.propShadows.map((shadow) => (
-              <Group key={`prop-shadow-${shadow.id}`}>
-                {shadow.long ? (
-                  <Line
-                    color={lighting.shadow.color}
-                    p1={vec((shadow.worldX + shadow.width / 2) * camera.zoom, shadow.worldY * camera.zoom)}
-                    p2={vec((shadow.worldX + shadow.width / 2 + lighting.shadow.x) * camera.zoom, (shadow.worldY + lighting.shadow.y) * camera.zoom)}
-                    strokeCap="round"
-                    strokeWidth={4 * camera.zoom}
-                  />
-                ) : null}
-                <RoundedRect
-                  color={lighting.shadow.color}
-                  height={4 * camera.zoom}
-                  r={2 * camera.zoom}
-                  width={shadow.width * camera.zoom}
-                  x={shadow.worldX * camera.zoom}
-                  y={shadow.worldY * camera.zoom}
-                />
-              </Group>
-            ))}
-            {worldFrame.thresholds.map((door) => (
-              <Group key={`threshold-${door.id}`}>
-                <RoundedRect color={door.darkColor} height={5 * camera.zoom} r={camera.zoom} width={26 * camera.zoom} x={(door.worldX + 3) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
-                <RoundedRect color={door.lightColor} height={camera.zoom} r={camera.zoom / 2} width={20 * camera.zoom} x={(door.worldX + 6) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
-              </Group>
-            ))}
-            {worldFrame.characterShadows.map((character) => (
-              <Group key={`shadow-${character.id}`}>
-                <Line
-                  color={lighting.shadow.color}
-                  p1={vec((character.worldX + 5) * camera.zoom, (character.worldY + 1) * camera.zoom)}
-                  p2={vec((character.worldX + character.castX) * camera.zoom, (character.worldY + character.castY) * camera.zoom)}
-                  strokeCap="round"
-                  strokeWidth={9 * camera.zoom}
-                />
-                <RoundedRect color={character.color} height={7 * camera.zoom} r={3.5 * camera.zoom} width={22 * camera.zoom} x={(character.worldX - 4) * camera.zoom} y={character.worldY * camera.zoom} />
-              </Group>
-            ))}
-          </Group>
-        );
-      case 'character':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            {groundBatches.map((batch, index) => {
-              const kind = batch[0]?.kind;
-              if (!kind) return null;
-              const data = kind === 'prop'
-                ? atlasData(batch.map(({ placement }) => placement as WorldPropPlacement), camera.zoom)
-                : characterAtlasData(batch.map(({ placement }) => placement as WorldCharacterPlacement), camera.zoom);
-              return <Atlas image={image} key={`${kind}-${index}`} sampling={NEAREST} sprites={data.sprites} transforms={data.transforms} />;
-            })}
-          </Group>
-        );
-      case 'effect': {
-        return (
-          <Group key={layer}>
-            {vfxMode === 'procedural' ? (
-              <ProceduralMapEffects
-                camera={vfxCamera}
-                colors={worldFrame.effectRoleColors}
-                geometries={worldFrame.effects}
-              />
-            ) : null}
-            {worldFrame.fallbackEffects.map((effect) => {
-          const screen = worldToScreen(camera, { x: effect.worldX, y: effect.worldY });
-          return <Circle color={effect.color} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
-            })}
-          </Group>
-        );
-      }
-      case 'wall':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            <Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} />
-            {worldFrame.wallBases.map((wall) => (
-              <Group key={`wall-base-${wall.id}`}>
-                <RoundedRect color={wall.darkColor} height={5 * camera.zoom} r={camera.zoom} width={30 * camera.zoom} x={(wall.worldX + 1) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
-                <RoundedRect color={wall.lightColor} height={camera.zoom} r={camera.zoom / 2} width={26 * camera.zoom} x={(wall.worldX + 3) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
-              </Group>
-            ))}
-          </Group>
-        );
-      case 'roof':
-        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} /></Group>;
-    }
-  };
 
   return (
     <WorldInput
@@ -1406,78 +1231,21 @@ export function WorldScene({
                 onContextStateChange={handleRendererContextState}
                 onReady={onWorldReady}
               />
-            ) : <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
-            {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
-            <Oval
-              color={worldFrame.selectionRing.color}
-              rect={rect(
-                selectedScreen.x - worldFrame.selectionRing.radiusX * camera.zoom,
-                selectedScreen.y - worldFrame.selectionRing.radiusY * camera.zoom,
-                worldFrame.selectionRing.radiusX * camera.zoom * 2,
-                worldFrame.selectionRing.radiusY * camera.zoom * 2,
-              )}
-              style="stroke"
-              strokeWidth={worldFrame.selectionRing.strokeWidth}
-            />
-            {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
-            {worldFrame.layerOrder.slice(6).map(renderLayer)}
-            </Canvas>}
-            {rendererKind === 'skia' ? shelterCells.map((shelter) => {
-              const shelterScreen = worldToScreen(camera, { x: shelter.x * TILE_SIZE, y: shelter.y * TILE_SIZE });
-              return <View
-                key={`${shelter.x},${shelter.y}`}
-                pointerEvents="none"
-                style={[
-                  styles.shelterShade,
-                  { backgroundColor: lighting.shelterShade },
-                  {
-                    height: shelter.height * TILE_SIZE * camera.zoom,
-                    left: shelterScreen.x,
-                    top: shelterScreen.y,
-                    width: shelter.width * TILE_SIZE * camera.zoom,
-                  },
-                ]}
-              />;
-            }) : null}
-            {/* Stage 4: Three.js owns district lighting, atmosphere and feedback. These React
-                overlays stay only on the temporary Skia path, and Stage 7 deletes them. */}
-            {rendererKind === 'skia' ? <DistrictLightingOverlay
-              camera={camera}
-              lighting={worldFrame.lighting}
-              surface={surface}
-            /> : null}
-            {rendererKind === 'skia' ? <AtmosphereOverlay
-              atmosphere={worldFrame.atmosphere}
-              reducedMotion={reducedMotion}
-            /> : null}
-            <Canvas style={StyleSheet.flatten([styles.feedbackCanvas, surface])}>
-              {worldFrame.destinationPulse ? (() => {
-                const pulse = worldFrame.destinationPulse;
-                const screen = worldToScreen(camera, { x: pulse.worldX, y: pulse.worldY });
-                const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
-                return <Circle color={`${pulse.color}${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
-              })() : null}
-              {worldFrame.journalMarkers.map((marker) => {
-                const foot = worldToScreen(camera, tileFootPoint(marker.tile));
-                const centerX = foot.x - 10 * camera.zoom;
-                const centerY = foot.y - 30 * camera.zoom;
-                return (
-                  <Group key={`journal-marker-${marker.journalEntryId}`}>
-                    <Line color={marker.darkColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
-                    <Line color={marker.lightColor} p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
-                    <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={7 * camera.zoom} />
-                    <Circle color={marker.lightColor} cx={centerX} cy={centerY} r={5 * camera.zoom} />
-                    <Circle color={marker.darkColor} cx={centerX} cy={centerY} r={2 * camera.zoom} />
-                  </Group>
-                );
-              })}
-              {feedbackScreen && worldFrame.failureMarker ? (
-                <>
-                  <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
-                  <Line color={worldFrame.failureMarker.color} p1={vec(feedbackScreen.x + worldFrame.failureMarker.radiusPixels, feedbackScreen.y - worldFrame.failureMarker.radiusPixels)} p2={vec(feedbackScreen.x - worldFrame.failureMarker.radiusPixels, feedbackScreen.y + worldFrame.failureMarker.radiusPixels)} strokeWidth={3} />
-                </>
-              ) : null}
-            </Canvas>
+            ) : null}
+            {rendererKind === 'skia' ? (
+              <Suspense fallback={null}>
+                <LazySkiaWorldSurface
+                  camera={camera}
+                  groundBatches={groundBatches}
+                  reducedMotion={reducedMotion}
+                  surface={surface}
+                  vfxCamera={vfxCamera}
+                  onReady={onWorldReady}
+                  vfxMode={vfxMode}
+                  worldFrame={worldFrame}
+                />
+              </Suspense>
+            ) : null}
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}

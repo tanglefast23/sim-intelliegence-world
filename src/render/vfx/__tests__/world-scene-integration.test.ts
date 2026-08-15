@@ -4,7 +4,12 @@ import { resolve } from 'node:path';
 import { WORLD_LAYER_ORDER } from '../../world-frame';
 
 describe('WorldScene procedural VFX integration', () => {
-  const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+  // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
+  // Skia drawing surface. Together they are the scene these contracts describe.
+  const scene = [
+    readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+    readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+  ].join('\n');
   const responsiveEvidence = readFileSync(resolve(process.cwd(), 'src/render/responsive-evidence.ts'), 'utf8');
 
   test('preserves the seven-layer order and existing responsive evidence version', () => {
