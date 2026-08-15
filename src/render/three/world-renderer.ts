@@ -182,11 +182,11 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
 
 function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
   const legacyColorTransform = matchLegacyColors ? `
-        gl_FragColor.rgb = clamp(mat3(
+        gl_FragColor.rgb = mat3(
           1.2249401, -0.0420569, -0.0196376,
           -0.2249404, 1.0420571, -0.0786361,
           0.0, 0.0, 1.0982735
-        ) * gl_FragColor.rgb, 0.0, 1.0);
+        ) * gl_FragColor.rgb;
   ` : '';
   return new ShaderMaterial({
     depthTest: false,
