@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "testedCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
   "evidenceSource": {
-    "baseCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
-    "sourceSha256": "c49ecf5edecebada79976ce32290f469585f25d7c189a4612bdfa56a881d364e",
+    "baseCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+    "sourceSha256": "8fd868c998c677647828c6300af2a64a6225323ae7124054dae855b6571f6885",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-all-maps-package-smoke.ts",
@@ -32,7 +32,8 @@
     "northeast-2560x1440-dpr2-zoom1",
     "southwest-1280x720-dpr2-zoom2",
     "southeast-1440x900-dpr2-zoom3",
-    "maximum-load-2560x1440-dpr2-zoom1"
+    "maximum-load-2560x1440-dpr2-zoom1",
+    "fallback-circle-1280x720-dpr1-zoom1"
   ],
   "passes": {
     "skia": {
@@ -46,6 +47,7 @@
             "width": 1280,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northwest-1280x720-dpr1-zoom1-skia.png",
           "state": {
@@ -181,6 +183,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -286,6 +289,7 @@
             "width": 1440,
             "height": 900
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "northeast-1440x900-dpr1-zoom2-skia.png",
           "state": {
@@ -346,6 +350,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -451,6 +456,7 @@
             "width": 1600,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "southwest-1600x720-dpr1-zoom3-skia.png",
           "state": {
@@ -510,6 +516,7 @@
               "courtyard-insects"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -546,6 +553,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "southeast-1920x1080-dpr1-zoom1-skia.png",
           "state": {
@@ -607,6 +615,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -780,6 +789,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northwest-2560x1440-dpr1-zoom1-skia.png",
           "state": {
@@ -918,6 +928,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -1193,6 +1204,7 @@
             "width": 1440,
             "height": 900
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northwest-1440x900-dpr1_25-zoom1-skia.png",
           "state": {
@@ -1330,6 +1342,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -1469,6 +1482,7 @@
             "width": 1600,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "northeast-1600x720-dpr1_25-zoom2-skia.png",
           "state": {
@@ -1529,6 +1543,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -1600,6 +1615,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "southwest-1920x1080-dpr1_25-zoom3-skia.png",
           "state": {
@@ -1660,6 +1676,7 @@
               "courtyard-steam-east"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -1696,6 +1713,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "southeast-2560x1440-dpr1_25-zoom1-skia.png",
           "state": {
@@ -1757,6 +1775,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -1930,6 +1949,7 @@
             "width": 1600,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "northwest-1600x720-dpr1_5-zoom2-skia.png",
           "state": {
@@ -2064,6 +2084,7 @@
               "patio-palm"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -2100,6 +2121,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "northeast-1920x1080-dpr1_5-zoom3-skia.png",
           "state": {
@@ -2160,6 +2182,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -2231,6 +2254,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "southwest-2560x1440-dpr1_5-zoom1-skia.png",
           "state": {
@@ -2292,6 +2316,7 @@
               "courtyard-steam-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -2431,6 +2456,7 @@
             "width": 1280,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "southeast-1280x720-dpr1_5-zoom2-skia.png",
           "state": {
@@ -2490,6 +2516,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -2526,6 +2553,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "northwest-1920x1080-dpr2-zoom3-skia.png",
           "state": {
@@ -2660,6 +2688,7 @@
               "patio-palm"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -2696,6 +2725,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northeast-2560x1440-dpr2-zoom1-skia.png",
           "state": {
@@ -2756,6 +2786,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -2963,6 +2994,7 @@
             "width": 1280,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "southwest-1280x720-dpr2-zoom2-skia.png",
           "state": {
@@ -3022,6 +3054,7 @@
               "courtyard-insects"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -3058,6 +3091,7 @@
             "width": 1440,
             "height": 900
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "southeast-1440x900-dpr2-zoom3-skia.png",
           "state": {
@@ -3117,6 +3151,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -3153,6 +3188,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "maximum-load-2560x1440-dpr2-zoom1-skia.png",
           "state": {
@@ -3291,6 +3327,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -3556,6 +3593,254 @@
             "failureMarker": null
           },
           "rendererEvidence": null
+        },
+        {
+          "devicePixelRatio": 1,
+          "effectId": "patio-fire",
+          "id": "fallback-circle-1280x720-dpr1-zoom1",
+          "mapId": "northwest_residential",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "vfxMode": "circle",
+          "zoom": 1,
+          "screenshot": "fallback-circle-1280x720-dpr1-zoom1-skia.png",
+          "state": {
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "camera": {
+              "x": 255,
+              "y": 695,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "characters": [
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              },
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 868,
+                "worldY": 1122,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 27,
+                  "y": 35
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 1149,
+                "angleDegrees": 0
+              }
+            ],
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "hiddenRoofGroupId": null,
+            "doors": [
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 880,
+                "y": 1149
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 880,
+              "worldY": 1149,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": null,
+            "journalMarkers": [],
+            "failureMarker": null
+          },
+          "rendererEvidence": null
         }
       ]
     },
@@ -3570,6 +3855,7 @@
             "width": 1280,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northwest-1280x720-dpr1-zoom1-threejs-2d.png",
           "state": {
@@ -3705,6 +3991,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -3859,6 +4146,7 @@
             "width": 1440,
             "height": 900
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "northeast-1440x900-dpr1-zoom2-threejs-2d.png",
           "state": {
@@ -3919,6 +4207,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -4073,6 +4362,7 @@
             "width": 1600,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "southwest-1600x720-dpr1-zoom3-threejs-2d.png",
           "state": {
@@ -4132,6 +4422,7 @@
               "courtyard-insects"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -4217,6 +4508,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "southeast-1920x1080-dpr1-zoom1-threejs-2d.png",
           "state": {
@@ -4278,6 +4570,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -4500,6 +4793,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northwest-2560x1440-dpr1-zoom1-threejs-2d.png",
           "state": {
@@ -4638,6 +4932,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -4962,6 +5257,7 @@
             "width": 1440,
             "height": 900
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northwest-1440x900-dpr1_25-zoom1-threejs-2d.png",
           "state": {
@@ -5099,6 +5395,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -5287,6 +5584,7 @@
             "width": 1600,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "northeast-1600x720-dpr1_25-zoom2-threejs-2d.png",
           "state": {
@@ -5347,6 +5645,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -5467,6 +5766,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "southwest-1920x1080-dpr1_25-zoom3-threejs-2d.png",
           "state": {
@@ -5527,6 +5827,7 @@
               "courtyard-steam-east"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -5612,6 +5913,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "southeast-2560x1440-dpr1_25-zoom1-threejs-2d.png",
           "state": {
@@ -5673,6 +5975,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -5895,6 +6198,7 @@
             "width": 1600,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "northwest-1600x720-dpr1_5-zoom2-threejs-2d.png",
           "state": {
@@ -6029,6 +6333,7 @@
               "patio-palm"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -6114,6 +6419,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "northeast-1920x1080-dpr1_5-zoom3-threejs-2d.png",
           "state": {
@@ -6174,6 +6480,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -6294,6 +6601,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "southwest-2560x1440-dpr1_5-zoom1-threejs-2d.png",
           "state": {
@@ -6355,6 +6663,7 @@
               "courtyard-steam-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -6543,6 +6852,7 @@
             "width": 1280,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "southeast-1280x720-dpr1_5-zoom2-threejs-2d.png",
           "state": {
@@ -6602,6 +6912,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -6687,6 +6998,7 @@
             "width": 1920,
             "height": 1080
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "northwest-1920x1080-dpr2-zoom3-threejs-2d.png",
           "state": {
@@ -6821,6 +7133,7 @@
               "patio-palm"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -6906,6 +7219,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "northeast-2560x1440-dpr2-zoom1-threejs-2d.png",
           "state": {
@@ -6966,6 +7280,7 @@
               "club-neon-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -7222,6 +7537,7 @@
             "width": 1280,
             "height": 720
           },
+          "vfxMode": "procedural",
           "zoom": 2,
           "screenshot": "southwest-1280x720-dpr2-zoom2-threejs-2d.png",
           "state": {
@@ -7281,6 +7597,7 @@
               "courtyard-insects"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -7366,6 +7683,7 @@
             "width": 1440,
             "height": 900
           },
+          "vfxMode": "procedural",
           "zoom": 3,
           "screenshot": "southeast-1440x900-dpr2-zoom3-threejs-2d.png",
           "state": {
@@ -7425,6 +7743,7 @@
               "yard-steam"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [],
             "doorPhases": {},
@@ -7510,6 +7829,7 @@
             "width": 2560,
             "height": 1440
           },
+          "vfxMode": "procedural",
           "zoom": 1,
           "screenshot": "maximum-load-2560x1440-dpr2-zoom1-threejs-2d.png",
           "state": {
@@ -7648,6 +7968,7 @@
               "shoreline-water-glint-west"
             ],
             "fallbackEmitterIds": [],
+            "fallbackEffectIds": [],
             "hiddenRoofGroupId": null,
             "doors": [
               {
@@ -7953,6 +8274,303 @@
               "walls": 258,
               "wall-bases": 244,
               "roofs": 648,
+              "shelter-shade": 0,
+              "district-shadows": 0,
+              "district-light-pools": 0,
+              "atmosphere": 0,
+              "destination-pulse": 0,
+              "journal-markers": 0,
+              "failure-marker": 0
+            }
+          }
+        },
+        {
+          "devicePixelRatio": 1,
+          "effectId": "patio-fire",
+          "id": "fallback-circle-1280x720-dpr1-zoom1",
+          "mapId": "northwest_residential",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "vfxMode": "circle",
+          "zoom": 1,
+          "screenshot": "fallback-circle-1280x720-dpr1-zoom1-threejs-2d.png",
+          "state": {
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "camera": {
+              "x": 255,
+              "y": 695,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "characters": [
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              },
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 868,
+                "worldY": 1122,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 27,
+                  "y": 35
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 1149,
+                "angleDegrees": 0
+              }
+            ],
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "hiddenRoofGroupId": null,
+            "doors": [
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 880,
+                "y": 1149
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 880,
+              "worldY": 1149,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": null,
+            "journalMarkers": [],
+            "failureMarker": null
+          },
+          "rendererEvidence": {
+            "rendererKind": "threejs-2d",
+            "toneMapping": "none",
+            "explicitSort": true,
+            "drawCalls": 10,
+            "atlasDrawCalls": 5,
+            "gpu": {
+              "drawCalls": 17,
+              "geometries": 17,
+              "programs": 2,
+              "textures": 2
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1,
+            "trianglesByBatch": {
+              "floor-and-ground-detail": 1694,
+              "doors": 4,
+              "door-wear": 264,
+              "contact-shadows-and-thresholds": 1718,
+              "selection-ring": 64,
+              "grounded-props-and-characters": 94,
+              "effects": 160,
+              "walls": 56,
+              "wall-bases": 72,
+              "roofs": 180,
               "shelter-shade": 0,
               "district-shadows": 0,
               "district-light-pools": 0,

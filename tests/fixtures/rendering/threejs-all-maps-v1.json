@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureSet": "threejs-all-maps-stage-3",
-  "sourceCommit": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
   "mode": "parity",
   "fixtures": [
     {
@@ -99,6 +99,10 @@
     {
       "id": "maximum-load-2560x1440-dpr2-zoom1",
       "manifest": "tests/fixtures/rendering/threejs-all-maps/maximum-load-2560x1440-dpr2-zoom1-v1.json"
+    },
+    {
+      "id": "fallback-circle-1280x720-dpr1-zoom1",
+      "manifest": "tests/fixtures/rendering/threejs-all-maps/fallback-circle-1280x720-dpr1-zoom1-v1.json"
     }
   ]
 }

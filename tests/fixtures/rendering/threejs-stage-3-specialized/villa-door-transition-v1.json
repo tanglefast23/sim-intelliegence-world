@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "villa-door-transition",
-  "sourceCommit": "cc9d21a609f1a067e12aa071d25e303d2ca90d12",
+  "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
   "mode": "parity",
   "viewport": {
     "width": 1280,
