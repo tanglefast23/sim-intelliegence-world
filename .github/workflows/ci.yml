@@ -59,6 +59,9 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/package
 
+      - name: Qualify ARM64 macOS maximum-load renderer
+        run: npm run smoke:responsive:qualification -- --output-root output/verification/ci/macos-arm64/maximum-load
+
   package-macos-x64:
     name: package-macos-x64
     runs-on: macos-15
