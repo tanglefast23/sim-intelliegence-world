@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "villa-destination-journal-failure",
-  "sourceCommit": "824529f8d9b986675460d90d363d028bb17487a6",
+  "sourceCommit": "b9f78aadca2043182b29fad505e7b9820c66c76a",
   "mode": "parity",
   "viewport": {
     "width": 1280,
@@ -17,11 +17,11 @@
   "compositingChanged": true,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-4/captures/specialized/villa-destination-journal-failure-skia-1x.png",
+    "image": "artifacts/threejs-2d/stage-5/captures/specialized/villa-destination-journal-failure-skia-1x.png",
     "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-destination-journal-failure-mask-v1.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-4/captures/specialized/villa-destination-journal-failure-threejs-2d-1x.png",
+    "image": "artifacts/threejs-2d/stage-5/captures/specialized/villa-destination-journal-failure-threejs-2d-1x.png",
     "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-destination-journal-failure-mask-v1.json"
   },
   "requiredMaskIds": [

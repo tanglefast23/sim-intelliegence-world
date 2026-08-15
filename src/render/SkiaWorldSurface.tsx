@@ -90,10 +90,19 @@ export function SkiaWorldSurface({
 }>) {
   const image = useImage(atlasImage);
 
-  // The Skia path reports world readiness once the atlas has decoded and two frames have painted.
+  // The Skia path reports world readiness once the atlas has decoded and the canvas has painted.
+  // A large surface needs more than two frames before CanvasKit has filled it, and reporting too
+  // early let the packaged smoke capture backdrop instead of world content at 2530x1410.
   useEffect(() => {
     if (!image) return undefined;
-    const frame = requestAnimationFrame(() => requestAnimationFrame(onReady));
+    let frame = 0;
+    let remaining = 6;
+    const step = (): void => {
+      remaining -= 1;
+      if (remaining <= 0) onReady();
+      else frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
   }, [image, onReady]);
   const lighting = worldFrame.lighting;
