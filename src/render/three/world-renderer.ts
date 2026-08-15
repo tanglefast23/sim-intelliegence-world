@@ -395,11 +395,7 @@ export class ThreeWorldRenderer {
       powerPreference: 'high-performance',
     });
     if (!context) throw new Error('Three.js requires WebGL 2.');
-    // The shaders emit straight (non-premultiplied) alpha, so the renderer must blend with
-    // SRC_ALPHA rather than the premultiplied ONE. Three defaults premultipliedAlpha to true,
-    // which composited every translucent primitive too bright. Shelter shade was small enough to
-    // stay under the outside-mask gate; the full-frame atmosphere wash made it measurable.
-    const renderer = new WebGLRenderer({ canvas, context, alpha: false, antialias: false, powerPreference: 'high-performance', premultipliedAlpha: false });
+    const renderer = new WebGLRenderer({ canvas, context, alpha: false, antialias: false, powerPreference: 'high-performance' });
     renderer.outputColorSpace = SRGBColorSpace;
     // Stage 4 enables ACES in production. Exposure is a recorded calibration value.
     renderer.toneMapping = toneMapping === 'aces' ? ACESFilmicToneMapping : NoToneMapping;
