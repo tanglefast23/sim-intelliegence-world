@@ -30,6 +30,7 @@ const RendererEvidenceSchema = z.object({
     programs: z.number().int().nonnegative().max(3),
     textures: z.number().int().nonnegative().max(2),
   }).strict(),
+  trianglesByBatch: z.record(z.string(), z.number().int().nonnegative()),
 }).passthrough();
 const AtlasSamplingSchema = z.object({
   magFilter: z.literal('nearest'),
@@ -99,16 +100,21 @@ const PassSchema = z.object({
 type Pass = z.infer<typeof PassSchema>;
 
 // Stage 3 amendment 2026-08-15: the approved native and scaled RGB metrics for zoom crops.
+// These are whole-crop averages over a 160x160 region, NOT the specification's mask-local
+// ceilings. The player sprite covers a small share of that crop, so mask-local ceilings would
+// let a badly wrong sprite pass. The scaled values below are derived from the observed crop
+// maxima (mean 1.85, RMSE 7.86, ratio 0.0204) with margin.
 const SCALED_LARGE_CHANNEL_DELTA = 32;
+const MINIMUM_FALLBACK_TRIANGLES_PER_EFFECT = 32;
 const NATIVE_ZOOM_LIMITS = Object.freeze({
   meanAbsoluteChannelDelta: 1,
   rootMeanSquareChannelDelta: 3,
   largeChangedPixelRatio: 0.002,
 });
 const SCALED_ZOOM_LIMITS = Object.freeze({
-  meanAbsoluteChannelDelta: 10,
-  rootMeanSquareChannelDelta: 20,
-  largeChangedPixelRatio: 0.12,
+  meanAbsoluteChannelDelta: 3,
+  rootMeanSquareChannelDelta: 12,
+  largeChangedPixelRatio: 0.04,
 });
 
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
@@ -226,12 +232,19 @@ async function main(): Promise<void> {
       throw new Error(`All-map renderer fixture ${entry.id} did not reach its locked map and effect.`);
     }
     // Stage 3 amendment 2026-08-15: the circle case must actually drive the fallback batch.
-    // Assert both renderers; the Three.js candidate is the one this case exists to prove.
-    if (entry.vfxMode === 'circle' && (
-      !baseline.state.fallbackEffectIds.includes(entry.effectId) ||
-      !candidate.state.fallbackEffectIds.includes(entry.effectId)
-    )) {
-      throw new Error(`All-map renderer fixture ${entry.id} did not render ${entry.effectId} as a fallback circle.`);
+    // Parity state is renderer-neutral and already asserted equal above, so it alone cannot prove
+    // Three.js drew anything. Require real Three.js effect geometry for the locked fallback effects.
+    if (entry.vfxMode === 'circle') {
+      if (!baseline.state.fallbackEffectIds.includes(entry.effectId)) {
+        throw new Error(`All-map renderer fixture ${entry.id} did not reach ${entry.effectId} as a fallback circle.`);
+      }
+      const triangles = candidate.rendererEvidence?.trianglesByBatch.effects ?? 0;
+      const minimum = MINIMUM_FALLBACK_TRIANGLES_PER_EFFECT * candidate.state.fallbackEffectIds.length;
+      if (triangles < minimum) {
+        throw new Error(
+          `All-map renderer fixture ${entry.id} drew ${triangles} Three.js effect triangles, below the ${minimum} required for ${candidate.state.fallbackEffectIds.length} fallback circles.`,
+        );
+      }
     }
     if (baseline.rendererEvidence !== null || candidate.rendererEvidence === null) {
       throw new Error(`All-map renderer evidence ownership is invalid for ${entry.id}.`);

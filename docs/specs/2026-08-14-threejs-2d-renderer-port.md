@@ -480,8 +480,13 @@ Stage 3 therefore keeps feedback in the shared above-lighting overlay.
 Stage 4 already owns the correct sequence: task 7 stops mounting the three React overlays
 on the Three.js path, and task 6 then draws feedback after all lighting and atmosphere
 batches. Feedback ownership moves there, with the same zoom `1`, `2`, and `3` geometry
-check, and the Stage 3 fixture set records that its feedback masks are shared-overlay
-evidence rather than Three.js evidence.
+check.
+
+While that move is pending, the three Stage 3 feedback masks — `destination-pulse`,
+`journal-*`, and `failure-marker` — are drawn by the same shared Skia overlay on both
+sides. They therefore prove that feedback still renders, not that Three.js renders it.
+Stage 3 records that limit here rather than in the fixture schema, and Stage 4 makes
+those masks renderer-discriminating.
 
 **Scaled parity gains bounded mask-local limits.**
 
@@ -511,6 +516,16 @@ At every value from `1.00` through `3.00` in `0.05` steps, both renderers captur
 The main-process crop geometry is identical between renderers.
 The runner decodes the paired PNG crops and measures them with the exported comparator RGB helper.
 It records per-zoom mean absolute RGB delta, RMSE, and ratio above delta `32`, and fails any zoom above the approved native or scaled metric.
+
+Zoom-crop limits are whole-crop averages and are NOT the mask-local ceilings above.
+The player sprite covers a small share of a `160×160` crop, so mask-local ceilings would let a badly wrong sprite pass.
+Zoom `1` at DPR `1` is a native raster comparison and keeps the native limits `1`, `3`, and `0.002`.
+Every other saved zoom uses crop limits derived from the observed crop maxima with margin:
+
+- mean absolute RGB channel delta no greater than `3/255`, against an observed `1.85`;
+- RGB root mean square channel delta no greater than `12/255`, against an observed `7.86`;
+- no more than `4%` of crop pixels above delta `32`, against an observed `0.0204`.
+
 Raw zoom crops stay in ignored `output/` scratch space.
 The measured report is committed.
 
@@ -554,7 +569,7 @@ The hard readability floor is:
 
 Codex is the autonomous visual decider under the user's direction.
 It inspects the decoded native `1×` captures and the manifest.
-The stage-specific Opus audit reviews the manifest, implementation, and evidence contract.
+The stage-specific Fable audit reviews the manifest, implementation, and evidence contract.
 If any locked threshold regresses, the stage fails and must be fixed or rolled back without asking the user to intervene.
 
 ### 7.6 Effects
@@ -774,7 +789,7 @@ The final packaged app must pass with the tighter CSP.
 Every implementation stage ends with the same closeout:
 
 1. run its named verification;
-2. ask Claude Opus 5 for a read-only audit of that stage only;
+2. ask Claude Fable 5 for a read-only audit of that stage only;
 3. verify each finding locally and fix confirmed defects;
 4. rerun the affected verification;
 5. commit the stage, merge it into the integration branch, and prune its branch only after Git proves containment and a clean state.

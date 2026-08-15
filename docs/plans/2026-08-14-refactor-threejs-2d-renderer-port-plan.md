@@ -100,7 +100,7 @@ For Stages 0, 6, and 7:
 3. Push that exact phase branch under the narrow authorization obtained before Stage 0.
 4. Wait for the required macOS and Windows release jobs plus platform-neutral CI checks on that SHA.
 5. Keep the phase branch and worktree until the remote gate passes.
-6. If a job fails, fix it on that phase branch, rerun the Opus audit when the diff changes materially, recommit, push the new SHA, and repeat.
+6. If a job fails, fix it on that phase branch, rerun the Fable audit when the diff changes materially, recommit, push the new SHA, and repeat.
 7. Do not mark the remote gate complete from a local result.
 
 Final main push remains separately unauthorized.
@@ -129,7 +129,7 @@ Only one stage is active at a time.
 1. Run the stage's narrow checks.
 2. Run its broader non-visible checks.
 3. Run hidden packaged checks only after confirming the harness keeps Electron hidden and muted.
-4. Ask Claude Opus 5 at `xhigh` for one read-only audit of the stage diff against the integration branch.
+4. Ask Claude Fable 5 at `xhigh` for one read-only audit of the stage diff against the integration branch. Opus writes this port, so Opus may not audit it.
 5. Verify every finding locally.
 6. Fix only confirmed in-scope defects.
 7. Rerun affected checks and the stage exit gate.
@@ -139,7 +139,7 @@ Only one stage is active at a time.
 11. Merge the stage branch into `codex/threejs-2d-port` with a merge commit.
 12. Prove the phase commit is an ancestor of the integration tip.
 13. Run `git cat-file -e <rollback-sha>^{commit}` and `git merge-base --is-ancestor <rollback-sha> codex/threejs-2d-port`; both must exit `0`.
-14. Write `docs/qualification/threejs-2d/stage-N/closeout.json` on the integration branch with the phase commit SHA, integration merge SHA, commands, exit codes, Opus result, remote result when required, containment result, and rollback-SHA results.
+14. Write `docs/qualification/threejs-2d/stage-N/closeout.json` on the integration branch with the phase commit SHA, integration merge SHA, commands, exit codes, Fable result, remote result when required, containment result, and rollback-SHA results.
 15. Commit that closeout file as one metadata-only integration commit.
 16. Prove the integration worktree is clean again.
 17. Remove the phase worktree.
@@ -227,7 +227,7 @@ Make every later comparison executable before renderer code changes.
 19. If a release runner cannot create WebGL 2, stop and select a WebGL2-capable runner; do not add an unsafe runtime flag or weaken the production hard-failure rule.
 20. Add `npm run package:mac:arm64`.
 21. Add a macOS ARM64 package-and-smoke CI job with an explicit packaged `process.arch === "arm64"` assertion.
-22. Complete the Stage 0 Opus audit, fixes, and checks, then create the qualified-Skia code commit.
+22. Complete the Stage 0 Fable audit, fixes, and checks, then create the qualified-Skia code commit.
 23. Push that exact phase SHA and wait for the three release-platform WebGL 2 probes, macOS ARM64, all existing required macOS and Windows jobs, and platform-neutral checks.
 24. Restore that commit SHA into a separate clean worktree, run `npm ci`, package it, and run the recorded Skia smoke suite.
 25. Copy required reports and native `1×` captures from ignored `output/` scratch space into `artifacts/threejs-2d/stage-0/`.
@@ -747,7 +747,7 @@ SI_WORLD_TEST_TONE_MAPPING=aces npm run qualify:renderer -- --mode enhanced --ma
 
 ### Final Stage 7 audits before commit
 
-1. Run the normal Stage 7 Claude Opus 5 `xhigh` audit.
+1. Run the normal Stage 7 Claude Fable 5 `xhigh` audit.
 2. Run one additional Grok 4.6 `high` read-only audit of the complete Stage 7 diff.
 3. Verify every finding locally and fix only confirmed in-scope defects.
 4. Rerun every affected Stage 7 check and the full exit gate.
@@ -833,7 +833,7 @@ The committed fixture manifest is the complete case list; no unrecorded screensh
 `output/` is ignored scratch space.
 Every report and native `1×` capture needed by a later stage is committed under `artifacts/threejs-2d/stage-N/` before its phase branch merges.
 
-| Stage | Fixture manifest or input | Scratch output | Committed evidence | Primary command | Opus audit scope |
+| Stage | Fixture manifest or input | Scratch output | Committed evidence | Primary command | Fable audit scope |
 |---:|---|---|---|---|---|
 | 0 | `tests/fixtures/rendering/skia-baseline-v1.json` | `output/verification/threejs-2d/stage-0/` | `artifacts/threejs-2d/stage-0/` and `docs/qualification/threejs-2d/stage-0/rollback.json` | `npm run verify` plus both comparator mode self-tests | measurement math, masks, harness, ARM64 job, rollback drill |
 | 1 | `tests/fixtures/rendering/world-frame-v1.json` | `output/verification/threejs-2d/stage-1/frame-equality.json` | `artifacts/threejs-2d/stage-1/` | the Stage 1 Jest command and hidden affected smokes | frame completeness, deterministic order, immutability, time ownership, import boundary |
@@ -862,7 +862,7 @@ Apply the remote-branch retention rule from section 4.4.
 ## 18. Required evidence at completion
 
 - approved spec and implementation plan with three review rounds each;
-- one Opus audit record per implementation stage;
+- one Fable audit record per implementation stage;
 - phase commit and merge commit SHAs;
 - branch-containment and prune evidence;
 - renderer-neutral frame fixtures;
