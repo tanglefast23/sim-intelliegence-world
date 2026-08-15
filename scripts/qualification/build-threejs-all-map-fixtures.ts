@@ -199,11 +199,14 @@ writeJson('tests/fixtures/rendering/threejs-all-maps-v1.json', {
   fixtures: [...specialized.fixtures, ...fixtureEntries],
 });
 
-const zoomSampling = json<Record<string, unknown>>('tests/fixtures/rendering/zoom-sampling-v1.json');
-writeJson('tests/fixtures/rendering/zoom-sampling-v1.json', {
-  ...zoomSampling,
-  sourceCommit: report.testedCommit,
-});
+const zoomSamplingPath = resolve('tests/fixtures/rendering/zoom-sampling-v1.json');
+const zoomSampling = readFileSync(zoomSamplingPath, 'utf8');
+const updatedZoomSampling = zoomSampling.replace(
+  /"sourceCommit": "[a-f0-9]{40}"/u,
+  `"sourceCommit": "${report.testedCommit}"`,
+);
+if (updatedZoomSampling === zoomSampling) throw new Error('Zoom-sampling source commit was not updated.');
+writeFileSync(zoomSamplingPath, updatedZoomSampling);
 
 const rendererEvidence = report.passes.threejs2d.fixtures.map(({ rendererEvidence: evidence }) => evidence!);
 const maximum = (select: (evidence: RendererEvidence) => number): number => Math.max(...rendererEvidence.map(select));
