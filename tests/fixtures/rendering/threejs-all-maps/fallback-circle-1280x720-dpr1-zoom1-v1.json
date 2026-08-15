@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "fallback-circle-1280x720-dpr1-zoom1",
-  "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+  "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
   "mode": "parity",
   "viewport": {
     "width": 1280,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixtureSet": "threejs-all-maps-stage-3",
-  "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+  "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
   "mode": "parity",
   "passed": true,
   "failures": [],
@@ -11,7 +11,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "villa-exterior-idle",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -52,7 +52,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "villa-interior-roof-hidden",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -93,7 +93,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "villa-door-transition",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -134,7 +134,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "villa-walk-east-frame-1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -175,7 +175,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "villa-selected-npc",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -216,7 +216,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "villa-destination-journal-failure",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -277,7 +277,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northwest-1280x720-dpr1-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -318,7 +318,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northeast-1440x900-dpr1-zoom2",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -359,7 +359,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southwest-1600x720-dpr1-zoom3",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -400,7 +400,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southeast-1920x1080-dpr1-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -441,7 +441,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northwest-2560x1440-dpr1-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,
@@ -482,7 +482,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northwest-1440x900-dpr1_25-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -523,7 +523,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northeast-1600x720-dpr1_25-zoom2",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -564,7 +564,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southwest-1920x1080-dpr1_25-zoom3",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -605,7 +605,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southeast-2560x1440-dpr1_25-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -646,7 +646,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northwest-1600x720-dpr1_5-zoom2",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -687,7 +687,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northeast-1920x1080-dpr1_5-zoom3",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -728,7 +728,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southwest-2560x1440-dpr1_5-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -769,7 +769,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southeast-1280x720-dpr1_5-zoom2",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -810,7 +810,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northwest-1920x1080-dpr2-zoom3",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -851,7 +851,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "northeast-2560x1440-dpr2-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -892,7 +892,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southwest-1280x720-dpr2-zoom2",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -933,7 +933,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "southeast-1440x900-dpr2-zoom3",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -974,7 +974,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "maximum-load-2560x1440-dpr2-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "scaled",
         "passed": true,
@@ -1015,7 +1015,7 @@
       "report": {
         "schemaVersion": 1,
         "fixture": "fallback-circle-1280x720-dpr1-zoom1",
-        "sourceCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+        "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
         "mode": "parity",
         "rasterComparison": "native",
         "passed": true,

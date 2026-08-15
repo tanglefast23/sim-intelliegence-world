@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+  "testedCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
   "evidenceSource": {
-    "baseCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
-    "sourceSha256": "8fd868c998c677647828c6300af2a64a6225323ae7124054dae855b6571f6885",
+    "baseCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
+    "sourceSha256": "b4d2a6f16b426c407d602cea29cfa634098238a7f5f9a8c988bf6637cdbbccd7",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-all-maps-package-smoke.ts",
@@ -30,9 +30,9 @@
     "largeChangedPixelRatio": 0.002
   },
   "scaledLimits": {
-    "meanAbsoluteChannelDelta": 10,
-    "rootMeanSquareChannelDelta": 20,
-    "largeChangedPixelRatio": 0.12
+    "meanAbsoluteChannelDelta": 3,
+    "rootMeanSquareChannelDelta": 12,
+    "largeChangedPixelRatio": 0.04
   },
   "passed": true,
   "samples": [

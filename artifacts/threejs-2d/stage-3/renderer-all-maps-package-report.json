@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
+  "testedCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
   "evidenceSource": {
-    "baseCommit": "f925251e02430c54b2baf09e78eef992f58c22a2",
-    "sourceSha256": "8fd868c998c677647828c6300af2a64a6225323ae7124054dae855b6571f6885",
+    "baseCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
+    "sourceSha256": "b4d2a6f16b426c407d602cea29cfa634098238a7f5f9a8c988bf6637cdbbccd7",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-all-maps-package-smoke.ts",
@@ -4098,24 +4098,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 1694,
               "doors": 4,
@@ -4134,7 +4116,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -4314,24 +4314,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 2,
             "trianglesByBatch": {
               "floor-and-ground-detail": 792,
               "doors": 4,
@@ -4350,7 +4332,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 2
           }
         },
         {
@@ -4460,24 +4460,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 3,
             "trianglesByBatch": {
               "floor-and-ground-detail": 226,
               "doors": 0,
@@ -4496,7 +4478,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 3
           }
         },
         {
@@ -4745,24 +4745,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 1534,
               "doors": 8,
@@ -4781,7 +4763,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -5209,24 +5209,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 3698,
               "doors": 14,
@@ -5245,7 +5227,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -5536,24 +5536,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 2076,
               "doors": 6,
@@ -5572,7 +5554,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -5718,24 +5718,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 2,
             "trianglesByBatch": {
               "floor-and-ground-detail": 616,
               "doors": 2,
@@ -5754,7 +5736,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 2
           }
         },
         {
@@ -5865,24 +5865,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 3,
             "trianglesByBatch": {
               "floor-and-ground-detail": 322,
               "doors": 0,
@@ -5901,7 +5883,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 3
           }
         },
         {
@@ -6150,24 +6150,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 2240,
               "doors": 8,
@@ -6186,7 +6168,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -6371,24 +6371,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 2,
             "trianglesByBatch": {
               "floor-and-ground-detail": 562,
               "doors": 0,
@@ -6407,7 +6389,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 2
           }
         },
         {
@@ -6553,24 +6553,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 3,
             "trianglesByBatch": {
               "floor-and-ground-detail": 542,
               "doors": 2,
@@ -6589,7 +6571,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 3
           }
         },
         {
@@ -6804,24 +6804,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 2752,
               "doors": 6,
@@ -6840,7 +6822,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -6950,24 +6950,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 2,
             "trianglesByBatch": {
               "floor-and-ground-detail": 222,
               "doors": 0,
@@ -6986,7 +6968,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 2
           }
         },
         {
@@ -7171,24 +7171,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 3,
             "trianglesByBatch": {
               "floor-and-ground-detail": 512,
               "doors": 0,
@@ -7207,7 +7189,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 3
           }
         },
         {
@@ -7489,24 +7489,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 5540,
               "doors": 10,
@@ -7525,7 +7507,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -7635,24 +7635,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 2,
             "trianglesByBatch": {
               "floor-and-ground-detail": 322,
               "doors": 0,
@@ -7671,7 +7653,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 2
           }
         },
         {
@@ -7781,24 +7781,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 3,
             "trianglesByBatch": {
               "floor-and-ground-detail": 184,
               "doors": 0,
@@ -7817,7 +7799,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 3
           }
         },
         {
@@ -8245,24 +8245,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 3698,
               "doors": 14,
@@ -8281,7 +8263,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         },
         {
@@ -8542,24 +8542,6 @@
               "programs": 2,
               "textures": 2
             },
-            "webgl2": true,
-            "legacyColorParity": true,
-            "textures": 2,
-            "materials": 3,
-            "geometries": 17,
-            "atlasSize": {
-              "width": 1024,
-              "height": 595
-            },
-            "atlasSampling": {
-              "magFilter": "nearest",
-              "minFilter": "nearest",
-              "generateMipmaps": false,
-              "anisotropy": 1,
-              "wrapS": "clamp-to-edge",
-              "wrapT": "clamp-to-edge"
-            },
-            "presentedZoom": 1,
             "trianglesByBatch": {
               "floor-and-ground-detail": 1694,
               "doors": 4,
@@ -8578,7 +8560,25 @@
               "destination-pulse": 0,
               "journal-markers": 0,
               "failure-marker": 0
-            }
+            },
+            "webgl2": true,
+            "legacyColorParity": true,
+            "textures": 2,
+            "materials": 3,
+            "geometries": 17,
+            "atlasSize": {
+              "width": 1024,
+              "height": 595
+            },
+            "atlasSampling": {
+              "magFilter": "nearest",
+              "minFilter": "nearest",
+              "generateMipmaps": false,
+              "anisotropy": 1,
+              "wrapS": "clamp-to-edge",
+              "wrapT": "clamp-to-edge"
+            },
+            "presentedZoom": 1
           }
         }
       ]
