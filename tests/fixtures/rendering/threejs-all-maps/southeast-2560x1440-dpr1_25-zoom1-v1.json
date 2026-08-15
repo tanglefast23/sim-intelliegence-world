@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "southeast-2560x1440-dpr1_25-zoom1",
-  "sourceCommit": "17c0f920641561a445ca2d694a105a4e0cdc5f9b",
+  "sourceCommit": "dd5e09dd25ba7be13c844d3149f55783e5d7f7d4",
   "mode": "parity",
   "viewport": {
     "width": 2560,
