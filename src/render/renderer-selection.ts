@@ -9,11 +9,14 @@ export function rendererForEnvironment(input: Readonly<{
   if (input.smokeMode && input.smokeRenderer) return input.smokeRenderer;
   const local = input.hostname === 'localhost' || input.hostname === '127.0.0.1';
   const requested = new URLSearchParams(input.search).get('testRenderer');
-  return local && (requested === 'skia' || requested === 'threejs-2d') ? requested : 'skia';
+  // Stage 6: Three.js is the production renderer. The Skia selector stays reachable only from
+  // localhost development and packaged smoke, as the temporary rollback path until Stage 7.
+  return local && (requested === 'skia' || requested === 'threejs-2d') ? requested : 'threejs-2d';
 }
 
 export function selectedRenderer(): RendererKind {
-  if (typeof window === 'undefined' || !window.location) return 'skia';
+  // Stage 6: Three.js is the production renderer, including in windowless evaluation.
+  if (typeof window === 'undefined' || !window.location) return 'threejs-2d';
   return rendererForEnvironment({
     hostname: window.location.hostname,
     search: window.location.search,

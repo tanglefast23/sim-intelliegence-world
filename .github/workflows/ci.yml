@@ -108,9 +108,16 @@ jobs:
 
   package-macos-x64-functional:
     name: package-macos-x64-functional
+    # Stage 6: this runner's GPU blocklists WebGL 2, so the production Three.js renderer cannot
+    # start here. Stage 0 task 19 forbids a software-rendering flag, and the x64 hardware
+    # assertion below means the job cannot move. While the temporary Skia path still exists, the
+    # functional suite runs against it here and the blocklist is recorded as a Stage 7 blocker in
+    # artifacts/threejs-2d/stage-6/STOP-CONDITION.md.
     runs-on: macos-15-intel
     timeout-minutes: 30
     env:
+      # This runner blocklists WebGL 2, so the functional suite uses the temporary Skia path.
+      SI_WORLD_TEST_RENDERER: skia
       SI_WORLD_PACKAGE_TARGET_ARCH: x64
     steps:
       - name: Check out tested commit

@@ -52,6 +52,10 @@ const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
 const smokeRenderer = process.env.SI_WORLD_TEST_RENDERER;
+// Stage 6: the world renders with the production renderer when a smoke requests none, so every
+// renderer-specific guard must read the effective renderer rather than the raw request. Reading
+// the raw value let a default run label its output threejs-2d while skipping the Three.js checks.
+const effectiveRenderer = smokeRenderer ?? 'threejs-2d';
 // Stage 4: unsaved, smoke-only tone-mapping override so no-tone parity and ACES both rerun.
 const smokeToneMapping = process.env.SI_WORLD_TEST_TONE_MAPPING;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
@@ -150,11 +154,12 @@ async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPa
     `Boolean(document.querySelector('#loading-shell'))`,
     true,
   ) as Promise<boolean>;
-  const image = await captureLoadingSmokeFrame(
+  const { frame: image, loadingShellObserved } = await captureLoadingSmokeFrame(
     () => window.webContents.capturePage(undefined, { stayHidden: true }),
     loadingVisible,
     waitForSmokeRetry,
   );
+  process.stdout.write(`SI_WORLD_SMOKE_LOADING_SHELL_OBSERVED ${String(loadingShellObserved)}\n`);
   return writeSmokeScreenshot(screenshotPath, image);
 }
 
@@ -872,7 +877,7 @@ async function captureRendererParitySmoke(
     await window.webContents.executeJavaScript('window.siWorldFreezeRendererParityFrame?.()', true);
     await waitForRendererPaint(window);
     await waitForRendererPaint(window);
-    const screenshot = `${id}-${smokeRenderer ?? 'skia'}-1x.png`;
+    const screenshot = `${id}-${effectiveRenderer}-1x.png`;
     const state = await rendererParityState(window);
     await captureSmokeScreenshot(window, join(directory, screenshot));
     fixtures.push({ id, screenshot, state });
@@ -922,7 +927,7 @@ async function captureRendererParitySmoke(
   await capture('villa-destination-journal-failure');
 
   let contextLifecycle: Record<string, unknown> | null = null;
-  if (smokeRenderer === 'threejs-2d') {
+  if (effectiveRenderer === 'threejs-2d') {
     const before = await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.()', true) as Record<string, unknown>;
     const supported = await window.webContents.executeJavaScript(`(() => {
       const canvas = document.querySelector('#threejs-world-canvas canvas');
@@ -943,7 +948,7 @@ async function captureRendererParitySmoke(
 
   return {
     schemaVersion: 1,
-    rendererKind: smokeRenderer ?? 'skia',
+    rendererKind: effectiveRenderer,
     fixtures,
     contextLifecycle,
   };
@@ -986,12 +991,12 @@ async function captureRendererAllMapsSmoke(
     ));
     await waitForRendererPaint(window);
     await waitForRendererPaint(window);
-    const screenshot = `${entry.id}-${smokeRenderer ?? 'skia'}.png`;
+    const screenshot = `${entry.id}-${effectiveRenderer}.png`;
     await captureSmokeScreenshot(window, join(directory, screenshot));
-    const rendererEvidence = smokeRenderer === 'threejs-2d'
+    const rendererEvidence = effectiveRenderer === 'threejs-2d'
       ? await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.() ?? null', true) as Record<string, unknown> | null
       : null;
-    if (smokeRenderer === 'threejs-2d' && !rendererEvidence) {
+    if (effectiveRenderer === 'threejs-2d' && !rendererEvidence) {
       throw new Error(`Three.js renderer evidence is missing for ${entry.id}.`);
     }
     fixtures.push({ ...entry, screenshot, state, rendererEvidence });
@@ -1002,7 +1007,7 @@ async function captureRendererAllMapsSmoke(
     : null;
   return {
     schemaVersion: 1,
-    rendererKind: smokeRenderer ?? 'skia',
+    rendererKind: effectiveRenderer,
     devicePixelRatio,
     vfxMode,
     fixtures,
@@ -1039,12 +1044,12 @@ async function captureRendererZoomSampling(
         'window.siWorldThreeRendererEvidence?.() ?? null',
         true,
       ) as Record<string, unknown> | null;
-      if (smokeRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
+      if (effectiveRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
     }
-    if (smokeRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
+    if (effectiveRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
       throw new Error(`Three.js did not present saved zoom ${zoom}.`);
     }
-    const crop = `zoom-${zoom.toFixed(2)}-${smokeRenderer ?? 'skia'}.png`;
+    const crop = `zoom-${zoom.toFixed(2)}-${effectiveRenderer}.png`;
     await waitForRendererPaint(window);
     await captureSmokeScreenshot(window, join(directory, crop), undefined, ZOOM_SAMPLING_CROP);
     samples.push({
@@ -2309,7 +2314,8 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     return;
   }
   if (!rendererShellReady) throw new Error('World readiness arrived before shell readiness.');
-  const expectedRenderer = smokeRenderer ?? 'skia';
+  // Stage 6: Three.js is the production renderer, so a smoke that requests none expects it.
+  const expectedRenderer = effectiveRenderer;
   if (report.rendererKind !== expectedRenderer) {
     throw new Error(`Expected ${expectedRenderer} readiness but received ${report.rendererKind}.`);
   }
@@ -2524,13 +2530,16 @@ async function createMainWindow(): Promise<void> {
     }
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
+      // Stage 6: the production renderer clears the loading shell sooner than Skia did, so a
+      // fixed delay could miss the whole window on a fast runner. Start immediately and let the
+      // capture retry policy handle a frame that has not painted yet.
       setTimeout(() => {
         void captureLoadingSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
           smokeFinished = true;
           process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
           app.exit(1);
         });
-      }, 100);
+      }, 0);
     }
   });
   await window.loadURL(webgl2ProbeMode ? WEBGL2_PROBE_URL : devHarnessMode ? `${APP_URL}#/dev` : APP_URL);

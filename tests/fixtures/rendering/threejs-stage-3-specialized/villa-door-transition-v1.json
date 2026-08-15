@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "villa-door-transition",
-  "sourceCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
+  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
   "mode": "parity",
   "viewport": {
     "width": 1280,
@@ -17,11 +17,11 @@
   "compositingChanged": true,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-5/captures/specialized/villa-door-transition-skia-1x.png",
+    "image": "artifacts/threejs-2d/stage-6/captures/specialized/villa-door-transition-skia-1x.png",
     "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-door-transition-mask-v1.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-5/captures/specialized/villa-door-transition-threejs-2d-1x.png",
+    "image": "artifacts/threejs-2d/stage-6/captures/specialized/villa-door-transition-threejs-2d-1x.png",
     "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-door-transition-mask-v1.json"
   },
   "requiredMaskIds": [
