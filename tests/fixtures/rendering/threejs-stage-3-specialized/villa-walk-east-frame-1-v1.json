@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "villa-walk-east-frame-1",
-  "sourceCommit": "6cf00309f7a4677a51245c316c69a7057e22f2da",
+  "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
   "mode": "parity",
   "viewport": {
     "width": 1280,
@@ -16,11 +16,11 @@
   "toneMapping": "none",
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-3/captures/specialized/villa-walk-east-frame-1-skia-1x.png",
+    "image": "artifacts/threejs-2d/stage-4/captures/specialized/villa-walk-east-frame-1-skia-1x.png",
     "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-walk-east-frame-1-mask-v1.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-3/captures/specialized/villa-walk-east-frame-1-threejs-2d-1x.png",
+    "image": "artifacts/threejs-2d/stage-4/captures/specialized/villa-walk-east-frame-1-threejs-2d-1x.png",
     "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-walk-east-frame-1-mask-v1.json"
   },
   "requiredMaskIds": [

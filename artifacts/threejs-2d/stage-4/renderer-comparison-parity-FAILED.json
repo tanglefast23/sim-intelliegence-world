@@ -1,0 +1,1122 @@
+{
+  "schemaVersion": 1,
+  "fixtureSet": "threejs-all-maps-stage-3",
+  "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+  "mode": "parity",
+  "passed": false,
+  "failures": [
+    "villa-exterior-idle: Outside-mask changed-pixel ratio 0.18295 exceeds 0.005.",
+    "villa-interior-roof-hidden: npc-generic-resident: required-mask channel delta 9 exceeds 8.",
+    "villa-interior-roof-hidden: Outside-mask changed-pixel ratio 0.175801 exceeds 0.005.",
+    "villa-door-transition: Outside-mask changed-pixel ratio 0.176153 exceeds 0.005.",
+    "villa-walk-east-frame-1: route-destination-pulse: required-mask channel delta 21 exceeds 8.",
+    "villa-walk-east-frame-1: Outside-mask changed-pixel ratio 0.176059 exceeds 0.005.",
+    "villa-selected-npc: Outside-mask changed-pixel ratio 0.16377 exceeds 0.005.",
+    "villa-destination-journal-failure: destination-pulse: required-mask channel delta 23 exceeds 8.",
+    "villa-destination-journal-failure: failure-marker: retained contrast 0.624554 is below 0.9.",
+    "villa-destination-journal-failure: failure-marker: native readable-pixel set changed.",
+    "villa-destination-journal-failure: failure-marker: required-mask channel delta 124 exceeds 8.",
+    "villa-destination-journal-failure: journal-journal_renderer_parity: native readable-pixel set changed.",
+    "villa-destination-journal-failure: journal-journal_renderer_parity: required-mask channel delta 153 exceeds 8.",
+    "villa-destination-journal-failure: Outside-mask changed-pixel ratio 0.192676 exceeds 0.005.",
+    "northwest-1280x720-dpr1-zoom1: Outside-mask changed-pixel ratio 0.206835 exceeds 0.005.",
+    "southeast-1920x1080-dpr1-zoom1: Outside-mask changed-pixel ratio 0.007086 exceeds 0.005.",
+    "northwest-2560x1440-dpr1-zoom1: Outside-mask changed-pixel ratio 0.008294 exceeds 0.005.",
+    "northwest-1440x900-dpr1_25-zoom1: Scaled outside-mask changed-pixel ratio 0.257935 exceeds 0.12.",
+    "northwest-1440x900-dpr1_25-zoom1: Scaled mean absolute channel delta 1.31186 exceeds 1.",
+    "northwest-1600x720-dpr1_5-zoom2: Scaled outside-mask changed-pixel ratio 0.209389 exceeds 0.12.",
+    "northwest-1600x720-dpr1_5-zoom2: Scaled mean absolute channel delta 1.201912 exceeds 1.",
+    "southwest-2560x1440-dpr1_5-zoom1: Scaled outside-mask changed-pixel ratio 0.199047 exceeds 0.12.",
+    "southwest-2560x1440-dpr1_5-zoom1: Scaled mean absolute channel delta 1.279745 exceeds 1.",
+    "northwest-1920x1080-dpr2-zoom3: Scaled outside-mask changed-pixel ratio 0.205861 exceeds 0.12.",
+    "northwest-1920x1080-dpr2-zoom3: Scaled mean absolute channel delta 1.288497 exceeds 1.",
+    "fallback-circle-1280x720-dpr1-zoom1: Outside-mask changed-pixel ratio 0.206828 exceeds 0.005."
+  ],
+  "fixtures": [
+    {
+      "id": "villa-exterior-idle",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-exterior-idle",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.18295 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 168593,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.18295,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.072832,
+          "rootMeanSquareChannelDelta": 1.709889,
+          "largeChangedPixelCount": 104,
+          "largeChangedPixelRatio": 0.000113,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 1.052632,
+            "rootMeanSquareChannelDelta": 1.376494,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 2.235021,
+              "candidateContrast": 2.211403,
+              "retainedContrast": 0.989433,
+              "maximumChannelDelta": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-interior-roof-hidden",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-interior-roof-hidden",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "npc-generic-resident: required-mask channel delta 9 exceeds 8.",
+          "Outside-mask changed-pixel ratio 0.175801 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 161936,
+          "outsideMaskPixelCount": 921130,
+          "changedOutsideMaskRatio": 0.175801,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.078789,
+          "rootMeanSquareChannelDelta": 1.716485,
+          "largeChangedPixelCount": 111,
+          "largeChangedPixelRatio": 0.00012,
+          "maskLocal": {
+            "comparablePixelCount": 470,
+            "meanAbsoluteChannelDelta": 1.626241,
+            "rootMeanSquareChannelDelta": 2.379433,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "npc-generic-resident",
+              "baselineReadablePixels": 470,
+              "candidateReadablePixels": 470,
+              "readableRetention": 1,
+              "baselineContrast": 1.362484,
+              "candidateContrast": 1.343549,
+              "retainedContrast": 0.986102,
+              "maximumChannelDelta": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-door-transition",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-door-transition",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.176153 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 162315,
+          "outsideMaskPixelCount": 921444,
+          "changedOutsideMaskRatio": 0.176153,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.080041,
+          "rootMeanSquareChannelDelta": 1.721158,
+          "largeChangedPixelCount": 114,
+          "largeChangedPixelRatio": 0.000124,
+          "maskLocal": {
+            "comparablePixelCount": 156,
+            "meanAbsoluteChannelDelta": 1.433761,
+            "rootMeanSquareChannelDelta": 1.604614,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "active-door-entry-hall-door",
+              "baselineReadablePixels": 156,
+              "candidateReadablePixels": 156,
+              "readableRetention": 1,
+              "baselineContrast": 1.535727,
+              "candidateContrast": 1.54356,
+              "retainedContrast": 1.0051,
+              "maximumChannelDelta": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-walk-east-frame-1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-walk-east-frame-1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "route-destination-pulse: required-mask channel delta 21 exceeds 8.",
+          "Outside-mask changed-pixel ratio 0.176059 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 162243,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.176059,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.078832,
+          "rootMeanSquareChannelDelta": 1.7038,
+          "largeChangedPixelCount": 98,
+          "largeChangedPixelRatio": 0.000106,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 8.938596,
+            "rootMeanSquareChannelDelta": 10.711938,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "route-destination-pulse",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 1.610746,
+              "candidateContrast": 1.726265,
+              "retainedContrast": 1.071717,
+              "maximumChannelDelta": 21
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-selected-npc",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-selected-npc",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.16377 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 150921,
+          "outsideMaskPixelCount": 921542,
+          "changedOutsideMaskRatio": 0.16377,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.979729,
+          "rootMeanSquareChannelDelta": 1.661878,
+          "largeChangedPixelCount": 101,
+          "largeChangedPixelRatio": 0.00011,
+          "maskLocal": {
+            "comparablePixelCount": 58,
+            "meanAbsoluteChannelDelta": 2.689655,
+            "rootMeanSquareChannelDelta": 3.328732,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "selection-ring",
+              "baselineReadablePixels": 58,
+              "candidateReadablePixels": 58,
+              "readableRetention": 1,
+              "baselineContrast": 3.41123,
+              "candidateContrast": 3.17332,
+              "retainedContrast": 0.930257,
+              "maximumChannelDelta": 6
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-destination-journal-failure",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-destination-journal-failure",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "destination-pulse: required-mask channel delta 23 exceeds 8.",
+          "failure-marker: retained contrast 0.624554 is below 0.9.",
+          "failure-marker: native readable-pixel set changed.",
+          "failure-marker: required-mask channel delta 124 exceeds 8.",
+          "journal-journal_renderer_parity: native readable-pixel set changed.",
+          "journal-journal_renderer_parity: required-mask channel delta 153 exceeds 8.",
+          "Outside-mask changed-pixel ratio 0.192676 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 177483,
+          "outsideMaskPixelCount": 921149,
+          "changedOutsideMaskRatio": 0.192676,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.095868,
+          "rootMeanSquareChannelDelta": 1.959206,
+          "largeChangedPixelCount": 314,
+          "largeChangedPixelRatio": 0.000341,
+          "maskLocal": {
+            "comparablePixelCount": 451,
+            "meanAbsoluteChannelDelta": 24.699187,
+            "rootMeanSquareChannelDelta": 42.735682,
+            "largeChangedPixelCount": 228,
+            "largeChangedPixelRatio": 0.505543
+          },
+          "masks": [
+            {
+              "id": "destination-pulse",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 1.362008,
+              "candidateContrast": 1.556014,
+              "retainedContrast": 1.142441,
+              "maximumChannelDelta": 23
+            },
+            {
+              "id": "failure-marker",
+              "baselineReadablePixels": 135,
+              "candidateReadablePixels": 108,
+              "readableRetention": 0.8,
+              "baselineContrast": 1.656307,
+              "candidateContrast": 1.034453,
+              "retainedContrast": 0.624554,
+              "maximumChannelDelta": 124
+            },
+            {
+              "id": "journal-journal_renderer_parity",
+              "baselineReadablePixels": 239,
+              "candidateReadablePixels": 231,
+              "readableRetention": 0.966527,
+              "baselineContrast": 1.233544,
+              "candidateContrast": 1.263506,
+              "retainedContrast": 1.024289,
+              "maximumChannelDelta": 153
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northwest-1280x720-dpr1-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northwest-1280x720-dpr1-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.206835 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 190603,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.206835,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.090851,
+          "rootMeanSquareChannelDelta": 1.59622,
+          "largeChangedPixelCount": 67,
+          "largeChangedPixelRatio": 0.000073,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 1.052632,
+            "rootMeanSquareChannelDelta": 1.376494,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northwest-1280x720-dpr1-zoom1",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 4.019537,
+              "candidateContrast": 3.960967,
+              "retainedContrast": 0.985429,
+              "maximumChannelDelta": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northeast-1440x900-dpr1-zoom2",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northeast-1440x900-dpr1-zoom2",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 46679,
+          "outsideMaskPixelCount": 1294232,
+          "changedOutsideMaskRatio": 0.036067,
+          "comparableFramePixelCount": 1296000,
+          "meanAbsoluteChannelDelta": 0.723306,
+          "rootMeanSquareChannelDelta": 1.318639,
+          "largeChangedPixelCount": 109,
+          "largeChangedPixelRatio": 0.000084,
+          "maskLocal": {
+            "comparablePixelCount": 1768,
+            "meanAbsoluteChannelDelta": 1.825792,
+            "rootMeanSquareChannelDelta": 3.209737,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northeast-1440x900-dpr1-zoom2",
+              "baselineReadablePixels": 1768,
+              "candidateReadablePixels": 1768,
+              "readableRetention": 1,
+              "baselineContrast": 1.108182,
+              "candidateContrast": 1.106669,
+              "retainedContrast": 0.998635,
+              "maximumChannelDelta": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southwest-1600x720-dpr1-zoom3",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southwest-1600x720-dpr1-zoom3",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 92075,
+          "outsideMaskPixelCount": 1148022,
+          "changedOutsideMaskRatio": 0.080203,
+          "comparableFramePixelCount": 1152000,
+          "meanAbsoluteChannelDelta": 0.790005,
+          "rootMeanSquareChannelDelta": 1.40342,
+          "largeChangedPixelCount": 293,
+          "largeChangedPixelRatio": 0.000254,
+          "maskLocal": {
+            "comparablePixelCount": 3978,
+            "meanAbsoluteChannelDelta": 1.102815,
+            "rootMeanSquareChannelDelta": 2.125819,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southwest-1600x720-dpr1-zoom3",
+              "baselineReadablePixels": 3870,
+              "candidateReadablePixels": 3870,
+              "readableRetention": 1,
+              "baselineContrast": 4.09909,
+              "candidateContrast": 4.078692,
+              "retainedContrast": 0.995024,
+              "maximumChannelDelta": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southeast-1920x1080-dpr1-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southeast-1920x1080-dpr1-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.007086 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 14694,
+          "outsideMaskPixelCount": 2073524,
+          "changedOutsideMaskRatio": 0.007086,
+          "comparableFramePixelCount": 2073600,
+          "meanAbsoluteChannelDelta": 0.654351,
+          "rootMeanSquareChannelDelta": 0.977661,
+          "largeChangedPixelCount": 9,
+          "largeChangedPixelRatio": 0.000004,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 1.026316,
+            "rootMeanSquareChannelDelta": 1.294387,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southeast-1920x1080-dpr1-zoom1",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 3.204227,
+              "candidateContrast": 3.23266,
+              "retainedContrast": 1.008874,
+              "maximumChannelDelta": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northwest-2560x1440-dpr1-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northwest-2560x1440-dpr1-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.008294 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 30576,
+          "outsideMaskPixelCount": 3686324,
+          "changedOutsideMaskRatio": 0.008294,
+          "comparableFramePixelCount": 3686400,
+          "meanAbsoluteChannelDelta": 0.67631,
+          "rootMeanSquareChannelDelta": 0.980225,
+          "largeChangedPixelCount": 76,
+          "largeChangedPixelRatio": 0.000021,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 1.026316,
+            "rootMeanSquareChannelDelta": 1.294387,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northwest-2560x1440-dpr1-zoom1",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 3.770279,
+              "candidateContrast": 3.724981,
+              "retainedContrast": 0.987985,
+              "maximumChannelDelta": 2
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northwest-1440x900-dpr1_25-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northwest-1440x900-dpr1_25-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": false,
+        "failures": [
+          "Scaled outside-mask changed-pixel ratio 0.257935 exceeds 0.12.",
+          "Scaled mean absolute channel delta 1.31186 exceeds 1."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 522142,
+          "outsideMaskPixelCount": 2024314,
+          "changedOutsideMaskRatio": 0.257935,
+          "comparableFramePixelCount": 2025000,
+          "meanAbsoluteChannelDelta": 1.31186,
+          "rootMeanSquareChannelDelta": 2.426039,
+          "largeChangedPixelCount": 2944,
+          "largeChangedPixelRatio": 0.001454,
+          "maskLocal": {
+            "comparablePixelCount": 686,
+            "meanAbsoluteChannelDelta": 3.842566,
+            "rootMeanSquareChannelDelta": 7.870983,
+            "largeChangedPixelCount": 27,
+            "largeChangedPixelRatio": 0.039359
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northwest-1440x900-dpr1_25-zoom1",
+              "baselineReadablePixels": 684,
+              "candidateReadablePixels": 685,
+              "readableRetention": 1.001462,
+              "baselineContrast": 2.025492,
+              "candidateContrast": 1.970357,
+              "retainedContrast": 0.972779,
+              "maximumChannelDelta": 91
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northeast-1600x720-dpr1_25-zoom2",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northeast-1600x720-dpr1_25-zoom2",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 151594,
+          "outsideMaskPixelCount": 1797240,
+          "changedOutsideMaskRatio": 0.084348,
+          "comparableFramePixelCount": 1800000,
+          "meanAbsoluteChannelDelta": 0.920315,
+          "rootMeanSquareChannelDelta": 2.207212,
+          "largeChangedPixelCount": 1374,
+          "largeChangedPixelRatio": 0.000763,
+          "maskLocal": {
+            "comparablePixelCount": 2760,
+            "meanAbsoluteChannelDelta": 4.138043,
+            "rootMeanSquareChannelDelta": 9.860151,
+            "largeChangedPixelCount": 79,
+            "largeChangedPixelRatio": 0.028623
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northeast-1600x720-dpr1_25-zoom2",
+              "baselineReadablePixels": 2739,
+              "candidateReadablePixels": 2720,
+              "readableRetention": 0.993063,
+              "baselineContrast": 1.137573,
+              "candidateContrast": 1.140343,
+              "retainedContrast": 1.002435,
+              "maximumChannelDelta": 115
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southwest-1920x1080-dpr1_25-zoom3",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southwest-1920x1080-dpr1_25-zoom3",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 311890,
+          "outsideMaskPixelCount": 3233762,
+          "changedOutsideMaskRatio": 0.096448,
+          "comparableFramePixelCount": 3240000,
+          "meanAbsoluteChannelDelta": 0.895026,
+          "rootMeanSquareChannelDelta": 1.921957,
+          "largeChangedPixelCount": 2732,
+          "largeChangedPixelRatio": 0.000843,
+          "maskLocal": {
+            "comparablePixelCount": 6238,
+            "meanAbsoluteChannelDelta": 2.299081,
+            "rootMeanSquareChannelDelta": 5.959873,
+            "largeChangedPixelCount": 72,
+            "largeChangedPixelRatio": 0.011542
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southwest-1920x1080-dpr1_25-zoom3",
+              "baselineReadablePixels": 6221,
+              "candidateReadablePixels": 6218,
+              "readableRetention": 0.999518,
+              "baselineContrast": 2.318416,
+              "candidateContrast": 2.30785,
+              "retainedContrast": 0.995442,
+              "maximumChannelDelta": 126
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southeast-2560x1440-dpr1_25-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southeast-2560x1440-dpr1_25-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 108683,
+          "outsideMaskPixelCount": 5759314,
+          "changedOutsideMaskRatio": 0.018871,
+          "comparableFramePixelCount": 5760000,
+          "meanAbsoluteChannelDelta": 0.741205,
+          "rootMeanSquareChannelDelta": 1.533057,
+          "largeChangedPixelCount": 2743,
+          "largeChangedPixelRatio": 0.000476,
+          "maskLocal": {
+            "comparablePixelCount": 686,
+            "meanAbsoluteChannelDelta": 1.770165,
+            "rootMeanSquareChannelDelta": 3.111704,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southeast-2560x1440-dpr1_25-zoom1",
+              "baselineReadablePixels": 649,
+              "candidateReadablePixels": 650,
+              "readableRetention": 1.001541,
+              "baselineContrast": 1.708976,
+              "candidateContrast": 1.725982,
+              "retainedContrast": 1.009951,
+              "maximumChannelDelta": 18
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northwest-1600x720-dpr1_5-zoom2",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northwest-1600x720-dpr1_5-zoom2",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": false,
+        "failures": [
+          "Scaled outside-mask changed-pixel ratio 0.209389 exceeds 0.12.",
+          "Scaled mean absolute channel delta 1.201912 exceeds 1."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 541903,
+          "outsideMaskPixelCount": 2588022,
+          "changedOutsideMaskRatio": 0.209389,
+          "comparableFramePixelCount": 2592000,
+          "meanAbsoluteChannelDelta": 1.201912,
+          "rootMeanSquareChannelDelta": 1.811898,
+          "largeChangedPixelCount": 282,
+          "largeChangedPixelRatio": 0.000109,
+          "maskLocal": {
+            "comparablePixelCount": 3978,
+            "meanAbsoluteChannelDelta": 1.627283,
+            "rootMeanSquareChannelDelta": 2.138885,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northwest-1600x720-dpr1_5-zoom2",
+              "baselineReadablePixels": 3975,
+              "candidateReadablePixels": 3975,
+              "readableRetention": 1,
+              "baselineContrast": 2.040396,
+              "candidateContrast": 1.985207,
+              "retainedContrast": 0.972952,
+              "maximumChannelDelta": 27
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northeast-1920x1080-dpr1_5-zoom3",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northeast-1920x1080-dpr1_5-zoom3",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 337116,
+          "outsideMaskPixelCount": 4656645,
+          "changedOutsideMaskRatio": 0.072395,
+          "comparableFramePixelCount": 4665600,
+          "meanAbsoluteChannelDelta": 0.96665,
+          "rootMeanSquareChannelDelta": 2.541229,
+          "largeChangedPixelCount": 8628,
+          "largeChangedPixelRatio": 0.001849,
+          "maskLocal": {
+            "comparablePixelCount": 8955,
+            "meanAbsoluteChannelDelta": 4.17506,
+            "rootMeanSquareChannelDelta": 10.711792,
+            "largeChangedPixelCount": 330,
+            "largeChangedPixelRatio": 0.036851
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northeast-1920x1080-dpr1_5-zoom3",
+              "baselineReadablePixels": 8911,
+              "candidateReadablePixels": 8930,
+              "readableRetention": 1.002132,
+              "baselineContrast": 1.116331,
+              "candidateContrast": 1.092232,
+              "retainedContrast": 0.978412,
+              "maximumChannelDelta": 126
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southwest-2560x1440-dpr1_5-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southwest-2560x1440-dpr1_5-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": false,
+        "failures": [
+          "Scaled outside-mask changed-pixel ratio 0.199047 exceeds 0.12.",
+          "Scaled mean absolute channel delta 1.279745 exceeds 1."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 1650776,
+          "outsideMaskPixelCount": 8293404,
+          "changedOutsideMaskRatio": 0.199047,
+          "comparableFramePixelCount": 8294400,
+          "meanAbsoluteChannelDelta": 1.279745,
+          "rootMeanSquareChannelDelta": 2.562119,
+          "largeChangedPixelCount": 6456,
+          "largeChangedPixelRatio": 0.000778,
+          "maskLocal": {
+            "comparablePixelCount": 996,
+            "meanAbsoluteChannelDelta": 8.618474,
+            "rootMeanSquareChannelDelta": 17.284783,
+            "largeChangedPixelCount": 106,
+            "largeChangedPixelRatio": 0.106426
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southwest-2560x1440-dpr1_5-zoom1",
+              "baselineReadablePixels": 986,
+              "candidateReadablePixels": 980,
+              "readableRetention": 0.993915,
+              "baselineContrast": 2.195352,
+              "candidateContrast": 2.17503,
+              "retainedContrast": 0.990743,
+              "maximumChannelDelta": 132
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southeast-1280x720-dpr1_5-zoom2",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southeast-1280x720-dpr1_5-zoom2",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 4843,
+          "outsideMaskPixelCount": 2069622,
+          "changedOutsideMaskRatio": 0.00234,
+          "comparableFramePixelCount": 2073600,
+          "meanAbsoluteChannelDelta": 0.558498,
+          "rootMeanSquareChannelDelta": 0.935872,
+          "largeChangedPixelCount": 8,
+          "largeChangedPixelRatio": 0.000004,
+          "maskLocal": {
+            "comparablePixelCount": 3978,
+            "meanAbsoluteChannelDelta": 1.787414,
+            "rootMeanSquareChannelDelta": 3.160276,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southeast-1280x720-dpr1_5-zoom2",
+              "baselineReadablePixels": 3655,
+              "candidateReadablePixels": 3662,
+              "readableRetention": 1.001915,
+              "baselineContrast": 1.783277,
+              "candidateContrast": 1.773722,
+              "retainedContrast": 0.994642,
+              "maximumChannelDelta": 16
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northwest-1920x1080-dpr2-zoom3",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northwest-1920x1080-dpr2-zoom3",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": false,
+        "failures": [
+          "Scaled outside-mask changed-pixel ratio 0.205861 exceeds 0.12.",
+          "Scaled mean absolute channel delta 1.288497 exceeds 1."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 1704214,
+          "outsideMaskPixelCount": 8278488,
+          "changedOutsideMaskRatio": 0.205861,
+          "comparableFramePixelCount": 8294400,
+          "meanAbsoluteChannelDelta": 1.288497,
+          "rootMeanSquareChannelDelta": 1.944618,
+          "largeChangedPixelCount": 1371,
+          "largeChangedPixelRatio": 0.000165,
+          "maskLocal": {
+            "comparablePixelCount": 15912,
+            "meanAbsoluteChannelDelta": 1.521116,
+            "rootMeanSquareChannelDelta": 1.933471,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northwest-1920x1080-dpr2-zoom3",
+              "baselineReadablePixels": 15912,
+              "candidateReadablePixels": 15912,
+              "readableRetention": 1,
+              "baselineContrast": 1.94684,
+              "candidateContrast": 1.90689,
+              "retainedContrast": 0.979479,
+              "maximumChannelDelta": 7
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "northeast-2560x1440-dpr2-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "northeast-2560x1440-dpr2-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 284288,
+          "outsideMaskPixelCount": 14743832,
+          "changedOutsideMaskRatio": 0.019282,
+          "comparableFramePixelCount": 14745600,
+          "meanAbsoluteChannelDelta": 0.703991,
+          "rootMeanSquareChannelDelta": 1.050874,
+          "largeChangedPixelCount": 232,
+          "largeChangedPixelRatio": 0.000016,
+          "maskLocal": {
+            "comparablePixelCount": 1768,
+            "meanAbsoluteChannelDelta": 1.825792,
+            "rootMeanSquareChannelDelta": 3.209737,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-northeast-2560x1440-dpr2-zoom1",
+              "baselineReadablePixels": 1768,
+              "candidateReadablePixels": 1768,
+              "readableRetention": 1,
+              "baselineContrast": 1.10395,
+              "candidateContrast": 1.087911,
+              "retainedContrast": 0.985471,
+              "maximumChannelDelta": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southwest-1280x720-dpr2-zoom2",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southwest-1280x720-dpr2-zoom2",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 256362,
+          "outsideMaskPixelCount": 3679328,
+          "changedOutsideMaskRatio": 0.069676,
+          "comparableFramePixelCount": 3686400,
+          "meanAbsoluteChannelDelta": 0.734643,
+          "rootMeanSquareChannelDelta": 1.401665,
+          "largeChangedPixelCount": 1421,
+          "largeChangedPixelRatio": 0.000385,
+          "maskLocal": {
+            "comparablePixelCount": 7072,
+            "meanAbsoluteChannelDelta": 1.825792,
+            "rootMeanSquareChannelDelta": 3.209737,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southwest-1280x720-dpr2-zoom2",
+              "baselineReadablePixels": 7072,
+              "candidateReadablePixels": 7072,
+              "readableRetention": 1,
+              "baselineContrast": 2.318416,
+              "candidateContrast": 2.309082,
+              "retainedContrast": 0.995974,
+              "maximumChannelDelta": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "southeast-1440x900-dpr2-zoom3",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "southeast-1440x900-dpr2-zoom3",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 9639,
+          "outsideMaskPixelCount": 5168088,
+          "changedOutsideMaskRatio": 0.001865,
+          "comparableFramePixelCount": 5184000,
+          "meanAbsoluteChannelDelta": 0.609168,
+          "rootMeanSquareChannelDelta": 1.046028,
+          "largeChangedPixelCount": 130,
+          "largeChangedPixelRatio": 0.000025,
+          "maskLocal": {
+            "comparablePixelCount": 15912,
+            "meanAbsoluteChannelDelta": 1.825792,
+            "rootMeanSquareChannelDelta": 3.209737,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-southeast-1440x900-dpr2-zoom3",
+              "baselineReadablePixels": 14256,
+              "candidateReadablePixels": 14256,
+              "readableRetention": 1,
+              "baselineContrast": 1.764434,
+              "candidateContrast": 1.768711,
+              "retainedContrast": 1.002424,
+              "maximumChannelDelta": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "maximum-load-2560x1440-dpr2-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "maximum-load-2560x1440-dpr2-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "scaled",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 119528,
+          "outsideMaskPixelCount": 14743832,
+          "changedOutsideMaskRatio": 0.008107,
+          "comparableFramePixelCount": 14745600,
+          "meanAbsoluteChannelDelta": 0.676597,
+          "rootMeanSquareChannelDelta": 0.98236,
+          "largeChangedPixelCount": 347,
+          "largeChangedPixelRatio": 0.000024,
+          "maskLocal": {
+            "comparablePixelCount": 1768,
+            "meanAbsoluteChannelDelta": 1.825792,
+            "rootMeanSquareChannelDelta": 3.209737,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-maximum-load-2560x1440-dpr2-zoom1",
+              "baselineReadablePixels": 1768,
+              "candidateReadablePixels": 1768,
+              "readableRetention": 1,
+              "baselineContrast": 2.075998,
+              "candidateContrast": 2.051866,
+              "retainedContrast": 0.988376,
+              "maximumChannelDelta": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fallback-circle-1280x720-dpr1-zoom1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "fallback-circle-1280x720-dpr1-zoom1",
+        "sourceCommit": "3286542a3e50214172171d368218c04fdd3821a4",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": false,
+        "failures": [
+          "Outside-mask changed-pixel ratio 0.206828 exceeds 0.005."
+        ],
+        "measurements": {
+          "changedOutsideMaskPixels": 190597,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.206828,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 1.091725,
+          "rootMeanSquareChannelDelta": 1.607528,
+          "largeChangedPixelCount": 94,
+          "largeChangedPixelRatio": 0.000102,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 1.052632,
+            "rootMeanSquareChannelDelta": 1.376494,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist-fallback-circle-1280x720-dpr1-zoom1",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 4.019537,
+              "candidateContrast": 3.960967,
+              "retainedContrast": 0.985429,
+              "maximumChannelDelta": 3
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
