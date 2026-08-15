@@ -465,7 +465,11 @@ async function waitForResponsiveEvidence(
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   }
-  throw new Error(`Responsive evidence did not reach the expected state. Last: ${JSON.stringify(last)}`);
+  const diagnostic = await surfaceLayoutDiagnostic(window);
+  throw new Error(
+    `Responsive evidence did not reach the expected state. ` +
+    `Last: ${JSON.stringify(last)} Layout: ${JSON.stringify(diagnostic)}`,
+  );
 }
 
 async function resizeContentAndWait(
