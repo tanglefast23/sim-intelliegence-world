@@ -52,7 +52,7 @@ describe('Three.js renderer lifecycle', () => {
     jest.useFakeTimers();
     const states: string[] = [];
     const canvas = fakeCanvas();
-    const renderer = await ThreeWorldRenderer.create(canvas, 'atlas.png', jest.fn(), (state) => states.push(state));
+    const renderer = await ThreeWorldRenderer.create(canvas, 'atlas.png', true, jest.fn(), (state) => states.push(state));
     const lost = new Event('webglcontextlost', { cancelable: true });
     canvas.dispatchEvent(lost);
     expect(lost.defaultPrevented).toBe(true);
@@ -71,7 +71,7 @@ describe('Three.js renderer lifecycle', () => {
     const geometryDispose = jest.spyOn(BufferGeometry.prototype, 'dispose');
     const materialDispose = jest.spyOn(ShaderMaterial.prototype, 'dispose');
     const textureDispose = jest.spyOn(Texture.prototype, 'dispose');
-    const renderer = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', jest.fn(), jest.fn());
+    const renderer = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', true, jest.fn(), jest.fn());
     const gpuRenderer = jest.mocked(WebGLRenderer).mock.results.at(-1)?.value as unknown as { dispose: jest.Mock };
     renderer.dispose();
     expect(geometryDispose).toHaveBeenCalledTimes(17);
