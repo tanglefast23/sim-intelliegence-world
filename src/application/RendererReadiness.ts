@@ -60,7 +60,8 @@ export function createRendererShellReadyReport(
 }
 
 export function createRendererWorldReadyReport(
-  measurements: RendererReadinessMeasurements & Readonly<{ rendererKind: 'skia' | 'threejs-2d'; webgl2Ready?: boolean }>,
+  // Stage 7 removed Skia, so there is one world variant left.
+  measurements: RendererReadinessMeasurements & Readonly<{ rendererKind: 'threejs-2d'; webgl2Ready?: boolean }>,
 ): RendererReadyReport {
   validateCommon(measurements);
   if (measurements.canvasWidth <= 0 || measurements.canvasHeight <= 0) {
@@ -75,9 +76,6 @@ export function createRendererWorldReadyReport(
     nodeAccessBlocked: true as const,
     worldFrameReady: true as const,
   };
-  if (measurements.rendererKind === 'threejs-2d') {
-    if (measurements.webgl2Ready !== true) throw new Error('Three.js did not create a WebGL 2 context.');
-    return { ...common, rendererKind: 'threejs-2d', webgl2Ready: true };
-  }
-  return { ...common, rendererKind: 'skia', canvasKitReady: true };
+  if (measurements.webgl2Ready !== true) throw new Error('Three.js did not create a WebGL 2 context.');
+  return { ...common, rendererKind: 'threejs-2d', webgl2Ready: true };
 }

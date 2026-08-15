@@ -287,17 +287,18 @@ describe('packaged Electron smoke evidence', () => {
         'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
         'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
         ],
-        canvasKitReady: true,
+        webgl2Ready: true,
         nodeAccessBlocked: true,
-        rendererKind: 'skia',
+        rendererKind: 'threejs-2d',
         worldFrameReady: true,
       })}`,
     ].join('\n');
 
+    // Stage 7 removed the Skia world variant with CanvasKit itself.
     expect(parseSmokeResult(stdout)).toEqual(
       expect.objectContaining({
         assetsLoaded: true,
-        canvasKitReady: true,
+        webgl2Ready: true,
         nodeAccessBlocked: true,
       }),
     );
@@ -318,9 +319,9 @@ describe('packaged Electron smoke evidence', () => {
             'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
             'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
           ],
-          canvasKitReady: false,
+          webgl2Ready: false,
           nodeAccessBlocked: true,
-          rendererKind: 'skia',
+          rendererKind: 'threejs-2d',
           worldFrameReady: true,
         })}`,
       ),
@@ -338,9 +339,9 @@ describe('packaged Electron smoke evidence', () => {
             'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
             'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
           ],
-          canvasKitReady: true,
+          webgl2Ready: true,
           nodeAccessBlocked: true,
-          rendererKind: 'skia',
+          rendererKind: 'threejs-2d',
           worldFrameReady: true,
         })}`,
       ),

@@ -23,11 +23,8 @@ describe('renderer readiness measurements', () => {
     });
   });
 
+  // Stage 7 removed the Skia world variant with CanvasKit itself, so one world report remains.
   test.each([
-    {
-      rendererKind: 'skia' as const,
-      expected: { rendererKind: 'skia', canvasKitReady: true },
-    },
     {
       rendererKind: 'threejs-2d' as const,
       webgl2Ready: true,
@@ -63,7 +60,7 @@ describe('renderer readiness measurements', () => {
       ...commonMeasurements,
       canvasHeight: 160,
       canvasWidth: 0,
-      rendererKind: 'skia',
+      rendererKind: 'threejs-2d',
     })).toThrow('measurable canvas');
     expect(() => createRendererWorldReadyReport({
       ...commonMeasurements,
