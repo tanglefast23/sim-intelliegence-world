@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "fixture": "villa-interior-roof-hidden",
+  "sourceCommit": "551fb1090892166d346a4ad3b779fb0cbc21466f",
+  "mode": "parity",
+  "passed": true,
+  "failures": [],
+  "measurements": {
+    "changedOutsideMaskPixels": 2504,
+    "outsideMaskPixelCount": 921130,
+    "changedOutsideMaskRatio": 0.002718,
+    "masks": [
+      {
+        "id": "npc-generic-resident",
+        "baselineVisiblePixels": 470,
+        "candidateVisiblePixels": 470,
+        "baselineContrast": 1.372167,
+        "candidateContrast": 1.357519,
+        "retainedContrast": 0.989324,
+        "maximumChannelDelta": 1
+      }
+    ]
+  }
+}

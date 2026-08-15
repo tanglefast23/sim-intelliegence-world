@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "stage": 2,
+  "sourceCommit": "551fb1090892166d346a4ad3b779fb0cbc21466f",
+  "decision": "accept",
+  "fixtureIds": [
+    "villa-exterior-idle",
+    "villa-interior-roof-hidden",
+    "villa-door-transition",
+    "villa-walk-east-frame-1",
+    "villa-selected-npc",
+    "villa-destination-journal-failure"
+  ],
+  "matchedPreview": {
+    "reference": "spikes/001-threejs-pixel-villa/comparison-three-way.png",
+    "panel": "TEST - THREE.JS PIXEL 2D",
+    "productionToneMapping": "none",
+    "productionAcesEnabled": false,
+    "gpuLightingDeferredToStage": 4
+  },
+  "parity": {
+    "report": "artifacts/threejs-2d/stage-2/renderer-comparison.json",
+    "passed": true,
+    "changedOutsideMaskRatio": 0.002718,
+    "maximumRequiredMaskChannelDelta": 1,
+    "requiredMaskContrastRetention": 0.989324
+  },
+  "readability": {
+    "npcContrastFloor": 0.9,
+    "npcContrastPassed": true,
+    "lampCenterBrighterThanUnlitRegion": true,
+    "shadowDirection": "lower-right",
+    "shadowDirectionPassed": true
+  },
+  "rationale": [
+    "The in-app Three.js villa matches the qualified Skia frame within every locked parity threshold.",
+    "The shared Stage 2 district-lighting overlay preserves the approved lighting treatment without hiding atlas or geometry defects.",
+    "The fixed Three.js preview still supports the approved visual direction, while ACES and GPU lighting remain disabled until Stage 4."
+  ]
+}

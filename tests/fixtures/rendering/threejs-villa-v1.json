@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "fixture": "villa-interior-roof-hidden",
+  "sourceCommit": "551fb1090892166d346a4ad3b779fb0cbc21466f",
+  "mode": "parity",
+  "viewport": { "width": 1280, "height": 720 },
+  "devicePixelRatio": 1,
+  "zoom": 1,
+  "camera": { "x": 479, "y": 664 },
+  "toneMapping": "none",
+  "exposure": 1,
+  "baseline": {
+    "image": "artifacts/threejs-2d/stage-2/captures/villa-interior-roof-hidden-skia-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-villa-mask-v1.json"
+  },
+  "candidate": {
+    "image": "artifacts/threejs-2d/stage-2/captures/villa-interior-roof-hidden-threejs-2d-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-villa-mask-v1.json"
+  },
+  "requiredMaskIds": ["npc-generic-resident"],
+  "lightSamples": [
+    {
+      "id": "villa-patio-fire-pool",
+      "lit": { "x": 414, "y": 389, "width": 4, "height": 4 },
+      "unlit": { "x": 476, "y": 389, "width": 4, "height": 4 }
+    }
+  ],
+  "shadowSamples": [
+    {
+      "id": "villa-patio-fire-shadow",
+      "direction": "lower-right",
+      "edges": [
+        { "lit": { "x": 412, "y": 387 }, "shadow": { "x": 422, "y": 396 } }
+      ]
+    }
+  ],
+  "thresholds": {
+    "backgroundRingLogicalPixels": 2,
+    "contrastRetention": 0.9,
+    "outsideMaskChangedPixelRatio": 0.005,
+    "outsideMaskMaximumChannelDelta": 2,
+    "requiredMaskMaximumChannelDelta": 8
+  }
+}
