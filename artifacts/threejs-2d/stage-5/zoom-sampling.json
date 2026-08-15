@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
+  "testedCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
   "evidenceSource": {
-    "baseCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
-    "sourceSha256": "fb574a24cd7cfd08dfd6a7f7cf71fc2fa79c711ed1158c5115f626b523ef64a1",
+    "baseCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
+    "sourceSha256": "21fbe89f99de7cab3384c18dcc03a579dfe6b9fdb7cfbaaa52e27cc55e539c55",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-all-maps-package-smoke.ts",
@@ -52,8 +52,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.5581380208333333,
-        "rootMeanSquareChannelDelta": 1.7741231695779562,
+        "meanAbsoluteChannelDelta": 0.5611067708333334,
+        "rootMeanSquareChannelDelta": 1.8031475662943766,
         "largeChangedPixelCount": 44,
         "largeChangedPixelRatio": 0.00171875
       },
@@ -75,8 +75,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.5795052083333333,
-        "rootMeanSquareChannelDelta": 2.008089110323543,
+        "meanAbsoluteChannelDelta": 0.5831119791666667,
+        "rootMeanSquareChannelDelta": 2.039745056577741,
         "largeChangedPixelCount": 67,
         "largeChangedPixelRatio": 0.0026171875
       },
@@ -98,8 +98,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.62359375,
-        "rootMeanSquareChannelDelta": 2.7293590899085935,
+        "meanAbsoluteChannelDelta": 0.6274088541666667,
+        "rootMeanSquareChannelDelta": 2.75179155657425,
         "largeChangedPixelCount": 86,
         "largeChangedPixelRatio": 0.003359375
       },
@@ -121,8 +121,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.6499869791666667,
-        "rootMeanSquareChannelDelta": 2.8500342651448944,
+        "meanAbsoluteChannelDelta": 0.6545833333333333,
+        "rootMeanSquareChannelDelta": 2.8750135869244167,
         "largeChangedPixelCount": 85,
         "largeChangedPixelRatio": 0.0033203125
       },
@@ -144,8 +144,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.6520442708333334,
-        "rootMeanSquareChannelDelta": 2.8410243347837296,
+        "meanAbsoluteChannelDelta": 0.65734375,
+        "rootMeanSquareChannelDelta": 2.8686115616560333,
         "largeChangedPixelCount": 94,
         "largeChangedPixelRatio": 0.003671875
       },
@@ -167,8 +167,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.3295442708333334,
-        "rootMeanSquareChannelDelta": 4.899334297891909,
+        "meanAbsoluteChannelDelta": 1.3379166666666666,
+        "rootMeanSquareChannelDelta": 4.92689261434967,
         "largeChangedPixelCount": 117,
         "largeChangedPixelRatio": 0.0045703125
       },
@@ -190,8 +190,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.7025390625,
-        "rootMeanSquareChannelDelta": 3.2292345422973954,
+        "meanAbsoluteChannelDelta": 0.7102213541666667,
+        "rootMeanSquareChannelDelta": 3.2678655591226513,
         "largeChangedPixelCount": 117,
         "largeChangedPixelRatio": 0.0045703125
       },
@@ -213,8 +213,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.6623697916666667,
-        "rootMeanSquareChannelDelta": 2.64722240439547,
+        "meanAbsoluteChannelDelta": 0.668671875,
+        "rootMeanSquareChannelDelta": 2.681485518016708,
         "largeChangedPixelCount": 89,
         "largeChangedPixelRatio": 0.0034765625
       },
@@ -236,8 +236,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.6865625,
-        "rootMeanSquareChannelDelta": 2.821139508248396,
+        "meanAbsoluteChannelDelta": 0.6927734375,
+        "rootMeanSquareChannelDelta": 2.8527421931947043,
         "largeChangedPixelCount": 111,
         "largeChangedPixelRatio": 0.0043359375
       },
@@ -259,8 +259,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.74125,
-        "rootMeanSquareChannelDelta": 3.474629026961008,
+        "meanAbsoluteChannelDelta": 0.7481119791666667,
+        "rootMeanSquareChannelDelta": 3.5029990870918972,
         "largeChangedPixelCount": 138,
         "largeChangedPixelRatio": 0.005390625
       },
@@ -282,8 +282,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 2.016731770833333,
-        "rootMeanSquareChannelDelta": 7.998182573507976,
+        "meanAbsoluteChannelDelta": 2.0238671875,
+        "rootMeanSquareChannelDelta": 8.011699615510222,
         "largeChangedPixelCount": 529,
         "largeChangedPixelRatio": 0.0206640625
       },
@@ -305,8 +305,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.7183203125,
-        "rootMeanSquareChannelDelta": 2.849079255508114,
+        "meanAbsoluteChannelDelta": 0.7240885416666667,
+        "rootMeanSquareChannelDelta": 2.881283893509975,
         "largeChangedPixelCount": 107,
         "largeChangedPixelRatio": 0.0041796875
       },
@@ -328,8 +328,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.7525651041666667,
-        "rootMeanSquareChannelDelta": 3.2111763647973826,
+        "meanAbsoluteChannelDelta": 0.7631380208333334,
+        "rootMeanSquareChannelDelta": 3.266478656366822,
         "largeChangedPixelCount": 130,
         "largeChangedPixelRatio": 0.005078125
       },
@@ -351,8 +351,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.7329947916666667,
-        "rootMeanSquareChannelDelta": 3.083651447553695,
+        "meanAbsoluteChannelDelta": 0.7453515625,
+        "rootMeanSquareChannelDelta": 3.1415830835477414,
         "largeChangedPixelCount": 108,
         "largeChangedPixelRatio": 0.00421875
       },
@@ -374,8 +374,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.7085546875,
-        "rootMeanSquareChannelDelta": 2.5764735872570736,
+        "meanAbsoluteChannelDelta": 0.7217708333333334,
+        "rootMeanSquareChannelDelta": 2.652858128509702,
         "largeChangedPixelCount": 83,
         "largeChangedPixelRatio": 0.0032421875
       },
@@ -397,8 +397,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.8420052083333334,
-        "rootMeanSquareChannelDelta": 3.76422994559755,
+        "meanAbsoluteChannelDelta": 0.8485026041666667,
+        "rootMeanSquareChannelDelta": 3.7922258058427905,
         "largeChangedPixelCount": 117,
         "largeChangedPixelRatio": 0.0045703125
       },
@@ -420,8 +420,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.7615494791666667,
-        "rootMeanSquareChannelDelta": 3.2873158218370198,
+        "meanAbsoluteChannelDelta": 0.7763541666666667,
+        "rootMeanSquareChannelDelta": 3.352653644254553,
         "largeChangedPixelCount": 113,
         "largeChangedPixelRatio": 0.0044140625
       },
@@ -443,8 +443,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.8352213541666667,
-        "rootMeanSquareChannelDelta": 4.033949354644073,
+        "meanAbsoluteChannelDelta": 0.8482552083333333,
+        "rootMeanSquareChannelDelta": 4.084765905165191,
         "largeChangedPixelCount": 141,
         "largeChangedPixelRatio": 0.0055078125
       },
@@ -466,8 +466,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.76203125,
-        "rootMeanSquareChannelDelta": 3.034261819894036,
+        "meanAbsoluteChannelDelta": 0.7713802083333333,
+        "rootMeanSquareChannelDelta": 3.0785675443296676,
         "largeChangedPixelCount": 95,
         "largeChangedPixelRatio": 0.0037109375
       },
@@ -489,8 +489,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.8166145833333334,
-        "rootMeanSquareChannelDelta": 3.464789405577199,
+        "meanAbsoluteChannelDelta": 0.8240885416666667,
+        "rootMeanSquareChannelDelta": 3.499546101520405,
         "largeChangedPixelCount": 122,
         "largeChangedPixelRatio": 0.004765625
       },
@@ -512,8 +512,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.8020442708333333,
-        "rootMeanSquareChannelDelta": 3.015621221932003,
+        "meanAbsoluteChannelDelta": 0.8181119791666667,
+        "rootMeanSquareChannelDelta": 3.0914427423400013,
         "largeChangedPixelCount": 119,
         "largeChangedPixelRatio": 0.0046484375
       },
@@ -535,8 +535,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.8269791666666667,
-        "rootMeanSquareChannelDelta": 3.183441043116709,
+        "meanAbsoluteChannelDelta": 0.8436458333333333,
+        "rootMeanSquareChannelDelta": 3.2613463796924935,
         "largeChangedPixelCount": 130,
         "largeChangedPixelRatio": 0.005078125
       },
@@ -558,8 +558,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9073697916666666,
-        "rootMeanSquareChannelDelta": 4.228767427789489,
+        "meanAbsoluteChannelDelta": 0.9227734375,
+        "rootMeanSquareChannelDelta": 4.283615526534409,
         "largeChangedPixelCount": 162,
         "largeChangedPixelRatio": 0.006328125
       },
@@ -581,8 +581,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9267447916666667,
-        "rootMeanSquareChannelDelta": 4.121804317690656,
+        "meanAbsoluteChannelDelta": 0.9429036458333333,
+        "rootMeanSquareChannelDelta": 4.182890809097619,
         "largeChangedPixelCount": 156,
         "largeChangedPixelRatio": 0.00609375
       },
@@ -604,8 +604,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9390885416666667,
-        "rootMeanSquareChannelDelta": 4.223375550630878,
+        "meanAbsoluteChannelDelta": 0.9554817708333333,
+        "rootMeanSquareChannelDelta": 4.284724867188091,
         "largeChangedPixelCount": 157,
         "largeChangedPixelRatio": 0.0061328125
       },
@@ -627,8 +627,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.936953125,
-        "rootMeanSquareChannelDelta": 6.634982651949187,
+        "meanAbsoluteChannelDelta": 1.9547265625,
+        "rootMeanSquareChannelDelta": 6.67408799169095,
         "largeChangedPixelCount": 523,
         "largeChangedPixelRatio": 0.0204296875
       },
@@ -650,8 +650,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9333854166666666,
-        "rootMeanSquareChannelDelta": 3.920449193013474,
+        "meanAbsoluteChannelDelta": 0.9568229166666666,
+        "rootMeanSquareChannelDelta": 4.0125876158658516,
         "largeChangedPixelCount": 149,
         "largeChangedPixelRatio": 0.0058203125
       },
@@ -673,8 +673,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.946953125,
-        "rootMeanSquareChannelDelta": 3.960107058738017,
+        "meanAbsoluteChannelDelta": 0.9723828125,
+        "rootMeanSquareChannelDelta": 4.065852783139924,
         "largeChangedPixelCount": 137,
         "largeChangedPixelRatio": 0.0053515625
       },
@@ -696,8 +696,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9408463541666666,
-        "rootMeanSquareChannelDelta": 3.752254530612229,
+        "meanAbsoluteChannelDelta": 0.9649348958333334,
+        "rootMeanSquareChannelDelta": 3.854253940453327,
         "largeChangedPixelCount": 151,
         "largeChangedPixelRatio": 0.0058984375
       },
@@ -719,8 +719,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9854036458333333,
-        "rootMeanSquareChannelDelta": 4.2894052496626305,
+        "meanAbsoluteChannelDelta": 1.0041145833333334,
+        "rootMeanSquareChannelDelta": 4.361437310872033,
         "largeChangedPixelCount": 158,
         "largeChangedPixelRatio": 0.006171875
       },
@@ -742,8 +742,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.81046875,
-        "rootMeanSquareChannelDelta": 7.100372276038302,
+        "meanAbsoluteChannelDelta": 1.8357942708333332,
+        "rootMeanSquareChannelDelta": 7.156884979106948,
         "largeChangedPixelCount": 291,
         "largeChangedPixelRatio": 0.0113671875
       },
@@ -765,8 +765,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.982109375,
-        "rootMeanSquareChannelDelta": 4.036351745904545,
+        "meanAbsoluteChannelDelta": 1.0088802083333333,
+        "rootMeanSquareChannelDelta": 4.149111978283225,
         "largeChangedPixelCount": 161,
         "largeChangedPixelRatio": 0.0062890625
       },
@@ -788,8 +788,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.9829427083333333,
-        "rootMeanSquareChannelDelta": 4.016466756781803,
+        "meanAbsoluteChannelDelta": 1.0037630208333332,
+        "rootMeanSquareChannelDelta": 4.091939803341035,
         "largeChangedPixelCount": 169,
         "largeChangedPixelRatio": 0.0066015625
       },
@@ -811,8 +811,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 0.982109375,
-        "rootMeanSquareChannelDelta": 3.6992855447595105,
+        "meanAbsoluteChannelDelta": 1.0094140625,
+        "rootMeanSquareChannelDelta": 3.8200931898537065,
         "largeChangedPixelCount": 155,
         "largeChangedPixelRatio": 0.0060546875
       },
@@ -834,8 +834,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.0490755208333333,
-        "rootMeanSquareChannelDelta": 4.438384594928655,
+        "meanAbsoluteChannelDelta": 1.0711067708333333,
+        "rootMeanSquareChannelDelta": 4.514235296536945,
         "largeChangedPixelCount": 174,
         "largeChangedPixelRatio": 0.006796875
       },
@@ -857,8 +857,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.6997916666666666,
-        "rootMeanSquareChannelDelta": 6.2992559084387105,
+        "meanAbsoluteChannelDelta": 1.7275,
+        "rootMeanSquareChannelDelta": 6.376954357293142,
         "largeChangedPixelCount": 400,
         "largeChangedPixelRatio": 0.015625
       },
@@ -880,8 +880,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.0444401041666667,
-        "rootMeanSquareChannelDelta": 4.207698487593901,
+        "meanAbsoluteChannelDelta": 1.0657682291666666,
+        "rootMeanSquareChannelDelta": 4.317827325461267,
         "largeChangedPixelCount": 166,
         "largeChangedPixelRatio": 0.006484375
       },
@@ -903,10 +903,10 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.1318098958333334,
-        "rootMeanSquareChannelDelta": 4.95761855842433,
-        "largeChangedPixelCount": 201,
-        "largeChangedPixelRatio": 0.0078515625
+        "meanAbsoluteChannelDelta": 1.1580338541666666,
+        "rootMeanSquareChannelDelta": 5.057972512529107,
+        "largeChangedPixelCount": 202,
+        "largeChangedPixelRatio": 0.007890625
       },
       "failures": []
     },
@@ -926,10 +926,10 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.064765625,
-        "rootMeanSquareChannelDelta": 4.130712584813102,
-        "largeChangedPixelCount": 189,
-        "largeChangedPixelRatio": 0.0073828125
+        "meanAbsoluteChannelDelta": 1.0926302083333332,
+        "rootMeanSquareChannelDelta": 4.252330855934582,
+        "largeChangedPixelCount": 190,
+        "largeChangedPixelRatio": 0.007421875
       },
       "failures": []
     },
@@ -949,8 +949,8 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.1343229166666666,
-        "rootMeanSquareChannelDelta": 4.724308260652205,
+        "meanAbsoluteChannelDelta": 1.1624609375,
+        "rootMeanSquareChannelDelta": 4.824383326308832,
         "largeChangedPixelCount": 208,
         "largeChangedPixelRatio": 0.008125
       },
@@ -972,10 +972,10 @@
       },
       "measurement": {
         "comparablePixelCount": 25600,
-        "meanAbsoluteChannelDelta": 1.0869010416666667,
-        "rootMeanSquareChannelDelta": 4.060393684730583,
-        "largeChangedPixelCount": 202,
-        "largeChangedPixelRatio": 0.007890625
+        "meanAbsoluteChannelDelta": 1.1144401041666667,
+        "rootMeanSquareChannelDelta": 4.183868138955465,
+        "largeChangedPixelCount": 203,
+        "largeChangedPixelRatio": 0.0079296875
       },
       "failures": []
     }

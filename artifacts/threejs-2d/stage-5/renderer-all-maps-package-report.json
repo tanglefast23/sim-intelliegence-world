@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
+  "testedCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
   "evidenceSource": {
-    "baseCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
-    "sourceSha256": "fb574a24cd7cfd08dfd6a7f7cf71fc2fa79c711ed1158c5115f626b523ef64a1",
+    "baseCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
+    "sourceSha256": "21fbe89f99de7cab3384c18dcc03a579dfe6b9fdb7cfbaaa52e27cc55e539c55",
     "sourcePaths": [
       "electron/main/index.ts",
       "scripts/electron/run-renderer-all-maps-package-smoke.ts",
