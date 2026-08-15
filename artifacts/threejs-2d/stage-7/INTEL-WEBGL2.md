@@ -41,3 +41,13 @@ Functional coverage runs on the ARM64 job, which has working WebGL 2.
 
 Until one of those is settled, treat Intel macOS as packaged but not proven
 playable. The recorded probe in each run is the evidence to watch.
+
+## Audit record for this stage
+
+- Fable 5: one round, five findings, all five fixed. The sharpest was that two
+  VFX suites read deleted Skia files, and Jest reported them as passing while
+  their collection threw ENOENT. The green test count was hiding them. Every run
+  after that used `--no-cache` so a collection failure cannot hide again.
+- Grok 4.6: attempted and skipped. The runner reports that Grok Build is not
+  using a subscription login and requires an interactive `grok login`, which is
+  not available here. The standing rule is to skip an auditor that cannot run.

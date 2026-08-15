@@ -63,7 +63,7 @@ jobs:
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
           SI_WORLD_TIER_B_ART_SMOKE: '1'
-        run: npm run smoke:art-quality
+        run: npm run smoke:art-quality -- --output-root artifacts/phase-24/art-quality/phase-32-final
 
       - name: Record ARM64 macOS maximum-load baseline
         env:
