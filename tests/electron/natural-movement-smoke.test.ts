@@ -54,6 +54,7 @@ describe('natural-movement packaged evidence', () => {
       sampleCount: 100,
       horizontalSampleCount: 100,
       horizontalSamplesTruncated: true,
+      reducedMotionCount: 0,
       wobble: { nonZeroCount: 1, maxAbsoluteDegrees: 4 },
     });
     expect(diagnostic.horizontalSamples).toHaveLength(80);
@@ -177,6 +178,18 @@ describe('natural-movement packaged evidence', () => {
         rendererFpsEvidence: qualifyingEvidence,
       }, root))
         .not.toThrow();
+      expect(() => validateNaturalMovementReport({
+        ...report,
+        package: {
+          ...report.package,
+          standard: {
+            ...report.package.standard,
+            rendererFps: 55,
+            samples: report.package.standard.samples.map((sample) => ({ ...sample, reducedMotion: true })),
+          },
+        },
+        rendererFpsEvidence: qualifyingEvidence,
+      }, root)).toThrow('Standard package pass ran under the reduced-motion policy');
       expect(() => validateNaturalMovementReport({
         ...report,
         package: {

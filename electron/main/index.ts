@@ -102,6 +102,8 @@ if (smokeVfxMode !== undefined && (!smokeMode || !['circle', 'procedural'].inclu
 
 if (naturalMovementReducedMode || proceduralVfxReducedMode) {
   app.commandLine.appendSwitch('force-prefers-reduced-motion', 'reduce');
+} else if (naturalMovementSmokeMode || proceduralVfxSmokeMode) {
+  app.commandLine.appendSwitch('force-prefers-no-reduced-motion');
 }
 
 const waitForSmokeRetry = (milliseconds: number): Promise<void> =>

@@ -75,8 +75,9 @@ export type NaturalMovementReport = z.infer<typeof NaturalMovementReportSchema>;
 export function summarizeNaturalMovementPass(
   pass: NaturalMovementReport['package']['standard'],
 ): Readonly<Record<string, unknown>> {
-  const indexed = pass.samples.map(({ player }, index) => ({
+  const indexed = pass.samples.map(({ player, reducedMotion }, index) => ({
     index,
+    reducedMotion,
     committed: player.committed,
     visualFoot: player.visualFoot,
     direction: player.direction,
@@ -115,6 +116,7 @@ export function summarizeNaturalMovementPass(
       nonZeroCount: wobbleValues.filter((value) => value !== 0).length,
       maxAbsoluteDegrees: Math.max(0, ...wobbleValues.map(Math.abs)),
     },
+    reducedMotionCount: pass.samples.filter(({ reducedMotion }) => reducedMotion).length,
     rendererFps: pass.rendererFps,
     displayRafFps: pass.displayRafFps,
     horizontalSamples: boundedSamples,
@@ -194,6 +196,9 @@ export function validateNaturalMovementReport(
   };
   const standardSummary = packageSummary(packaged.standard.samples);
   const reducedSummary = packageSummary(packaged.reduced.samples);
+  if (packaged.standard.samples.some(({ reducedMotion }) => reducedMotion)) {
+    throw new Error('Standard package pass ran under the reduced-motion policy.');
+  }
   if (!packaged.standard.samples.some(({ player }) => player.protagonistWobbleDegrees !== 0)) {
     throw new Error('Packaged protagonist never showed a horizontal wobble angle.');
   }

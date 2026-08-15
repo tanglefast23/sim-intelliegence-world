@@ -33,6 +33,7 @@ describe('packaged Electron smoke evidence', () => {
   test('keeps smoke windows hidden, muted, and hidden during capture', () => {
     const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
     expect(main).toContain("app.commandLine.appendSwitch('mute-audio')");
+    expect(main).toContain("app.commandLine.appendSwitch('force-prefers-no-reduced-motion')");
     expect(main).toContain('show: !smokeMode');
     expect(main).toContain('backgroundThrottling: false');
     expect(main).toContain('window.webContents.setAudioMuted(true)');
