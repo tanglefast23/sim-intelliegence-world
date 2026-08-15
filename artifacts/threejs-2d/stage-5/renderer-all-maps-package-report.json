@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "a558094dd81c1652f8a40a6aa9158e9d5a17a3ad",
+  "testedCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
   "evidenceSource": {
-    "baseCommit": "a558094dd81c1652f8a40a6aa9158e9d5a17a3ad",
+    "baseCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
     "sourceSha256": "fb574a24cd7cfd08dfd6a7f7cf71fc2fa79c711ed1158c5115f626b523ef64a1",
     "sourcePaths": [
       "electron/main/index.ts",

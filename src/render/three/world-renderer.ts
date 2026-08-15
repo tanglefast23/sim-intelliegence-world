@@ -747,8 +747,10 @@ export class ThreeWorldRenderer {
       const [fx, fy] = snapWorld(marker.worldX, marker.worldY);
       const radius = marker.radiusPixels / camera.zoom;
       const strokeWidth = 3 / camera.zoom;
-      addLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color);
-      addLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color);
+      // Skia antialiased this diagonal, so a hard-edged stroke of the same width fills fewer
+      // pixels inside the locked mask. Round caps recover the end coverage.
+      addLine(failure, fx - radius, fy - radius, fx + radius, fy + radius, strokeWidth, marker.color, true);
+      addLine(failure, fx + radius, fy - radius, fx - radius, fy + radius, strokeWidth, marker.color, true);
     }
     this.#set('failure-marker', failure);
   }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "testedCommit": "a558094dd81c1652f8a40a6aa9158e9d5a17a3ad",
+  "testedCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
   "cases": [
     {
       "id": "northwest-1280x720-dpr1-zoom1",

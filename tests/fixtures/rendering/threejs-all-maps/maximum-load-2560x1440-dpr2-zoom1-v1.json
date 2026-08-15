@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "maximum-load-2560x1440-dpr2-zoom1",
-  "sourceCommit": "a558094dd81c1652f8a40a6aa9158e9d5a17a3ad",
+  "sourceCommit": "53909e90358ee272fabd838bf537140ed31e3e59",
   "mode": "parity",
   "viewport": {
     "width": 2560,
