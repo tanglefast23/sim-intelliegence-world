@@ -100,39 +100,46 @@ async function run(rendererKind: 'skia' | 'threejs-2d'): Promise<z.infer<typeof 
   }
 }
 
-const skia = await run('skia');
-const three = await run('threejs-2d');
-const fixtureIds = FixtureIdSchema.options;
-if (JSON.stringify(skia.fixtures.map(({ id }) => id).sort()) !== JSON.stringify([...fixtureIds].sort()) ||
-    JSON.stringify(three.fixtures.map(({ id }) => id).sort()) !== JSON.stringify([...fixtureIds].sort())) {
-  throw new Error('Renderer parity did not capture the complete six-fixture set.');
-}
-for (const id of fixtureIds) {
-  const baseline = skia.fixtures.find((fixture) => fixture.id === id)!;
-  const candidate = three.fixtures.find((fixture) => fixture.id === id)!;
-  if (JSON.stringify(baseline.state) !== JSON.stringify(candidate.state)) {
-    throw new Error(`Renderer parity state changed between Skia and Three.js for ${id}.`);
+async function main(): Promise<void> {
+  const skia = await run('skia');
+  const three = await run('threejs-2d');
+  const fixtureIds = FixtureIdSchema.options;
+  if (JSON.stringify(skia.fixtures.map(({ id }) => id).sort()) !== JSON.stringify([...fixtureIds].sort()) ||
+      JSON.stringify(three.fixtures.map(({ id }) => id).sort()) !== JSON.stringify([...fixtureIds].sort())) {
+    throw new Error('Renderer parity did not capture the complete six-fixture set.');
   }
-}
-if (three.contextLifecycle?.supported !== true || three.contextLifecycle.restored !== true) {
-  throw new Error('Three.js context lifecycle evidence did not pass.');
+  for (const id of fixtureIds) {
+    const baseline = skia.fixtures.find((fixture) => fixture.id === id)!;
+    const candidate = three.fixtures.find((fixture) => fixture.id === id)!;
+    if (JSON.stringify(baseline.state) !== JSON.stringify(candidate.state)) {
+      throw new Error(`Renderer parity state changed between Skia and Three.js for ${id}.`);
+    }
+  }
+  if (three.contextLifecycle?.supported !== true || three.contextLifecycle.restored !== true) {
+    throw new Error('Three.js context lifecycle evidence did not pass.');
+  }
+
+  const report = {
+    schemaVersion: 1,
+    testedCommit: resolveTestedCommit(),
+    evidenceSource: resolveEvidenceSource([
+      'electron/main/index.ts',
+      'scripts/electron/run-renderer-parity-package-smoke.ts',
+      'src/render/ThreeWorldSurface.tsx',
+      'src/render/WorldScene.tsx',
+      'src/render/three/world-renderer.ts',
+    ]),
+    fixtureIds,
+    passes: { skia, threejs2d: three },
+  };
+  writeFileSync(join(evidenceRoot, 'renderer-parity-package-report.json'), `${JSON.stringify(report, null, 2)}\n`, {
+    encoding: 'utf8',
+    flush: true,
+  });
+  process.stdout.write(`Renderer parity package smoke passed: ${evidenceRoot}\n`);
 }
 
-const report = {
-  schemaVersion: 1,
-  testedCommit: resolveTestedCommit(),
-  evidenceSource: resolveEvidenceSource([
-    'electron/main/index.ts',
-    'scripts/electron/run-renderer-parity-package-smoke.ts',
-    'src/render/ThreeWorldSurface.tsx',
-    'src/render/WorldScene.tsx',
-    'src/render/three/world-renderer.ts',
-  ]),
-  fixtureIds,
-  passes: { skia, threejs2d: three },
-};
-writeFileSync(join(evidenceRoot, 'renderer-parity-package-report.json'), `${JSON.stringify(report, null, 2)}\n`, {
-  encoding: 'utf8',
-  flush: true,
+void main().catch((error: unknown) => {
+  process.stderr.write(`${error instanceof Error ? error.stack ?? error.message : String(error)}\n`);
+  process.exitCode = 1;
 });
-process.stdout.write(`Renderer parity package smoke passed: ${evidenceRoot}\n`);
