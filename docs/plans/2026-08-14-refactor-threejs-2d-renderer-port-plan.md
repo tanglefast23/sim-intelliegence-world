@@ -728,6 +728,14 @@ SI_WORLD_TEST_TONE_MAPPING=none npm run qualify:renderer -- --mode parity --mani
 SI_WORLD_TEST_TONE_MAPPING=aces npm run qualify:renderer -- --mode enhanced --manifest tests/fixtures/rendering/threejs-lighting-v1.json --output output/verification/threejs-2d/stage-7/renderer-comparison-enhanced.json
 ```
 
+### Final Stage 7 audits before commit
+
+1. Run the normal Stage 7 Claude Opus 5 `xhigh` audit.
+2. Run one additional Grok 4.6 `high` read-only audit of the complete Stage 7 diff.
+3. Verify every finding locally and fix only confirmed in-scope defects.
+4. Rerun every affected Stage 7 check and the full exit gate.
+5. Commit Stage 7 only after both audits and the post-fix checks pass.
+
 ### Exit gate
 
 - `npm run verify` passes after deletion.

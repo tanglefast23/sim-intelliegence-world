@@ -188,7 +188,7 @@ describe('Phase 32 final art-quality manifest', () => {
 
   test('enables the Tier B package subset in supported macOS and Windows CI jobs', () => {
     const workflow = readFileSync(join(process.cwd(), '.github/workflows/ci.yml'), 'utf8');
-    for (const marker of ['package-macos-intel:', 'package-windows-x64:']) {
+    for (const marker of ['package-macos-x64-functional:', 'package-windows-x64:']) {
       const start = workflow.indexOf(marker);
       expect(start).toBeGreaterThan(-1);
       const nextJob = workflow.indexOf('\n  package-', start + marker.length);

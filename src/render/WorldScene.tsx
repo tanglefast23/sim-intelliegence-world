@@ -523,6 +523,33 @@ export function WorldScene({
       setAuthoredDialogueFixtureId(characterId);
       setQuestOfferOpen(true);
     };
+    window.siWorldStartNaturalMovementFixture = () => {
+      setRuntime((current) => {
+        const linda = current.worldState.npcs.linda;
+        if (!linda || linda.presence.kind !== 'active_local') {
+          throw new Error('Natural-movement fixture requires active Linda.');
+        }
+        const worldState = parseWorldState({
+          ...current.worldState,
+          npcs: {
+            ...current.worldState.npcs,
+            linda: {
+              ...linda,
+              scheduleGoal: {
+                mapId: 'northwest_residential',
+                locationId: 'linda_villa',
+                activityId: 'smoke-walk',
+                tileX: 23,
+                tileY: 28,
+                scheduledMinute: current.worldState.clock.absoluteMinute,
+              },
+            },
+          },
+        });
+        return { ...current, npcMovements: npcMovementState(worldState), worldState };
+      });
+      return { npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 } };
+    };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
       const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
@@ -588,6 +615,7 @@ export function WorldScene({
       delete window.siWorldCloseConversationFixture;
       delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
+      delete window.siWorldStartNaturalMovementFixture;
     };
   }, []);
 
@@ -649,6 +677,7 @@ export function WorldScene({
           current,
           elapsedMs,
           effectiveSpeed(current.worldState.clock),
+          window.siWorldFreezeNpcMotion !== true,
         ));
       }
       animationFrame = requestAnimationFrame(animate);
@@ -1207,6 +1236,26 @@ export function WorldScene({
     return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
   }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
   const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
+  const responsiveEvidenceInput = useRef({
+    camera,
+    mapId,
+    artMode,
+    presentationHash: map.presentation.hash,
+    roofGroupId: worldFrame.hiddenRoofGroupId,
+    uiScale,
+    drawCounts,
+    staticBatchCount,
+  });
+  responsiveEvidenceInput.current = {
+    camera,
+    mapId,
+    artMode,
+    presentationHash: map.presentation.hash,
+    roofGroupId: worldFrame.hiddenRoofGroupId,
+    uiScale,
+    drawCounts,
+    staticBatchCount,
+  };
   const vfxEvidence = useMemo(() => {
     if (!smokeMode) return '';
     const geometries = vfxMode === 'procedural'
@@ -1278,28 +1327,17 @@ export function WorldScene({
   const shelterCells = map.source.roofGroups.find(({ id }) => id === worldFrame.hiddenRoofGroupId)?.interiorCells ?? [];
 
   useEffect(() => {
-    if (!smokeMode || typeof document === 'undefined') return;
-    let frameId = 0;
-    const timer = setTimeout(() => {
-      frameId = requestAnimationFrame(() => {
-        const evidence = measureResponsiveEvidence(document, {
-          camera,
-          mapId,
-          artMode,
-          presentationHash: map.presentation.hash,
-          roofGroupId: worldFrame.hiddenRoofGroupId,
-          uiScale,
-          drawCounts,
-          staticBatchCount,
-        });
-        if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
-      });
-    }, 80);
-    return () => {
-      clearTimeout(timer);
-      if (frameId) cancelAnimationFrame(frameId);
+    if (!smokeMode || typeof document === 'undefined') return undefined;
+    window.siWorldMeasureResponsiveEvidence = () => {
+      const evidence = measureResponsiveEvidence(document, responsiveEvidenceInput.current);
+      if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
+      return evidence;
     };
-  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, smokeMode, staticBatchCount, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+    window.siWorldMeasureResponsiveEvidence();
+    return () => {
+      delete window.siWorldMeasureResponsiveEvidence;
+    };
+  }, [smokeMode]);
 
   if (!image) {
     return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
@@ -1548,6 +1586,12 @@ export function WorldScene({
         <View
           accessibilityLabel={responsiveEvidence}
           nativeID="world-responsive-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
+        <View
+          accessibilityLabel={`Surface prop ${surface.width}x${surface.height}`}
+          nativeID="world-surface-state"
           pointerEvents="none"
           style={styles.proofState}
         />

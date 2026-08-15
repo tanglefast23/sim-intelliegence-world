@@ -1,12 +1,12 @@
 import { Canvas, Rect } from '@shopify/react-native-skia';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
 import { GameScreen } from '../application/GameScreen';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererReadyReport } from '../application/RendererReadiness';
 import { DevHarnessScreen } from '../ui/dev-harness/DevHarnessScreen';
-import { coalescedResizeDelay, OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
+import { OUTER_MARGIN, responsiveSurface, SURFACE_BORDER } from './responsive-layout';
 import type { ViewportSize } from './camera';
 
 function hasNoNodeAccess(): boolean {
@@ -46,11 +46,10 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
     window.siWorldDevHarnessMode === true || localhostDevHarnessMode()
   );
   const windowDimensions = useWindowDimensions();
-  const expectedSurface = useMemo(
-    () => responsiveSurface(windowDimensions.width, windowDimensions.height).surface,
-    [windowDimensions.height, windowDimensions.width],
-  );
-  const [surface, setSurface] = useState<ViewportSize>(expectedSurface);
+  const [surface, setSurface] = useState<ViewportSize>(() => responsiveSurface(
+    Math.max(1, windowDimensions.width),
+    Math.max(1, windowDimensions.height),
+  ).surface);
   const [runtime, setRuntime] = useState('Browser proof');
   const [gameReady, setGameReady] = useState(false);
   const markGameReady = useCallback(() => setGameReady(true), []);
@@ -101,11 +100,6 @@ export default function SkiaProof({ assetsLoaded }: SkiaProofProps) {
         console.error(`SI_WORLD_RENDERER_READY_FAILURE ${detail}`);
       });
   }, [assetsLoaded, gameReady]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setSurface(expectedSurface), coalescedResizeDelay());
-    return () => clearTimeout(timer);
-  }, [expectedSurface]);
 
   const measureSurface = useCallback((event: LayoutChangeEvent) => {
     const width = Math.max(1, Math.floor(event.nativeEvent.layout.width));

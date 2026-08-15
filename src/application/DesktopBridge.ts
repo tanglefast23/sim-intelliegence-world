@@ -37,10 +37,17 @@ declare global {
     siWorldDevHarnessMode?: boolean;
     siWorldVfxMode?: 'circle' | 'procedural';
     siWorldSmokeMode?: boolean;
+    siWorldFreezeNpcMotion?: true;
     siWorldOpenConversationFixture?: (characterId: CharacterId) => void;
     siWorldCloseConversationFixture?: () => void;
     siWorldSetAuthoredDialogueFixture?: (characterId?: 'linda-boyfriend') => void;
+    siWorldMeasureResponsiveEvidence?: () => Readonly<Record<string, unknown>> | undefined;
     siWorldOpenVfxFixture?: (mapId: MapId, effectId: string) => void;
+    siWorldStartNaturalMovementFixture?: () => Readonly<{
+      npcId: 'linda';
+      source: 'fixture';
+      target: Readonly<{ x: 23; y: 28 }>;
+    }>;
   }
 }
 

@@ -13,7 +13,7 @@ export const RuntimeInfoSchema = z
     appVersion: z.string().min(1).max(64),
     electronVersion: z.string().min(1).max(64),
     packaged: z.boolean(),
-    platform: z.enum(['darwin', 'linux', 'win32']),
+    platform: z.enum(['darwin', 'win32']),
   })
   .strict();
 

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "renderer": "skia",
+  "sourceCommit": "667540e6b0715e00ce4dccb90e6c1f9443c07e39",
+  "toneMapping": "none",
+  "exposure": 1,
+  "matrixIsCartesianProduct": true,
+  "devicePixelRatios": [1, 1.25, 1.5, 2],
+  "viewports": [
+    { "width": 1280, "height": 720 },
+    { "width": 1440, "height": 900 },
+    { "width": 1920, "height": 1080 },
+    { "width": 2560, "height": 1440 },
+    { "width": 1600, "height": 720 },
+    { "width": 2560, "height": 1440, "mode": "maximum-load" }
+  ],
+  "zooms": [1, 2, 3],
+  "maps": ["northwest_residential", "northeast_downtown", "southwest_commercial", "southeast_docks"],
+  "roofStates": ["hidden", "restored"],
+  "movementPoses": ["stationary", "walking", "talking", "wobbling"],
+  "feedbackMasks": ["player", "npc", "active-door", "route", "selection", "destination", "journal", "failure"],
+  "doorStates": ["closed", "opening", "open", "closing"],
+  "vfxModes": ["procedural-standard", "procedural-reduced"],
+  "captures": [
+    { "devicePixelRatio": 1, "report": "output/verification/threejs-2d/stage-0/dpr-1/responsive-report.json" },
+    { "devicePixelRatio": 1.25, "report": "output/verification/threejs-2d/stage-0/dpr-1.25/responsive-report.json" },
+    { "devicePixelRatio": 1.5, "report": "output/verification/threejs-2d/stage-0/dpr-1.5/responsive-report.json" },
+    { "devicePixelRatio": 2, "report": "output/verification/threejs-2d/stage-0/dpr-2/responsive-report.json" }
+  ],
+  "knownBaselineFailures": [
+    {
+      "id": "skia-active-camera-pan-fps",
+      "thresholdFps": 55,
+      "observedFps": [10.61, 12.18, 12.52],
+      "classification": "repeatable-existing-skia-active-render-failure",
+      "thresholdChanged": false
+    }
+  ]
+}

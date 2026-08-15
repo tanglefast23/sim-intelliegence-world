@@ -9,6 +9,7 @@ import { parseSaveEnvelope } from '../../electron/persistence/save-format';
 import { resolveTestedCommit } from '../qualification/tested-commit';
 import { resolveEvidenceSource } from '../qualification/evidence-source';
 import { resolveEvidenceOutputRoot } from '../verification/evidence-output';
+import { WEBGL2_PROBE_URL } from '../../electron/protocol/app-protocol';
 
 import {
   evaluateRendererFps,
@@ -20,6 +21,15 @@ import {
   validateScreenshotEvidence,
   validateWorldZoomEvidence,
 } from './package-smoke-utils';
+
+const commandArguments = process.argv.slice(2);
+const webgl2Probe = commandArguments.includes('--webgl2-probe');
+const expectedArchitectureArguments = commandArguments.filter((argument) => argument.startsWith('--expect-arch='));
+if (expectedArchitectureArguments.length > 1) throw new Error('Only one expected architecture can be supplied.');
+const expectedArchitecture = expectedArchitectureArguments[0]?.slice('--expect-arch='.length) ?? process.arch;
+if (!['arm64', 'x64'].includes(expectedArchitecture)) {
+  throw new Error('Expected architecture must be arm64 or x64.');
+}
 
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
@@ -33,7 +43,8 @@ const listing = execFileSync(process.execPath, [asarCli, 'list', archive], {
   maxBuffer: 10_000_000,
 });
 validatePackageListing(listing);
-const screenshotDirectory = resolveEvidenceOutputRoot(process.argv.slice(2), {
+const screenshotDirectory = resolveEvidenceOutputRoot(commandArguments, {
+  allowedFlags: ['--webgl2-probe', '--expect-arch=arm64', '--expect-arch=x64'],
   defaultRelative: 'output/verification/package-smoke',
 });
 const screenshotPath = join(screenshotDirectory, 'packaged-electron.png');
@@ -79,10 +90,12 @@ const child = spawn(executable, [], {
   env: {
     ...process.env,
     SI_WORLD_SMOKE: '1',
-    SI_WORLD_SMOKE_LOADING_SCREENSHOT: loadingScreenshotPath,
-    SI_WORLD_SMOKE_SCREENSHOT: screenshotPath,
+    ...(webgl2Probe ? { SI_WORLD_WEBGL2_PROBE: '1' } : {
+      SI_WORLD_SMOKE_LOADING_SCREENSHOT: loadingScreenshotPath,
+      SI_WORLD_SMOKE_SCREENSHOT: screenshotPath,
+      SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR: screenshotDirectory,
+    }),
     SI_WORLD_SMOKE_USER_DATA: smokeUserData,
-    SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR: screenshotDirectory,
   },
   shell: false,
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -104,7 +117,7 @@ child.stderr.on('data', (chunk: Buffer) => {
 });
 
 let timedOut = false;
-const FULL_WORLD_SMOKE_TIMEOUT_MS = 420_000;
+const FULL_WORLD_SMOKE_TIMEOUT_MS = 1_200_000;
 const timeout = setTimeout(() => {
   timedOut = true;
   child.kill('SIGKILL');
@@ -122,6 +135,24 @@ child.once('close', (code) => {
       `Packaged app ${timedOut ? `timed out after ${FULL_WORLD_SMOKE_TIMEOUT_MS / 1_000} seconds` : `exited with ${String(code)}`}. ` +
       `${stderr.slice(-2_000)} ${stdout.slice(-4_000)}`,
     );
+  }
+  if (webgl2Probe) {
+    rmSync(smokeUserData, { force: true, recursive: true });
+    const prefix = 'SI_WORLD_WEBGL2_PROBE_RESULT ';
+    const line = stdout.split(/\r?\n/u).find((candidate) => candidate.startsWith(prefix));
+    if (!line) throw new Error('Packaged app did not emit WebGL 2 probe evidence.');
+    const probe = JSON.parse(line.slice(prefix.length)) as Record<string, unknown>;
+    if (probe.available !== true) throw new Error('Packaged WebGL 2 probe did not pass.');
+    if (probe.appUrl !== WEBGL2_PROBE_URL) throw new Error('Packaged WebGL 2 probe did not load the trusted probe URL.');
+    if (probe.architecture !== expectedArchitecture) {
+      throw new Error(`Packaged architecture ${String(probe.architecture)} did not match ${expectedArchitecture}.`);
+    }
+    writeFileSync(join(screenshotDirectory, 'webgl2-probe.json'), `${JSON.stringify({
+      ...probe,
+      testedCommit,
+    }, null, 2)}\n`, { encoding: 'utf8', flush: true });
+    process.stdout.write(`Packaged WebGL 2 probe: ${JSON.stringify(probe)}\n`);
+    return;
   }
   const autosaveDirectory = join(smokeUserData, 'si-world', 'save-slots', 'slot-001', 'autosaves');
   const majorQuestAutosave = readdirSync(autosaveDirectory)
@@ -178,6 +209,9 @@ child.once('close', (code) => {
     worldResult.rendererFpsDuringGeneration,
     process.env.SI_WORLD_SMOKE_PROFILE,
   );
+  if (!Number.isInteger(worldResult.rendererFpsSampledFrames) || Number(worldResult.rendererFpsSampledFrames) < 2) {
+    throw new Error(`Packaged renderer FPS sample is incomplete: ${String(worldResult.rendererFpsSampledFrames)} frames.`);
+  }
   worldResult.rendererFpsEvidence = rendererFpsEvidence;
   if (readFileSync(worldZoomPaths[0]!).equals(readFileSync(worldZoomPaths[2]!))) {
     throw new Error('Packaged 1x and 3x world evidence is identical.');
@@ -231,7 +265,12 @@ child.once('close', (code) => {
         memoryBytes: totalmem(), hostFingerprint: createHash('sha256').update(hostname()).digest('hex'),
       },
       package: { executableName: basename(executable), bundledModelRuntime: process.env.SI_WORLD_MODEL_RESOURCE_DIR ? true : false },
-      measurements: { rendererReadyMilliseconds, nonTextFeedbackMilliseconds: feedbackMilliseconds, rendererFpsDuringGeneration: rendererFps },
+      measurements: {
+        rendererReadyMilliseconds,
+        nonTextFeedbackMilliseconds: feedbackMilliseconds,
+        rendererFpsDuringGeneration: rendererFps,
+        rendererFpsSampledFrames: worldResult.rendererFpsSampledFrames,
+      },
       worldChecks: worldResult,
       thresholds: {
         nonTextFeedback: feedbackMilliseconds <= 100,

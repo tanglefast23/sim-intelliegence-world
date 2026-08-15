@@ -95,10 +95,24 @@ export function advanceMovementFrame(
   current: MovementFrameState,
   elapsedMs: number,
   speed: number,
+  advanceNpcs = true,
 ): MovementFrameState {
   if (speed <= 0) return current;
   const mapId = current.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
+  if (!advanceNpcs) {
+    const player = advanceWorldMovementFrame(
+      map,
+      current.movement,
+      current.worldState,
+      elapsedMs,
+      speed,
+      actorBlockers(current.worldState, mapId, current.npcMovements, 'protagonist'),
+    );
+    return player.movement === current.movement && player.worldState === current.worldState
+      ? current
+      : { ...current, movement: player.movement, worldState: player.worldState };
+  }
   let state = current.worldState;
   let playerMovement = current.movement;
   const movements: Record<string, MovementState> = {};

@@ -71,6 +71,54 @@ describe('movement reservations', () => {
     expect(reservedTileKeys(movement)).toEqual(['2,1']);
   });
 
+  test('scripted smoke can move the player while NPC motion stays frozen', () => {
+    const initial = createInitialState();
+    const worldState = parseWorldState({
+      ...initial,
+      protagonist: {
+        ...initial.protagonist,
+        worldPosition: { mapId: 'northwest_residential', tileX: 18, tileY: 18 },
+      },
+      npcs: {
+        ...initial.npcs,
+        linda: {
+          ...initial.npcs.linda!,
+          presence: {
+            kind: 'active_local', mapId: 'northwest_residential', locationId: 'northwest_residential',
+            tileX: 18, tileY: 20,
+          },
+          scheduleGoal: {
+            mapId: 'northwest_residential', locationId: 'northwest_residential',
+            tileX: 19, tileY: 19, activityId: 'social', scheduledMinute: 480,
+          },
+        },
+      },
+    });
+    const lindaMovement = requestMovement(
+      WORLD_MAP_CATALOG.northwest_residential,
+      createMovementState({ x: 18, y: 20 }),
+      { x: 19, y: 19 },
+    );
+    const frame: MovementFrameState = {
+      worldState,
+      movement: requestMovement(
+        WORLD_MAP_CATALOG.northwest_residential,
+        createMovementState({ x: 18, y: 18 }),
+        { x: 19, y: 18 },
+      ),
+      npcMovements: { linda: lindaMovement },
+    };
+
+    let advanced = frame;
+    for (let index = 0; index < 20 && advanced.worldState.protagonist.worldPosition.tileX === 18; index += 1) {
+      advanced = advanceMovementFrame(advanced, 16, 1, false);
+    }
+
+    expect(advanced.worldState.protagonist.worldPosition).toEqual(expect.objectContaining({ tileX: 19, tileY: 18 }));
+    expect(advanced.worldState.npcs.linda?.presence).toEqual(worldState.npcs.linda?.presence);
+    expect(advanced.npcMovements.linda).toBe(lindaMovement);
+  });
+
   test('commits a head-on exchange atomically without an exposed overlap', () => {
     const initial = createInitialState();
     const worldState = parseWorldState({

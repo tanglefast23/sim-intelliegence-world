@@ -6,6 +6,7 @@ import type { Protocol } from 'electron';
 export const APP_SCHEME = 'app' as const;
 export const APP_HOST = 'game' as const;
 export const APP_URL = `${APP_SCHEME}://${APP_HOST}/` as const;
+export const WEBGL2_PROBE_URL = `${APP_URL}webgl2-probe.html` as const;
 
 export const APP_CONTENT_SECURITY_POLICY = [
   "default-src 'self'",

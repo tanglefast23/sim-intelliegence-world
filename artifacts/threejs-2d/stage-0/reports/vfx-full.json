@@ -1,0 +1,3381 @@
+{
+  "schemaVersion": 1,
+  "compareVfxModes": true,
+  "includeMaximumLoad": true,
+  "qualification": false,
+  "testedCommit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+  "evidenceSource": {
+    "baseCommit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+    "sourceSha256": "1021a0cf2c27981cd933a5ce58a982a429ff6c13d80c743529223b1e3b3f18d0",
+    "sourcePaths": [
+      "electron/main/index.ts",
+      "electron/preload/index.ts",
+      "scripts/electron/run-procedural-vfx-package-smoke.ts",
+      "scripts/electron/vfx-mode-performance.ts",
+      "src/application/DesktopBridge.ts",
+      "src/render/WorldScene.tsx",
+      "src/render/vfx/ProceduralMapEffects.tsx",
+      "src/render/vfx/clock.ts",
+      "src/render/vfx/evidence.ts",
+      "src/render/vfx/fixtures.ts",
+      "src/render/vfx/procedural-effects.ts",
+      "src/render/vfx/seed.ts",
+      "src/render/vfx/types.ts"
+    ]
+  },
+  "packageProvenance": {
+    "executable": "/private/tmp/si-world-stage0-e1866ed-qjDefZ/repo/out/SI World-darwin-arm64/SI World.app/Contents/MacOS/si-world",
+    "executableSizeBytes": 33968,
+    "payload": "/private/tmp/si-world-stage0-e1866ed-qjDefZ/repo/out/SI World-darwin-arm64/SI World.app/Contents/Resources/app.asar",
+    "payloadSizeBytes": 67846969,
+    "payloadSha256": "c5e629a3860480ca83c94f91cb3af8dbb585618664054a09a43ddfee0af4ceb5"
+  },
+  "performanceAcceptance": {
+    "proceduralToCircleMedianRatio": 1,
+    "maximumMedianRatio": 1.1,
+    "minimumRoundedFps": 0,
+    "passed": true
+  },
+  "grayscaleProof": {
+    "fire": "procedural-fire-1x-grayscale.png",
+    "sparkle": "procedural-sparkle-1x-grayscale.png"
+  },
+  "runs": {
+    "circle-standard": {
+      "schemaVersion": 1,
+      "mode": "circle",
+      "motionMode": "standard",
+      "artPresentation": "Art mode enhanced; presentation fe577d53",
+      "contentSize": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 2,
+      "anchors": [
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-east",
+          "kind": "neon",
+          "x": 22,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 2,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 512,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-east-circle-standard-1x.png",
+            "northeast_downtown-club-neon-east-circle-standard-2x.png",
+            "northeast_downtown-club-neon-east-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-west",
+          "kind": "neon",
+          "x": 16,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 2,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 320,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-west-circle-standard-1x.png",
+            "northeast_downtown-club-neon-west-circle-standard-2x.png",
+            "northeast_downtown-club-neon-west-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "beach-sparkle",
+          "kind": "sparkle",
+          "x": 50,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 1,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 2,
+              "total": 3
+            },
+            "renderNodeCount": 3,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-beach-sparkle-circle-standard-1x.png",
+            "northwest_residential-beach-sparkle-circle-standard-2x.png",
+            "northwest_residential-beach-sparkle-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "garden-insects",
+          "kind": "insects",
+          "x": 31,
+          "y": 26,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "patio-fire",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 1,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 800,
+            "y": 733,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-garden-insects-circle-standard-1x.png",
+            "northwest_residential-garden-insects-circle-standard-2x.png",
+            "northwest_residential-garden-insects-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-fire",
+          "kind": "fire",
+          "x": 27,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "patio-fire",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 1,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 672,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-fire-circle-standard-1x.png",
+            "northwest_residential-patio-fire-circle-standard-2x.png",
+            "northwest_residential-patio-fire-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-leaves",
+          "kind": "leaves",
+          "x": 30,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 1,
+              "sparkle": 0,
+              "insects": 1,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 1,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 4,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 768,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-leaves-circle-standard-1x.png",
+            "northwest_residential-patio-leaves-circle-standard-2x.png",
+            "northwest_residential-patio-leaves-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-palm",
+          "kind": "palm",
+          "x": 35,
+          "y": 31,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 1,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 928,
+            "y": 893,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-palm-circle-standard-1x.png",
+            "northwest_residential-patio-palm-circle-standard-2x.png",
+            "northwest_residential-patio-palm-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-center",
+          "kind": "water",
+          "x": 50,
+          "y": 44,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 1,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 2,
+              "total": 3
+            },
+            "renderNodeCount": 3,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1306,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-center-circle-standard-1x.png",
+            "northwest_residential-shoreline-water-glint-center-circle-standard-2x.png",
+            "northwest_residential-shoreline-water-glint-center-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-east",
+          "kind": "water",
+          "x": 57,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 1,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 2,
+              "total": 3
+            },
+            "renderNodeCount": 3,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1631,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-east-circle-standard-1x.png",
+            "northwest_residential-shoreline-water-glint-east-circle-standard-2x.png",
+            "northwest_residential-shoreline-water-glint-east-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-west",
+          "kind": "water",
+          "x": 42,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "shoreline-water-glint-west"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 1,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1152,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-west-circle-standard-1x.png",
+            "northwest_residential-shoreline-water-glint-west-circle-standard-2x.png",
+            "northwest_residential-shoreline-water-glint-west-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-north",
+          "kind": "water",
+          "x": 55,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "harbor-water-glint-north"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-south",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 1,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1568,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-north-circle-standard-1x.png",
+            "southeast_docks-harbor-water-glint-north-circle-standard-2x.png",
+            "southeast_docks-harbor-water-glint-north-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-south",
+          "kind": "water",
+          "x": 53,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "harbor-water-glint-south"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 1,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1504,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-south-circle-standard-1x.png",
+            "southeast_docks-harbor-water-glint-south-circle-standard-2x.png",
+            "southeast_docks-harbor-water-glint-south-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "yard-steam",
+          "kind": "steam",
+          "x": 21,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "yard-steam"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "harbor-water-glint-south"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 1,
+              "water": 0,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 480,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-yard-steam-circle-standard-1x.png",
+            "southeast_docks-yard-steam-circle-standard-2x.png",
+            "southeast_docks-yard-steam-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-insects",
+          "kind": "insects",
+          "x": 25,
+          "y": 35,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "courtyard-insects"
+            ],
+            "culledEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 1,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 608,
+            "y": 1021,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-insects-circle-standard-1x.png",
+            "southwest_commercial-courtyard-insects-circle-standard-2x.png",
+            "southwest_commercial-courtyard-insects-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-east",
+          "kind": "steam",
+          "x": 14,
+          "y": 39,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "courtyard-steam-east"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 1,
+              "water": 0,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 256,
+            "y": 1149,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-east-circle-standard-1x.png",
+            "southwest_commercial-courtyard-steam-east-circle-standard-2x.png",
+            "southwest_commercial-courtyard-steam-east-circle-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-west",
+          "kind": "steam",
+          "x": 11,
+          "y": 34,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 2,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 160,
+            "y": 989,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-west-circle-standard-1x.png",
+            "southwest_commercial-courtyard-steam-west-circle-standard-2x.png",
+            "southwest_commercial-courtyard-steam-west-circle-standard-3x.png"
+          ]
+        }
+      ],
+      "pause": {
+        "frozen": true,
+        "ageStep": 0,
+        "pausedScreenshot": "patio-fire-circle-standard-paused.png",
+        "resumedAgeStep": 0,
+        "resumedScreenshot": "patio-fire-circle-standard-resumed.png"
+      },
+      "maximumLoad": {
+        "rendererFps": 120.05,
+        "displayRafFps": 120.05,
+        "medianFrameTimeMilliseconds": 8.3,
+        "sampledFrames": 241,
+        "cameraChangeFrames": 240,
+        "roundedFps": 120,
+        "evidence": {
+          "schemaVersion": 1,
+          "mode": "circle",
+          "mapId": "northwest_residential",
+          "vfxRevision": 2,
+          "ageStep": 0,
+          "reducedMotion": false,
+          "visibleEmitterIds": [
+            "garden-insects",
+            "patio-fire",
+            "patio-leaves",
+            "patio-palm",
+            "shoreline-water-glint-west"
+          ],
+          "culledEmitterIds": [
+            "beach-sparkle",
+            "shoreline-water-glint-center",
+            "shoreline-water-glint-east"
+          ],
+          "fallbackEmitterIds": [],
+          "primitiveCounts": {
+            "fire": 1,
+            "sparkle": 0,
+            "insects": 1,
+            "leaves": 1,
+            "neon": 0,
+            "palm": 1,
+            "steam": 0,
+            "water": 1,
+            "total": 5
+          },
+          "renderNodeCount": 5,
+          "updateRateHz": 0
+        }
+      }
+    },
+    "procedural-standard": {
+      "schemaVersion": 1,
+      "mode": "procedural",
+      "motionMode": "standard",
+      "artPresentation": "Art mode enhanced; presentation fe577d53",
+      "contentSize": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 2,
+      "anchors": [
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-east",
+          "kind": "neon",
+          "x": 22,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 4,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 512,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-east-procedural-standard-1x.png",
+            "northeast_downtown-club-neon-east-procedural-standard-2x.png",
+            "northeast_downtown-club-neon-east-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-west",
+          "kind": "neon",
+          "x": 16,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 4,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 320,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-west-procedural-standard-1x.png",
+            "northeast_downtown-club-neon-west-procedural-standard-2x.png",
+            "northeast_downtown-club-neon-west-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "beach-sparkle",
+          "kind": "sparkle",
+          "x": 50,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 5,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 10,
+              "total": 15
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-beach-sparkle-procedural-standard-1x.png",
+            "northwest_residential-beach-sparkle-procedural-standard-2x.png",
+            "northwest_residential-beach-sparkle-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "garden-insects",
+          "kind": "insects",
+          "x": 31,
+          "y": 26,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "patio-fire",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 4,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 8
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 800,
+            "y": 733,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-garden-insects-procedural-standard-1x.png",
+            "northwest_residential-garden-insects-procedural-standard-2x.png",
+            "northwest_residential-garden-insects-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-fire",
+          "kind": "fire",
+          "x": 27,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "patio-fire",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 4,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 8
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 672,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-fire-procedural-standard-1x.png",
+            "northwest_residential-patio-fire-procedural-standard-2x.png",
+            "northwest_residential-patio-fire-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-leaves",
+          "kind": "leaves",
+          "x": 30,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 7,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 4,
+              "sparkle": 0,
+              "insects": 4,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 3,
+              "steam": 0,
+              "water": 0,
+              "total": 15
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 768,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-leaves-procedural-standard-1x.png",
+            "northwest_residential-patio-leaves-procedural-standard-2x.png",
+            "northwest_residential-patio-leaves-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-palm",
+          "kind": "palm",
+          "x": 35,
+          "y": 31,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 9,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 3,
+              "steam": 0,
+              "water": 0,
+              "total": 7
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 928,
+            "y": 893,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-palm-procedural-standard-1x.png",
+            "northwest_residential-patio-palm-procedural-standard-2x.png",
+            "northwest_residential-patio-palm-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-center",
+          "kind": "water",
+          "x": 50,
+          "y": 44,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 11,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 5,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 10,
+              "total": 15
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1306,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-center-procedural-standard-1x.png",
+            "northwest_residential-shoreline-water-glint-center-procedural-standard-2x.png",
+            "northwest_residential-shoreline-water-glint-center-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-east",
+          "kind": "water",
+          "x": 57,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 13,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 5,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 10,
+              "total": 15
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 1631,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-east-procedural-standard-1x.png",
+            "northwest_residential-shoreline-water-glint-east-procedural-standard-2x.png",
+            "northwest_residential-shoreline-water-glint-east-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-west",
+          "kind": "water",
+          "x": 42,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 16,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "shoreline-water-glint-west"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 5,
+              "total": 5
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 1152,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-west-procedural-standard-1x.png",
+            "northwest_residential-shoreline-water-glint-west-procedural-standard-2x.png",
+            "northwest_residential-shoreline-water-glint-west-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-north",
+          "kind": "water",
+          "x": 55,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 18,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "harbor-water-glint-north"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-south",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 5,
+              "total": 5
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 1568,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-north-procedural-standard-1x.png",
+            "southeast_docks-harbor-water-glint-north-procedural-standard-2x.png",
+            "southeast_docks-harbor-water-glint-north-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-south",
+          "kind": "water",
+          "x": 53,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "harbor-water-glint-south"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 5,
+              "total": 5
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 1504,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-south-procedural-standard-1x.png",
+            "southeast_docks-harbor-water-glint-south-procedural-standard-2x.png",
+            "southeast_docks-harbor-water-glint-south-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "yard-steam",
+          "kind": "steam",
+          "x": 21,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "yard-steam"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "harbor-water-glint-south"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 4,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 480,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-yard-steam-procedural-standard-1x.png",
+            "southeast_docks-yard-steam-procedural-standard-2x.png",
+            "southeast_docks-yard-steam-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-insects",
+          "kind": "insects",
+          "x": 25,
+          "y": 35,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 6,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "courtyard-insects"
+            ],
+            "culledEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 4,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 608,
+            "y": 1021,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-insects-procedural-standard-1x.png",
+            "southwest_commercial-courtyard-insects-procedural-standard-2x.png",
+            "southwest_commercial-courtyard-insects-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-east",
+          "kind": "steam",
+          "x": 14,
+          "y": 39,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "courtyard-steam-east"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 4,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 256,
+            "y": 1149,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-east-procedural-standard-1x.png",
+            "southwest_commercial-courtyard-steam-east-procedural-standard-2x.png",
+            "southwest_commercial-courtyard-steam-east-procedural-standard-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-west",
+          "kind": "steam",
+          "x": 11,
+          "y": 34,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": false,
+            "visibleEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 8,
+              "water": 0,
+              "total": 8
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 2.9940119760479043
+          },
+          "camera": {
+            "x": 160,
+            "y": 989,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-west-procedural-standard-1x.png",
+            "southwest_commercial-courtyard-steam-west-procedural-standard-2x.png",
+            "southwest_commercial-courtyard-steam-west-procedural-standard-3x.png"
+          ]
+        }
+      ],
+      "pause": {
+        "frozen": true,
+        "ageStep": 8,
+        "pausedScreenshot": "patio-fire-procedural-standard-paused.png",
+        "resumedAgeStep": 8,
+        "resumedScreenshot": "patio-fire-procedural-standard-resumed.png"
+      },
+      "maximumLoad": {
+        "rendererFps": 120,
+        "displayRafFps": 120,
+        "medianFrameTimeMilliseconds": 8.3,
+        "sampledFrames": 241,
+        "cameraChangeFrames": 240,
+        "roundedFps": 120,
+        "evidence": {
+          "schemaVersion": 1,
+          "mode": "procedural",
+          "mapId": "northwest_residential",
+          "vfxRevision": 2,
+          "ageStep": 8,
+          "reducedMotion": false,
+          "visibleEmitterIds": [
+            "garden-insects",
+            "patio-fire",
+            "patio-leaves",
+            "patio-palm",
+            "shoreline-water-glint-west"
+          ],
+          "culledEmitterIds": [
+            "beach-sparkle",
+            "shoreline-water-glint-center",
+            "shoreline-water-glint-east"
+          ],
+          "fallbackEmitterIds": [],
+          "primitiveCounts": {
+            "fire": 4,
+            "sparkle": 0,
+            "insects": 4,
+            "leaves": 4,
+            "neon": 0,
+            "palm": 3,
+            "steam": 0,
+            "water": 5,
+            "total": 20
+          },
+          "renderNodeCount": 19,
+          "updateRateHz": 2.9940119760479043
+        }
+      }
+    },
+    "circle-reduced": {
+      "schemaVersion": 1,
+      "mode": "circle",
+      "motionMode": "reduced",
+      "artPresentation": "Art mode enhanced; presentation fe577d53",
+      "contentSize": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 2,
+      "anchors": [
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-east",
+          "kind": "neon",
+          "x": 22,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 2,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 512,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-east-circle-reduced-1x.png",
+            "northeast_downtown-club-neon-east-circle-reduced-2x.png",
+            "northeast_downtown-club-neon-east-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-west",
+          "kind": "neon",
+          "x": 16,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 2,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 320,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-west-circle-reduced-1x.png",
+            "northeast_downtown-club-neon-west-circle-reduced-2x.png",
+            "northeast_downtown-club-neon-west-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "beach-sparkle",
+          "kind": "sparkle",
+          "x": 50,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 1,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 2,
+              "total": 3
+            },
+            "renderNodeCount": 3,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-beach-sparkle-circle-reduced-1x.png",
+            "northwest_residential-beach-sparkle-circle-reduced-2x.png",
+            "northwest_residential-beach-sparkle-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "garden-insects",
+          "kind": "insects",
+          "x": 31,
+          "y": 26,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "patio-fire",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 1,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 800,
+            "y": 733,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-garden-insects-circle-reduced-1x.png",
+            "northwest_residential-garden-insects-circle-reduced-2x.png",
+            "northwest_residential-garden-insects-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-fire",
+          "kind": "fire",
+          "x": 27,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "patio-fire",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 1,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 672,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-fire-circle-reduced-1x.png",
+            "northwest_residential-patio-fire-circle-reduced-2x.png",
+            "northwest_residential-patio-fire-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-leaves",
+          "kind": "leaves",
+          "x": 30,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 1,
+              "sparkle": 0,
+              "insects": 1,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 1,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 4,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 768,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-leaves-circle-reduced-1x.png",
+            "northwest_residential-patio-leaves-circle-reduced-2x.png",
+            "northwest_residential-patio-leaves-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-palm",
+          "kind": "palm",
+          "x": 35,
+          "y": 31,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 1,
+              "neon": 0,
+              "palm": 1,
+              "steam": 0,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 928,
+            "y": 893,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-palm-circle-reduced-1x.png",
+            "northwest_residential-patio-palm-circle-reduced-2x.png",
+            "northwest_residential-patio-palm-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-center",
+          "kind": "water",
+          "x": 50,
+          "y": 44,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 1,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 2,
+              "total": 3
+            },
+            "renderNodeCount": 3,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1306,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-center-circle-reduced-1x.png",
+            "northwest_residential-shoreline-water-glint-center-circle-reduced-2x.png",
+            "northwest_residential-shoreline-water-glint-center-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-east",
+          "kind": "water",
+          "x": 57,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 1,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 2,
+              "total": 3
+            },
+            "renderNodeCount": 3,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1631,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-east-circle-reduced-1x.png",
+            "northwest_residential-shoreline-water-glint-east-circle-reduced-2x.png",
+            "northwest_residential-shoreline-water-glint-east-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-west",
+          "kind": "water",
+          "x": 42,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "shoreline-water-glint-west"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 1,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1152,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-west-circle-reduced-1x.png",
+            "northwest_residential-shoreline-water-glint-west-circle-reduced-2x.png",
+            "northwest_residential-shoreline-water-glint-west-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-north",
+          "kind": "water",
+          "x": 55,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "harbor-water-glint-north"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-south",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 1,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1568,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-north-circle-reduced-1x.png",
+            "southeast_docks-harbor-water-glint-north-circle-reduced-2x.png",
+            "southeast_docks-harbor-water-glint-north-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-south",
+          "kind": "water",
+          "x": 53,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "harbor-water-glint-south"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 1,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1504,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-south-circle-reduced-1x.png",
+            "southeast_docks-harbor-water-glint-south-circle-reduced-2x.png",
+            "southeast_docks-harbor-water-glint-south-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "yard-steam",
+          "kind": "steam",
+          "x": 21,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "yard-steam"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "harbor-water-glint-south"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 1,
+              "water": 0,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 480,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-yard-steam-circle-reduced-1x.png",
+            "southeast_docks-yard-steam-circle-reduced-2x.png",
+            "southeast_docks-yard-steam-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-insects",
+          "kind": "insects",
+          "x": 25,
+          "y": 35,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "courtyard-insects"
+            ],
+            "culledEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 1,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 608,
+            "y": 1021,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-insects-circle-reduced-1x.png",
+            "southwest_commercial-courtyard-insects-circle-reduced-2x.png",
+            "southwest_commercial-courtyard-insects-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-east",
+          "kind": "steam",
+          "x": 14,
+          "y": 39,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "courtyard-steam-east"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 1,
+              "water": 0,
+              "total": 1
+            },
+            "renderNodeCount": 1,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 256,
+            "y": 1149,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-east-circle-reduced-1x.png",
+            "southwest_commercial-courtyard-steam-east-circle-reduced-2x.png",
+            "southwest_commercial-courtyard-steam-east-circle-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-west",
+          "kind": "steam",
+          "x": 11,
+          "y": 34,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "circle",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 2,
+              "water": 0,
+              "total": 2
+            },
+            "renderNodeCount": 2,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 160,
+            "y": 989,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-west-circle-reduced-1x.png",
+            "southwest_commercial-courtyard-steam-west-circle-reduced-2x.png",
+            "southwest_commercial-courtyard-steam-west-circle-reduced-3x.png"
+          ]
+        }
+      ],
+      "pause": {
+        "frozen": true,
+        "ageStep": 0,
+        "pausedScreenshot": "patio-fire-circle-reduced-paused.png",
+        "resumedAgeStep": 0,
+        "resumedScreenshot": "patio-fire-circle-reduced-resumed.png"
+      },
+      "maximumLoad": {
+        "rendererFps": 120,
+        "displayRafFps": 120,
+        "medianFrameTimeMilliseconds": 8.3,
+        "sampledFrames": 241,
+        "cameraChangeFrames": 240,
+        "roundedFps": 120,
+        "evidence": {
+          "schemaVersion": 1,
+          "mode": "circle",
+          "mapId": "northwest_residential",
+          "vfxRevision": 2,
+          "ageStep": 0,
+          "reducedMotion": true,
+          "visibleEmitterIds": [
+            "garden-insects",
+            "patio-fire",
+            "patio-leaves",
+            "patio-palm",
+            "shoreline-water-glint-west"
+          ],
+          "culledEmitterIds": [
+            "beach-sparkle",
+            "shoreline-water-glint-center",
+            "shoreline-water-glint-east"
+          ],
+          "fallbackEmitterIds": [],
+          "primitiveCounts": {
+            "fire": 1,
+            "sparkle": 0,
+            "insects": 1,
+            "leaves": 1,
+            "neon": 0,
+            "palm": 1,
+            "steam": 0,
+            "water": 1,
+            "total": 5
+          },
+          "renderNodeCount": 5,
+          "updateRateHz": 0
+        }
+      }
+    },
+    "procedural-reduced": {
+      "schemaVersion": 1,
+      "mode": "procedural",
+      "motionMode": "reduced",
+      "artPresentation": "Art mode enhanced; presentation fe577d53",
+      "contentSize": {
+        "width": 1280,
+        "height": 720
+      },
+      "devicePixelRatio": 2,
+      "anchors": [
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-east",
+          "kind": "neon",
+          "x": 22,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 0,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 4,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 512,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-east-procedural-reduced-1x.png",
+            "northeast_downtown-club-neon-east-procedural-reduced-2x.png",
+            "northeast_downtown-club-neon-east-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northeast_downtown",
+          "id": "club-neon-west",
+          "kind": "neon",
+          "x": 16,
+          "y": 20,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northeast_downtown",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "club-neon-east",
+              "club-neon-west"
+            ],
+            "culledEmitterIds": [],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 4,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 320,
+            "y": 541,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northeast_downtown-club-neon-west-procedural-reduced-1x.png",
+            "northeast_downtown-club-neon-west-procedural-reduced-2x.png",
+            "northeast_downtown-club-neon-west-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "beach-sparkle",
+          "kind": "sparkle",
+          "x": 50,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 4,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 10,
+              "total": 14
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-beach-sparkle-procedural-reduced-1x.png",
+            "northwest_residential-beach-sparkle-procedural-reduced-2x.png",
+            "northwest_residential-beach-sparkle-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "garden-insects",
+          "kind": "insects",
+          "x": 31,
+          "y": 26,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "patio-fire",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 4,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 8
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 800,
+            "y": 733,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-garden-insects-procedural-reduced-1x.png",
+            "northwest_residential-garden-insects-procedural-reduced-2x.png",
+            "northwest_residential-garden-insects-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-fire",
+          "kind": "fire",
+          "x": 27,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "patio-fire",
+              "patio-leaves"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 3,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 7
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 672,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-fire-procedural-reduced-1x.png",
+            "northwest_residential-patio-fire-procedural-reduced-2x.png",
+            "northwest_residential-patio-fire-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-leaves",
+          "kind": "leaves",
+          "x": 30,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 6,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 3,
+              "sparkle": 0,
+              "insects": 4,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 3,
+              "steam": 0,
+              "water": 0,
+              "total": 14
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 768,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-leaves-procedural-reduced-1x.png",
+            "northwest_residential-patio-leaves-procedural-reduced-2x.png",
+            "northwest_residential-patio-leaves-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "patio-palm",
+          "kind": "palm",
+          "x": 35,
+          "y": 31,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 9,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 4,
+              "neon": 0,
+              "palm": 3,
+              "steam": 0,
+              "water": 0,
+              "total": 7
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 928,
+            "y": 893,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-patio-palm-procedural-reduced-1x.png",
+            "northwest_residential-patio-palm-procedural-reduced-2x.png",
+            "northwest_residential-patio-palm-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-center",
+          "kind": "water",
+          "x": 50,
+          "y": 44,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 11,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 4,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 10,
+              "total": 14
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1408,
+            "y": 1306,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-center-procedural-reduced-1x.png",
+            "northwest_residential-shoreline-water-glint-center-procedural-reduced-2x.png",
+            "northwest_residential-shoreline-water-glint-center-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-east",
+          "kind": "water",
+          "x": 57,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 13,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "beach-sparkle",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "culledEmitterIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 4,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 10,
+              "total": 14
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1631,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-east-procedural-reduced-1x.png",
+            "northwest_residential-shoreline-water-glint-east-procedural-reduced-2x.png",
+            "northwest_residential-shoreline-water-glint-east-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "northwest_residential",
+          "id": "shoreline-water-glint-west",
+          "kind": "water",
+          "x": 42,
+          "y": 43,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "northwest_residential",
+            "vfxRevision": 2,
+            "ageStep": 16,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "shoreline-water-glint-west"
+            ],
+            "culledEmitterIds": [
+              "beach-sparkle",
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm",
+              "shoreline-water-glint-center",
+              "shoreline-water-glint-east"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 5,
+              "total": 5
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1152,
+            "y": 1277,
+            "zoom": 3
+          },
+          "screenshots": [
+            "northwest_residential-shoreline-water-glint-west-procedural-reduced-1x.png",
+            "northwest_residential-shoreline-water-glint-west-procedural-reduced-2x.png",
+            "northwest_residential-shoreline-water-glint-west-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-north",
+          "kind": "water",
+          "x": 55,
+          "y": 30,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 18,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "harbor-water-glint-north"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-south",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 5,
+              "total": 5
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1568,
+            "y": 861,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-north-procedural-reduced-1x.png",
+            "southeast_docks-harbor-water-glint-north-procedural-reduced-2x.png",
+            "southeast_docks-harbor-water-glint-north-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "harbor-water-glint-south",
+          "kind": "water",
+          "x": 53,
+          "y": 40,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "harbor-water-glint-south"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "yard-steam"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 5,
+              "total": 5
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 1504,
+            "y": 1181,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-harbor-water-glint-south-procedural-reduced-1x.png",
+            "southeast_docks-harbor-water-glint-south-procedural-reduced-2x.png",
+            "southeast_docks-harbor-water-glint-south-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southeast_docks",
+          "id": "yard-steam",
+          "kind": "steam",
+          "x": 21,
+          "y": 32,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southeast_docks",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "yard-steam"
+            ],
+            "culledEmitterIds": [
+              "harbor-water-glint-north",
+              "harbor-water-glint-south"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 4,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 480,
+            "y": 925,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southeast_docks-yard-steam-procedural-reduced-1x.png",
+            "southeast_docks-yard-steam-procedural-reduced-2x.png",
+            "southeast_docks-yard-steam-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-insects",
+          "kind": "insects",
+          "x": 25,
+          "y": 35,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 6,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "courtyard-insects"
+            ],
+            "culledEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 4,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 0,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 608,
+            "y": 1021,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-insects-procedural-reduced-1x.png",
+            "southwest_commercial-courtyard-insects-procedural-reduced-2x.png",
+            "southwest_commercial-courtyard-insects-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-east",
+          "kind": "steam",
+          "x": 14,
+          "y": 39,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 2,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "courtyard-steam-east"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects",
+              "courtyard-steam-west"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 4,
+              "water": 0,
+              "total": 4
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 256,
+            "y": 1149,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-east-procedural-reduced-1x.png",
+            "southwest_commercial-courtyard-steam-east-procedural-reduced-2x.png",
+            "southwest_commercial-courtyard-steam-east-procedural-reduced-3x.png"
+          ]
+        },
+        {
+          "mapId": "southwest_commercial",
+          "id": "courtyard-steam-west",
+          "kind": "steam",
+          "x": 11,
+          "y": 34,
+          "fixtureEvidence": {
+            "schemaVersion": 1,
+            "mode": "procedural",
+            "mapId": "southwest_commercial",
+            "vfxRevision": 2,
+            "ageStep": 4,
+            "reducedMotion": true,
+            "visibleEmitterIds": [
+              "courtyard-steam-east",
+              "courtyard-steam-west"
+            ],
+            "culledEmitterIds": [
+              "courtyard-insects"
+            ],
+            "fallbackEmitterIds": [],
+            "primitiveCounts": {
+              "fire": 0,
+              "sparkle": 0,
+              "insects": 0,
+              "leaves": 0,
+              "neon": 0,
+              "palm": 0,
+              "steam": 8,
+              "water": 0,
+              "total": 8
+            },
+            "renderNodeCount": 19,
+            "updateRateHz": 0
+          },
+          "camera": {
+            "x": 160,
+            "y": 989,
+            "zoom": 3
+          },
+          "screenshots": [
+            "southwest_commercial-courtyard-steam-west-procedural-reduced-1x.png",
+            "southwest_commercial-courtyard-steam-west-procedural-reduced-2x.png",
+            "southwest_commercial-courtyard-steam-west-procedural-reduced-3x.png"
+          ]
+        }
+      ],
+      "pause": {
+        "frozen": true,
+        "ageStep": 8,
+        "pausedScreenshot": "patio-fire-procedural-reduced-paused.png",
+        "resumedAgeStep": 8,
+        "resumedScreenshot": "patio-fire-procedural-reduced-resumed.png"
+      },
+      "maximumLoad": {
+        "rendererFps": 119.99,
+        "displayRafFps": 119.99,
+        "medianFrameTimeMilliseconds": 8.3,
+        "sampledFrames": 241,
+        "cameraChangeFrames": 240,
+        "roundedFps": 120,
+        "evidence": {
+          "schemaVersion": 1,
+          "mode": "procedural",
+          "mapId": "northwest_residential",
+          "vfxRevision": 2,
+          "ageStep": 8,
+          "reducedMotion": true,
+          "visibleEmitterIds": [
+            "garden-insects",
+            "patio-fire",
+            "patio-leaves",
+            "patio-palm",
+            "shoreline-water-glint-west"
+          ],
+          "culledEmitterIds": [
+            "beach-sparkle",
+            "shoreline-water-glint-center",
+            "shoreline-water-glint-east"
+          ],
+          "fallbackEmitterIds": [],
+          "primitiveCounts": {
+            "fire": 3,
+            "sparkle": 0,
+            "insects": 4,
+            "leaves": 4,
+            "neon": 0,
+            "palm": 3,
+            "steam": 0,
+            "water": 5,
+            "total": 19
+          },
+          "renderNodeCount": 19,
+          "updateRateHz": 0
+        }
+      }
+    }
+  }
+}

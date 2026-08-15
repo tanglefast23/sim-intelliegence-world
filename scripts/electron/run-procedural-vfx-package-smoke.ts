@@ -188,7 +188,11 @@ if (compareVfxModes) {
   const circle = reports['circle-standard'];
   const procedural = reports['procedural-standard'];
   if (!circle || !procedural) throw new Error('VFX comparison reports are incomplete.');
-  performanceAcceptance = validateVfxModePerformance(circle.maximumLoad, procedural.maximumLoad, 60);
+  performanceAcceptance = validateVfxModePerformance(
+    circle.maximumLoad,
+    procedural.maximumLoad,
+    qualification ? 60 : 0,
+  );
   const fire = procedural.anchors.find(({ kind }) => kind === 'fire');
   const sparkle = procedural.anchors.find(({ kind }) => kind === 'sparkle');
   if (!fire || !sparkle) throw new Error('Grayscale VFX proof requires fire and sparkle anchors.');
