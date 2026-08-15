@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "southeast-1920x1080-dpr1-zoom1",
-  "sourceCommit": "51df47dfbe2ba2d37481567d2086723fdde279d3",
+  "sourceCommit": "17c0f920641561a445ca2d694a105a4e0cdc5f9b",
   "mode": "parity",
   "viewport": {
     "width": 1920,
@@ -17,11 +17,11 @@
   "compositingChanged": true,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-5/captures/all-maps/southeast-1920x1080-dpr1-zoom1-skia.png",
+    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/southeast-1920x1080-dpr1-zoom1-skia.png",
     "masks": "tests/fixtures/rendering/threejs-all-maps/southeast-1920x1080-dpr1-zoom1-mask-v1.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-5/captures/all-maps/southeast-1920x1080-dpr1-zoom1-threejs-2d.png",
+    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/southeast-1920x1080-dpr1-zoom1-threejs-2d.png",
     "masks": "tests/fixtures/rendering/threejs-all-maps/southeast-1920x1080-dpr1-zoom1-mask-v1.json"
   },
   "requiredMaskIds": [
