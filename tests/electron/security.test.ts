@@ -135,8 +135,8 @@ describe('secure Electron boundary', () => {
     expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
   });
 
-  test('CSP allows CanvasKit but not general unsafe eval or remote origins', () => {
-    expect(APP_CONTENT_SECURITY_POLICY).toContain("'wasm-unsafe-eval'");
+  test('CSP rejects WebAssembly evaluation now that CanvasKit is gone', () => {
+    expect(APP_CONTENT_SECURITY_POLICY).not.toContain("'wasm-unsafe-eval'");
     expect(APP_CONTENT_SECURITY_POLICY).not.toContain("'unsafe-eval'");
     expect(APP_CONTENT_SECURITY_POLICY).toContain("connect-src 'self'");
     expect(APP_CONTENT_SECURITY_POLICY).toContain("object-src 'none'");

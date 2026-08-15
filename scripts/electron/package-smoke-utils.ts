@@ -107,7 +107,6 @@ export function validatePackageListing(listing: string): void {
     '/build/electron/preload/index.js',
     '/build/electron/persistence/save-repository.js',
     '/build/src/domain/state/schema.js',
-    '/dist/canvaskit.wasm',
     '/dist/index.html',
     '/dist/webgl2-probe.html',
     '/node_modules/zod/package.json',
@@ -120,8 +119,6 @@ export function validatePackageListing(listing: string): void {
   }
 
   const requiredResourcePatterns = [
-    /^\/dist\/assets\/assets\/proof\/phase2-atlas\.[a-f0-9]+\.png$/u,
-    /^\/dist\/assets\/assets\/proof\/phase2-tone\.[a-f0-9]+\.wav$/u,
     /^\/dist\/assets\/assets\/generated\/world-atlas\.[a-f0-9]+\.png$/u,
     /^\/dist\/assets\/assets\/generated\/audio\/greeting\.[a-f0-9]+\.wav$/u,
     /^\/dist\/assets\/assets\/generated\/audio\/laugh\.[a-f0-9]+\.wav$/u,
