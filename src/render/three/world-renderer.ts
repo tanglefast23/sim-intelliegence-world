@@ -109,6 +109,43 @@ function atmosphereDrift(timestampMilliseconds: number): number {
     : 1 - inOutSin((phase - 3_800) / 4_600);
 }
 
+type Srgba = Readonly<{ r: number; g: number; b: number; a: number }>;
+
+/** Parses #rrggbb or #rrggbbaa into 0..1 sRGB with straight alpha, with no linear conversion. */
+function parseSrgba(color: string): Srgba {
+  const normalized = color.startsWith('#') ? color.slice(1) : color;
+  const rgb = normalized.length >= 6 ? normalized.slice(0, 6) : 'ffffff';
+  const alpha = normalized.length === 8 ? Number.parseInt(normalized.slice(6), 16) / 255 : 1;
+  const channel = (offset: number): number => Number.parseInt(rgb.slice(offset, offset + 2), 16) / 255;
+  return { r: channel(0), g: channel(2), b: channel(4), a: alpha };
+}
+
+/**
+ * Straight-alpha source-over in sRGB, matching how the browser composited the legacy overlay
+ * layers. Compositing in three's linear working space instead measurably widened the gap.
+ */
+function overSrgba(top: Srgba, bottom: Srgba): Srgba {
+  const a = top.a + bottom.a * (1 - top.a);
+  if (a <= 0) return { r: 0, g: 0, b: 0, a: 0 };
+  const mix = (t: number, b: number): number => (t * top.a + b * bottom.a * (1 - top.a)) / a;
+  return { r: mix(top.r, bottom.r), g: mix(top.g, bottom.g), b: mix(top.b, bottom.b), a };
+}
+
+const srgbToLinear = (c: number): number => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+
+function addRectSrgba(data: GeometryData, x: number, y: number, width: number, height: number, tint: Srgba): void {
+  if (width <= 0 || height <= 0 || tint.a <= 0) return;
+  const base = data.positions.length / 3;
+  for (const [px, py] of [[x, y], [x + width, y], [x + width, y + height], [x, y + height]] as const) {
+    data.positions.push(px, -py, 0);
+  }
+  data.uvs.push(0, 1, 1, 1, 1, 0, 0, 0);
+  // The shader converts linear to sRGB on output, so the tint must be linear.
+  const linear = [srgbToLinear(tint.r), srgbToLinear(tint.g), srgbToLinear(tint.b)] as const;
+  for (let index = 0; index < 4; index += 1) data.tints.push(linear[0], linear[1], linear[2], tint.a);
+  data.indices.push(...threeQuadIndices(base));
+}
+
 function addRect(data: GeometryData, x: number, y: number, width: number, height: number, color: string, opacity = 1): void {
   addQuad(data, [[x, y], [x + width, y], [x + width, y + height], [x, y + height]], color, opacity);
 }
@@ -664,45 +701,54 @@ export class ThreeWorldRenderer {
     // Stage 4 owns the atmosphere treatment. The legacy overlay was viewport-relative, so the
     // wash, edge shades, and motes are converted from screen space through the camera.
     const atmosphere = emptyGeometryData();
-    const screenRect = (
-      sx: number,
-      sy: number,
-      sw: number,
-      sh: number,
-      color: string,
-      opacity: number,
-    ): void => {
-      addRect(
+    const screenQuad = (sx: number, sy: number, sw: number, sh: number, tint: Srgba): void => {
+      addRectSrgba(
         atmosphere,
         camera.x + sx / camera.zoom,
         camera.y + sy / camera.zoom,
         sw / camera.zoom,
         sh / camera.zoom,
-        color,
-        opacity,
+        tint,
       );
     };
     const width = viewport.width;
     const height = viewport.height;
-    screenRect(0, 0, width, height, frame.atmosphere.wash, 1);
-    screenRect(0, 0, width, 16, frame.atmosphere.shade, 0.25);
-    screenRect(0, height - 22, width, 22, frame.atmosphere.shade, 0.34);
-    screenRect(0, 0, 16, height, frame.atmosphere.shade, 0.18);
-    screenRect(width - 16, 0, 16, height, frame.atmosphere.shade, 0.18);
+    const TOP = 16;
+    const BOTTOM = 22;
+    const SIDE = 16;
+    // The legacy overlay stacked a wash and four edge shades as separate browser layers, which
+    // composite in sRGB. Emitting them as separate quads round-trips through the framebuffer per
+    // layer, so each region instead carries one tint precomposed in sRGB.
+    const wash = parseSrgba(frame.atmosphere.wash);
+    const shade = parseSrgba(frame.atmosphere.shade);
+    const shadeAt = (opacity: number): Srgba => ({ ...shade, a: shade.a * opacity });
+    const band = (...layers: readonly Srgba[]): Srgba => layers.reduce((below, above) => overSrgba(above, below), wash);
+    const top = shadeAt(0.25);
+    const bottom = shadeAt(0.34);
+    const side = shadeAt(0.18);
+    const midHeight = Math.max(0, height - TOP - BOTTOM);
+    const midWidth = Math.max(0, width - SIDE * 2);
+    screenQuad(0, 0, SIDE, TOP, band(top, side));
+    screenQuad(width - SIDE, 0, SIDE, TOP, band(top, side));
+    screenQuad(SIDE, 0, midWidth, TOP, band(top));
+    screenQuad(0, height - BOTTOM, SIDE, BOTTOM, band(bottom, side));
+    screenQuad(width - SIDE, height - BOTTOM, SIDE, BOTTOM, band(bottom, side));
+    screenQuad(SIDE, height - BOTTOM, midWidth, BOTTOM, band(bottom));
+    screenQuad(0, TOP, SIDE, midHeight, band(side));
+    screenQuad(width - SIDE, TOP, SIDE, midHeight, band(side));
+    screenQuad(SIDE, TOP, midWidth, midHeight, wash);
     // Reduced motion is the qualified packaged path: fixed opacity and no drift.
-    // Otherwise the drift is rebuilt from the controller-sampled timestamp, so the renderer
-    // still owns no clock of its own.
     const drift = frame.reducedMotion ? 0 : atmosphereDrift(frame.animationTimestampMilliseconds);
     const moteOpacity = frame.reducedMotion ? 0.28 : 0.18 + drift * 0.54;
     const moteShift = frame.reducedMotion ? 0 : drift * -8;
+    const accent = parseSrgba(frame.atmosphere.accent);
     ATMOSPHERE_MOTES.forEach(([leftPercent, topPercent]) => {
-      screenRect(
+      screenQuad(
         (leftPercent / 100) * width,
         (topPercent / 100) * height + moteShift,
         2,
         2,
-        frame.atmosphere.accent,
-        moteOpacity,
+        { ...accent, a: accent.a * moteOpacity },
       );
     });
     this.#set('atmosphere', atmosphere);
