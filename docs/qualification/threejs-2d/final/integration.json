@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "mergedCommit": "c9f45b157aef6ad99fc1522b094ec34cfe56d16c",
+  "mainCommit": "731cea7",
+  "integrationBranch": "codex/threejs-2d-port",
+  "rollbackSha": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "historyRewritten": false,
+  "containment": {
+    "everyStageTipContainedInIntegration": true,
+    "stage7AncestorOfLocalMain": true,
+    "stage7AncestorOfRemoteMain": true,
+    "rollbackShaAncestorOfRemoteMain": true,
+    "localAndRemoteMainMatch": true
+  },
+  "finalChecks": [
+    { "command": "npm ci", "exitCode": 0 },
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npm run check:boundaries", "exitCode": 0 },
+    { "command": "npx jest --runInBand --no-cache", "exitCode": 0, "result": "907 tests passed" },
+    { "command": "npm run export:web", "exitCode": 0, "result": "no canvaskit.wasm in dist" },
+    { "command": "npm run package:mac:arm64", "exitCode": 0 },
+    { "command": "npm run smoke:electron", "exitCode": 0 }
+  ],
+  "remoteGate": {
+    "package-macos-arm64": "success",
+    "package-macos-x64": "success",
+    "package-macos-x64-functional": "success",
+    "package-windows-x64": "success"
+  },
+  "postMergeFix": "The first main run failed with identical loading and ready screenshots. Capturing at zero fired before the loading shell mounted, so the Stage 6 tolerant path recorded the ready frame. Restoring a short delay lands inside the roughly 500 ms the resource gate holds the shell, and the loading capture is 14 KB against 308 KB for ready.",
+  "openRisk": "macos-15-intel blocklists WebGL 2 and no renderer survives without it. See artifacts/threejs-2d/stage-7/INTEL-WEBGL2.md.",
+  "preserved": {
+    "rollbackCommit": "0d9d926 remains a valid commit and an ancestor of remote main",
+    "recoveryStashes": 3
+  }
+}
