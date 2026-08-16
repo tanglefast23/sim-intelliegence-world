@@ -148,6 +148,10 @@ async function run(
           SI_WORLD_SMOKE: '1',
           SI_WORLD_SMOKE_USER_DATA: userData,
           SI_WORLD_TEST_RENDERER: rendererKind,
+          // The locked manifests are no-tone parity captures, so the capture must force the same
+          // override. Production runs ACES; comparing an ACES capture against a no-tone manifest
+          // would measure the tone curve rather than the change under test.
+          SI_WORLD_TEST_TONE_MAPPING: 'none',
           SI_WORLD_VFX_MODE: vfxMode,
         },
         shell: false,
