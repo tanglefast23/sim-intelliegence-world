@@ -79,3 +79,30 @@ to history, or each item has to fit inside what is left.
 
 That is a decision about the evidence corpus, not about the renderer, and it is
 the honest blocker in front of the rest of this program.
+
+## Grok 4.6 audit record
+
+The Stage 7 skip is replaced. Grok now runs, and the lever was payload size, not
+budget: the full Stage 7 diff deletes many files plus fixture PNGs and swamped the
+input, so it returned a verdict having read nothing. Raising `--max-turns` to 60
+changed nothing. Path-scoped batches produced real audits.
+
+- Batch 1, CSP, readiness contract and resource gate: no findings, with coverage
+  citing `script-src 'self'` and the absence of `canvasKitReady`.
+- Batch 2, renderer and shell: no findings, confirming Three.js owns lighting,
+  atmosphere and the three feedback batches in composite order.
+- Batch 3, tests and package surface: THREE HIGH findings, all valid.
+
+Batch 3 is why this was worth re-running. It found that the Skia-removal test
+retargeting fixed the symptom and left the cause: `readFileSync` still sat in the
+`describe` body of two suites, which is the exact pattern that let Jest report a
+suite as passing while its collection threw ENOENT. It also found the retargeted
+`atlas-bill` batch assertion was a substring count that proved nothing about the
+12-draw atlas ceiling.
+
+Fixed: every source read moved inside `test()`, and the batch count replaced with
+the renderer's real atlas batch list. Verified by deleting `world-renderer.ts` and
+confirming the suite now reports a failure where it previously reported a pass.
+
+A verdict whose coverage note says it is "beginning" an inspection is not an
+audit. Those two runs are recorded here as unearned rather than counted.

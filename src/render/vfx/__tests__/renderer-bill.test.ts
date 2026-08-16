@@ -8,7 +8,10 @@ import { PROCEDURAL_VFX_RENDER_NODE_COUNT, VFX_ROLE_COLORS } from '../types';
  * Three.js effects batch, so these assertions describe that renderer instead of the old component.
  */
 describe('procedural VFX renderer bill', () => {
-  const renderer = readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8');
+  // Read inside each test, never in the describe body. A collection-time read of a deleted file
+  // throws ENOENT while Jest still reports the suite as passing, which is exactly how two suites
+  // hid their own failure during the Skia removal.
+  const renderer = (): string => readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8');
 
   test('keeps the nineteen-node evidence bill renderer-neutral', () => {
     expect(PROCEDURAL_VFX_RENDER_NODE_COUNT).toBe(19);
@@ -22,9 +25,9 @@ describe('procedural VFX renderer bill', () => {
   });
 
   test('draws sampled geometry into one effects batch and owns no clock', () => {
-    expect(renderer).toContain("this.#set('effects'");
-    expect(renderer).toContain('frame.effects');
+    expect(renderer()).toContain("this.#set('effects'");
+    expect(renderer()).toContain('frame.effects');
     // The renderer presents the frame it is given; it never advances VFX time itself.
-    expect(renderer).not.toMatch(/setInterval|Math\.random|performance\.now/u);
+    expect(renderer()).not.toMatch(/setInterval|Math\.random|performance\.now/u);
   });
 });
