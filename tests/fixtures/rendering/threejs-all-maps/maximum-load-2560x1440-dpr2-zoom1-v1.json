@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "maximum-load-2560x1440-dpr2-zoom1",
-  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "sourceCommit": "2447f747a123a4138145f3078e79c7d4f0f9bfda",
   "mode": "parity",
   "viewport": {
     "width": 2560,
@@ -14,14 +14,14 @@
     "y": 126
   },
   "toneMapping": "none",
-  "compositingChanged": true,
+  "compositingChanged": false,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/maximum-load-2560x1440-dpr2-zoom1-skia.png",
+    "image": "artifacts/visual-polish/baseline/maximum-load-2560x1440-dpr2-zoom1-baseline.png",
     "masks": "tests/fixtures/rendering/threejs-all-maps/maximum-load-2560x1440-dpr2-zoom1-mask-v1.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/maximum-load-2560x1440-dpr2-zoom1-threejs-2d.png",
+    "image": "artifacts/visual-polish/baseline/maximum-load-2560x1440-dpr2-zoom1-candidate.png",
     "masks": "tests/fixtures/rendering/threejs-all-maps/maximum-load-2560x1440-dpr2-zoom1-mask-v1.json"
   },
   "requiredMaskIds": [

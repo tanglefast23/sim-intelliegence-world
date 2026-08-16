@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "northeast-1440x900-dpr1-zoom2",
-  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "sourceCommit": "2447f747a123a4138145f3078e79c7d4f0f9bfda",
   "mode": "parity",
   "viewport": {
     "width": 1440,
@@ -14,14 +14,14 @@
     "y": 439
   },
   "toneMapping": "none",
-  "compositingChanged": true,
+  "compositingChanged": false,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/northeast-1440x900-dpr1-zoom2-skia.png",
+    "image": "artifacts/visual-polish/baseline/northeast-1440x900-dpr1-zoom2-baseline.png",
     "masks": "tests/fixtures/rendering/threejs-all-maps/northeast-1440x900-dpr1-zoom2-mask-v1.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/northeast-1440x900-dpr1-zoom2-threejs-2d.png",
+    "image": "artifacts/visual-polish/baseline/northeast-1440x900-dpr1-zoom2-candidate.png",
     "masks": "tests/fixtures/rendering/threejs-all-maps/northeast-1440x900-dpr1-zoom2-mask-v1.json"
   },
   "requiredMaskIds": [
