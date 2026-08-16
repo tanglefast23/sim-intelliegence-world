@@ -1,12 +1,10 @@
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-import { PNG } from 'pngjs';
 import { z } from 'zod';
 
-import { measureRgbDeltas } from '../qualification/compare-renderer-frames';
 
 import {
   ALL_MAP_PARITY_CASES,
@@ -99,23 +97,7 @@ const PassSchema = z.object({
 }).strict();
 type Pass = z.infer<typeof PassSchema>;
 
-// Stage 3 amendment 2026-08-15: the approved native and scaled RGB metrics for zoom crops.
-// These are whole-crop averages over a 160x160 region, NOT the specification's mask-local
-// ceilings. The player sprite covers a small share of that crop, so mask-local ceilings would
-// let a badly wrong sprite pass. The scaled values below are derived from the observed crop
-// maxima (mean 1.85, RMSE 7.86, ratio 0.0204) with margin.
-const SCALED_LARGE_CHANNEL_DELTA = 32;
 const MINIMUM_FALLBACK_TRIANGLES_PER_EFFECT = 32;
-const NATIVE_ZOOM_LIMITS = Object.freeze({
-  meanAbsoluteChannelDelta: 1,
-  rootMeanSquareChannelDelta: 3,
-  largeChangedPixelRatio: 0.002,
-});
-const SCALED_ZOOM_LIMITS = Object.freeze({
-  meanAbsoluteChannelDelta: 3,
-  rootMeanSquareChannelDelta: 12,
-  largeChangedPixelRatio: 0.04,
-});
 
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)

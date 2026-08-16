@@ -26,6 +26,15 @@ The path is now:
 
 Measured end to end: 19 candidates refreshed, 25 of 25 fixtures pass.
 
+**19 of those 25 are live. Six are not, and that is now declared rather than
+hidden.** The six `villa-*` fixtures were captured by the parity runner Stage 7
+retired, so their candidates are frozen history. The refresh originally skipped
+them silently, which meant the headline pass included six frozen-versus-frozen
+comparisons: the same vacuity this path was built to remove, surviving in reduced
+form. The refresh is now driven from the comparator collection, names the six as
+frozen history, and fails listing any other fixture it could not refresh. Reviving
+them needs a villa capture runner.
+
 ## What did not ship, and why
 
 **5.1 camera-origin snap. Implemented, measured, reverted.**
@@ -46,6 +55,18 @@ an item which cannot show its measurement is reverted, not softened, so it was.
 
 The unit tests are the lesson worth keeping: they all passed while the change
 broke a readability floor. Only pixel evidence caught it.
+
+## The ACES gap
+
+Production runs ACES. The capture forces the no-tone override, correctly, because
+the locked manifests are no-tone and comparing an ACES capture against them would
+measure the tone curve instead of the change. But the enhanced ACES manifest set
+the port used no longer exists, and the capture script pins its evidence to
+`toneMapping: 'none'`, so it could not take an ACES capture even if asked.
+
+Anything visible only under the ACES curve therefore has no pixel gate. That
+directly affects two of the remaining items, the rim light and the grading. It is
+a named blocker, not an oversight.
 
 ## What the remaining four items now need
 

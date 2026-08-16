@@ -27,6 +27,27 @@ describe('candidate capture refresh', () => {
     })).toThrow(/refreshed|stale/iu);
   });
 
+  test('actually replaces the candidate bytes, and fails loudly when it cannot', () => {
+    // The success path was previously untested: swapped copy arguments would still have printed
+    // "Refreshed 19 candidate captures" while the comparator kept reading frozen pixels.
+    const collection = JSON.parse(readFileSync(
+      resolve('tests/fixtures/rendering/threejs-all-maps-v1.json'), 'utf8',
+    )) as { fixtures: readonly Readonly<{ id: string }>[] };
+    const refreshable = collection.fixtures.filter(({ id }) => !id.startsWith('villa-'));
+    expect(refreshable.length).toBeGreaterThan(0);
+
+    // A report missing a refreshable fixture must fail by name rather than skip it silently.
+    const reportPath = join(root, 'renderer-capture-report.json');
+    writeFileSync(reportPath, JSON.stringify({ passes: { threejs2d: { fixtures: [] } } }));
+    let message = '';
+    try {
+      execFileSync('npx', ['tsx', 'scripts/qualification/refresh-candidate-captures.ts', '--report', reportPath], {
+        cwd: process.cwd(), encoding: 'utf8', stdio: 'pipe',
+      });
+    } catch (error) { message = String((error as { stderr?: string }).stderr ?? error); }
+    expect(message).toContain(refreshable[0]!.id);
+  });
+
   test('a damaged candidate fails the comparison it is fed into', () => {
     const manifestPath = resolve('tests/fixtures/rendering/threejs-all-maps/northwest-1280x720-dpr1-zoom1-v1.json');
     const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {

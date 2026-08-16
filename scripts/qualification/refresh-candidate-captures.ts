@@ -35,10 +35,43 @@ function findCapture(root: string, name: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Drive from the comparator collection, not the capture report.
+ *
+ * Driving from the report hid six villa fixtures that the capture never visits: they were silently
+ * skipped, so the comparator kept reading frozen candidates for them and still reported a pass.
+ * That is the vacuity this path exists to remove. Anything the capture cannot refresh must be
+ * declared here, not discovered by its absence.
+ */
+const COLLECTION = 'tests/fixtures/rendering/threejs-all-maps-v1.json';
+
+/**
+ * Fixtures whose capture runner was retired with Skia. Their candidates are frozen history and
+ * cannot be refreshed, so they prove nothing about a new change and are excluded by name rather
+ * than by silent omission. Reviving them needs a villa capture runner.
+ */
+const FROZEN_HISTORY = new Set([
+  'villa-exterior-idle',
+  'villa-interior-roof-hidden',
+  'villa-door-transition',
+  'villa-walk-east-frame-1',
+  'villa-selected-npc',
+  'villa-destination-journal-failure',
+]);
+
+const collection = JSON.parse(readFileSync(resolve(COLLECTION), 'utf8')) as {
+  fixtures: readonly Readonly<{ id: string; manifest: string }>[];
+};
+const captured = new Map(report.passes.threejs2d.fixtures.map((fixture) => [fixture.id, fixture]));
+const unrefreshed: string[] = [];
+
 let refreshed = 0;
-for (const fixture of report.passes.threejs2d.fixtures) {
-  const manifestPath = resolve(`tests/fixtures/rendering/threejs-all-maps/${fixture.id}-v1.json`);
-  if (!existsSync(manifestPath)) continue;
+for (const entry of collection.fixtures) {
+  if (FROZEN_HISTORY.has(entry.id)) continue;
+  const fixture = captured.get(entry.id);
+  if (!fixture) { unrefreshed.push(entry.id); continue; }
+  const manifestPath = resolve(entry.manifest);
+  if (!existsSync(manifestPath)) { unrefreshed.push(entry.id); continue; }
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { candidate: { image: string } };
   const destination = resolve(manifest.candidate.image);
   // The runner writes one directory per DPR and VFX mode, so the capture is a level deeper.
@@ -49,5 +82,12 @@ for (const fixture of report.passes.threejs2d.fixtures) {
   refreshed += 1;
 }
 
+if (unrefreshed.length > 0) {
+  throw new Error(
+    `These fixtures were not refreshed, so the comparison would be stale for them: ${unrefreshed.join(', ')}.`,
+  );
+}
 if (refreshed === 0) throw new Error('No candidate capture was refreshed; the comparison would be stale.');
-process.stdout.write(`Refreshed ${refreshed} candidate captures.\n`);
+process.stdout.write(
+  `Refreshed ${refreshed} candidate captures. ${FROZEN_HISTORY.size} are frozen history and were skipped by name.\n`,
+);
