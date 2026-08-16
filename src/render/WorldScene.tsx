@@ -1513,13 +1513,13 @@ export function WorldScene({
   const zoneGates = portalZones.map((zone) => {
     const top = Math.min(...zone.tiles.map(({ y }) => y));
     const centerX = (Math.min(...zone.tiles.map(({ x }) => x)) + Math.max(...zone.tiles.map(({ x }) => x)) + 1) / 2;
-    const anchor = worldToScreen(camera, { x: centerX * TILE_SIZE, y: top * TILE_SIZE });
+    const anchor = worldToScreen(renderCamera, { x: centerX * TILE_SIZE, y: top * TILE_SIZE });
     return {
       id: zone.id,
       label: zone.label,
       armed: armedPortalId === zone.id,
       cells: zone.tiles.map((tile) => {
-        const screen = worldToScreen(camera, { x: tile.x * TILE_SIZE, y: tile.y * TILE_SIZE });
+        const screen = worldToScreen(renderCamera, { x: tile.x * TILE_SIZE, y: tile.y * TILE_SIZE });
         return { key: `${tile.x},${tile.y}`, left: screen.x, top: screen.y };
       }),
       labelX: anchor.x,
