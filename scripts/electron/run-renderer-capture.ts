@@ -101,16 +101,6 @@ type Pass = z.infer<typeof PassSchema>;
 
 const MINIMUM_FALLBACK_TRIANGLES_PER_EFFECT = 32;
 
-/**
- * The comparator requires every capture to be `round(viewport x devicePixelRatio)`.
- *
- * That still holds after handoff technique 1 made the drawing buffer an integer multiple of the
- * viewport, but only because these captures come from `webContents.capturePage`, which reads the
- * COMPOSITED WINDOW at device scale — including the CSS upscale — rather than the drawing buffer.
- *
- * Do not "improve" this to read the canvas buffer, and do not relax the comparator's dimension
- * check to match one. Either would break every fractional-DPR fixture with a hard throw.
- */
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
   ? resolve(process.cwd(), process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT)
   : join(process.cwd(), 'out');
