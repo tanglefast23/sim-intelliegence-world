@@ -4,15 +4,20 @@ import { WORLD_MAP_CATALOG } from '../map-catalog';
 import { canStartPortalTransition, transitionNeighborhood } from '../transitions';
 import { autosaveStableState } from '../autosave';
 import type { MapId } from '../../../world/maps/catalog';
+import { portalZoneTiles } from '../../../world/transfers/portal-zone';
 
 function atPortal(mapId: MapId, portalId: string) {
   const portal = WORLD_MAP_CATALOG[mapId].source.portals.find(({ id }) => id === portalId)!;
+  return atTile(mapId, portal.tile);
+}
+
+function atTile(mapId: MapId, tile: Readonly<{ x: number; y: number }>) {
   return parseWorldState({
     ...createInitialState(),
     protagonist: {
       ...createInitialState().protagonist,
       locationId: mapId,
-      worldPosition: { mapId, tileX: portal.tile.x, tileY: portal.tile.y },
+      worldPosition: { mapId, tileX: tile.x, tileY: tile.y },
     },
     maps: Object.fromEntries(Object.entries(createInitialState().maps).map(([id, map]) => [id, {
       ...map,
@@ -31,14 +36,14 @@ function atPortal(mapId: MapId, portalId: string) {
 const loadMap = async (mapId: MapId) => WORLD_MAP_CATALOG[mapId];
 
 describe('atomic neighborhood transitions', () => {
-  test('does not auto-start travel under dialogue, panels, movement, transition, or arrival lock', () => {
+  test('does not auto-start travel under dialogue, panels, transition, or arrival lock', () => {
     const clear = {
-      arrivalLocked: false, transitioning: false, movementStatus: 'idle',
+      arrivalLocked: false, transitioning: false,
       conversationOpen: false, panelOpen: false,
     };
     expect(canStartPortalTransition(clear)).toBe(true);
     for (const blocked of [
-      { arrivalLocked: true }, { transitioning: true }, { movementStatus: 'moving' },
+      { arrivalLocked: true }, { transitioning: true },
       { conversationOpen: true }, { panelOpen: true },
     ]) {
       expect(canStartPortalTransition({ ...clear, ...blocked })).toBe(false);
@@ -95,13 +100,30 @@ describe('atomic neighborhood transitions', () => {
     expect(result.feedback).toContain('staging tile');
   });
 
-  test('rejects activation away from the exact portal without changing state', async () => {
+  test('rejects activation away from the portal zone without changing state', async () => {
     await expect(transitionNeighborhood({
       state: createInitialState(),
       catalog: WORLD_MAP_CATALOG,
       sourcePortalId: 'to-downtown',
       loadMap,
-    })).rejects.toThrow('exact source portal');
+    })).rejects.toThrow('source portal zone');
+  });
+
+  test('travels from any tile of the portal zone', async () => {
+    const zone = portalZoneTiles(
+      WORLD_MAP_CATALOG.northwest_residential,
+      WORLD_MAP_CATALOG.northwest_residential.portalById.get('to-downtown')!,
+    );
+    const corner = zone.at(0)!;
+    expect(corner).not.toEqual({ x: 63, y: 24 });
+    const result = await transitionNeighborhood({
+      state: atTile('northwest_residential', corner),
+      catalog: WORLD_MAP_CATALOG,
+      sourcePortalId: 'to-downtown',
+      loadMap,
+    });
+    expect(result.completed).toBe(true);
+    expect(result.state.protagonist.worldPosition.mapId).toBe('northeast_downtown');
   });
 });
 

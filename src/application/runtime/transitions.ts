@@ -4,6 +4,7 @@ import type { WorldState } from '../../domain/state/schema';
 import type { CompiledMapV2 } from '../../world/maps/compiled-v2';
 import { tileKey } from '../../world/maps/schema';
 import type { MapId, WorldMapV2Catalog } from '../../world/maps/catalog';
+import { portalZoneContains } from '../../world/transfers/portal-zone';
 
 export type MapLoadPort = (mapId: MapId) => Promise<CompiledMapV2>;
 
@@ -14,15 +15,14 @@ export type TransitionResult = Readonly<{
   feedback?: string;
 }>;
 
+// Walking does not block travel: the player arms the portal zone by stepping onto it, moving or not.
 export function canStartPortalTransition(input: Readonly<{
   arrivalLocked: boolean;
   transitioning: boolean;
-  movementStatus: string;
   conversationOpen: boolean;
   panelOpen: boolean;
 }>): boolean {
-  return !input.arrivalLocked && !input.transitioning && input.movementStatus !== 'moving' &&
-    !input.conversationOpen && !input.panelOpen;
+  return !input.arrivalLocked && !input.transitioning && !input.conversationOpen && !input.panelOpen;
 }
 
 function idPart(value: string): string {
@@ -98,8 +98,8 @@ export async function transitionNeighborhood(input: Readonly<{
   const sourcePortal = origin.portalById.get(input.sourcePortalId);
   if (!sourcePortal) throw new Error(`The active map has no portal ${input.sourcePortalId}.`);
   const position = input.state.protagonist.worldPosition;
-  if (position.tileX !== sourcePortal.tile.x || position.tileY !== sourcePortal.tile.y) {
-    throw new Error('The protagonist must stand on the exact source portal tile.');
+  if (!portalZoneContains(origin, sourcePortal, { x: position.tileX, y: position.tileY })) {
+    throw new Error('The protagonist must stand inside the source portal zone.');
   }
 
   const destinationMapId = sourcePortal.destinationMapId as MapId;
