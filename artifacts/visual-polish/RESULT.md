@@ -142,3 +142,49 @@ One limit is worth stating, because the guard does not close it alone.
 `manifest.candidate.image` and never calls `resolveEvidenceOutputRoot`, so it
 writes wherever a manifest points — today, inside this tree. Until phase 0.1
 retargets those paths, `capture:refresh` must not be run.
+
+# The handoff techniques: final state of all ten
+
+Verified against the code as it ships, not against intent.
+
+| # | Technique | State |
+|---|---|---|
+| 1 | Integer low-res + `pixelated` | **Implemented, measured, REVERTED.** See `technique-1-reverted.md`. |
+| 2 | Orthographic camera | Shipped before this program. |
+| 3 | Atlas sprites, nearest, no mipmaps | Shipped before this program. |
+| 4 | Authored object scale | **Shipped.** Props 1.08/1.12 by sprite id; characters 7/6. |
+| 5 | Varied floor tiles | Shipped before this program. |
+| 6 | Sprite-silhouette shadows | Shipped by the concurrent session, props only. |
+| 7 | Additive stepped light-map glow | **Shipped.** Four radial plateaus, `NearestFilter`. |
+| 8 | Edge occlusion | Shipped before this program. |
+| 9 | Explicit layer order | Shipped before this program. |
+| 10 | Colour pipeline, ACES, exposure | Shipped before this program. |
+
+Three were open when this program started. Two ship. One was reverted on its own
+measurement, which is the rule working rather than the program failing.
+
+## What the evidence corpus can now do that it could not
+
+Every one of these was verified by breaking it and watching the check fail.
+
+| Check | Before | Now |
+|---|---|---|
+| Mask identity | Both sides named ONE file. Could never fail. | Distinct files, fires on an altered footprint. |
+| Mask emitter | Deleted with the Stage 7 runners. | Restored, reproduces every family exactly. |
+| Light samples | 1 across 25 fixtures, on a frozen fixture, sampling a patio fire. | 19 of 19, fires on a darkened lamp. |
+| Baseline | Frozen Skia. Budget spent: item 5.1 died at mean 1.456 against a limit of 1. | Three.js. Mean 0 at the re-baseline. |
+| Skia captures | Unprotected; any capture run could overwrite them. | Write-protected, guard proved by removing it. |
+| Villa fixtures | Six self-comparisons inside a "25 of 25" headline. | Separate frozen set, never gating. |
+| Comparator branches | Deleting one left the suite green. | Deleting two fails exactly two tests. |
+| Set/fixture commit split | Silent; broke a real commit in this program. | Guarded by a test. |
+
+## The residual, stated plainly
+
+The ACES gap is untouched. Production runs ACES; the capture pins `toneMapping: none`
+because the locked manifests are no-tone. Anything visible only under the ACES curve
+still has no pixel gate.
+
+`rasterResampled` reached 19 of 19 during technique 4b and was **cleared** afterwards.
+It is a per-change declaration, not a permanent relaxation. The corpus qualifies at
+19 of 19 today with every RGB-delta family live, so the next renderer change faces the
+whole gate.
