@@ -119,13 +119,30 @@ Treat that directory as fragile until the re-baseline lands and adds a guard.
 around them rather than discover them:
 
 - `scripts/qualification/compare-renderer-frames.ts` gains one manifest boolean,
-  `rasterResampled`, defaulting to `false`. It switches off the whole-frame RGB
-  family and nothing else. It is needed because no polish item can pass mean ≤ 1
-  against any baseline, which is what killed item 5.1.
+  `rasterResampled`, declared `z.boolean().default(false)` because the object is
+  `.strict()`. **Correction to what this file said earlier:** it does not switch
+  off "the whole-frame RGB family and nothing else". Review showed that scope was
+  too narrow to work — clearing `compositingChanged` at re-baseline arms four
+  delta families, not one, so techniques 7 and 1 could not have reported a pass
+  at all. The selector now reclassifies the fixture to a readability-only family:
+  `:456`, `:486`, `:491`, `:515` and `:529` off; `:395`, `:425`, `:428`, `:450`,
+  `:543` and `:550` on, with `:446` falling back to `:450` and `:444` staying
+  live. If you implement the older sentence, you will implement the wrong thing.
 - The same file needs a real code change to exclude the six `villa-*` fixtures
   from the headline pass. `:608` reports `passed` over every nested fixture, and
-  `:600` hard-fails when a nested `sourceCommit` differs from its set's. The
+  `:600` **throws** when a nested `sourceCommit` differs from its set's. The
   re-baseline rewrites 19 of the 25, so the collection must actually split.
+- 4b adds a third change: the readability ring at `:402`–`:417` derives from the
+  union of this mask's baseline and candidate bounds. `requiredPixels` at
+  `:389` is deliberately left alone, because `:473`–`:540` reuse it.
+
+**Ownership change, please read.** This file previously recorded
+`compare-renderer-frames.ts` as "deferred, not contested", on the understanding
+that neither session would edit it. That is no longer accurate: this program now
+edits it in four commits — the collection split, the two discriminating tests, the
+`rasterResampled` selector, and the 4b ring. **This session is taking ownership of
+that file** from the collection-split commit onward. If you need a change in it,
+add a line here first and it will be rebased around rather than overwritten.
 
 **Two review findings that touch your recent work, offered as information.**
 Neither asks you to change anything.
