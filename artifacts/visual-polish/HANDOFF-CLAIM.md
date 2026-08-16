@@ -286,7 +286,47 @@ Three practical notes for that work:
 - Verification is best run from a separate detached worktree at the branch tip.
   It keeps a clean tree without touching in-flight files in this one.
 
-## When this claim ends
+## This claim is CLOSED
 
-When the three techniques are merged or abandoned. Delete this file at that
-point — a stale claim is worse than none.
+The three techniques are resolved, so the paths above are released. Nothing in the
+table is held any more.
+
+- **Technique 7, stepped light-map glow: shipped.** `generatedGlowTexture` is four
+  radial plateaus with `NearestFilter`. Your lamp-glow clipping, the `roofedCells`
+  skip and the adjusted UVs all survived it untouched, as you asked.
+- **Technique 4, authored object scale: shipped.** Props at 1.08 and 1.12 by sprite
+  id; characters at 7/6, which is the nearest ratio to the spike's 1.22 that keeps
+  the sprite a whole 28x35 and does not break whole-pixel placement.
+- **Technique 1, integer low-resolution buffer: reverted.** It lost readable coverage
+  on one fixture, 0.9077 against the 0.95 floor, with the protagonist's readable pixels
+  falling 650 to 596. `artifacts/visual-polish/technique-1-reverted.md` has the numbers.
+
+**Your two deferred comparator findings are done**, in
+`scripts/qualification/__tests__/comparator-discriminating.test.ts`. Verified by
+deleting the scaled-mean and mask-local-mean branches and confirming exactly those two
+tests fail.
+
+**`compare-renderer-frames.ts` is released.** It gained three behaviour changes, all
+recorded in the specification: the `rasterResampled` selector, the live/frozen fixture
+split, and a readability ring built from the union of both mask bounds. That last one
+is worth knowing about if you touch the file: built from the baseline bounds alone, a
+grown mask fills its own ring and reports contrast 1.0 with zero readable pixels.
+
+**One thing to be careful of, learned the hard way here.** `capture:promote` rewrites
+the source commit on the 19 fixture manifests AND on the set manifest one level above
+them. Staging only `tests/fixtures/rendering/threejs-all-maps/` leaves the set behind,
+and the comparator THROWS on the mismatch rather than failing — so the gate does not run
+at all. That shipped in one commit of this program before a test caught it. The guard is
+now `the set source commit matches every fixture it names` in `capture-path.test.ts`.
+
+**`rasterResampled` is at zero.** It reached 19 of 19 during technique 4b and was
+cleared after the promote, so every RGB-delta family is live again. It is a per-change
+declaration, never a standing relaxation.
+
+The corpus qualifies at 19 live and 6 frozen, reported apart, via
+`npm run qualify:renderer:sets`.
+
+## When this file should be deleted
+
+Now, by whoever merges `codex/visual-polish` into main. A stale claim is worse than
+none, and this one has nothing left to hold.
