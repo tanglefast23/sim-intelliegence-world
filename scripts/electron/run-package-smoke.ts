@@ -162,7 +162,9 @@ child.once('close', (code) => {
       envelope.state.quests.linda_boyfriend_check?.status === 'resolved');
   rmSync(smokeUserData, { force: true, recursive: true });
   const report = parseSmokeResult(stdout);
-  validateScreenshotEvidence(loadingScreenshotPath, screenshotPath);
+  const loadingShellObserved = stdout.split(/\r?\n/u)
+    .includes('SI_WORLD_SMOKE_LOADING_SHELL_OBSERVED true');
+  validateScreenshotEvidence(loadingScreenshotPath, screenshotPath, loadingShellObserved);
   validateScreenshotBuffers(
     readFileSync(loadingScreenshotPath),
     readFileSync(newGameScreenshotPath),
