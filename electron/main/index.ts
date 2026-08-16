@@ -256,6 +256,12 @@ async function waitForCameraMotion(
  * Follow eases, so it keeps travelling for several frames after the hero stops walking. Sampling
  * the camera the instant `reachWorldTile` returns catches it mid-ease, and any later assertion
  * against that sample races the remaining travel.
+ *
+ * Still means UNCHANGED ACROSS TWO RENDERED FRAMES, not unchanged for 80 ms. A hidden window
+ * starves `requestAnimationFrame` unless something forces a frame, so an 80 ms sleep usually
+ * spanned no frame at all and read as settled mid-ease. `waitForRendererPaint` captures the page,
+ * which forces the frames, so the wait drives the clock instead of hoping it ran. On Windows the
+ * missing travel arrived after the sample and landed the camera 1.5 world pixels past the pan.
  */
 async function waitForCameraStill(
   window: BrowserWindow,
@@ -264,7 +270,7 @@ async function waitForCameraStill(
   const deadline = Date.now() + timeoutMilliseconds;
   let previous = await cameraLabel(window);
   while (Date.now() < deadline) {
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 80));
+    await waitForRendererPaint(window);
     const current = await cameraLabel(window);
     if (current === previous) return current;
     previous = current;
