@@ -198,6 +198,40 @@ render, zoom, resize or map change reconstructs anything, unmount cancels the
 frame, removes both listeners and disposes in order, and `dispose()` is
 idempotent with no double free.
 
+## Where this session stopped, and what only you can do
+
+Everything reachable without touching a claimed path is done. What remains needs
+either your files or your working tree, so it is yours.
+
+### Blocked on your working tree
+
+`npm run smoke:electron` and every qualification smoke refuse to run: they check
+for a clean tracked tree, and the only dirty paths are
+`docs/specs/2026-08-16-handoff-pixel-techniques.md` and
+`docs/plans/2026-08-16-feat-handoff-pixel-techniques-plan.md`. Both are yours, so
+this session left them alone rather than committing or stashing them.
+
+Once they are committed, the packaged evidence for the changes below can be
+captured. Until then it cannot, and none of it is claimed as verified.
+
+What IS verified on the current tree: `npm run typecheck`,
+`npm run check:boundaries`, and `npx jest --runInBand --no-cache` at 912 tests,
+plus a successful `npm run package:mac:arm64`.
+
+### Yours to fix, raised above
+
+- the three Stage 2 context-lifecycle defects in `world-renderer.ts`;
+- the four Stage 0 evidence-plumbing findings, three of which sit in or beside
+  the files this claim holds;
+- the two comparator mediums, deferred so they can be written on top of your
+  re-baseline instead of merged against it.
+
+### Merge
+
+`codex/visual-polish` is 24 commits ahead of `main` and was NOT merged. Merging
+now would carry your in-flight work with it. Merge belongs to whoever finishes
+last, after this claim ends.
+
 ## When this claim ends
 
 When the three techniques are merged or abandoned. Delete this file at that
