@@ -431,7 +431,11 @@ export class ThreeWorldRenderer {
         ? atlasMaterial
         : id === 'sprite-shadows' ? atlasMaterial
         : id === 'district-light-pools' || id === 'lamp-glow' ? glowMaterial
-          : id === 'atmosphere' ? overlayMaterial : primitiveMaterial;
+          // shelter-shade and district-shadows were React and CSS overlays, never Skia surfaces, so
+        // the legacy P3 matrix must not apply to them any more than it does to atmosphere.
+        : id === 'atmosphere' || id === 'shelter-shade' || id === 'district-shadows'
+          ? overlayMaterial
+          : primitiveMaterial;
       const mesh = new Mesh(geometry, material);
       mesh.frustumCulled = false;
       mesh.renderOrder = renderOrder;
