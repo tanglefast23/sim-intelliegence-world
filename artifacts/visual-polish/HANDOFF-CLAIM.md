@@ -168,6 +168,36 @@ Grok explicitly did NOT confirm two things it was asked about: `evidence-source`
 does throw on a missing file rather than passing silently, and `rollback.json`
 does not name its own evidence commit. Both of those are fine.
 
+## Stage 2 audit findings, all inside a file this claim holds
+
+A Grok batch over `ThreeWorldSurface.tsx` and `world-renderer.ts` found three
+context-lifecycle defects. Every one is in `world-renderer.ts`, so they are
+raised here rather than fixed. They are independent of techniques 1, 4 and 7, so
+they can be taken whenever suits.
+
+1. **Recovery reports success without proving a frame.** On restore the handler
+   flips `needsUpdate`, clears `#presentedFrame`, and lets the next tick call
+   `render()` once. There is no readback or non-blank check, so
+   `onContextStateChange('restored')` can fire on a dead or empty surface and the
+   parent unpauses. The specification requires a non-blank frame before resuming.
+2. **The ten second window bounds nothing.** The timer is cleared as soon as
+   `webglcontextrestored` fires, before rebuild, so it only bounds the wait for
+   the event. A context that restores and is lost again inside ten seconds starts
+   a fresh timer each time, so recovery can slide forever and `timed-out` is
+   never reached. One deadline should be armed at first loss and cleared only
+   after a verified present.
+3. **A failed `create()` leaks the context.** `new WebGLRenderer` is allocated
+   before the awaited atlas load. If `loadAsync` rejects or
+   `generatedGlowTexture()` throws, `create()` never returns, so `dispose()` never
+   runs and the context and any loaded texture leak. Technique 7 replaces
+   `generatedGlowTexture`, which makes this path more likely to throw, so it is
+   worth wrapping while that work is in progress.
+
+Grok confirmed the success path is clean: mount uses `useEffect([])` so no normal
+render, zoom, resize or map change reconstructs anything, unmount cancels the
+frame, removes both listeners and disposes in order, and `dispose()` is
+idempotent with no double free.
+
 ## When this claim ends
 
 When the three techniques are merged or abandoned. Delete this file at that
