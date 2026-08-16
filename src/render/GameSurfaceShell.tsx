@@ -1,7 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 
-import { LoadingShell } from '../application/LoadingShell';
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { createRendererShellReadyReport, createRendererWorldReadyReport } from '../application/RendererReadiness';
 
@@ -71,22 +70,6 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
   const reportedShell = useRef(false);
   const reportedWorld = useRef(false);
   const markWorldReady = useCallback(() => setWorldReady(true), []);
-  // Stage 5: only the temporary Skia path needs CanvasKit, and it must be loaded before any
-  // Skia surface mounts. The Three.js path never loads it, which is the point of this stage.
-  const [canvasKitReady, setCanvasKitReady] = useState(rendererKind !== 'skia');
-
-  useEffect(() => {
-    if (rendererKind !== 'skia' || canvasKitReady) return;
-    let cancelled = false;
-    void import('@shopify/react-native-skia/lib/module/web')
-      .then(({ LoadSkiaWeb }) => LoadSkiaWeb({ locateFile: () => '/canvaskit.wasm' }))
-      .then(() => { if (!cancelled) setCanvasKitReady(true); })
-      .catch((error: unknown) => {
-        const detail = error instanceof Error ? error.message : String(error);
-        console.error(`SI_WORLD_CANVASKIT_LOAD_FAILURE ${detail}`);
-      });
-    return () => { cancelled = true; };
-  }, [canvasKitReady, rendererKind]);
 
   useEffect(() => {
     if (devHarnessMode) markWorldReady();
@@ -160,8 +143,6 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
     const height = Math.max(1, Math.floor(event.nativeEvent.layout.height));
     setSurface((current) => current.width === width && current.height === height ? current : { width, height });
   }, []);
-
-  if (!canvasKitReady) return <LoadingShell detail="Loading CanvasKit…" />;
 
   return (
     <View style={styles.screen}>

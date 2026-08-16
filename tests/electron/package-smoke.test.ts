@@ -287,17 +287,18 @@ describe('packaged Electron smoke evidence', () => {
         'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
         'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
         ],
-        canvasKitReady: true,
+        webgl2Ready: true,
         nodeAccessBlocked: true,
-        rendererKind: 'skia',
+        rendererKind: 'threejs-2d',
         worldFrameReady: true,
       })}`,
     ].join('\n');
 
+    // Stage 7 removed the Skia world variant with CanvasKit itself.
     expect(parseSmokeResult(stdout)).toEqual(
       expect.objectContaining({
         assetsLoaded: true,
-        canvasKitReady: true,
+        webgl2Ready: true,
         nodeAccessBlocked: true,
       }),
     );
@@ -318,9 +319,9 @@ describe('packaged Electron smoke evidence', () => {
             'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
             'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
           ],
-          canvasKitReady: false,
+          webgl2Ready: false,
           nodeAccessBlocked: true,
-          rendererKind: 'skia',
+          rendererKind: 'threejs-2d',
           worldFrameReady: true,
         })}`,
       ),
@@ -338,9 +339,9 @@ describe('packaged Electron smoke evidence', () => {
             'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
             'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
           ],
-          canvasKitReady: true,
+          webgl2Ready: true,
           nodeAccessBlocked: true,
-          rendererKind: 'skia',
+          rendererKind: 'threejs-2d',
           worldFrameReady: true,
         })}`,
       ),
@@ -354,11 +355,8 @@ describe('packaged Electron smoke evidence', () => {
       '/build/electron/preload/index.js',
       '/build/electron/persistence/save-repository.js',
       '/build/src/domain/state/schema.js',
-      '/dist/canvaskit.wasm',
       '/dist/index.html',
       '/dist/webgl2-probe.html',
-      '/dist/assets/assets/proof/phase2-atlas.abc123.png',
-      '/dist/assets/assets/proof/phase2-tone.abc123.wav',
       '/dist/assets/assets/generated/world-atlas.abc123.png',
       '/dist/assets/assets/generated/audio/greeting.abc123.wav',
       '/dist/assets/assets/generated/audio/laugh.abc123.wav',
@@ -379,9 +377,6 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => validatePackageListing(
       requiredListing.replace('/build/electron/main/smoke-capture.js\n', ''),
     )).toThrow('missing /build/electron/main/smoke-capture.js');
-    expect(() => validatePackageListing(requiredListing.replace(/\/dist\/assets\/assets\/proof\/phase2-atlas[^\n]+\n/u, ''))).toThrow(
-      'missing required resource',
-    );
   });
 
   test('requires two distinct non-empty PNG screenshots', () => {

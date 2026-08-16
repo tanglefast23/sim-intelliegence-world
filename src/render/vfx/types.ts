@@ -115,3 +115,9 @@ export type VfxWorldRect = Readonly<{
   right: number;
   bottom: number;
 }>;
+
+/**
+ * Stage 7: the VFX evidence node count outlived its Skia component.
+ * It describes the evidence schema, not a drawing library, so it stays renderer-neutral here.
+ */
+export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 19 as const;

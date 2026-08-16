@@ -95,7 +95,7 @@ const evidenceSource = resolveEvidenceSource([
   'src/application/DesktopBridge.ts',
   'src/render/WorldScene.tsx',
   'src/render/world-frame.ts',
-  'src/render/vfx/ProceduralMapEffects.tsx',
+  'src/render/three/world-renderer.ts',
   'src/render/vfx/clock.ts',
   'src/render/vfx/evidence.ts',
   'src/render/vfx/fixtures.ts',

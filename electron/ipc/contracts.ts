@@ -46,13 +46,7 @@ export const RendererReadySchema = z.union([
     phase: z.literal('shell'),
     shellReady: z.literal(true),
   }).strict(),
-  z.object({
-    ...RendererReadyCommon,
-    phase: z.literal('world'),
-    rendererKind: z.literal('skia'),
-    canvasKitReady: z.literal(true),
-    worldFrameReady: z.literal(true),
-  }).strict(),
+  // Stage 7 removed the Skia world variant with CanvasKit itself.
   z.object({
     ...RendererReadyCommon,
     phase: z.literal('world'),

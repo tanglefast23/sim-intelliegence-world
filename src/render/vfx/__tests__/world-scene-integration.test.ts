@@ -4,11 +4,10 @@ import { resolve } from 'node:path';
 import { WORLD_LAYER_ORDER } from '../../world-frame';
 
 describe('WorldScene procedural VFX integration', () => {
-  // Stage 5 split the world scene: WorldScene is the controller, SkiaWorldSurface holds every
-  // Skia drawing surface. Together they are the scene these contracts describe.
+  // Stage 7 removed Skia. The scene is the controller plus the Three.js renderer.
   const scene = [
     readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
-    readFileSync(resolve(process.cwd(), 'src/render/SkiaWorldSurface.tsx'), 'utf8'),
+    readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8'),
   ].join('\n');
   const responsiveEvidence = readFileSync(resolve(process.cwd(), 'src/render/responsive-evidence.ts'), 'utf8');
 
@@ -22,8 +21,9 @@ describe('WorldScene procedural VFX integration', () => {
 
   test('keeps circle mode smoke-only and does not mount the procedural driver in that mode', () => {
     expect(scene).toContain("const vfxMode = smokeMode && window.siWorldVfxMode === 'circle'");
-    expect(scene).toContain("vfxMode === 'procedural' ? (");
-    expect(scene).toContain('<ProceduralMapEffects');
+    // Stage 7: circle mode is a frame-level decision, and the renderer draws whatever the frame says.
+    expect(scene).toContain("vfxMode === 'procedural'");
+    expect(scene).toContain("this.#set('effects'");
     expect(scene).toContain("window.siWorldVfxMode === 'circle'");
   });
 
@@ -33,7 +33,7 @@ describe('WorldScene procedural VFX integration', () => {
     expect(scene).toContain('advanceAmbientVfxClock');
     expect(scene).toContain('animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds');
     expect(scene).toContain('vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep');
-    expect(scene).toContain('geometries={worldFrame.effects}');
+    expect(scene).toContain('frame.effects');
     expect(scene).toContain('worldFrame.fallbackEffects');
   });
 

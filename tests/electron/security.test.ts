@@ -135,8 +135,8 @@ describe('secure Electron boundary', () => {
     expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
   });
 
-  test('CSP allows CanvasKit but not general unsafe eval or remote origins', () => {
-    expect(APP_CONTENT_SECURITY_POLICY).toContain("'wasm-unsafe-eval'");
+  test('CSP rejects WebAssembly evaluation now that CanvasKit is gone', () => {
+    expect(APP_CONTENT_SECURITY_POLICY).not.toContain("'wasm-unsafe-eval'");
     expect(APP_CONTENT_SECURITY_POLICY).not.toContain("'unsafe-eval'");
     expect(APP_CONTENT_SECURITY_POLICY).toContain("connect-src 'self'");
     expect(APP_CONTENT_SECURITY_POLICY).toContain("object-src 'none'");
@@ -317,7 +317,11 @@ describe('secure Electron boundary', () => {
     expect(workflow).toContain('npm run package:mac:x64');
     expect(workflow).toContain('--webgl2-probe --expect-arch=x64');
     expect(workflow).toContain('npm run sign:test:mac');
-    expect(workflow).toContain('--output-root output/verification/ci/macos-x64/package');
+    // Stage 7: Intel macOS is qualified by packaging, signing and a recorded WebGL 2 probe.
+    // Its GPU blocklists WebGL 2 and no renderer survives without it, so functional coverage
+    // moved to the ARM64 job. See artifacts/threejs-2d/stage-7/INTEL-WEBGL2.md.
+    expect(workflow).toContain('--output-root output/verification/ci/macos-x64-intel/webgl2');
+    expect(workflow).toContain('Record packaged WebGL 2 availability on Intel hardware');
     expect(workflow).toContain('runs-on: windows-2025');
     expect(workflow).toContain('npm run package:windows:x64');
     expect(workflow).toContain('./scripts/qualification/sign-windows-test.ps1');
@@ -331,11 +335,9 @@ describe('secure Electron boundary', () => {
       'npm run smoke:electron -- --output-root output/verification/ci/windows-x64/package',
     );
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/package');
-    expect(workflow).toContain('--output-root output/verification/ci/macos-x64/natural-movement');
     expect(workflow).toContain('--output-root output/verification/ci/windows-x64/natural-movement');
     expect(workflow).not.toMatch(/artifacts\/phase-(?:14|22|23)/u);
-    expect(workflow).toContain('without model qualification claims');
-    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(11);
+    expect(workflow.match(/SI_WORLD_SMOKE_PROFILE: platform-shell/gu)).toHaveLength(10);
     const windowsSigner = readFileSync(resolve('scripts/qualification/sign-windows-test.ps1'), 'utf8');
     expect(windowsSigner).toContain("Windows Kits\\10\\bin");
     expect(windowsSigner).toContain('Get-AuthenticodeSignature');

@@ -1,11 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-// Every Skia drawing surface lives behind this boundary so the Three.js path never evaluates the
-// Skia module body, which reads global.CanvasKit at import time. Stage 7 deletes it.
-const LazySkiaWorldSurface = lazy(async () => ({
-  default: (await import('./SkiaWorldSurface')).SkiaWorldSurface,
-}));
 
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { useReducedMotion } from '../application/accessibility';
@@ -96,7 +91,7 @@ import type { RendererKind } from './renderer-selection';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
-import { PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
+import { PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/types';
 import { advanceAmbientVfxClock, INITIAL_AMBIENT_VFX_CLOCK } from './vfx/clock';
 import {
   VFX_KINDS,
@@ -1225,27 +1220,11 @@ export function WorldScene({
       >
         <View nativeID="world-input-viewport" style={[styles.viewport, surface]}>
           <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
-            {rendererKind === 'threejs-2d' ? (
-              <ThreeWorldSurface
-                frame={worldFrame}
-                onContextStateChange={handleRendererContextState}
-                onReady={onWorldReady}
-              />
-            ) : null}
-            {rendererKind === 'skia' ? (
-              <Suspense fallback={null}>
-                <LazySkiaWorldSurface
-                  camera={camera}
-                  groundBatches={groundBatches}
-                  reducedMotion={reducedMotion}
-                  surface={surface}
-                  vfxCamera={vfxCamera}
-                  onReady={onWorldReady}
-                  vfxMode={vfxMode}
-                  worldFrame={worldFrame}
-                />
-              </Suspense>
-            ) : null}
+            <ThreeWorldSurface
+              frame={worldFrame}
+              onContextStateChange={handleRendererContextState}
+              onReady={onWorldReady}
+            />
             <SelectionMarker
               color={lighting.accent}
               label={selected === 'protagonist' ? undefined : selectedName}

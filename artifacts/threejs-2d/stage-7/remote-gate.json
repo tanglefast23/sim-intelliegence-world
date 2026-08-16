@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "ee6b711",
+  "workflow": "Verify",
+  "conclusion": "success",
+  "jobs": {
+    "package-macos-arm64": "success",
+    "package-macos-x64": "success",
+    "package-macos-x64-functional": "success",
+    "package-windows-x64": "success"
+  },
+  "note": "Recorded from the actual GitHub Actions run on this exact SHA, with Skia and CanvasKit removed."
+}

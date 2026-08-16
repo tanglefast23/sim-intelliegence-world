@@ -1,15 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { VFX_ROLE_COLORS } from '../types';
+import { PROCEDURAL_VFX_RENDER_NODE_COUNT, VFX_ROLE_COLORS } from '../types';
 
+/**
+ * Stage 7 deleted the Skia ProceduralMapEffects component. The VFX contract it carried is now the
+ * Three.js effects batch, so these assertions describe that renderer instead of the old component.
+ */
 describe('procedural VFX renderer bill', () => {
-  const source = readFileSync(resolve(process.cwd(), 'src/render/vfx/ProceduralMapEffects.tsx'), 'utf8');
+  const renderer = readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8');
 
-  test('uses a constant nineteen-node path bill with no per-primitive React mapping', () => {
-    expect(source).toContain('export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 19 as const;');
-    expect(source.match(/<Path\b/gu)).toHaveLength(19);
-    expect(source).not.toMatch(/rects\.map|emitters\.map|<Rect\b|<Circle\b/u);
+  test('keeps the nineteen-node evidence bill renderer-neutral', () => {
+    expect(PROCEDURAL_VFX_RENDER_NODE_COUNT).toBe(19);
   });
 
   test('keeps animated fire at 50 percent opacity and sparkle light at 90 percent', () => {
@@ -17,18 +19,12 @@ describe('procedural VFX renderer bill', () => {
     expect(VFX_ROLE_COLORS['fire-ember']).toBe('#ffe49a80');
     expect(VFX_ROLE_COLORS['sparkle-primary']).toBe('#fff4c8e6');
     expect(VFX_ROLE_COLORS['sparkle-satellite']).toBe('#fff3c4e6');
-    expect(source).toContain("<Path color={colors['fire-outer']} path={fireOuter} />");
   });
 
-  test('receives immutable sampled geometry and owns no clock', () => {
-    expect(source).toContain('geometries: readonly VfxGeometry[];');
-    expect(source).toContain('appendRole(builder, geometriesValue.value, cameraValue.value');
-    expect(source).not.toMatch(/requestAnimationFrame|cancelAnimationFrame|setInterval|setTimeout|Math\.random|Date\b|performance\.now/u);
-  });
-
-  test('only converts world rectangles to screen paths', () => {
-    expect(source).toContain('primitive?.role === role');
-    expect(source).toContain('addScreenRect(builder, camera');
-    expect(source).not.toMatch(/running|ageMilliseconds|ageStep|mapEntryIdentity/u);
+  test('draws sampled geometry into one effects batch and owns no clock', () => {
+    expect(renderer).toContain("this.#set('effects'");
+    expect(renderer).toContain('frame.effects');
+    // The renderer presents the frame it is given; it never advances VFX time itself.
+    expect(renderer).not.toMatch(/setInterval|Math\.random|performance\.now/u);
   });
 });

@@ -59,6 +59,12 @@ jobs:
           SI_WORLD_SMOKE_PROFILE: platform-shell
         run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/package
 
+      - name: Verify ARM64 macOS packaged art-quality world subset without model qualification claims
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+          SI_WORLD_TIER_B_ART_SMOKE: '1'
+        run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/art-quality
+
       - name: Record ARM64 macOS maximum-load baseline
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
@@ -108,16 +114,15 @@ jobs:
 
   package-macos-x64-functional:
     name: package-macos-x64-functional
-    # Stage 6: this runner's GPU blocklists WebGL 2, so the production Three.js renderer cannot
-    # start here. Stage 0 task 19 forbids a software-rendering flag, and the x64 hardware
-    # assertion below means the job cannot move. While the temporary Skia path still exists, the
-    # functional suite runs against it here and the blocklist is recorded as a Stage 7 blocker in
-    # artifacts/threejs-2d/stage-6/STOP-CONDITION.md.
+    # Stage 7 removed Skia, so there is no renderer left that can run without WebGL 2, and this
+    # runner's GPU blocklists it. Stage 0 task 19 forbids a software-rendering flag and the x64
+    # hardware assertion below means the job cannot move, so Intel is qualified here by packaging,
+    # signing and a RECORDED WebGL 2 probe. Functional coverage runs on the ARM64 job.
+    # The blocklist and its consequences are recorded in
+    # artifacts/threejs-2d/stage-7/INTEL-WEBGL2.md and must be settled before an Intel release.
     runs-on: macos-15-intel
     timeout-minutes: 30
     env:
-      # This runner blocklists WebGL 2, so the functional suite uses the temporary Skia path.
-      SI_WORLD_TEST_RENDERER: skia
       SI_WORLD_PACKAGE_TARGET_ARCH: x64
     steps:
       - name: Check out tested commit
@@ -148,27 +153,12 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: npm run sign:test:mac -- out output/verification/ci/macos-x64/signing.json
 
-      - name: Verify x64 macOS packaged art-quality world subset without model qualification claims
+      - name: Record packaged WebGL 2 availability on Intel hardware
+        continue-on-error: true
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-          SI_WORLD_TIER_B_ART_SMOKE: '1'
-        run: npm run smoke:electron -- --output-root output/verification/ci/macos-x64/package
+        run: npm run smoke:electron -- --webgl2-probe --expect-arch=x64 --output-root output/verification/ci/macos-x64-intel/webgl2
 
-      - name: Verify x64 macOS natural movement
-        env:
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:natural-movement -- --output-root output/verification/ci/macos-x64/natural-movement
-
-      - name: Verify x64 macOS responsive matrix
-        env:
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:responsive -- --output-root output/verification/ci/macos-x64/responsive
-
-      - name: Verify x64 macOS presentation restart
-        run: npm run smoke:presentation-restart -- --output-root output/verification/ci/macos-x64/presentation-restart
-
-      - name: Verify x64 macOS v5 save migration and reload
-        run: npm run smoke:save-migration -- --output-root output/verification/ci/macos-x64/save-migration
 
   package-windows-x64:
     name: package-windows-x64
