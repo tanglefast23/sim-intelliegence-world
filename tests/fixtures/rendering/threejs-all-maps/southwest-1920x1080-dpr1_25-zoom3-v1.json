@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "southwest-1920x1080-dpr1_25-zoom3",
-  "sourceCommit": "2447f747a123a4138145f3078e79c7d4f0f9bfda",
+  "sourceCommit": "c0f6ba1a3ccef9f0644851e79720368185ce001c",
   "mode": "parity",
   "viewport": {
     "width": 1920,
