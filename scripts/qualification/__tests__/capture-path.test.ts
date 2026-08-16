@@ -76,6 +76,88 @@ describe('candidate capture refresh', () => {
 });
 
 /**
+ * Promoting a baseline moves image and mask together, or not at all.
+ *
+ * Each technique is measured against the baseline the previous one left, then becomes the baseline
+ * for the next. Moving a mask without its image is not a smaller version of that: `maskPixels`
+ * applies the baseline mask to the baseline image, so a grown silhouette against an unscaled frame
+ * puts floor inside the footprint and collapses the baseline contrast the whole corpus is judged
+ * against.
+ */
+describe('baseline promotion', () => {
+  let root = '';
+  beforeEach(() => { root = mkdtempSync(join(tmpdir(), 'si-world-promote-')); });
+  afterEach(() => rmSync(root, { recursive: true, force: true }));
+
+  const COMMIT = 'a'.repeat(40);
+  const NEXT = 'b'.repeat(40);
+
+  function corpus(sameImagePath: boolean): string {
+    const png = new PNG({ width: 2, height: 2 });
+    png.data.fill(120);
+    const baselineImage = join(root, 'base.png');
+    const candidateImage = sameImagePath ? baselineImage : join(root, 'cand.png');
+    writeFileSync(baselineImage, PNG.sync.write(png));
+    const other = new PNG({ width: 2, height: 2 });
+    other.data.fill(240);
+    if (!sameImagePath) writeFileSync(candidateImage, PNG.sync.write(other));
+
+    const baselineMasks = join(root, 'base-mask.json');
+    const candidateMasks = join(root, 'cand-mask.json');
+    writeFileSync(baselineMasks, JSON.stringify({ schemaVersion: 1, masks: [] }));
+    writeFileSync(candidateMasks, JSON.stringify({ schemaVersion: 1, masks: [{ id: 'grown' }] }));
+
+    const manifestPath = join(root, 'fixture.json');
+    writeFileSync(manifestPath, JSON.stringify({
+      sourceCommit: COMMIT,
+      baseline: { image: baselineImage, masks: baselineMasks },
+      candidate: { image: candidateImage, masks: candidateMasks },
+    }));
+    const collectionPath = join(root, 'collection.json');
+    writeFileSync(collectionPath, JSON.stringify({
+      sourceCommit: COMMIT,
+      fixtures: [{ id: 'fixture', manifest: manifestPath }],
+    }));
+    writeFileSync(join(root, 'report.json'), JSON.stringify({ testedCommit: NEXT }));
+    return collectionPath;
+  }
+
+  const promote = (collectionPath: string) => execFileSync('npx', [
+    'tsx', 'scripts/qualification/promote-renderer-baseline.ts',
+    '--collection', collectionPath, '--report', join(root, 'report.json'),
+  ], { cwd: process.cwd(), encoding: 'utf8', stdio: 'pipe' });
+
+  test('moves the image and the mask together, and advances the source commit', () => {
+    const collectionPath = corpus(false);
+    const output = promote(collectionPath);
+    expect(output).toContain('1 baseline images');
+    expect(output).toContain('1 mask frames');
+
+    const manifest = JSON.parse(readFileSync(join(root, 'fixture.json'), 'utf8')) as {
+      sourceCommit: string; baseline: { image: string; masks: string };
+    };
+    expect(manifest.sourceCommit).toBe(NEXT);
+    // The baseline image now holds the candidate's pixels, and the baseline mask the candidate's
+    // silhouette. Either one alone would describe a frame that never existed.
+    expect(PNG.sync.read(readFileSync(manifest.baseline.image)).data[0]).toBe(240);
+    expect(readFileSync(manifest.baseline.masks, 'utf8')).toContain('grown');
+    const collection = JSON.parse(readFileSync(collectionPath, 'utf8')) as { sourceCommit: string };
+    expect(collection.sourceCommit).toBe(NEXT);
+  });
+
+  test('refuses a corpus whose baseline and candidate images are one file', () => {
+    // That corpus cannot show a before and after, so promoting it would report success while
+    // proving nothing — the exact shape of vacuity this whole phase exists to remove.
+    const collectionPath = corpus(true);
+    let message = '';
+    try { promote(collectionPath); } catch (error) {
+      message = String((error as { stderr?: string }).stderr ?? error);
+    }
+    expect(message).toContain('same file');
+  });
+});
+
+/**
  * The live collection and the frozen record are separate on purpose.
  *
  * Six villa fixtures used to sit inside the live set. Their capture runner was retired with Skia,
