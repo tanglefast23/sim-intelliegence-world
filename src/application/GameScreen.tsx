@@ -4,6 +4,7 @@ import { createInitialState } from '../domain/state/initial-state';
 import { useAudioEnabled, useInterfaceSounds } from '../audio/halcyra-audio';
 import type { WorldState } from '../domain/state/schema';
 import { WorldScene } from '../render/WorldScene';
+import { WorldErrorBoundary } from '../ui/WorldErrorBoundary';
 import type { RendererKind } from '../render/renderer-selection';
 import { getDesktopBridge } from './DesktopBridge';
 import { LoadingShell } from './LoadingShell';
@@ -140,20 +141,22 @@ export function GameScreen({ onWorldReady, rendererKind, surface }: GameScreenPr
     return <NewGameFlow audioEnabled={audioEnabled} busy={boot.busy} error={boot.error} onStart={startNewGame} surface={surface} />;
   }
   return (
-    <WorldScene
-      initialFeedback={boot.session.worldFeedback}
-      initialSaveGeneration={boot.session.saveGeneration}
-      initialSaveStatus={boot.session.saveStatus}
-      initialState={boot.session.state}
-      initialPresentationPreferences={boot.session.preferences}
-      audioEnabled={audioEnabled}
-      newGame={boot.session.newGame}
-      onPresentationPreferencesChange={savePresentationPreferences}
-      onWorldReady={onWorldReady}
-      playInterfaceSound={playInterfaceSound}
-      rendererKind={rendererKind}
-      surface={surface}
-      key={boot.session.key}
-    />
+    <WorldErrorBoundary key={`boundary-${boot.session.key}`}>
+      <WorldScene
+        initialFeedback={boot.session.worldFeedback}
+        initialSaveGeneration={boot.session.saveGeneration}
+        initialSaveStatus={boot.session.saveStatus}
+        initialState={boot.session.state}
+        initialPresentationPreferences={boot.session.preferences}
+        audioEnabled={audioEnabled}
+        newGame={boot.session.newGame}
+        onPresentationPreferencesChange={savePresentationPreferences}
+        onWorldReady={onWorldReady}
+        playInterfaceSound={playInterfaceSound}
+        rendererKind={rendererKind}
+        surface={surface}
+        key={boot.session.key}
+      />
+    </WorldErrorBoundary>
   );
 }
