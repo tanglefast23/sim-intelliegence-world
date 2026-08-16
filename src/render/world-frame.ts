@@ -355,6 +355,47 @@ function propShadowWidth(sprite: string): number {
   return 18;
 }
 
+/**
+ * Handoff technique 4: authored object scale, from the pixel-villa spike.
+ *
+ * Every prop drew at exactly its authored pixel size, so a sofa carried the same visual weight as
+ * the floor tile beneath it. The spike gave furniture presence by drawing it slightly larger, and
+ * that is the whole of this table.
+ *
+ * Keyed by sprite id and gated on membership, NOT on `scale !== 1`. Multi-tile floors already pass
+ * a composition scale through `placement()`, so a shift applied to anything scaled would move the
+ * ground itself.
+ */
+const PROP_SCALE: Readonly<Record<string, number>> = {
+  'tile.fixture-planter': 1.08,
+  'tile.flowering-market-planter': 1.08,
+  'tile.decal-neon-planter': 1.08,
+  'tile.table-left': 1.08,
+  'tile.table-right': 1.08,
+  'tile.sofa-left': 1.12,
+  'tile.sofa-right': 1.12,
+};
+
+/**
+ * Scale about the BOTTOM CENTRE, so the prop keeps its feet on the floor.
+ *
+ * `addAtlasPlacement` maps the quad to worldX..worldX + width x scale with y growing down, so a
+ * top-left anchor grows the sprite down and right and sinks its feet below the ground line.
+ *
+ * Returns a NEW object. The static placement lists are deep-frozen and cached, so mutating in
+ * place throws in strict mode.
+ */
+export function withAuthoredPropScale(prop: WorldPropPlacement): WorldPropPlacement {
+  const scale = PROP_SCALE[prop.sprite];
+  if (scale === undefined) return prop;
+  return {
+    ...prop,
+    scale,
+    worldX: prop.worldX - (scale - 1) * prop.source.width / 2,
+    worldY: prop.worldY - (scale - 1) * prop.source.height,
+  };
+}
+
 function propShadows(props: readonly WorldPropPlacement[], color: string): readonly WorldPropShadow[] {
   const groups = new Map<string, WorldPropPlacement[]>();
   for (const prop of props) {
@@ -736,7 +777,13 @@ export function buildWorldFrameState(
       };
     }),
   ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right));
-  const props = allProps.filter(({ isDoor }) => !isDoor);
+  // The authored scale is applied HERE, to the rendered list only.
+  //
+  // `allProps` stays unscaled, and `propShadows` reads it further down. That ordering is
+  // load-bearing: `propShadows` derives its position from each prop's `worldY`, so scaling the
+  // shared list would carry every contact shadow up with the origin and detach it from the feet it
+  // belongs to. Doors are excluded because a door is not furniture.
+  const props = allProps.filter(({ isDoor }) => !isDoor).map(withAuthoredPropScale);
   const doors = allProps.filter(({ isDoor }) => isDoor);
   const groundedOrder: WorldGroundedEntry[] = [
     ...props.map((prop) => ({ groundY: (prop.tile.y + 1) * TILE_SIZE, id: prop.id, kind: 'prop' as const })),
@@ -838,6 +885,7 @@ export function buildWorldFrameState(
     walls,
     roofs,
     groundedOrder,
+    // Reads the UNSCALED allProps, so a scaled prop keeps its shadow under its feet.
     propShadows: propShadows(allProps, lighting.shadow.color),
     characterShadows,
     doorWear: doorAnchors.map((primitive) => ({
