@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "stage": 7,
+  "phaseBranch": "codex/threejs-stage-7-removal",
+  "phaseCommit": "fd8bfb2056cffeda57f812bb42a5473e6ed22bc0",
+  "remoteGateCommit": "ee6b711",
+  "remoteGateNote": "CI ran on ee6b711, the last commit carrying code. The phase tip adds only the recorded gate artifact.",
+  "integrationBranch": "codex/threejs-2d-port",
+  "rollbackSha": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "auditors": {
+    "fable-5": "One round, five findings, all five fixed.",
+    "grok-4.6": "Attempted and skipped. The runner reports Grok Build is not using a subscription login and requires an interactive grok login, which is unavailable here. The standing rule is to skip an auditor that cannot run."
+  },
+  "auditFindingsFixed": [
+    "HIGH: src/render/vfx/__tests__/renderer-bill.test.ts read the deleted ProceduralMapEffects at describe scope.",
+    "HIGH: src/render/vfx/__tests__/world-scene-integration.test.ts read the deleted SkiaWorldSurface and asserted a deleted component. Jest reported BOTH suites as passing while their collection threw ENOENT, so the green test count was hiding them. Every run since uses --no-cache.",
+    "MEDIUM: the procedural VFX package smoke listed a deleted evidence source and would throw before launching.",
+    "MEDIUM: the renderer parity smokes still launched a Skia pass that can no longer exist, which would either fail or compare Three.js against itself.",
+    "LOW: the Skia readiness variant survived in the IPC contract, the report builder and their tests."
+  ],
+  "removed": [
+    "@shopify/react-native-skia dependency and lockfile entry",
+    "public/canvaskit.wasm, assets/proof and scripts/electron/build-proof-assets.ts",
+    "setup:skia-web, proof:check and proof:assets scripts and their callers",
+    "SkiaWorldSurface, DistrictLightingOverlay, AtmosphereOverlay, AtlasProof, ProceduralMapEffects",
+    "the CanvasKit loader and the temporary renderer selector",
+    "the Skia world readiness variant and canvasKitReady",
+    "the renderer-comparison smokes and fixture builders as migration-only code",
+    "'wasm-unsafe-eval' from the Electron CSP"
+  ],
+  "commands": [
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npm run check:boundaries", "exitCode": 0 },
+    { "command": "npx jest --runInBand --no-cache", "exitCode": 0, "result": "907 tests passed with no suite failing to collect" },
+    { "command": "npm run export:web", "exitCode": 0, "result": "no canvaskit.wasm in dist" },
+    { "command": "npm run package:mac:arm64", "exitCode": 0 },
+    { "command": "npm run smoke:electron", "exitCode": 0, "result": "rendererKind threejs-2d" }
+  ],
+  "remoteGate": {
+    "package-macos-arm64": "success",
+    "package-macos-x64": "success",
+    "package-macos-x64-functional": "success",
+    "package-windows-x64": "success"
+  },
+  "openRisk": "macos-15-intel blocklists WebGL 2. With Skia gone there is no renderer that can start without it, so an Intel Mac hitting the same blocklist cannot run the game. Section 9.3's clear failure message is the specified behaviour. Intel is qualified here by packaging, signing and a recorded probe, and artifacts/threejs-2d/stage-7/INTEL-WEBGL2.md states what must be settled before an Intel release.",
+  "containment": { "phaseIsAncestorOfIntegration": true, "rollbackShaIsCommit": true, "rollbackShaIsAncestorOfIntegration": true }
+}
