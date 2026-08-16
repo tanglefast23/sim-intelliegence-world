@@ -543,7 +543,7 @@ export class ThreeWorldRenderer {
     const drawingBuffer = threeDrawingBufferSize(viewport, frame.devicePixelRatio);
     this.#renderer.setPixelRatio(1);
     this.#renderer.setSize(drawingBuffer.width, drawingBuffer.height, false);
-    const bounds = threeCameraBounds(camera, threeRasterViewport(viewport, frame.devicePixelRatio), frame.devicePixelRatio);
+    const bounds = threeCameraBounds(camera, threeRasterViewport(viewport, frame.devicePixelRatio));
     this.#camera.left = bounds.left;
     this.#camera.right = bounds.right;
     this.#camera.top = bounds.top;

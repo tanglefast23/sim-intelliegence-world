@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 /**
@@ -22,14 +22,28 @@ type Report = Readonly<{ passes: Readonly<{ threejs2d: Readonly<{ fixtures: read
 const report = JSON.parse(readFileSync(resolve(REPORT), 'utf8')) as Report;
 const captureRoot = dirname(resolve(REPORT));
 
+function findCapture(root: string, name: string): string | undefined {
+  if (!existsSync(root)) return undefined;
+  const direct = join(root, name);
+  if (existsSync(direct)) return direct;
+  for (const entry of readdirSync(root)) {
+    const candidate = join(root, entry);
+    if (!statSync(candidate).isDirectory()) continue;
+    const found = findCapture(candidate, name);
+    if (found) return found;
+  }
+  return undefined;
+}
+
 let refreshed = 0;
 for (const fixture of report.passes.threejs2d.fixtures) {
   const manifestPath = resolve(`tests/fixtures/rendering/threejs-all-maps/${fixture.id}-v1.json`);
   if (!existsSync(manifestPath)) continue;
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { candidate: { image: string } };
   const destination = resolve(manifest.candidate.image);
-  const source = join(captureRoot, 'threejs-2d', fixture.screenshot);
-  if (!existsSync(source)) throw new Error(`Capture is missing for ${fixture.id}: ${source}`);
+  // The runner writes one directory per DPR and VFX mode, so the capture is a level deeper.
+  const source = findCapture(join(captureRoot, 'threejs-2d'), fixture.screenshot);
+  if (!source) throw new Error(`Capture is missing for ${fixture.id}: ${fixture.screenshot}`);
   mkdirSync(dirname(destination), { recursive: true });
   copyFileSync(source, destination);
   refreshed += 1;
