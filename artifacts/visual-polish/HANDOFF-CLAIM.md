@@ -249,6 +249,43 @@ plus a successful `npm run package:mac:arm64`.
 now would carry your in-flight work with it. Merge belongs to whoever finishes
 last, after this claim ends.
 
+## Measured: the parity corpus already fails once you capture for real
+
+This is the most useful thing this session found, and it changes what the
+re-baseline in this claim has to achieve.
+
+With a clean worktree at the branch tip, `capture:renderer` then
+`capture:refresh` then `qualify:renderer` gives **19 of 19 refreshable fixtures
+failing**. Frame-level deltas run from mean `1.5` to `3.5` against a limit of `1`,
+and outside-mask ratios reach `0.82` against `0.12`. Two also fail readability:
+
+- `player-protagonist-southeast-2560x1440-dpr1_25-zoom1`, readable coverage `0.948755`;
+- `player-protagonist-southeast-1440x900-dpr2-zoom3`, readable coverage `0.895928`.
+
+**Those two are not caused by this session's work.** A probe with both new batches
+neutralised, `sprite-shadows` and `lamp-glow` emitting nothing, produced numbers
+identical to six decimals. They are a property of comparing a fresh Three.js
+capture against a frozen Skia baseline at fractional DPR.
+
+The corpus has been passing only because nothing could refresh the candidate side.
+Every green run since Stage 7 compared frozen pixels to frozen pixels.
+
+So the re-baseline is not housekeeping ahead of techniques 1, 4 and 7. It is the
+thing that decides whether the shipped renderer meets its own readability floor.
+Until it lands, no parity number on this branch means anything, and this session
+has not claimed one.
+
+Three practical notes for that work:
+
+- `capture:refresh` writes into tracked `artifacts/`, so it dirties the tree and
+  the NEXT `capture:renderer` refuses to run. Reset `artifacts/` between cycles,
+  or move candidates out of the tracked tree.
+- The capture schema caps `gpu.geometries` and `gpu.programs`. Both were raised
+  this session, to 19 and 4, because new batches and the additive material
+  exceeded them. Adding a batch or a material means raising them again.
+- Verification is best run from a separate detached worktree at the branch tip.
+  It keeps a clean tree without touching in-flight files in this one.
+
 ## When this claim ends
 
 When the three techniques are merged or abandoned. Delete this file at that
