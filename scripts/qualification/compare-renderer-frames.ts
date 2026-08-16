@@ -435,15 +435,19 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
       ? readablePixels(baselineImage, baselinePixels, median(baselineRing)) : [];
     const candidateReadable = candidateRing.length > 0
       ? readablePixels(candidateImage, candidatePixels, median(candidateRing)) : [];
+    // Retention is set OVERLAP, not a count ratio. A count lets readable pixels move inside the
+    // mask, or lets spurious extras hide real losses, and still pass. Overlap catches both.
+    const candidateReadableSet = new Set(candidateReadable);
+    const retainedReadable = baselineReadable.filter((pixel) => candidateReadableSet.has(pixel)).length;
     const readableRetention = baselineReadable.length > 0
-      ? candidateReadable.length / baselineReadable.length : 0;
+      ? retainedReadable / baselineReadable.length : 0;
     if (baselineReadable.length === 0) {
       failures.push(`${baselineMask.id}: baseline has no readable pixels against its ring.`);
     } else if (perPixelNative) {
       if (JSON.stringify(baselineReadable) !== JSON.stringify(candidateReadable)) {
         failures.push(`${baselineMask.id}: native readable-pixel set changed.`);
       }
-    } else if (perPixelNative ? false : readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
+    } else if (readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
       failures.push(
         `${baselineMask.id}: scaled readable coverage ${rounded(readableRetention)} is below 0.95.`,
       );
