@@ -752,6 +752,16 @@ export function WorldScene({
       ));
       updateCameraMotion(suspendFollow);
     };
+    // Clock only. The player stays where they are, so an interior stays framed while the sun moves.
+    window.siWorldSetSmokeMinute = (absoluteMinute) => {
+      setRuntime((current) => ({
+        ...current,
+        worldState: parseWorldState({
+          ...current.worldState,
+          clock: { ...current.worldState.clock, absoluteMinute },
+        }),
+      }));
+    };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId, forcedMinute) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
       const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
@@ -822,6 +832,7 @@ export function WorldScene({
       delete window.siWorldCloseConversationFixture;
       delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
+      delete window.siWorldSetSmokeMinute;
       delete window.siWorldStartNaturalMovementFixture;
       delete window.siWorldOpenRendererFeedbackFixture;
       delete window.siWorldOpenRendererMotionFixture;

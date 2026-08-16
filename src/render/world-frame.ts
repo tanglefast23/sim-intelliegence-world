@@ -471,7 +471,43 @@ export function withAuthoredPropScale(prop: WorldPropPlacement): WorldPropPlacem
   };
 }
 
-function propShadows(props: readonly WorldPropPlacement[], color: string): readonly WorldPropShadow[] {
+/**
+ * Every tile under a roof, expanded from interior cell rectangles to tile keys.
+ *
+ * `shelterCells` alone is NOT the indoor set. It holds only the interior of the roof group the
+ * player has ENTERED, so the moment they step outside it empties and every indoor prop starts
+ * casting sun shadows again. This frame builds the set straight from `map.source.roofGroups`, so
+ * it is complete whatever the player is standing in; the renderer, which sees only the frame,
+ * rebuilds the same set from `shelterCells` united with `roofedCells`.
+ */
+export function shelteredTileKeys(
+  cells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[],
+): ReadonlySet<string> {
+  const keys = new Set<string>();
+  for (const cell of cells) {
+    for (let y = cell.y; y < cell.y + cell.height; y += 1) {
+      for (let x = cell.x; x < cell.x + cell.width; x += 1) keys.add(`${x},${y}`);
+    }
+  }
+  return keys;
+}
+
+/**
+ * Indoors the sun is occluded, so a character's cast collapses to the anchor and only the tuned
+ * contact ellipse remains. Overhead lamps do not rake, and a sun-directional shadow in a roofed
+ * room is simply wrong: it swung west at dawn and east at dusk under a roof the light never
+ * crossed.
+ *
+ * ponytail: no per-lamp shadow casting indoors — the lamp glow carries the room. Add real
+ * lamp-relative casts only if a room reads flat once the glow work lands.
+ */
+const INDOOR_CHARACTER_CAST = Object.freeze({ x: 5, y: 1 });
+
+function propShadows(
+  props: readonly WorldPropPlacement[],
+  color: string,
+  sheltered: ReadonlySet<string>,
+): readonly WorldPropShadow[] {
   const groups = new Map<string, WorldPropPlacement[]>();
   for (const prop of props) {
     if (prop.isDoor) continue;
@@ -504,7 +540,10 @@ function propShadows(props: readonly WorldPropPlacement[], color: string): reado
       const right = Math.max(...feet.map(({ sprite, worldX }) => worldX + propShadowWidth(sprite)));
       return {
         id: `${id}-${index}`,
-        long: cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
+        // A long shadow IS the sun's shadow, so a sheltered cluster does not get one. The flat
+        // base strip still draws, which is what keeps an indoor lamp sitting on the floor.
+        long: !cluster.some(({ tile }) => sheltered.has(tileKey(tile))) &&
+          cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
         width: right - left,
         worldX: left,
         worldY: bottom + 25,
@@ -532,36 +571,30 @@ function staticFrameLists(
   const cached = mapCache?.get(key);
   if (cached) return cached;
 
+  // ONE QUAD PER TILE, ALWAYS AT 1:1.
+  //
+  // This used to find uniform 2x2 or 3x3 composition blocks and draw a single 32x32 sprite
+  // MAGNIFIED across the whole block. That made ground texels two or three times the size of the
+  // prop and character texels standing on them, and it varied tile by tile — 89% of downtown's
+  // floor quads were already 1:1 while its blocks were not — so a single screen carried two
+  // different ground resolutions at once.
+  //
+  // It also contradicted the art spec, which is what settled it:
+  // `docs/specs/2026-08-11-art-quality.md` records the selected ground variant PER TILE (:480) and
+  // rules out "a visible repeating mega-tile" (:266). A 32x32 sprite blown up to 96x96 is exactly
+  // that. So this is a drift fix, not new art detail, and the locked minimalist style is intact.
+  //
+  // `compositionSize` and `logicalVariantId` are deliberately left alone in `src/world`, so the
+  // presentation hash, `content:check` and `art:check` are all untouched. Only the DRAW changes.
   const floors: WorldFloorPlacement[] = [];
-  const covered = new Set<string>();
   for (let y = 0; y < map.source.height; y += 1) {
     for (let x = 0; x < map.source.width; x += 1) {
-      if (covered.has(`${x},${y}`)) continue;
       const tile = { x, y };
       const cell = presentationGroundAt(map.presentation, tile, map.source.width);
-      const size = artMode === 'legacy' ? 1 : cell.compositionSize;
-      const complete = x % size === 0 && y % size === 0 &&
-        x + size <= map.source.width && y + size <= map.source.height &&
-        Array.from({ length: size * size }, (_unused, offset) => {
-          const candidate = presentationGroundAt(map.presentation, {
-            x: x + offset % size,
-            y: y + Math.floor(offset / size),
-          }, map.source.width);
-          return candidate.materialId === cell.materialId && candidate.logicalVariantId === cell.logicalVariantId;
-        }).every(Boolean);
-      if (complete) {
-        for (let offsetY = 0; offsetY < size; offsetY += 1) {
-          for (let offsetX = 0; offsetX < size; offsetX += 1) covered.add(`${x + offsetX},${y + offsetY}`);
-        }
-      }
-      const visible = complete
-        ? x <= visibility.maximumX && x + size - 1 >= visibility.minimumX &&
-          y <= visibility.maximumY && y + size - 1 >= visibility.minimumY
-        : visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility);
-      if (!visible) continue;
+      if (!visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility)) continue;
       const sprite = artMode === 'legacy' ? groundSpriteAtV2(map, tile) : cell.sprite;
       floors.push({
-        ...placement({ id: `floor-${x}-${y}`, sprite, worldX: x * TILE_SIZE, worldY: y * TILE_SIZE, layer: 'floor', scale: complete ? size : 1 }),
+        ...placement({ id: `floor-${x}-${y}`, sprite, worldX: x * TILE_SIZE, worldY: y * TILE_SIZE, layer: 'floor' }),
         tile,
         mask: null,
         kind: 'floor',
@@ -635,8 +668,10 @@ function staticFrameLists(
     mapCache = new Map();
     STATIC_FRAME_LISTS.set(map, mapCache);
   }
-  // ponytail: 64 recent tile windows bound memory; revisit only if camera profiling shows churn.
-  if (mapCache.size >= 64) mapCache.delete(mapCache.keys().next().value as string);
+  // ponytail: 32 recent tile windows bound memory; revisit only if camera profiling shows churn.
+  // Halved from 64 when floors went 1:1: each cached window now holds about two and a half times
+  // the placements it used to, so the same bound would hold about two and a half times the memory.
+  if (mapCache.size >= 32) mapCache.delete(mapCache.keys().next().value as string);
   mapCache.set(key, built);
   return built;
 }
@@ -971,14 +1006,20 @@ export function buildWorldFrameState(
     worldY: effect.tile.y * TILE_SIZE + 16,
     color: effectColor(effect.kind),
   }));
-  const characterShadows = characters.map((character): WorldCharacterShadow => ({
-    id: character.id,
-    worldX: character.shadowWorldX,
-    worldY: character.shadowWorldY,
-    castX: lighting.shadow.x,
-    castY: lighting.shadow.y,
-    color: lighting.shadow.color,
-  }));
+  const shelteredKeys = shelteredTileKeys(
+    map.source.roofGroups.flatMap(({ interiorCells }) => interiorCells),
+  );
+  const characterShadows = characters.map((character): WorldCharacterShadow => {
+    const indoors = shelteredKeys.has(tileKey(character.tile));
+    return {
+      id: character.id,
+      worldX: character.shadowWorldX,
+      worldY: character.shadowWorldY,
+      castX: indoors ? INDOOR_CHARACTER_CAST.x : lighting.shadow.x,
+      castY: indoors ? INDOOR_CHARACTER_CAST.y : lighting.shadow.y,
+      color: lighting.shadow.color,
+    };
+  });
   const doorAnchors = doors.map((door) => {
     const openingId = map.doorById.get(door.id)?.openingId;
     return {
@@ -1035,7 +1076,7 @@ export function buildWorldFrameState(
     roofs,
     groundedOrder,
     // Reads the UNSCALED allProps, so a scaled prop keeps its shadow under its feet.
-    propShadows: propShadows(allProps, lighting.shadow.color),
+    propShadows: propShadows(allProps, lighting.shadow.color, shelteredKeys),
     characterShadows,
     doorWear: doorAnchors.map((primitive) => ({
       ...primitive,

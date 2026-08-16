@@ -55,6 +55,7 @@ function frameWithEffects(rectCount: number, fallbackCount: number): WorldFrameS
     characterShadows: [],
     wallBases: [],
     shelterCells: [],
+    roofedCells: [],
     selectionRing: {
       id: 'selection-ring',
       worldX: 0,

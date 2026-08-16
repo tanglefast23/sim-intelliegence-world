@@ -1034,6 +1034,30 @@ async function captureDaySweepSmoke(
     await clickAriaButton(window, 'Pause time');
   }
   await clickZoomButton(window, 1);
+  // INTERIOR FIRST, before any fixture walks the player across the island.
+  //
+  // No VFX fixture can frame this: every authored effect on every map sits outdoors, so opening
+  // one would walk the player out of the building. The packaged new game starts on the patio, not
+  // on the villa floor, so the player is walked to the middle of the roofed room. A roofed room
+  // must NOT track the sun, so these four frames are the check that indoor shadows and indoor
+  // floor hue hold still while the sixteen outdoor ones sweep.
+  //
+  // The player already STARTS on the villa floor at 18,18; it is the camera that starts elsewhere
+  // and only follows once the player moves. Time is paused here, so walking is not an option —
+  // centring is, and it needs no movement at all.
+  sendKey(window, 'F');
+  await waitForRendererPaint(window);
+  const interiorFrames: Record<string, unknown>[] = [];
+  for (const minute of DAY_SWEEP_MINUTES) {
+    await window.webContents.executeJavaScript(`window.siWorldSetSmokeMinute?.(${minute})`, true);
+    await waitForWorldState(window, (state) => state.minute % 1_440 === minute % 1_440, 10_000);
+    await waitForRendererPaint(window);
+    await waitForRendererPaint(window);
+    const screenshot = `villa-interior-minute-${minute.toString().padStart(4, '0')}.png`;
+    await captureSmokeScreenshot(window, join(directory, screenshot));
+    interiorFrames.push({ minute, screenshot, camera: parseCameraLabel(await cameraLabel(window)) });
+  }
+
   const frames: Record<string, unknown>[] = [];
   for (const scene of DAY_SWEEP_SCENES) {
     for (const minute of DAY_SWEEP_MINUTES) {
@@ -1062,6 +1086,7 @@ async function captureDaySweepSmoke(
     schemaVersion: 1,
     minutes: [...DAY_SWEEP_MINUTES],
     frames,
+    interiorFrames,
   };
 }
 

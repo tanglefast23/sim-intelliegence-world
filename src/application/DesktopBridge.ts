@@ -63,6 +63,12 @@ declare global {
      * far enough to make a neon effect visible.
      */
     siWorldOpenVfxFixture?: (mapId: MapId, effectId: string, absoluteMinute?: number) => void;
+    /**
+     * Moves the world clock and NOTHING else, so a smoke can hold one camera and one scene while
+     * only the sun changes. The VFX fixture also sets the clock, but it relocates the player to
+     * its effect, which is no use for capturing an interior.
+     */
+    siWorldSetSmokeMinute?: (absoluteMinute: number) => void;
     siWorldStartNaturalMovementFixture?: () => Readonly<{
       npcId: 'linda';
       source: 'fixture';

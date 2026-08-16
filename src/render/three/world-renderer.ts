@@ -28,6 +28,7 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
+import { shelteredTileKeys } from '../world-frame';
 import { groundSunTint, groundVariationField, sampleGroundVariation } from '../ground-light';
 import type { ToneMappingKind } from '../renderer-selection';
 import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
@@ -721,10 +722,14 @@ export class ThreeWorldRenderer {
       placements.flat().forEach((placement) => addAtlasPlacement(data, placement, this.#atlasWidth, this.#atlasHeight));
       return data;
     };
+    // Everything under a roof. The frame splits the same information across two lists — the room
+    // the player entered, and every room they have not — so the indoor set is their union.
+    const sheltered = shelteredTileKeys([...frame.shelterCells, ...frame.roofedCells]);
     // The ground takes the sun's light through the tint attribute the batch already uploads.
     // Four corner values per quad, interpolated by the rasteriser: no extra draw call, no extra
     // fill, no new program. See src/render/ground-light.ts for why the field is low frequency.
     const sunTint = groundSunTint(frame.lighting.sun);
+    const shelteredTint = groundSunTint(frame.lighting.sun, true);
     const groundField = groundVariationField(frame.mapId, frame.mapTiles.width, frame.mapTiles.height);
     const groundCorners = new Float32Array(16);
     const ground = emptyGeometryData();
@@ -734,7 +739,7 @@ export class ThreeWorldRenderer {
         groundField,
         frame.mapTiles.width,
         frame.mapTiles.height,
-        sunTint,
+        sheltered.has(`${placement.tile.x},${placement.tile.y}`) ? shelteredTint : sunTint,
         placement,
       );
       addAtlasPlacement(ground, placement, this.#atlasWidth, this.#atlasHeight, groundCorners);
@@ -754,15 +759,22 @@ export class ThreeWorldRenderer {
     // 0.95 floor. Props have no such shadow, so they are where this technique pays.
     const shadowCasters = groundedPlacements.filter((placement) => props.has(placement.id));
     // Rotated by the sun, never stretched by it. See SPRITE_SHADOW_LENGTH.
+    //
+    // A SHELTERED prop keeps the pre-sun constant instead. The sun cannot reach a table inside the
+    // villa, so its silhouette must not swing west at dawn and east at dusk; the constant is the
+    // measured offset technique 6 shipped with, so an indoor room looks exactly as it always did.
     const sun = frame.lighting.sun;
     const spriteShadowScale = SPRITE_SHADOW_LENGTH / Math.max(1, sun.shadowLength);
-    this.#set('sprite-shadows', atlas(shadowCasters.map((placement) => ({
-      ...placement,
-      color: SPRITE_SHADOW_COLOR,
-      opacity: SPRITE_SHADOW_OPACITY,
-      worldX: placement.worldX + sun.shadowX * spriteShadowScale,
-      worldY: placement.worldY + sun.shadowY * spriteShadowScale,
-    }))));
+    this.#set('sprite-shadows', atlas(shadowCasters.map((placement) => {
+      const indoors = sheltered.has(`${placement.tile.x},${placement.tile.y}`);
+      return {
+        ...placement,
+        color: SPRITE_SHADOW_COLOR,
+        opacity: SPRITE_SHADOW_OPACITY,
+        worldX: placement.worldX + (indoors ? SPRITE_SHADOW_OFFSET_X : sun.shadowX * spriteShadowScale),
+        worldY: placement.worldY + (indoors ? SPRITE_SHADOW_OFFSET_Y : sun.shadowY * spriteShadowScale),
+      };
+    })));
     this.#set('grounded-props-and-characters', atlas(groundedPlacements));
     this.#set('walls', atlas(frame.walls));
     this.#set('roofs', atlas(frame.roofs));

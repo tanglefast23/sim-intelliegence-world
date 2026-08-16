@@ -117,8 +117,12 @@ export function sampleGroundVariation(
  * Hue comes from `sun.light`, level from `sun.elevation`. The renderer multiplies this by each
  * corner's variation, so the per-corner cost is three multiplies and no colour parsing.
  */
-export function groundSunTint(sun: WorldSun): readonly [number, number, number] {
+export function groundSunTint(sun: WorldSun, sheltered = false): readonly [number, number, number] {
   const level = SUN_LEVEL_MINIMUM + (1 - SUN_LEVEL_MINIMUM) * sun.elevation;
+  // Under a roof the sun's HUE cannot reach the floor, so a villa floor must not swing amber at
+  // dawn. Its LEVEL still should: a room without lamps genuinely is darker at night, and holding
+  // the level is exactly what lets the lamp glow read as light rather than as a sticker.
+  if (sheltered) return [level, level, level];
   const [red, green, blue] = hexChannels(sun.light);
   return [red * level, green * level, blue * level];
 }

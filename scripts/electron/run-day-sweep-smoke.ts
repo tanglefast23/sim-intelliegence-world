@@ -30,6 +30,7 @@ const ResultSchema = z.object({
   schemaVersion: z.literal(1),
   minutes: z.array(z.number().int().nonnegative()).length(4),
   frames: z.array(FrameSchema).length(16),
+  interiorFrames: z.array(FrameSchema.omit({ mapId: true, effectId: true })).length(4),
 }).strict();
 
 const outputRoot = process.env.SI_WORLD_PACKAGE_OUTPUT_ROOT
@@ -98,8 +99,15 @@ async function main(): Promise<void> {
       throw new Error(`Day sweep moved the camera on ${mapId}: ${[...new Set(cameras)].join(' ')}`);
     }
   }
+  // The interior must be captured from ONE camera too, or it records the player wandering.
+  const interiorCameras = new Set(result.interiorFrames.map(({ camera }) => JSON.stringify(camera)));
+  if (interiorCameras.size !== 1) {
+    throw new Error(`Day sweep moved the interior camera: ${[...interiorCameras].join(' ')}`);
+  }
   writeFileSync(join(evidenceRoot, 'day-sweep-report.json'), `${JSON.stringify(result, undefined, 2)}\n`);
-  process.stdout.write(`Day sweep captured ${result.frames.length} frames into ${evidenceRoot}\n`);
+  process.stdout.write(
+    `Day sweep captured ${result.frames.length} outdoor and ${result.interiorFrames.length} interior frames into ${evidenceRoot}\n`,
+  );
 }
 
 main().catch((error: unknown) => {

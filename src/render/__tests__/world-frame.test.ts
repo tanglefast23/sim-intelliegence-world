@@ -22,6 +22,7 @@ import {
   DESTINATION_PULSE_MS,
   destinationPulseFrame,
   doorSpriteForFrame,
+  shelteredTileKeys,
   WORLD_LAYER_ORDER,
   WORLD_COMPOSITE_ORDER,
   type WorldActors,
@@ -222,6 +223,50 @@ describe('authoritative world frame', () => {
     );
     expect(frameSummary(frame)).toEqual(fixture.expected);
     expect(JSON.parse(JSON.stringify(frame))).toEqual(frame);
+  });
+
+  // The protagonist SPAWNS indoors at 18,18, so this was wrong on the first frame of a new game:
+  // a table in the villa threw a shadow that raked west at dawn and east at dusk, following a sun
+  // that never crossed the roof.
+  test('keeps sheltered casters off the sun', () => {
+    const indoorFrameAt = (absoluteMinute: number) => {
+      const initial = createInitialState();
+      return buildWorldFrameState(
+        MAP,
+        WorldStateSchema.parse({ ...initial, clock: { ...initial.clock, absoluteMinute } }),
+        ACTORS,
+        'down',
+        0,
+      );
+    };
+    const dawn = indoorFrameAt(435);
+    const dusk = indoorFrameAt(1_140);
+    // The sun really did move between these two frames, or the rest of this proves nothing.
+    expect(dawn.lighting.shadow.x).toBeLessThan(0);
+    expect(dusk.lighting.shadow.x).toBeGreaterThan(0);
+
+    const indoorCast = (frame: typeof dawn) => {
+      const shadow = frame.characterShadows.find(({ id }) => id === 'protagonist');
+      if (!shadow) throw new Error('The protagonist has no shadow.');
+      return [shadow.castX, shadow.castY];
+    };
+    expect(indoorCast(dawn)).toEqual(indoorCast(dusk));
+    expect(indoorCast(dawn)).not.toEqual([dawn.lighting.shadow.x, dawn.lighting.shadow.y]);
+
+    // The villa's own lamps and planters are the long-shadow sprites, and none of them may cast.
+    const shelteredKeys = shelteredTileKeys(
+      MAP.source.roofGroups.flatMap(({ interiorCells }) => interiorCells),
+    );
+    const indoorProps = dusk.props.filter(({ tile }) => shelteredKeys.has(tileKey(tile)));
+    expect(indoorProps.length).toBeGreaterThan(0);
+    const indoorObjectIds = new Set(indoorProps.map(({ objectId }) => objectId));
+    const indoorShadows = dusk.propShadows.filter(({ id }) => (
+      indoorObjectIds.has(id.slice(0, id.lastIndexOf('-')))
+    ));
+    expect(indoorShadows.length).toBeGreaterThan(0);
+    expect(indoorShadows.every(({ long }) => !long)).toBe(true);
+    // Outdoors still casts, so the guard is a shelter test and not a blanket switch-off.
+    expect(dusk.propShadows.some(({ long }) => long)).toBe(true);
   });
 
   test('deep-freezes every renderer list and samples time exactly once', () => {

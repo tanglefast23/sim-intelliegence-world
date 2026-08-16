@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "minutes": [
+    360,
+    720,
+    1080,
+    1320
+  ],
+  "frames": [
+    {
+      "mapId": "northwest_residential",
+      "effectId": "patio-fire",
+      "minute": 360,
+      "screenshot": "northwest_residential-minute-0360.png",
+      "camera": {
+        "x": 255,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northwest_residential",
+      "effectId": "patio-fire",
+      "minute": 720,
+      "screenshot": "northwest_residential-minute-0720.png",
+      "camera": {
+        "x": 255,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northwest_residential",
+      "effectId": "patio-fire",
+      "minute": 1080,
+      "screenshot": "northwest_residential-minute-1080.png",
+      "camera": {
+        "x": 255,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northwest_residential",
+      "effectId": "patio-fire",
+      "minute": 1320,
+      "screenshot": "northwest_residential-minute-1320.png",
+      "camera": {
+        "x": 255,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northeast_downtown",
+      "effectId": "club-neon-east",
+      "minute": 360,
+      "screenshot": "northeast_downtown-minute-0360.png",
+      "camera": {
+        "x": 95,
+        "y": 311,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northeast_downtown",
+      "effectId": "club-neon-east",
+      "minute": 720,
+      "screenshot": "northeast_downtown-minute-0720.png",
+      "camera": {
+        "x": 95,
+        "y": 311,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northeast_downtown",
+      "effectId": "club-neon-east",
+      "minute": 1080,
+      "screenshot": "northeast_downtown-minute-1080.png",
+      "camera": {
+        "x": 95,
+        "y": 311,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "northeast_downtown",
+      "effectId": "club-neon-east",
+      "minute": 1320,
+      "screenshot": "northeast_downtown-minute-1320.png",
+      "camera": {
+        "x": 95,
+        "y": 311,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southwest_commercial",
+      "effectId": "courtyard-insects",
+      "minute": 360,
+      "screenshot": "southwest_commercial-minute-0360.png",
+      "camera": {
+        "x": 191,
+        "y": 791,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southwest_commercial",
+      "effectId": "courtyard-insects",
+      "minute": 720,
+      "screenshot": "southwest_commercial-minute-0720.png",
+      "camera": {
+        "x": 191,
+        "y": 791,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southwest_commercial",
+      "effectId": "courtyard-insects",
+      "minute": 1080,
+      "screenshot": "southwest_commercial-minute-1080.png",
+      "camera": {
+        "x": 191,
+        "y": 791,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southwest_commercial",
+      "effectId": "courtyard-insects",
+      "minute": 1320,
+      "screenshot": "southwest_commercial-minute-1320.png",
+      "camera": {
+        "x": 191,
+        "y": 791,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southeast_docks",
+      "effectId": "yard-steam",
+      "minute": 360,
+      "screenshot": "southeast_docks-minute-0360.png",
+      "camera": {
+        "x": 63,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southeast_docks",
+      "effectId": "yard-steam",
+      "minute": 720,
+      "screenshot": "southeast_docks-minute-0720.png",
+      "camera": {
+        "x": 63,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southeast_docks",
+      "effectId": "yard-steam",
+      "minute": 1080,
+      "screenshot": "southeast_docks-minute-1080.png",
+      "camera": {
+        "x": 63,
+        "y": 695,
+        "zoom": 1
+      }
+    },
+    {
+      "mapId": "southeast_docks",
+      "effectId": "yard-steam",
+      "minute": 1320,
+      "screenshot": "southeast_docks-minute-1320.png",
+      "camera": {
+        "x": 63,
+        "y": 695,
+        "zoom": 1
+      }
+    }
+  ],
+  "interiorFrames": [
+    {
+      "minute": 360,
+      "screenshot": "villa-interior-minute-0360.png",
+      "camera": {
+        "x": 0,
+        "y": 260,
+        "zoom": 1
+      }
+    },
+    {
+      "minute": 720,
+      "screenshot": "villa-interior-minute-0720.png",
+      "camera": {
+        "x": 0,
+        "y": 260,
+        "zoom": 1
+      }
+    },
+    {
+      "minute": 1080,
+      "screenshot": "villa-interior-minute-1080.png",
+      "camera": {
+        "x": 0,
+        "y": 260,
+        "zoom": 1
+      }
+    },
+    {
+      "minute": 1320,
+      "screenshot": "villa-interior-minute-1320.png",
+      "camera": {
+        "x": 0,
+        "y": 260,
+        "zoom": 1
+      }
+    }
+  ]
+}

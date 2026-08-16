@@ -29,13 +29,13 @@
         "vfxMode": "procedural"
       },
       "expected": {
-        "frameHash": "5ed85088",
+        "frameHash": "2d29ff41",
         "mapHash": "9180d1b3",
         "presentationHash": "fe577d53",
         "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
-        "drawCounts": { "floor": 382, "prop": 39, "shadow": 2, "character": 2, "effect": 3, "wall": 56, "roof": 0, "total": 484 },
-        "counts": { "floors": 210, "groundDetails": 172, "props": 34, "doors": 5, "characters": 2, "effects": 3, "fallbackEffects": 0, "walls": 56, "roofs": 0, "propShadows": 19, "characterShadows": 2, "thresholds": 5, "journalMarkers": 1, "shelterCells": 1 },
-        "firstIds": { "floor": "floor-10-14", "detail": "transition-24-14", "prop": "shoreglass-spa-fixtures-part-05", "door": "bathroom-hall-door", "character": "protagonist", "effect": "patio-leaves", "wall": "shoreglass-spa-east-5", "journal": "journal_linda_boyfriend" },
+        "drawCounts": { "floor": 666, "prop": 39, "shadow": 2, "character": 2, "effect": 3, "wall": 56, "roof": 0, "total": 768 },
+        "counts": { "floors": 494, "groundDetails": 172, "props": 34, "doors": 5, "characters": 2, "effects": 3, "fallbackEffects": 0, "walls": 56, "roofs": 0, "propShadows": 19, "characterShadows": 2, "thresholds": 5, "journalMarkers": 1, "shelterCells": 1 },
+        "firstIds": { "floor": "floor-11-14", "detail": "transition-24-14", "prop": "shoreglass-spa-fixtures-part-05", "door": "bathroom-hall-door", "character": "protagonist", "effect": "patio-leaves", "wall": "shoreglass-spa-east-5", "journal": "journal_linda_boyfriend" },
         "hiddenRoofGroupId": "protagonist-villa-roof",
         "fallbackEmitterIds": []
       }
@@ -59,7 +59,7 @@
         "vfxMode": "circle"
       },
       "expected": {
-        "frameHash": "0a04973c",
+        "frameHash": "c960f3bc",
         "mapHash": "9180d1b3",
         "presentationHash": "fe577d53",
         "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",

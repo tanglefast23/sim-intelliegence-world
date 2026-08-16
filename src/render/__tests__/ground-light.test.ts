@@ -86,6 +86,22 @@ describe('ground light', () => {
     expect(brightest - darkest).toBeGreaterThan(0.08);
   });
 
+  test('drops the sun hue under a roof but keeps its level', () => {
+    for (const minute of [360, 435, 780, 1_140, 1_320]) {
+      const sun = worldSun(minute);
+      const outdoor = groundSunTint(sun);
+      const sheltered = groundSunTint(sun, true);
+      // Neutral: a villa floor must not swing amber at dawn under a roof the sun never crossed.
+      expect(sheltered[0]).toBe(sheltered[1]);
+      expect(sheltered[1]).toBe(sheltered[2]);
+      // But the level still tracks the sun, which is what lets the lamp glow read at night.
+      expect(sheltered[0]).toBeCloseTo(tintLuminance(sheltered), 6);
+      expect(Math.abs(tintLuminance(sheltered) - tintLuminance(outdoor))).toBeLessThan(0.12);
+    }
+    expect(tintLuminance(groundSunTint(worldSun(780), true)))
+      .toBeGreaterThan(tintLuminance(groundSunTint(worldSun(60), true)));
+  });
+
   test('darkens and warms toward night, and is brightest and neutral at solar noon', () => {
     const noon = groundSunTint(worldSun(780));
     const night = groundSunTint(worldSun(60));
