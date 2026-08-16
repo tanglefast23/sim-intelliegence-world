@@ -47,6 +47,12 @@ const LAMP_SPRITE_IDS: ReadonlySet<string> = new Set([
   'tile.fixture-neon-lamp-magenta',
 ]);
 const LAMP_GLOW_RADIUS = 44;
+
+/** Handoff technique 6: silhouette shadow tint, opacity and offset, in logical pixels. */
+const SPRITE_SHADOW_COLOR = '#111519';
+const SPRITE_SHADOW_OPACITY = 0.48;
+const SPRITE_SHADOW_OFFSET_X = 3;
+const SPRITE_SHADOW_OFFSET_Y = 3;
 /** Stage 4 recorded ACES calibration value, not a hidden magic number. */
 export const ACES_EXPOSURE = 1;
 const COMPOSITE_BATCHES = [
@@ -54,6 +60,10 @@ const COMPOSITE_BATCHES = [
   'doors',
   'door-wear',
   'contact-shadows-and-thresholds',
+  // Handoff technique 6: a tinted copy of each grounded sprite, offset, so the shadow follows the
+  // real pixel silhouette instead of a generic blob. This is what gives furniture and characters
+  // contact with the floor and makes their edges read as sharper.
+  'sprite-shadows',
   'selection-ring',
   'grounded-props-and-characters',
   'effects',
@@ -224,6 +234,13 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
+/**
+ * Additive light must not be tone mapped.
+ *
+ * ACES(floor) + ACES(glow) is not ACES(floor + glow). Running the curve on the glow before adding
+ * it clips overlapping lamps and shifts their hue. Three.js only injects the tone-mapping chunk
+ * when a material opts in, so the additive material leaves it out and adds linear light instead.
+ */
 function shaderMaterial(texture?: Texture, matchLegacyColors = false, additive = false): ShaderMaterial {
   const legacyColorTransform = matchLegacyColors ? `
         gl_FragColor.rgb = mat3(
@@ -235,7 +252,7 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false, additive =
   return new ShaderMaterial({
     // Lamp glow must ADD light to the floor. Alpha blending can only tint toward a colour, which
     // is why the shipped glow read as nothing while the spike's additive glow read as light.
-    ...(additive ? { blending: AdditiveBlending } : {}),
+    ...(additive ? { blending: AdditiveBlending, toneMapped: false } : {}),
     depthTest: false,
     depthWrite: false,
     // addLine emits its quad wound by segment direction, so a line running the other way is
@@ -263,7 +280,7 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false, additive =
         gl_FragColor = sampled * vTint;
         ${legacyColorTransform}
         if (gl_FragColor.a <= 0.001) discard;
-        #include <tonemapping_fragment>
+        ${additive ? '' : '#include <tonemapping_fragment>'}
         #include <colorspace_fragment>
       }
     ` : `
@@ -412,6 +429,7 @@ export class ThreeWorldRenderer {
       const geometry = new BufferGeometry();
       const material = atlasBatches.has(id)
         ? atlasMaterial
+        : id === 'sprite-shadows' ? atlasMaterial
         : id === 'district-light-pools' || id === 'lamp-glow' ? glowMaterial
           : id === 'atmosphere' ? overlayMaterial : primitiveMaterial;
       const mesh = new Mesh(geometry, material);
@@ -592,10 +610,20 @@ export class ThreeWorldRenderer {
     this.#set('doors', atlas(frame.doors));
     const props = new Map(frame.props.map((placement) => [placement.id, placement]));
     const characters = new Map(frame.characters.map((placement) => [placement.id, placement]));
-    this.#set('grounded-props-and-characters', atlas(frame.groundedOrder.flatMap((entry) => {
+    const groundedPlacements = frame.groundedOrder.flatMap((entry) => {
       const placement = entry.kind === 'prop' ? props.get(entry.id) : characters.get(entry.id);
       return placement ? [placement] : [];
-    })));
+    });
+    // Handoff technique 6. The offset and tint are the spike's, converted from its world units to
+    // logical pixels. Every value comes from the placement already in the frame.
+    this.#set('sprite-shadows', atlas(groundedPlacements.map((placement) => ({
+      ...placement,
+      color: SPRITE_SHADOW_COLOR,
+      opacity: SPRITE_SHADOW_OPACITY,
+      worldX: placement.worldX + SPRITE_SHADOW_OFFSET_X,
+      worldY: placement.worldY + SPRITE_SHADOW_OFFSET_Y,
+    }))));
+    this.#set('grounded-props-and-characters', atlas(groundedPlacements));
     this.#set('walls', atlas(frame.walls));
     this.#set('roofs', atlas(frame.roofs));
 
