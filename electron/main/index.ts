@@ -2530,16 +2530,16 @@ async function createMainWindow(): Promise<void> {
     }
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
-      // Stage 6: the production renderer clears the loading shell sooner than Skia did, so a
-      // fixed delay could miss the whole window on a fast runner. Start immediately and let the
-      // capture retry policy handle a frame that has not painted yet.
+      // The loading shell needs a moment to mount, and the resource gate holds it for about
+      // 500 ms in smoke mode. Capturing at zero fired before the shell existed, which made the
+      // tolerant path record the ready frame and produced identical loading and ready evidence.
       setTimeout(() => {
         void captureLoadingSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
           smokeFinished = true;
           process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
           app.exit(1);
         });
-      }, 0);
+      }, 150);
     }
   });
   await window.loadURL(webgl2ProbeMode ? WEBGL2_PROBE_URL : devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
