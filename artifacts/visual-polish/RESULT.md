@@ -106,3 +106,39 @@ confirming the suite now reports a failure where it previously reported a pass.
 
 A verdict whose coverage note says it is "beginning" an inspection is not an
 audit. Those two runs are recorded here as unearned rather than counted.
+
+## Handoff pixel techniques: rollback target
+
+The program specified in `docs/specs/2026-08-16-handoff-pixel-techniques.md`
+begins at commit 0.0, which guards this directory's sibling `artifacts/threejs-2d`.
+
+**Rollback target: `8748434`**, the parent of that commit.
+
+The spec deliberately refuses to name a hash in advance, and this is why. During
+review the intended target moved three times — `d4a1a24`, then `33609af`, then
+`9c2f8e2` — while a concurrent session committed to the same worktree. A revert
+to any hash chosen earlier would have destroyed work that is not part of this
+program, including that session's UI fix at `f51c709`. The target is recorded here
+once, at the moment it becomes true.
+
+## The Skia captures were never protected
+
+`scripts/verification/evidence-output.ts` write-protects historical evidence, but
+its list covered only `artifacts/phase-04`, `-14`, `-19`, `-22` and `-23`.
+`artifacts/threejs-2d` was not on it.
+
+That directory holds the frozen Skia captures: the only record of a
+Skia-versus-Three.js comparison that can no longer be made, because Skia is gone.
+Any capture run pointed at it would have overwritten them silently, and this
+program's whole first phase is about retiring them as a reference *without*
+destroying them. Found during specification review, closed in commit 0.0.
+
+The guard is proved rather than asserted: removing the entry makes
+`tests/electron/package-smoke.test.ts` report a failure where it now reports a
+pass.
+
+One limit is worth stating, because the guard does not close it alone.
+`scripts/qualification/refresh-candidate-captures.ts:81` copies straight to
+`manifest.candidate.image` and never calls `resolveEvidenceOutputRoot`, so it
+writes wherever a manifest points — today, inside this tree. Until phase 0.1
+retargets those paths, `capture:refresh` must not be run.
