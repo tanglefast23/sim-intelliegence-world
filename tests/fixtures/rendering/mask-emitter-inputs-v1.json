@@ -10,8 +10,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1122,
+      "worldX": 866,
+      "worldY": 1117,
       "camera": {
         "x": 255,
         "y": 695,
@@ -27,7 +27,7 @@
       },
       "devicePixelRatio": 1,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northeast-1440x900-dpr1-zoom2",
@@ -38,8 +38,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 708,
-      "worldY": 738,
+      "worldX": 706,
+      "worldY": 733,
       "camera": {
         "x": 368,
         "y": 439,
@@ -55,7 +55,7 @@
       },
       "devicePixelRatio": 1,
       "zoom": 2,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southwest-1600x720-dpr1-zoom3",
@@ -66,8 +66,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 804,
-      "worldY": 1218,
+      "worldX": 802,
+      "worldY": 1213,
       "camera": {
         "x": 554,
         "y": 1021,
@@ -83,7 +83,7 @@
       },
       "devicePixelRatio": 1,
       "zoom": 3,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southeast-1920x1080-dpr1-zoom1",
@@ -94,8 +94,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 676,
-      "worldY": 1122,
+      "worldX": 674,
+      "worldY": 1117,
       "camera": {
         "x": 0,
         "y": 486,
@@ -111,7 +111,7 @@
       },
       "devicePixelRatio": 1,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northwest-2560x1440-dpr1-zoom1",
@@ -122,8 +122,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1122,
+      "worldX": 866,
+      "worldY": 1117,
       "camera": {
         "x": -241,
         "y": 126,
@@ -139,7 +139,7 @@
       },
       "devicePixelRatio": 1,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northwest-1440x900-dpr1_25-zoom1",
@@ -150,8 +150,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1121.8,
+      "worldX": 866,
+      "worldY": 1116.8,
       "camera": {
         "x": 175,
         "y": 605,
@@ -167,7 +167,7 @@
       },
       "devicePixelRatio": 1.25,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northeast-1600x720-dpr1_25-zoom2",
@@ -178,8 +178,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 708,
-      "worldY": 738.2,
+      "worldX": 706,
+      "worldY": 733.2,
       "camera": {
         "x": 327,
         "y": 483,
@@ -195,7 +195,7 @@
       },
       "devicePixelRatio": 1.25,
       "zoom": 2,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southwest-1920x1080-dpr1_25-zoom3",
@@ -206,8 +206,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 804,
-      "worldY": 1218.0666666666666,
+      "worldX": 802,
+      "worldY": 1213.0666666666666,
       "camera": {
         "x": 501,
         "y": 961,
@@ -223,7 +223,7 @@
       },
       "devicePixelRatio": 1.25,
       "zoom": 3,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southeast-2560x1440-dpr1_25-zoom1",
@@ -234,8 +234,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 676,
-      "worldY": 1121.8,
+      "worldX": 674,
+      "worldY": 1116.8,
       "camera": {
         "x": -241,
         "y": 125,
@@ -251,7 +251,7 @@
       },
       "devicePixelRatio": 1.25,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northwest-1600x720-dpr1_5-zoom2",
@@ -262,8 +262,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1122,
+      "worldX": 866,
+      "worldY": 1117,
       "camera": {
         "x": 487,
         "y": 867,
@@ -279,7 +279,7 @@
       },
       "devicePixelRatio": 1.5,
       "zoom": 2,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northeast-1920x1080-dpr1_5-zoom3",
@@ -290,8 +290,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 708,
-      "worldY": 738.1111111111111,
+      "worldX": 706,
+      "worldY": 733.1111111111111,
       "camera": {
         "x": 405,
         "y": 481,
@@ -307,7 +307,7 @@
       },
       "devicePixelRatio": 1.5,
       "zoom": 3,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southwest-2560x1440-dpr1_5-zoom1",
@@ -318,8 +318,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 804,
-      "worldY": 1218.3333333333333,
+      "worldX": 802,
+      "worldY": 1213.3333333333333,
       "camera": {
         "x": -241,
         "y": 125,
@@ -335,7 +335,7 @@
       },
       "devicePixelRatio": 1.5,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southeast-1280x720-dpr1_5-zoom2",
@@ -346,8 +346,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 676,
-      "worldY": 1122,
+      "worldX": 674,
+      "worldY": 1117,
       "camera": {
         "x": 375,
         "y": 867,
@@ -363,7 +363,7 @@
       },
       "devicePixelRatio": 1.5,
       "zoom": 2,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northwest-1920x1080-dpr2-zoom3",
@@ -374,8 +374,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1122,
+      "worldX": 866,
+      "worldY": 1117,
       "camera": {
         "x": 565,
         "y": 865,
@@ -391,7 +391,7 @@
       },
       "devicePixelRatio": 2,
       "zoom": 3,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "northeast-2560x1440-dpr2-zoom1",
@@ -402,8 +402,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 708,
-      "worldY": 738,
+      "worldX": 706,
+      "worldY": 733,
       "camera": {
         "x": -241,
         "y": 0,
@@ -419,7 +419,7 @@
       },
       "devicePixelRatio": 2,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southwest-1280x720-dpr2-zoom2",
@@ -430,8 +430,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 804,
-      "worldY": 1218,
+      "worldX": 802,
+      "worldY": 1213,
       "camera": {
         "x": 504,
         "y": 964,
@@ -447,7 +447,7 @@
       },
       "devicePixelRatio": 2,
       "zoom": 2,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "southeast-1440x900-dpr2-zoom3",
@@ -458,8 +458,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 676,
-      "worldY": 1122,
+      "worldX": 674,
+      "worldY": 1117,
       "camera": {
         "x": 453,
         "y": 895,
@@ -475,7 +475,7 @@
       },
       "devicePixelRatio": 2,
       "zoom": 3,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "maximum-load-2560x1440-dpr2-zoom1",
@@ -486,8 +486,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1122,
+      "worldX": 866,
+      "worldY": 1117,
       "camera": {
         "x": -241,
         "y": 126,
@@ -503,7 +503,7 @@
       },
       "devicePixelRatio": 2,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     },
     {
       "fixtureId": "fallback-circle-1280x720-dpr1-zoom1",
@@ -514,8 +514,8 @@
         "width": 24,
         "height": 30
       },
-      "worldX": 868,
-      "worldY": 1122,
+      "worldX": 866,
+      "worldY": 1117,
       "camera": {
         "x": 255,
         "y": 695,
@@ -531,7 +531,7 @@
       },
       "devicePixelRatio": 1,
       "zoom": 1,
-      "scale": 1
+      "scale": 1.1666666666666667
     }
   ]
 }

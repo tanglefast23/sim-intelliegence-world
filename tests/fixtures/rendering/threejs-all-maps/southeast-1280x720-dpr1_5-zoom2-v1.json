@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "southeast-1280x720-dpr1_5-zoom2",
-  "sourceCommit": "f8fd7fd7b24ae9221860afea308d7adf562183c4",
+  "sourceCommit": "af979ae9e4e2be33eee8e12ddfe8667dbcd4ed50",
   "mode": "parity",
   "viewport": {
     "width": 1280,
@@ -55,6 +55,5 @@
     "scaledRootMeanSquareChannelDelta": 3,
     "scaledLargeChannelDelta": 32,
     "scaledLargeChangedPixelRatio": 0.002
-  },
-  "rasterResampled": true
+  }
 }

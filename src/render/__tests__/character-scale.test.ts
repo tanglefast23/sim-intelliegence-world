@@ -73,6 +73,32 @@ describe('authored character scale', () => {
     }
   });
 
+  test('covers no neighbouring tile centre, so no route is newly blocked', () => {
+    // The scaled figure is 28x35 around a foot at (tile.x x 32 + 16, tile.y x 32 + 29). Tile
+    // centres are 32 apart, so the horizontal span of 14 either side cannot reach one. Vertically
+    // the sprite top sits 3 pixels into the tile above, well short of that tile's centre 16 pixels
+    // up. Asserted rather than reasoned, because a larger scale would silently break it.
+    const TILE = 32;
+    const frame = buildWorldFrameState(
+      WORLD_MAP_CATALOG.northwest_residential, createInitialState(), {}, 'down', 0,
+    );
+    const player = frame.characters.find(({ id }) => id === 'protagonist')!;
+    const left = player.worldX;
+    const top = player.worldY;
+    const right = left + WIDTH * player.scale;
+    const bottom = top + HEIGHT * player.scale;
+
+    for (let tileY = player.tile.y - 2; tileY <= player.tile.y + 2; tileY += 1) {
+      for (let tileX = player.tile.x - 2; tileX <= player.tile.x + 2; tileX += 1) {
+        if (tileX === player.tile.x && tileY === player.tile.y) continue;
+        const centreX = tileX * TILE + TILE / 2;
+        const centreY = tileY * TILE + TILE / 2;
+        const covered = centreX >= left && centreX < right && centreY >= top && centreY < bottom;
+        expect(`${tileX},${tileY}:${covered}`).toBe(`${tileX},${tileY}:false`);
+      }
+    }
+  });
+
   test('leaves the contact shadow anchored to the foot, not to the sprite origin', () => {
     // shadowWorldX and shadowWorldY derive from the foot, never from worldX/worldY, so the scale
     // must not move them. If this fails, a scaled character is floating.

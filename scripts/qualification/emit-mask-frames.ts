@@ -159,5 +159,7 @@ writeFileSync(
 
 process.stdout.write(
   `Emitted and wired ${wired} mask frames. Both sides now name different files.\n` +
-  `Every emitted mask reproduces its frozen predecessor exactly.\n`,
+  (mismatched.length === 0
+    ? 'Every emitted mask reproduces its predecessor exactly.\n'
+    : `${wired - mismatched.length} reproduce their predecessor; ${mismatched.length} moved by declaration.\n`),
 );
