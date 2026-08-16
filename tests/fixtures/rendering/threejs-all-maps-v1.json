@@ -5,30 +5,6 @@
   "mode": "parity",
   "fixtures": [
     {
-      "id": "villa-exterior-idle",
-      "manifest": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-exterior-idle-v1.json"
-    },
-    {
-      "id": "villa-interior-roof-hidden",
-      "manifest": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-interior-roof-hidden-v1.json"
-    },
-    {
-      "id": "villa-door-transition",
-      "manifest": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-door-transition-v1.json"
-    },
-    {
-      "id": "villa-walk-east-frame-1",
-      "manifest": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-walk-east-frame-1-v1.json"
-    },
-    {
-      "id": "villa-selected-npc",
-      "manifest": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-selected-npc-v1.json"
-    },
-    {
-      "id": "villa-destination-journal-failure",
-      "manifest": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-destination-journal-failure-v1.json"
-    },
-    {
       "id": "northwest-1280x720-dpr1-zoom1",
       "manifest": "tests/fixtures/rendering/threejs-all-maps/northwest-1280x720-dpr1-zoom1-v1.json"
     },

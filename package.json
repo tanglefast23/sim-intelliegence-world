@@ -65,7 +65,8 @@
     "spike:animated-sketch:build": "esbuild spikes/002-threejs-animated-sketch/scene.js --bundle --format=iife --minify --outfile=spikes/002-threejs-animated-sketch/scene.bundle.js",
     "spike:animated-sketch:check": "npm run spike:animated-sketch:build && node spikes/002-threejs-animated-sketch/verify.mjs",
     "capture:renderer": "tsx scripts/electron/run-renderer-capture.ts",
-    "capture:refresh": "tsx scripts/qualification/refresh-candidate-captures.ts"
+    "capture:refresh": "tsx scripts/qualification/refresh-candidate-captures.ts",
+    "qualify:renderer:sets": "tsx scripts/qualification/qualify-renderer-sets.ts"
   },
   "dependencies": {
     "@expo-google-fonts/silkscreen": "0.4.2",

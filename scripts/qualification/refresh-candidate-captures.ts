@@ -46,19 +46,13 @@ function findCapture(root: string, name: string): string | undefined {
 const COLLECTION = 'tests/fixtures/rendering/threejs-all-maps-v1.json';
 
 /**
- * Fixtures whose capture runner was retired with Skia. Their candidates are frozen history and
- * cannot be refreshed, so they prove nothing about a new change and are excluded by name rather
- * than by silent omission. Reviving them needs a villa capture runner.
+ * The six frozen villa fixtures used to be skipped by name here, because they sat inside the live
+ * collection and could not be refreshed. They now live in their own frozen set
+ * (`threejs-stage-3-specialized-v1.json`), reported separately by `qualify:renderer:sets`, so the
+ * live collection contains only refreshable fixtures and every one of them must refresh.
+ *
+ * That is the point of the split: a skip list inside a live set is a place for evidence to hide.
  */
-const FROZEN_HISTORY = new Set([
-  'villa-exterior-idle',
-  'villa-interior-roof-hidden',
-  'villa-door-transition',
-  'villa-walk-east-frame-1',
-  'villa-selected-npc',
-  'villa-destination-journal-failure',
-]);
-
 const collection = JSON.parse(readFileSync(resolve(COLLECTION), 'utf8')) as {
   fixtures: readonly Readonly<{ id: string; manifest: string }>[];
 };
@@ -67,7 +61,6 @@ const unrefreshed: string[] = [];
 
 let refreshed = 0;
 for (const entry of collection.fixtures) {
-  if (FROZEN_HISTORY.has(entry.id)) continue;
   const fixture = captured.get(entry.id);
   if (!fixture) { unrefreshed.push(entry.id); continue; }
   const manifestPath = resolve(entry.manifest);
@@ -88,6 +81,4 @@ if (unrefreshed.length > 0) {
   );
 }
 if (refreshed === 0) throw new Error('No candidate capture was refreshed; the comparison would be stale.');
-process.stdout.write(
-  `Refreshed ${refreshed} candidate captures. ${FROZEN_HISTORY.size} are frozen history and were skipped by name.\n`,
-);
+process.stdout.write(`Refreshed ${refreshed} candidate captures across the live collection.\n`);
