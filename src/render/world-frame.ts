@@ -251,6 +251,7 @@ export type WorldFrameState = Readonly<{
   hiddenRoofGroupId?: string;
   visibleRoofGroupIds: readonly string[];
   shelterCells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[];
+  roofedCells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[];
   lighting: DistrictLighting;
   atmosphere: WorldAtmosphere;
   visibleEffectIds: readonly string[];
@@ -352,6 +353,82 @@ function propShadowWidth(sprite: string): number {
   if (sprite.includes('flowering-market-planter')) return 18;
   if (/(lamp|sign|palm|planter|bollard)/u.test(sprite)) return 12;
   return 18;
+}
+
+/**
+ * Handoff technique 4: authored object scale, from the pixel-villa spike.
+ *
+ * Every prop drew at exactly its authored pixel size, so a sofa carried the same visual weight as
+ * the floor tile beneath it. The spike gave furniture presence by drawing it slightly larger, and
+ * that is the whole of this table.
+ *
+ * Keyed by sprite id and gated on membership, NOT on `scale !== 1`. Multi-tile floors already pass
+ * a composition scale through `placement()`, so a shift applied to anything scaled would move the
+ * ground itself.
+ */
+const PROP_SCALE: Readonly<Record<string, number>> = {
+  'tile.fixture-planter': 1.08,
+  'tile.flowering-market-planter': 1.08,
+  'tile.decal-neon-planter': 1.08,
+  'tile.table-left': 1.08,
+  'tile.table-right': 1.08,
+  'tile.sofa-left': 1.12,
+  'tile.sofa-right': 1.12,
+};
+
+/**
+ * Scale about the BOTTOM CENTRE, so the prop keeps its feet on the floor.
+ *
+ * `addAtlasPlacement` maps the quad to worldX..worldX + width x scale with y growing down, so a
+ * top-left anchor grows the sprite down and right and sinks its feet below the ground line.
+ *
+ * Returns a NEW object. The static placement lists are deep-frozen and cached, so mutating in
+ * place throws in strict mode.
+ */
+/**
+ * Handoff technique 4b: the authored character scale from the pixel-villa spike.
+ *
+ * The spike used 1.22. This ships 7/6, and the reason is a hard constraint rather than taste.
+ *
+ * 24 x 1.22 = 29.28 and 30 x 1.22 = 36.6. A fractional sprite SIZE puts the quad's far edges on
+ * fractional world coordinates no matter where the near edge is anchored, so whole-pixel placement
+ * is broken by the scale itself and no choice of anchor rescues it. 7/6 maps the 24x30 protagonist
+ * to exactly 28x35, which is the nearest ratio to the spike's intent that keeps both edges whole.
+ *
+ * The shifts are whole pixels for the same reason, and they are chosen to make the FOOT exact:
+ *
+ *   worldY - 5 + 30 x 7/6 = worldY + 30   the foot line is invariant, exactly
+ *   worldX - 2 + 12 x 7/6 = worldX + 12   the pivot's x is invariant, exactly
+ *   worldY - 5 + 29 x 7/6 = worldY + 28.833   the pivot's y drifts 0.167 logical pixels
+ *
+ * Something has to give between whole-pixel placement, the foot line and the rotation pivot. The
+ * pivot's y is what gives, by a sixth of a pixel, because it is the only one of the three that is
+ * neither a locked constraint nor visible as a figure standing on a floor.
+ */
+export const CHARACTER_SCALE = 7 / 6;
+const CHARACTER_SHIFT_X = 2;
+const CHARACTER_SHIFT_Y = 5;
+
+export function withAuthoredCharacterScale(
+  worldX: number,
+  worldY: number,
+): Readonly<{ worldX: number; worldY: number; scale: number }> {
+  return {
+    worldX: worldX - CHARACTER_SHIFT_X,
+    worldY: worldY - CHARACTER_SHIFT_Y,
+    scale: CHARACTER_SCALE,
+  };
+}
+
+export function withAuthoredPropScale(prop: WorldPropPlacement): WorldPropPlacement {
+  const scale = PROP_SCALE[prop.sprite];
+  if (scale === undefined) return prop;
+  return {
+    ...prop,
+    scale,
+    worldX: prop.worldX - (scale - 1) * prop.source.width / 2,
+    worldY: prop.worldY - (scale - 1) * prop.source.height,
+  };
 }
 
 function propShadows(props: readonly WorldPropPlacement[], color: string): readonly WorldPropShadow[] {
@@ -690,14 +767,16 @@ export function buildWorldFrameState(
       reducedMotion,
     }) : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0;
     return {
+      // Technique 4b is applied HERE, in the character mapper, and NOT through the prop shift.
+      // The prop shift is bounds-based; a character must scale about its wobble pivot or the
+      // rotation centre moves with the size.
       ...placement({
         id,
         sprite: presentation.sprite,
-        worldX: foot.x - 12 + leanX,
-        worldY: foot.y - 27 + bounceY,
         layer: 'character',
         pivot: PROTAGONIST_WOBBLE_PIVOT,
         rotationDegrees: angleDegrees,
+        ...withAuthoredCharacterScale(foot.x - 12 + leanX, foot.y - 27 + bounceY),
       }),
       visualId,
       tile: { ...tile },
@@ -735,7 +814,13 @@ export function buildWorldFrameState(
       };
     }),
   ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right));
-  const props = allProps.filter(({ isDoor }) => !isDoor);
+  // The authored scale is applied HERE, to the rendered list only.
+  //
+  // `allProps` stays unscaled, and `propShadows` reads it further down. That ordering is
+  // load-bearing: `propShadows` derives its position from each prop's `worldY`, so scaling the
+  // shared list would carry every contact shadow up with the origin and detach it from the feet it
+  // belongs to. Doors are excluded because a door is not furniture.
+  const props = allProps.filter(({ isDoor }) => !isDoor).map(withAuthoredPropScale);
   const doors = allProps.filter(({ isDoor }) => isDoor);
   const groundedOrder: WorldGroundedEntry[] = [
     ...props.map((prop) => ({ groundY: (prop.tile.y + 1) * TILE_SIZE, id: prop.id, kind: 'prop' as const })),
@@ -837,6 +922,7 @@ export function buildWorldFrameState(
     walls,
     roofs,
     groundedOrder,
+    // Reads the UNSCALED allProps, so a scaled prop keeps its shadow under its feet.
     propShadows: propShadows(allProps, lighting.shadow.color),
     characterShadows,
     doorWear: doorAnchors.map((primitive) => ({
@@ -884,6 +970,11 @@ export function buildWorldFrameState(
     hiddenRoofGroupId,
     visibleRoofGroupIds,
     shelterCells: map.source.roofGroups.find(({ id }) => id === hiddenRoofGroupId)?.interiorCells.map((cell) => ({ ...cell })) ?? [],
+    // Interior cells of roof groups that are still presented. The player cannot see into these
+    // rooms, so a renderer must not spill their lamp light outward.
+    roofedCells: map.source.roofGroups
+      .filter(({ id }) => visibleRoofGroupIds.includes(id))
+      .flatMap(({ interiorCells }) => interiorCells.map((cell) => ({ ...cell }))),
     lighting,
     atmosphere,
     visibleEffectIds: visibleEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),

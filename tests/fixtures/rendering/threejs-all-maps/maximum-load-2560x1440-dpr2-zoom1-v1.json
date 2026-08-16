@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "maximum-load-2560x1440-dpr2-zoom1",
-  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "sourceCommit": "af979ae9e4e2be33eee8e12ddfe8667dbcd4ed50",
   "mode": "parity",
   "viewport": {
     "width": 2560,
@@ -14,20 +14,36 @@
     "y": 126
   },
   "toneMapping": "none",
-  "compositingChanged": true,
+  "compositingChanged": false,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/maximum-load-2560x1440-dpr2-zoom1-skia.png",
-    "masks": "tests/fixtures/rendering/threejs-all-maps/maximum-load-2560x1440-dpr2-zoom1-mask-v1.json"
+    "image": "artifacts/visual-polish/baseline/maximum-load-2560x1440-dpr2-zoom1-baseline.png",
+    "masks": "artifacts/visual-polish/baseline/maximum-load-2560x1440-dpr2-zoom1-baseline-mask.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/maximum-load-2560x1440-dpr2-zoom1-threejs-2d.png",
-    "masks": "tests/fixtures/rendering/threejs-all-maps/maximum-load-2560x1440-dpr2-zoom1-mask-v1.json"
+    "image": "artifacts/visual-polish/baseline/maximum-load-2560x1440-dpr2-zoom1-candidate.png",
+    "masks": "artifacts/visual-polish/baseline/maximum-load-2560x1440-dpr2-zoom1-candidate-mask.json"
   },
   "requiredMaskIds": [
     "player-protagonist-maximum-load-2560x1440-dpr2-zoom1"
   ],
-  "lightSamples": [],
+  "lightSamples": [
+    {
+      "id": "district-light-maximum-load-2560x1440-dpr2-zoom1",
+      "lit": {
+        "x": 1581,
+        "y": 766,
+        "width": 6,
+        "height": 6
+      },
+      "unlit": {
+        "x": 2542,
+        "y": 14,
+        "width": 6,
+        "height": 6
+      }
+    }
+  ],
   "shadowSamples": [],
   "thresholds": {
     "backgroundRingLogicalPixels": 2,

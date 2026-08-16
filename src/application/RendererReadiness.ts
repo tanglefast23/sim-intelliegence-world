@@ -61,7 +61,16 @@ export function createRendererShellReadyReport(
 
 export function createRendererWorldReadyReport(
   // Stage 7 removed Skia, so there is one world variant left.
-  measurements: RendererReadinessMeasurements & Readonly<{ rendererKind: 'threejs-2d'; webgl2Ready?: boolean }>,
+  measurements: RendererReadinessMeasurements & Readonly<{
+    rendererKind: 'threejs-2d';
+    webgl2Ready?: boolean;
+    /**
+     * Set only when the renderer has actually presented a world frame. Previously worldFrameReady
+     * was synthesised as true from a positive canvas size, so a renderer that never drew could
+     * still ship a schema-valid ready report.
+     */
+    worldFramePresented?: boolean;
+  }>,
 ): RendererReadyReport {
   validateCommon(measurements);
   if (measurements.canvasWidth <= 0 || measurements.canvasHeight <= 0) {
@@ -76,6 +85,9 @@ export function createRendererWorldReadyReport(
     nodeAccessBlocked: true as const,
     worldFrameReady: true as const,
   };
+  if (measurements.worldFramePresented !== true) {
+    throw new Error('The world renderer has not presented a frame, so world readiness is unproven.');
+  }
   if (measurements.webgl2Ready !== true) throw new Error('Three.js did not create a WebGL 2 context.');
   return { ...common, rendererKind: 'threejs-2d', webgl2Ready: true };
 }

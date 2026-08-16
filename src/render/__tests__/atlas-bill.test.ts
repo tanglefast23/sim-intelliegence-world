@@ -109,9 +109,12 @@ describe('runtime atlas bill and movement contract', () => {
     expect(Object.isFrozen(map.presentation)).toBe(true);
     expect(Object.isFrozen(map.presentation.ground)).toBe(true);
     expect(map.presentation.ground).toBe(WORLD_MAP_CATALOG.northwest_residential.presentation.ground);
-    // Stage 7: the Three.js renderer submits a bounded set of atlas batches instead of Skia
-    // Atlas nodes. The ceiling is the composite batch list, which the spec caps at 12 atlas draws.
-    expect(scene.match(/#set\('/gu)?.length).toBeLessThanOrEqual(17);
+    // The atlas ceiling is 12 draws. Counting #set( proves nothing: it counts every batch setter,
+    // not atlas draws, so a regression that adds setters stays green. Assert the renderer's real
+    // atlas batch list instead, which is what atlasDrawCalls actually counts.
+    const atlasBatches = scene.match(/'(floor-and-ground-detail|doors|grounded-props-and-characters|walls|roofs)'/gu) ?? [];
+    expect(new Set(atlasBatches).size).toBe(5);
+    expect(new Set(atlasBatches).size).toBeLessThanOrEqual(12);
     expect(frame).toContain('map.presentation.transitions');
     expect(frame).toContain('map.presentation.decals');
     expect(frame).toContain('map.presentation.roofs');

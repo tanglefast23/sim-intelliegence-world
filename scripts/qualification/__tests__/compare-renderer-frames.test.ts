@@ -292,6 +292,35 @@ describe('renderer frame comparison', () => {
     });
   });
 
+  test('rejects a moved-layer frame that loses readable pixels without moving the frame average', () => {
+    // Grok Stage 3 audit: retention was a count ratio, so readable pixels could move inside the
+    // mask, or spurious extras could hide real losses, and still pass. This drops mask cells while
+    // the frame-level mean, RMSE and large-delta gates all stay comfortably under their limits.
+    const baseline = image(join(root, 'baseline.png'));
+    for (const offset of squareMaskOffsets()) {
+      baseline.data[offset] = 220;
+      baseline.data[offset + 1] = 220;
+      baseline.data[offset + 2] = 220;
+    }
+    writeImage(join(root, 'baseline.png'), baseline);
+    squareMaskFrame(join(root, 'baseline.json'));
+    squareMaskFrame(join(root, 'candidate.json'));
+    const candidate = PNG.sync.read(readFileSync(join(root, 'baseline.png')));
+    // Sink four of sixteen mask cells to the ring colour: 12/16 overlap is 0.75, under 0.95.
+    for (const offset of squareMaskOffsets().slice(0, 4)) {
+      candidate.data[offset] = 48;
+      candidate.data[offset + 1] = 48;
+      candidate.data[offset + 2] = 48;
+    }
+    writeImage(join(root, 'candidate.png'), candidate);
+    const value = manifest(root) as Record<string, unknown>;
+    value.zoom = 2;
+    value.compositingChanged = true;
+    const report = compareRendererFrames(value, 'parity');
+    expect(report.passed).toBe(false);
+    expect(report.failures.join(' ')).toContain('scaled readable coverage');
+  });
+
   test('rejects changed readable coverage', () => {
     const candidate = PNG.sync.read(readFileSync(join(root, 'candidate.png')));
     candidate.data[(4 * 32 + 4) * 4 + 3] = 0;

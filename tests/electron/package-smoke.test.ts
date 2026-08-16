@@ -98,6 +98,28 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => resolveEvidenceOutputRoot([], { required: true }, root)).toThrow('requires --output-root');
   });
 
+  test('protects the frozen Skia captures under artifacts/threejs-2d', () => {
+    // These are the only record of a Skia-versus-Three.js comparison that can no longer be made.
+    // Until this guard existed, a capture run pointed here would have overwritten them silently.
+    const root = join(tmpdir(), 'si-world-evidence-root');
+    expect(() => resolveEvidenceOutputRoot(
+      ['--output-root', 'artifacts/threejs-2d/stage-6/captures/all-maps'],
+      {},
+      root,
+    )).toThrow('Historical evidence is immutable');
+    expect(() => resolveEvidenceOutputRoot(
+      ['--output-root', 'artifacts/threejs-2d'],
+      {},
+      root,
+    )).toThrow('Historical evidence is immutable');
+    // The re-baseline root sits outside that tree and must stay writable, or phase 0.1 cannot run.
+    expect(resolveEvidenceOutputRoot(
+      ['--output-root', 'artifacts/visual-polish/baseline'],
+      {},
+      root,
+    )).toBe(join(root, 'artifacts/visual-polish/baseline'));
+  });
+
   test('passes the requested device scale factor on the packaged process command line', () => {
     const responsiveSmoke = readFileSync(
       join(process.cwd(), 'scripts/electron/run-responsive-package-smoke.ts'),

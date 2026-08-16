@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fixture": "southeast-1280x720-dpr1_5-zoom2",
-  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "sourceCommit": "af979ae9e4e2be33eee8e12ddfe8667dbcd4ed50",
   "mode": "parity",
   "viewport": {
     "width": 1280,
@@ -14,20 +14,36 @@
     "y": 867
   },
   "toneMapping": "none",
-  "compositingChanged": true,
+  "compositingChanged": false,
   "exposure": 1,
   "baseline": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/southeast-1280x720-dpr1_5-zoom2-skia.png",
-    "masks": "tests/fixtures/rendering/threejs-all-maps/southeast-1280x720-dpr1_5-zoom2-mask-v1.json"
+    "image": "artifacts/visual-polish/baseline/southeast-1280x720-dpr1_5-zoom2-baseline.png",
+    "masks": "artifacts/visual-polish/baseline/southeast-1280x720-dpr1_5-zoom2-baseline-mask.json"
   },
   "candidate": {
-    "image": "artifacts/threejs-2d/stage-6/captures/all-maps/southeast-1280x720-dpr1_5-zoom2-threejs-2d.png",
-    "masks": "tests/fixtures/rendering/threejs-all-maps/southeast-1280x720-dpr1_5-zoom2-mask-v1.json"
+    "image": "artifacts/visual-polish/baseline/southeast-1280x720-dpr1_5-zoom2-candidate.png",
+    "masks": "artifacts/visual-polish/baseline/southeast-1280x720-dpr1_5-zoom2-candidate-mask.json"
   },
   "requiredMaskIds": [
     "player-protagonist-southeast-1280x720-dpr1_5-zoom2"
   ],
-  "lightSamples": [],
+  "lightSamples": [
+    {
+      "id": "district-light-southeast-1280x720-dpr1_5-zoom2",
+      "lit": {
+        "x": 1022,
+        "y": 358,
+        "width": 6,
+        "height": 6
+      },
+      "unlit": {
+        "x": 1262,
+        "y": 14,
+        "width": 6,
+        "height": 6
+      }
+    }
+  ],
   "shadowSamples": [],
   "thresholds": {
     "backgroundRingLogicalPixels": 2,

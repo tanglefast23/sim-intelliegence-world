@@ -7,6 +7,11 @@ export type DistrictLighting = Readonly<{
   accent: string;
   casters: readonly Readonly<{ x: number; y: number }>[];
   name: string;
+  /**
+   * Additive glow drawn at each lamp sprite. Kept well above poolOpacity because additive light
+   * on a lit floor needs real strength to read, and a lamp that is on should look on in daylight.
+   */
+  lampGlowOpacity: number;
   poolOpacity: number;
   pools: readonly DistrictLightPool[];
   shadow: Readonly<{ color: string; x: number; y: number }>;
@@ -76,13 +81,13 @@ export function districtLighting(mapId: MapId, absoluteMinute: number): District
   const { intensity, shadowColor = '#25285852', ...district } = DISTRICTS[mapId];
   const period = worldAtmosphere(absoluteMinute).period;
   if (period === 'dusk') {
-    return { ...district, poolOpacity: 0.2 * intensity, shadow: { color: shadowColor, x: 23, y: 10 } };
+    return { ...district, lampGlowOpacity: 0.55 * intensity, poolOpacity: 0.2 * intensity, shadow: { color: shadowColor, x: 23, y: 10 } };
   }
   if (period === 'night') {
-    return { ...district, poolOpacity: 0.28 * intensity, shadow: { color: '#090b1252', x: 5, y: 4 } };
+    return { ...district, lampGlowOpacity: 0.7 * intensity, poolOpacity: 0.28 * intensity, shadow: { color: '#090b1252', x: 5, y: 4 } };
   }
   if (period === 'dawn') {
-    return { ...district, poolOpacity: 0.13 * intensity, shadow: { color: '#2f213f52', x: -16, y: 8 } };
+    return { ...district, lampGlowOpacity: 0.5 * intensity, poolOpacity: 0.13 * intensity, shadow: { color: '#2f213f52', x: -16, y: 8 } };
   }
-  return { ...district, poolOpacity: 0.04 * intensity, shadow: { color: '#28332230', x: 5, y: 3 } };
+  return { ...district, lampGlowOpacity: 0.34 * intensity, poolOpacity: 0.04 * intensity, shadow: { color: '#28332230', x: 5, y: 3 } };
 }

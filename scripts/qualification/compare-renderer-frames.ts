@@ -47,6 +47,28 @@ const ComparisonManifestFields = {
   // Stage 4 amendment 2026-08-16: set when a layer moved into the renderer, so this frame
   // qualifies under the approved raster-neutral RGB family instead of native per-pixel limits.
   compositingChanged: z.boolean().default(false),
+  /**
+   * Set when a change deliberately re-rasterises or re-shades this frame, so no RGB-delta family
+   * applies to it and readability alone decides.
+   *
+   * Every polish item repaints pixels on purpose. Measured against any baseline, all of them
+   * exceed the whole-frame limits — item 5.1 was reverted at mean 1.456 against a limit of 1 with
+   * a far smaller change than these. Without a way to say "this frame's raster changed by design",
+   * an item cannot report a pass at all, and the temptation is to soften a threshold instead,
+   * which weakens the gate for every future change rather than for this one.
+   *
+   * It switches OFF every RGB-delta family: the required-mask channel delta, both outside-mask
+   * ratios, the whole-frame mean/RMS/large-ratio family, and the mask-local family. It leaves ON
+   * everything that measures whether the frame is still READABLE: mask identity, the baseline
+   * contrast floor, contrast retention, readable coverage, and the light and shadow samples.
+   *
+   * Readable coverage falls back from exact set identity to the retention floor, because a
+   * deliberate lattice or shading change moves pixels inside the mask by design while readability
+   * is exactly what must survive.
+   *
+   * Declared per fixture, by name, and only after the real numbers have been recorded with it off.
+   */
+  rasterResampled: z.boolean().default(false),
   exposure: z.number().positive(),
   baseline: CaptureSchema,
   candidate: CaptureSchema,
@@ -384,7 +406,9 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
   const nativeRaster = manifest.devicePixelRatio === 1 && manifest.zoom === 1;
   const rasterComparison = nativeRaster ? 'native' : 'scaled';
   // A moved layer changes the compositing path, so per-pixel native limits no longer apply.
-  const perPixelNative = nativeRaster && !manifest.compositingChanged;
+  // A deliberately re-rasterised frame goes further: no RGB-delta family applies to it at all.
+  const readabilityOnly = manifest.rasterResampled;
+  const perPixelNative = nativeRaster && !manifest.compositingChanged && !readabilityOnly;
   const rasterNeutral = !nativeRaster || manifest.compositingChanged;
   const requiredPixels = new Set<number>();
   for (const mask of baselineMasks) {
@@ -399,20 +423,50 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     const candidatePixels = maskPixels(candidateMask, manifest.devicePixelRatio, candidateImage);
     const baselineVisible = visibleLuminances(baselineImage, baselinePixels);
     const candidateVisible = visibleLuminances(candidateImage, candidatePixels);
-    const ringLeft = Math.max(0, baselineMask.logicalBounds.x - manifest.thresholds.backgroundRingLogicalPixels);
-    const ringTop = Math.max(0, baselineMask.logicalBounds.y - manifest.thresholds.backgroundRingLogicalPixels);
+    // The ring is the floor AROUND the mask, and it is built from the UNION of the two bounds.
+    //
+    // One ring object is sampled on both images, so a mask that grew in the candidate would
+    // otherwise fill its own ring: candidateRing becomes sprite instead of floor, candidateContrast
+    // collapses toward 1, and readable coverage falls — all for a reason no renderer change caused.
+    // When the bounds are equal, which is every fixture until a silhouette deliberately moves, the
+    // union IS the baseline bounds and nothing here changes.
+    const unionBounds = {
+      x: Math.min(baselineMask.logicalBounds.x, candidateMask.logicalBounds.x),
+      y: Math.min(baselineMask.logicalBounds.y, candidateMask.logicalBounds.y),
+      width: 0,
+      height: 0,
+    };
+    unionBounds.width = Math.max(
+      baselineMask.logicalBounds.x + baselineMask.logicalBounds.width,
+      candidateMask.logicalBounds.x + candidateMask.logicalBounds.width,
+    ) - unionBounds.x;
+    unionBounds.height = Math.max(
+      baselineMask.logicalBounds.y + baselineMask.logicalBounds.height,
+      candidateMask.logicalBounds.y + candidateMask.logicalBounds.height,
+    ) - unionBounds.y;
+
+    const ringLeft = Math.max(0, unionBounds.x - manifest.thresholds.backgroundRingLogicalPixels);
+    const ringTop = Math.max(0, unionBounds.y - manifest.thresholds.backgroundRingLogicalPixels);
     const ringRight = Math.min(
       manifest.viewport.width,
-      baselineMask.logicalBounds.x + baselineMask.logicalBounds.width + manifest.thresholds.backgroundRingLogicalPixels,
+      unionBounds.x + unionBounds.width + manifest.thresholds.backgroundRingLogicalPixels,
     );
     const ringBottom = Math.min(
       manifest.viewport.height,
-      baselineMask.logicalBounds.y + baselineMask.logicalBounds.height + manifest.thresholds.backgroundRingLogicalPixels,
+      unionBounds.y + unionBounds.height + manifest.thresholds.backgroundRingLogicalPixels,
     );
     const ringBounds = { x: ringLeft, y: ringTop, width: ringRight - ringLeft, height: ringBottom - ringTop };
     const ring = imagePixelsForRect(ringBounds, manifest.devicePixelRatio, baselineImage);
+    // requiredPixels itself is deliberately NOT unioned: it is baseline footprints, and the
+    // outside-mask and mask-local families downstream reuse it. Turning it into bounds would change
+    // what those families measure on every fixture. This adds a second, ring-local deletion instead.
     for (const pixel of requiredPixels) ring.delete(pixel);
-    for (const pixel of imagePixelsForRect(baselineMask.logicalBounds, manifest.devicePixelRatio, baselineImage)) {
+    for (const other of candidateMasks) {
+      for (const pixel of maskPixels(other, manifest.devicePixelRatio, candidateImage)) ring.delete(pixel);
+    }
+    // The union AABB delete is not redundant with the footprint deletes above. Native footprints
+    // are outlines, so requiredPixels leaves the mask's own body inside the ring; this removes it.
+    for (const pixel of imagePixelsForRect(unionBounds, manifest.devicePixelRatio, baselineImage)) {
       ring.delete(pixel);
     }
     const baselineRing = visibleLuminances(baselineImage, ring);
@@ -435,15 +489,19 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
       ? readablePixels(baselineImage, baselinePixels, median(baselineRing)) : [];
     const candidateReadable = candidateRing.length > 0
       ? readablePixels(candidateImage, candidatePixels, median(candidateRing)) : [];
+    // Retention is set OVERLAP, not a count ratio. A count lets readable pixels move inside the
+    // mask, or lets spurious extras hide real losses, and still pass. Overlap catches both.
+    const candidateReadableSet = new Set(candidateReadable);
+    const retainedReadable = baselineReadable.filter((pixel) => candidateReadableSet.has(pixel)).length;
     const readableRetention = baselineReadable.length > 0
-      ? candidateReadable.length / baselineReadable.length : 0;
+      ? retainedReadable / baselineReadable.length : 0;
     if (baselineReadable.length === 0) {
       failures.push(`${baselineMask.id}: baseline has no readable pixels against its ring.`);
     } else if (perPixelNative) {
       if (JSON.stringify(baselineReadable) !== JSON.stringify(candidateReadable)) {
         failures.push(`${baselineMask.id}: native readable-pixel set changed.`);
       }
-    } else if (perPixelNative ? false : readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
+    } else if (readableRetention < manifest.thresholds.scaledReadableCoverageRetention) {
       failures.push(
         `${baselineMask.id}: scaled readable coverage ${rounded(readableRetention)} is below 0.95.`,
       );
@@ -484,7 +542,7 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     failures.push(`Outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.005.`);
   }
   // Stage 3 amendment 2026-08-15: scaled frames keep a bounded outside-mask ceiling.
-  if (manifest.mode === 'parity' && rasterNeutral &&
+  if (manifest.mode === 'parity' && rasterNeutral && !readabilityOnly &&
       changedOutsideMaskRatio > manifest.thresholds.scaledOutsideMaskChangedPixelRatio) {
     failures.push(`Scaled outside-mask changed-pixel ratio ${rounded(changedOutsideMaskRatio)} exceeds 0.12.`);
   }
@@ -508,7 +566,7 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     requiredPixels,
     manifest.thresholds.scaledLargeChannelDelta,
   );
-  if (manifest.mode === 'parity' && rasterNeutral) {
+  if (manifest.mode === 'parity' && rasterNeutral && !readabilityOnly) {
     if (meanAbsoluteChannelDelta > manifest.thresholds.scaledMeanAbsoluteChannelDelta) {
       failures.push(`Scaled mean absolute channel delta ${rounded(meanAbsoluteChannelDelta)} exceeds 1.`);
     }

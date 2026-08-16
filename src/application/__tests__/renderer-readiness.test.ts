@@ -28,6 +28,7 @@ describe('renderer readiness measurements', () => {
     {
       rendererKind: 'threejs-2d' as const,
       webgl2Ready: true,
+      worldFramePresented: true,
       expected: { rendererKind: 'threejs-2d', webgl2Ready: true },
     },
   ])('creates the strict $rendererKind world report', ({ expected, ...renderer }) => {
@@ -67,6 +68,16 @@ describe('renderer readiness measurements', () => {
       canvasHeight: 160,
       canvasWidth: 320,
       rendererKind: 'threejs-2d',
+      worldFramePresented: true,
     })).toThrow('WebGL 2');
+
+    // A renderer that never drew must not be able to report world readiness.
+    expect(() => createRendererWorldReadyReport({
+      ...commonMeasurements,
+      canvasHeight: 160,
+      canvasWidth: 320,
+      rendererKind: 'threejs-2d',
+      webgl2Ready: true,
+    })).toThrow('has not presented a frame');
   });
 });

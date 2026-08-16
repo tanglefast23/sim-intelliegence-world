@@ -6,6 +6,10 @@ const HISTORICAL_EVIDENCE_ROOTS = [
   'artifacts/phase-19',
   'artifacts/phase-22',
   'artifacts/phase-23',
+  // The frozen Skia captures. They record a Skia-versus-Three.js comparison that can never be
+  // re-taken, because Skia is gone, so they are the only copy of that evidence. Nothing guarded
+  // them until now, and any capture run pointed here would have overwritten them silently.
+  'artifacts/threejs-2d',
 ] as const;
 
 function isInside(candidate: string, parent: string): boolean {

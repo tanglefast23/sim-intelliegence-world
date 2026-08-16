@@ -26,6 +26,18 @@ export function CharacterPortrait({
     ?? ATLAS_INDEX.characters[characterId].portrait;
   const source = atlasRectangle(portraitId);
 
+  // The ready node is a proof signal that harnesses wait on, so it must not appear for a crop that
+  // is wrong. Previously it mounted unconditionally, so a missing expression, an id remapped to
+  // generic-resident, or an out-of-atlas rectangle all still reported ready.
+  // The expression fallback is deliberate: 26 of 35 characters ship only a rest portrait, so
+  // requiring an exact expression match would hide the ready node for most of the cast and hang
+  // any harness waiting on it. What must never pass is a crop that is not actually in the atlas.
+  const withinAtlas = source.width > 0 && source.height > 0 &&
+    source.x >= 0 && source.y >= 0 &&
+    source.x + source.width <= ATLAS_INDEX.image.width &&
+    source.y + source.height <= ATLAS_INDEX.image.height;
+  const cropProven = withinAtlas;
+
   return (
     <View
       accessibilityLabel={`Portrait of ${displayName}`}
@@ -40,7 +52,7 @@ export function CharacterPortrait({
         x={source.x}
         y={source.y}
       />
-      <View nativeID={`conversation-portrait-${characterId}-ready`} style={styles.ready} />
+      {cropProven ? <View nativeID={`conversation-portrait-${characterId}-ready`} style={styles.ready} /> : null}
     </View>
   );
 }

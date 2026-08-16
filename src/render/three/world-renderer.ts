@@ -1,11 +1,11 @@
 import {
   BufferGeometry,
   CanvasTexture,
+  AdditiveBlending,
   ClampToEdgeWrapping,
   DoubleSide,
   Color,
   Float32BufferAttribute,
-  LinearFilter,
   Mesh,
   NearestFilter,
   ACESFilmicToneMapping,
@@ -32,6 +32,26 @@ import type { ToneMappingKind } from '../renderer-selection';
 import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
 
 const TILE_SIZE = 32;
+
+/**
+ * Props that emit light. Glow is drawn at the sprite, so a lit room reads as lit wherever the
+ * player is standing, rather than only near the map's three fixed district pools.
+ */
+const LAMP_SPRITE_IDS: ReadonlySet<string> = new Set([
+  'tile.fixture-lamp',
+  'tile.fixture-dock-lamp-amber',
+  'tile.fixture-dock-lamp-cold',
+  'tile.fixture-festival-lantern',
+  'tile.fixture-neon-lamp-cyan',
+  'tile.fixture-neon-lamp-magenta',
+]);
+const LAMP_GLOW_RADIUS = 44;
+
+/** Handoff technique 6: silhouette shadow tint, opacity and offset, in logical pixels. */
+const SPRITE_SHADOW_COLOR = '#111519';
+const SPRITE_SHADOW_OPACITY = 0.48;
+const SPRITE_SHADOW_OFFSET_X = 3;
+const SPRITE_SHADOW_OFFSET_Y = 3;
 /** Stage 4 recorded ACES calibration value, not a hidden magic number. */
 export const ACES_EXPOSURE = 1;
 const COMPOSITE_BATCHES = [
@@ -39,6 +59,14 @@ const COMPOSITE_BATCHES = [
   'doors',
   'door-wear',
   'contact-shadows-and-thresholds',
+  // Handoff technique 6: a tinted copy of each grounded sprite, offset, so the shadow follows the
+  // real pixel silhouette instead of a generic blob. This is what gives furniture and characters
+  // contact with the floor and makes their edges read as sharper.
+  'sprite-shadows',
+  // Lamp glow lights the floor, so it sits BELOW the foreground sprites and above the shadows.
+  // Placed after the characters it washed over them and cost the player readable coverage. Walls
+  // and roofs still come later, so a roof occludes the room it covers.
+  'lamp-glow',
   'selection-ring',
   'grounded-props-and-characters',
   'effects',
@@ -206,7 +234,14 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
+/**
+ * Additive light must not be tone mapped.
+ *
+ * ACES(floor) + ACES(glow) is not ACES(floor + glow). Running the curve on the glow before adding
+ * it clips overlapping lamps and shifts their hue. Three.js only injects the tone-mapping chunk
+ * when a material opts in, so the additive material leaves it out and adds linear light instead.
+ */
+function shaderMaterial(texture?: Texture, matchLegacyColors = false, additive = false): ShaderMaterial {
   const legacyColorTransform = matchLegacyColors ? `
         gl_FragColor.rgb = mat3(
           1.2249401, -0.0420569, -0.0196376,
@@ -215,6 +250,9 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
         ) * gl_FragColor.rgb;
   ` : '';
   return new ShaderMaterial({
+    // Lamp glow must ADD light to the floor. Alpha blending can only tint toward a colour, which
+    // is why the shipped glow read as nothing while the spike's additive glow read as light.
+    ...(additive ? { blending: AdditiveBlending, toneMapped: false } : {}),
     depthTest: false,
     depthWrite: false,
     // addLine emits its quad wound by segment direction, so a line running the other way is
@@ -242,7 +280,7 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
         gl_FragColor = sampled * vTint;
         ${legacyColorTransform}
         if (gl_FragColor.a <= 0.001) discard;
-        #include <tonemapping_fragment>
+        ${additive ? '' : '#include <tonemapping_fragment>'}
         #include <colorspace_fragment>
       }
     ` : `
@@ -279,21 +317,69 @@ function updateGeometry(geometry: BufferGeometry, data: GeometryData): void {
   geometry.setDrawRange(0, data.indices.length);
 }
 
+/**
+ * Handoff technique 7: light falls off in discrete plateaus, not a smooth ramp.
+ *
+ * A continuous gradient puts a smooth ramp into a quantised image, which is the one thing the art
+ * direction avoids everywhere else. The spike quantised its glow instead, and that is what made
+ * its light belong to the same picture as its sprites.
+ *
+ * Each pair is [outer radius as a fraction of the texture, alpha across that band]. The spike's
+ * FOUR steps are kept; the spike's ALPHAS are not. It ran 0.04 to 0.12 against production's centre
+ * of 1, so importing them would recreate the "glow reads as nothing" bug the additive-glow work
+ * fixed. These sample production's own falloff envelope, so the light keeps its current strength
+ * and only its shape becomes stepped.
+ *
+ * The last pair is explicitly [1, 0]. The district pools sample this texture through the fan of
+ * `addEllipse`, whose rim sits exactly on the radius-1 circle, so any alpha left at the rim would
+ * draw a hard ring around every pool.
+ */
+export const GLOW_PLATEAUS: readonly (readonly [number, number])[] = [
+  [0.22, 1],
+  [0.46, 0.52],
+  [0.70, 0.24],
+  [0.90, 0.08],
+  [1, 0],
+];
+
+/** Alpha at a radius, as a fraction of the glow texture's radius. Pure, so it is testable. */
+export function glowPlateauAlpha(radiusFraction: number): number {
+  for (const [outerRadius, alpha] of GLOW_PLATEAUS) {
+    if (radiusFraction <= outerRadius) return alpha;
+  }
+  return 0;
+}
+
 function generatedGlowTexture(): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('The generated glow canvas is unavailable.');
-  context.fillStyle = '#ffffff';
+  // Built from a gradient with PAIRED stops rather than per-texel writes or stacked arcs.
+  //
+  // Two stops at the same offset make the transition zero-width, so the result is exact plateaus
+  // and not a ramp. Stacked filled arcs would blend at every boundary under source-over and hand
+  // back the soft edge this technique removes, and a per-texel ImageData write needs more of the
+  // canvas API than the renderer's own tests provide.
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+  let innerRadius = 0;
+  for (const [outerRadius, alpha] of GLOW_PLATEAUS) {
+    gradient.addColorStop(innerRadius, `rgba(255, 255, 255, ${alpha})`);
+    gradient.addColorStop(outerRadius, `rgba(255, 255, 255, ${alpha})`);
+    innerRadius = outerRadius;
+  }
+  context.fillStyle = gradient;
   context.beginPath();
-  // The rim UVs sit on the radius-32 circle, so fill to 32 or every pool fades early.
+  // The pools' fan rim sits on the radius-32 circle, so fill to 32 or every pool fades early.
   context.arc(32, 32, 32, 0, Math.PI * 2);
   context.fill();
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
-  texture.magFilter = LinearFilter;
-  texture.minFilter = LinearFilter;
+  // Nearest, so the plateaus stay plateaus. Linear sampling would interpolate across every band
+  // boundary and hand back the smooth falloff.
+  texture.magFilter = NearestFilter;
+  texture.minFilter = NearestFilter;
   texture.generateMipmaps = false;
   texture.wrapS = ClampToEdgeWrapping;
   texture.wrapT = ClampToEdgeWrapping;
@@ -370,7 +456,7 @@ export class ThreeWorldRenderer {
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
     const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors);
     const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors);
-    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors);
+    const glowMaterial = shaderMaterial(glowTexture, false, true);
     // The legacy atmosphere was plain React Native Views composited by the browser as sRGB CSS,
     // never through a Skia surface, so the legacy P3 matrix must not apply to it. Applying it
     // shifted the whole frame by about one count, because the wash covers every pixel.
@@ -381,8 +467,13 @@ export class ThreeWorldRenderer {
       const geometry = new BufferGeometry();
       const material = atlasBatches.has(id)
         ? atlasMaterial
-        : id === 'district-light-pools' ? glowMaterial
-          : id === 'atmosphere' ? overlayMaterial : primitiveMaterial;
+        : id === 'sprite-shadows' ? atlasMaterial
+        : id === 'district-light-pools' || id === 'lamp-glow' ? glowMaterial
+          // shelter-shade and district-shadows were React and CSS overlays, never Skia surfaces, so
+        // the legacy P3 matrix must not apply to them any more than it does to atmosphere.
+        : id === 'atmosphere' || id === 'shelter-shade' || id === 'district-shadows'
+          ? overlayMaterial
+          : primitiveMaterial;
       const mesh = new Mesh(geometry, material);
       mesh.frustumCulled = false;
       mesh.renderOrder = renderOrder;
@@ -561,10 +652,24 @@ export class ThreeWorldRenderer {
     this.#set('doors', atlas(frame.doors));
     const props = new Map(frame.props.map((placement) => [placement.id, placement]));
     const characters = new Map(frame.characters.map((placement) => [placement.id, placement]));
-    this.#set('grounded-props-and-characters', atlas(frame.groundedOrder.flatMap((entry) => {
+    const groundedPlacements = frame.groundedOrder.flatMap((entry) => {
       const placement = entry.kind === 'prop' ? props.get(entry.id) : characters.get(entry.id);
       return placement ? [placement] : [];
-    })));
+    });
+    // Handoff technique 6. The offset and tint are the spike's, converted from its world units to
+    // logical pixels. Every value comes from the placement already in the frame.
+    // Props only. Characters already carry a tuned contact shadow with a broad cast, and adding a
+    // silhouette copy on top of it ate their readable pixels: the player fell to 0.8959 against a
+    // 0.95 floor. Props have no such shadow, so they are where this technique pays.
+    const shadowCasters = groundedPlacements.filter((placement) => props.has(placement.id));
+    this.#set('sprite-shadows', atlas(shadowCasters.map((placement) => ({
+      ...placement,
+      color: SPRITE_SHADOW_COLOR,
+      opacity: SPRITE_SHADOW_OPACITY,
+      worldX: placement.worldX + SPRITE_SHADOW_OFFSET_X,
+      worldY: placement.worldY + SPRITE_SHADOW_OFFSET_Y,
+    }))));
+    this.#set('grounded-props-and-characters', atlas(groundedPlacements));
     this.#set('walls', atlas(frame.walls));
     this.#set('roofs', atlas(frame.roofs));
 
@@ -665,6 +770,61 @@ export class ThreeWorldRenderer {
       );
     });
     this.#set('district-light-pools', pools);
+
+    const lampGlow = emptyGeometryData();
+    // The spike put its glow ON each lamp sprite, which is what made the room read as lit. The
+    // district pools are three fixed points per map and need not sit near the lamps in the room
+    // the player is standing in, so lamp props contribute their own glow here.
+    //
+    // Every value comes from the frame: the prop list, its sprite id and its world position. No
+    // new content, no randomness, no clock of its own.
+    // Glow is clipped so light cannot arrive from somewhere the player cannot see.
+    //
+    // An unclipped quad is 88 world pixels wide, so a 44 pixel halo crosses a 32 pixel wall into
+    // the next room. Two rules fix that: a lamp under a roof the player has not entered emits
+    // nothing, and when the player is inside a room the remaining glow is clipped to that room's
+    // cells. Clipping emits the intersection with adjusted UVs, so the falloff stays correct.
+    const inCells = (
+      cells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[],
+      tileX: number,
+      tileY: number,
+    ): boolean => cells.some((cell) => (
+      tileX >= cell.x && tileX < cell.x + cell.width && tileY >= cell.y && tileY < cell.y + cell.height
+    ));
+
+    frame.props.forEach((prop) => {
+      if (!LAMP_SPRITE_IDS.has(prop.sprite)) return;
+      if (inCells(frame.roofedCells, prop.tile.x, prop.tile.y)) return;
+      const centerX = prop.worldX + prop.source.width / 2;
+      const centerY = prop.worldY + prop.source.height / 2;
+      const radius = LAMP_GLOW_RADIUS;
+      const left = centerX - radius;
+      const top = centerY - radius;
+      const span = radius * 2;
+      const clips = frame.shelterCells.length > 0
+        ? frame.shelterCells.map((cell) => ({
+          left: cell.x * TILE_SIZE,
+          top: cell.y * TILE_SIZE,
+          right: (cell.x + cell.width) * TILE_SIZE,
+          bottom: (cell.y + cell.height) * TILE_SIZE,
+        }))
+        : [{ left, top, right: left + span, bottom: top + span }];
+      clips.forEach((clip) => {
+        const x0 = Math.max(left, clip.left);
+        const y0 = Math.max(top, clip.top);
+        const x1 = Math.min(left + span, clip.right);
+        const y1 = Math.min(top + span, clip.bottom);
+        if (x1 <= x0 || y1 <= y0) return;
+        addQuad(
+          lampGlow,
+          [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
+          lighting.accent,
+          lighting.lampGlowOpacity,
+          [(x0 - left) / span, (y0 - top) / span, (x1 - left) / span, (y1 - top) / span],
+        );
+      });
+    });
+    this.#set('lamp-glow', lampGlow);
 
     // Stage 4 owns the atmosphere treatment. The legacy overlay was viewport-relative, so the
     // wash, edge shades, and motes are converted from screen space through the camera.

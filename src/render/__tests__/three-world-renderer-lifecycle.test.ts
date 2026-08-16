@@ -141,7 +141,14 @@ beforeAll(() => {
     configurable: true,
     value: {
       createElement: () => ({
-        getContext: () => ({ arc: jest.fn(), beginPath: jest.fn(), fill: jest.fn(), fillStyle: '' }),
+        getContext: () => ({
+          arc: jest.fn(),
+          beginPath: jest.fn(),
+          // The glow texture is a radial gradient, so the fake context must offer one.
+          createRadialGradient: jest.fn(() => ({ addColorStop: jest.fn() })),
+          fill: jest.fn(),
+          fillStyle: '',
+        }),
         height: 0,
         width: 0,
       }),
@@ -183,7 +190,7 @@ describe('Three.js renderer lifecycle', () => {
     const second = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', true, jest.fn(), jest.fn());
     const secondGpu = jest.mocked(WebGLRenderer).mock.results.at(-1)?.value as unknown as { dispose: jest.Mock };
     second.dispose();
-    expect(geometryDispose).toHaveBeenCalledTimes(34);
+    expect(geometryDispose).toHaveBeenCalledTimes(38);
     expect(materialDispose).toHaveBeenCalledTimes(8); // 4 materials across two mounts
     expect(textureDispose).toHaveBeenCalledTimes(4);
     expect(firstGpu.dispose).toHaveBeenCalledTimes(1);
