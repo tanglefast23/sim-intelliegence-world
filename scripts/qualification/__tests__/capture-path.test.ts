@@ -177,6 +177,20 @@ describe('live and frozen fixture sets', () => {
     expect(live.fixtures.filter(({ id }) => id.startsWith('villa-'))).toEqual([]);
   });
 
+  test('the set source commit matches every fixture it names', () => {
+    // The comparator THROWS when a nested fixture disagrees with its set, so a split between them
+    // is not a failing gate — it is a gate that cannot run at all.
+    //
+    // This exists because it happened. A promote correctly rewrote both, but the commit staged the
+    // fixture directory and not the set manifest one level above it, and the mismatch shipped. No
+    // test noticed, because every test ran against a working tree that still had both.
+    const live = read('tests/fixtures/rendering/threejs-all-maps-v1.json');
+    for (const entry of live.fixtures) {
+      const fixture = read(entry.manifest);
+      expect(`${entry.id}:${fixture.sourceCommit}`).toBe(`${entry.id}:${live.sourceCommit}`);
+    }
+  });
+
   test('the frozen record keeps all six villa fixtures', () => {
     const frozen = read('tests/fixtures/rendering/threejs-stage-3-specialized-v1.json');
     expect(frozen.fixtures).toHaveLength(6);
