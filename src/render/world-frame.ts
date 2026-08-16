@@ -251,6 +251,7 @@ export type WorldFrameState = Readonly<{
   hiddenRoofGroupId?: string;
   visibleRoofGroupIds: readonly string[];
   shelterCells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[];
+  roofedCells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[];
   lighting: DistrictLighting;
   atmosphere: WorldAtmosphere;
   visibleEffectIds: readonly string[];
@@ -884,6 +885,11 @@ export function buildWorldFrameState(
     hiddenRoofGroupId,
     visibleRoofGroupIds,
     shelterCells: map.source.roofGroups.find(({ id }) => id === hiddenRoofGroupId)?.interiorCells.map((cell) => ({ ...cell })) ?? [],
+    // Interior cells of roof groups that are still presented. The player cannot see into these
+    // rooms, so a renderer must not spill their lamp light outward.
+    roofedCells: map.source.roofGroups
+      .filter(({ id }) => visibleRoofGroupIds.includes(id))
+      .flatMap(({ interiorCells }) => interiorCells.map((cell) => ({ ...cell }))),
     lighting,
     atmosphere,
     visibleEffectIds: visibleEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),

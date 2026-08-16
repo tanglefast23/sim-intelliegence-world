@@ -732,22 +732,51 @@ export class ThreeWorldRenderer {
     //
     // Every value comes from the frame: the prop list, its sprite id and its world position. No
     // new content, no randomness, no clock of its own.
+    // Glow is clipped so light cannot arrive from somewhere the player cannot see.
+    //
+    // An unclipped quad is 88 world pixels wide, so a 44 pixel halo crosses a 32 pixel wall into
+    // the next room. Two rules fix that: a lamp under a roof the player has not entered emits
+    // nothing, and when the player is inside a room the remaining glow is clipped to that room's
+    // cells. Clipping emits the intersection with adjusted UVs, so the falloff stays correct.
+    const inCells = (
+      cells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[],
+      tileX: number,
+      tileY: number,
+    ): boolean => cells.some((cell) => (
+      tileX >= cell.x && tileX < cell.x + cell.width && tileY >= cell.y && tileY < cell.y + cell.height
+    ));
+
     frame.props.forEach((prop) => {
       if (!LAMP_SPRITE_IDS.has(prop.sprite)) return;
+      if (inCells(frame.roofedCells, prop.tile.x, prop.tile.y)) return;
       const centerX = prop.worldX + prop.source.width / 2;
       const centerY = prop.worldY + prop.source.height / 2;
       const radius = LAMP_GLOW_RADIUS;
-      addQuad(
-        lampGlow,
-        [
-          [centerX - radius, centerY - radius],
-          [centerX + radius, centerY - radius],
-          [centerX + radius, centerY + radius],
-          [centerX - radius, centerY + radius],
-        ],
-        lighting.accent,
-        lighting.lampGlowOpacity,
-      );
+      const left = centerX - radius;
+      const top = centerY - radius;
+      const span = radius * 2;
+      const clips = frame.shelterCells.length > 0
+        ? frame.shelterCells.map((cell) => ({
+          left: cell.x * TILE_SIZE,
+          top: cell.y * TILE_SIZE,
+          right: (cell.x + cell.width) * TILE_SIZE,
+          bottom: (cell.y + cell.height) * TILE_SIZE,
+        }))
+        : [{ left, top, right: left + span, bottom: top + span }];
+      clips.forEach((clip) => {
+        const x0 = Math.max(left, clip.left);
+        const y0 = Math.max(top, clip.top);
+        const x1 = Math.min(left + span, clip.right);
+        const y1 = Math.min(top + span, clip.bottom);
+        if (x1 <= x0 || y1 <= y0) return;
+        addQuad(
+          lampGlow,
+          [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
+          lighting.accent,
+          lighting.lampGlowOpacity,
+          [(x0 - left) / span, (y0 - top) / span, (x1 - left) / span, (y1 - top) / span],
+        );
+      });
     });
     this.#set('lamp-glow', lampGlow);
 
