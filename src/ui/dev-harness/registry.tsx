@@ -11,6 +11,8 @@ import { ATLAS_INDEX, CHARACTER_IDS, type CharacterId } from '../../render/atlas
 import { centerCameraOnTile, type ViewportSize } from '../../render/camera';
 import { EXPECTED_VFX_ANCHORS } from '../../render/vfx/fixtures';
 import { WorldScene } from '../../render/WorldScene';
+import { ShootingScene } from './ShootingScene';
+import type { ShootingSceneVariant } from './shooting-scene';
 import type { DevHarnessRoutableEntry } from './route';
 import {
   DEV_HARNESS_MAP_IDS,
@@ -129,7 +131,7 @@ function vfxPresentationPreferences(
   return {
     ...DEFAULT_PRESENTATION_PREFERENCES,
     worldZoom: 3,
-    camera: { mapId: anchor.mapId, x: camera.x, y: camera.y },
+    camera: { mapId: anchor.mapId, x: Math.round(camera.x), y: Math.round(camera.y) },
   };
 }
 
@@ -139,7 +141,7 @@ function groundingPresentationPreferences(mapId: (typeof DEV_HARNESS_MAP_IDS)[nu
   return {
     ...DEFAULT_PRESENTATION_PREFERENCES,
     worldZoom: 3,
-    camera: { mapId, x: camera.x, y: camera.y },
+    camera: { mapId, x: Math.round(camera.x), y: Math.round(camera.y) },
   };
 }
 
@@ -151,7 +153,7 @@ function heroScenePresentationPreferences(mapId: (typeof DEV_HARNESS_MAP_IDS)[nu
   return {
     ...DEFAULT_PRESENTATION_PREFERENCES,
     worldZoom: zoom,
-    camera: { mapId, x: camera.x, y: camera.y },
+    camera: { mapId, x: Math.round(camera.x), y: Math.round(camera.y) },
   };
 }
 
@@ -354,6 +356,21 @@ const districtPanelsEntry: DevHarnessEntry = {
   },
 };
 
+const shootingSceneEntry: DevHarnessEntry = {
+  id: 'shooting-scene',
+  group: 'World',
+  title: 'Scripted Shooting Scene',
+  summary: 'Camera push-in, muzzle flash, tracer, impact pose, trauma shake and a restrained stain.',
+  cases: [
+    { id: 'noon', label: 'NOON', note: 'Emitted light barely reads against full sun.' },
+    { id: 'night', label: 'NIGHT', note: 'Same geometry; the muzzle halo carries the frame.' },
+    { id: 'reduced-motion', label: 'REDUCED MOTION', note: 'Static marks, no camera move, same read.' },
+  ],
+  render: (caseId, surface) => (
+    <ShootingScene surface={surface} variant={caseId as ShootingSceneVariant} />
+  ),
+};
+
 export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   welcomeEntry,
   locationsEntry,
@@ -363,6 +380,7 @@ export const DEV_HARNESS_ENTRIES: readonly DevHarnessEntry[] = Object.freeze([
   groundingEntry,
   characterTalkEntry,
   proceduralEffectsEntry,
+  shootingSceneEntry,
   conversationsEntry,
   panelsEntry,
   districtPanelsEntry,

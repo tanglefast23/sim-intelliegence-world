@@ -31,12 +31,15 @@ describe('natural-movement packaged evidence', () => {
         curveActive: false,
         horizontalRunDistance: index,
         protagonistWobbleDegrees: index === 50 ? 4 : 0,
+        gaitBobPixels: index === 50 ? -1 : 0,
+        renderedAngleDegrees: index === 50 ? 4 : 0,
+        footPlantIndex: Math.floor(index / 2),
       },
       npcs: {},
       reducedMotion: false,
     }));
     const diagnostic = summarizeNaturalMovementPass({
-      schemaVersion: 3,
+      schemaVersion: 4,
       mode: 'standard',
       npcMotionSource: 'fixture',
       npcMotionNpcId: 'linda',
@@ -92,6 +95,9 @@ describe('natural-movement packaged evidence', () => {
         target: { x: 22, y: 22 }, curveActive: true,
         horizontalRunDistance: 0,
         protagonistWobbleDegrees: 0,
+        gaitBobPixels: 0,
+        renderedAngleDegrees: 0,
+        footPlantIndex: 0,
       };
       const npcActor = {
         committed: actor.committed,
@@ -102,9 +108,12 @@ describe('natural-movement packaged evidence', () => {
         curveActive: actor.curveActive,
         horizontalRunDistance: 0,
         wobbleDegrees: 0,
+        gaitBobPixels: actor.gaitBobPixels,
+        renderedAngleDegrees: actor.renderedAngleDegrees,
+        footPlantIndex: actor.footPlantIndex,
       };
       const pass = {
-        schemaVersion: 3 as const,
+        schemaVersion: 4 as const,
         npcMotionSource: 'fixture' as const,
         npcMotionNpcId: 'linda' as const,
         samples: Array.from({ length: 5 }, (_, index) => ({
@@ -114,12 +123,17 @@ describe('natural-movement packaged evidence', () => {
             walkFrame: index % 2 as 0 | 1,
             horizontalRunDistance: index * 8,
             protagonistWobbleDegrees: index === 0 || index === 4 ? 0 : [4, 6.944444, 4][index - 1]!,
+            gaitBobPixels: index === 0 ? 0 : -1,
+            renderedAngleDegrees: index === 0 || index === 4 ? 0 : [4, 6.944444, 4][index - 1]!,
+            footPlantIndex: index,
           },
           npcs: {
             resident: {
               ...npcActor,
               direction: index % 2 === 0 ? 'left' as const : 'right' as const,
               walkFrame: (index + 1) % 2 as 0 | 1,
+              gaitBobPixels: index === 0 ? 0 : -1,
+              footPlantIndex: index,
             },
           },
           reducedMotion: false,
@@ -134,7 +148,7 @@ describe('natural-movement packaged evidence', () => {
         displayRafFps: 60,
       };
       const report = {
-        schemaVersion: 4,
+        schemaVersion: 5,
         testedCommit: 'a'.repeat(40),
         evidenceSource: { baseCommit: 'a'.repeat(40), sourceSha256: 'b'.repeat(64), sourcePaths: ['source.ts'] },
         traceDeterministic: true,
@@ -149,10 +163,17 @@ describe('natural-movement packaged evidence', () => {
             samples: pass.samples.map((sample) => ({
               ...sample,
               reducedMotion: true,
-              player: { ...sample.player, protagonistWobbleDegrees: 0 },
+              player: {
+                ...sample.player,
+                protagonistWobbleDegrees: 0,
+                gaitBobPixels: 0,
+                renderedAngleDegrees: 0,
+              },
               npcs: Object.fromEntries(Object.entries(sample.npcs).map(([id, npc]) => [id, {
                 ...npc,
                 wobbleDegrees: 0,
+                gaitBobPixels: 0,
+                renderedAngleDegrees: 0,
               }])),
             })),
             screenshotNames: ['reduced.png'],

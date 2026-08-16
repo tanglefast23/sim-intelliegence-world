@@ -23,6 +23,15 @@ import type { CameraState, ViewportSize } from './camera';
 import { compareDepth, compareGroundedDepth, WORLD_DEPTH } from './depth';
 import { districtLighting, type DistrictLighting } from './district-lighting';
 import { journalMapMarkers, type JournalMapMarker } from './journal-markers';
+import { snapWorldPoint } from '../world/movement/motion-clock';
+import type { TurnCurve } from '../world/movement/turn-curve';
+import {
+  gaitAngleDegrees,
+  gaitBobPixels,
+  gaitStopLeanDegrees,
+  gaitTurnLeanDegrees,
+} from './gait';
+import { downPose, fallPose, impactPose, recoilPose, type ImpactPose } from './impact-motion';
 import { PROTAGONIST_WOBBLE_PIVOT, protagonistWobbleDegrees } from './protagonist-wobble';
 import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
 import { partitionVfxEmitters } from './vfx/seed';
@@ -34,6 +43,8 @@ import {
   type VfxKind,
   type VfxMode,
   type VfxPrimitiveRole,
+  type TransientVfxGlow,
+  type TransientVfxRect,
 } from './vfx/types';
 
 const TILE_SIZE = 32;
@@ -71,7 +82,7 @@ export const WORLD_COMPOSITE_ORDER = [
 
 export type WorldLayer = typeof WORLD_LAYER_ORDER[number];
 export type WorldCompositeLayer = typeof WORLD_COMPOSITE_ORDER[number];
-export type CharacterPose = 'idle' | 'reaction' | 'talk';
+export type CharacterPose = 'idle' | 'reaction' | 'talk' | 'impact' | 'recoil' | 'falling' | 'down';
 export type WorldArtMode = 'enhanced' | 'legacy';
 export type WorldPoint = Readonly<{ x: number; y: number }>;
 
@@ -119,6 +130,13 @@ export type WorldCharacterPlacement = WorldAtlasPlacement & Readonly<{
   shadowWorldX: number;
   shadowWorldY: number;
   angleDegrees: number;
+  /**
+   * The stride bob already folded into `worldY`, in world pixels, post-snap.
+   *
+   * Carried on the placement for the same reason `angleDegrees` is: the evidence node must report
+   * what was drawn, not a recomputation that can drift away from it.
+   */
+  gaitBobPixels: number;
 }>;
 
 export type WorldGroundedEntry = Readonly<{
@@ -190,6 +208,13 @@ export type WorldFrameView = Readonly<{
   animationTimestampMilliseconds: number;
   vfxAgeStep: number;
   vfxMode: VfxMode;
+  /**
+   * Sampled one-shot geometry. Optional and left UNDEFINED when empty, not an empty array:
+   * `frameSummary()` hashes `JSON.stringify(frame)` and `JSON.stringify` omits undefined keys, so an
+   * idle frame stays byte-identical to the locked fixture. Same pattern as `destinationPulse`.
+   */
+  transientEffects?: readonly TransientVfxRect[];
+  transientGlows?: readonly TransientVfxGlow[];
 }>;
 
 export type WorldFrameState = Readonly<{
@@ -202,6 +227,8 @@ export type WorldFrameState = Readonly<{
   camera: CameraState;
   viewport: ViewportSize;
   devicePixelRatio: number;
+  /** The map's extent in tiles. Ground light sizes its corner lattice from this. */
+  mapTiles: Readonly<{ width: number; height: number }>;
   reducedMotion: boolean;
   animationTimestampMilliseconds: number;
   vfxAgeStep: number;
@@ -215,6 +242,9 @@ export type WorldFrameState = Readonly<{
   effects: readonly VfxGeometry[];
   effectRoleColors: Readonly<Record<VfxPrimitiveRole, string>>;
   fallbackEffects: readonly WorldFallbackEffect[];
+  /** One-shot geometry. Undefined rather than empty when idle — see `WorldFrameView`. */
+  transientEffects?: readonly TransientVfxRect[];
+  transientGlows?: readonly TransientVfxGlow[];
   walls: readonly WorldWallPlacement[];
   roofs: readonly WorldRoofPlacement[];
   groundedOrder: readonly WorldGroundedEntry[];
@@ -271,6 +301,16 @@ export type WorldActor = Readonly<{
   horizontalRunDistance?: number;
   pose?: CharacterPose;
   poseFrame?: 0 | 1;
+  /** Route-accumulated travel, the gait's stride clock. See `gait.ts`. */
+  travelDistance?: number;
+  /** The actor's latched turn curve, for the momentum lean into a corner. */
+  turnCurve?: TurnCurve;
+  /** Progress through the route's FINAL segment. Undefined on any other segment. */
+  stopProgress?: number;
+  /** 0..1 through the current impact, recoil or fall beat. Driven by the scripted scene. */
+  poseProgress?: number;
+  /** Direction the force travels in screen x. */
+  poseDirection?: -1 | 1;
 }>;
 
 export type WorldActors = Readonly<Record<string, WorldActor>>;
@@ -431,7 +471,43 @@ export function withAuthoredPropScale(prop: WorldPropPlacement): WorldPropPlacem
   };
 }
 
-function propShadows(props: readonly WorldPropPlacement[], color: string): readonly WorldPropShadow[] {
+/**
+ * Every tile under a roof, expanded from interior cell rectangles to tile keys.
+ *
+ * `shelterCells` alone is NOT the indoor set. It holds only the interior of the roof group the
+ * player has ENTERED, so the moment they step outside it empties and every indoor prop starts
+ * casting sun shadows again. This frame builds the set straight from `map.source.roofGroups`, so
+ * it is complete whatever the player is standing in; the renderer, which sees only the frame,
+ * rebuilds the same set from `shelterCells` united with `roofedCells`.
+ */
+export function shelteredTileKeys(
+  cells: readonly Readonly<{ x: number; y: number; width: number; height: number }>[],
+): ReadonlySet<string> {
+  const keys = new Set<string>();
+  for (const cell of cells) {
+    for (let y = cell.y; y < cell.y + cell.height; y += 1) {
+      for (let x = cell.x; x < cell.x + cell.width; x += 1) keys.add(`${x},${y}`);
+    }
+  }
+  return keys;
+}
+
+/**
+ * Indoors the sun is occluded, so a character's cast collapses to the anchor and only the tuned
+ * contact ellipse remains. Overhead lamps do not rake, and a sun-directional shadow in a roofed
+ * room is simply wrong: it swung west at dawn and east at dusk under a roof the light never
+ * crossed.
+ *
+ * ponytail: no per-lamp shadow casting indoors — the lamp glow carries the room. Add real
+ * lamp-relative casts only if a room reads flat once the glow work lands.
+ */
+const INDOOR_CHARACTER_CAST = Object.freeze({ x: 5, y: 1 });
+
+function propShadows(
+  props: readonly WorldPropPlacement[],
+  color: string,
+  sheltered: ReadonlySet<string>,
+): readonly WorldPropShadow[] {
   const groups = new Map<string, WorldPropPlacement[]>();
   for (const prop of props) {
     if (prop.isDoor) continue;
@@ -464,7 +540,10 @@ function propShadows(props: readonly WorldPropPlacement[], color: string): reado
       const right = Math.max(...feet.map(({ sprite, worldX }) => worldX + propShadowWidth(sprite)));
       return {
         id: `${id}-${index}`,
-        long: cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
+        // A long shadow IS the sun's shadow, so a sheltered cluster does not get one. The flat
+        // base strip still draws, which is what keeps an indoor lamp sitting on the floor.
+        long: !cluster.some(({ tile }) => sheltered.has(tileKey(tile))) &&
+          cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
         width: right - left,
         worldX: left,
         worldY: bottom + 25,
@@ -492,36 +571,30 @@ function staticFrameLists(
   const cached = mapCache?.get(key);
   if (cached) return cached;
 
+  // ONE QUAD PER TILE, ALWAYS AT 1:1.
+  //
+  // This used to find uniform 2x2 or 3x3 composition blocks and draw a single 32x32 sprite
+  // MAGNIFIED across the whole block. That made ground texels two or three times the size of the
+  // prop and character texels standing on them, and it varied tile by tile — 89% of downtown's
+  // floor quads were already 1:1 while its blocks were not — so a single screen carried two
+  // different ground resolutions at once.
+  //
+  // It also contradicted the art spec, which is what settled it:
+  // `docs/specs/2026-08-11-art-quality.md` records the selected ground variant PER TILE (:480) and
+  // rules out "a visible repeating mega-tile" (:266). A 32x32 sprite blown up to 96x96 is exactly
+  // that. So this is a drift fix, not new art detail, and the locked minimalist style is intact.
+  //
+  // `compositionSize` and `logicalVariantId` are deliberately left alone in `src/world`, so the
+  // presentation hash, `content:check` and `art:check` are all untouched. Only the DRAW changes.
   const floors: WorldFloorPlacement[] = [];
-  const covered = new Set<string>();
   for (let y = 0; y < map.source.height; y += 1) {
     for (let x = 0; x < map.source.width; x += 1) {
-      if (covered.has(`${x},${y}`)) continue;
       const tile = { x, y };
       const cell = presentationGroundAt(map.presentation, tile, map.source.width);
-      const size = artMode === 'legacy' ? 1 : cell.compositionSize;
-      const complete = x % size === 0 && y % size === 0 &&
-        x + size <= map.source.width && y + size <= map.source.height &&
-        Array.from({ length: size * size }, (_unused, offset) => {
-          const candidate = presentationGroundAt(map.presentation, {
-            x: x + offset % size,
-            y: y + Math.floor(offset / size),
-          }, map.source.width);
-          return candidate.materialId === cell.materialId && candidate.logicalVariantId === cell.logicalVariantId;
-        }).every(Boolean);
-      if (complete) {
-        for (let offsetY = 0; offsetY < size; offsetY += 1) {
-          for (let offsetX = 0; offsetX < size; offsetX += 1) covered.add(`${x + offsetX},${y + offsetY}`);
-        }
-      }
-      const visible = complete
-        ? x <= visibility.maximumX && x + size - 1 >= visibility.minimumX &&
-          y <= visibility.maximumY && y + size - 1 >= visibility.minimumY
-        : visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility);
-      if (!visible) continue;
+      if (!visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility)) continue;
       const sprite = artMode === 'legacy' ? groundSpriteAtV2(map, tile) : cell.sprite;
       floors.push({
-        ...placement({ id: `floor-${x}-${y}`, sprite, worldX: x * TILE_SIZE, worldY: y * TILE_SIZE, layer: 'floor', scale: complete ? size : 1 }),
+        ...placement({ id: `floor-${x}-${y}`, sprite, worldX: x * TILE_SIZE, worldY: y * TILE_SIZE, layer: 'floor' }),
         tile,
         mask: null,
         kind: 'floor',
@@ -595,8 +668,10 @@ function staticFrameLists(
     mapCache = new Map();
     STATIC_FRAME_LISTS.set(map, mapCache);
   }
-  // ponytail: 64 recent tile windows bound memory; revisit only if camera profiling shows churn.
-  if (mapCache.size >= 64) mapCache.delete(mapCache.keys().next().value as string);
+  // ponytail: 32 recent tile windows bound memory; revisit only if camera profiling shows churn.
+  // Halved from 64 when floors went 1:1: each cached window now holds about two and a half times
+  // the placements it used to, so the same bound would hold about two and a half times the memory.
+  if (mapCache.size >= 32) mapCache.delete(mapCache.keys().next().value as string);
   mapCache.set(key, built);
   return built;
 }
@@ -638,6 +713,26 @@ export function doorSpriteForFrame(
     : door.sprite;
 }
 
+/**
+ * The scripted shooting scene's pose, or undefined for every ordinary pose.
+ *
+ * `falling` and `down` are NOT zeroed under reduced motion: a shot character left standing upright
+ * is a state error, not a reduction in motion. `fallPose` snaps to the terminal angle instead.
+ */
+function impactMotionPose(
+  pose: CharacterPose,
+  poseProgress: number,
+  poseDirection: -1 | 1,
+  reducedMotion: boolean,
+): ImpactPose | undefined {
+  const input = { poseProgress, poseDirection, reducedMotion };
+  if (pose === 'impact') return impactPose(input);
+  if (pose === 'recoil') return recoilPose(input);
+  if (pose === 'falling') return fallPose(input);
+  if (pose === 'down') return downPose(poseDirection);
+  return undefined;
+}
+
 export const DESTINATION_PULSE_MS = 520;
 
 export function destinationPulseFrame(elapsedMs: number): Readonly<{
@@ -668,6 +763,11 @@ export function buildWorldFrameState(
     horizontalRunDistance?: number;
     pose?: CharacterPose;
     poseFrame?: 0 | 1;
+    travelDistance?: number;
+    turnCurve?: TurnCurve;
+    stopProgress?: number;
+    poseProgress?: number;
+    poseDirection?: -1 | 1;
   }>,
   viewInput?: Partial<WorldFrameView>,
 ): WorldFrameState {
@@ -712,6 +812,11 @@ export function buildWorldFrameState(
     horizontalRunDistance: number;
     pose: CharacterPose;
     poseFrame: 0 | 1;
+    travelDistance: number;
+    turnCurve?: TurnCurve;
+    stopProgress?: number;
+    poseProgress: number;
+    poseDirection: -1 | 1;
   }>[] = [
     {
       id: 'protagonist',
@@ -725,6 +830,11 @@ export function buildWorldFrameState(
       horizontalRunDistance: playerPresentation?.horizontalRunDistance ?? 0,
       pose: playerPresentation?.pose ?? 'idle',
       poseFrame: playerPresentation?.poseFrame ?? 0,
+      travelDistance: playerPresentation?.travelDistance ?? 0,
+      turnCurve: playerPresentation?.turnCurve,
+      stopProgress: playerPresentation?.stopProgress,
+      poseProgress: playerPresentation?.poseProgress ?? 0,
+      poseDirection: playerPresentation?.poseDirection ?? 1,
     },
     ...Object.entries(actors).sort(([left], [right]) => left.localeCompare(right, 'en')).map(([id, actor]) => ({
       id,
@@ -738,6 +848,11 @@ export function buildWorldFrameState(
       horizontalRunDistance: actor.horizontalRunDistance ?? 0,
       pose: actor.pose ?? 'idle',
       poseFrame: actor.poseFrame ?? 0,
+      travelDistance: actor.travelDistance ?? 0,
+      turnCurve: actor.turnCurve,
+      stopProgress: actor.stopProgress,
+      poseProgress: actor.poseProgress ?? 0,
+      poseDirection: actor.poseDirection ?? 1,
     })),
   ];
   const allCharacters = characterInputs.map(({
@@ -752,20 +867,43 @@ export function buildWorldFrameState(
     horizontalRunDistance,
     pose,
     poseFrame,
+    travelDistance,
+    turnCurve,
+    stopProgress,
+    poseProgress,
+    poseDirection,
   }): WorldCharacterPlacement => {
     const actorFrame = moving ? walkFrame : pose === 'idle' ? 0 : poseFrame;
     const presentation = movementPresentation(visualId, actorDirection, actorFrame);
     const foot = visualFoot ?? { x: tile.x * TILE_SIZE + 16, y: tile.y * TILE_SIZE + 29 };
     const leanX = reducedMotion ? 0 : presentation.leanX;
     const poseLift = reducedMotion || moving ? 0 : pose === 'reaction' ? -2 : poseFrame === 1 ? -1 : 0;
-    const bounceY = reducedMotion ? 0 : presentation.bounceY + poseLift;
+    // The gait bob is snapped HERE rather than with the foot. `snapWorldPoint` already put the foot
+    // on the device-pixel lattice back in the scene, before this builder ran, so snapping the bob on
+    // its own keeps the sum on that same lattice and the sprite never lands between texels.
+    const gaitBob = snapWorldPoint(
+      { x: 0, y: gaitBobPixels({ travelDistance, moving, reducedMotion }) },
+      view.camera.zoom,
+      view.devicePixelRatio,
+    ).y;
+    const impact = impactMotionPose(pose, poseProgress, poseDirection, reducedMotion);
+    const bounceY = reducedMotion ? 0 : presentation.bounceY + poseLift + gaitBob;
     const shadowX = reducedMotion ? 0 : presentation.shadowX;
-    const angleDegrees = moving ? protagonistWobbleDegrees({
-      direction: actorDirection,
-      status: 'moving',
-      horizontalRunDistance,
-      reducedMotion,
-    }) : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0;
+    const walkAngleDegrees = gaitAngleDegrees(
+      protagonistWobbleDegrees({
+        direction: actorDirection,
+        status: 'moving',
+        horizontalRunDistance,
+        reducedMotion,
+      }),
+      gaitTurnLeanDegrees({ turnCurve, foot, reducedMotion }),
+      gaitStopLeanDegrees({ direction: actorDirection, stopProgress, reducedMotion }),
+    );
+    const angleDegrees = impact
+      ? impact.angleDegrees
+      : moving
+        ? walkAngleDegrees
+        : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0;
     return {
       // Technique 4b is applied HERE, in the character mapper, and NOT through the prop shift.
       // The prop shift is bounds-based; a character must scale about its wobble pivot or the
@@ -776,13 +914,17 @@ export function buildWorldFrameState(
         layer: 'character',
         pivot: PROTAGONIST_WOBBLE_PIVOT,
         rotationDegrees: angleDegrees,
-        ...withAuthoredCharacterScale(foot.x - 12 + leanX, foot.y - 27 + bounceY),
+        ...withAuthoredCharacterScale(
+          foot.x - 12 + leanX + (impact?.offsetX ?? 0),
+          foot.y - 27 + bounceY + (impact?.offsetY ?? 0),
+        ),
       }),
       visualId,
       tile: { ...tile },
       shadowWorldX: foot.x - 7 + shadowX,
       shadowWorldY: foot.y,
       angleDegrees,
+      gaitBobPixels: reducedMotion ? 0 : gaitBob,
     };
   }).sort((left, right) => left.shadowWorldY - right.shadowWorldY || left.id.localeCompare(right.id, 'en'));
   const hiddenRoofGroupId = roofGroupAtV2(map, playerTile);
@@ -833,6 +975,7 @@ export function buildWorldFrameState(
     casters: lightingSource.casters.map((caster) => ({ ...caster })),
     pools: lightingSource.pools.map((pool) => ({ ...pool })),
     shadow: { ...lightingSource.shadow },
+    sun: { ...lightingSource.sun },
   };
   const atmosphere = { ...worldAtmosphere(state.clock.absoluteMinute) };
   const activeEffects = map.source.effects.filter((effect) => mapEffectVisible(effect.kind, state.clock.absoluteMinute));
@@ -863,14 +1006,20 @@ export function buildWorldFrameState(
     worldY: effect.tile.y * TILE_SIZE + 16,
     color: effectColor(effect.kind),
   }));
-  const characterShadows = characters.map((character): WorldCharacterShadow => ({
-    id: character.id,
-    worldX: character.shadowWorldX,
-    worldY: character.shadowWorldY,
-    castX: lighting.shadow.x,
-    castY: lighting.shadow.y,
-    color: lighting.shadow.color,
-  }));
+  const shelteredKeys = shelteredTileKeys(
+    map.source.roofGroups.flatMap(({ interiorCells }) => interiorCells),
+  );
+  const characterShadows = characters.map((character): WorldCharacterShadow => {
+    const indoors = shelteredKeys.has(tileKey(character.tile));
+    return {
+      id: character.id,
+      worldX: character.shadowWorldX,
+      worldY: character.shadowWorldY,
+      castX: indoors ? INDOOR_CHARACTER_CAST.x : lighting.shadow.x,
+      castY: indoors ? INDOOR_CHARACTER_CAST.y : lighting.shadow.y,
+      color: lighting.shadow.color,
+    };
+  });
   const doorAnchors = doors.map((door) => {
     const openingId = map.doorById.get(door.id)?.openingId;
     return {
@@ -906,6 +1055,7 @@ export function buildWorldFrameState(
     camera: { ...view.camera },
     viewport: { ...view.viewport },
     devicePixelRatio: view.devicePixelRatio,
+    mapTiles: { width: map.source.width, height: map.source.height },
     reducedMotion: view.reducedMotion,
     animationTimestampMilliseconds: view.animationTimestampMilliseconds,
     vfxAgeStep: view.vfxAgeStep,
@@ -919,11 +1069,14 @@ export function buildWorldFrameState(
     effects,
     effectRoleColors: { ...VFX_ROLE_COLORS },
     fallbackEffects,
+    // Undefined, never [], when idle. See the field comment on `WorldFrameView`.
+    ...(view.transientEffects?.length ? { transientEffects: view.transientEffects.map((entry) => ({ ...entry })) } : {}),
+    ...(view.transientGlows?.length ? { transientGlows: view.transientGlows.map((entry) => ({ ...entry })) } : {}),
     walls,
     roofs,
     groundedOrder,
     // Reads the UNSCALED allProps, so a scaled prop keeps its shadow under its feet.
-    propShadows: propShadows(allProps, lighting.shadow.color),
+    propShadows: propShadows(allProps, lighting.shadow.color, shelteredKeys),
     characterShadows,
     doorWear: doorAnchors.map((primitive) => ({
       ...primitive,

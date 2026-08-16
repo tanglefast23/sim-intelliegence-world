@@ -121,3 +121,38 @@ export type VfxWorldRect = Readonly<{
  * It describes the evidence schema, not a drawing library, so it stays renderer-neutral here.
  */
 export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 19 as const;
+
+/**
+ * Transient (one-shot) VFX geometry.
+ *
+ * These live HERE rather than beside their recipes in `transient.ts` because `world-frame.ts` is on
+ * `RENDERER_NEUTRAL_FILES`, and that allowlist is closed under import: a listed file may only import
+ * `src/domain`, `src/world`, or another listed file. This file is listed; `transient.ts` is not, and
+ * need not be, because the frame carries only the sampled result.
+ *
+ * A transient rect carries a RESOLVED colour rather than a `VfxPrimitiveRole`. Two reasons: roles are
+ * counted by `PROCEDURAL_VFX_RENDER_NODE_COUNT`, and a one-shot's colour is resolved per frame from
+ * the live sun so a muzzle flash at midnight reads differently from one at noon.
+ */
+export type TransientVfxLayer = 'ground' | 'aerial';
+
+export type TransientVfxRect = Readonly<{
+  /** 'ground' draws below feet, 'aerial' above them. See COMPOSITE_BATCHES. */
+  layer: TransientVfxLayer;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** 8-digit #rrggbbaa. */
+  color: string;
+}>;
+
+/** An additive stepped-plateau light, drawn through the same glow texture the lamps use. */
+export type TransientVfxGlow = Readonly<{
+  worldX: number;
+  worldY: number;
+  radius: number;
+  /** 6-digit #rrggbb. */
+  color: string;
+  opacity: number;
+}>;

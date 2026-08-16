@@ -5,6 +5,7 @@ import type { WorldState } from '../domain/state/schema';
 import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, responsiveSideSheetWidth, type UiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from './CharacterPortrait';
+import { UI_LAYER } from './ui-layers';
 import { uiMetrics } from './ui-metrics';
 
 type RelationshipPanelProps = Readonly<{
@@ -53,7 +54,7 @@ export function RelationshipPanel({ accent, state, npcId, onDismiss, surface, ui
               <Text style={[styles.stageHeader, { fontSize: metrics.secondaryText }]}>{label(relationship.stage)}</Text>
             </View>
           </View>
-          <Pressable accessibilityLabel="Close relationships" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
+          <Pressable accessibilityLabel="Close relationships" onPress={onDismiss} role="button" style={[styles.close, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.closeText, { fontSize: metrics.secondaryText }]}>CLOSE</Text>
           </Pressable>
         </View>
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   identity: { alignItems: 'center', flexDirection: 'row', gap: 10 },
   muted: { color: '#897b67', fontFamily: 'Silkscreen', fontSize: 8, marginTop: 7 },
-  overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
+  overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: UI_LAYER.sideSheet },
   overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start' },
   panel: { backgroundColor: '#181914f7', borderColor: '#c58b4b', borderWidth: 1 },
   panelDocked: { borderLeftWidth: 3, shadowColor: '#070906', shadowOffset: { height: 8, width: -8 }, shadowOpacity: 0.65, shadowRadius: 0 },

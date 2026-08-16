@@ -1,5 +1,5 @@
 import type { MapId } from '../world/maps/catalog';
-import { worldAtmosphere } from './atmosphere';
+import { mixHex, worldSun, type WorldSun } from './atmosphere';
 
 export type DistrictLightPool = Readonly<{ radius: number; x: number; y: number }>;
 
@@ -16,6 +16,8 @@ export type DistrictLighting = Readonly<{
   pools: readonly DistrictLightPool[];
   shadow: Readonly<{ color: string; x: number; y: number }>;
   shelterShade: string;
+  /** The global sun this district's lighting was composed against. See `worldSun`. */
+  sun: WorldSun;
 }>;
 
 type DistrictPreset = Pick<DistrictLighting, 'accent' | 'casters' | 'name' | 'pools' | 'shelterShade'> & Readonly<{
@@ -77,17 +79,40 @@ const DISTRICTS: Readonly<Record<MapId, DistrictPreset>> = {
   },
 };
 
+/**
+ * THE SUN OWNS VALUE. THE DISTRICT OWNS HUE.
+ *
+ * That is the whole composition rule, and it is the one every later renderer feature should
+ * follow. The sun decides how long a shadow is, how dark it is, and how much of the picture the
+ * lamps own. The district decides what colour the place is: its accent, its pools, its shelter
+ * shade, and a bias on the shadow's hue so a harbour dusk is not a downtown dusk.
+ *
+ * Three deliberate changes from the four-bucket version, stated rather than smuggled:
+ *
+ * 1. Every period now carries a little district hue. Before, only DUSK read `shadowColor` and the
+ *    other three were district-identical. That asymmetry was a consequence of the bucket table,
+ *    not a decision.
+ * 2. Midday pools fade to nothing instead of holding at 0.04. A light pool at noon is noise.
+ * 3. The lamp and pool strengths are now one curve with two gains rather than four literals. The
+ *    gains are chosen so the four bucket centres land within 0.05 of the values they replaced.
+ */
+const DISTRICT_SHADOW_BIAS = 0.34;
+const LAMP_BASE = 0.34;
+const LAMP_GAIN = 0.36;
+const POOL_GAIN = 0.28;
+
 export function districtLighting(mapId: MapId, absoluteMinute: number): DistrictLighting {
   const { intensity, shadowColor = '#25285852', ...district } = DISTRICTS[mapId];
-  const period = worldAtmosphere(absoluteMinute).period;
-  if (period === 'dusk') {
-    return { ...district, lampGlowOpacity: 0.55 * intensity, poolOpacity: 0.2 * intensity, shadow: { color: shadowColor, x: 23, y: 10 } };
-  }
-  if (period === 'night') {
-    return { ...district, lampGlowOpacity: 0.7 * intensity, poolOpacity: 0.28 * intensity, shadow: { color: '#090b1252', x: 5, y: 4 } };
-  }
-  if (period === 'dawn') {
-    return { ...district, lampGlowOpacity: 0.5 * intensity, poolOpacity: 0.13 * intensity, shadow: { color: '#2f213f52', x: -16, y: 8 } };
-  }
-  return { ...district, lampGlowOpacity: 0.34 * intensity, poolOpacity: 0.04 * intensity, shadow: { color: '#28332230', x: 5, y: 3 } };
+  const sun = worldSun(absoluteMinute);
+  return {
+    ...district,
+    lampGlowOpacity: (LAMP_BASE + sun.lampMix * LAMP_GAIN) * intensity,
+    poolOpacity: sun.lampMix * POOL_GAIN * intensity,
+    shadow: {
+      color: mixHex(sun.shadowColor, shadowColor, DISTRICT_SHADOW_BIAS),
+      x: sun.shadowX,
+      y: sun.shadowY,
+    },
+    sun,
+  };
 }

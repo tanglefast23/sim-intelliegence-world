@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { WorldState } from '../domain/state/schema';
 import { UI_SCALES, type UiScale } from '../render/responsive-layout';
+import { UI_LAYER } from './ui-layers';
 import { uiMetrics } from './ui-metrics';
 
 function clockLabel(absoluteMinute: number): string {
@@ -42,8 +43,9 @@ export function Hud({
 }: HudProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const metrics = uiMetrics(uiScale);
-  const energyWidth = `${Math.max(0, Math.min(100, state.protagonist.energy))}%` as `${number}%`;
-  const healthWidth = `${Math.max(0, Math.min(100, state.protagonist.health))}%` as `${number}%`;
+  // Scale rather than width so the meter change composites instead of laying out. The track clips.
+  const energyScale = Math.max(0, Math.min(100, state.protagonist.energy)) / 100;
+  const healthScale = Math.max(0, Math.min(100, state.protagonist.health)) / 100;
   return (
     <View
       nativeID="world-ui-hud"
@@ -54,13 +56,13 @@ export function Hud({
         <View style={styles.locationRow}>
           <View>
             <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>{mapName.toUpperCase()}</Text>
-            <Text style={[styles.area, { fontSize: metrics.titleText }]}>{areaName}</Text>
+            <Text style={[styles.area, { fontSize: metrics.persistentText }]}>{areaName}</Text>
           </View>
           <View style={[styles.locationMark, { backgroundColor: accent }]} />
         </View>
         <View style={styles.timeBlock}>
           <View style={styles.row}>
-            <Text style={[styles.clock, { fontSize: metrics.persistentText }]}>{clockLabel(state.clock.absoluteMinute)}</Text>
+            <Text style={[styles.clock, { fontSize: metrics.panelText }]}>{clockLabel(state.clock.absoluteMinute)}</Text>
             <Text style={[styles.money, { fontSize: metrics.persistentText }]}>${state.inventory.money}</Text>
           </View>
           <View nativeID="world-ui-speed" style={styles.speedRow}>
@@ -70,6 +72,7 @@ export function Hud({
                 accessibilityLabel={speed === 0 ? 'Pause time' : `Set ${speed}x time`}
                 key={speed}
                 onPress={() => { onPressSound(); onSpeed(speed); }}
+                role="button"
                 style={({ pressed }) => [
                   styles.speedButton,
                   { height: metrics.pointerTarget, width: metrics.pointerTarget },
@@ -91,14 +94,14 @@ export function Hud({
               <Text style={[styles.meterLabel, { fontSize: metrics.secondaryText }]}>ENERGY</Text>
               <Text style={[styles.meterValue, { fontSize: metrics.secondaryText }]}>{state.protagonist.energy}</Text>
             </View>
-            <View style={styles.track}><View style={[styles.fillEnergy, { width: energyWidth }]} /></View>
+            <View style={styles.track}><View nativeID="world-ui-energy-fill" style={[styles.fillEnergy, { transform: [{ scaleX: energyScale }] }]} /></View>
           </View>
           <View style={styles.meter}>
             <View style={styles.meterHeader}>
               <Text style={[styles.meterLabel, { fontSize: metrics.secondaryText }]}>HEALTH</Text>
               <Text style={[styles.meterValue, { fontSize: metrics.secondaryText }]}>{state.protagonist.health}</Text>
             </View>
-            <View style={styles.track}><View style={[styles.fillHealth, { width: healthWidth }]} /></View>
+            <View style={styles.track}><View nativeID="world-ui-health-fill" style={[styles.fillHealth, { transform: [{ scaleX: healthScale }] }]} /></View>
           </View>
         </View>
       <View style={styles.hudFooter}>
@@ -107,24 +110,24 @@ export function Hud({
           <Text nativeID="world-save-status" style={[styles.saveStatus, { fontSize: metrics.secondaryText }]}>{saveStatus.toUpperCase()}</Text>
         </View>
         <View style={styles.actions}>
-          <Pressable accessibilityLabel="Open quests" onPress={onJournal} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>QUESTS · Q</Text></Pressable>
-          <Pressable accessibilityLabel="Open relationships" onPress={onSocial} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text></Pressable>
-          <Pressable accessibilityLabel="Save game" disabled={saveDisabled} onPress={() => { onPressSound(); onSave(); }} style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, saveDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SAVE</Text></Pressable>
-          <Pressable accessibilityLabel="Open display settings" onPress={() => { onPressSound(); setSettingsOpen((open) => !open); }} style={({ pressed }) => [styles.settingsButton, { minHeight: metrics.pointerTarget }, settingsOpen && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingsText, { fontSize: metrics.secondaryText }]}>SETTINGS</Text></Pressable>
+          <Pressable accessibilityLabel="Open quests" onPress={onJournal} role="button" style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>QUESTS · Q</Text></Pressable>
+          <Pressable accessibilityLabel="Open relationships" onPress={onSocial} role="button" style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SOCIAL</Text></Pressable>
+          <Pressable accessibilityLabel="Save game" disabled={saveDisabled} onPress={() => { onPressSound(); onSave(); }} role="button" style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, saveDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.actionText, { fontSize: metrics.secondaryText }]}>SAVE</Text></Pressable>
+          <Pressable accessibilityLabel="Open display settings" onPress={() => { onPressSound(); setSettingsOpen((open) => !open); }} role="button" style={({ pressed }) => [styles.settingsButton, { minHeight: metrics.pointerTarget }, settingsOpen && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingsText, { fontSize: metrics.secondaryText }]}>SETTINGS</Text></Pressable>
         </View>
       </View>
       {settingsOpen ? (
         <View accessibilityLabel="Display settings" nativeID="world-ui-display-settings" style={styles.settingsDrawer}>
           <View nativeID="world-ui-zoom" style={styles.settingRow}>
             <Text style={[styles.settingLabel, { fontSize: metrics.secondaryText }]}>VIEW</Text>
-            <Pressable accessibilityLabel="Decrease world zoom" disabled={zoomOutDisabled} onPress={() => { onPressSound(); onZoom(-1); }} style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomOutDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>−</Text></Pressable>
+            <Pressable accessibilityLabel="Decrease world zoom" disabled={zoomOutDisabled} onPress={() => { onPressSound(); onZoom(-1); }} role="button" style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomOutDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>−</Text></Pressable>
             <Text nativeID="world-ui-zoom-value" style={[styles.settingValue, { fontSize: metrics.secondaryText }]}>{Math.round(zoom * 100)}%</Text>
-            <Pressable accessibilityLabel="Increase world zoom" disabled={zoomInDisabled} onPress={() => { onPressSound(); onZoom(1); }} style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomInDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>+</Text></Pressable>
+            <Pressable accessibilityLabel="Increase world zoom" disabled={zoomInDisabled} onPress={() => { onPressSound(); onZoom(1); }} role="button" style={({ pressed }) => [styles.settingButton, { height: metrics.pointerTarget }, zoomInDisabled && styles.disabled, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>+</Text></Pressable>
           </View>
           <View nativeID="world-ui-scale" style={styles.settingRow}>
             <Text style={[styles.settingLabel, { fontSize: metrics.secondaryText }]}>UI SCALE</Text>
             {UI_SCALES.map((scale) => (
-              <Pressable accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`} key={scale} onPress={() => { onPressSound(); onUiScale(scale); }} style={({ pressed }) => [styles.scaleButton, { minHeight: metrics.pointerTarget }, uiScale === scale && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>{Math.round(scale * 100)}%</Text></Pressable>
+              <Pressable accessibilityLabel={`Set ${Math.round(scale * 100)} percent interface scale`} key={scale} onPress={() => { onPressSound(); onUiScale(scale); }} role="button" style={({ pressed }) => [styles.scaleButton, { minHeight: metrics.pointerTarget }, uiScale === scale && styles.settingsActive, pressed && styles.buttonPressed]}><Text style={[styles.settingText, { fontSize: metrics.secondaryText }]}>{Math.round(scale * 100)}%</Text></Pressable>
             ))}
           </View>
         </View>
@@ -142,12 +145,12 @@ const styles = StyleSheet.create({
   clock: { color: '#f1c65b', fontFamily: 'Silkscreen' },
   disabled: { opacity: 0.35 },
   eyebrow: { color: '#dfa85e', fontFamily: 'Silkscreen' },
-  fillEnergy: { backgroundColor: '#d9ad56', bottom: 0, left: 0, position: 'absolute', top: 0 },
-  fillHealth: { backgroundColor: '#74a97b', bottom: 0, left: 0, position: 'absolute', top: 0 },
+  fillEnergy: { backgroundColor: '#d9ad56', bottom: 0, left: 0, position: 'absolute', right: 0, top: 0, transformOrigin: 'left center' },
+  fillHealth: { backgroundColor: '#74a97b', bottom: 0, left: 0, position: 'absolute', right: 0, top: 0, transformOrigin: 'left center' },
   hud: {
     backgroundColor: '#181914f4', borderBottomColor: '#ad7640', borderBottomWidth: 2,
     borderLeftColor: '#d3a04c', borderLeftWidth: 3, left: 14, position: 'absolute', shadowColor: '#070906',
-    shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.58, shadowRadius: 0, top: 0, zIndex: 30,
+    shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.58, shadowRadius: 0, top: 0, zIndex: UI_LAYER.hud,
   },
   hudFooter: { alignItems: 'center', borderTopColor: '#514838', borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 9, paddingTop: 7 },
   hidden: { display: 'none' },

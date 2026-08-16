@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { UiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from './CharacterPortrait';
 import type { SelectedCharacterSummary } from './selected-character';
+import { UI_LAYER } from './ui-layers';
 import { uiMetrics } from './ui-metrics';
 
 export function SelectedCharacterCard({
@@ -36,7 +37,7 @@ export function SelectedCharacterCard({
         <Text style={[styles.compactName, { color: accent }]}>{summary.displayName.toUpperCase()}</Text>
         <Text style={styles.compactState}>{summary.mood} · {summary.activity}</Text>
       </View>
-      <Pressable accessibilityLabel={`Center view on ${summary.displayName}`} onPress={onCenter} style={({ pressed }) => [styles.compactButton, pressed && styles.pressed]}>
+      <Pressable accessibilityLabel={`Center view on ${summary.displayName}`} onPress={onCenter} role="button" style={({ pressed }) => [styles.compactButton, pressed && styles.pressed]}>
         <Text style={styles.secondaryButtonText}>CENTER</Text>
       </Pressable>
     </View>
@@ -63,11 +64,11 @@ export function SelectedCharacterCard({
         <View style={styles.factRow}><Text style={styles.factLabel}>NOW</Text><Text numberOfLines={1} style={styles.factValue}>{summary.activity}</Text></View>
         <View style={styles.factRow}><Text style={styles.factLabel}>GOING</Text><Text numberOfLines={2} style={styles.factValue}>{summary.destination}</Text></View>
         <View style={styles.actions}>
-          <Pressable accessibilityLabel={`Center view on ${summary.displayName}`} onPress={onCenter} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+          <Pressable accessibilityLabel={`Center view on ${summary.displayName}`} onPress={onCenter} role="button" style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
             <Text style={styles.secondaryButtonText}>CENTER</Text>
           </Pressable>
           {onTalk ? (
-            <Pressable accessibilityLabel={`Talk to ${summary.displayName}`} onPress={onTalk} style={({ pressed }) => [styles.primaryButton, { backgroundColor: accent }, pressed && styles.pressed]}>
+            <Pressable accessibilityLabel={`Talk to ${summary.displayName}`} onPress={onTalk} role="button" style={({ pressed }) => [styles.primaryButton, { backgroundColor: accent }, pressed && styles.pressed]}>
               <Text style={styles.primaryButtonText}>TALK</Text>
             </Pressable>
           ) : null}
@@ -83,14 +84,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#171914f5', borderBottomColor: '#7f5a35', borderBottomWidth: 3,
     borderLeftColor: '#f1c65b', borderLeftWidth: 3, bottom: 42, flexDirection: 'row',
     gap: 10, left: 14, padding: 8, position: 'absolute', shadowColor: '#070906',
-    shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.62, shadowRadius: 0, zIndex: 24,
+    shadowOffset: { height: 7, width: 7 }, shadowOpacity: 0.62, shadowRadius: 0, zIndex: UI_LAYER.card,
   },
   compactButton: { alignItems: 'center', borderColor: '#76573d', borderWidth: 1, justifyContent: 'center', minHeight: 30, paddingHorizontal: 12 },
   compactCard: {
     alignItems: 'center', backgroundColor: '#171914f5', borderBottomColor: '#7f5a35', borderBottomWidth: 3,
     borderLeftWidth: 3, bottom: 42, flexDirection: 'row', gap: 14, justifyContent: 'space-between',
     left: 14, paddingHorizontal: 10, paddingVertical: 8, position: 'absolute', shadowColor: '#070906',
-    shadowOffset: { height: 5, width: 5 }, shadowOpacity: 0.62, shadowRadius: 0, zIndex: 24,
+    shadowOffset: { height: 5, width: 5 }, shadowOpacity: 0.62, shadowRadius: 0, zIndex: UI_LAYER.card,
   },
   compactName: { fontFamily: 'Georgia', fontSize: 14, fontWeight: '700' },
   compactState: { color: '#dec69a', fontFamily: 'Silkscreen', fontSize: 7, marginTop: 2 },

@@ -52,13 +52,21 @@ npm run test:electron     # unit electron tests + package + package smoke + move
 
 Other smokes: `smoke:natural-movement`, `smoke:art-quality`, `smoke:procedural-vfx`,
 `smoke:responsive` (`:high-dpi`, `:qualification`), `smoke:presentation-restart`,
-`smoke:save-migration`. Each accepts `-- --output-root <dir>`.
+`smoke:save-migration`, `smoke:day-sweep`. Each accepts `-- --output-root <dir>`.
 
 Generated-asset gates run the builder and then `git diff --exit-code`, so regenerated output must be
 committed: `content:check`, `art:check`, `audio:check`, `proof:check`. To regenerate, run the
 matching builder (`content:build`, `art:atlas`, `audio:build`, `proof:assets`).
 
 ## Architecture
+
+**three.js here is a 2D compositor, not a 3D engine.** `rendererForEnvironment()`
+([src/render/renderer-selection.ts](src/render/renderer-selection.ts)) returns the literal
+`'threejs-2d'`. [src/render/three/world-renderer.ts](src/render/three/world-renderer.ts) draws
+textured quads through an `OrthographicCamera` with `NearestFilter` on a generated sprite atlas,
+compositing the ordered batches in `COMPOSITE_BATCHES`. Stage 7 removed Skia and three.js took its
+place as a 2D blitter. The art direction is locked to minimalist top-down 2D, so depth is faked in
+the compositor — never add perspective cameras, displaced meshes, or shadow maps.
 
 **Three processes, one codebase.** The renderer is an Expo / React Native Web app exported to
 `dist/` and loaded in Electron over a custom `app://game/` protocol
@@ -70,8 +78,9 @@ exposed.
 
 **Layer purity is enforced, not conventional.** `src/domain` and `src/world` are pure roots.
 `npm run check:boundaries` ([scripts/verification/import-boundaries.ts](scripts/verification/import-boundaries.ts))
-fails the build if they import Node builtins, `electron`, `expo*`, React, React Native, Skia,
-Reanimated, or `zustand`, or reach into `electron/`, `src/application/`, `src/render/`, or `src/ui/`.
+fails the build if they import Node builtins, `electron`, `expo*`, React, React Native, `three`,
+Skia, Reanimated, or `zustand`, or reach into `electron/`, `src/application/`, `src/render/`, or
+`src/ui/`.
 Simulation logic goes in the pure roots; effects go in `src/application/effects` behind ports.
 
 Layer map:
@@ -81,7 +90,7 @@ Layer map:
 | `src/domain` | Deterministic state, clock, quests, relationships, economy, save schema + migrations |
 | `src/world` | Maps, pathfinding, movement, schedules, neighborhood transfers |
 | `src/application` | Runtime tick, autosave, readiness gates, ports, top-level screens |
-| `src/render` | Skia world scene, atlas, camera, VFX, evidence emitters |
+| `src/render` | three.js 2D world scene, atlas, camera, VFX, evidence emitters |
 | `src/ui` | HUD, panels, input surfaces, dev harness |
 | `src/ai` | Conversation service, prompt projection, knowledge, Zod response schemas, inference adapters |
 | `electron/` | Main, preload, IPC contracts, persistence, model supervisor, protocol, security |
@@ -102,8 +111,9 @@ checksum and recovery path. Adding a schema field means a new migration step plu
 `tests/fixtures/saves/`.
 
 **Renderer evidence is DOM-visible on purpose.** The world exposes state through `aria-label` on
-hidden nodes (`#world-state`, `#world-camera-state`, `#world-movement-state`,
-`#world-responsive-state`, `#world-vfx-state`, `#world-geometry-state`). Responsive smoke refreshes
+hidden nodes (`#world-state`, `#world-camera-state`, `#world-camera-motion-state`,
+`#world-movement-state`, `#world-responsive-state`, `#world-vfx-state`, `#world-geometry-state`,
+`#world-shooting-scene-state`, `#world-audio-caption`). Responsive smoke refreshes
 its label from the live DOM before reading the same evidence. Changing a label format breaks smokes —
 update both sides together.
 

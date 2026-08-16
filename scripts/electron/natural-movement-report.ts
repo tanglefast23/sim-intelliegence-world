@@ -16,6 +16,11 @@ const ActorSchema = z.object({
   status: z.enum(['idle', 'moving', 'waiting', 'unreachable']),
   target: TileSchema.nullable().optional(),
   curveActive: z.boolean(),
+  // Read straight off the built frame. Null means the actor was culled from that frame, so nothing
+  // was drawn for it and there is no screen truth to report.
+  gaitBobPixels: z.number().nullable(),
+  renderedAngleDegrees: z.number().nullable(),
+  footPlantIndex: z.number().int().nonnegative().nullable(),
 }).strict();
 const PlayerActorSchema = ActorSchema.extend({
   horizontalRunDistance: z.number().nonnegative(),
@@ -32,7 +37,7 @@ const PackageSampleSchema = z.object({
   evidenceTag: z.literal('interruption').optional(),
 }).strict();
 const PackagePassSchema = z.object({
-  schemaVersion: z.literal(3),
+  schemaVersion: z.literal(4),
   mode: z.enum(['standard', 'reduced']),
   npcMotionSource: z.literal('fixture'),
   npcMotionNpcId: z.literal('linda'),
@@ -57,7 +62,7 @@ const NaturalMovementFpsEvidenceSchema = z.object({
 }).strict();
 
 export const NaturalMovementReportSchema = z.object({
-  schemaVersion: z.literal(4),
+  schemaVersion: z.literal(5),
   testedCommit: z.string().regex(/^[a-f0-9]{40}$/u),
   evidenceSource: z.object({
     baseCommit: z.string().regex(/^[a-f0-9]{40}$/u),
@@ -217,6 +222,28 @@ export function validateNaturalMovementReport(
       if ([0, 32, 64, 96].includes(npc.horizontalRunDistance) && npc.wobbleDegrees !== 0) {
         throw new Error('Packaged NPC was not exactly upright at a horizontal tile boundary.');
       }
+    }
+  }
+  // Gait evidence. Null means the actor was culled from that frame, so only drawn values are judged.
+  const gaitActors = (samples: NaturalMovementReport['package']['standard']['samples']) => samples
+    .flatMap(({ player, npcs }) => [player, ...Object.values(npcs)]);
+  const standardGait = gaitActors(packaged.standard.samples);
+  const reducedGait = gaitActors(packaged.reduced.samples);
+  if (!standardGait.some(({ gaitBobPixels }) => gaitBobPixels !== null && gaitBobPixels !== 0)) {
+    throw new Error('Packaged walking never showed a stride bob, so the gait did not render.');
+  }
+  if (new Set(standardGait.flatMap(({ footPlantIndex }) => (
+    footPlantIndex === null ? [] : [footPlantIndex]
+  ))).size < 2) throw new Error('Packaged walking did not produce two distinct foot plants.');
+  if (!reducedGait.every(({ gaitBobPixels }) => gaitBobPixels === null || gaitBobPixels === 0)) {
+    throw new Error('Reduced-motion actor showed a stride bob.');
+  }
+  if (!reducedGait.every(({ renderedAngleDegrees }) => (
+    renderedAngleDegrees === null || renderedAngleDegrees === 0
+  ))) throw new Error('Reduced-motion actor did not render exactly upright.');
+  for (const actor of [...standardGait, ...reducedGait]) {
+    if (actor.renderedAngleDegrees !== null && Math.abs(actor.renderedAngleDegrees) > 16) {
+      throw new Error(`Packaged actor exceeded the composed angle cap: ${actor.renderedAngleDegrees}.`);
     }
   }
   if (standardSummary.firstSegmentPositions.size < 5) {
