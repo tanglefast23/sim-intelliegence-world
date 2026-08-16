@@ -6,7 +6,6 @@ import {
   DoubleSide,
   Color,
   Float32BufferAttribute,
-  LinearFilter,
   Mesh,
   NearestFilter,
   ACESFilmicToneMapping,
@@ -318,31 +317,65 @@ function updateGeometry(geometry: BufferGeometry, data: GeometryData): void {
   geometry.setDrawRange(0, data.indices.length);
 }
 
+/**
+ * Handoff technique 7: light falls off in discrete plateaus, not a smooth ramp.
+ *
+ * A continuous gradient puts a smooth ramp into a quantised image, which is the one thing the art
+ * direction avoids everywhere else. The spike quantised its glow instead, and that is what made
+ * its light belong to the same picture as its sprites.
+ *
+ * Each pair is [outer radius as a fraction of the texture, alpha across that band]. The spike's
+ * FOUR steps are kept; the spike's ALPHAS are not. It ran 0.04 to 0.12 against production's centre
+ * of 1, so importing them would recreate the "glow reads as nothing" bug the additive-glow work
+ * fixed. These sample production's own falloff envelope, so the light keeps its current strength
+ * and only its shape becomes stepped.
+ *
+ * The last pair is explicitly [1, 0]. The district pools sample this texture through the fan of
+ * `addEllipse`, whose rim sits exactly on the radius-1 circle, so any alpha left at the rim would
+ * draw a hard ring around every pool.
+ */
+export const GLOW_PLATEAUS: readonly (readonly [number, number])[] = [
+  [0.22, 1],
+  [0.46, 0.52],
+  [0.70, 0.24],
+  [0.90, 0.08],
+  [1, 0],
+];
+
+/** Alpha at a radius, as a fraction of the glow texture's radius. Pure, so it is testable. */
+export function glowPlateauAlpha(radiusFraction: number): number {
+  for (const [outerRadius, alpha] of GLOW_PLATEAUS) {
+    if (radiusFraction <= outerRadius) return alpha;
+  }
+  return 0;
+}
+
 function generatedGlowTexture(): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 64;
   canvas.height = 64;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('The generated glow canvas is unavailable.');
-  // A solid disc reads as a flat bright circle once blended additively. Real lamp light falls off
-  // smoothly, so this is a radial gradient that reaches zero at the rim. The curve is weighted so
-  // most of the falloff happens in the outer half, which is what makes it look diffuse rather
-  // than like a disc with a soft edge.
-  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
-  for (const [stop, alpha] of [
-    [0, 1], [0.15, 0.92], [0.3, 0.74], [0.45, 0.52], [0.6, 0.32], [0.75, 0.16], [0.88, 0.05], [1, 0],
-  ] as const) {
-    gradient.addColorStop(stop, `rgba(255, 255, 255, ${alpha})`);
+  // Written per texel rather than drawn as stacked arcs. Overlapping fills would blend at every
+  // boundary and reintroduce the soft edge this technique exists to remove.
+  const image = context.createImageData(64, 64);
+  for (let y = 0; y < 64; y += 1) {
+    for (let x = 0; x < 64; x += 1) {
+      const offset = (y * 64 + x) * 4;
+      const alpha = glowPlateauAlpha(Math.hypot(x + 0.5 - 32, y + 0.5 - 32) / 32);
+      image.data[offset] = 255;
+      image.data[offset + 1] = 255;
+      image.data[offset + 2] = 255;
+      image.data[offset + 3] = Math.round(alpha * 255);
+    }
   }
-  context.fillStyle = gradient;
-  context.beginPath();
-  // The rim UVs sit on the radius-32 circle, so fill to 32 or every pool fades early.
-  context.arc(32, 32, 32, 0, Math.PI * 2);
-  context.fill();
+  context.putImageData(image, 0, 0);
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
-  texture.magFilter = LinearFilter;
-  texture.minFilter = LinearFilter;
+  // Nearest, so the plateaus stay plateaus. Linear sampling would interpolate across every band
+  // boundary and hand back the smooth falloff.
+  texture.magFilter = NearestFilter;
+  texture.minFilter = NearestFilter;
   texture.generateMipmaps = false;
   texture.wrapS = ClampToEdgeWrapping;
   texture.wrapT = ClampToEdgeWrapping;

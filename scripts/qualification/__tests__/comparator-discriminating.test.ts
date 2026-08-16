@@ -120,8 +120,11 @@ describe('comparator checks that can fail', () => {
     const changed = frame('rgb-changed', (png) => {
       // A floor shift large enough to break the mean AND the RMS limits.
       for (let offset = 0; offset < png.data.length; offset += 4) {
-        if (png.data[offset] === 220) continue;
-        png.data[offset] += 6; png.data[offset + 1] += 6; png.data[offset + 2] += 6;
+        const red = png.data[offset] ?? 0;
+        if (red === 220) continue;
+        png.data[offset] = red + 6;
+        png.data[offset + 1] = (png.data[offset + 1] ?? 0) + 6;
+        png.data[offset + 2] = (png.data[offset + 2] ?? 0) + 6;
       }
       // A handful of far-off pixels to break the large-changed ratio.
       for (let pixel = 0; pixel < 40; pixel += 1) {
@@ -161,9 +164,11 @@ describe('comparator checks that can fail', () => {
       candidate: { image: string; masks: string };
     };
     const frozen = JSON.parse(readFileSync(resolve(manifest.candidate.masks), 'utf8')) as {
-      masks: { alphaFootprint: string[] }[];
+      masks: readonly { alphaFootprint: string[] }[];
     };
-    frozen.masks[0]!.alphaFootprint[10] = '1'.repeat(frozen.masks[0]!.alphaFootprint[10]!.length);
+    const footprint = frozen.masks[0]?.alphaFootprint;
+    if (!footprint?.[10]) throw new Error('The fixture mask has no row to alter.');
+    footprint[10] = '1'.repeat(footprint[10].length);
     const altered = join(root, 'altered-masks.json');
     writeFileSync(altered, JSON.stringify(frozen));
 
