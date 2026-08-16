@@ -423,20 +423,50 @@ export function compareRendererFrames(candidate: unknown, requestedMode: Compari
     const candidatePixels = maskPixels(candidateMask, manifest.devicePixelRatio, candidateImage);
     const baselineVisible = visibleLuminances(baselineImage, baselinePixels);
     const candidateVisible = visibleLuminances(candidateImage, candidatePixels);
-    const ringLeft = Math.max(0, baselineMask.logicalBounds.x - manifest.thresholds.backgroundRingLogicalPixels);
-    const ringTop = Math.max(0, baselineMask.logicalBounds.y - manifest.thresholds.backgroundRingLogicalPixels);
+    // The ring is the floor AROUND the mask, and it is built from the UNION of the two bounds.
+    //
+    // One ring object is sampled on both images, so a mask that grew in the candidate would
+    // otherwise fill its own ring: candidateRing becomes sprite instead of floor, candidateContrast
+    // collapses toward 1, and readable coverage falls — all for a reason no renderer change caused.
+    // When the bounds are equal, which is every fixture until a silhouette deliberately moves, the
+    // union IS the baseline bounds and nothing here changes.
+    const unionBounds = {
+      x: Math.min(baselineMask.logicalBounds.x, candidateMask.logicalBounds.x),
+      y: Math.min(baselineMask.logicalBounds.y, candidateMask.logicalBounds.y),
+      width: 0,
+      height: 0,
+    };
+    unionBounds.width = Math.max(
+      baselineMask.logicalBounds.x + baselineMask.logicalBounds.width,
+      candidateMask.logicalBounds.x + candidateMask.logicalBounds.width,
+    ) - unionBounds.x;
+    unionBounds.height = Math.max(
+      baselineMask.logicalBounds.y + baselineMask.logicalBounds.height,
+      candidateMask.logicalBounds.y + candidateMask.logicalBounds.height,
+    ) - unionBounds.y;
+
+    const ringLeft = Math.max(0, unionBounds.x - manifest.thresholds.backgroundRingLogicalPixels);
+    const ringTop = Math.max(0, unionBounds.y - manifest.thresholds.backgroundRingLogicalPixels);
     const ringRight = Math.min(
       manifest.viewport.width,
-      baselineMask.logicalBounds.x + baselineMask.logicalBounds.width + manifest.thresholds.backgroundRingLogicalPixels,
+      unionBounds.x + unionBounds.width + manifest.thresholds.backgroundRingLogicalPixels,
     );
     const ringBottom = Math.min(
       manifest.viewport.height,
-      baselineMask.logicalBounds.y + baselineMask.logicalBounds.height + manifest.thresholds.backgroundRingLogicalPixels,
+      unionBounds.y + unionBounds.height + manifest.thresholds.backgroundRingLogicalPixels,
     );
     const ringBounds = { x: ringLeft, y: ringTop, width: ringRight - ringLeft, height: ringBottom - ringTop };
     const ring = imagePixelsForRect(ringBounds, manifest.devicePixelRatio, baselineImage);
+    // requiredPixels itself is deliberately NOT unioned: it is baseline footprints, and the
+    // outside-mask and mask-local families downstream reuse it. Turning it into bounds would change
+    // what those families measure on every fixture. This adds a second, ring-local deletion instead.
     for (const pixel of requiredPixels) ring.delete(pixel);
-    for (const pixel of imagePixelsForRect(baselineMask.logicalBounds, manifest.devicePixelRatio, baselineImage)) {
+    for (const other of candidateMasks) {
+      for (const pixel of maskPixels(other, manifest.devicePixelRatio, candidateImage)) ring.delete(pixel);
+    }
+    // The union AABB delete is not redundant with the footprint deletes above. Native footprints
+    // are outlines, so requiredPixels leaves the mask's own body inside the ring; this removes it.
+    for (const pixel of imagePixelsForRect(unionBounds, manifest.devicePixelRatio, baselineImage)) {
       ring.delete(pixel);
     }
     const baselineRing = visibleLuminances(baselineImage, ring);
