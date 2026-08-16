@@ -22,6 +22,7 @@ import {
   portraitExpressionForMissionReaction,
 } from './conversation-feedback';
 import { CharacterPortrait } from './CharacterPortrait';
+import { UI_LAYER } from './ui-layers';
 import { uiMetrics } from './ui-metrics';
 import { VerbalMissionConfirmation, VerbalMissionFeedback } from './VerbalMissionFeedback';
 
@@ -331,6 +332,7 @@ export function ConversationPanel({
             accessibilityState={{ disabled: missionBusy }}
             disabled={missionBusy}
             onPress={missionSettlement ? () => void close(true) : cancel}
+            role="button"
             style={({ pressed }) => [styles.smallButton, { minHeight: metrics.pointerTarget }, pressed && styles.buttonPressed, missionBusy && styles.disabled]}
           >
             <Text style={[styles.smallButtonText, { fontSize: metrics.secondaryText }]}>{headerActionLabel}</Text>
@@ -366,7 +368,7 @@ export function ConversationPanel({
           {status === 'generating' ? <Text accessibilityLabel="NPC is thinking" style={[styles.thinking, { fontSize: metrics.conversationText }]}>●  ●  ●</Text> : null}
           {status === 'reacting' ? <Text accessibilityLabel="NPC is preparing a reply" style={[styles.thinking, { fontSize: metrics.conversationText }]}>FINDING THE WORDS…</Text> : null}
           {status === 'revealing' ? (
-            <Pressable accessibilityLabel="Show full reply" onPress={finishReveal}>
+            <Pressable accessibilityLabel="Show full reply" onPress={finishReveal} role="button">
               <Text style={[styles.npcLine, { fontSize: metrics.conversationText, lineHeight: Math.round(metrics.conversationText * 1.5) }]}>{displayName}: {reveal}</Text>
             </Pressable>
           ) : null}
@@ -384,7 +386,7 @@ export function ConversationPanel({
           {status === 'failed' ? <Text style={[styles.error, { fontSize: metrics.panelText }]}>CONVERSATION COULD NOT START</Text> : null}
         </ScrollView>
         {status === 'ambient' || status === 'failed' ? (
-          <Pressable accessibilityLabel="Close dialogue" onPress={() => void close(false)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
+          <Pressable accessibilityLabel="Close dialogue" onPress={() => void close(false)} role="button" style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
             <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>CLOSE</Text>
           </Pressable>
         ) : (
@@ -399,7 +401,7 @@ export function ConversationPanel({
                       : 'REACTION SAVED · END TO RETURN TO THE WORLD'
                   : 'ACTION RECORDED · END OR CANCEL THIS CONVERSATION'}
               </Text>
-              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
+              <Pressable accessibilityLabel="End conversation" onPress={() => void close(true)} role="button" style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
             </View>
@@ -413,6 +415,7 @@ export function ConversationPanel({
                     disabled={status !== 'ready'}
                     key={suggestion.id}
                     onPress={() => setDraft(suggestion.suggestedText)}
+                    role="button"
                     style={({ pressed }) => [styles.actionButton, { minHeight: metrics.pointerTarget }, draft === suggestion.suggestedText && { borderColor: accent, borderWidth: 2 }, pressed && styles.buttonPressed, status !== 'ready' && styles.disabled]}
                   >
                     <Text style={[styles.actionText, { color: draft === suggestion.suggestedText ? accent : '#e2bf76', fontSize: metrics.secondaryText }]}>{suggestion.label}</Text>
@@ -432,10 +435,10 @@ export function ConversationPanel({
                 style={[styles.input, { fontSize: metrics.conversationText, minHeight: metrics.primaryControl }]}
                 value={draft}
               />
-              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} style={({ pressed }) => [styles.sendButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (status !== 'ready' || draft.trim().length === 0) && styles.disabled]}>
+              <Pressable accessibilityLabel="Send conversation message" disabled={status !== 'ready' || draft.trim().length === 0} onPress={() => void send()} role="button" style={({ pressed }) => [styles.sendButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (status !== 'ready' || draft.trim().length === 0) && styles.disabled]}>
                 <Text style={[styles.sendText, { fontSize: metrics.persistentText }]}>SAY</Text>
               </Pressable>
-              <Pressable accessibilityLabel="End conversation" disabled={missionBusy || status === 'generating' || status === 'revealing'} onPress={() => void close(true)} style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (missionBusy || status === 'generating' || status === 'revealing') && styles.disabled]}>
+              <Pressable accessibilityLabel="End conversation" disabled={missionBusy || status === 'generating' || status === 'revealing'} onPress={() => void close(true)} role="button" style={({ pressed }) => [styles.endButton, { minHeight: metrics.primaryControl }, pressed && styles.buttonPressed, (missionBusy || status === 'generating' || status === 'revealing') && styles.disabled]}>
                 <Text style={[styles.endText, { fontSize: metrics.persistentText }]}>END</Text>
               </Pressable>
               </View>
@@ -473,7 +476,7 @@ const styles = StyleSheet.create({
   modelStatus: { display: 'none' },
   npcCard: { alignSelf: 'flex-start', backgroundColor: '#29231b', borderLeftColor: '#c58b4b' },
   npcLine: { color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
-  overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 50 },
+  overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: UI_LAYER.conversation },
   panel: { backgroundColor: '#252019', borderColor: '#c58b4b', borderWidth: 2, shadowColor: '#090704', shadowOffset: { height: 12, width: 12 }, shadowOpacity: 0.7, shadowRadius: 0 },
   playerLine: { color: '#9fc58e', fontFamily: 'Silkscreen', fontSize: 10, lineHeight: 17, marginBottom: 8 },
   playerCard: { alignSelf: 'flex-end', backgroundColor: '#1d2820', borderLeftColor: '#78a77b' },

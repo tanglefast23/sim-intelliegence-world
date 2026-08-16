@@ -108,6 +108,8 @@ async function main(): Promise<void> {
     'scripts/electron/run-natural-movement-package-smoke.ts',
     'src/application/runtime/movement-frame.ts',
     'src/render/WorldScene.tsx',
+    'src/render/gait.ts',
+    'src/render/impact-motion.ts',
     'src/render/movement-evidence.ts',
     'src/render/world-frame.ts',
     'src/world/movement/motion-clock.ts',
@@ -117,7 +119,7 @@ async function main(): Promise<void> {
     'src/world/pathfinding/movement.ts',
   ]);
   const report: NaturalMovementReport = {
-    schemaVersion: 4,
+    schemaVersion: 5,
     testedCommit: resolveTestedCommit(),
     evidenceSource: { ...evidenceSource, sourcePaths: [...evidenceSource.sourcePaths] },
     traceDeterministic: true,

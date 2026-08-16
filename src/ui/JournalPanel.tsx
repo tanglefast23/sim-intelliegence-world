@@ -6,6 +6,7 @@ import type { ViewportSize } from '../render/camera';
 import { responsivePanelLayout, responsiveSideSheetWidth, type UiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from './CharacterPortrait';
 import { questActionCopy } from './quest-action-copy';
+import { UI_LAYER } from './ui-layers';
 import { uiMetrics } from './ui-metrics';
 
 type JournalPanelProps = Readonly<{
@@ -89,7 +90,7 @@ export function JournalPanel({ accent, actions, contextActions, state, onAction,
             <Text style={[styles.eyebrow, { fontSize: metrics.secondaryText }]}>PRIVATE CASEBOARD · Q</Text>
             <Text style={[styles.title, { color: accent, fontSize: metrics.titleText }]}>QUESTS</Text>
           </View>
-          <Pressable accessibilityLabel="Close quests" onPress={onDismiss} style={[styles.close, { minHeight: metrics.pointerTarget }]}>
+          <Pressable accessibilityLabel="Close quests" onPress={onDismiss} role="button" style={[styles.close, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.closeText, { fontSize: metrics.secondaryText }]}>CLOSE</Text>
           </Pressable>
         </View>
@@ -173,6 +174,7 @@ export function JournalPanel({ accent, actions, contextActions, state, onAction,
                       accessibilityLabel={action.label}
                       disabled={!action.enabled}
                       onPress={() => onAction(action.id)}
+                      role="button"
                       style={({ pressed }) => [styles.questActionButton, { minHeight: metrics.pointerTarget }, !action.enabled && styles.questActionDisabled, pressed && styles.questActionPressed]}
                     >
                       <Text style={[styles.questActionButtonText, { fontSize: metrics.secondaryText }]}>{action.label.toUpperCase()}</Text>
@@ -199,6 +201,7 @@ export function JournalPanel({ accent, actions, contextActions, state, onAction,
                   accessibilityLabel={action.label}
                   disabled={!action.enabled}
                   onPress={() => onAction(action.id)}
+                  role="button"
                   style={({ pressed }) => [styles.questActionButton, { minHeight: metrics.pointerTarget }, !action.enabled && styles.questActionDisabled, pressed && styles.questActionPressed]}
                 >
                   <Text style={[styles.questActionButtonText, { fontSize: metrics.secondaryText }]}>{action.label.toUpperCase()}</Text>
@@ -222,6 +225,7 @@ export function JournalPanel({ accent, actions, contextActions, state, onAction,
           accessibilityLabel="Buy villa security report"
           disabled={purchased || state.inventory.money < 60}
           onPress={onPurchaseSecurityReport}
+          role="button"
           style={[styles.purchase, { minHeight: metrics.pointerTarget }, purchased && styles.purchaseDone]}
         >
           <Text style={[styles.purchaseText, bodyText]}>{purchased ? 'SECURITY REPORT PURCHASED' : 'BUY VILLA SECURITY REPORT · $60'}</Text>
@@ -230,7 +234,7 @@ export function JournalPanel({ accent, actions, contextActions, state, onAction,
         <Text style={[styles.detail, bodyText]}>POLICE · {state.policeAttention.toUpperCase()}</Text>
         <Text style={[styles.detail, bodyText]}>EVIDENCE · {Object.keys(state.evidence).length}</Text>
         {policeAction ? (
-          <Pressable accessibilityLabel={policeAction.label} onPress={onAdvancePolice} style={[styles.policeAction, { minHeight: metrics.pointerTarget }]}>
+          <Pressable accessibilityLabel={policeAction.label} onPress={onAdvancePolice} role="button" style={[styles.policeAction, { minHeight: metrics.pointerTarget }]}>
             <Text style={[styles.purchaseText, bodyText]}>{policeAction.label.toUpperCase()}</Text>
             <Text style={[styles.detail, bodyText]}>{policeAction.result}</Text>
           </Pressable>
@@ -276,7 +280,7 @@ const styles = StyleSheet.create({
   leadMeta: { flex: 1, minWidth: 0 },
   locationThumbnail: { backgroundColor: '#292820', borderColor: '#5d513e', borderWidth: 1, height: 74, overflow: 'hidden', position: 'relative', width: 118 },
   metaLabel: { color: '#746957', fontFamily: 'Silkscreen', marginTop: 1 },
-  overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: 55 },
+  overlay: { alignItems: 'center', backgroundColor: '#100d0acc', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: UI_LAYER.sideSheet },
   overlayDocked: { alignItems: 'flex-end', backgroundColor: '#090b081f', justifyContent: 'flex-start' },
   panel: { backgroundColor: '#181914f7', borderColor: '#c58b4b', borderWidth: 1 },
   panelDocked: { borderLeftWidth: 3, shadowColor: '#070906', shadowOffset: { height: 8, width: -8 }, shadowOpacity: 0.65, shadowRadius: 0 },

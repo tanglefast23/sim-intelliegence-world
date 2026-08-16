@@ -23,6 +23,7 @@ jest.mock('three', () => {
 import { BufferGeometry, ShaderMaterial, Texture, WebGLRenderer } from 'three';
 
 import { ThreeWorldRenderer } from '../three/world-renderer';
+import { worldSun } from '../atmosphere';
 import type { WorldFrameState } from '../world-frame';
 import { VFX_ROLE_COLORS } from '../vfx/types';
 
@@ -38,6 +39,8 @@ function frameWithEffects(rectCount: number, fallbackCount: number): WorldFrameS
     camera: { x: 0, y: 0, zoom: 1 },
     viewport: { height: 240, width: 320 },
     devicePixelRatio: 1,
+    mapId: 'northwest_residential',
+    mapTiles: { width: 64, height: 48 },
     floors: [],
     groundDetails: [],
     props: [],
@@ -94,6 +97,7 @@ function frameWithEffects(rectCount: number, fallbackCount: number): WorldFrameS
       pools: [{ x: 2, y: 2, radius: 8 }],
       shadow: { color: '#101018', x: 6, y: 6 },
       shelterShade: '#00000040',
+      sun: worldSun(720),
     },
     atmosphere: { period: 'dawn', wash: '#20304430', shade: '#090b12a6', accent: '#9edbd8' },
     reducedMotion: true,
@@ -190,7 +194,7 @@ describe('Three.js renderer lifecycle', () => {
     const second = await ThreeWorldRenderer.create(fakeCanvas(), 'atlas.png', true, jest.fn(), jest.fn());
     const secondGpu = jest.mocked(WebGLRenderer).mock.results.at(-1)?.value as unknown as { dispose: jest.Mock };
     second.dispose();
-    expect(geometryDispose).toHaveBeenCalledTimes(38);
+    expect(geometryDispose).toHaveBeenCalledTimes(40); // 20 batches across two mounts
     expect(materialDispose).toHaveBeenCalledTimes(8); // 4 materials across two mounts
     expect(textureDispose).toHaveBeenCalledTimes(4);
     expect(firstGpu.dispose).toHaveBeenCalledTimes(1);

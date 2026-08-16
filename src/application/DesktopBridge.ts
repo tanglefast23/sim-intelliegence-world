@@ -16,6 +16,7 @@ import type {
   RendererPresentationPatch,
 } from './presentation/preferences';
 import type { CharacterId } from '../render/atlas';
+import type { CameraDirector } from '../render/camera-motion';
 import type { MapId } from '../world/maps/catalog';
 import type { RendererKind, ToneMappingKind } from '../render/renderer-selection';
 import type { ThreeRendererEvidence } from '../render/three/world-renderer';
@@ -38,6 +39,14 @@ declare global {
     siWorldArtMode?: 'legacy' | 'enhanced';
     siWorldDevHarnessMode?: boolean;
     siWorldVfxMode?: 'circle' | 'procedural';
+    /** Opts a smoke run into one-shot VFX, which is otherwise off so locked captures cannot move. */
+    siWorldTransientVfx?: 'on';
+    /**
+     * Pins the scripted shooting scene to one instant and returns the clamped time.
+     * A hidden window throttles rAF to a standstill, so a capture steps the scene instead of
+     * watching it.
+     */
+    siWorldPinShootingScene?: (timeMs: number) => number;
     siWorldSmokeMode?: boolean;
     siWorldTestRenderer?: RendererKind;
     siWorldTestToneMapping?: ToneMappingKind;
@@ -46,7 +55,14 @@ declare global {
     siWorldCloseConversationFixture?: () => void;
     siWorldSetAuthoredDialogueFixture?: (characterId?: 'linda-boyfriend') => void;
     siWorldMeasureResponsiveEvidence?: () => Readonly<Record<string, unknown>> | undefined;
-    siWorldOpenVfxFixture?: (mapId: MapId, effectId: string) => void;
+    /** Scripted camera control for dev-harness scenes and smokes. See src/render/camera-motion.ts. */
+    siWorldCameraDirector?: CameraDirector;
+    /**
+     * `absoluteMinute` forces the world clock, so a smoke can capture the same scene at several
+     * times of day. Omitted, the fixture keeps the existing behaviour of nudging the clock only
+     * far enough to make a neon effect visible.
+     */
+    siWorldOpenVfxFixture?: (mapId: MapId, effectId: string, absoluteMinute?: number) => void;
     siWorldStartNaturalMovementFixture?: () => Readonly<{
       npcId: 'linda';
       source: 'fixture';

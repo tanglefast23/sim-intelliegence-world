@@ -28,6 +28,7 @@ import type {
   WorldRoofPlacement,
   WorldWallPlacement,
 } from '../world-frame';
+import { groundSunTint, groundVariationField, sampleGroundVariation } from '../ground-light';
 import type { ToneMappingKind } from '../renderer-selection';
 import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
 
@@ -52,6 +53,19 @@ const SPRITE_SHADOW_COLOR = '#111519';
 const SPRITE_SHADOW_OPACITY = 0.48;
 const SPRITE_SHADOW_OFFSET_X = 3;
 const SPRITE_SHADOW_OFFSET_Y = 3;
+/**
+ * The silhouette shadow ROTATES with the sun but keeps technique 6's measured LENGTH.
+ *
+ * The length is what was measured; the direction was an assumption baked in beside it. Letting the
+ * length follow the sun too would displace a prop's silhouette copy by 25 pixels at dusk, which
+ * detaches it from the prop it belongs to. So the sun turns it and never stretches it, and at
+ * every minute of the day it stays exactly as long as the value technique 6 recorded.
+ */
+const SPRITE_SHADOW_LENGTH = Math.hypot(SPRITE_SHADOW_OFFSET_X, SPRITE_SHADOW_OFFSET_Y);
+/** Corner order matched to `addQuad`: top-left, top-right, bottom-right, bottom-left. */
+const GROUND_CORNER_UNITS: readonly (readonly [number, number])[] = Object.freeze([
+  [0, 0], [1, 0], [1, 1], [0, 1],
+]);
 /** Stage 4 recorded ACES calibration value, not a hidden magic number. */
 export const ACES_EXPOSURE = 1;
 const COMPOSITE_BATCHES = [
@@ -59,6 +73,10 @@ const COMPOSITE_BATCHES = [
   'doors',
   'door-wear',
   'contact-shadows-and-thresholds',
+  // One-shot marks that belong to the GROUND: ripples, footfall dust, blood. Below the sprite
+  // shadows and the characters, so a ripple reads as water the player is standing in rather than a
+  // sticker over their legs. Aerial one-shots share the existing 'effects' batch instead.
+  'ground-effects',
   // Handoff technique 6: a tinted copy of each grounded sprite, offset, so the shadow follows the
   // real pixel silhouette instead of a generic blob. This is what gives furniture and characters
   // contact with the floor and makes their edges read as sharper.
@@ -103,19 +121,31 @@ function rgba(color: string, opacity = 1): readonly [number, number, number, num
   return [parsed.r, parsed.g, parsed.b, alpha * opacity];
 }
 
+/**
+ * `cornerTints` is 16 floats, four RGBA corners, and REPLACES the flat tint when given.
+ *
+ * The tint attribute is already per-vertex, so four different corners cost nothing extra: the
+ * rasteriser interpolates them for free. Passing a reused buffer rather than four arrays keeps
+ * the ground path allocation-free, which matters at ~11,000 corners on a worst-case frame.
+ */
 function addQuad(
   data: GeometryData,
   points: readonly [number, number][],
   color: string,
   opacity = 1,
   uv: readonly [number, number, number, number] = [0, 0, 1, 1],
+  cornerTints?: Float32Array,
 ): void {
   const base = data.positions.length / 3;
   for (const [x, y] of points) data.positions.push(x, -y, 0);
   const [u0, v0, u1, v1] = uv;
   data.uvs.push(u0, v1, u1, v1, u1, v0, u0, v0);
-  const tint = rgba(color, opacity);
-  for (let index = 0; index < 4; index += 1) data.tints.push(...tint);
+  if (cornerTints) {
+    for (let index = 0; index < 16; index += 1) data.tints.push(cornerTints[index] ?? 1);
+  } else {
+    const tint = rgba(color, opacity);
+    for (let index = 0; index < 4; index += 1) data.tints.push(...tint);
+  }
   data.indices.push(...threeQuadIndices(base));
 }
 
@@ -204,7 +234,13 @@ function addEllipse(
   }
 }
 
-function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasWidth: number, atlasHeight: number): void {
+function addAtlasPlacement(
+  data: GeometryData,
+  placement: AtlasPlacement,
+  atlasWidth: number,
+  atlasHeight: number,
+  cornerTints?: Float32Array,
+): void {
   const width = placement.source.width * placement.scale;
   const height = placement.source.height * placement.scale;
   const radians = placement.rotationDegrees * Math.PI / 180;
@@ -231,7 +267,44 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
       (placement.source.x + placement.source.width) / atlasWidth,
       1 - placement.source.y / atlasHeight,
     ],
+    cornerTints,
   );
+}
+
+/**
+ * Writes one ground quad's four corner tints into a reused buffer.
+ *
+ * Floors are axis-aligned with no rotation and a zero pivot, so a quad's corners ARE tile corners
+ * and the field can be sampled directly. Ground DETAILS share this batch and must take the same
+ * light — otherwise a bush stays bright over darkened grass — but they are at most one tile and
+ * carry pixel offsets, so they take one sample applied to all four corners.
+ */
+function writeGroundCornerTints(
+  target: Float32Array,
+  field: Float32Array,
+  tileColumns: number,
+  tileRows: number,
+  sunTint: readonly [number, number, number],
+  placement: WorldFloorPlacement,
+): void {
+  const tileX = placement.worldX / TILE_SIZE;
+  const tileY = placement.worldY / TILE_SIZE;
+  const spanX = placement.kind === 'floor' ? placement.source.width * placement.scale / TILE_SIZE : 0;
+  const spanY = placement.kind === 'floor' ? placement.source.height * placement.scale / TILE_SIZE : 0;
+  for (let corner = 0; corner < 4; corner += 1) {
+    const unit = GROUND_CORNER_UNITS[corner] as readonly [number, number];
+    const variation = sampleGroundVariation(
+      field,
+      tileColumns,
+      tileRows,
+      tileX + unit[0] * spanX,
+      tileY + unit[1] * spanY,
+    );
+    target[corner * 4] = sunTint[0] * variation;
+    target[corner * 4 + 1] = sunTint[1] * variation;
+    target[corner * 4 + 2] = sunTint[2] * variation;
+    target[corner * 4 + 3] = placement.opacity;
+  }
 }
 
 /**
@@ -648,7 +721,25 @@ export class ThreeWorldRenderer {
       placements.flat().forEach((placement) => addAtlasPlacement(data, placement, this.#atlasWidth, this.#atlasHeight));
       return data;
     };
-    this.#set('floor-and-ground-detail', atlas(frame.floors, frame.groundDetails));
+    // The ground takes the sun's light through the tint attribute the batch already uploads.
+    // Four corner values per quad, interpolated by the rasteriser: no extra draw call, no extra
+    // fill, no new program. See src/render/ground-light.ts for why the field is low frequency.
+    const sunTint = groundSunTint(frame.lighting.sun);
+    const groundField = groundVariationField(frame.mapId, frame.mapTiles.width, frame.mapTiles.height);
+    const groundCorners = new Float32Array(16);
+    const ground = emptyGeometryData();
+    [frame.floors, frame.groundDetails].forEach((placements) => placements.forEach((placement) => {
+      writeGroundCornerTints(
+        groundCorners,
+        groundField,
+        frame.mapTiles.width,
+        frame.mapTiles.height,
+        sunTint,
+        placement,
+      );
+      addAtlasPlacement(ground, placement, this.#atlasWidth, this.#atlasHeight, groundCorners);
+    }));
+    this.#set('floor-and-ground-detail', ground);
     this.#set('doors', atlas(frame.doors));
     const props = new Map(frame.props.map((placement) => [placement.id, placement]));
     const characters = new Map(frame.characters.map((placement) => [placement.id, placement]));
@@ -662,12 +753,15 @@ export class ThreeWorldRenderer {
     // silhouette copy on top of it ate their readable pixels: the player fell to 0.8959 against a
     // 0.95 floor. Props have no such shadow, so they are where this technique pays.
     const shadowCasters = groundedPlacements.filter((placement) => props.has(placement.id));
+    // Rotated by the sun, never stretched by it. See SPRITE_SHADOW_LENGTH.
+    const sun = frame.lighting.sun;
+    const spriteShadowScale = SPRITE_SHADOW_LENGTH / Math.max(1, sun.shadowLength);
     this.#set('sprite-shadows', atlas(shadowCasters.map((placement) => ({
       ...placement,
       color: SPRITE_SHADOW_COLOR,
       opacity: SPRITE_SHADOW_OPACITY,
-      worldX: placement.worldX + SPRITE_SHADOW_OFFSET_X,
-      worldY: placement.worldY + SPRITE_SHADOW_OFFSET_Y,
+      worldX: placement.worldX + sun.shadowX * spriteShadowScale,
+      worldY: placement.worldY + sun.shadowY * spriteShadowScale,
     }))));
     this.#set('grounded-props-and-characters', atlas(groundedPlacements));
     this.#set('walls', atlas(frame.walls));
@@ -717,11 +811,28 @@ export class ThreeWorldRenderer {
       frame.effectRoleColors[rectangle.role],
     )));
     frame.fallbackEffects.forEach((effect) => addEllipse(effects, effect.worldX, effect.worldY, 3, 3, effect.color));
+    // Transient one-shots split by layer: ground marks below the characters, aerial marks here.
+    const groundEffects = emptyGeometryData();
+    frame.transientEffects?.forEach((entry) => addRect(
+      entry.layer === 'ground' ? groundEffects : effects,
+      entry.x,
+      entry.y,
+      entry.width,
+      entry.height,
+      entry.color,
+    ));
+    this.#set('ground-effects', groundEffects);
     this.#set('effects', effects);
 
+    // The ground's contact with a wall is the cheapest ambient occlusion available: this strip
+    // already exists, so the sun only has to lean it and deepen it. Whole pixels, because a
+    // fractional strip edge would blur the one hard line the technique depends on.
+    // ponytail: crude AO — a real ground edge-mask pass is the upgrade if this reads as a band.
+    const wallBaseShiftX = Math.round(sun.shadowX / Math.max(1, sun.shadowLength) * 2);
+    const wallBaseDepth = 5 + Math.round((1 - sun.elevation) * 2);
     const wallBases = emptyGeometryData();
     frame.wallBases.forEach((wall) => {
-      addRect(wallBases, wall.worldX + 1, wall.worldY + 26, 30, 5, wall.darkColor);
+      addRect(wallBases, wall.worldX + 1 + wallBaseShiftX, wall.worldY + 26, 30, wallBaseDepth, wall.darkColor);
       addRect(wallBases, wall.worldX + 3, wall.worldY + 26, 26, 1, wall.lightColor);
     });
     this.#set('wall-bases', wallBases);
@@ -792,12 +903,9 @@ export class ThreeWorldRenderer {
       tileX >= cell.x && tileX < cell.x + cell.width && tileY >= cell.y && tileY < cell.y + cell.height
     ));
 
-    frame.props.forEach((prop) => {
-      if (!LAMP_SPRITE_IDS.has(prop.sprite)) return;
-      if (inCells(frame.roofedCells, prop.tile.x, prop.tile.y)) return;
-      const centerX = prop.worldX + prop.source.width / 2;
-      const centerY = prop.worldY + prop.source.height / 2;
-      const radius = LAMP_GLOW_RADIUS;
+    // One clipped additive glow quad. Factored out of the lamp loop so a transient muzzle flash gets
+    // the SAME wall clipping: a gun flash must not leak light through a wall any more than a lamp.
+    const addClippedGlow = (centerX: number, centerY: number, radius: number, color: string, opacity: number): void => {
       const left = centerX - radius;
       const top = centerY - radius;
       const span = radius * 2;
@@ -818,11 +926,28 @@ export class ThreeWorldRenderer {
         addQuad(
           lampGlow,
           [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
-          lighting.accent,
-          lighting.lampGlowOpacity,
+          color,
+          opacity,
           [(x0 - left) / span, (y0 - top) / span, (x1 - left) / span, (y1 - top) / span],
         );
       });
+    };
+
+    frame.props.forEach((prop) => {
+      if (!LAMP_SPRITE_IDS.has(prop.sprite)) return;
+      if (inCells(frame.roofedCells, prop.tile.x, prop.tile.y)) return;
+      addClippedGlow(
+        prop.worldX + prop.source.width / 2,
+        prop.worldY + prop.source.height / 2,
+        LAMP_GLOW_RADIUS,
+        lighting.accent,
+        lighting.lampGlowOpacity,
+      );
+    });
+    // Transient emitted light rides the same additive batch, material and stepped-plateau texture as
+    // the lamps. No new material, no new program, no new draw call.
+    frame.transientGlows?.forEach((glow) => {
+      addClippedGlow(glow.worldX, glow.worldY, glow.radius, glow.color, glow.opacity);
     });
     this.#set('lamp-glow', lampGlow);
 

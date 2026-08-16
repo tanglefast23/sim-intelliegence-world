@@ -47,6 +47,7 @@ const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
 const fullCastPortraitSmokeMode = process.env.SI_WORLD_FULL_CAST_PORTRAIT_SMOKE === '1';
 const proceduralVfxSmokeMode = process.env.SI_WORLD_PROCEDURAL_VFX_SMOKE === '1';
+const daySweepSmokeMode = process.env.SI_WORLD_DAY_SWEEP_SMOKE === '1';
 const proceduralVfxReducedMode = process.env.SI_WORLD_PROCEDURAL_VFX_REDUCED === '1';
 const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
@@ -209,6 +210,28 @@ async function cameraLabel(window: BrowserWindow): Promise<string> {
   ) as Promise<string>;
 }
 
+async function cameraMotionLabel(window: BrowserWindow): Promise<string> {
+  return window.webContents.executeJavaScript(
+    `document.querySelector('#world-camera-motion-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as Promise<string>;
+}
+
+async function waitForCameraMotion(
+  window: BrowserWindow,
+  matches: (label: string) => boolean,
+  timeoutMilliseconds = 4_000,
+): Promise<string> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let label = '';
+  while (Date.now() < deadline) {
+    label = await cameraMotionLabel(window);
+    if (matches(label)) return label;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
+  }
+  throw new Error(`Camera motion never matched. Last label: ${label}`);
+}
+
 async function roofLabel(window: BrowserWindow): Promise<string> {
   return window.webContents.executeJavaScript(
     `document.querySelector('#world-roof-state')?.getAttribute('aria-label') ?? ''`,
@@ -363,7 +386,7 @@ async function surfaceLayoutDiagnostic(window: BrowserWindow): Promise<Record<st
 }
 
 function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom: number }> {
-  const match = /^World camera (-?\d+),(-?\d+) at (\d+(?:\.\d+)?)x$/u.exec(label);
+  const match = /^World camera (-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?) at (\d+(?:\.\d+)?)x$/u.exec(label);
   if (!match) throw new Error(`Invalid camera label: ${label}`);
   return { x: Number(match[1]), y: Number(match[2]), zoom: Number(match[3]) };
 }
@@ -716,15 +739,20 @@ async function clickWorldTile(window: BrowserWindow, tile: Readonly<{ x: number;
 }
 
 async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x: number; y: number }>): Promise<void> {
-  const camera = parseCameraLabel(await cameraLabel(window));
   await window.webContents.executeJavaScript(`(() => {
     const element = document.querySelector('#world-input-surface');
     if (!(element instanceof HTMLElement)) throw new Error('World input surface is missing.');
     const viewport = element.querySelector('#world-input-viewport');
     if (!(viewport instanceof HTMLElement)) throw new Error('World input viewport is missing.');
+    // Read the camera in the page rather than round-tripping it: a following camera can move
+    // between an out-of-process read and the click.
+    const label = document.querySelector('#world-camera-state')?.getAttribute('aria-label') ?? '';
+    const parsed = /^World camera (-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?) at (\\d+(?:\\.\\d+)?)x$/u.exec(label);
+    if (!parsed) throw new Error('Invalid camera label: ' + label);
+    const camera = { x: Number(parsed[1]), y: Number(parsed[2]), zoom: Number(parsed[3]) };
     const bounds = viewport.getBoundingClientRect();
-    const clientX = bounds.left + (${tile.x} * 32 + 16 - ${camera.x}) * ${camera.zoom};
-    const clientY = bounds.top + (${tile.y} * 32 + 16 - ${camera.y}) * ${camera.zoom};
+    const clientX = bounds.left + (${tile.x} * 32 + 16 - camera.x) * camera.zoom;
+    const clientY = bounds.top + (${tile.y} * 32 + 16 - camera.y) * camera.zoom;
     element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, clientX, clientY, pointerId: 91 }));
     element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, button: 0, clientX, clientY, pointerId: 91 }));
   })()`, true);
@@ -777,6 +805,10 @@ type MovementSmokeActor = Readonly<{
   curveActive: boolean;
   horizontalRunDistance?: number;
   protagonistWobbleDegrees?: number;
+  /** Null when the actor was culled from the frame, so nothing was drawn for it. */
+  gaitBobPixels?: number | null;
+  renderedAngleDegrees?: number | null;
+  footPlantIndex?: number | null;
 }>;
 
 type MovementSmokeState = Readonly<{
@@ -951,6 +983,63 @@ async function captureRendererParitySmoke(
     rendererKind: effectiveRenderer,
     fixtures,
     contextLifecycle,
+  };
+}
+
+/**
+ * One scene per district, held still while only the sun moves.
+ *
+ * The continuous day sweep is the one claim in the lighting work that a unit test cannot make:
+ * "the light sweeps across the day" is a picture or it is a sentence. Each district is captured at
+ * the same camera, the same zoom and the same fixture at four times of day, so any difference
+ * between the four frames is the sun and nothing else.
+ */
+const DAY_SWEEP_MINUTES = Object.freeze([360, 720, 1_080, 1_320]);
+const DAY_SWEEP_SCENES = Object.freeze([
+  { mapId: 'northwest_residential', effectId: 'patio-fire' },
+  { mapId: 'northeast_downtown', effectId: 'club-neon-east' },
+  { mapId: 'southwest_commercial', effectId: 'courtyard-insects' },
+  { mapId: 'southeast_docks', effectId: 'yard-steam' },
+] as const);
+
+async function captureDaySweepSmoke(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await mkdir(directory, { recursive: true });
+  await startResponsiveSmokeGame(window);
+  if (parseWorldStateLabel(await worldStateLabel(window)).speed !== 0) {
+    await clickAriaButton(window, 'Pause time');
+  }
+  await clickZoomButton(window, 1);
+  const frames: Record<string, unknown>[] = [];
+  for (const scene of DAY_SWEEP_SCENES) {
+    for (const minute of DAY_SWEEP_MINUTES) {
+      await window.webContents.executeJavaScript(
+        `window.siWorldOpenVfxFixture?.(${JSON.stringify(scene.mapId)}, ${JSON.stringify(scene.effectId)}, ${minute})`,
+        true,
+      );
+      await waitForVfxEvidence(window, (candidate) => candidate.mapId === scene.mapId);
+      await waitForWorldState(window, (state) => state.minute % 1_440 === minute % 1_440, 10_000);
+      await waitForRendererPaint(window);
+      await waitForRendererPaint(window);
+      const screenshot = `${scene.mapId}-minute-${minute.toString().padStart(4, '0')}.png`;
+      await captureSmokeScreenshot(window, join(directory, screenshot));
+      frames.push({
+        ...scene,
+        minute,
+        screenshot,
+        camera: parseCameraLabel(await cameraLabel(window)),
+      });
+    }
+  }
+  if (frames.length !== DAY_SWEEP_SCENES.length * DAY_SWEEP_MINUTES.length) {
+    throw new Error(`Day sweep captured ${frames.length} frames.`);
+  }
+  return {
+    schemaVersion: 1,
+    minutes: [...DAY_SWEEP_MINUTES],
+    frames,
   };
 }
 
@@ -1208,7 +1297,7 @@ async function captureMovementPass(
     ),
   }));
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     mode,
     npcMotionSource: 'fixture',
     npcMotionNpcId: 'linda',
@@ -1802,19 +1891,21 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const afterPan = await cameraLabel(window);
   const beforePanState = parseCameraLabel(beforePan);
   const afterPanState = parseCameraLabel(afterPan);
-  const middlePan = afterPanState.x === beforePanState.x - 48 &&
-    afterPanState.y === beforePanState.y && afterPanState.zoom === beforePanState.zoom;
+  const middlePan = Math.abs(afterPanState.x - (beforePanState.x - 48)) <= 0.02 &&
+    Math.abs(afterPanState.y - beforePanState.y) <= 0.02 && afterPanState.zoom === beforePanState.zoom;
 
   sendKey(window, 'F');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
   const afterCenter = await cameraLabel(window);
+  // The camera snaps to a whole screen pixel, so the expectation is on that lattice too.
   const expectedCenteredCamera = {
-    x: Math.round(19 * 32 + 16 - bounds.width / 2 / 2),
-    y: Math.round(20 * 32 + 29 - bounds.height / 2 / 2),
+    x: Math.round((19 * 32 + 16 - bounds.width / 2 / 2) * 2) / 2,
+    y: Math.round((20 * 32 + 29 - bounds.height / 2 / 2) * 2) / 2,
   };
   const centeredState = parseCameraLabel(afterCenter);
   const centerKey = afterCenter !== afterPan && centeredState.zoom === 2 &&
-    centeredState.x === expectedCenteredCamera.x && centeredState.y === expectedCenteredCamera.y;
+    Math.abs(centeredState.x - expectedCenteredCamera.x) <= 0.02 &&
+    Math.abs(centeredState.y - expectedCenteredCamera.y) <= 0.02;
 
   bounds = await surfaceBounds(window);
   const wheelX = Math.round(bounds.x + bounds.width / 2);
@@ -1830,6 +1921,55 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     true,
   ) as Readonly<{ worldZoom?: number }>;
   const gradualZoomPersistence = presentationAfterWheel.worldZoom === 2.1;
+
+  // Camera follow, impact and the scripted director. Zoom 2 matters: four tiles is 256 screen
+  // pixels there, which clears the dead zone; at zoom 1 it would not and the camera would
+  // correctly stay put.
+  await clickZoomButton(window, 2);
+  sendKey(window, 'F');
+  const followArmedLabel = await waitForCameraMotion(window, (label) => label.includes('follow armed'));
+  const cameraBeforeFollow = parseCameraLabel(await cameraLabel(window));
+  await reachWorldTile(window, { x: 16, y: 25 });
+  const cameraAfterFollow = parseCameraLabel(await cameraLabel(window));
+  const followCamera = followArmedLabel.includes('follow armed') &&
+    Math.abs(cameraAfterFollow.x - cameraBeforeFollow.x) > 1 &&
+    Math.abs(cameraAfterFollow.y - cameraBeforeFollow.y) > 1;
+
+  const cameraBeforePanSuspend = parseCameraLabel(await cameraLabel(window));
+  await panWorld(window, 24, 0);
+  const followSuspendedLabel = await waitForCameraMotion(window, (label) => label.includes('follow suspended'));
+  // Walking with follow suspended must leave the camera exactly where the pan left it. This also
+  // returns the hero to 19,20, which the cancel check below depends on.
+  await reachWorldTile(window, { x: 19, y: 20 });
+  const cameraAfterPanSuspend = parseCameraLabel(await cameraLabel(window));
+  const pannedX = cameraBeforePanSuspend.x - 24 / cameraBeforePanSuspend.zoom;
+  const followSuspends = followSuspendedLabel.includes('follow suspended') &&
+    Math.abs(cameraAfterPanSuspend.x - pannedX) <= 0.02 &&
+    Math.abs(cameraAfterPanSuspend.y - cameraBeforePanSuspend.y) <= 0.02;
+
+  const cameraBeforeImpulse = await cameraLabel(window);
+  const shakenLabel = await window.webContents.executeJavaScript(`new Promise((resolve) => {
+    window.siWorldCameraDirector?.impulse(0.8, { x: 1, y: 0 });
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      resolve(document.querySelector('#world-camera-motion-state')?.getAttribute('aria-label') ?? '');
+    }));
+  })`, true) as string;
+  await waitForCameraMotion(window, (label) => label.includes('shake 0.00'), 2_000);
+  // The impact offset is presentation only: the base camera, which is what gets persisted and
+  // hit-tested, is untouched by it.
+  const impactShake = shakenLabel.includes('shake 0.') && await cameraLabel(window) === cameraBeforeImpulse;
+
+  await window.webContents.executeJavaScript(`window.siWorldCameraDirector?.play([
+    { kind: 'focus', points: [{ x: 23 * 32 + 16, y: 24 * 32 + 29 }], durationMs: 320, ease: 'in-out' },
+    { kind: 'hold', durationMs: 80 },
+  ])`, true);
+  const shotLabel = await waitForCameraMotion(window, (label) => label.includes('shot focus'));
+  await waitForCameraMotion(window, (label) => label.includes('shot none'), 4_000);
+  const directedCamera = parseCameraLabel(await cameraLabel(window));
+  const directedBounds = await surfaceBounds(window);
+  const cameraDirector = shotLabel.includes('queue 2') &&
+    Math.abs((23 * 32 + 16 - directedCamera.x) * directedCamera.zoom - directedBounds.width / 2) <= 1 &&
+    Math.abs((24 * 32 + 29 - directedCamera.y) * directedCamera.zoom - directedBounds.height / 2) <= 1;
 
   await clickZoomButton(window, 2);
   sendKey(window, 'F');
@@ -2258,6 +2398,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     responsiveSurface, responsiveSurfaceDiagnostic: responsiveSurface ? '' : JSON.stringify(responsiveDto),
     resizeCamera, uiScaleControls,
     zoomButtons, movement, middlePan, wheelZoom, gradualZoomPersistence, centerKey, cancelKey, uiClickThrough,
+    followCamera, followSuspends, impactShake, cameraDirector,
     roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
@@ -2350,6 +2491,13 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     }
     const vfxResult = await captureProceduralVfxSmoke(window, vfxDirectory);
     process.stdout.write(`SI_WORLD_PROCEDURAL_VFX_SMOKE_RESULT ${JSON.stringify(vfxResult)}\n`);
+  } else if (daySweepSmokeMode) {
+    const daySweepDirectory = process.env.SI_WORLD_DAY_SWEEP_SCREENSHOT_DIR;
+    if (!daySweepDirectory || !isAbsolute(daySweepDirectory)) {
+      throw new Error('Day-sweep smoke screenshot directory must be absolute.');
+    }
+    const daySweepResult = await captureDaySweepSmoke(window, daySweepDirectory);
+    process.stdout.write(`SI_WORLD_DAY_SWEEP_SMOKE_RESULT ${JSON.stringify(daySweepResult)}\n`);
   } else if (rendererAllMapsSmokeMode) {
     const parityDirectory = process.env.SI_WORLD_RENDERER_PARITY_SCREENSHOT_DIR;
     if (!parityDirectory || !isAbsolute(parityDirectory)) {

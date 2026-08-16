@@ -334,6 +334,145 @@ describe('authoritative world frame', () => {
     expect(linda.shadowWorldX).toBe(746);
   });
 
+  test('carries the stride bob into the placement for the player and every NPC', () => {
+    // The cases above pass no travelDistance, so their bob is literal zero and their locked worldY
+    // values still hold. These are NEW cases that actually walk.
+    const walking = (travelDistance: number) => buildWorldFrameState(MAP, createInitialState(), {
+      linda: {
+        tile: { x: 23, y: 30 },
+        visualId: 'linda',
+        direction: 'right',
+        visualFoot: { x: 752, y: 989 },
+        walkFrame: 1,
+        moving: true,
+        horizontalRunDistance: 16,
+        travelDistance,
+      },
+    }, 'right', 1, {
+      visualFoot: { x: 592, y: 606 },
+      walkFrame: 1,
+      moving: true,
+      reducedMotion: false,
+      horizontalRunDistance: 16,
+      travelDistance,
+    }, {
+      camera: { x: 0, y: 0, zoom: 3 },
+      devicePixelRatio: 2,
+      viewport: { width: 64 * 32 * 3, height: 48 * 32 * 3 },
+    });
+
+    // Passing pose, the top of the bob: the body lifts, and the shadow stays welded to the foot.
+    const passing = walking(16);
+    const player = passing.characters.find(({ id }) => id === 'protagonist')!;
+    const linda = passing.characters.find(({ id }) => id === 'linda')!;
+    expect(player.gaitBobPixels).toBeCloseTo(-1.166666, 5);
+    expect(linda.gaitBobPixels).toBe(player.gaitBobPixels);
+    expect(player.worldY).toBeLessThan(573);
+    expect(player.shadowWorldY).toBe(606);
+    expect(linda.shadowWorldY).toBe(989);
+
+    // Down pose, just after contact: the body sinks instead of lifting.
+    expect(walking(3.2).characters.find(({ id }) => id === 'protagonist')!.gaitBobPixels)
+      .toBeGreaterThan(0);
+    // Contact itself is exactly level.
+    expect(walking(32).characters.find(({ id }) => id === 'protagonist')!.gaitBobPixels).toBe(0);
+  });
+
+  test('snaps the stride bob onto the device-pixel lattice', () => {
+    // A sub-texel bob would shimmer under NearestFilter. At 1x DPR 1 it must quantise to a whole
+    // world pixel; the finer lattice at 3x DPR 2 is what lets the same curve read as smooth.
+    const atZoom = (zoom: number, devicePixelRatio: number) => buildWorldFrameState(
+      MAP, createInitialState(), {}, 'right', 1,
+      {
+        visualFoot: { x: 592, y: 606 },
+        walkFrame: 1,
+        moving: true,
+        reducedMotion: false,
+        horizontalRunDistance: 16,
+        travelDistance: 16,
+      },
+      {
+        camera: { x: 0, y: 0, zoom },
+        devicePixelRatio,
+        viewport: { width: 64 * 32 * zoom, height: 48 * 32 * zoom },
+      },
+    ).characters.find(({ id }) => id === 'protagonist')!.gaitBobPixels;
+    expect(atZoom(1, 1)).toBe(-1);
+    expect(atZoom(3, 2)).toBeCloseTo(-1.166666, 5);
+    expect(Number.isInteger(atZoom(3, 2) * 6)).toBe(true);
+  });
+
+  test('caps the composed angle so a corner during the opening lean cannot read as drunk', () => {
+    const frame = buildWorldFrameState(MAP, createInitialState(), {}, 'right', 1, {
+      visualFoot: { x: 592, y: 606 },
+      walkFrame: 1,
+      moving: true,
+      reducedMotion: false,
+      // Peak of the shipped wobble, about 15 degrees.
+      horizontalRunDistance: 5.5,
+      travelDistance: 16,
+      turnCurve: {
+        start: { x: 586, y: 606 },
+        control: { x: 592, y: 606 },
+        end: { x: 592, y: 612 },
+        touchedTileKeys: [],
+      },
+    });
+    const player = frame.characters.find(({ id }) => id === 'protagonist')!;
+    expect(Math.abs(player.angleDegrees)).toBeLessThanOrEqual(16);
+  });
+
+  test('reduced motion keeps the stride bob and both new leans at exactly zero', () => {
+    const frame = buildWorldFrameState(MAP, createInitialState(), {
+      linda: {
+        tile: { x: 23, y: 30 },
+        visualId: 'linda',
+        direction: 'right',
+        visualFoot: { x: 752, y: 989 },
+        walkFrame: 1,
+        moving: true,
+        reducedMotion: true,
+        horizontalRunDistance: 16,
+        travelDistance: 16,
+        stopProgress: 0.5,
+      },
+    }, 'right', 1, {
+      visualFoot: { x: 592, y: 606 },
+      walkFrame: 1,
+      moving: true,
+      reducedMotion: true,
+      horizontalRunDistance: 16,
+      travelDistance: 16,
+      stopProgress: 0.5,
+    });
+    for (const character of frame.characters) {
+      expect(character.gaitBobPixels).toBe(0);
+      expect(character.angleDegrees).toBe(0);
+    }
+  });
+
+  test('shoots, staggers and falls without a single new sprite frame', () => {
+    const posed = (pose: 'impact' | 'falling' | 'down', poseProgress: number) => buildWorldFrameState(
+      MAP, createInitialState(), {
+        linda: {
+          tile: { x: 23, y: 30 },
+          visualId: 'linda',
+          direction: 'right',
+          pose,
+          poseProgress,
+          poseDirection: 1,
+        },
+      }, 'down', 0,
+    ).characters.find(({ id }) => id === 'linda')!;
+    // Hitstop: the pose is identical at contact and part-way through the hold.
+    expect(posed('impact', 0.06).angleDegrees).toBe(posed('impact', 0).angleDegrees);
+    expect(posed('impact', 0).angleDegrees).toBeGreaterThan(0);
+    // The fall overshoots past 90 and settles exactly on it, using rotation alone.
+    expect(posed('falling', 0.8).angleDegrees).toBeGreaterThan(90);
+    expect(posed('falling', 1).angleDegrees).toBe(90);
+    expect(posed('down', 0).angleDegrees).toBe(90);
+  });
+
   test('reduced motion keeps horizontal travel upright without moving the shadow', () => {
     const frame = buildWorldFrameState(MAP, createInitialState(), {}, 'left', 0, {
       visualFoot: { x: 584, y: 606 },

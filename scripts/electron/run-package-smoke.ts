@@ -185,6 +185,7 @@ child.once('close', (code) => {
     'newGameFlow', 'stableProtagonist', 'allowanceReceipt', 'newGameSave', 'accessibilityPolicy',
     'responsiveSurface', 'resizeCamera', 'uiScaleControls',
     'zoomButtons', 'movement', 'middlePan', 'wheelZoom', 'gradualZoomPersistence', 'centerKey', 'cancelKey', 'uiClickThrough',
+    'followCamera', 'followSuspends', 'impactShake', 'cameraDirector',
     'roofRestore', 'roofEntry', 'pausedClock', 'doubleSpeedClock', 'nap', 'overnightSleep', 'sleepAutosave',
     'travel', 'travelAutosave',
     'closedFerry', 'allNeighborhoods', 'allTravelAutosaves',

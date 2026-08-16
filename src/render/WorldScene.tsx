@@ -39,6 +39,7 @@ import { SelectionMarker } from '../ui/SelectionMarker';
 import { selectedCharacterSummary } from '../ui/selected-character';
 import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
+import { UI_LAYER } from '../ui/ui-layers';
 import { uiMetrics } from '../ui/ui-metrics';
 import type { CompiledMapV2 } from '../world/maps/compiled-v2';
 import { selectOwnerInteractionApproach } from '../world/maps/compiler';
@@ -50,6 +51,7 @@ import {
   cancelMovement,
   createMovementState,
   doorMotionPhases,
+  movementEasing,
   requestMovement,
   type MovementState,
 } from '../world/pathfinding/movement';
@@ -85,6 +87,19 @@ import {
   type CameraState,
   type ViewportSize,
 } from './camera';
+import {
+  applyImpulse,
+  armFollow,
+  cameraMotionLabel,
+  cancelShots,
+  INITIAL_CAMERA_MOTION,
+  playShots,
+  pushShot,
+  sampleCameraDirector,
+  suspendFollow,
+  type CameraDirector,
+  type CameraMotion,
+} from './camera-motion';
 import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
 import { ThreeWorldSurface } from './ThreeWorldSurface';
 import type { RendererKind } from './renderer-selection';
@@ -94,11 +109,27 @@ import { parseVfxEvidence } from './vfx/evidence';
 import { PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/types';
 import { advanceAmbientVfxClock, INITIAL_AMBIENT_VFX_CLOCK } from './vfx/clock';
 import {
+  admitTransientCue,
+  createTransientVfxCue,
+  DUSTY_FOOTSTEP_SURFACES,
+  EMPTY_TRANSIENT_VFX_FRAME,
+  expireTransientCues,
+  sampleTransientVfx,
+  transientVfxPalette,
+  TRANSIENT_VFX_REVISION,
+  TRANSIENT_VFX_STEP_MILLISECONDS,
+  WATER_GROUND_SPRITES,
+  type TransientVfxCue,
+} from './vfx/transient';
+import { districtLighting } from './district-lighting';
+import { footstepSurface } from '../audio/halcyra-audio-policy';
+import {
   VFX_KINDS,
   VFX_REVISION,
   VFX_STEP_MILLISECONDS,
   VFX_SUSPENSION_GAP_MILLISECONDS,
 } from './vfx/types';
+import { actorFootPlant } from './gait';
 import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wobble';
 import {
   buildWorldFrameState,
@@ -148,6 +179,20 @@ function visualIdForNpc(stateId: string, _tier: 'full_ai' | 'ambient'): Characte
   return CHARACTER_IDS.includes(candidate) ? candidate : 'generic-resident';
 }
 
+/**
+ * Progress through the route's FINAL segment, for the deceleration lean, or undefined anywhere else.
+ *
+ * `movementEasing` is the simulation's own rule, exported so this lean cannot drift away from the
+ * positional easing it accompanies.
+ */
+function gaitStopProgress(movement: MovementState): number | undefined {
+  const segment = movement.segment;
+  if (!segment) return undefined;
+  return movementEasing(movement, segment).easeOut
+    ? Math.max(0, Math.min(1, segment.elapsedMs / segment.durationMs))
+    : undefined;
+}
+
 function actorTiles(
   state: WorldState,
   mapId: string,
@@ -176,6 +221,9 @@ function actorTiles(
         horizontalRunDistance: movement?.horizontalRunDistance ?? 0,
         pose: stateId === reactionId ? 'reaction' : stateId === conversationNpcId ? 'talk' : 'idle',
         poseFrame: stateId === selectedId || stateId === conversationNpcId ? poseFrame : 0,
+        travelDistance: movement?.travelDistance ?? 0,
+        turnCurve: movement?.latchedTurnCurve,
+        stopProgress: movement ? gaitStopProgress(movement) : undefined,
       };
     }
   }
@@ -227,6 +275,8 @@ type WorldSceneProps = Readonly<{
   initialSaveStatus: string;
   initialState: WorldState;
   newGame: boolean;
+  /** Hands a scripted scene the camera director once, on mount. */
+  onCameraDirector?: (director: CameraDirector) => void;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
   onWorldReady?: () => void;
   playInterfaceSound?: (sound: InterfaceSoundId) => void;
@@ -246,6 +296,7 @@ export function WorldScene({
   initialSaveStatus,
   initialState,
   newGame,
+  onCameraDirector,
   onPresentationPreferencesChange,
   onWorldReady = () => undefined,
   playInterfaceSound = () => undefined,
@@ -305,11 +356,72 @@ export function WorldScene({
   );
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
   const vfxClock = useRef(INITIAL_AMBIENT_VFX_CLOCK);
+  // One-shot VFX. The cue list is a ref because a click must not re-render on its own; the step
+  // counter is state because the frame has to rebuild while a cue is alive.
+  const transientClock = useRef(INITIAL_AMBIENT_VFX_CLOCK);
+  const transientCues = useRef<readonly TransientVfxCue[]>([]);
+  const transientDropped = useRef(0);
+  const transientCueSerial = useRef(0);
+  const lastFootPlantIndex = useRef<number | undefined>(undefined);
+  const [transientStep, setTransientStep] = useState(0);
+  const [transientLive, setTransientLive] = useState(false);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const previousSurface = useRef(surface);
   const surfaceRef = useRef(surface);
   surfaceRef.current = surface;
+  const cameraRef = useRef(camera);
+  cameraRef.current = camera;
+  const cameraMotionRef = useRef<CameraMotion>(INITIAL_CAMERA_MOTION);
+  const cameraClockRef = useRef(0);
+  const followPointRef = useRef(runtime.movement.visualFoot);
+  followPointRef.current = runtime.movement.visualFoot;
+  const reducedMotionRef = useRef(reducedMotion);
+  reducedMotionRef.current = reducedMotion;
+  const [cameraMotionView, setCameraMotionView] = useState(() => ({
+    offset: { x: 0, y: 0 },
+    label: cameraMotionLabel(INITIAL_CAMERA_MOTION),
+  }));
+  /**
+   * The camera clock. It is scheduled only while something is actually moving — an unsettled
+   * follow, a live impact, or a queued shot — and stops itself otherwise, so a still camera costs
+   * nothing. Its callback shares the animation-frame task with the movement loop, so React batches
+   * both into one render.
+   */
+  const wakeCameraClock = useCallback(() => {
+    if (cameraClockRef.current !== 0 || typeof window === 'undefined') return;
+    let previousTime: number | undefined;
+    const step = (time: number) => {
+      const deltaMs = previousTime === undefined ? 0 : time - previousTime;
+      previousTime = time;
+      const sample = sampleCameraDirector(cameraMotionRef.current, cameraRef.current, {
+        deltaMs,
+        followPoint: followPointRef.current,
+        viewport: surfaceRef.current,
+        mapPixels: MAP_PIXELS,
+        reducedMotion: reducedMotionRef.current,
+      });
+      cameraMotionRef.current = sample.motion;
+      if (sample.camera !== cameraRef.current) {
+        cameraRef.current = sample.camera;
+        setCamera(sample.camera);
+      }
+      const label = cameraMotionLabel(sample.motion);
+      setCameraMotionView((current) => current.offset.x === sample.offset.x &&
+        current.offset.y === sample.offset.y && current.label === label
+        ? current
+        : { offset: sample.offset, label });
+      cameraClockRef.current = sample.active ? requestAnimationFrame(step) : 0;
+    };
+    cameraClockRef.current = requestAnimationFrame(step);
+  }, []);
+  const updateCameraMotion = useCallback((change: (motion: CameraMotion) => CameraMotion) => {
+    cameraMotionRef.current = change(cameraMotionRef.current);
+    wakeCameraClock();
+  }, [wakeCameraClock]);
+  useEffect(() => () => {
+    if (cameraClockRef.current !== 0) cancelAnimationFrame(cameraClockRef.current);
+  }, []);
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
   const movementMaterialId = runtime.movement.segment
@@ -331,6 +443,10 @@ export function WorldScene({
   const vfxMode = smokeMode && window.siWorldVfxMode === 'circle'
     ? 'circle' as const
     : 'procedural' as const;
+  // On in real play and in the dev harness; off in every existing packaged smoke unless a smoke
+  // opts in. A footfall puff must never appear inside a locked frame comparison.
+  const transientVfxEnabled = vfxMode === 'procedural' &&
+    (!smokeMode || (typeof window !== 'undefined' && window.siWorldTransientVfx === 'on'));
   const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio;
   const npcTiles = useMemo(() => actorTiles(
     runtime.worldState,
@@ -355,12 +471,70 @@ export function WorldScene({
   useEffect(() => {
     vfxClock.current = INITIAL_AMBIENT_VFX_CLOCK;
     setVfxAgeStep(0);
+    // Spec section 3.3: a map transition clears transient one-shots. The destination rebuilds only
+    // its ambient emitters.
+    transientClock.current = INITIAL_AMBIENT_VFX_CLOCK;
+    transientCues.current = [];
+    transientDropped.current = 0;
+    lastFootPlantIndex.current = undefined;
+    setTransientStep(0);
+    setTransientLive(false);
   }, [mapId]);
+
+  const emitTransientCue = useCallback((
+    kind: 'ripple' | 'dust',
+    origin: Readonly<{ x: number; y: number }>,
+    strength: 'subtle' | 'strong',
+  ) => {
+    if (!transientVfxEnabled) return;
+    transientCueSerial.current += 1;
+    const nowMs = transientClock.current.ageMilliseconds;
+    const result = admitTransientCue(transientCues.current, createTransientVfxCue({
+      id: `${kind}-${transientCueSerial.current}`,
+      kind,
+      startMs: nowMs,
+      origin,
+      strength,
+    }), nowMs);
+    transientCues.current = result.cues;
+    if (result.dropped) transientDropped.current += 1;
+    setTransientLive(result.cues.length > 0);
+  }, [transientVfxEnabled]);
+
+  /**
+   * Footfall dust and water displacement.
+   *
+   * `undefined` is a GAP, not an event: a replan frame has no segment, so the plant sequence reads
+   * N-1 -> undefined -> 0. Comparing against the last DEFINED index is what stops a puff firing at
+   * every click. Protagonist only — eight walking NPCs would multiply the cue rate by eight for no
+   * visible gain, since the camera follows the player.
+   */
+  useEffect(() => {
+    if (!transientVfxEnabled) return;
+    const plant = actorFootPlant('protagonist', runtime.movement);
+    if (!plant) return;
+    if (lastFootPlantIndex.current === plant.index) return;
+    lastFootPlantIndex.current = plant.index;
+    const tile = { x: Math.floor(plant.worldX / TILE_SIZE), y: Math.floor(plant.worldY / TILE_SIZE) };
+    if (tile.x < 0 || tile.y < 0 || tile.x >= map.source.width || tile.y >= map.source.height) return;
+    const ground = presentationGroundAt(map.presentation, tile, map.source.width);
+    if (WATER_GROUND_SPRITES.has(ground.sprite)) {
+      emitTransientCue('ripple', { x: plant.worldX, y: plant.worldY }, 'subtle');
+      return;
+    }
+    // Spec section 8.5: no dust on wood or clean interior tile.
+    if (!DUSTY_FOOTSTEP_SURFACES.has(footstepSurface(ground.materialId))) return;
+    emitTransientCue('dust', { x: plant.worldX, y: plant.worldY }, 'subtle');
+  }, [emitTransientCue, map, runtime.movement, transientVfxEnabled]);
 
   useEffect(() => {
     const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
-    if (!running) {
+    // One-shot cues keep ageing while the world is paused. Spec section 3.3 requires exactly that:
+    // a committed result must not become invisible because the movement loop stopped.
+    const transientRunning = !rendererSuspended && transientVfxEnabled && transientLive;
+    if (!running && !transientRunning) {
       vfxClock.current = advanceAmbientVfxClock(vfxClock.current, 0, { running: false });
+      transientClock.current = advanceAmbientVfxClock(transientClock.current, 0, { running: false });
       return undefined;
     }
     let animationFrame = 0;
@@ -368,17 +542,28 @@ export function WorldScene({
     const animate = (time: number) => {
       const rawDelta = previousTime === undefined ? 0 : time - previousTime;
       previousTime = time;
+      const resumedFromSuspension = rawDelta > VFX_SUSPENSION_GAP_MILLISECONDS;
+      // `running`, NOT `true`. A transient cue can start this loop while the world is paused, and
+      // the packaged smoke throws if the AMBIENT age advances across a pause.
       vfxClock.current = advanceAmbientVfxClock(vfxClock.current, rawDelta, {
-        running: true,
-        resumedFromSuspension: rawDelta > VFX_SUSPENSION_GAP_MILLISECONDS,
+        running,
+        resumedFromSuspension,
+      });
+      transientClock.current = advanceAmbientVfxClock(transientClock.current, rawDelta, {
+        running: transientRunning,
+        resumedFromSuspension,
       });
       const nextAgeStep = Math.floor(vfxClock.current.ageMilliseconds / VFX_STEP_MILLISECONDS);
       setVfxAgeStep((current) => current === nextAgeStep ? current : nextAgeStep);
+      const nextTransientStep = Math.floor(
+        transientClock.current.ageMilliseconds / TRANSIENT_VFX_STEP_MILLISECONDS,
+      );
+      setTransientStep((current) => current === nextTransientStep ? current : nextTransientStep);
       animationFrame = requestAnimationFrame(animate);
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [forceAmbientMotion, mapId, rendererSuspended, speed, vfxMode]);
+  }, [forceAmbientMotion, mapId, rendererSuspended, speed, transientLive, transientVfxEnabled, vfxMode]);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -406,11 +591,17 @@ export function WorldScene({
   }, [camera.zoom, explicitUiScale, explicitWorldZoom, surface]);
 
   useEffect(() => {
-    const timer = setTimeout(() => onPresentationPreferencesChange({
-      worldZoom: explicitWorldZoom ? camera.zoom : null,
-      uiScale: explicitUiScale ? uiScale : null,
-      camera: { mapId, x: camera.x, y: camera.y },
-    }), 160);
+    // A director shot must never be persisted. A `hold` keeps the camera still, so a queue holding
+    // for 160 ms or more would otherwise settle the debounce and write a mid-scene composition —
+    // and a mid-ramp zoom with it — into presentation preferences, restoring it on next launch.
+    const timer = setTimeout(() => {
+      if (cameraMotionRef.current.shots.length > 0) return;
+      onPresentationPreferencesChange({
+        worldZoom: explicitWorldZoom ? camera.zoom : null,
+        uiScale: explicitUiScale ? uiScale : null,
+        camera: { mapId, x: Math.round(camera.x), y: Math.round(camera.y) },
+      });
+    }, 160);
     return () => clearTimeout(timer);
   }, [camera, explicitUiScale, explicitWorldZoom, mapId, onPresentationPreferencesChange, uiScale]);
 
@@ -518,6 +709,7 @@ export function WorldScene({
         }),
       }));
       setCamera((current) => centerCameraOnTile({ x: 23, y: 28 }, current.zoom, surfaceRef.current, MAP_PIXELS));
+      updateCameraMotion(suspendFollow);
     };
     window.siWorldOpenRendererMotionFixture = (fixture) => {
       const start = { x: 17, y: 23 };
@@ -558,8 +750,9 @@ export function WorldScene({
         surfaceRef.current,
         MAP_PIXELS,
       ));
+      updateCameraMotion(suspendFollow);
     };
-    window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
+    window.siWorldOpenVfxFixture = (fixtureMapId, effectId, forcedMinute) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
       const effect = fixtureMap.source.effects.find(({ id }) => id === effectId);
       if (!effect) throw new Error(`Unknown VFX fixture ${fixtureMapId}/${effectId}.`);
@@ -588,7 +781,11 @@ export function WorldScene({
           ...current.worldState,
           clock: {
             ...current.worldState.clock,
-            absoluteMinute: mapEffectVisible(effect.kind, absoluteMinute) ? absoluteMinute : 1_260,
+            // A forced minute wins outright, so a day-sweep capture can hold one scene and move
+            // only the sun. Without one, the existing rule stands: nudge to dusk if and only if
+            // the effect would otherwise be invisible.
+            absoluteMinute: forcedMinute
+              ?? (mapEffectVisible(effect.kind, absoluteMinute) ? absoluteMinute : 1_260),
           },
           protagonist: {
             ...current.worldState.protagonist,
@@ -618,6 +815,7 @@ export function WorldScene({
         };
       });
       setCamera((current) => centerCameraOnTile(effectTile, current.zoom, surfaceRef.current, MAP_PIXELS));
+      updateCameraMotion(suspendFollow);
     };
     return () => {
       delete window.siWorldOpenConversationFixture;
@@ -694,12 +892,15 @@ export function WorldScene({
           effectiveSpeed(current.worldState.clock),
           window.siWorldFreezeNpcMotion !== true,
         ));
+        // A walking hero is the only thing that can push the camera out of its dead zone, so the
+        // camera clock is woken from here rather than from an effect of its own.
+        if (cameraMotionRef.current.followArmed) wakeCameraClock();
       }
       animationFrame = requestAnimationFrame(animate);
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [conversationNpcId, openPanel, questOfferOpen, rendererSuspended, speed, transitioning]);
+  }, [conversationNpcId, openPanel, questOfferOpen, rendererSuspended, speed, transitioning, wakeCameraClock]);
 
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
@@ -729,6 +930,7 @@ export function WorldScene({
       const tile = { x: result.state.protagonist.worldPosition.tileX, y: result.state.protagonist.worldPosition.tileY };
       setRuntime({ movement: createMovementState(tile), npcMovements: npcMovementState(result.state), worldState: result.state });
       setCamera((current) => centerCameraOnTile(tile, current.zoom, surfaceRef.current, MAP_PIXELS));
+      updateCameraMotion(armFollow);
       setSelected('protagonist');
       setArrivalLock(`${result.state.protagonist.worldPosition.mapId}:${tile.x},${tile.y}`);
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
@@ -805,8 +1007,22 @@ export function WorldScene({
       } else requestTile(tile);
       return;
     }
+    // Click feedback, floor branch only.
+    //
+    // `worldClickCandidates` ALWAYS pushes a floor candidate, so `resolved` is never undefined for
+    // an in-bounds tile and reachability is decided later inside `requestMovement`. The blockedKeys
+    // guard is what stops a ripple appearing on a wall, where it would be a lie. An object click is
+    // excluded because a puff on a table is wrong; its approach pulse is the right answer there.
+    //
+    // Open ground that pathfinding cannot reach deliberately shows BOTH this mark and the failure X:
+    // the click was heard on real ground, and the route is impossible. Two true statements.
+    if (resolved.kind === 'floor' && resolved.tile && !map.blockedKeys.has(tileKey(resolved.tile))) {
+      const ground = presentationGroundAt(map.presentation, resolved.tile, map.source.width);
+      const center = { x: resolved.tile.x * TILE_SIZE + 16, y: resolved.tile.y * TILE_SIZE + 24 };
+      emitTransientCue(WATER_GROUND_SPRITES.has(ground.sprite) ? 'ripple' : 'dust', center, 'strong');
+    }
     if (resolved.tile) requestTile(resolved.tile);
-  }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
+  }, [camera, conversationNpcId, emitTransientCue, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   useEffect(() => {
     if (!destinationMarker || rendererSuspended || rendererParityPulseFrozen) return;
@@ -826,8 +1042,11 @@ export function WorldScene({
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
+    // Panning means the player is looking at something. Follow stays off until Center says
+    // otherwise; an idle timer would yank the view back out from under them.
+    updateCameraMotion(suspendFollow);
     setCamera((current) => panCamera(current, delta, surface, MAP_PIXELS));
-  }, [conversationNpcId, openPanel, questOfferOpen, surface]);
+  }, [conversationNpcId, openPanel, questOfferOpen, surface, updateCameraMotion]);
   const handleZoom = useCallback((direction: -1 | 1, anchor: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
     setExplicitWorldZoom(true);
@@ -842,7 +1061,8 @@ export function WorldScene({
   const center = useCallback(() => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
     setCamera((current) => centerCameraOnWorld(runtime.movement.visualFoot, current.zoom, surface, MAP_PIXELS));
-  }, [conversationNpcId, openPanel, questOfferOpen, runtime.movement.visualFoot, surface]);
+    updateCameraMotion(armFollow);
+  }, [conversationNpcId, openPanel, questOfferOpen, runtime.movement.visualFoot, surface, updateCameraMotion]);
   const changeWorldZoom = useCallback((direction: -1 | 1) => {
     setExplicitWorldZoom(true);
     setCamera((current) => zoomCameraAt(
@@ -857,6 +1077,21 @@ export function WorldScene({
     setExplicitUiScale(true);
     setUiScale(scale);
   }, []);
+  const cameraDirector = useMemo<CameraDirector>(() => ({
+    play: (shots) => updateCameraMotion((motion) => playShots(motion, shots)),
+    push: (shot) => updateCameraMotion((motion) => pushShot(motion, shot)),
+    impulse: (trauma, direction) => updateCameraMotion((motion) => applyImpulse(motion, trauma, direction)),
+    cancel: () => updateCameraMotion(cancelShots),
+    isPlaying: () => cameraMotionRef.current.shots.length > 0,
+  }), [updateCameraMotion]);
+  useEffect(() => {
+    onCameraDirector?.(cameraDirector);
+    if (typeof window === 'undefined' || window.siWorldSmokeMode !== true) return undefined;
+    window.siWorldCameraDirector = cameraDirector;
+    return () => {
+      delete window.siWorldCameraDirector;
+    };
+  }, [cameraDirector, onCameraDirector]);
   const isPointInteractive = useCallback(
     (point: Readonly<{ x: number; y: number }>) => isScreenPointInsideMap(camera, point, MAP_PIXELS),
     [camera],
@@ -1035,6 +1270,49 @@ export function WorldScene({
     if (event.mode === 'overnight') void requestAutosave(runtime.worldState, 'sleep');
   }, [requestAutosave, runtime.worldState]);
 
+  /**
+   * Everything drawn on screen uses this; everything persisted, hit-tested or reported as camera
+   * evidence uses `camera`. Keeping the impact offset out of `camera` is what stops a shake from
+   * firing the debounced preference write ten times a second and saving a shaken position.
+   */
+  const renderCamera = useMemo(
+    () => cameraMotionView.offset.x === 0 && cameraMotionView.offset.y === 0
+      ? camera
+      : clampCamera({
+        ...camera,
+        x: camera.x + cameraMotionView.offset.x,
+        y: camera.y + cameraMotionView.offset.y,
+      }, surface, MAP_PIXELS),
+    [camera, cameraMotionView.offset, surface],
+  );
+  /**
+   * Sampled here rather than in the animation loop so the palette comes from the same lighting the
+   * frame is composed against. `transientStep` is the dependency that makes a live cue rebuild the
+   * frame at 20 Hz; an idle queue costs nothing because the loop is not running.
+   */
+  const transientFrame = useMemo(() => {
+    // Expire FIRST, before any early return. Bailing out without pruning would leave a stale cue in
+    // the ref for ever, which keeps `transientLive` true and spins the animation loop at 60 Hz with
+    // nothing to draw.
+    const nowMs = transientClock.current.ageMilliseconds;
+    transientCues.current = expireTransientCues(transientCues.current, nowMs);
+    if (!transientVfxEnabled || rendererParityPulseFrozen) return EMPTY_TRANSIENT_VFX_FRAME;
+    if (transientCues.current.length === 0) return EMPTY_TRANSIENT_VFX_FRAME;
+    return sampleTransientVfx(
+      transientCues.current,
+      nowMs,
+      reducedMotion,
+      transientVfxPalette(districtLighting(mapId, runtime.worldState.clock.absoluteMinute)),
+    );
+    // `transientStep` is a deliberate dependency: it is the clock tick that drives resampling.
+  }, [mapId, reducedMotion, rendererParityPulseFrozen, runtime.worldState.clock.absoluteMinute, transientStep, transientVfxEnabled]);
+
+  // Stops the animation loop once the last cue has expired. Without this the loop would keep
+  // running at 60 Hz after the final puff faded.
+  useEffect(() => {
+    if (transientCues.current.length === 0) setTransientLive(false);
+  }, [transientFrame]);
+
   const playerVisualFoot = snapWorldPoint(runtime.movement.visualFoot, camera.zoom, dpr);
   const selectedFoot = selected === 'protagonist'
     ? playerVisualFoot
@@ -1048,8 +1326,11 @@ export function WorldScene({
       horizontalRunDistance: runtime.movement.horizontalRunDistance,
       pose: selected === 'protagonist' ? (reactionId === 'protagonist' ? 'reaction' : 'idle') : 'idle',
       poseFrame: selected === 'protagonist' ? poseFrame : 0,
+      travelDistance: runtime.movement.travelDistance,
+      turnCurve: runtime.movement.latchedTurnCurve,
+      stopProgress: gaitStopProgress(runtime.movement),
     }, {
-      camera,
+      camera: renderCamera,
       viewport: surface,
       devicePixelRatio: dpr,
       artMode,
@@ -1062,8 +1343,10 @@ export function WorldScene({
       animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds,
       vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep,
       vfxMode,
+      transientEffects: transientFrame.rects,
+      transientGlows: transientFrame.glows,
     }),
-    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, rendererParityPulseFrozen, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
+    [artMode, renderCamera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, rendererParityPulseFrozen, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, transientFrame, vfxAgeStep, vfxMode],
   );
   const propById = new Map(worldFrame.props.map((prop) => [prop.id, prop]));
   const characterById = new Map(worldFrame.characters.map((character) => [character.id, character]));
@@ -1073,11 +1356,11 @@ export function WorldScene({
   });
   const groundBatches = groundedBatches(groundedVisuals);
   const vfxCamera = useMemo(() => ({
-    x: camera.x,
-    y: camera.y,
-    zoom: camera.zoom,
+    x: renderCamera.x,
+    y: renderCamera.y,
+    zoom: renderCamera.zoom,
     dpr,
-  }), [camera.x, camera.y, camera.zoom, dpr]);
+  }), [renderCamera.x, renderCamera.y, renderCamera.zoom, dpr]);
   const drawCounts = worldFrame.drawCounts;
   const staticBatchCount = 1 + (worldFrame.groundDetails.length > 0 ? 1 : 0);
   const responsiveEvidenceInput = useRef({
@@ -1107,8 +1390,9 @@ export function WorldScene({
         worldFrame.fallbackEffects.filter((effect) => effect.kind === kind).length
       : worldFrame.fallbackEffects.filter((effect) => effect.kind === kind).length;
     const primitiveCounts = Object.fromEntries(VFX_KINDS.map((kind) => [kind, primitiveCount(kind)])) as Record<typeof VFX_KINDS[number], number>;
+    const transientRects = worldFrame.transientEffects ?? [];
     return JSON.stringify(parseVfxEvidence({
-      schemaVersion: 1,
+      schemaVersion: 2,
       mode: vfxMode,
       mapId,
       vfxRevision: VFX_REVISION,
@@ -1125,8 +1409,19 @@ export function WorldScene({
         ? PROCEDURAL_VFX_RENDER_NODE_COUNT + worldFrame.fallbackEffects.length
         : worldFrame.fallbackEffects.length,
       updateRateHz: vfxMode === 'procedural' && !reducedMotion ? 1_000 / VFX_STEP_MILLISECONDS : 0,
+      transient: {
+        revision: TRANSIENT_VFX_REVISION,
+        enabled: transientVfxEnabled,
+        activeCueIds: transientFrame.activeCueIds,
+        liveRects: transientFrame.liveRects,
+        groundRects: transientRects.filter(({ layer }) => layer === 'ground').length,
+        aerialRects: transientRects.filter(({ layer }) => layer === 'aerial').length,
+        glows: (worldFrame.transientGlows ?? []).length,
+        droppedCues: transientDropped.current,
+        updateRateHz: transientVfxEnabled ? 1_000 / TRANSIENT_VFX_STEP_MILLISECONDS : 0,
+      },
     }));
-  }, [mapId, reducedMotion, smokeMode, vfxAgeStep, vfxMode, worldFrame]);
+  }, [mapId, reducedMotion, smokeMode, transientFrame, transientVfxEnabled, vfxAgeStep, vfxMode, worldFrame]);
   const smokeGeometry = useMemo(
     () => smokeMode && map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map, smokeMode],
@@ -1160,7 +1455,7 @@ export function WorldScene({
       .map(({ id }) => id)
       .sort((left, right) => left.localeCompare(right, 'en')),
   }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
-  const selectedScreen = worldToScreen(camera, {
+  const selectedScreen = worldToScreen(renderCamera, {
     x: worldFrame.selectionRing.worldX,
     y: worldFrame.selectionRing.worldY,
   });
@@ -1178,7 +1473,7 @@ export function WorldScene({
       : runtime.npcMovements[selected]?.status === 'moving',
   );
   const feedbackScreen = worldFrame.failureMarker
-    ? worldToScreen(camera, { x: worldFrame.failureMarker.worldX, y: worldFrame.failureMarker.worldY })
+    ? worldToScreen(renderCamera, { x: worldFrame.failureMarker.worldX, y: worldFrame.failureMarker.worldY })
     : undefined;
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
@@ -1281,6 +1576,12 @@ export function WorldScene({
           style={styles.proofState}
         />
         <View
+          accessibilityLabel={cameraMotionView.label}
+          nativeID="world-camera-motion-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
+        <View
           accessibilityLabel={`Linda ${npcTiles.linda?.tile.x ?? -1},${npcTiles.linda?.tile.y ?? -1}; Resident ${npcTiles.generic_resident?.tile.x ?? -1},${npcTiles.generic_resident?.tile.y ?? -1}; NPC count ${Object.keys(npcTiles).length}`}
           nativeID="world-npc-state"
           pointerEvents="none"
@@ -1305,6 +1606,11 @@ export function WorldScene({
                   horizontalRunDistance: runtime.movement.horizontalRunDistance,
                   reducedMotion,
                 }),
+                // Read off the built frame, never recomputed, so the evidence is the screen truth.
+                // Null means the actor was culled from this frame and nothing was drawn for it.
+                gaitBobPixels: characterById.get('protagonist')?.gaitBobPixels ?? null,
+                renderedAngleDegrees: characterById.get('protagonist')?.angleDegrees ?? null,
+                footPlantIndex: actorFootPlant('protagonist', runtime.movement)?.index ?? null,
               },
               npcs: Object.fromEntries(Object.entries(runtime.npcMovements).map(([id, movement]) => [id, {
                 committed: movement.player,
@@ -1320,6 +1626,9 @@ export function WorldScene({
                   horizontalRunDistance: movement.horizontalRunDistance,
                   reducedMotion,
                 }),
+                gaitBobPixels: characterById.get(id)?.gaitBobPixels ?? null,
+                renderedAngleDegrees: characterById.get(id)?.angleDegrees ?? null,
+                footPlantIndex: actorFootPlant(id, movement)?.index ?? null,
               }])),
             })}
             nativeID="world-movement-state"
@@ -1375,7 +1684,10 @@ export function WorldScene({
           accent={lighting.accent}
           availableWidth={surface.width}
           compact={selected === 'protagonist' && reactionId !== 'protagonist'}
-          onCenter={() => setCamera((current) => centerCameraOnWorld(selectedFoot, current.zoom, surface, MAP_PIXELS))}
+          onCenter={() => {
+            setCamera((current) => centerCameraOnWorld(selectedFoot, current.zoom, surface, MAP_PIXELS));
+            updateCameraMotion(selected === 'protagonist' ? armFollow : suspendFollow);
+          }}
           onTalk={selectedNpcId && !conversationNpcId && !questOfferOpen && !openPanel
             ? () => {
               if (selectedNpcId === 'linda' && lindaOfferReady) {
@@ -1414,7 +1726,13 @@ export function WorldScene({
           />
         ) : null}
         {!questOfferOpen ? <View nativeID="world-ui-help" pointerEvents="none" style={styles.bottomPlate}>
-          <Text style={[styles.statusStrong, { fontSize: metrics.persistentText }]}>{worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}</Text>
+          <Text
+            key={worldFeedback ?? runtime.movement.status}
+            nativeID="world-ui-feedback"
+            style={[styles.statusStrong, { fontSize: metrics.persistentText }]}
+          >
+            {worldFeedback ?? (runtime.movement.status === 'unreachable' ? 'NO ROUTE' : runtime.movement.status.toUpperCase())}
+          </Text>
           <Text style={[styles.status, { fontSize: metrics.secondaryText }]}>CLICK MOVE · DRAG PAN · WHEEL ZOOM · F CENTER · Q QUESTS · ESC STOP</Text>
         </View> : null}
         {audioCaption ? (
@@ -1507,11 +1825,13 @@ export function WorldScene({
 }
 
 const styles = StyleSheet.create({
-  audioCaption: { backgroundColor: '#181512dd', bottom: 48, color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, left: 12, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute' },
+  // The vocal-cue caption has to clear every panel that can be open while a cue fires. It carried no
+  // zIndex, so the conversation overlay hid it outright and the character card covered it.
+  audioCaption: { backgroundColor: '#181512dd', bottom: 48, color: '#fff0c7', fontFamily: 'Silkscreen', fontSize: 10, left: 12, paddingHorizontal: 8, paddingVertical: 5, position: 'absolute', zIndex: UI_LAYER.caption },
   bottomPlate: {
     alignItems: 'center', backgroundColor: '#181914e8', borderColor: '#ad7640', borderTopWidth: 2,
     bottom: 0, flexDirection: 'row', gap: 16, left: 0, paddingHorizontal: 14, paddingVertical: 8,
-    position: 'absolute', right: 0,
+    position: 'absolute', right: 0, zIndex: UI_LAYER.statusStrip,
   },
   canvas: { backgroundColor: '#b77945' },
   buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
@@ -1520,10 +1840,14 @@ const styles = StyleSheet.create({
   frame: { overflow: 'hidden', position: 'relative' },
   loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },
-  status: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 9 },
+  // The keybind legend is a one-time lesson sharing a band with the transient feedback line, so it
+  // steps back rather than competing with it.
+  status: { color: '#c3b18f', fontFamily: 'Silkscreen', fontSize: 9, opacity: 0.55 },
   statusStrong: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 10 },
   shelterShade: { position: 'absolute' },
-  transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0 },
+  // Shared by #world-transition-overlay and #world-renderer-recovery-overlay. Staying below
+  // UI_LAYER.conversation preserves the existing behaviour where an open conversation covers both.
+  transitionOverlay: { alignItems: 'center', backgroundColor: '#171411dd', bottom: 0, justifyContent: 'center', left: 0, position: 'absolute', right: 0, top: 0, zIndex: UI_LAYER.transition },
   transitionText: { color: '#f1c65b', fontFamily: 'Silkscreen', fontSize: 16 },
   talkButton: { alignItems: 'center', backgroundColor: '#f1c65b', justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 8 },
   talkLabel: { color: '#d6c19a', fontFamily: 'Silkscreen', fontSize: 8 },

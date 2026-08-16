@@ -23,6 +23,15 @@ import type { CameraState, ViewportSize } from './camera';
 import { compareDepth, compareGroundedDepth, WORLD_DEPTH } from './depth';
 import { districtLighting, type DistrictLighting } from './district-lighting';
 import { journalMapMarkers, type JournalMapMarker } from './journal-markers';
+import { snapWorldPoint } from '../world/movement/motion-clock';
+import type { TurnCurve } from '../world/movement/turn-curve';
+import {
+  gaitAngleDegrees,
+  gaitBobPixels,
+  gaitStopLeanDegrees,
+  gaitTurnLeanDegrees,
+} from './gait';
+import { downPose, fallPose, impactPose, recoilPose, type ImpactPose } from './impact-motion';
 import { PROTAGONIST_WOBBLE_PIVOT, protagonistWobbleDegrees } from './protagonist-wobble';
 import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
 import { partitionVfxEmitters } from './vfx/seed';
@@ -34,6 +43,8 @@ import {
   type VfxKind,
   type VfxMode,
   type VfxPrimitiveRole,
+  type TransientVfxGlow,
+  type TransientVfxRect,
 } from './vfx/types';
 
 const TILE_SIZE = 32;
@@ -71,7 +82,7 @@ export const WORLD_COMPOSITE_ORDER = [
 
 export type WorldLayer = typeof WORLD_LAYER_ORDER[number];
 export type WorldCompositeLayer = typeof WORLD_COMPOSITE_ORDER[number];
-export type CharacterPose = 'idle' | 'reaction' | 'talk';
+export type CharacterPose = 'idle' | 'reaction' | 'talk' | 'impact' | 'recoil' | 'falling' | 'down';
 export type WorldArtMode = 'enhanced' | 'legacy';
 export type WorldPoint = Readonly<{ x: number; y: number }>;
 
@@ -119,6 +130,13 @@ export type WorldCharacterPlacement = WorldAtlasPlacement & Readonly<{
   shadowWorldX: number;
   shadowWorldY: number;
   angleDegrees: number;
+  /**
+   * The stride bob already folded into `worldY`, in world pixels, post-snap.
+   *
+   * Carried on the placement for the same reason `angleDegrees` is: the evidence node must report
+   * what was drawn, not a recomputation that can drift away from it.
+   */
+  gaitBobPixels: number;
 }>;
 
 export type WorldGroundedEntry = Readonly<{
@@ -190,6 +208,13 @@ export type WorldFrameView = Readonly<{
   animationTimestampMilliseconds: number;
   vfxAgeStep: number;
   vfxMode: VfxMode;
+  /**
+   * Sampled one-shot geometry. Optional and left UNDEFINED when empty, not an empty array:
+   * `frameSummary()` hashes `JSON.stringify(frame)` and `JSON.stringify` omits undefined keys, so an
+   * idle frame stays byte-identical to the locked fixture. Same pattern as `destinationPulse`.
+   */
+  transientEffects?: readonly TransientVfxRect[];
+  transientGlows?: readonly TransientVfxGlow[];
 }>;
 
 export type WorldFrameState = Readonly<{
@@ -202,6 +227,8 @@ export type WorldFrameState = Readonly<{
   camera: CameraState;
   viewport: ViewportSize;
   devicePixelRatio: number;
+  /** The map's extent in tiles. Ground light sizes its corner lattice from this. */
+  mapTiles: Readonly<{ width: number; height: number }>;
   reducedMotion: boolean;
   animationTimestampMilliseconds: number;
   vfxAgeStep: number;
@@ -215,6 +242,9 @@ export type WorldFrameState = Readonly<{
   effects: readonly VfxGeometry[];
   effectRoleColors: Readonly<Record<VfxPrimitiveRole, string>>;
   fallbackEffects: readonly WorldFallbackEffect[];
+  /** One-shot geometry. Undefined rather than empty when idle — see `WorldFrameView`. */
+  transientEffects?: readonly TransientVfxRect[];
+  transientGlows?: readonly TransientVfxGlow[];
   walls: readonly WorldWallPlacement[];
   roofs: readonly WorldRoofPlacement[];
   groundedOrder: readonly WorldGroundedEntry[];
@@ -271,6 +301,16 @@ export type WorldActor = Readonly<{
   horizontalRunDistance?: number;
   pose?: CharacterPose;
   poseFrame?: 0 | 1;
+  /** Route-accumulated travel, the gait's stride clock. See `gait.ts`. */
+  travelDistance?: number;
+  /** The actor's latched turn curve, for the momentum lean into a corner. */
+  turnCurve?: TurnCurve;
+  /** Progress through the route's FINAL segment. Undefined on any other segment. */
+  stopProgress?: number;
+  /** 0..1 through the current impact, recoil or fall beat. Driven by the scripted scene. */
+  poseProgress?: number;
+  /** Direction the force travels in screen x. */
+  poseDirection?: -1 | 1;
 }>;
 
 export type WorldActors = Readonly<Record<string, WorldActor>>;
@@ -638,6 +678,26 @@ export function doorSpriteForFrame(
     : door.sprite;
 }
 
+/**
+ * The scripted shooting scene's pose, or undefined for every ordinary pose.
+ *
+ * `falling` and `down` are NOT zeroed under reduced motion: a shot character left standing upright
+ * is a state error, not a reduction in motion. `fallPose` snaps to the terminal angle instead.
+ */
+function impactMotionPose(
+  pose: CharacterPose,
+  poseProgress: number,
+  poseDirection: -1 | 1,
+  reducedMotion: boolean,
+): ImpactPose | undefined {
+  const input = { poseProgress, poseDirection, reducedMotion };
+  if (pose === 'impact') return impactPose(input);
+  if (pose === 'recoil') return recoilPose(input);
+  if (pose === 'falling') return fallPose(input);
+  if (pose === 'down') return downPose(poseDirection);
+  return undefined;
+}
+
 export const DESTINATION_PULSE_MS = 520;
 
 export function destinationPulseFrame(elapsedMs: number): Readonly<{
@@ -668,6 +728,11 @@ export function buildWorldFrameState(
     horizontalRunDistance?: number;
     pose?: CharacterPose;
     poseFrame?: 0 | 1;
+    travelDistance?: number;
+    turnCurve?: TurnCurve;
+    stopProgress?: number;
+    poseProgress?: number;
+    poseDirection?: -1 | 1;
   }>,
   viewInput?: Partial<WorldFrameView>,
 ): WorldFrameState {
@@ -712,6 +777,11 @@ export function buildWorldFrameState(
     horizontalRunDistance: number;
     pose: CharacterPose;
     poseFrame: 0 | 1;
+    travelDistance: number;
+    turnCurve?: TurnCurve;
+    stopProgress?: number;
+    poseProgress: number;
+    poseDirection: -1 | 1;
   }>[] = [
     {
       id: 'protagonist',
@@ -725,6 +795,11 @@ export function buildWorldFrameState(
       horizontalRunDistance: playerPresentation?.horizontalRunDistance ?? 0,
       pose: playerPresentation?.pose ?? 'idle',
       poseFrame: playerPresentation?.poseFrame ?? 0,
+      travelDistance: playerPresentation?.travelDistance ?? 0,
+      turnCurve: playerPresentation?.turnCurve,
+      stopProgress: playerPresentation?.stopProgress,
+      poseProgress: playerPresentation?.poseProgress ?? 0,
+      poseDirection: playerPresentation?.poseDirection ?? 1,
     },
     ...Object.entries(actors).sort(([left], [right]) => left.localeCompare(right, 'en')).map(([id, actor]) => ({
       id,
@@ -738,6 +813,11 @@ export function buildWorldFrameState(
       horizontalRunDistance: actor.horizontalRunDistance ?? 0,
       pose: actor.pose ?? 'idle',
       poseFrame: actor.poseFrame ?? 0,
+      travelDistance: actor.travelDistance ?? 0,
+      turnCurve: actor.turnCurve,
+      stopProgress: actor.stopProgress,
+      poseProgress: actor.poseProgress ?? 0,
+      poseDirection: actor.poseDirection ?? 1,
     })),
   ];
   const allCharacters = characterInputs.map(({
@@ -752,20 +832,43 @@ export function buildWorldFrameState(
     horizontalRunDistance,
     pose,
     poseFrame,
+    travelDistance,
+    turnCurve,
+    stopProgress,
+    poseProgress,
+    poseDirection,
   }): WorldCharacterPlacement => {
     const actorFrame = moving ? walkFrame : pose === 'idle' ? 0 : poseFrame;
     const presentation = movementPresentation(visualId, actorDirection, actorFrame);
     const foot = visualFoot ?? { x: tile.x * TILE_SIZE + 16, y: tile.y * TILE_SIZE + 29 };
     const leanX = reducedMotion ? 0 : presentation.leanX;
     const poseLift = reducedMotion || moving ? 0 : pose === 'reaction' ? -2 : poseFrame === 1 ? -1 : 0;
-    const bounceY = reducedMotion ? 0 : presentation.bounceY + poseLift;
+    // The gait bob is snapped HERE rather than with the foot. `snapWorldPoint` already put the foot
+    // on the device-pixel lattice back in the scene, before this builder ran, so snapping the bob on
+    // its own keeps the sum on that same lattice and the sprite never lands between texels.
+    const gaitBob = snapWorldPoint(
+      { x: 0, y: gaitBobPixels({ travelDistance, moving, reducedMotion }) },
+      view.camera.zoom,
+      view.devicePixelRatio,
+    ).y;
+    const impact = impactMotionPose(pose, poseProgress, poseDirection, reducedMotion);
+    const bounceY = reducedMotion ? 0 : presentation.bounceY + poseLift + gaitBob;
     const shadowX = reducedMotion ? 0 : presentation.shadowX;
-    const angleDegrees = moving ? protagonistWobbleDegrees({
-      direction: actorDirection,
-      status: 'moving',
-      horizontalRunDistance,
-      reducedMotion,
-    }) : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0;
+    const walkAngleDegrees = gaitAngleDegrees(
+      protagonistWobbleDegrees({
+        direction: actorDirection,
+        status: 'moving',
+        horizontalRunDistance,
+        reducedMotion,
+      }),
+      gaitTurnLeanDegrees({ turnCurve, foot, reducedMotion }),
+      gaitStopLeanDegrees({ direction: actorDirection, stopProgress, reducedMotion }),
+    );
+    const angleDegrees = impact
+      ? impact.angleDegrees
+      : moving
+        ? walkAngleDegrees
+        : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0;
     return {
       // Technique 4b is applied HERE, in the character mapper, and NOT through the prop shift.
       // The prop shift is bounds-based; a character must scale about its wobble pivot or the
@@ -776,13 +879,17 @@ export function buildWorldFrameState(
         layer: 'character',
         pivot: PROTAGONIST_WOBBLE_PIVOT,
         rotationDegrees: angleDegrees,
-        ...withAuthoredCharacterScale(foot.x - 12 + leanX, foot.y - 27 + bounceY),
+        ...withAuthoredCharacterScale(
+          foot.x - 12 + leanX + (impact?.offsetX ?? 0),
+          foot.y - 27 + bounceY + (impact?.offsetY ?? 0),
+        ),
       }),
       visualId,
       tile: { ...tile },
       shadowWorldX: foot.x - 7 + shadowX,
       shadowWorldY: foot.y,
       angleDegrees,
+      gaitBobPixels: reducedMotion ? 0 : gaitBob,
     };
   }).sort((left, right) => left.shadowWorldY - right.shadowWorldY || left.id.localeCompare(right.id, 'en'));
   const hiddenRoofGroupId = roofGroupAtV2(map, playerTile);
@@ -833,6 +940,7 @@ export function buildWorldFrameState(
     casters: lightingSource.casters.map((caster) => ({ ...caster })),
     pools: lightingSource.pools.map((pool) => ({ ...pool })),
     shadow: { ...lightingSource.shadow },
+    sun: { ...lightingSource.sun },
   };
   const atmosphere = { ...worldAtmosphere(state.clock.absoluteMinute) };
   const activeEffects = map.source.effects.filter((effect) => mapEffectVisible(effect.kind, state.clock.absoluteMinute));
@@ -906,6 +1014,7 @@ export function buildWorldFrameState(
     camera: { ...view.camera },
     viewport: { ...view.viewport },
     devicePixelRatio: view.devicePixelRatio,
+    mapTiles: { width: map.source.width, height: map.source.height },
     reducedMotion: view.reducedMotion,
     animationTimestampMilliseconds: view.animationTimestampMilliseconds,
     vfxAgeStep: view.vfxAgeStep,
@@ -919,6 +1028,9 @@ export function buildWorldFrameState(
     effects,
     effectRoleColors: { ...VFX_ROLE_COLORS },
     fallbackEffects,
+    // Undefined, never [], when idle. See the field comment on `WorldFrameView`.
+    ...(view.transientEffects?.length ? { transientEffects: view.transientEffects.map((entry) => ({ ...entry })) } : {}),
+    ...(view.transientGlows?.length ? { transientGlows: view.transientGlows.map((entry) => ({ ...entry })) } : {}),
     walls,
     roofs,
     groundedOrder,

@@ -375,6 +375,23 @@ type VisualSample = Readonly<{
   latchedTurnCorner?: TilePoint;
 }>;
 
+/**
+ * Which ends of a route this segment eases through.
+ *
+ * Extracted verbatim from `sampleVisualFoot` so the renderer's deceleration lean reads the same rule
+ * the position itself eases by. If these two ever disagree, the body leans against a motion that is
+ * not slowing, and nobody would diagnose it. No arithmetic changed.
+ */
+export function movementEasing(
+  state: MovementState,
+  segment: MotionSegment,
+): Readonly<{ easeIn: boolean; easeOut: boolean }> {
+  return {
+    easeIn: state.travelDistance < segmentLength(segment.from, segment.to),
+    easeOut: state.path.length === 1 && !state.pendingTarget && !state.resumeTarget,
+  };
+}
+
 function sampleVisualFoot(
   map: CompiledMapV2,
   state: MovementState,
@@ -383,8 +400,7 @@ function sampleVisualFoot(
 ): VisualSample {
   const length = segmentLength(segment.from, segment.to);
   const progress = Math.max(0, Math.min(1, segment.elapsedMs / segment.durationMs));
-  const easeIn = state.travelDistance < length;
-  const easeOut = state.path.length === 1 && !state.pendingTarget && !state.resumeTarget;
+  const { easeIn, easeOut } = movementEasing(state, segment);
   const easedProgress = routeMotionProgress(progress, easeIn, easeOut);
   const distance = length * easedProgress;
   const fromKey = tileKey(segment.from);

@@ -1,6 +1,9 @@
 import {
   clampCamera,
   centerCameraOnTile,
+  centerCameraOnWorld,
+  followWindowTarget,
+  frameCameraOn,
   isScreenPointInsideMap,
   panCamera,
   resizeCameraPreservingCenter,
@@ -17,8 +20,11 @@ describe('world camera', () => {
     const tile = { x: 18, y: 18 };
     const camera = centerCameraOnTile(tile, zoom, VIEWPORT, MAP_PIXELS);
     expect(screenToTile(camera, { x: VIEWPORT.width / 2, y: VIEWPORT.height / 2 })).toEqual(tile);
-    expect(Number.isInteger(camera.x)).toBe(true);
-    expect(Number.isInteger(camera.y)).toBe(true);
+    // The camera sits on a whole screen pixel, which is the lattice worldToScreen and the three.js
+    // renderer both round to. Written as an epsilon on purpose: at wheel zooms such as 2.1 the
+    // exact product is not representable, so Number.isInteger would be a flaky assertion.
+    expect(Math.abs(camera.x * zoom - Math.round(camera.x * zoom))).toBeLessThan(1e-6);
+    expect(Math.abs(camera.y * zoom - Math.round(camera.y * zoom))).toBeLessThan(1e-6);
     const screen = worldToScreen(camera, { x: tile.x * 32 + 16, y: tile.y * 32 + 16 });
     expect(Math.abs(screen.x - VIEWPORT.width / 2)).toBeLessThanOrEqual(1);
     expect(Math.abs(screen.y - VIEWPORT.height / 2)).toBeLessThanOrEqual(1);
@@ -46,6 +52,36 @@ describe('world camera', () => {
     expect(camera).toEqual({ x: -256, y: -132, zoom: 1 });
     expect(isScreenPointInsideMap(camera, { x: 0, y: 100 }, MAP_PIXELS)).toBe(false);
     expect(isScreenPointInsideMap(camera, { x: 256, y: 132 }, MAP_PIXELS)).toBe(true);
+  });
+
+  test('keeps whole-world-pixel results at zoom 1, where the two lattices agree', () => {
+    expect(centerCameraOnTile({ x: 18, y: 18 }, 1, VIEWPORT, MAP_PIXELS)).toEqual({ x: 32, y: 282, zoom: 1 });
+  });
+
+  test('frames one point like centering, and several by their bounding box', () => {
+    const point = { x: 900, y: 700 };
+    expect(frameCameraOn([point], 2, VIEWPORT, MAP_PIXELS))
+      .toEqual(centerCameraOnWorld(point, 2, VIEWPORT, MAP_PIXELS));
+    const pair = frameCameraOn([{ x: 800, y: 700 }, { x: 1_000, y: 700 }], 2, VIEWPORT, MAP_PIXELS);
+    expect(pair).toEqual(centerCameraOnWorld(point, 2, VIEWPORT, MAP_PIXELS));
+    expect(() => frameCameraOn([], 2, VIEWPORT, MAP_PIXELS)).toThrow('at least one world point');
+  });
+
+  test('a bottom inset lifts the framed point above the interface', () => {
+    const point = { x: 900, y: 700 };
+    const plain = frameCameraOn([point], 2, VIEWPORT, MAP_PIXELS);
+    const inset = frameCameraOn([point], 2, VIEWPORT, MAP_PIXELS, { left: 0, right: 0, top: 0, bottom: 200 });
+    expect(worldToScreen(inset, point).y).toBe(worldToScreen(plain, point).y - 100);
+  });
+
+  test('the follow window holds still inside the dead zone and pushes from its edge', () => {
+    const camera = centerCameraOnWorld({ x: 900, y: 700 }, 2, VIEWPORT, MAP_PIXELS);
+    const halfWidth = VIEWPORT.width * 0.12;
+    const inside = { x: 900 + (halfWidth - 8) / 2, y: 700 };
+    expect(followWindowTarget(camera, inside, VIEWPORT, MAP_PIXELS)).toBe(camera);
+    const outside = { x: 900 + (halfWidth + 40) / 2, y: 700 };
+    const pushed = followWindowTarget(camera, outside, VIEWPORT, MAP_PIXELS);
+    expect((pushed.x - camera.x) * 2).toBeCloseTo(40, 6);
   });
 
   test('preserves the old center world point across viewport and zoom changes', () => {

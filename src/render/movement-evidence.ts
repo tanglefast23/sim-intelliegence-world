@@ -10,6 +10,7 @@ import {
   createMovementState,
   requestMovement,
 } from '../world/pathfinding/movement';
+import { actorFootPlant, gaitBobPixels } from './gait';
 import { protagonistWobbleDegrees } from './protagonist-wobble';
 
 const TileSchema = z.object({ x: z.number().int(), y: z.number().int() }).strict();
@@ -27,12 +28,16 @@ export const MovementTraceSampleSchema = z.object({
   status: z.enum(['idle', 'moving', 'waiting', 'unreachable']),
   horizontalRunDistance: z.number().nonnegative(),
   protagonistWobbleDegrees: z.number(),
+  // The RAW stride bob, before the device-pixel snap the renderer applies. This trace has no camera,
+  // and the curve is what determinism is being proved about.
+  gaitBobPixels: z.number(),
+  footPlantIndex: z.number().int().nonnegative().nullable(),
   curveActive: z.boolean(),
   reservedKeys: z.array(z.string()),
 }).strict();
 
 export const DeterministicMovementTraceSchema = z.object({
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   fixedStepMs: z.literal(16),
   start: TileSchema,
   target: TileSchema,
@@ -95,6 +100,12 @@ export function buildDeterministicMovementTrace(
         horizontalRunDistance: movement.horizontalRunDistance,
         reducedMotion: false,
       }),
+      gaitBobPixels: gaitBobPixels({
+        travelDistance: movement.travelDistance,
+        moving: movement.status === 'moving',
+        reducedMotion: false,
+      }),
+      footPlantIndex: actorFootPlant('protagonist', movement)?.index ?? null,
       curveActive: Boolean(movement.latchedTurnCurve),
       reservedKeys: [...reservedTileKeys(movement)],
     });
@@ -104,7 +115,7 @@ export function buildDeterministicMovementTrace(
     throw new Error('Natural-movement evidence trace did not reach its target within 512 fixed steps.');
   }
   return DeterministicMovementTraceSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     fixedStepMs: 16,
     start,
     target,

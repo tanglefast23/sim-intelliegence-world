@@ -4,6 +4,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ViewportSize } from '../render/camera';
 import type { CharacterId } from '../render/atlas';
 import type { UiScale } from '../render/responsive-layout';
+import { UI_LAYER } from './ui-layers';
 import { uiMetrics } from './ui-metrics';
 
 const portraits: Record<CharacterId, number> = {
@@ -108,6 +109,7 @@ export function QuestOfferDialogue({
           <Pressable
             accessibilityLabel={speakerId === 'linda' ? "Accept Linda's request" : `Ask ${speakerName} what happened`}
             onPress={onAccept}
+            role="button"
             style={({ pressed }) => [styles.accept, { minHeight: metrics.primaryControl }, pressed && styles.pressed]}
           >
             <Text style={[styles.acceptText, { fontSize: metrics.persistentText }]}>{speakerId === 'linda' ? 'YES · HELP LINDA' : 'ASK WHAT HAPPENED'}</Text>
@@ -115,6 +117,7 @@ export function QuestOfferDialogue({
           <Pressable
             accessibilityLabel={speakerId === 'linda' ? "Decline Linda's request" : `Leave ${speakerName}`}
             onPress={onDecline}
+            role="button"
             style={({ pressed }) => [styles.decline, { minHeight: metrics.primaryControl }, pressed && styles.pressed]}
           >
             <Text style={[styles.declineText, { fontSize: metrics.persistentText }]}>{speakerId === 'linda' ? 'NO · NOT NOW' : 'LEAVE'}</Text>
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
   declineText: { color: '#c3b18f', fontFamily: 'Silkscreen' },
   dialogue: { color: '#fff0c7', fontFamily: 'Silkscreen' },
   nameplate: { alignItems: 'center', borderColor: '#fff0c7', borderWidth: 1, minWidth: 180, paddingHorizontal: 22, paddingVertical: 7, position: 'absolute', right: '18%', top: -18 },
-  overlay: { backgroundColor: '#08090733', bottom: 0, left: 0, position: 'absolute', right: 0, top: 0, zIndex: 65 },
+  overlay: { backgroundColor: '#08090733', bottom: 0, left: 0, position: 'absolute', right: 0, top: 0, zIndex: UI_LAYER.cutscene },
   pressed: { opacity: 0.78, transform: [{ translateY: 2 }] },
   portraitReady: { height: 0, width: 0 },
   question: { color: '#9d8768', fontFamily: 'Silkscreen', marginTop: 10 },

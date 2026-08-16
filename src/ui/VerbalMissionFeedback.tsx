@@ -78,6 +78,7 @@ export function VerbalMissionConfirmation({
           accessibilityState={{ disabled: busy }}
           disabled={busy}
           onPress={onConfirm}
+          role="button"
           style={({ pressed }) => [styles.confirmButton, pressed && styles.pressed, busy && styles.disabled]}
         >
           <Text style={[styles.confirmButtonText, { fontSize: Math.round(9 * uiScale) }]}>{busy ? busyLabel : copy.button}</Text>

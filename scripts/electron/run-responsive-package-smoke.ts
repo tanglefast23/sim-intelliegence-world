@@ -52,7 +52,9 @@ const EvidenceSchema = z.object({
   automaticWorldZoom: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   selectedWorldZoom: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   uiScale: z.union([z.literal(1), z.literal(1.25), z.literal(1.5)]),
-  camera: z.object({ x: z.number().int(), y: z.number().int(), zoom: z.union([z.literal(1), z.literal(2), z.literal(3)]) }).strict(),
+  // The camera snaps to a whole screen pixel, not a whole world pixel, so x and y are fractional
+  // at zoom 2 and 3. See clampCamera in src/render/camera.ts.
+  camera: z.object({ x: z.number(), y: z.number(), zoom: z.union([z.literal(1), z.literal(2), z.literal(3)]) }).strict(),
   mapId: z.literal('northwest_residential'),
   artMode: z.enum(['legacy', 'enhanced']),
   presentationHash: z.string().regex(/^[0-9a-f]{8}$/u),
