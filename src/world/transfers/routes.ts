@@ -18,12 +18,34 @@ export type NeighborhoodRoute = z.infer<typeof NeighborhoodRouteSchema>;
 export const NEIGHBORHOOD_ROUTES: readonly NeighborhoodRoute[] =
   GENERATED_NEIGHBORHOOD_ROUTES.map((route) => NeighborhoodRouteSchema.parse(route));
 
+/**
+ * The next leg an actor should walk to reach `destinationMapId`.
+ *
+ * Halcyra is a 2x2 grid, so two map pairs are diagonal and share no portal:
+ * northwest/southeast and northeast/southwest. This used to throw for those, and because it is
+ * called from the schedule tick inside a React render, one NPC with a diagonal schedule goal took
+ * the whole interface down with an uncaught error.
+ *
+ * A diagonal now returns the FIRST LEG through a shared cardinal neighbour. The caller books that
+ * transfer, the actor arrives one map closer, and the next tick asks again and gets a direct route.
+ * A cardinal pair still returns exactly the route it always did, so nothing that worked before
+ * changes — only the case that used to throw behaves differently.
+ */
 export function routeBetween(originMapId: string, destinationMapId: string): NeighborhoodRoute {
-  const route = NEIGHBORHOOD_ROUTES.find((candidate) => (
+  const direct = NEIGHBORHOOD_ROUTES.find((candidate) => (
     candidate.originMapId === originMapId && candidate.destinationMapId === destinationMapId
   ));
-  if (!route) throw new Error(`Maps ${originMapId} and ${destinationMapId} are not cardinal neighbors.`);
-  return route;
+  if (direct) return direct;
+  // NEIGHBORHOOD_ROUTES is sorted by origin then portal id, so the chosen leg is deterministic.
+  const firstLeg = NEIGHBORHOOD_ROUTES.find((candidate) => (
+    candidate.originMapId === originMapId &&
+    NEIGHBORHOOD_ROUTES.some((onward) => (
+      onward.originMapId === candidate.destinationMapId &&
+      onward.destinationMapId === destinationMapId
+    ))
+  ));
+  if (firstLeg) return firstLeg;
+  throw new Error(`Maps ${originMapId} and ${destinationMapId} are not connected.`);
 }
 
 export function deriveNeighborhoodRoutes(

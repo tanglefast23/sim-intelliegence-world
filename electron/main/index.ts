@@ -2651,13 +2651,20 @@ async function createMainWindow(): Promise<void> {
   });
   activeMainWindow = window;
   if (smokeMode) window.webContents.setAudioMuted(true);
-  if (smokeMode) {
-    window.webContents.on('console-message', (details) => {
-      if (details.level === 'error' || details.message.includes('SI_WORLD_RENDERER_READY_FAILURE')) {
-        process.stderr.write(`SI_WORLD_RENDERER_CONSOLE ${details.message}\n`);
-      }
-    });
-  }
+  // Renderer errors reach stderr in every mode, not just smoke. A renderer exception unmounts the
+  // React tree and leaves an empty window, and while this was smoke-only that failure produced no
+  // output at all — the app looked alive, every process was up, and the log was empty.
+  window.webContents.on('console-message', (details) => {
+    if (details.level === 'error' || details.message.includes('SI_WORLD_RENDERER_READY_FAILURE')) {
+      process.stderr.write(`SI_WORLD_RENDERER_CONSOLE ${details.message}\n`);
+    }
+  });
+  window.webContents.on('render-process-gone', (_event, details) => {
+    process.stderr.write(`SI_WORLD_RENDER_PROCESS_GONE ${JSON.stringify(details)}\n`);
+  });
+  window.webContents.on('unresponsive', () => {
+    process.stderr.write('SI_WORLD_RENDERER_UNRESPONSIVE\n');
+  });
   window.removeMenu();
   registerRuntimeIpc(
     ipcMain,
