@@ -620,7 +620,11 @@ export class ThreeWorldRenderer {
     });
     // Handoff technique 6. The offset and tint are the spike's, converted from its world units to
     // logical pixels. Every value comes from the placement already in the frame.
-    this.#set('sprite-shadows', atlas(groundedPlacements.map((placement) => ({
+    // Props only. Characters already carry a tuned contact shadow with a broad cast, and adding a
+    // silhouette copy on top of it ate their readable pixels: the player fell to 0.8959 against a
+    // 0.95 floor. Props have no such shadow, so they are where this technique pays.
+    const shadowCasters = groundedPlacements.filter((placement) => props.has(placement.id));
+    this.#set('sprite-shadows', atlas(shadowCasters.map((placement) => ({
       ...placement,
       color: SPRITE_SHADOW_COLOR,
       opacity: SPRITE_SHADOW_OPACITY,
