@@ -33,6 +33,13 @@ export function ThreeWorldSurface({
     canvas.style.display = 'block';
     canvas.style.height = '100%';
     canvas.style.width = '100%';
+    // Handoff technique 1. The drawing buffer is an integer multiple of the logical viewport, so
+    // the browser upscales it to the window. Nearest-neighbour keeps that upscale from
+    // reintroducing the blur the integer lattice exists to remove.
+    //
+    // This goes on the CANVAS, not on the React Native View that hosts it: the host is a
+    // StyleSheet-styled component and the upscale happens on the canvas element itself.
+    canvas.style.imageRendering = 'pixelated';
     host.append(canvas);
     let disposed = false;
     const local = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
