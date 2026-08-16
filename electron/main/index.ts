@@ -232,6 +232,28 @@ async function waitForCameraMotion(
   throw new Error(`Camera motion never matched. Last label: ${label}`);
 }
 
+/**
+ * Wait until the camera stops moving.
+ *
+ * Follow eases, so it keeps travelling for several frames after the hero stops walking. Sampling
+ * the camera the instant `reachWorldTile` returns catches it mid-ease, and any later assertion
+ * against that sample races the remaining travel.
+ */
+async function waitForCameraStill(
+  window: BrowserWindow,
+  timeoutMilliseconds = 4_000,
+): Promise<string> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let previous = await cameraLabel(window);
+  while (Date.now() < deadline) {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 80));
+    const current = await cameraLabel(window);
+    if (current === previous) return current;
+    previous = current;
+  }
+  throw new Error(`Camera never settled. Last label: ${previous}`);
+}
+
 async function roofLabel(window: BrowserWindow): Promise<string> {
   return window.webContents.executeJavaScript(
     `document.querySelector('#world-roof-state')?.getAttribute('aria-label') ?? ''`,
@@ -1935,7 +1957,9 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     Math.abs(cameraAfterFollow.x - cameraBeforeFollow.x) > 1 &&
     Math.abs(cameraAfterFollow.y - cameraBeforeFollow.y) > 1;
 
-  const cameraBeforePanSuspend = parseCameraLabel(await cameraLabel(window));
+  // Sample only once follow has finished easing, or the pan assertion below races the remaining
+  // travel and both the x and y clauses drift.
+  const cameraBeforePanSuspend = parseCameraLabel(await waitForCameraStill(window));
   await panWorld(window, 24, 0);
   const followSuspendedLabel = await waitForCameraMotion(window, (label) => label.includes('follow suspended'));
   // Walking with follow suspended must leave the camera exactly where the pan left it. This also
