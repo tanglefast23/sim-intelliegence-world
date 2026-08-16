@@ -356,20 +356,24 @@ function generatedGlowTexture(): CanvasTexture {
   canvas.height = 64;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('The generated glow canvas is unavailable.');
-  // Written per texel rather than drawn as stacked arcs. Overlapping fills would blend at every
-  // boundary and reintroduce the soft edge this technique exists to remove.
-  const image = context.createImageData(64, 64);
-  for (let y = 0; y < 64; y += 1) {
-    for (let x = 0; x < 64; x += 1) {
-      const offset = (y * 64 + x) * 4;
-      const alpha = glowPlateauAlpha(Math.hypot(x + 0.5 - 32, y + 0.5 - 32) / 32);
-      image.data[offset] = 255;
-      image.data[offset + 1] = 255;
-      image.data[offset + 2] = 255;
-      image.data[offset + 3] = Math.round(alpha * 255);
-    }
+  // Built from a gradient with PAIRED stops rather than per-texel writes or stacked arcs.
+  //
+  // Two stops at the same offset make the transition zero-width, so the result is exact plateaus
+  // and not a ramp. Stacked filled arcs would blend at every boundary under source-over and hand
+  // back the soft edge this technique removes, and a per-texel ImageData write needs more of the
+  // canvas API than the renderer's own tests provide.
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+  let innerRadius = 0;
+  for (const [outerRadius, alpha] of GLOW_PLATEAUS) {
+    gradient.addColorStop(innerRadius, `rgba(255, 255, 255, ${alpha})`);
+    gradient.addColorStop(outerRadius, `rgba(255, 255, 255, ${alpha})`);
+    innerRadius = outerRadius;
   }
-  context.putImageData(image, 0, 0);
+  context.fillStyle = gradient;
+  context.beginPath();
+  // The pools' fan rim sits on the radius-32 circle, so fill to 32 or every pool fades early.
+  context.arc(32, 32, 32, 0, Math.PI * 2);
+  context.fill();
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
   // Nearest, so the plateaus stay plateaus. Linear sampling would interpolate across every band

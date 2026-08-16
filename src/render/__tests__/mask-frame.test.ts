@@ -37,6 +37,10 @@ describe('renderer mask emitter', () => {
   });
 
   test('covers all four footprint families, including the native outlines', () => {
+    // The sizes are the authored character scale of 7/6 applied to a 24x30 sprite: 28x35, then
+    // its whole-number expansions at zoom 2 and 3. Before technique 4b these were 24x30, 48x60
+    // and 72x90 — the counts move with the scale, which is the emitter tracking the renderer
+    // rather than drifting from it.
     const families = new Map<string, number>();
     for (const input of inputs) {
       const mask = rendererMask(input, alphaAt(input.source));
@@ -44,13 +48,13 @@ describe('renderer mask emitter', () => {
       const key = `${mask.logicalBounds.width}x${mask.logicalBounds.height}:${cells}`;
       families.set(key, (families.get(key) ?? 0) + 1);
     }
-    // The native family is an OUTLINE — 76 edge cells of a 442-cell silhouette. Everything else is
+    // The native family is an OUTLINE — 93 edge cells of a 600-cell silhouette. Everything else is
     // the filled silhouette, expanded by nearest neighbour at zoom 2 and 3.
     expect(Object.fromEntries(families)).toEqual({
-      '24x30:76': 4,
-      '24x30:442': 5,
-      '48x60:1768': 5,
-      '72x90:3978': 5,
+      '28x35:93': 4,
+      '28x35:600': 5,
+      '56x70:2400': 5,
+      '84x105:5411': 5,
     });
   });
 
