@@ -209,26 +209,34 @@ export function findRendererNeutralBoundaryViolations(
     ) record(node.moduleReference.expression.text, node.moduleReference.expression);
     if (
       ts.isCallExpression(node) &&
-      node.arguments.length === 1 &&
       (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
         (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
     ) {
+      // The single-argument gate let import('three', {}) and import(spec) through unchecked, so a
+      // forbidden dependency could enter a manifest file in dynamic form without failing the scan.
       const [argument] = node.arguments;
       if (argument && ts.isStringLiteral(argument)) record(argument.text, argument);
+      else if (argument) record('dynamic-specifier', argument);
     }
     if (ts.isCallExpression(node)) {
       if (ts.isIdentifier(node.expression) && TIME_GLOBAL_CALLS.has(node.expression.text)) {
         recordForbiddenGlobal(`TIME:${node.expression.text}`, node.expression);
       }
+      // Walk through a globalThis or window receiver so globalThis.Date.now() is caught too.
+      const receiver = ts.isPropertyAccessExpression(node.expression) &&
+        ts.isPropertyAccessExpression(node.expression.expression) &&
+        ts.isIdentifier(node.expression.expression.expression) &&
+        ['globalThis', 'window', 'self'].includes(node.expression.expression.expression.text)
+        ? node.expression.expression.name
+        : ts.isPropertyAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression)
+          ? node.expression.expression
+          : undefined;
       if (
         ts.isPropertyAccessExpression(node.expression) &&
-        ts.isIdentifier(node.expression.expression) &&
-        TIME_PROPERTY_CALLS.has(`${node.expression.expression.text}.${node.expression.name.text}`)
+        receiver &&
+        TIME_PROPERTY_CALLS.has(`${receiver.text}.${node.expression.name.text}`)
       ) {
-        recordForbiddenGlobal(
-          `TIME:${node.expression.expression.text}.${node.expression.name.text}`,
-          node.expression,
-        );
+        recordForbiddenGlobal(`TIME:${receiver.text}.${node.expression.name.text}`, node.expression);
       }
     }
     if (ts.isIdentifier(node) && DOM_GLOBALS.has(node.text)) {
