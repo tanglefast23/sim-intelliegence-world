@@ -105,28 +105,27 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
     reportedWorld.current = true;
     void afterTwoPaints()
       .then(() => {
-        const canvasHost = document.querySelector('#world-canvas') ?? document.querySelector('#active-surface-canvas');
-        const identifiedCanvas = canvasHost instanceof HTMLCanvasElement
-          ? canvasHost
-          : canvasHost?.querySelector<HTMLCanvasElement>('canvas');
-        const canvas = identifiedCanvas ?? [...document.querySelectorAll<HTMLCanvasElement>('canvas')]
-          .filter((candidate) => {
-            const bounds = candidate.getBoundingClientRect();
-            return bounds.width > 0 && bounds.height > 0;
-          })
-          .sort((left, right) => (
-            right.getBoundingClientRect().width * right.getBoundingClientRect().height -
-            left.getBoundingClientRect().width * left.getBoundingClientRect().height
-          ))[0];
+        // Only the renderer's own canvas may answer for readiness.
+        //
+        // The previous lookup fell back to the largest visible canvas, so a leftover or default
+        // surface could satisfy the size check. Worse, getContext('webgl2') CREATES a context when
+        // none exists, so probing an unrelated canvas both invented the evidence and could pin a
+        // default context that made the renderer's own later getContext fail. Asking the canvas the
+        // renderer already configured returns that same context and creates nothing.
+        const canvas = document.querySelector<HTMLCanvasElement>('#threejs-world-canvas canvas');
+        if (!canvas) {
+          reportedWorld.current = false;
+          throw new Error('The world renderer canvas is not mounted, so world readiness is unproven.');
+        }
         const report = createRendererWorldReadyReport({
           appUrl: window.location.href,
           assetsLoaded,
           bridgeKeys: Object.keys(window.siWorldDesktop ?? {}).sort(),
-          canvasHeight: canvas?.height ?? 0,
-          canvasWidth: canvas?.width ?? 0,
+          canvasHeight: canvas.height,
+          canvasWidth: canvas.width,
           nodeAccessBlocked: hasNoNodeAccess(),
           rendererKind,
-          webgl2Ready: rendererKind === 'threejs-2d' && (canvas?.getContext('webgl2') ?? null) !== null,
+          webgl2Ready: rendererKind === 'threejs-2d' && canvas.getContext('webgl2') !== null,
         });
         return bridge.reportRendererReady(report);
       })
