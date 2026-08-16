@@ -1,6 +1,7 @@
 import {
   BufferGeometry,
   CanvasTexture,
+  AdditiveBlending,
   ClampToEdgeWrapping,
   DoubleSide,
   Color,
@@ -32,6 +33,20 @@ import type { ToneMappingKind } from '../renderer-selection';
 import { threeCameraBounds, threeDrawingBufferSize, threeQuadIndices, threeRasterViewport } from './coordinate-contract';
 
 const TILE_SIZE = 32;
+
+/**
+ * Props that emit light. Glow is drawn at the sprite, so a lit room reads as lit wherever the
+ * player is standing, rather than only near the map's three fixed district pools.
+ */
+const LAMP_SPRITE_IDS: ReadonlySet<string> = new Set([
+  'tile.fixture-lamp',
+  'tile.fixture-dock-lamp-amber',
+  'tile.fixture-dock-lamp-cold',
+  'tile.fixture-festival-lantern',
+  'tile.fixture-neon-lamp-cyan',
+  'tile.fixture-neon-lamp-magenta',
+]);
+const LAMP_GLOW_RADIUS = 44;
 /** Stage 4 recorded ACES calibration value, not a hidden magic number. */
 export const ACES_EXPOSURE = 1;
 const COMPOSITE_BATCHES = [
@@ -206,7 +221,7 @@ function addAtlasPlacement(data: GeometryData, placement: AtlasPlacement, atlasW
   );
 }
 
-function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMaterial {
+function shaderMaterial(texture?: Texture, matchLegacyColors = false, additive = false): ShaderMaterial {
   const legacyColorTransform = matchLegacyColors ? `
         gl_FragColor.rgb = mat3(
           1.2249401, -0.0420569, -0.0196376,
@@ -215,6 +230,9 @@ function shaderMaterial(texture?: Texture, matchLegacyColors = false): ShaderMat
         ) * gl_FragColor.rgb;
   ` : '';
   return new ShaderMaterial({
+    // Lamp glow must ADD light to the floor. Alpha blending can only tint toward a colour, which
+    // is why the shipped glow read as nothing while the spike's additive glow read as light.
+    ...(additive ? { blending: AdditiveBlending } : {}),
     depthTest: false,
     depthWrite: false,
     // addLine emits its quad wound by segment direction, so a line running the other way is
@@ -370,7 +388,7 @@ export class ThreeWorldRenderer {
     this.#atlasHeight = image.naturalHeight ?? image.height ?? 1;
     const atlasMaterial = shaderMaterial(atlasTexture, matchLegacyColors);
     const primitiveMaterial = shaderMaterial(undefined, matchLegacyColors);
-    const glowMaterial = shaderMaterial(glowTexture, matchLegacyColors);
+    const glowMaterial = shaderMaterial(glowTexture, false, true);
     // The legacy atmosphere was plain React Native Views composited by the browser as sRGB CSS,
     // never through a Skia surface, so the legacy P3 matrix must not apply to it. Applying it
     // shifted the whole frame by about one count, because the wash covers every pixel.
@@ -662,6 +680,29 @@ export class ThreeWorldRenderer {
             lighting.poolOpacity * opacityScale,
           );
         },
+      );
+    });
+    // The spike put its glow ON each lamp sprite, which is what made the room read as lit. The
+    // district pools are three fixed points per map and need not sit near the lamps in the room
+    // the player is standing in, so lamp props contribute their own glow here.
+    //
+    // Every value comes from the frame: the prop list, its sprite id and its world position. No
+    // new content, no randomness, no clock of its own.
+    frame.props.forEach((prop) => {
+      if (!LAMP_SPRITE_IDS.has(prop.sprite)) return;
+      const centerX = prop.worldX + prop.source.width / 2;
+      const centerY = prop.worldY + prop.source.height / 2;
+      const radius = LAMP_GLOW_RADIUS;
+      addQuad(
+        pools,
+        [
+          [centerX - radius, centerY - radius],
+          [centerX + radius, centerY - radius],
+          [centerX + radius, centerY + radius],
+          [centerX - radius, centerY + radius],
+        ],
+        lighting.accent,
+        lighting.lampGlowOpacity,
       );
     });
     this.#set('district-light-pools', pools);
