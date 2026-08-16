@@ -18,11 +18,11 @@
   "exposure": 1,
   "baseline": {
     "image": "artifacts/visual-polish/baseline/northeast-1440x900-dpr1-zoom2-baseline.png",
-    "masks": "tests/fixtures/rendering/threejs-all-maps/northeast-1440x900-dpr1-zoom2-mask-v1.json"
+    "masks": "artifacts/visual-polish/baseline/northeast-1440x900-dpr1-zoom2-baseline-mask.json"
   },
   "candidate": {
     "image": "artifacts/visual-polish/baseline/northeast-1440x900-dpr1-zoom2-candidate.png",
-    "masks": "tests/fixtures/rendering/threejs-all-maps/northeast-1440x900-dpr1-zoom2-mask-v1.json"
+    "masks": "artifacts/visual-polish/baseline/northeast-1440x900-dpr1-zoom2-candidate-mask.json"
   },
   "requiredMaskIds": [
     "player-protagonist-northeast-1440x900-dpr1-zoom2"
