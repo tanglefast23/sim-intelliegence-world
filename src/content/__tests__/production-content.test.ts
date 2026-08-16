@@ -226,7 +226,27 @@ describe('Phase 13 production content bill', () => {
     }
     const start = performance.now();
     for (let index = 0; index < performanceFixture.frameBuildIterations; index += 1) {
-      buildWorldFrameState(WORLD_MAP_CATALOG.northwest_residential, state, actors, 'down', index % 2 as 0 | 1);
+      buildWorldFrameState(
+        WORLD_MAP_CATALOG.northwest_residential,
+        state,
+        actors,
+        'down',
+        index % 2 as 0 | 1,
+        undefined,
+        {
+          camera: { x: 400, y: 480, zoom: 1.25 },
+          viewport: { width: 800, height: 600 },
+          devicePixelRatio: 2,
+          artMode: 'enhanced',
+          movements: [],
+          selectedFoot: { x: 592, y: 606 },
+          destinationPulseElapsedMs: 0,
+          reducedMotion: false,
+          animationTimestampMilliseconds: 0,
+          vfxAgeStep: 0,
+          vfxMode: 'procedural',
+        },
+      );
     }
     expect(performance.now() - start).toBeLessThan(performanceFixture.maximumFrameBuildMilliseconds);
   });

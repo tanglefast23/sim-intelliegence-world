@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "stage": 3,
+  "phaseBranch": "codex/threejs-stage-3-full-parity",
+  "phaseCommit": "3539be1a1aff53ef60099b87b8e1edeaebd41e1e",
+  "integrationBranch": "codex/threejs-2d-port",
+  "integrationMerge": "4b155a87cbdefa607e11ae0472cd6458b735a2e0",
+  "rollbackSha": "0d9d926ce0cd782e3c3253b152e9efe5682956a5",
+  "auditor": "fable-5",
+  "auditNote": "Opus writes this port, so Opus may not audit it. One Fable 5 read-only round returned three findings; all three were verified locally and fixed. A further Opus follow-up round had already been requested before the auditor change; its four findings were verified and fixed, then the audit contract moved to Fable only.",
+  "commands": [
+    { "command": "npm run check:boundaries", "exitCode": 0 },
+    { "command": "npm run typecheck", "exitCode": 0 },
+    { "command": "npx jest --runInBand", "exitCode": 0, "result": "88 suites, 902 tests passed" },
+    { "command": "npm run package:mac:arm64", "exitCode": 0 },
+    { "command": "npm run smoke:renderer-parity", "exitCode": 0 },
+    { "command": "npm run smoke:renderer-all-maps", "exitCode": 0 },
+    { "command": "npm run smoke:procedural-vfx -- --compare-vfx-modes --include-maximum-load --qualification", "exitCode": 0 },
+    { "command": "npm run qualify:renderer -- --mode parity --manifest tests/fixtures/rendering/threejs-all-maps-v1.json", "exitCode": 0, "result": "25 fixtures passed" }
+  ],
+  "measured": {
+    "scaledMaskLocalMeanAbsoluteMax": 8.4167,
+    "scaledMaskLocalRmseMax": 17.4373,
+    "scaledMaskLocalLargeRatioMax": 0.10442,
+    "scaledOutsideMaskRatioMax": 0.10372,
+    "scaledReadableRetentionMin": 0.9861,
+    "zoomCropSamples": 41,
+    "zoomCropScaledMeanMax": 1.85,
+    "zoomCropScaledRmseMax": 7.86,
+    "zoomCropScaledLargeRatioMax": 0.0204
+  },
+  "containment": {
+    "phaseIsAncestorOfIntegration": true,
+    "rollbackShaIsCommit": true,
+    "rollbackShaIsAncestorOfIntegration": true
+  },
+  "remoteGateRequired": false,
+  "deferredToStage4": "Three.js feedback-batch ownership. District lighting and atmosphere remain React siblings mounted above the Three.js canvas with no stacking order, so feedback drawn there composites below them and inverts the locked composite order. Stage 4 task 7 removes those overlays from the Three.js path and Stage 4 task 6 then owns feedback, with the zoom 1, 2 and 3 geometry check."
+}

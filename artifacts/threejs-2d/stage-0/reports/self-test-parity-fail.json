@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "fixture": "stage-0-parity-fail",
+  "sourceCommit": "667540e6b0715e00ce4dccb90e6c1f9443c07e39",
+  "mode": "parity",
+  "passed": false,
+  "failures": [
+    "player: required-mask channel delta 9 exceeds 8.",
+    "Outside-mask changed-pixel ratio 0.005865 exceeds 0.005."
+  ],
+  "measurements": {
+    "changedOutsideMaskPixels": 6,
+    "outsideMaskPixelCount": 1023,
+    "changedOutsideMaskRatio": 0.005865,
+    "masks": [
+      {
+        "id": "player",
+        "baselineVisiblePixels": 1,
+        "candidateVisiblePixels": 1,
+        "baselineContrast": 9.624484,
+        "candidateContrast": 9.452688,
+        "retainedContrast": 0.98215,
+        "maximumChannelDelta": 9
+      }
+    ]
+  }
+}

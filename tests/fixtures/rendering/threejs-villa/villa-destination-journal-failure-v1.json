@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "fixture": "villa-destination-journal-failure",
+  "sourceCommit": "701a8fd0b7e86db8ad4af9e55e4649a45694e207",
+  "mode": "parity",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "devicePixelRatio": 1,
+  "zoom": 1,
+  "camera": {
+    "x": 127,
+    "y": 567
+  },
+  "toneMapping": "none",
+  "exposure": 1,
+  "baseline": {
+    "image": "artifacts/threejs-2d/stage-2/captures/villa-destination-journal-failure-skia-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-villa/villa-destination-journal-failure-mask-v1.json"
+  },
+  "candidate": {
+    "image": "artifacts/threejs-2d/stage-2/captures/villa-destination-journal-failure-threejs-2d-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-villa/villa-destination-journal-failure-mask-v1.json"
+  },
+  "requiredMaskIds": [
+    "destination-pulse",
+    "journal-journal_renderer_parity",
+    "failure-marker"
+  ],
+  "lightSamples": [],
+  "shadowSamples": [],
+  "thresholds": {
+    "backgroundRingLogicalPixels": 2,
+    "contrastRetention": 0.9,
+    "outsideMaskChangedPixelRatio": 0.005,
+    "outsideMaskMaximumChannelDelta": 2,
+    "requiredMaskMaximumChannelDelta": 8
+  }
+}

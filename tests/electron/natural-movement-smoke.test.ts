@@ -8,6 +8,7 @@ import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { buildDeterministicMovementTrace } from '../../src/render/movement-evidence';
 import {
   evaluateNaturalMovementRendererFps,
+  summarizeNaturalMovementPass,
   validateNaturalMovementReport,
 } from '../../scripts/electron/natural-movement-report';
 
@@ -18,6 +19,47 @@ function screenshot(path: string, fill: number): void {
 }
 
 describe('natural-movement packaged evidence', () => {
+  test('bounds failure diagnostics while preserving movement totals', () => {
+    const samples = Array.from({ length: 100 }, (_, index) => ({
+      player: {
+        committed: { x: 18, y: 18 },
+        visualFoot: { x: 592 + index, y: 605 },
+        direction: 'right' as const,
+        walkFrame: index % 2 as 0 | 1,
+        status: 'moving' as const,
+        target: { x: 22, y: 18 },
+        curveActive: false,
+        horizontalRunDistance: index,
+        protagonistWobbleDegrees: index === 50 ? 4 : 0,
+      },
+      npcs: {},
+      reducedMotion: false,
+    }));
+    const diagnostic = summarizeNaturalMovementPass({
+      schemaVersion: 3,
+      mode: 'standard',
+      npcMotionSource: 'fixture',
+      npcMotionNpcId: 'linda',
+      samples,
+      firstSegmentUniquePositions: 100,
+      curveObserved: false,
+      interruptionObserved: false,
+      playerWalkFrames: [0, 1],
+      npcWalkFrames: [],
+      rendererFps: 60,
+      displayRafFps: 60,
+      screenshotNames: ['standard.png'],
+    });
+    expect(diagnostic).toMatchObject({
+      sampleCount: 100,
+      horizontalSampleCount: 100,
+      horizontalSamplesTruncated: true,
+      reducedMotionCount: 0,
+      wobble: { nonZeroCount: 1, maxAbsoluteDegrees: 4 },
+    });
+    expect(diagnostic.horizontalSamples).toHaveLength(80);
+  });
+
   test('fixed 16 ms traces are identical and prove diagonals, curves, and both foot frames', () => {
     const map = WORLD_MAP_CATALOG.northwest_residential;
     const first = buildDeterministicMovementTrace(map, { x: 18, y: 18 }, { x: 22, y: 22 });
@@ -62,7 +104,9 @@ describe('natural-movement packaged evidence', () => {
         wobbleDegrees: 0,
       };
       const pass = {
-        schemaVersion: 2 as const,
+        schemaVersion: 3 as const,
+        npcMotionSource: 'fixture' as const,
+        npcMotionNpcId: 'linda' as const,
         samples: Array.from({ length: 5 }, (_, index) => ({
           player: {
             ...actor,
@@ -90,7 +134,7 @@ describe('natural-movement packaged evidence', () => {
         displayRafFps: 60,
       };
       const report = {
-        schemaVersion: 3,
+        schemaVersion: 4,
         testedCommit: 'a'.repeat(40),
         evidenceSource: { baseCommit: 'a'.repeat(40), sourceSha256: 'b'.repeat(64), sourcePaths: ['source.ts'] },
         traceDeterministic: true,
@@ -134,6 +178,18 @@ describe('natural-movement packaged evidence', () => {
         rendererFpsEvidence: qualifyingEvidence,
       }, root))
         .not.toThrow();
+      expect(() => validateNaturalMovementReport({
+        ...report,
+        package: {
+          ...report.package,
+          standard: {
+            ...report.package.standard,
+            rendererFps: 55,
+            samples: report.package.standard.samples.map((sample) => ({ ...sample, reducedMotion: true })),
+          },
+        },
+        rendererFpsEvidence: qualifyingEvidence,
+      }, root)).toThrow('Standard package pass ran under the reduced-motion policy');
       expect(() => validateNaturalMovementReport({
         ...report,
         package: {

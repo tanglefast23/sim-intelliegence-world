@@ -188,7 +188,9 @@ describe('Phase 32 final art-quality manifest', () => {
 
   test('enables the Tier B package subset in supported macOS and Windows CI jobs', () => {
     const workflow = readFileSync(join(process.cwd(), '.github/workflows/ci.yml'), 'utf8');
-    for (const marker of ['package-macos-intel:', 'package-windows-x64:']) {
+    // Stage 7: macOS Tier B coverage moved from the Intel job to ARM64, because the Intel
+    // runner blocklists WebGL 2 and no renderer survives without it after the Skia removal.
+    for (const marker of ['package-macos-arm64:', 'package-windows-x64:']) {
       const start = workflow.indexOf(marker);
       expect(start).toBeGreaterThan(-1);
       const nextJob = workflow.indexOf('\n  package-', start + marker.length);

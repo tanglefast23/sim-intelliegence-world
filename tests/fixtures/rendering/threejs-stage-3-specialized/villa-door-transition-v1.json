@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "fixture": "villa-door-transition",
+  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "mode": "parity",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "devicePixelRatio": 1,
+  "zoom": 1,
+  "camera": {
+    "x": 0,
+    "y": 407
+  },
+  "toneMapping": "none",
+  "compositingChanged": true,
+  "exposure": 1,
+  "baseline": {
+    "image": "artifacts/threejs-2d/stage-6/captures/specialized/villa-door-transition-skia-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-door-transition-mask-v1.json"
+  },
+  "candidate": {
+    "image": "artifacts/threejs-2d/stage-6/captures/specialized/villa-door-transition-threejs-2d-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-door-transition-mask-v1.json"
+  },
+  "requiredMaskIds": [
+    "active-door-entry-hall-door"
+  ],
+  "lightSamples": [],
+  "shadowSamples": [],
+  "thresholds": {
+    "backgroundRingLogicalPixels": 2,
+    "contrastRetention": 0.9,
+    "outsideMaskChangedPixelRatio": 0.005,
+    "outsideMaskMaximumChannelDelta": 2,
+    "requiredMaskMaximumChannelDelta": 8
+  }
+}

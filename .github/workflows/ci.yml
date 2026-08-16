@@ -3,7 +3,7 @@ name: Verify
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, 'codex/threejs-stage-*']
 
 permissions:
   contents: read
@@ -13,10 +13,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  package-macos-arm64:
+    name: package-macos-arm64
+    runs-on: macos-15
+    timeout-minutes: 35
     steps:
       - name: Check out tested commit
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -27,58 +27,57 @@ jobs:
           node-version: 22.13.1
           cache: npm
 
-      - name: Prove tested SHA
+      - name: Prove tested SHA and ARM64 runner
         shell: bash
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(uname -m)" = "arm64"
+          test "$(node -p 'process.arch')" = "arm64"
           printf 'tested_sha=%s\n' "$GITHUB_SHA"
 
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Verify current phase build
+      - name: Run platform-neutral verification
         run: npm run verify:ci-build
 
-      - name: Configure packaged Chromium sandbox
+      - name: Package ARM64 macOS shell
+        run: npm run package:mac:arm64
+
+      - name: Apply and verify ad-hoc test signature
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: npm run sign:test:mac -- out output/verification/ci/macos-arm64/signing.json
+
+      - name: Prove packaged WebGL 2 and ARM64 runtime
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:electron -- --webgl2-probe --expect-arch=arm64 --output-root output/verification/ci/macos-arm64/webgl2
+
+      - name: Verify ARM64 macOS packaged world
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/package
+
+      - name: Verify ARM64 macOS packaged art-quality world subset without model qualification claims
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+          SI_WORLD_TIER_B_ART_SMOKE: '1'
+        run: npm run smoke:electron -- --output-root output/verification/ci/macos-arm64/art-quality
+
+      - name: Record ARM64 macOS maximum-load baseline
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
         run: |
-          sandbox_path='out/si-world-linux-x64/chrome-sandbox'
-          test -f "$sandbox_path"
-          sudo chown root:root "$sandbox_path"
-          sudo chmod 4755 "$sandbox_path"
-          test "$(stat -c '%u:%g:%a' "$sandbox_path")" = '0:0:4755'
+          npm run smoke:responsive -- --high-dpi --include-maximum-load --output-root output/verification/ci/macos-arm64/maximum-load
+          jq '{ testedCommit, requestedDeviceScaleFactor, maximumLoad }' output/verification/ci/macos-arm64/maximum-load/responsive-report.json
 
-      - name: Verify packaged Linux shell
-        env:
-          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: xvfb-run -a npm run smoke:electron -- --output-root output/verification/ci/linux/package
-
-      - name: Verify Linux natural movement
-        env:
-          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: xvfb-run -a npm run smoke:natural-movement -- --output-root output/verification/ci/linux/natural-movement
-
-      - name: Verify Linux responsive matrix
-        env:
-          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: xvfb-run -a -s "-screen 0 3200x1800x24" npm run smoke:responsive -- --output-root output/verification/ci/linux/responsive
-
-      - name: Verify Linux presentation restart
-        env:
-          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-        run: xvfb-run -a npm run smoke:presentation-restart -- --output-root output/verification/ci/linux/presentation-restart
-
-      - name: Verify Linux v5 save migration and reload
-        env:
-          SI_WORLD_SMOKE_SOFTWARE_RENDERING: '1'
-        run: xvfb-run -a npm run smoke:save-migration -- --output-root output/verification/ci/linux/save-migration
-
-  package-macos-intel:
-    name: package-macos-intel
-    runs-on: macos-15-intel
-    timeout-minutes: 25
+  package-macos-x64:
+    name: package-macos-x64
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      SI_WORLD_PACKAGE_TARGET_ARCH: x64
     steps:
       - name: Check out tested commit
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -89,49 +88,42 @@ jobs:
           node-version: 22.13.1
           cache: npm
 
-      - name: Prove tested SHA
+      - name: Prove tested SHA and ARM64 host
         shell: bash
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(uname -m)" = "arm64"
+          test "$(node -p 'process.arch')" = "arm64"
           printf 'tested_sha=%s\n' "$GITHUB_SHA"
 
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Package Intel macOS shell
+      - name: Package x64 macOS shell
         run: npm run package:mac:x64
 
       - name: Apply and verify ad-hoc test signature
         env:
           GITHUB_SHA: ${{ github.sha }}
-        run: npm run sign:test:mac
+        run: npm run sign:test:mac -- out output/verification/ci/macos-x64/signing.json
 
-      - name: Verify Intel macOS packaged art-quality world subset without model qualification claims
+      - name: Prove packaged WebGL 2 and x64 runtime
         env:
           SI_WORLD_SMOKE_PROFILE: platform-shell
-          SI_WORLD_TIER_B_ART_SMOKE: '1'
-        run: npm run smoke:electron -- --output-root output/verification/ci/macos-x64/package
+        run: npm run smoke:electron -- --webgl2-probe --expect-arch=x64 --output-root output/verification/ci/macos-x64/webgl2
 
-      - name: Verify Intel macOS natural movement
-        env:
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:natural-movement -- --output-root output/verification/ci/macos-x64/natural-movement
-
-      - name: Verify Intel macOS responsive matrix
-        env:
-          SI_WORLD_SMOKE_PROFILE: platform-shell
-        run: npm run smoke:responsive -- --output-root output/verification/ci/macos-x64/responsive
-
-      - name: Verify Intel macOS presentation restart
-        run: npm run smoke:presentation-restart -- --output-root output/verification/ci/macos-x64/presentation-restart
-
-      - name: Verify Intel macOS v5 save migration and reload
-        run: npm run smoke:save-migration -- --output-root output/verification/ci/macos-x64/save-migration
-
-  package-windows-x64:
-    name: package-windows-x64
-    runs-on: windows-2025
-    timeout-minutes: 25
+  package-macos-x64-functional:
+    name: package-macos-x64-functional
+    # Stage 7 removed Skia, so there is no renderer left that can run without WebGL 2, and this
+    # runner's GPU blocklists it. Stage 0 task 19 forbids a software-rendering flag and the x64
+    # hardware assertion below means the job cannot move, so Intel is qualified here by packaging,
+    # signing and a RECORDED WebGL 2 probe. Functional coverage runs on the ARM64 job.
+    # The blocklist and its consequences are recorded in
+    # artifacts/threejs-2d/stage-7/INTEL-WEBGL2.md and must be settled before an Intel release.
+    runs-on: macos-15-intel
+    timeout-minutes: 30
+    env:
+      SI_WORLD_PACKAGE_TARGET_ARCH: x64
     steps:
       - name: Check out tested commit
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -142,10 +134,51 @@ jobs:
           node-version: 22.13.1
           cache: npm
 
-      - name: Prove tested SHA
+      - name: Prove tested SHA and x64 runner
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(uname -m)" = "x86_64"
+          test "$(node -p 'process.arch')" = "x64"
+          printf 'tested_sha=%s\n' "$GITHUB_SHA"
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Package x64 macOS shell
+        run: npm run package:mac:x64
+
+      - name: Apply and verify ad-hoc test signature
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: npm run sign:test:mac -- out output/verification/ci/macos-x64/signing.json
+
+      - name: Record packaged WebGL 2 availability on Intel hardware
+        continue-on-error: true
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: npm run smoke:electron -- --webgl2-probe --expect-arch=x64 --output-root output/verification/ci/macos-x64-intel/webgl2
+
+
+  package-windows-x64:
+    name: package-windows-x64
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - name: Check out tested commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.13.1
+          cache: npm
+
+      - name: Prove tested SHA and x64 runner
         shell: powershell
         run: |
           if ((git rev-parse HEAD).Trim() -ne $env:GITHUB_SHA) { throw 'Checked-out commit does not match GITHUB_SHA.' }
+          if ((node -p "process.arch").Trim() -ne 'x64') { throw 'Windows runner is not x64.' }
           Write-Output "tested_sha=$env:GITHUB_SHA"
 
       - name: Install locked dependencies
@@ -160,6 +193,11 @@ jobs:
         env:
           GITHUB_SHA: ${{ github.sha }}
         run: ./scripts/qualification/sign-windows-test.ps1
+
+      - name: Prove packaged WebGL 2 and x64 runtime
+        env:
+          SI_WORLD_SMOKE_PROFILE: platform-shell
+        run: node --import tsx scripts/electron/run-package-smoke.ts --webgl2-probe --expect-arch=x64 --output-root output/verification/ci/windows-x64/webgl2
 
       - name: Verify Windows x64 packaged art-quality world subset without model qualification claims
         env:

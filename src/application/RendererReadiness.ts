@@ -26,17 +26,12 @@ export type RendererReadinessMeasurements = Readonly<{
   nodeAccessBlocked: boolean;
 }>;
 
-export function createRendererReadyReport(
-  measurements: RendererReadinessMeasurements,
-): RendererReadyReport {
+function validateCommon(measurements: Omit<RendererReadinessMeasurements, 'canvasHeight' | 'canvasWidth'>): void {
   if (measurements.appUrl !== 'app://game/') {
     throw new Error('Renderer is not at the packaged app root.');
   }
   if (!measurements.assetsLoaded) {
     throw new Error('Packaged renderer assets are not ready.');
-  }
-  if (measurements.canvasWidth <= 0 || measurements.canvasHeight <= 0) {
-    throw new Error('CanvasKit did not create a measurable canvas.');
   }
   if (!measurements.nodeAccessBlocked) {
     throw new Error('A Node global is visible in the renderer.');
@@ -47,12 +42,40 @@ export function createRendererReadyReport(
   ) {
     throw new Error('Desktop bridge surface does not match the locked contract.');
   }
+}
 
+export function createRendererShellReadyReport(
+  measurements: Omit<RendererReadinessMeasurements, 'canvasHeight' | 'canvasWidth'>,
+): RendererReadyReport {
+  validateCommon(measurements);
   return {
+    schemaVersion: 2,
+    phase: 'shell',
     appUrl: measurements.appUrl,
     assetsLoaded: true,
-    bridgeKeys: [...EXPECTED_BRIDGE_KEYS],
-    canvasKitReady: true,
+    bridgeKeys: [...EXPECTED_BRIDGE_KEYS] as [...typeof EXPECTED_BRIDGE_KEYS],
     nodeAccessBlocked: true,
+    shellReady: true,
   };
+}
+
+export function createRendererWorldReadyReport(
+  // Stage 7 removed Skia, so there is one world variant left.
+  measurements: RendererReadinessMeasurements & Readonly<{ rendererKind: 'threejs-2d'; webgl2Ready?: boolean }>,
+): RendererReadyReport {
+  validateCommon(measurements);
+  if (measurements.canvasWidth <= 0 || measurements.canvasHeight <= 0) {
+    throw new Error('The world renderer did not create a measurable canvas.');
+  }
+  const common = {
+    schemaVersion: 2 as const,
+    phase: 'world' as const,
+    appUrl: measurements.appUrl,
+    assetsLoaded: true as const,
+    bridgeKeys: [...EXPECTED_BRIDGE_KEYS] as [...typeof EXPECTED_BRIDGE_KEYS],
+    nodeAccessBlocked: true as const,
+    worldFrameReady: true as const,
+  };
+  if (measurements.webgl2Ready !== true) throw new Error('Three.js did not create a WebGL 2 context.');
+  return { ...common, rendererKind: 'threejs-2d', webgl2Ready: true };
 }

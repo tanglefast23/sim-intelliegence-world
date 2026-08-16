@@ -8,6 +8,14 @@ import { APP_URL } from '../../electron/protocol/app-protocol';
 
 const RESULT_PREFIX = 'SI_WORLD_SMOKE_RESULT ';
 
+function targetPackageArchitecture(): string {
+  const architecture = process.env.SI_WORLD_PACKAGE_TARGET_ARCH ?? process.arch;
+  if (architecture !== 'arm64' && architecture !== 'x64') {
+    throw new Error(`Unsupported packaged architecture: ${architecture}.`);
+  }
+  return architecture;
+}
+
 export type PackageSmokeProfile = 'qualification' | 'platform-shell';
 
 export interface RendererFpsEvidence {
@@ -53,7 +61,7 @@ function belongsToPackageTarget(filePath: string, platform: string, architecture
 export function findPackagedExecutable(
   outputRoot: string,
   platform = process.platform,
-  architecture = process.arch,
+  architecture = targetPackageArchitecture(),
 ): string {
   const candidates = filesUnder(outputRoot).filter((filePath) => {
     const name = basename(filePath).toLowerCase();
@@ -64,7 +72,7 @@ export function findPackagedExecutable(
     if (platform === 'win32') {
       return name === 'si-world.exe';
     }
-    return name === 'si-world' && filePath.includes('-linux-');
+    throw new Error(`Unsupported packaged platform: ${platform}.`);
   });
   if (candidates.length !== 1) {
     throw new Error(`Expected one packaged executable, found ${candidates.length}.`);
@@ -79,7 +87,7 @@ export function findPackagedExecutable(
 export function findPackageArchive(
   outputRoot: string,
   platform = process.platform,
-  architecture = process.arch,
+  architecture = targetPackageArchitecture(),
 ): string {
   const candidates = filesUnder(outputRoot).filter((filePath) =>
     basename(filePath) === 'app.asar' && belongsToPackageTarget(filePath, platform, architecture));
@@ -99,9 +107,10 @@ export function validatePackageListing(listing: string): void {
     '/build/electron/preload/index.js',
     '/build/electron/persistence/save-repository.js',
     '/build/src/domain/state/schema.js',
-    '/dist/canvaskit.wasm',
     '/dist/index.html',
+    '/dist/webgl2-probe.html',
     '/node_modules/zod/package.json',
+    '/node_modules/three/package.json',
   ];
   for (const requiredEntry of required) {
     if (!entries.has(requiredEntry)) {
@@ -110,8 +119,6 @@ export function validatePackageListing(listing: string): void {
   }
 
   const requiredResourcePatterns = [
-    /^\/dist\/assets\/assets\/proof\/phase2-atlas\.[a-f0-9]+\.png$/u,
-    /^\/dist\/assets\/assets\/proof\/phase2-tone\.[a-f0-9]+\.wav$/u,
     /^\/dist\/assets\/assets\/generated\/world-atlas\.[a-f0-9]+\.png$/u,
     /^\/dist\/assets\/assets\/generated\/audio\/greeting\.[a-f0-9]+\.wav$/u,
     /^\/dist\/assets\/assets\/generated\/audio\/laugh\.[a-f0-9]+\.wav$/u,
@@ -152,6 +159,7 @@ export function parseSmokeResult(stdout: string): RendererReadyReport {
     throw new Error('Packaged app did not emit a renderer readiness result.');
   }
   const report = RendererReadySchema.parse(JSON.parse(line.slice(RESULT_PREFIX.length)));
+  if (report.phase !== 'world') throw new Error('Packaged app did not emit world renderer readiness.');
   if (!isTrustedAppUrl(report.appUrl) || report.appUrl !== APP_URL) {
     throw new Error('Packaged app reported an untrusted renderer URL.');
   }

@@ -4,30 +4,37 @@ import { resolve } from 'node:path';
 import { WORLD_LAYER_ORDER } from '../../world-frame';
 
 describe('WorldScene procedural VFX integration', () => {
-  const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+  // Stage 7 removed Skia. The scene is the controller plus the Three.js renderer.
+  const scene = [
+    readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+    readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8'),
+  ].join('\n');
   const responsiveEvidence = readFileSync(resolve(process.cwd(), 'src/render/responsive-evidence.ts'), 'utf8');
 
   test('preserves the seven-layer order and existing responsive evidence version', () => {
     expect(WORLD_LAYER_ORDER).toEqual(['floor', 'prop', 'shadow', 'character', 'effect', 'wall', 'roof']);
     expect(responsiveEvidence).toContain('schemaVersion: 1');
     expect(scene).toContain('drawCounts');
-    expect(scene).toContain('effect: visibleEffects.length');
+    expect(scene).toContain('const drawCounts = worldFrame.drawCounts;');
+    expect(scene).toContain('window.siWorldMeasureResponsiveEvidence = () =>');
   });
 
   test('keeps circle mode smoke-only and does not mount the procedural driver in that mode', () => {
     expect(scene).toContain("const vfxMode = smokeMode && window.siWorldVfxMode === 'circle'");
-    expect(scene).toContain("vfxMode === 'procedural' ? (");
-    expect(scene).toContain('<ProceduralMapEffects');
-    expect(scene).toContain("vfxMode === 'circle'");
+    // Stage 7: circle mode is a frame-level decision, and the renderer draws whatever the frame says.
+    expect(scene).toContain("vfxMode === 'procedural'");
+    expect(scene).toContain("this.#set('effects'");
+    expect(scene).toContain("window.siWorldVfxMode === 'circle'");
   });
 
-  test('uses effective speed, full bounds, map identity, and per-emitter fallback', () => {
+  test('keeps time in the controller and gives the renderer sampled geometry only', () => {
     expect(scene).toContain('const speed = effectiveSpeed(runtime.worldState.clock);');
-    expect(scene).toContain('running={forceAmbientMotion || speed > 0}');
-    expect(scene).toContain('vfxBoundsIntersectWorldRect(effect, vfxViewport)');
-    expect(scene).toContain('partitionVfxEmitters(mapId, visibleEffects)');
-    expect(scene).toContain('mapEntryIdentity={mapId}');
-    expect(scene).toContain('vfxEmitters.fallback');
+    expect(scene).toContain("const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);");
+    expect(scene).toContain('advanceAmbientVfxClock');
+    expect(scene).toContain('animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds');
+    expect(scene).toContain('vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep');
+    expect(scene).toContain('frame.effects');
+    expect(scene).toContain('worldFrame.fallbackEffects');
   });
 
   test('publishes separate strict VFX evidence without changing save or preference data', () => {

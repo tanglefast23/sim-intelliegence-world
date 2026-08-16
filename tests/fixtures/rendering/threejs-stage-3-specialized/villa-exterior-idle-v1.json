@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "fixture": "villa-exterior-idle",
+  "sourceCommit": "6ec433dd9928403bc21807d1c9e29c12d1f4dc43",
+  "mode": "parity",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "devicePixelRatio": 1,
+  "zoom": 1,
+  "camera": {
+    "x": 0,
+    "y": 484
+  },
+  "toneMapping": "none",
+  "compositingChanged": true,
+  "exposure": 1,
+  "baseline": {
+    "image": "artifacts/threejs-2d/stage-6/captures/specialized/villa-exterior-idle-skia-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-exterior-idle-mask-v1.json"
+  },
+  "candidate": {
+    "image": "artifacts/threejs-2d/stage-6/captures/specialized/villa-exterior-idle-threejs-2d-1x.png",
+    "masks": "tests/fixtures/rendering/threejs-stage-3-specialized/villa-exterior-idle-mask-v1.json"
+  },
+  "requiredMaskIds": [
+    "player-protagonist"
+  ],
+  "lightSamples": [],
+  "shadowSamples": [],
+  "thresholds": {
+    "backgroundRingLogicalPixels": 2,
+    "contrastRetention": 0.9,
+    "outsideMaskChangedPixelRatio": 0.005,
+    "outsideMaskMaximumChannelDelta": 2,
+    "requiredMaskMaximumChannelDelta": 8
+  }
+}

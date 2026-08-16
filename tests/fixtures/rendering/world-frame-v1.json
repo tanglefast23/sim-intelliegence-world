@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "villa-night-feedback",
+      "stateVariant": "exact-journal",
+      "actors": "baseline",
+      "direction": "right",
+      "walkFrame": 1,
+      "playerPresentation": {
+        "visualFoot": { "x": 592, "y": 606 },
+        "walkFrame": 1,
+        "moving": true,
+        "reducedMotion": false,
+        "horizontalRunDistance": 16
+      },
+      "view": {
+        "camera": { "x": 400, "y": 480, "zoom": 1.25 },
+        "viewport": { "width": 900, "height": 640 },
+        "devicePixelRatio": 2,
+        "artMode": "enhanced",
+        "selectedFoot": { "x": 592, "y": 606 },
+        "destinationMarker": { "x": 23, "y": 28 },
+        "destinationPulseElapsedMs": 130,
+        "failureTile": { "x": 17, "y": 19 },
+        "reducedMotion": false,
+        "animationTimestampMilliseconds": 668,
+        "vfxAgeStep": 2,
+        "vfxMode": "procedural"
+      },
+      "expected": {
+        "frameHash": "9e751dcc",
+        "mapHash": "9180d1b3",
+        "presentationHash": "fe577d53",
+        "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+        "drawCounts": { "floor": 382, "prop": 39, "shadow": 2, "character": 2, "effect": 3, "wall": 56, "roof": 0, "total": 484 },
+        "counts": { "floors": 210, "groundDetails": 172, "props": 34, "doors": 5, "characters": 2, "effects": 3, "fallbackEffects": 0, "walls": 56, "roofs": 0, "propShadows": 19, "characterShadows": 2, "thresholds": 5, "journalMarkers": 1, "shelterCells": 1 },
+        "firstIds": { "floor": "floor-10-14", "detail": "transition-24-14", "prop": "shoreglass-spa-fixtures-part-05", "door": "bathroom-hall-door", "character": "protagonist", "effect": "patio-leaves", "wall": "shoreglass-spa-east-5", "journal": "journal_linda_boyfriend" },
+        "hiddenRoofGroupId": "protagonist-villa-roof",
+        "fallbackEmitterIds": []
+      }
+    },
+    {
+      "id": "villa-outside-legacy",
+      "stateVariant": "outside",
+      "actors": "none",
+      "direction": "down",
+      "walkFrame": 0,
+      "view": {
+        "camera": { "x": 320, "y": 480, "zoom": 1 },
+        "viewport": { "width": 960, "height": 720 },
+        "devicePixelRatio": 1,
+        "artMode": "legacy",
+        "selectedFoot": { "x": 560, "y": 829 },
+        "destinationPulseElapsedMs": 0,
+        "reducedMotion": true,
+        "animationTimestampMilliseconds": 0,
+        "vfxAgeStep": 0,
+        "vfxMode": "circle"
+      },
+      "expected": {
+        "frameHash": "e7f35aa7",
+        "mapHash": "9180d1b3",
+        "presentationHash": "fe577d53",
+        "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+        "drawCounts": { "floor": 858, "prop": 56, "shadow": 1, "character": 1, "effect": 4, "wall": 60, "roof": 187, "total": 1167 },
+        "counts": { "floors": 858, "groundDetails": 0, "props": 51, "doors": 5, "characters": 1, "effects": 0, "fallbackEffects": 4, "walls": 60, "roofs": 187, "propShadows": 23, "characterShadows": 1, "thresholds": 5, "journalMarkers": 0, "shelterCells": 0 },
+        "firstIds": { "floor": "floor-9-14", "prop": "shoreglass-spa-fixtures-part-05", "door": "bathroom-hall-door", "character": "protagonist", "fallbackEffect": "patio-fire", "wall": "shoreglass-spa-east-5", "roof": "roof-protagonist-villa-roof-9-14" },
+        "visibleRoofGroupIds": ["protagonist-villa-roof"],
+        "fallbackEmitterIds": []
+      }
+    }
+  ]
+}

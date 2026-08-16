@@ -75,46 +75,73 @@ describe('runtime atlas bill and movement contract', () => {
     expect(() => assertZoomLevel(4)).toThrow('exactly');
   });
 
-  test('uses one nearest-neighbor Skia Atlas and no runtime layer composition', () => {
-    const proof = readFileSync(resolve(process.cwd(), 'src/render/AtlasProof.tsx'), 'utf8');
+  // Stage 7 removed Skia and the atlas proof surface. Portraits and the new-game vista draw one
+  // nearest-neighbour atlas crop each through the renderer-neutral AtlasSprite, and the world
+  // samples the atlas through the Three.js renderer. This asserts sampling behaviour, not syntax.
+  test('uses one nearest-neighbor atlas crop per surface and no runtime layer composition', () => {
     const portrait = readFileSync(resolve(process.cwd(), 'src/ui/CharacterPortrait.tsx'), 'utf8');
+    const sprite = readFileSync(resolve(process.cwd(), 'src/ui/AtlasSprite.tsx'), 'utf8');
+    const newGame = readFileSync(resolve(process.cwd(), 'src/application/NewGameFlow.tsx'), 'utf8');
     const runtime = readFileSync(resolve(process.cwd(), 'src/render/atlas.ts'), 'utf8');
-    expect(proof.match(/<Atlas\b/gu)).toHaveLength(1);
-    expect(portrait.match(/<Atlas\b/gu)).toHaveLength(1);
-    expect(proof).toContain('FilterMode.Nearest');
-    expect(proof).toContain('MipmapMode.None');
-    expect(portrait).toContain('FilterMode.Nearest');
-    expect(portrait).toContain('MipmapMode.None');
-    expect(`${proof}\n${portrait}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
+    const renderer = readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8');
+    // The world atlas keeps nearest-neighbour sampling with no mipmaps on the GPU path.
+    expect(renderer).toContain('NearestFilter');
+    expect(renderer).toContain('generateMipmaps = false');
+    // The neutral crop keeps nearest-neighbour sampling and creates no extra drawing surface.
+    expect(sprite).toContain('pixelated');
+    expect(sprite.match(/<Image\b/gu)).toHaveLength(1);
+    expect(portrait.match(/<AtlasSprite\b/gu)).toHaveLength(1);
+    expect(newGame.match(/<AtlasSprite\b/gu)).toHaveLength(1);
+    for (const source of [portrait, newGame, sprite, renderer]) {
+      expect(source).not.toContain('shopify/react-native-skia');
+    }
+    expect(`${portrait}\n${runtime}`).not.toMatch(/assets\/source|scripts\/art|composeFrontFrame|drawTokenCommands/u);
   });
 
   test('uses one immutable presentation index and a bounded static ground-detail batch', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 7 removed Skia. The scene is now the controller plus the Three.js renderer.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8'),
+    ].join('\n');
+    const frame = readFileSync(resolve(process.cwd(), 'src/render/world-frame.ts'), 'utf8');
     const map = WORLD_MAP_CATALOG.northwest_residential;
     expect(Object.isFrozen(map.presentation)).toBe(true);
     expect(Object.isFrozen(map.presentation.ground)).toBe(true);
     expect(map.presentation.ground).toBe(WORLD_MAP_CATALOG.northwest_residential.presentation.ground);
-    expect(scene.match(/<Atlas\b/gu)?.length).toBeLessThanOrEqual(7);
-    expect(scene).toContain('map.presentation.transitions');
-    expect(scene).toContain('map.presentation.decals');
-    expect(scene).toContain('map.presentation.roofs');
-    expect(scene).not.toContain("sprite: 'tile.boardwalk'");
-    expect(scene).not.toContain('color="#4b211f55"');
+    // Stage 7: the Three.js renderer submits a bounded set of atlas batches instead of Skia
+    // Atlas nodes. The ceiling is the composite batch list, which the spec caps at 12 atlas draws.
+    expect(scene.match(/#set\('/gu)?.length).toBeLessThanOrEqual(17);
+    expect(frame).toContain('map.presentation.transitions');
+    expect(frame).toContain('map.presentation.decals');
+    expect(frame).toContain('map.presentation.roofs');
+    expect(`${scene}\n${frame}`).not.toContain("sprite: 'tile.boardwalk'");
+    expect(`${scene}\n${frame}`).not.toContain('color="#4b211f55"');
     const publicIds = new Set(ATLAS_INDEX.publicSpriteIds);
     expect(map.presentation.ground.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
     expect(map.presentation.roofs.every(({ sprite }) => publicIds.has(sprite))).toBe(true);
   });
 
   test('draws broad character shadows and places the selection ring behind characters', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
-    expect(scene).toContain('strokeWidth={9 * camera.zoom}');
-    expect(scene).toContain('width={22 * camera.zoom}');
-    expect(scene.indexOf('<Oval\n              color={lighting.accent}')).toBeGreaterThan(scene.indexOf('slice(0, 3).map(renderLayer)'));
-    expect(scene.indexOf('<Oval\n              color={lighting.accent}')).toBeLessThan(scene.indexOf('slice(3, 6).map(renderLayer)'));
+    // Stage 7 removed Skia. The scene is now the controller plus the Three.js renderer.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8'),
+    ].join('\n');
+    // Stage 7: the same contract now lives in the Three.js batches. Character shadows keep their
+    // broad cast, and the selection ring still sits behind grounded props and characters.
+    expect(scene).toContain('9, frame.lighting.shadow.color');
+    expect(scene).toContain('11, 3.5, character.color');
+    expect(scene.indexOf("'selection-ring'")).toBeGreaterThan(scene.indexOf("'contact-shadows-and-thresholds'"));
+    expect(scene.indexOf("'selection-ring'")).toBeLessThan(scene.indexOf("'grounded-props-and-characters'"));
   });
 
   test('collapses the self card until the player selects someone interesting', () => {
-    const scene = readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8');
+    // Stage 7 removed Skia. The scene is now the controller plus the Three.js renderer.
+    const scene = [
+      readFileSync(resolve(process.cwd(), 'src/render/WorldScene.tsx'), 'utf8'),
+      readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8'),
+    ].join('\n');
     expect(scene).toContain("compact={selected === 'protagonist' && reactionId !== 'protagonist'}");
   });
 });

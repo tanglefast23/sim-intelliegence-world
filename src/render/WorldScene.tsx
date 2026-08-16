@@ -1,20 +1,6 @@
-import {
-  Atlas,
-  Canvas,
-  Circle,
-  FilterMode,
-  Group,
-  Line,
-  MipmapMode,
-  Oval,
-  RoundedRect,
-  Skia,
-  rect,
-  useImage,
-  vec,
-} from '@shopify/react-native-skia';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
 
 import { getDesktopBridge } from '../application/DesktopBridge';
 import { useReducedMotion } from '../application/accessibility';
@@ -54,11 +40,10 @@ import { selectedCharacterSummary } from '../ui/selected-character';
 import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
 import { uiMetrics } from '../ui/ui-metrics';
-import { groundSpriteAtV2, type CompiledMapV2 } from '../world/maps/compiled-v2';
+import type { CompiledMapV2 } from '../world/maps/compiled-v2';
 import { selectOwnerInteractionApproach } from '../world/maps/compiler';
 import { resolveClickTarget, worldClickCandidates } from '../world/maps/hit-testing';
 import { presentationGroundAt } from '../world/presentation/art-presentation';
-import { visualBoundsIntersectTileWindow } from '../world/presentation/visual-bounds';
 import { tileKey, type TilePoint } from '../world/maps/schema';
 import type { MapId } from '../world/maps/catalog';
 import {
@@ -75,10 +60,11 @@ import {
 import {
   ATLAS_INDEX,
   CHARACTER_IDS,
-  atlasRectangle,
+  type AtlasRectangle,
   type CharacterId,
 } from './atlas';
 import {
+  assertWorldZoom,
   MAX_WORLD_ZOOM,
   MIN_WORLD_ZOOM,
   stepWorldZoom,
@@ -99,43 +85,39 @@ import {
   type CameraState,
   type ViewportSize,
 } from './camera';
-import { compareGroundedDepth, WORLD_DEPTH } from './depth';
 import { automaticUiScale, automaticWorldZoom, type UiScale } from './responsive-layout';
-import { AtmosphereOverlay } from './AtmosphereOverlay';
-import { DistrictLightingOverlay } from './DistrictLightingOverlay';
-import { districtLighting } from './district-lighting';
-import { journalMapMarkers } from './journal-markers';
+import { ThreeWorldSurface } from './ThreeWorldSurface';
+import type { RendererKind } from './renderer-selection';
 import { measureResponsiveEvidence } from './responsive-evidence';
 import { buildSmokeGeometryEvidence } from './smoke-geometry';
 import { parseVfxEvidence } from './vfx/evidence';
-import { ProceduralMapEffects, PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/ProceduralMapEffects';
-import { sampleVfxGeometry, vfxBoundsIntersectWorldRect } from './vfx/procedural-effects';
-import { partitionVfxEmitters } from './vfx/seed';
-import { VFX_KINDS, VFX_REVISION, VFX_STEP_MILLISECONDS, type AuthoredMapEffect } from './vfx/types';
+import { PROCEDURAL_VFX_RENDER_NODE_COUNT } from './vfx/types';
+import { advanceAmbientVfxClock, INITIAL_AMBIENT_VFX_CLOCK } from './vfx/clock';
+import {
+  VFX_KINDS,
+  VFX_REVISION,
+  VFX_STEP_MILLISECONDS,
+  VFX_SUSPENSION_GAP_MILLISECONDS,
+} from './vfx/types';
 import { bottomPivotTransform, protagonistWobbleDegrees } from './protagonist-wobble';
 import {
   buildWorldFrameState,
-  compareWorldLayerTiles,
   DESTINATION_PULSE_MS,
-  destinationPulseFrame,
-  doorSpriteForFrame,
   type WorldActors,
   type WorldCharacterPlacement,
+  type WorldGroundedEntry,
   type WorldLayer,
+  type WorldPropPlacement,
 } from './world-frame';
 
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
-const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
-type SpritePlacement = Readonly<{ id: string; scale?: number; sprite: string; worldX: number; worldY: number }>;
-type PropPlacement = SpritePlacement & Readonly<{ isDoor: boolean; objectId: string; tile: TilePoint }>;
-type PropShadow = Readonly<{ id: string; long: boolean; width: number; worldX: number; worldY: number }>;
 type GroundedVisual = Readonly<{
   groundY: number;
   id: string;
   kind: 'character' | 'prop';
-  placement: PropPlacement | WorldCharacterPlacement;
+  placement: WorldPropPlacement | WorldCharacterPlacement;
 }>;
 type RuntimeViewState = Readonly<{
   movement: MovementState;
@@ -143,52 +125,6 @@ type RuntimeViewState = Readonly<{
   worldState: WorldState;
 }>;
 
-type VisibleTileBounds = Readonly<{
-  minimumX: number;
-  minimumY: number;
-  maximumX: number;
-  maximumY: number;
-}>;
-
-function visibleTileBounds(camera: CameraState, viewport: ViewportSize, margin = 1): VisibleTileBounds {
-  return {
-    minimumX: Math.floor(camera.x / TILE_SIZE) - margin,
-    minimumY: Math.floor(camera.y / TILE_SIZE) - margin,
-    maximumX: Math.ceil((camera.x + viewport.width / camera.zoom) / TILE_SIZE) + margin,
-    maximumY: Math.ceil((camera.y + viewport.height / camera.zoom) / TILE_SIZE) + margin,
-  };
-}
-
-function isVisible(tile: TilePoint, bounds: VisibleTileBounds): boolean {
-  return tile.x >= bounds.minimumX && tile.x <= bounds.maximumX &&
-    tile.y >= bounds.minimumY && tile.y <= bounds.maximumY;
-}
-
-function atlasData(placements: readonly SpritePlacement[], zoom: number) {
-  return {
-    sprites: placements.map(({ sprite }) => {
-      const source = atlasRectangle(sprite);
-      return rect(source.x, source.y, source.width, source.height);
-    }),
-    transforms: placements.map(({ scale = 1, worldX, worldY }) => {
-      return Skia.RSXform(zoom * scale, 0, worldX * zoom, worldY * zoom);
-    }),
-  };
-}
-
-function characterAtlasData(placements: readonly WorldCharacterPlacement[], zoom: number) {
-  return {
-    sprites: placements.map(({ sprite }) => {
-      const source = atlasRectangle(sprite);
-      return rect(source.x, source.y, source.width, source.height);
-    }),
-    transforms: placements.map(({ worldX, worldY, angleDegrees = 0 }) => {
-      if (angleDegrees === 0) return Skia.RSXform(zoom, 0, worldX * zoom, worldY * zoom);
-      const transform = bottomPivotTransform({ worldX, worldY, zoom, angleDegrees });
-      return Skia.RSXform(transform.scos, transform.ssin, transform.tx, transform.ty);
-    }),
-  };
-}
 
 function groundedBatches(visuals: readonly GroundedVisual[]): readonly GroundedVisual[][] {
   return visuals.reduce<GroundedVisual[][]>((batches, visual) => {
@@ -197,55 +133,6 @@ function groundedBatches(visuals: readonly GroundedVisual[]): readonly GroundedV
     else batches.push([visual]);
     return batches;
   }, []);
-}
-
-function propShadowWidth(sprite: string): number {
-  if (/(counter|sofa|table|stall|bench|rack|cargo|ferry|crane|canopy|car)/u.test(sprite)) return 26;
-  if (sprite.includes('flowering-market-planter')) return 18;
-  if (/(lamp|sign|palm|planter|bollard)/u.test(sprite)) return 12;
-  return 18;
-}
-
-function propShadows(props: readonly PropPlacement[]): readonly PropShadow[] {
-  const groups = new Map<string, PropPlacement[]>();
-  for (const prop of props) {
-    if (prop.isDoor) continue;
-    const parts = groups.get(prop.objectId);
-    if (parts) parts.push(prop);
-    else groups.set(prop.objectId, [prop]);
-  }
-  return [...groups].flatMap(([id, parts]) => {
-    const remaining = new Set(parts);
-    const clusters: PropPlacement[][] = [];
-    while (remaining.size > 0) {
-      const seed = remaining.values().next().value as PropPlacement;
-      const cluster = [seed];
-      remaining.delete(seed);
-      for (let index = 0; index < cluster.length; index += 1) {
-        const current = cluster[index]!;
-        for (const candidate of remaining) {
-          if (Math.abs(current.worldX - candidate.worldX) <= TILE_SIZE && Math.abs(current.worldY - candidate.worldY) <= TILE_SIZE) {
-            cluster.push(candidate);
-            remaining.delete(candidate);
-          }
-        }
-      }
-      clusters.push(cluster);
-    }
-    return clusters.map((cluster, index) => {
-      const bottom = Math.max(...cluster.map(({ worldY }) => worldY));
-      const feet = cluster.filter(({ worldY }) => worldY === bottom);
-      const left = Math.min(...feet.map(({ worldX }) => worldX));
-      const right = Math.max(...feet.map(({ sprite, worldX }) => worldX + propShadowWidth(sprite)));
-      return {
-        id: `${id}-${index}`,
-        long: cluster.some(({ sprite }) => /(lamp|neon|planter|sign|tree|palm|sapling)/u.test(sprite)),
-        width: right - left,
-        worldX: left,
-        worldY: bottom + 25,
-      };
-    });
-  });
 }
 
 function areaName(map: CompiledMapV2, tile: TilePoint): string {
@@ -341,8 +228,10 @@ type WorldSceneProps = Readonly<{
   initialState: WorldState;
   newGame: boolean;
   onPresentationPreferencesChange: (patch: RendererPresentationPatch) => void;
+  onWorldReady?: () => void;
   playInterfaceSound?: (sound: InterfaceSoundId) => void;
   persistenceDisabled?: boolean;
+  rendererKind?: RendererKind;
   surface: ViewportSize;
 }>;
 
@@ -358,11 +247,12 @@ export function WorldScene({
   initialState,
   newGame,
   onPresentationPreferencesChange,
+  onWorldReady = () => undefined,
   playInterfaceSound = () => undefined,
   persistenceDisabled = false,
+  rendererKind = 'threejs-2d',
   surface,
 }: WorldSceneProps) {
-  const image = useImage(atlasImage);
   const reducedMotion = useReducedMotion();
   const playVocalCue = useVocalCues();
   const initialTile = useMemo(() => ({
@@ -406,11 +296,15 @@ export function WorldScene({
   const [vfxAgeStep, setVfxAgeStep] = useState(0);
   const [destinationMarker, setDestinationMarker] = useState<TilePoint>();
   const [destinationPulseElapsedMs, setDestinationPulseElapsedMs] = useState(0);
+  const [rendererParityPulseFrozen, setRendererParityPulseFrozen] = useState(false);
+  const [rendererContextState, setRendererContextState] = useState<'ready' | 'lost' | 'timed-out'>('ready');
+  const rendererSuspended = rendererContextState !== 'ready';
   const conversationPort = useMemo(
     () => persistenceDisabled ? createBrowserConversationPort() : getDesktopBridge() ?? createBrowserConversationPort(),
     [persistenceDisabled],
   );
   const saveGeneration = useRef<number | null>(initialSaveGeneration);
+  const vfxClock = useRef(INITIAL_AMBIENT_VFX_CLOCK);
   const handledSleepEventId = useRef<string | undefined>(undefined);
   const captionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const previousSurface = useRef(surface);
@@ -425,7 +319,7 @@ export function WorldScene({
   useWorldAudio({
     absoluteMinute: runtime.worldState.clock.absoluteMinute,
     doorPhases,
-    enabled: audioEnabled,
+    enabled: audioEnabled && !rendererSuspended,
     mapId,
     materialId: movementMaterialId,
     segment: runtime.movement.segment,
@@ -458,16 +352,43 @@ export function WorldScene({
   const lindaOfferReady = lindaOfferAction?.enabled ?? false;
   const metrics = useMemo(() => uiMetrics(uiScale), [uiScale]);
 
-  useEffect(() => setVfxAgeStep(0), [mapId]);
+  useEffect(() => {
+    vfxClock.current = INITIAL_AMBIENT_VFX_CLOCK;
+    setVfxAgeStep(0);
+  }, [mapId]);
+
+  useEffect(() => {
+    const running = !rendererSuspended && vfxMode === 'procedural' && (forceAmbientMotion || speed > 0);
+    if (!running) {
+      vfxClock.current = advanceAmbientVfxClock(vfxClock.current, 0, { running: false });
+      return undefined;
+    }
+    let animationFrame = 0;
+    let previousTime: number | undefined;
+    const animate = (time: number) => {
+      const rawDelta = previousTime === undefined ? 0 : time - previousTime;
+      previousTime = time;
+      vfxClock.current = advanceAmbientVfxClock(vfxClock.current, rawDelta, {
+        running: true,
+        resumedFromSuspension: rawDelta > VFX_SUSPENSION_GAP_MILLISECONDS,
+      });
+      const nextAgeStep = Math.floor(vfxClock.current.ageMilliseconds / VFX_STEP_MILLISECONDS);
+      setVfxAgeStep((current) => current === nextAgeStep ? current : nextAgeStep);
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [forceAmbientMotion, mapId, rendererSuspended, speed, vfxMode]);
 
   useEffect(() => {
     if (reducedMotion) {
       setPoseFrame(0);
       return undefined;
     }
+    if (rendererSuspended) return undefined;
     const timer = setInterval(() => setPoseFrame((current) => current === 0 ? 1 : 0), 720);
     return () => clearInterval(timer);
-  }, [reducedMotion]);
+  }, [reducedMotion, rendererSuspended]);
 
   const selectCharacter = useCallback((id: string) => {
     setSelected(id);
@@ -516,12 +437,127 @@ export function WorldScene({
       setConversationFixtureId(undefined);
       setConversationNpcId(undefined);
     };
+    window.siWorldFreezeRendererParityFrame = () => {
+      vfxClock.current = INITIAL_AMBIENT_VFX_CLOCK;
+      setVfxAgeStep(0);
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+    };
+    window.siWorldSetRendererTestZoom = (zoom) => {
+      setExplicitWorldZoom(true);
+      setCamera((current) => zoomCameraAt(
+        current,
+        assertWorldZoom(zoom),
+        { x: surfaceRef.current.width / 2, y: surfaceRef.current.height / 2 },
+        surfaceRef.current,
+        MAP_PIXELS,
+      ));
+    };
     window.siWorldSetAuthoredDialogueFixture = (characterId) => {
       setOpenPanel(undefined);
       setConversationFixtureId(undefined);
       setConversationNpcId(undefined);
       setAuthoredDialogueFixtureId(characterId);
       setQuestOfferOpen(true);
+    };
+    window.siWorldStartNaturalMovementFixture = () => {
+      setRuntime((current) => {
+        const linda = current.worldState.npcs.linda;
+        if (!linda || linda.presence.kind !== 'active_local') {
+          throw new Error('Natural-movement fixture requires active Linda.');
+        }
+        const worldState = parseWorldState({
+          ...current.worldState,
+          npcs: {
+            ...current.worldState.npcs,
+            linda: {
+              ...linda,
+              scheduleGoal: {
+                mapId: 'northwest_residential',
+                locationId: 'linda_villa',
+                activityId: 'smoke-walk',
+                tileX: 23,
+                tileY: 28,
+                scheduledMinute: current.worldState.clock.absoluteMinute,
+              },
+            },
+          },
+        });
+        return { ...current, npcMovements: npcMovementState(worldState), worldState };
+      });
+      return { npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 } };
+    };
+    window.siWorldOpenRendererFeedbackFixture = () => {
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setSelected('protagonist');
+      setReactionId(undefined);
+      setDestinationMarker({ x: 22, y: 28 });
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+      setRuntime((current) => ({
+        movement: { ...current.movement, feedbackTile: { x: 24, y: 28 } },
+        npcMovements: current.npcMovements,
+        worldState: parseWorldState({
+          ...current.worldState,
+          journal: {
+            ...current.worldState.journal,
+            journal_renderer_parity: {
+              id: 'journal_renderer_parity',
+              subject: { kind: 'quest', questId: 'linda_boyfriend_check' },
+              summary: 'Renderer parity marker.',
+              locationPrecision: 'exact',
+              locationId: 'linda_villa',
+              markerVisible: true,
+              source: { type: 'scene_observation', sourceId: 'renderer_parity_fixture' },
+              resolutionState: 'open',
+              outcomeReceipts: [],
+            },
+          },
+        }),
+      }));
+      setCamera((current) => centerCameraOnTile({ x: 23, y: 28 }, current.zoom, surfaceRef.current, MAP_PIXELS));
+    };
+    window.siWorldOpenRendererMotionFixture = (fixture) => {
+      const start = { x: 17, y: 23 };
+      const target = fixture === 'door-transition' ? { x: 14, y: 23 } : { x: 20, y: 23 };
+      const fixtureMap = WORLD_MAP_CATALOG.northwest_residential;
+      setOpenPanel(undefined);
+      setConversationFixtureId(undefined);
+      setConversationNpcId(undefined);
+      setSelected('protagonist');
+      setDestinationMarker(target);
+      setDestinationPulseElapsedMs(420);
+      setRendererParityPulseFrozen(true);
+      setRuntime((current) => {
+        const worldState = parseWorldState({
+          ...current.worldState,
+          protagonist: {
+            ...current.worldState.protagonist,
+            locationId: 'protagonist_villa',
+            worldPosition: { mapId: 'northwest_residential', tileX: start.x, tileY: start.y },
+          },
+        });
+        let staged: RuntimeViewState = {
+          movement: requestMovement(fixtureMap, createMovementState(start), target),
+          npcMovements: npcMovementState(worldState),
+          worldState,
+        };
+        for (let step = 0; step < 120; step += 1) {
+          staged = advanceMovementFrame(staged, 16, 1, false);
+          const activeDoor = Object.values(doorMotionPhases(staged.movement)).some((phase) => phase === 'opening');
+          const walkingEast = staged.movement.status === 'moving' && staged.movement.direction === 'right' && staged.movement.walkFrame === 1;
+          if ((fixture === 'door-transition' && activeDoor) || (fixture === 'walk-east-frame-1' && walkingEast)) return staged;
+        }
+        throw new Error(`Renderer motion fixture did not reach ${fixture}.`);
+      });
+      setCamera((current) => centerCameraOnTile(
+        fixture === 'door-transition' ? { x: 15, y: 23 } : { x: 18, y: 23 },
+        current.zoom,
+        surfaceRef.current,
+        MAP_PIXELS,
+      ));
     };
     window.siWorldOpenVfxFixture = (fixtureMapId, effectId) => {
       const fixtureMap = WORLD_MAP_CATALOG[fixtureMapId];
@@ -588,6 +624,11 @@ export function WorldScene({
       delete window.siWorldCloseConversationFixture;
       delete window.siWorldSetAuthoredDialogueFixture;
       delete window.siWorldOpenVfxFixture;
+      delete window.siWorldStartNaturalMovementFixture;
+      delete window.siWorldOpenRendererFeedbackFixture;
+      delete window.siWorldOpenRendererMotionFixture;
+      delete window.siWorldFreezeRendererParityFrame;
+      delete window.siWorldSetRendererTestZoom;
     };
   }, []);
 
@@ -595,6 +636,7 @@ export function WorldScene({
     state: WorldState,
     trigger: 'sleep' | 'travel' | 'major_quest' | 'manual',
   ) => {
+    if (rendererSuspended) return;
     if (persistenceDisabled) {
       setSaveStatus('DEV HARNESS · NO DISK SAVE');
       return;
@@ -626,19 +668,20 @@ export function WorldScene({
     } catch {
       setSaveStatus('SAVE FAILED');
     }
-  }, [persistenceDisabled, playInterfaceSound]);
+  }, [persistenceDisabled, playInterfaceSound, rendererSuspended]);
 
   useEffect(() => {
+    if (rendererSuspended) return undefined;
     const timer = setInterval(() => {
       setRuntime((current) => questOfferOpen || effectiveSpeed(current.worldState.clock) === 0
         ? current
         : { ...current, worldState: tickWorld(current.worldState, 1_000) });
     }, 1_000);
     return () => clearInterval(timer);
-  }, [questOfferOpen]);
+  }, [questOfferOpen, rendererSuspended]);
 
   useEffect(() => {
-    if (speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
+    if (rendererSuspended || speed === 0 || transitioning || conversationNpcId || questOfferOpen || openPanel) return;
     let animationFrame = 0;
     let previousTime: number | undefined;
     const animate = (time: number) => {
@@ -649,18 +692,20 @@ export function WorldScene({
           current,
           elapsedMs,
           effectiveSpeed(current.worldState.clock),
+          window.siWorldFreezeNpcMotion !== true,
         ));
       }
       animationFrame = requestAnimationFrame(animate);
     };
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [conversationNpcId, openPanel, questOfferOpen, speed, transitioning]);
+  }, [conversationNpcId, openPanel, questOfferOpen, rendererSuspended, speed, transitioning]);
 
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
     const key = `${position.mapId}:${position.tileX},${position.tileY}`;
     if (arrivalLock && arrivalLock !== key) setArrivalLock(undefined);
+    if (rendererSuspended) return;
     if (!canStartPortalTransition({
       arrivalLocked: arrivalLock === key,
       transitioning,
@@ -689,11 +734,12 @@ export function WorldScene({
       setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
       if (result.completed) void requestAutosave(result.state, 'travel');
     }).finally(() => setTransitioning(false));
-  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
+  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, rendererSuspended, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
 
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
     setWorldFeedback(undefined);
+    setRendererParityPulseFrozen(false);
     setDestinationMarker({ ...target });
     setRuntime((current) => {
       const currentMap = WORLD_MAP_CATALOG[current.worldState.protagonist.worldPosition.mapId as MapId];
@@ -763,7 +809,7 @@ export function WorldScene({
   }, [camera, conversationNpcId, map, npcTiles, openPanel, questOfferOpen, requestTile, runtime.movement.player, runtime.worldState, selectCharacter]);
 
   useEffect(() => {
-    if (!destinationMarker) return;
+    if (!destinationMarker || rendererSuspended || rendererParityPulseFrozen) return;
     let animationFrame = 0;
     let startedAt: number | undefined;
     const animate = (time: number) => {
@@ -776,7 +822,7 @@ export function WorldScene({
     setDestinationPulseElapsedMs(0);
     animationFrame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrame);
-  }, [destinationMarker]);
+  }, [destinationMarker, rendererParityPulseFrozen, rendererSuspended]);
 
   const handlePan = useCallback((delta: Readonly<{ x: number; y: number }>) => {
     if (conversationNpcId || questOfferOpen || openPanel) return;
@@ -989,128 +1035,10 @@ export function WorldScene({
     if (event.mode === 'overnight') void requestAutosave(runtime.worldState, 'sleep');
   }, [requestAutosave, runtime.worldState]);
 
-  const visibility = visibleTileBounds(camera, surface);
-  const visibleFloors = useMemo(() => {
-    const placements: SpritePlacement[] = [];
-    const covered = new Set<string>();
-    for (let y = 0; y < map.source.height; y += 1) {
-      for (let x = 0; x < map.source.width; x += 1) {
-        if (covered.has(`${x},${y}`)) continue;
-        const tile = { x, y };
-        const cell = presentationGroundAt(map.presentation, tile, map.source.width);
-        const size = artMode === 'legacy' ? 1 : cell.compositionSize;
-        const complete = x % size === 0 && y % size === 0 &&
-          x + size <= map.source.width && y + size <= map.source.height &&
-          Array.from({ length: size * size }, (_unused, offset) => {
-            const candidate = presentationGroundAt(map.presentation, {
-              x: x + offset % size,
-              y: y + Math.floor(offset / size),
-            }, map.source.width);
-            return candidate.materialId === cell.materialId && candidate.logicalVariantId === cell.logicalVariantId;
-          }).every(Boolean);
-        if (complete) {
-          for (let offsetY = 0; offsetY < size; offsetY += 1) {
-            for (let offsetX = 0; offsetX < size; offsetX += 1) covered.add(`${x + offsetX},${y + offsetY}`);
-          }
-        }
-        const visible = complete
-          ? x <= visibility.maximumX && x + size - 1 >= visibility.minimumX &&
-            y <= visibility.maximumY && y + size - 1 >= visibility.minimumY
-          : visualBoundsIntersectTileWindow(tile, cell.visualBounds, visibility);
-        if (visible) {
-          placements.push({
-            id: `floor-${x}-${y}`,
-            scale: complete ? size : 1,
-            sprite: artMode === 'legacy' ? groundSpriteAtV2(map, tile) : cell.sprite,
-            worldX: x * TILE_SIZE,
-            worldY: y * TILE_SIZE,
-          });
-        }
-      }
-    }
-    return placements;
-  }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
-  const visibleGroundDetails = useMemo(() => {
-    if (artMode === 'legacy') return [];
-    const details = [
-      ...map.presentation.transitions.flatMap((transition) => transition.sprite ? [{
-        id: transition.id,
-        offsetX: 0,
-        offsetY: 0,
-        sprite: transition.sprite,
-        tile: transition.tile,
-      }] : []),
-      ...map.presentation.decals.map((decal) => ({
-        id: decal.id,
-        offsetX: decal.offsetX,
-        offsetY: decal.offsetY,
-        sprite: decal.sprite,
-        tile: decal.tile,
-      })),
-    ];
-    return details.filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
-      tile,
-      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
-      visibility,
-    )).map((detail) => ({
-      id: detail.id,
-      sprite: detail.sprite,
-      worldX: detail.tile.x * TILE_SIZE + detail.offsetX,
-      worldY: detail.tile.y * TILE_SIZE + detail.offsetY,
-    }));
-  }, [artMode, map, visibility.maximumX, visibility.maximumY, visibility.minimumX, visibility.minimumY]);
-  const visibleProps = useMemo<readonly PropPlacement[]>(() => [
-    ...[...map.objectPartById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
-      tile,
-      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
-      visibility,
-    )).map((part) => ({
-      id: part.id,
-      isDoor: false,
-      objectId: part.objectId,
-      sprite: part.sprite,
-      tile: part.tile,
-      worldX: part.tile.x * TILE_SIZE,
-      worldY: part.tile.y * TILE_SIZE,
-    })),
-    ...[...map.doorById.values()].filter(({ tile, sprite }) => visualBoundsIntersectTileWindow(
-      tile,
-      map.presentation.visualBoundsBySprite[sprite] ?? { left: 0, top: 0, right: 32, bottom: 32 },
-      visibility,
-    )).map((door) => ({
-      id: door.id,
-      isDoor: true,
-      objectId: door.id,
-      sprite: doorSpriteForFrame(door, [runtime.movement, ...Object.values(runtime.npcMovements)]),
-      tile: door.tile,
-      worldX: door.tile.x * TILE_SIZE,
-      worldY: door.tile.y * TILE_SIZE,
-    })),
-  ].sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.prop, left, right)), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-    runtime.movement,
-    runtime.npcMovements,
-  ]);
-  const visibleWalls = useMemo(() => map.wallTiles.filter(({ tile }) => isVisible(tile, visibility))
-    .sort((left, right) => compareWorldLayerTiles(WORLD_DEPTH.wall, left, right))
-    .map((wall) => ({
-      id: wall.id,
-      exposedBase: !map.wallTiles.some(({ tile }) => tile.x === wall.tile.x && tile.y === wall.tile.y + 1),
-      sprite: wall.sprite,
-      worldX: wall.tile.x * TILE_SIZE,
-      worldY: wall.tile.y * TILE_SIZE,
-    })), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-  ]);
   const playerVisualFoot = snapWorldPoint(runtime.movement.visualFoot, camera.zoom, dpr);
+  const selectedFoot = selected === 'protagonist'
+    ? playerVisualFoot
+    : npcTiles[selected]?.visualFoot ?? tileFootPoint(npcTiles[selected]?.tile ?? runtime.movement.player);
   const worldFrame = useMemo(
     () => buildWorldFrameState(map, runtime.worldState, npcTiles, runtime.movement.direction, 0, {
       visualFoot: playerVisualFoot,
@@ -1120,107 +1048,65 @@ export function WorldScene({
       horizontalRunDistance: runtime.movement.horizontalRunDistance,
       pose: selected === 'protagonist' ? (reactionId === 'protagonist' ? 'reaction' : 'idle') : 'idle',
       poseFrame: selected === 'protagonist' ? poseFrame : 0,
+    }, {
+      camera,
+      viewport: surface,
+      devicePixelRatio: dpr,
+      artMode,
+      movements: [runtime.movement, ...Object.values(runtime.npcMovements)],
+      selectedFoot,
+      destinationMarker,
+      destinationPulseElapsedMs: rendererParityPulseFrozen ? 420 : destinationPulseElapsedMs,
+      failureTile: runtime.movement.feedbackTile,
+      reducedMotion,
+      animationTimestampMilliseconds: rendererParityPulseFrozen ? 0 : vfxClock.current.ageMilliseconds,
+      vfxAgeStep: rendererParityPulseFrozen ? 0 : vfxAgeStep,
+      vfxMode,
     }),
-    [map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, runtime.movement.direction, runtime.movement.horizontalRunDistance, runtime.movement.segment, runtime.movement.walkFrame, runtime.worldState, selected],
+    [artMode, camera, destinationMarker, destinationPulseElapsedMs, dpr, map, npcTiles, playerVisualFoot, poseFrame, reactionId, reducedMotion, rendererParityPulseFrozen, runtime.movement, runtime.npcMovements, runtime.worldState, selected, selectedFoot, surface, vfxAgeStep, vfxMode],
   );
-  const characters = useMemo(() => worldFrame.characters.filter(({ tile }) => isVisible(tile, visibility)), [
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-    worldFrame.characters,
-  ]);
-  const floorAtlas = useMemo(() => atlasData(visibleFloors, camera.zoom), [camera.zoom, visibleFloors]);
-  const groundDetailAtlas = useMemo(() => atlasData(visibleGroundDetails, camera.zoom), [camera.zoom, visibleGroundDetails]);
-  const groundBatches = useMemo(() => groundedBatches([
-    ...visibleProps.filter(({ isDoor }) => !isDoor).map((placement) => ({
-      groundY: (placement.tile.y + 1) * TILE_SIZE,
-      id: placement.id,
-      kind: 'prop' as const,
-      placement,
-    })),
-    ...characters.map((placement) => ({
-      groundY: placement.shadowWorldY,
-      id: placement.id,
-      kind: 'character' as const,
-      placement,
-    })),
-  ].sort(compareGroundedDepth)), [characters, visibleProps]);
-  const visiblePropShadows = useMemo(() => propShadows(visibleProps), [visibleProps]);
-  const wallAtlas = useMemo(() => atlasData(visibleWalls, camera.zoom), [camera.zoom, visibleWalls]);
-  const visibleRoofTiles = useMemo(() => map.presentation.roofs
-    .filter(({ roofGroupId }) => worldFrame.visibleRoofGroupIds.includes(roofGroupId))
-    .filter(({ tile, visualBounds }) => visualBoundsIntersectTileWindow(tile, visualBounds, visibility))
-    .map((roof) => ({
-      id: roof.id,
-      sprite: roof.sprite,
-      worldX: roof.tile.x * TILE_SIZE,
-      worldY: roof.tile.y * TILE_SIZE,
-    })), [
-    map,
-    visibility.maximumX,
-    visibility.maximumY,
-    visibility.minimumX,
-    visibility.minimumY,
-    worldFrame.visibleRoofGroupIds,
-  ]);
-  const vfxViewport = useMemo(() => ({
-    left: camera.x - TILE_SIZE,
-    top: camera.y - TILE_SIZE,
-    right: camera.x + surface.width / camera.zoom + TILE_SIZE,
-    bottom: camera.y + surface.height / camera.zoom + TILE_SIZE,
-  }), [camera.x, camera.y, camera.zoom, surface.height, surface.width]);
-  const activeEffects = useMemo(() => map.source.effects.filter((effect) => (
-    mapEffectVisible(effect.kind, runtime.worldState.clock.absoluteMinute)
-  )), [map, runtime.worldState.clock.absoluteMinute]);
-  const visibleEffects = useMemo(() => activeEffects.filter((effect) => (
-    vfxBoundsIntersectWorldRect(effect, vfxViewport)
-  )), [activeEffects, vfxViewport]);
-  const culledEffects = useMemo(() => activeEffects.filter((effect) => (
-    !vfxBoundsIntersectWorldRect(effect, vfxViewport)
-  )), [activeEffects, vfxViewport]);
-  const vfxEmitters = useMemo(
-    () => partitionVfxEmitters(mapId, visibleEffects),
-    [mapId, visibleEffects],
-  );
+  const propById = new Map(worldFrame.props.map((prop) => [prop.id, prop]));
+  const characterById = new Map(worldFrame.characters.map((character) => [character.id, character]));
+  const groundedVisuals = worldFrame.groundedOrder.flatMap((entry: WorldGroundedEntry): GroundedVisual[] => {
+    const placement = entry.kind === 'prop' ? propById.get(entry.id) : characterById.get(entry.id);
+    return placement ? [{ ...entry, placement }] : [];
+  });
+  const groundBatches = groundedBatches(groundedVisuals);
   const vfxCamera = useMemo(() => ({
     x: camera.x,
     y: camera.y,
     zoom: camera.zoom,
     dpr,
   }), [camera.x, camera.y, camera.zoom, dpr]);
-  const roofAtlas = useMemo(() => atlasData(visibleRoofTiles, camera.zoom), [camera.zoom, visibleRoofTiles]);
-  const atlasCameraTransform = useMemo(() => [
-    { translateX: -camera.x * camera.zoom },
-    { translateY: -camera.y * camera.zoom },
-  ], [camera.x, camera.y, camera.zoom]);
-  const drawCounts = useMemo(() => {
-    const counts = {
-      floor: visibleFloors.length + visibleGroundDetails.length,
-      prop: visibleProps.length,
-      shadow: characters.length,
-      character: characters.length,
-      effect: visibleEffects.length,
-      wall: visibleWalls.length,
-      roof: visibleRoofTiles.length,
-    } as const;
-    return { ...counts, total: Object.values(counts).reduce((total, count) => total + count, 0) };
-  }, [characters.length, visibleEffects.length, visibleFloors.length, visibleGroundDetails.length, visibleProps.length, visibleRoofTiles.length, visibleWalls.length]);
-  const staticBatchCount = 1 + (visibleGroundDetails.length > 0 ? 1 : 0);
+  const drawCounts = worldFrame.drawCounts;
+  const staticBatchCount = 1 + (worldFrame.groundDetails.length > 0 ? 1 : 0);
+  const responsiveEvidenceInput = useRef({
+    camera,
+    mapId,
+    artMode,
+    presentationHash: map.presentation.hash,
+    roofGroupId: worldFrame.hiddenRoofGroupId,
+    uiScale,
+    drawCounts,
+    staticBatchCount,
+  });
+  responsiveEvidenceInput.current = {
+    camera,
+    mapId,
+    artMode,
+    presentationHash: map.presentation.hash,
+    roofGroupId: worldFrame.hiddenRoofGroupId,
+    uiScale,
+    drawCounts,
+    staticBatchCount,
+  };
   const vfxEvidence = useMemo(() => {
     if (!smokeMode) return '';
-    const geometries = vfxMode === 'procedural'
-      ? vfxEmitters.valid.map((emitter) => sampleVfxGeometry(
-        emitter,
-        vfxAgeStep * VFX_STEP_MILLISECONDS,
-        reducedMotion,
-      ))
-      : [];
-    const primitiveCount = (kind: AuthoredMapEffect['kind']) => vfxMode === 'procedural'
-      ? geometries.filter((geometry) => geometry.kind === kind).reduce((total, geometry) => total + geometry.rects.length, 0) +
-        vfxEmitters.fallback.filter((effect) => effect.kind === kind).length
-      : visibleEffects.filter((effect) => effect.kind === kind).length;
-    const primitiveCounts = Object.fromEntries(VFX_KINDS.map((kind) => [kind, primitiveCount(kind)])) as Record<AuthoredMapEffect['kind'], number>;
+    const primitiveCount = (kind: typeof VFX_KINDS[number]) => vfxMode === 'procedural'
+      ? worldFrame.effects.filter((geometry) => geometry.kind === kind).reduce((total, geometry) => total + geometry.rects.length, 0) +
+        worldFrame.fallbackEffects.filter((effect) => effect.kind === kind).length
+      : worldFrame.fallbackEffects.filter((effect) => effect.kind === kind).length;
+    const primitiveCounts = Object.fromEntries(VFX_KINDS.map((kind) => [kind, primitiveCount(kind)])) as Record<typeof VFX_KINDS[number], number>;
     return JSON.stringify(parseVfxEvidence({
       schemaVersion: 1,
       mode: vfxMode,
@@ -1228,27 +1114,56 @@ export function WorldScene({
       vfxRevision: VFX_REVISION,
       ageStep: vfxAgeStep,
       reducedMotion,
-      visibleEmitterIds: visibleEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
-      culledEmitterIds: culledEffects.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
-      fallbackEmitterIds: vfxEmitters.fallback.map(({ id }) => id).sort((left, right) => left.localeCompare(right, 'en')),
+      visibleEmitterIds: worldFrame.visibleEffectIds,
+      culledEmitterIds: worldFrame.culledEffectIds,
+      fallbackEmitterIds: worldFrame.fallbackEmitterIds,
       primitiveCounts: {
         ...primitiveCounts,
         total: Object.values(primitiveCounts).reduce((total, count) => total + count, 0),
       },
       renderNodeCount: vfxMode === 'procedural'
-        ? PROCEDURAL_VFX_RENDER_NODE_COUNT + vfxEmitters.fallback.length
-        : visibleEffects.length,
+        ? PROCEDURAL_VFX_RENDER_NODE_COUNT + worldFrame.fallbackEffects.length
+        : worldFrame.fallbackEffects.length,
       updateRateHz: vfxMode === 'procedural' && !reducedMotion ? 1_000 / VFX_STEP_MILLISECONDS : 0,
     }));
-  }, [culledEffects, mapId, reducedMotion, smokeMode, vfxAgeStep, vfxEmitters, vfxMode, visibleEffects]);
+  }, [mapId, reducedMotion, smokeMode, vfxAgeStep, vfxMode, worldFrame]);
   const smokeGeometry = useMemo(
     () => smokeMode && map.source.id === 'northwest_residential' ? buildSmokeGeometryEvidence(map) : undefined,
     [map, smokeMode],
   );
-  const selectedFoot = selected === 'protagonist'
-    ? playerVisualFoot
-    : npcTiles[selected]?.visualFoot ?? tileFootPoint(npcTiles[selected]?.tile ?? runtime.movement.player);
-  const selectedScreen = worldToScreen(camera, selectedFoot);
+  const rendererParityEvidence = useMemo(() => smokeMode ? JSON.stringify({
+    mapId: worldFrame.mapId,
+    mapHash: worldFrame.mapHash,
+    presentationHash: worldFrame.presentationHash,
+    atlasHash: worldFrame.atlasHash,
+    camera: worldFrame.camera,
+    viewport: worldFrame.viewport,
+    devicePixelRatio: worldFrame.devicePixelRatio,
+    hiddenRoofGroupId: worldFrame.hiddenRoofGroupId ?? null,
+    characters: worldFrame.characters.filter(({ id }) => ['protagonist', 'linda', 'generic_resident'].includes(id)),
+    doors: worldFrame.doors,
+    doorPhases,
+    movement: {
+      direction: runtime.movement.direction,
+      status: runtime.movement.status,
+      walkFrame: runtime.movement.walkFrame,
+      visualFoot: runtime.movement.visualFoot,
+    },
+    selectionRing: worldFrame.selectionRing,
+    destinationPulse: worldFrame.destinationPulse ?? null,
+    journalMarkers: worldFrame.journalMarkers,
+    failureMarker: worldFrame.failureMarker ?? null,
+    visibleEffectIds: worldFrame.visibleEffectIds,
+    fallbackEmitterIds: worldFrame.fallbackEmitterIds,
+    // Stage 3 amendment 2026-08-15: proves which effects the fallback-circle batch actually draws.
+    fallbackEffectIds: worldFrame.fallbackEffects
+      .map(({ id }) => id)
+      .sort((left, right) => left.localeCompare(right, 'en')),
+  }) : '', [doorPhases, runtime.movement, smokeMode, worldFrame]);
+  const selectedScreen = worldToScreen(camera, {
+    x: worldFrame.selectionRing.worldX,
+    y: worldFrame.selectionRing.worldY,
+  });
   const selectedName = selected === 'protagonist'
     ? runtime.worldState.protagonist.displayName
     : npcLabel(selected, npcTiles);
@@ -1262,187 +1177,34 @@ export function WorldScene({
       ? runtime.movement.status === 'moving'
       : runtime.npcMovements[selected]?.status === 'moving',
   );
-  const feedbackScreen = runtime.movement.feedbackTile
-    ? worldToScreen(camera, {
-      x: runtime.movement.feedbackTile.x * TILE_SIZE + 16,
-      y: runtime.movement.feedbackTile.y * TILE_SIZE + 16,
-    })
+  const feedbackScreen = worldFrame.failureMarker
+    ? worldToScreen(camera, { x: worldFrame.failureMarker.worldX, y: worldFrame.failureMarker.worldY })
     : undefined;
-  const journalMarkers = useMemo(
-    () => journalMapMarkers(runtime.worldState.journal, map),
-    [map, runtime.worldState.journal],
-  );
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
-  const lighting = districtLighting(mapId, runtime.worldState.clock.absoluteMinute);
-  const shelterCells = map.source.roofGroups.find(({ id }) => id === worldFrame.hiddenRoofGroupId)?.interiorCells ?? [];
+  const lighting = worldFrame.lighting;
+  const shelterCells = worldFrame.shelterCells;
 
   useEffect(() => {
-    if (!smokeMode || typeof document === 'undefined') return;
-    let frameId = 0;
-    const timer = setTimeout(() => {
-      frameId = requestAnimationFrame(() => {
-        const evidence = measureResponsiveEvidence(document, {
-          camera,
-          mapId,
-          artMode,
-          presentationHash: map.presentation.hash,
-          roofGroupId: worldFrame.hiddenRoofGroupId,
-          uiScale,
-          drawCounts,
-          staticBatchCount,
-        });
-        if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
-      });
-    }, 80);
-    return () => {
-      clearTimeout(timer);
-      if (frameId) cancelAnimationFrame(frameId);
+    if (!smokeMode || typeof document === 'undefined') return undefined;
+    window.siWorldMeasureResponsiveEvidence = () => {
+      const evidence = measureResponsiveEvidence(document, responsiveEvidenceInput.current);
+      if (evidence) setResponsiveEvidence(JSON.stringify(evidence));
+      return evidence;
     };
-  }, [artMode, camera, conversationNpcId, drawCounts, image, map.presentation.hash, mapId, openPanel, smokeMode, staticBatchCount, surface, uiScale, worldFrame.hiddenRoofGroupId]);
+    window.siWorldMeasureResponsiveEvidence();
+    return () => {
+      delete window.siWorldMeasureResponsiveEvidence;
+    };
+  }, [smokeMode]);
 
-  if (!image) {
-    return <View style={[styles.loading, surface]}><Text style={[styles.status, { fontSize: metrics.secondaryText }]}>DECODING WORLD STATE…</Text></View>;
-  }
-
-  const renderLayer = (layer: WorldLayer) => {
-    switch (layer) {
-      case 'floor':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            <Atlas image={image} sampling={NEAREST} sprites={floorAtlas.sprites} transforms={floorAtlas.transforms} />
-            {visibleGroundDetails.length > 0 ? (
-              <Atlas image={image} sampling={NEAREST} sprites={groundDetailAtlas.sprites} transforms={groundDetailAtlas.transforms} />
-            ) : null}
-            {visibleProps.filter(({ isDoor }) => isDoor).map((door) => {
-              const openingId = map.doorById.get(door.id)?.openingId;
-              const horizontal = map.wallOpeningById.get(openingId ?? '')?.orientation !== 'vertical';
-              return (
-                <Group key={`door-wear-${door.id}`}>
-                  <Line color="#2c26204f" p1={vec((door.worldX + (horizontal ? 5 : 24)) * camera.zoom, (door.worldY + (horizontal ? 29 : 6)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 15 : 27)) * camera.zoom, (door.worldY + (horizontal ? 31 : 16)) * camera.zoom)} strokeCap="round" strokeWidth={2 * camera.zoom} />
-                  <Line color="#f0c16a3d" p1={vec((door.worldX + (horizontal ? 17 : 27)) * camera.zoom, (door.worldY + (horizontal ? 28 : 18)) * camera.zoom)} p2={vec((door.worldX + (horizontal ? 25 : 25)) * camera.zoom, (door.worldY + (horizontal ? 30 : 26)) * camera.zoom)} strokeCap="round" strokeWidth={camera.zoom} />
-                </Group>
-              );
-            })}
-          </Group>
-        );
-      case 'prop':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            {(() => {
-              const doors = atlasData(visibleProps.filter(({ isDoor }) => isDoor), camera.zoom);
-              return <Atlas image={image} sampling={NEAREST} sprites={doors.sprites} transforms={doors.transforms} />;
-            })()}
-          </Group>
-        );
-      case 'shadow':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            {visiblePropShadows.map((shadow) => (
-              <Group key={`prop-shadow-${shadow.id}`}>
-                {shadow.long ? (
-                  <Line
-                    color={lighting.shadow.color}
-                    p1={vec((shadow.worldX + shadow.width / 2) * camera.zoom, shadow.worldY * camera.zoom)}
-                    p2={vec((shadow.worldX + shadow.width / 2 + lighting.shadow.x) * camera.zoom, (shadow.worldY + lighting.shadow.y) * camera.zoom)}
-                    strokeCap="round"
-                    strokeWidth={4 * camera.zoom}
-                  />
-                ) : null}
-                <RoundedRect
-                  color={lighting.shadow.color}
-                  height={4 * camera.zoom}
-                  r={2 * camera.zoom}
-                  width={shadow.width * camera.zoom}
-                  x={shadow.worldX * camera.zoom}
-                  y={shadow.worldY * camera.zoom}
-                />
-              </Group>
-            ))}
-            {visibleProps.filter(({ isDoor }) => isDoor).map((door) => (
-              <Group key={`threshold-${door.id}`}>
-                <RoundedRect color="#15120f8c" height={5 * camera.zoom} r={camera.zoom} width={26 * camera.zoom} x={(door.worldX + 3) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
-                <RoundedRect color={`${lighting.accent}8c`} height={camera.zoom} r={camera.zoom / 2} width={20 * camera.zoom} x={(door.worldX + 6) * camera.zoom} y={(door.worldY + 26) * camera.zoom} />
-              </Group>
-            ))}
-            {characters.map((character) => (
-              <Group key={`shadow-${character.id}`}>
-                <Line
-                  color={lighting.shadow.color}
-                  p1={vec((character.shadowWorldX + 5) * camera.zoom, (character.shadowWorldY + 1) * camera.zoom)}
-                  p2={vec((character.shadowWorldX + lighting.shadow.x) * camera.zoom, (character.shadowWorldY + lighting.shadow.y) * camera.zoom)}
-                  strokeCap="round"
-                  strokeWidth={9 * camera.zoom}
-                />
-                <RoundedRect color={lighting.shadow.color} height={7 * camera.zoom} r={3.5 * camera.zoom} width={22 * camera.zoom} x={(character.shadowWorldX - 4) * camera.zoom} y={character.shadowWorldY * camera.zoom} />
-              </Group>
-            ))}
-          </Group>
-        );
-      case 'character':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            {groundBatches.map((batch, index) => {
-              const kind = batch[0]?.kind;
-              if (!kind) return null;
-              const data = kind === 'prop'
-                ? atlasData(batch.map(({ placement }) => placement as PropPlacement), camera.zoom)
-                : characterAtlasData(batch.map(({ placement }) => placement as WorldCharacterPlacement), camera.zoom);
-              return <Atlas image={image} key={`${kind}-${index}`} sampling={NEAREST} sprites={data.sprites} transforms={data.transforms} />;
-            })}
-          </Group>
-        );
-      case 'effect': {
-        const circleEffects: readonly AuthoredMapEffect[] = vfxMode === 'circle'
-          ? visibleEffects
-          : vfxEmitters.fallback;
-        return (
-          <Group key={layer}>
-            {vfxMode === 'procedural' ? (
-              <ProceduralMapEffects
-                camera={vfxCamera}
-                emitters={vfxEmitters.valid}
-                key={mapId}
-                mapEntryIdentity={mapId}
-                onAgeStepChange={smokeMode ? setVfxAgeStep : undefined}
-                reducedMotion={reducedMotion}
-                running={forceAmbientMotion || speed > 0}
-              />
-            ) : null}
-            {circleEffects.map((effect) => {
-          const screen = worldToScreen(camera, { x: effect.tile.x * 32 + 16, y: effect.tile.y * 32 + 16 });
-          const color = effect.kind === 'fire' ? '#f07832'
-            : effect.kind === 'insects' ? '#ffe889'
-              : effect.kind === 'leaves' ? '#e0a14e'
-              : effect.kind === 'neon' ? '#ff67d9'
-                : effect.kind === 'palm' ? '#86a451'
-                  : effect.kind === 'steam' ? '#fff0d6'
-                  : effect.kind === 'water' ? '#8ef1e6'
-                    : '#f5dd9d';
-          return <Circle color={color} cx={screen.x} cy={screen.y} key={effect.id} r={3 * camera.zoom} />;
-            })}
-          </Group>
-        );
-      }
-      case 'wall':
-        return (
-          <Group key={layer} transform={atlasCameraTransform}>
-            <Atlas image={image} sampling={NEAREST} sprites={wallAtlas.sprites} transforms={wallAtlas.transforms} />
-            {visibleWalls.filter(({ exposedBase }) => exposedBase).map((wall) => (
-              <Group key={`wall-base-${wall.id}`}>
-                <RoundedRect color="#1714109c" height={5 * camera.zoom} r={camera.zoom} width={30 * camera.zoom} x={(wall.worldX + 1) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
-                <RoundedRect color={`${lighting.accent}52`} height={camera.zoom} r={camera.zoom / 2} width={26 * camera.zoom} x={(wall.worldX + 3) * camera.zoom} y={(wall.worldY + 26) * camera.zoom} />
-              </Group>
-            ))}
-          </Group>
-        );
-      case 'roof':
-        return <Group key={layer} transform={atlasCameraTransform}><Atlas image={image} sampling={NEAREST} sprites={roofAtlas.sprites} transforms={roofAtlas.transforms} /></Group>;
-    }
-  };
+  const handleRendererContextState = useCallback((state: 'lost' | 'restored' | 'timed-out') => {
+    setRendererContextState(state === 'restored' ? 'ready' : state);
+  }, []);
 
   return (
     <WorldInput
+      disabled={rendererSuspended}
       isPointInteractive={isPointInteractive}
       onCancel={cancel}
       onCenter={center}
@@ -1458,69 +1220,10 @@ export function WorldScene({
       >
         <View nativeID="world-input-viewport" style={[styles.viewport, surface]}>
           <View nativeID="world-canvas" style={[styles.canvasHost, surface]}>
-            <Canvas style={StyleSheet.flatten([styles.canvas, surface])}>
-            {worldFrame.layerOrder.slice(0, 3).map(renderLayer)}
-            <Oval
-              color={lighting.accent}
-              rect={rect(selectedScreen.x - 17 * Math.min(1.5, camera.zoom), selectedScreen.y - 9 * Math.min(1.5, camera.zoom), 34 * Math.min(1.5, camera.zoom), 18 * Math.min(1.5, camera.zoom))}
-              style="stroke"
-              strokeWidth={2}
-            />
-            {worldFrame.layerOrder.slice(3, 6).map(renderLayer)}
-            {destinationMarker ? (() => {
-              const screen = worldToScreen(camera, tileFootPoint(destinationMarker));
-              const pulse = destinationPulseFrame(destinationPulseElapsedMs);
-              const alpha = Math.round(pulse.opacity * 255).toString(16).padStart(2, '0');
-              return <Circle color={`#f5dd9d${alpha}`} cx={screen.x} cy={screen.y} r={pulse.radius * camera.zoom} style="stroke" strokeWidth={camera.zoom} />;
-            })() : null}
-            {worldFrame.layerOrder.slice(6).map(renderLayer)}
-            {journalMarkers.map((marker) => {
-              const foot = worldToScreen(camera, tileFootPoint(marker.tile));
-              const centerX = foot.x - 10 * camera.zoom;
-              const centerY = foot.y - 30 * camera.zoom;
-              return (
-                <Group key={`journal-marker-${marker.journalEntryId}`}>
-                  <Line color="#201915" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={4 * camera.zoom} />
-                  <Line color="#f1c65b" p1={vec(centerX, centerY + 4 * camera.zoom)} p2={vec(foot.x - 4 * camera.zoom, foot.y - 5 * camera.zoom)} strokeWidth={2 * camera.zoom} />
-                  <Circle color="#201915" cx={centerX} cy={centerY} r={7 * camera.zoom} />
-                  <Circle color="#f1c65b" cx={centerX} cy={centerY} r={5 * camera.zoom} />
-                  <Circle color="#201915" cx={centerX} cy={centerY} r={2 * camera.zoom} />
-                </Group>
-              );
-            })}
-            {feedbackScreen ? (
-              <>
-                <Line color="#ef5b43" p1={vec(feedbackScreen.x - 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x + 7, feedbackScreen.y + 7)} strokeWidth={3} />
-                <Line color="#ef5b43" p1={vec(feedbackScreen.x + 7, feedbackScreen.y - 7)} p2={vec(feedbackScreen.x - 7, feedbackScreen.y + 7)} strokeWidth={3} />
-              </>
-            ) : null}
-            </Canvas>
-            {shelterCells.map((shelter) => {
-              const shelterScreen = worldToScreen(camera, { x: shelter.x * TILE_SIZE, y: shelter.y * TILE_SIZE });
-              return <View
-                key={`${shelter.x},${shelter.y}`}
-                pointerEvents="none"
-                style={[
-                  styles.shelterShade,
-                  { backgroundColor: lighting.shelterShade },
-                  {
-                    height: shelter.height * TILE_SIZE * camera.zoom,
-                    left: shelterScreen.x,
-                    top: shelterScreen.y,
-                    width: shelter.width * TILE_SIZE * camera.zoom,
-                  },
-                ]}
-              />;
-            })}
-            <DistrictLightingOverlay
-              absoluteMinute={runtime.worldState.clock.absoluteMinute}
-              camera={camera}
-              mapId={mapId}
-              surface={surface}
-            />
-            <AtmosphereOverlay
-              absoluteMinute={runtime.worldState.clock.absoluteMinute}
-              reducedMotion={reducedMotion}
+            <ThreeWorldSurface
+              frame={worldFrame}
+              onContextStateChange={handleRendererContextState}
+              onReady={onWorldReady}
             />
             <SelectionMarker
               color={lighting.accent}
@@ -1548,6 +1251,12 @@ export function WorldScene({
         <View
           accessibilityLabel={responsiveEvidence}
           nativeID="world-responsive-state"
+          pointerEvents="none"
+          style={styles.proofState}
+        />
+        <View
+          accessibilityLabel={`Surface prop ${surface.width}x${surface.height}`}
+          nativeID="world-surface-state"
           pointerEvents="none"
           style={styles.proofState}
         />
@@ -1614,6 +1323,14 @@ export function WorldScene({
               }])),
             })}
             nativeID="world-movement-state"
+            pointerEvents="none"
+            style={styles.proofState}
+          />
+        ) : null}
+        {smokeMode ? (
+          <View
+            accessibilityLabel={rendererParityEvidence}
+            nativeID="world-renderer-parity-state"
             pointerEvents="none"
             style={styles.proofState}
           />
@@ -1704,6 +1421,11 @@ export function WorldScene({
           <Text accessibilityLiveRegion="polite" nativeID="world-audio-caption" style={styles.audioCaption}>{audioCaption}</Text>
         ) : null}
         {transitioning ? <View nativeID="world-transition-overlay" style={styles.transitionOverlay}><Text style={styles.transitionText}>CROSSING NEIGHBORHOOD…</Text></View> : null}
+        {rendererContextState !== 'ready' ? (
+          <View nativeID="world-renderer-recovery-overlay" style={styles.transitionOverlay}>
+            <Text style={styles.transitionText}>{rendererContextState === 'lost' ? 'RESTORING GRAPHICS…' : 'GRAPHICS RESTART REQUIRED'}</Text>
+          </View>
+        ) : null}
         {conversationNpcId ? (
           <ConversationPanel
             accent={lighting.accent}
@@ -1793,7 +1515,8 @@ const styles = StyleSheet.create({
   },
   canvas: { backgroundColor: '#b77945' },
   buttonPressed: { opacity: 0.78, transform: [{ translateY: 1 }] },
-  canvasHost: { overflow: 'hidden' },
+      canvasHost: { overflow: 'hidden' },
+      feedbackCanvas: { left: 0, position: 'absolute', top: 0 },
   frame: { overflow: 'hidden', position: 'relative' },
   loading: { alignItems: 'center', justifyContent: 'center' },
   proofState: { height: 1, left: 0, opacity: 0, position: 'absolute', top: 0, width: 1 },

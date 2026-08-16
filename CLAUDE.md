@@ -103,8 +103,9 @@ checksum and recovery path. Adding a schema field means a new migration step plu
 
 **Renderer evidence is DOM-visible on purpose.** The world exposes state through `aria-label` on
 hidden nodes (`#world-state`, `#world-camera-state`, `#world-movement-state`,
-`#world-responsive-state`, `#world-vfx-state`, `#world-geometry-state`). Smoke scripts parse those
-labels. Changing a label format breaks smokes — update both sides together.
+`#world-responsive-state`, `#world-vfx-state`, `#world-geometry-state`). Responsive smoke refreshes
+its label from the live DOM before reading the same evidence. Changing a label format breaks smokes —
+update both sides together.
 
 **Model runtime.** One shared `llama-server` per session on loopback with a per-run port and key
 ([electron/model/](electron/model/)). Never one instance per NPC. The renderer never sees the URL or

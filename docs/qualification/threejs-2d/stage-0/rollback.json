@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "stage": 0,
+  "authority": {
+    "kind": "commit-sha",
+    "commit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+    "renderer": "skia"
+  },
+  "convenienceTag": "threejs-2d-stage-0-skia-qualified",
+  "hashes": {
+    "fileAlgorithm": "sha256",
+    "treeAlgorithm": "sha256(path NUL sha256(file) LF) over sorted tracked paths",
+    "packageLock": "b098e7944b2b78a5a86324f282b560ecb5c74e139bfb9f6cbf49c4aa3680e25a",
+    "worldAtlas": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+    "contentTree": "c30987724d6b4869c25e85742c93a783f13f33da4ca006f16b5a3ae9458f66ef",
+    "sourceTree": "aa5eca28ea9f7e716667be52cbbb590fe3fc28dc3d5ccd3a6c9d92c1dbd65a86",
+    "gitTree": "d1a52d9cda298c53012c7fb38d02b081b5a8d969"
+  },
+  "drill": {
+    "completedOn": "2026-08-15",
+    "cleanDetachedWorktree": true,
+    "npmCi": true,
+    "package": true,
+    "verify": true,
+    "testSuites": 85,
+    "tests": 867,
+    "platform": "darwin",
+    "architecture": "arm64"
+  },
+  "remoteQualification": {
+    "status": "passed",
+    "runId": 31871797137,
+    "url": "https://github.com/tanglefast23/sim-intelliegence-world/actions/runs/31871797137",
+    "requiredPlatforms": ["macos-arm64", "macos-x64", "windows-x64"]
+  }
+}

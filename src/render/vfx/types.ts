@@ -30,6 +30,28 @@ export type VfxPrimitiveRole =
   | 'water-shadow'
   | 'water-primary';
 
+export const VFX_ROLE_COLORS: Readonly<Record<VfxPrimitiveRole, string>> = Object.freeze({
+  'fire-halo': '#f0783226',
+  'fire-outer': '#c64f2280',
+  'fire-core': '#ffd15c',
+  'fire-ember': '#ffe49a80',
+  'sparkle-shadow': '#5c4428cc',
+  'sparkle-primary': '#fff4c8e6',
+  'sparkle-satellite': '#fff3c4e6',
+  'insects-halo': '#f6cd5133',
+  'insects-primary': '#ffe889e6',
+  'leaves-shadow': '#392c2259',
+  'leaves-primary': '#e0a14ed9',
+  'neon-halo': '#ef48bb33',
+  'neon-primary': '#ff67d9e6',
+  'palm-shadow': '#26341f66',
+  'palm-primary': '#86a451d9',
+  'steam-shadow': '#3f342c4d',
+  'steam-primary': '#fff0d6a6',
+  'water-shadow': '#174c5966',
+  'water-primary': '#8ef1e6d9',
+});
+
 export type AuthoredMapEffect = Readonly<{
   id: string;
   kind: VfxKind;
@@ -93,3 +115,9 @@ export type VfxWorldRect = Readonly<{
   right: number;
   bottom: number;
 }>;
+
+/**
+ * Stage 7: the VFX evidence node count outlived its Skia component.
+ * It describes the evidence schema, not a drawing library, so it stays renderer-neutral here.
+ */
+export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 19 as const;

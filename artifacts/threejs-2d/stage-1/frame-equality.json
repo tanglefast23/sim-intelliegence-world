@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "stage": 1,
+  "status": "passed",
+  "qualifiedCodeCommit": "cf26a561e83110186c9a756a38261beb736693b4",
+  "phaseBaseCommit": "43899e2111d32c7febfcddb006acd20b43566010",
+  "qualifiedSkiaRollbackCommit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+  "rollbackTagAlias": "threejs-2d-stage-0-skia-qualified",
+  "sourceDiffSha256": "1f2a95f0cdb78747a77d37ec308f11cd294cc6737b8087012cf268f99ca51c35",
+  "frame": {
+    "sourcePath": "src/render/world-frame.ts",
+    "sourceSha256": "b03b721d5db5a983287e6c6cc18df8ad8e54a2d70b23ccf40e77a75291fd664a",
+    "fixturePath": "tests/fixtures/rendering/world-frame-v1.json",
+    "fixtureSha256": "f2d890c39bafb7a82ec91a2774153ae1742071ea5a42fbf1118ca60ebae4c664",
+    "fixtureCases": [
+      {
+        "id": "villa-night-feedback",
+        "frameHash": "9e751dcc",
+        "mapHash": "9180d1b3",
+        "presentationHash": "fe577d53",
+        "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1"
+      },
+      {
+        "id": "villa-outside-legacy",
+        "frameHash": "e7f35aa7",
+        "mapHash": "9180d1b3",
+        "presentationHash": "fe577d53",
+        "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1"
+      }
+    ],
+    "contracts": {
+      "completeCoreWorldLayers": true,
+      "completeCompositeOrder": true,
+      "deepFrozen": true,
+      "jsonSerializable": true,
+      "stableOrder": true,
+      "saveReloadEqual": true,
+      "rendererNeutralBoundary": true,
+      "rendererCannotAdvanceTime": true
+    },
+    "performance": {
+      "iterations": 1000,
+      "elapsedMilliseconds": 51.172417,
+      "maximumMilliseconds": 1500,
+      "passed": true
+    }
+  },
+  "audit": {
+    "reviewer": "Claude Opus subscription alias",
+    "completed": true,
+    "confirmedFindings": 5,
+    "fixedFindings": 5,
+    "fixes": [
+      "preserved fallbackEmitterIds as degraded-emitter evidence in every VFX mode",
+      "kept the VFX clock idle in circle mode and active during reduced procedural motion",
+      "locked every serialized frame field and order through full-frame hashes",
+      "added world-frame.ts to packaged VFX evidence provenance",
+      "blocked clock, scheduling, and random calls in renderer-neutral files"
+    ]
+  },
+  "verification": {
+    "importBoundaries": "passed",
+    "typecheck": "passed",
+    "focusedJest": {
+      "suitesPassed": 3,
+      "testsPassed": 34
+    },
+    "fullJest": {
+      "suitesPassed": 85,
+      "testsPassed": 876
+    },
+    "webExport": "passed",
+    "macosArm64Package": "passed",
+    "hiddenPackageSmoke": {
+      "passed": true,
+      "rendererFps": 119.96,
+      "thresholdFps": 60
+    },
+    "hiddenNaturalMovementSmoke": {
+      "passed": true,
+      "rendererFps": 119.96,
+      "thresholdFps": 55,
+      "traceDeterministic": true
+    },
+    "hiddenResponsiveSmoke": {
+      "passed": true,
+      "viewports": [
+        "1280x720",
+        "1440x900",
+        "1920x1080",
+        "2560x1440",
+        "1600x720"
+      ]
+    },
+    "hiddenVfxQualification": {
+      "reportPath": "output/verification/procedural-vfx/procedural-vfx-package-report.json",
+      "reportSourceSha256": "653b9c760cb6528ca1d18de75a823ca483d959b0f94b0ab7169563ab2a45745c",
+      "circleStandardFps": 120,
+      "proceduralStandardFps": 120,
+      "circleReducedFps": 120,
+      "proceduralReducedFps": 120,
+      "circleAgeStepStayedZero": true,
+      "proceduralReducedAgeAdvanced": true,
+      "fallbackEvidencePreserved": true,
+      "performanceAcceptancePassed": true
+    },
+    "package": {
+      "platform": "darwin",
+      "architecture": "arm64",
+      "payloadSizeBytes": 67839991,
+      "payloadSha256": "db014e9cb8ee72c13f52cd421fbdc1cf5043204bb7b55ada031cf0fd6c654a6c"
+    }
+  }
+}

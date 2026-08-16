@@ -32,8 +32,10 @@ const PackageSampleSchema = z.object({
   evidenceTag: z.literal('interruption').optional(),
 }).strict();
 const PackagePassSchema = z.object({
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   mode: z.enum(['standard', 'reduced']),
+  npcMotionSource: z.literal('fixture'),
+  npcMotionNpcId: z.literal('linda'),
   samples: z.array(PackageSampleSchema).min(2),
   firstSegmentUniquePositions: z.number().int().nonnegative(),
   curveObserved: z.boolean(),
@@ -55,7 +57,7 @@ const NaturalMovementFpsEvidenceSchema = z.object({
 }).strict();
 
 export const NaturalMovementReportSchema = z.object({
-  schemaVersion: z.literal(3),
+  schemaVersion: z.literal(4),
   testedCommit: z.string().regex(/^[a-f0-9]{40}$/u),
   evidenceSource: z.object({
     baseCommit: z.string().regex(/^[a-f0-9]{40}$/u),
@@ -69,6 +71,58 @@ export const NaturalMovementReportSchema = z.object({
 }).strict();
 
 export type NaturalMovementReport = z.infer<typeof NaturalMovementReportSchema>;
+
+export function summarizeNaturalMovementPass(
+  pass: NaturalMovementReport['package']['standard'],
+): Readonly<Record<string, unknown>> {
+  const indexed = pass.samples.map(({ player, reducedMotion }, index) => ({
+    index,
+    reducedMotion,
+    committed: player.committed,
+    visualFoot: player.visualFoot,
+    direction: player.direction,
+    status: player.status,
+    horizontalRunDistance: player.horizontalRunDistance,
+    protagonistWobbleDegrees: player.protagonistWobbleDegrees,
+    target: player.target ?? null,
+    curveActive: player.curveActive,
+  }));
+  const horizontal = indexed.filter(({ direction }) => direction === 'left' || direction === 'right');
+  const boundedSamples = horizontal.length <= 80
+    ? horizontal
+    : [...horizontal.slice(0, 40), ...horizontal.slice(-40)];
+  const countBy = <T extends string>(values: readonly T[]): Record<T, number> => values.reduce((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {} as Record<T, number>);
+  const distances = [...new Set(horizontal.map(({ horizontalRunDistance }) => horizontalRunDistance))]
+    .sort((left, right) => left - right);
+  const wobbleValues = horizontal.map(({ protagonistWobbleDegrees }) => protagonistWobbleDegrees);
+  return {
+    schemaVersion: 1,
+    mode: pass.mode,
+    sampleCount: indexed.length,
+    horizontalSampleCount: horizontal.length,
+    directionCounts: countBy(indexed.map(({ direction }) => direction)),
+    statusCounts: countBy(indexed.map(({ status }) => status)),
+    horizontalRunDistance: {
+      min: distances[0] ?? null,
+      max: distances.at(-1) ?? null,
+      uniqueCount: distances.length,
+      values: distances.slice(0, 80),
+      valuesTruncated: distances.length > 80,
+    },
+    wobble: {
+      nonZeroCount: wobbleValues.filter((value) => value !== 0).length,
+      maxAbsoluteDegrees: Math.max(0, ...wobbleValues.map(Math.abs)),
+    },
+    reducedMotionCount: pass.samples.filter(({ reducedMotion }) => reducedMotion).length,
+    rendererFps: pass.rendererFps,
+    displayRafFps: pass.displayRafFps,
+    horizontalSamples: boundedSamples,
+    horizontalSamplesTruncated: horizontal.length > 80,
+  };
+}
 
 export function evaluateNaturalMovementRendererFps(
   value: unknown,
@@ -142,6 +196,9 @@ export function validateNaturalMovementReport(
   };
   const standardSummary = packageSummary(packaged.standard.samples);
   const reducedSummary = packageSummary(packaged.reduced.samples);
+  if (packaged.standard.samples.some(({ reducedMotion }) => reducedMotion)) {
+    throw new Error('Standard package pass ran under the reduced-motion policy.');
+  }
   if (!packaged.standard.samples.some(({ player }) => player.protagonistWobbleDegrees !== 0)) {
     throw new Error('Packaged protagonist never showed a horizontal wobble angle.');
   }

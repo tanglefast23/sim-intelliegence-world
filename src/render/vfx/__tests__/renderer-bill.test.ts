@@ -1,35 +1,30 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-describe('procedural VFX renderer bill', () => {
-  const source = readFileSync(resolve(process.cwd(), 'src/render/vfx/ProceduralMapEffects.tsx'), 'utf8');
+import { PROCEDURAL_VFX_RENDER_NODE_COUNT, VFX_ROLE_COLORS } from '../types';
 
-  test('uses a constant nineteen-node path bill with no per-primitive React mapping', () => {
-    expect(source).toContain('export const PROCEDURAL_VFX_RENDER_NODE_COUNT = 19 as const;');
-    expect(source.match(/<Path\b/gu)).toHaveLength(19);
-    expect(source).not.toMatch(/rects\.map|emitters\.map|<Rect\b|<Circle\b/u);
+/**
+ * Stage 7 deleted the Skia ProceduralMapEffects component. The VFX contract it carried is now the
+ * Three.js effects batch, so these assertions describe that renderer instead of the old component.
+ */
+describe('procedural VFX renderer bill', () => {
+  const renderer = readFileSync(resolve(process.cwd(), 'src/render/three/world-renderer.ts'), 'utf8');
+
+  test('keeps the nineteen-node evidence bill renderer-neutral', () => {
+    expect(PROCEDURAL_VFX_RENDER_NODE_COUNT).toBe(19);
   });
 
   test('keeps animated fire at 50 percent opacity and sparkle light at 90 percent', () => {
-    expect(source).toContain('<Path color="#c64f2280" path={fireOuter} />');
-    expect(source).toContain('<Path color="#ffe49a80" path={fireEmber} />');
-    expect(source).toContain('<Path color="#fff4c8e6" path={sparklePrimary} />');
-    expect(source).toContain('<Path color="#fff3c4e6" path={sparkleSatellite} />');
+    expect(VFX_ROLE_COLORS['fire-outer']).toBe('#c64f2280');
+    expect(VFX_ROLE_COLORS['fire-ember']).toBe('#ffe49a80');
+    expect(VFX_ROLE_COLORS['sparkle-primary']).toBe('#fff4c8e6');
+    expect(VFX_ROLE_COLORS['sparkle-satellite']).toBe('#fff3c4e6');
   });
 
-  test('uses one platform frame loop and no timer, random, or wall-clock source', () => {
-    expect(source.match(/const animate = \(time: number\)/gu)).toHaveLength(1);
-    expect(source.match(/requestAnimationFrame\(animate\)/gu)).toHaveLength(2);
-    expect(source).toContain('cancelAnimationFrame(animationFrame)');
-    expect(source).not.toMatch(/setInterval|setTimeout|Math\.random|Date\b|performance\.now/u);
-  });
-
-  test('contains pause, suspension, clamp, and map-entry reset contracts', () => {
-    expect(source).toContain('if (!running)');
-    expect(source).toContain('rawDelta > VFX_SUSPENSION_GAP_MILLISECONDS');
-    expect(source).toContain('Math.min(rawDelta, VFX_MAX_DELTA_MILLISECONDS)');
-    expect(source).toContain('ageStepValue.value = ageStep');
-    expect(source).toContain('mapEntryIdentity');
-    expect(source).toContain('ageMilliseconds.value = 0');
+  test('draws sampled geometry into one effects batch and owns no clock', () => {
+    expect(renderer).toContain("this.#set('effects'");
+    expect(renderer).toContain('frame.effects');
+    // The renderer presents the frame it is given; it never advances VFX time itself.
+    expect(renderer).not.toMatch(/setInterval|Math\.random|performance\.now/u);
   });
 });

@@ -88,6 +88,12 @@ contextBridge.exposeInMainWorld(
   'siWorldSmokeMode',
   process.argv.includes('--si-world-smoke-mode=1'),
 );
+if (
+  process.argv.includes('--si-world-smoke-mode=1') &&
+  process.argv.includes('--si-world-freeze-npc-motion=1')
+) {
+  contextBridge.exposeInMainWorld('siWorldFreezeNpcMotion', true);
+}
 const smokeArtMode = process.argv.find((argument) => argument.startsWith('--si-world-art-mode='))?.split('=')[1];
 if (process.argv.includes('--si-world-smoke-mode=1') && (smokeArtMode === 'legacy' || smokeArtMode === 'enhanced')) {
   contextBridge.exposeInMainWorld('siWorldArtMode', smokeArtMode);
@@ -95,4 +101,12 @@ if (process.argv.includes('--si-world-smoke-mode=1') && (smokeArtMode === 'legac
 const smokeVfxMode = process.argv.find((argument) => argument.startsWith('--si-world-vfx-mode='))?.split('=')[1];
 if (process.argv.includes('--si-world-smoke-mode=1') && (smokeVfxMode === 'circle' || smokeVfxMode === 'procedural')) {
   contextBridge.exposeInMainWorld('siWorldVfxMode', smokeVfxMode);
+}
+const smokeRenderer = process.argv.find((argument) => argument.startsWith('--si-world-test-renderer='))?.split('=')[1];
+if (process.argv.includes('--si-world-smoke-mode=1') && (smokeRenderer === 'skia' || smokeRenderer === 'threejs-2d')) {
+  contextBridge.exposeInMainWorld('siWorldTestRenderer', smokeRenderer);
+}
+const smokeToneMapping = process.argv.find((argument) => argument.startsWith('--si-world-test-tone-mapping='))?.split('=')[1];
+if (process.argv.includes('--si-world-smoke-mode=1') && (smokeToneMapping === 'none' || smokeToneMapping === 'aces')) {
+  contextBridge.exposeInMainWorld('siWorldTestToneMapping', smokeToneMapping);
 }

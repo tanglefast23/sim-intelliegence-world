@@ -6,6 +6,7 @@ import type { Protocol } from 'electron';
 export const APP_SCHEME = 'app' as const;
 export const APP_HOST = 'game' as const;
 export const APP_URL = `${APP_SCHEME}://${APP_HOST}/` as const;
+export const WEBGL2_PROBE_URL = `${APP_URL}webgl2-probe.html` as const;
 
 export const APP_CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
@@ -18,7 +19,8 @@ export const APP_CONTENT_SECURITY_POLICY = [
   "img-src 'self' data: blob:",
   "media-src 'self' blob:",
   "object-src 'none'",
-  "script-src 'self' 'wasm-unsafe-eval'",
+  // Stage 7 removed CanvasKit, the only runtime that needed WebAssembly evaluation.
+  "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "worker-src 'self' blob:",
 ].join('; ');

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "fixture": "stage-0-enhanced-fail",
+  "sourceCommit": "667540e6b0715e00ce4dccb90e6c1f9443c07e39",
+  "mode": "enhanced",
+  "viewport": { "width": 32, "height": 32 },
+  "devicePixelRatio": 1,
+  "zoom": 1,
+  "camera": { "x": 0, "y": 0 },
+  "toneMapping": "aces",
+  "exposure": 1,
+  "baseline": {
+    "image": "tests/fixtures/rendering/comparator-baseline.png",
+    "masks": "tests/fixtures/rendering/comparator-mask-frame-v1.json"
+  },
+  "candidate": {
+    "image": "tests/fixtures/rendering/comparator-enhanced-changed.png",
+    "masks": "tests/fixtures/rendering/comparator-mask-frame-v1.json"
+  },
+  "requiredMaskIds": ["player"],
+  "lightSamples": [],
+  "shadowSamples": [],
+  "thresholds": {
+    "backgroundRingLogicalPixels": 2,
+    "contrastRetention": 0.9,
+    "outsideMaskChangedPixelRatio": 0.005,
+    "outsideMaskMaximumChannelDelta": 2,
+    "requiredMaskMaximumChannelDelta": 8
+  }
+}

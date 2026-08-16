@@ -7,7 +7,8 @@ import { ConversationService } from '../../src/ai/conversation/service';
 import { FileCharacterWritingStore } from '../../src/ai/registry/file-writing-store';
 import { WORLD_MAP_CATALOG } from '../../src/application/runtime/map-catalog';
 import { CHARACTER_IDS } from '../../src/render/atlas';
-import { responsiveSurface } from '../../src/render/responsive-layout';
+import { coalescedResizeDelay, responsiveSurface } from '../../src/render/responsive-layout';
+import { ALL_MAP_PARITY_CASES } from '../../src/render/three/all-map-parity';
 import { EXPECTED_VFX_ANCHORS } from '../../src/render/vfx/fixtures';
 import { registerConversationIpc } from '../conversation/ipc';
 import { FileVerbalMissionContentStore } from '../conversation/file-verbal-mission-content-store';
@@ -23,6 +24,7 @@ import {
 import { SaveRepository, saveRootForUserData } from '../persistence/save-repository';
 import {
   APP_URL,
+  WEBGL2_PROBE_URL,
   createAppProtocolHandler,
   registerAppSchemePrivileges,
 } from '../protocol/app-protocol';
@@ -36,7 +38,10 @@ const devHarnessMode = process.env.SI_WORLD_DEV_HARNESS === '1';
 const devHarnessRoot = process.env.SI_WORLD_DEV_HARNESS_ROOT;
 const modelSmokeMode = process.env.SI_WORLD_MODEL_SMOKE === '1';
 const smokeExpectsModel = process.env.SI_WORLD_SMOKE_EXPECT_MODEL === '1';
+const webgl2ProbeMode = process.env.SI_WORLD_WEBGL2_PROBE === '1';
 const naturalMovementSmokeMode = process.env.SI_WORLD_NATURAL_MOVEMENT_SMOKE === '1';
+const rendererParitySmokeMode = process.env.SI_WORLD_RENDERER_PARITY_SMOKE === '1';
+const rendererAllMapsSmokeMode = process.env.SI_WORLD_RENDERER_ALL_MAPS_SMOKE === '1';
 const naturalMovementReducedMode = process.env.SI_WORLD_NATURAL_MOVEMENT_REDUCED === '1';
 const responsiveSmokeMode = process.env.SI_WORLD_RESPONSIVE_SMOKE === '1';
 const responsiveHighDpiMode = process.env.SI_WORLD_RESPONSIVE_HIGH_DPI === '1';
@@ -46,10 +51,31 @@ const proceduralVfxReducedMode = process.env.SI_WORLD_PROCEDURAL_VFX_REDUCED ===
 const tierBArtSmokeMode = process.env.SI_WORLD_TIER_B_ART_SMOKE === '1';
 const responsiveArtMode = process.env.SI_WORLD_ART_MODE;
 const smokeVfxMode = process.env.SI_WORLD_VFX_MODE;
+const smokeRenderer = process.env.SI_WORLD_TEST_RENDERER;
+// Stage 6: the world renders with the production renderer when a smoke requests none, so every
+// renderer-specific guard must read the effective renderer rather than the raw request. Reading
+// the raw value let a default run label its output threejs-2d while skipping the Three.js checks.
+const effectiveRenderer = smokeRenderer ?? 'threejs-2d';
+// Stage 4: unsaved, smoke-only tone-mapping override so no-tone parity and ACES both rerun.
+const smokeToneMapping = process.env.SI_WORLD_TEST_TONE_MAPPING;
 const presentationSeedSmokeMode = process.env.SI_WORLD_PRESENTATION_SEED_SMOKE === '1';
 const presentationRestartSmokeMode = process.env.SI_WORLD_PRESENTATION_RESTART_SMOKE === '1';
 const saveMigrationSmokeMode = process.env.SI_WORLD_SAVE_MIGRATION_SMOKE === '1';
 const saveReloadSmokeMode = process.env.SI_WORLD_SAVE_RELOAD_SMOKE === '1';
+if (process.platform !== 'darwin' && process.platform !== 'win32') {
+  throw new Error(`Unsupported release platform: ${process.platform}.`);
+}
+const runtimePlatform = process.platform;
+const responsiveDeviceScaleFactor = Number(process.env.SI_WORLD_RESPONSIVE_DEVICE_SCALE_FACTOR ?? '1');
+if (![1, 1.25, 1.5, 2].includes(responsiveDeviceScaleFactor)) {
+  throw new Error('Responsive smoke device scale factor must be 1, 1.25, 1.5, or 2.');
+}
+if (process.env.SI_WORLD_RESPONSIVE_DEVICE_SCALE_FACTOR !== undefined && !responsiveSmokeMode) {
+  throw new Error('Responsive smoke device scale factor requires responsive smoke mode.');
+}
+if (webgl2ProbeMode && !smokeMode) {
+  throw new Error('The WebGL 2 probe requires smoke mode.');
+}
 if (smokeMode && devHarnessMode) {
   throw new Error('The developer harness and automated smoke mode cannot run together.');
 }
@@ -58,6 +84,9 @@ if (devHarnessRoot && (!devHarnessMode || !isAbsolute(devHarnessRoot))) {
 }
 const processStartedAt = performance.now();
 let smokeFinished = false;
+let rendererShellReady = false;
+let smokePreparationPromise: Promise<void> | undefined;
+let smokePreparationError: unknown;
 let activeMainWindow: BrowserWindow | undefined;
 let conversationService: ConversationService | undefined;
 let conversationInference: BundledConversationInference | undefined;
@@ -76,10 +105,6 @@ if (smokeMode) {
   app.commandLine.appendSwitch('mute-audio');
 }
 
-if (responsiveHighDpiMode) {
-  app.commandLine.appendSwitch('force-device-scale-factor', '2');
-}
-
 if (responsiveArtMode !== undefined && (!responsiveSmokeMode || !['legacy', 'enhanced'].includes(responsiveArtMode))) {
   throw new Error('Art mode is available only to responsive smoke as legacy or enhanced.');
 }
@@ -88,12 +113,17 @@ if (smokeVfxMode !== undefined && (!smokeMode || !['circle', 'procedural'].inclu
   throw new Error('VFX mode is available only to smoke runs as circle or procedural.');
 }
 
-if (naturalMovementReducedMode || proceduralVfxReducedMode) {
-  app.commandLine.appendSwitch('force-prefers-reduced-motion', 'reduce');
+if (smokeToneMapping !== undefined && (!smokeMode || !['none', 'aces'].includes(smokeToneMapping))) {
+  throw new Error('SI_WORLD_TEST_TONE_MAPPING requires smoke mode and must be none or aces.');
+}
+if (smokeRenderer !== undefined && (!smokeMode || !['skia', 'threejs-2d'].includes(smokeRenderer))) {
+  throw new Error('Test renderer is available only to smoke runs as skia or threejs-2d.');
 }
 
-if (smokeMode && process.env.SI_WORLD_SMOKE_SOFTWARE_RENDERING === '1') {
-  app.disableHardwareAcceleration();
+if (naturalMovementReducedMode || proceduralVfxReducedMode) {
+  app.commandLine.appendSwitch('force-prefers-reduced-motion', 'reduce');
+} else if (naturalMovementSmokeMode || proceduralVfxSmokeMode) {
+  app.commandLine.appendSwitch('force-prefers-no-reduced-motion');
 }
 
 const waitForSmokeRetry = (milliseconds: number): Promise<void> =>
@@ -109,9 +139,10 @@ async function captureSmokeScreenshot(
   window: BrowserWindow,
   screenshotPath: string,
   deadlineMilliseconds?: number,
+  rect?: Readonly<{ x: number; y: number; width: number; height: number }>,
 ): Promise<Buffer> {
   const image = await captureNonEmptySmokeFrame(
-    () => window.webContents.capturePage(undefined, { stayHidden: true }),
+    () => window.webContents.capturePage(rect, { stayHidden: true }),
     waitForSmokeRetry,
     { deadlineMilliseconds },
   );
@@ -123,22 +154,26 @@ async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPa
     `Boolean(document.querySelector('#loading-shell'))`,
     true,
   ) as Promise<boolean>;
-  const image = await captureLoadingSmokeFrame(
+  const { frame: image, loadingShellObserved } = await captureLoadingSmokeFrame(
     () => window.webContents.capturePage(undefined, { stayHidden: true }),
     loadingVisible,
     waitForSmokeRetry,
   );
+  process.stdout.write(`SI_WORLD_SMOKE_LOADING_SHELL_OBSERVED ${String(loadingShellObserved)}\n`);
   return writeSmokeScreenshot(screenshotPath, image);
 }
 
 async function waitForRendererPaint(window: BrowserWindow): Promise<void> {
-  await window.webContents.executeJavaScript(
+  const painted = window.webContents.executeJavaScript(
     `Promise.race([
       new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)))),
-      new Promise((resolve) => setTimeout(() => resolve(false), 250)),
+      new Promise((resolve) => setTimeout(() => resolve(false), 1_000)),
     ])`,
     true,
-  );
+  ) as Promise<boolean>;
+  await window.webContents.capturePage(undefined, { stayHidden: true });
+  await window.webContents.capturePage(undefined, { stayHidden: true });
+  if (!await painted) throw new Error('Hidden renderer did not produce two paint frames.');
 }
 
 async function captureDistinctSmokeScreenshot(
@@ -286,6 +321,47 @@ async function surfaceBounds(window: BrowserWindow): Promise<SurfaceBounds> {
   })()`, true) as Promise<SurfaceBounds>;
 }
 
+async function surfaceLayoutDiagnostic(window: BrowserWindow): Promise<Record<string, unknown>> {
+  return window.webContents.executeJavaScript(`(() => {
+    const rect = (element) => element instanceof HTMLElement
+      ? (() => { const value = element.getBoundingClientRect(); return { x: value.x, y: value.y, width: value.width, height: value.height }; })()
+      : null;
+    const gameSurface = document.querySelector('#active-game-surface');
+    const worldSurface = document.querySelector('#world-input-viewport');
+    const worldCanvasHost = document.querySelector('#world-canvas');
+    const worldCanvas = worldCanvasHost instanceof HTMLCanvasElement
+      ? worldCanvasHost
+      : worldCanvasHost?.querySelector('canvas');
+    return {
+      document: { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight },
+      window: {
+        innerWidth: globalThis.innerWidth,
+        innerHeight: globalThis.innerHeight,
+        visualViewportWidth: globalThis.visualViewport?.width ?? null,
+        visualViewportHeight: globalThis.visualViewport?.height ?? null,
+        screenWidth: globalThis.screen.width,
+        screenHeight: globalThis.screen.height,
+      },
+      body: rect(document.body),
+      root: rect(document.querySelector('#root')),
+      gameSurfaceFrame: rect(gameSurface?.parentElement),
+      gameSurface: rect(gameSurface),
+      worldSurface: rect(worldSurface),
+      worldSurfaceClass: worldSurface instanceof HTMLElement ? worldSurface.className : null,
+      worldSurfaceInlineStyle: worldSurface instanceof HTMLElement ? worldSurface.getAttribute('style') : null,
+      worldSurfaceMatches: document.querySelectorAll('#world-input-viewport').length,
+      worldCanvas: worldCanvas instanceof HTMLCanvasElement ? {
+        backingWidth: worldCanvas.width,
+        backingHeight: worldCanvas.height,
+        rect: rect(worldCanvas),
+      } : null,
+      surfaceProp: document.querySelector('#world-surface-state')?.getAttribute('aria-label') ?? null,
+      cameraState: document.querySelector('#world-camera-state')?.getAttribute('aria-label') ?? null,
+      responsiveState: document.querySelector('#world-responsive-state')?.getAttribute('aria-label') ?? null,
+    };
+  })()`, true) as Promise<Record<string, unknown>>;
+}
+
 function parseCameraLabel(label: string): Readonly<{ x: number; y: number; zoom: number }> {
   const match = /^World camera (-?\d+),(-?\d+) at (\d+(?:\.\d+)?)x$/u.exec(label);
   if (!match) throw new Error(`Invalid camera label: ${label}`);
@@ -345,12 +421,12 @@ async function clickUiScaleButton(window: BrowserWindow, percentage: 100 | 125 |
 }
 
 async function responsiveEvidence(window: BrowserWindow): Promise<Record<string, unknown>> {
-  const label = await window.webContents.executeJavaScript(
-    `document.querySelector('#world-responsive-state')?.getAttribute('aria-label') ?? ''`,
+  const evidence = await window.webContents.executeJavaScript(
+    `window.siWorldMeasureResponsiveEvidence?.() ?? null`,
     true,
-  ) as string;
-  if (!label) throw new Error('Responsive evidence is missing.');
-  return JSON.parse(label) as Record<string, unknown>;
+  ) as Record<string, unknown> | null;
+  if (!evidence) throw new Error('Responsive evidence is missing.');
+  return evidence;
 }
 
 async function vfxEvidence(window: BrowserWindow): Promise<Record<string, unknown>> {
@@ -422,6 +498,7 @@ async function waitForResponsiveEvidence(
   const deadline = Date.now() + timeoutMilliseconds;
   let last: Record<string, unknown> = {};
   while (Date.now() < deadline) {
+    await waitForRendererPaint(window);
     try {
       last = await responsiveEvidence(window);
       if (predicate(last)) return last;
@@ -430,7 +507,11 @@ async function waitForResponsiveEvidence(
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   }
-  throw new Error(`Responsive evidence did not reach the expected state. Last: ${JSON.stringify(last)}`);
+  const diagnostic = await surfaceLayoutDiagnostic(window);
+  throw new Error(
+    `Responsive evidence did not reach the expected state. ` +
+    `Last: ${JSON.stringify(last)} Layout: ${JSON.stringify(diagnostic)}`,
+  );
 }
 
 async function resizeContentAndWait(
@@ -450,12 +531,21 @@ async function resizeContentAndWait(
   while (Date.now() < deadline) {
     last = await surfaceBounds(window);
     if (Math.abs(last.width - expected.width) <= 1 && Math.abs(last.height - expected.height) <= 1) {
-      await waitForRendererPaint(window);
-      return last;
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, coalescedResizeDelay() * 2));
+      const settled = await surfaceBounds(window);
+      if (Math.abs(settled.width - expected.width) <= 1 && Math.abs(settled.height - expected.height) <= 1) {
+        await waitForRendererPaint(window);
+        return settled;
+      }
+      last = settled;
     }
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   }
-  throw new Error(`Responsive surface did not reach ${expected.width}x${expected.height}. Last: ${JSON.stringify(last)}`);
+  const diagnostic = await surfaceLayoutDiagnostic(window);
+  throw new Error(
+    `Responsive surface did not reach ${expected.width}x${expected.height}. ` +
+    `Last: ${JSON.stringify(last)} Layout: ${JSON.stringify(diagnostic)}`,
+  );
 }
 
 async function clickAriaButton(window: BrowserWindow, label: string): Promise<void> {
@@ -641,6 +731,42 @@ async function dispatchWorldTileClick(window: BrowserWindow, tile: Readonly<{ x:
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
 }
 
+const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 60_000;
+
+async function reachWorldTile(
+  window: BrowserWindow,
+  tile: Readonly<{ x: number; y: number }>,
+  options: Readonly<{ nativeClick?: boolean; timeoutMilliseconds?: number }> = {},
+): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    if (options.nativeClick) await clickWorldTile(window, tile);
+    else await dispatchWorldTileClick(window, tile);
+    try {
+      await waitForWorldTile(window, tile, options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS);
+      return;
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
+}
+
+async function reachWorldLocation(
+  window: BrowserWindow,
+  sourceTile: Readonly<{ x: number; y: number }>,
+  destinationMapName: string,
+  destinationTile: Readonly<{ x: number; y: number }>,
+): Promise<void> {
+  for (let attempt = 1; ; attempt += 1) {
+    await dispatchWorldTileClick(window, sourceTile);
+    try {
+      await waitForWorldLocation(window, destinationMapName, destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS);
+      return;
+    } catch (error) {
+      if (attempt === 3) throw error;
+    }
+  }
+}
+
 type MovementSmokeActor = Readonly<{
   committed: Readonly<{ x: number; y: number }>;
   visualFoot: Readonly<{ x: number; y: number }>;
@@ -692,20 +818,278 @@ async function waitForMovementSmokeState(
   throw new Error(`Natural-movement smoke state timed out. Last: ${JSON.stringify(last)}`);
 }
 
+type RendererParityState = Readonly<{
+  mapId: string;
+  mapHash: string;
+  presentationHash: string;
+  atlasHash: string;
+  camera: Readonly<{ x: number; y: number; zoom: number }>;
+  viewport: Readonly<{ width: number; height: number }>;
+  devicePixelRatio: number;
+  hiddenRoofGroupId: string | null;
+  characters: readonly Readonly<{ id: string; worldX: number; worldY: number }>[];
+  doors: readonly Record<string, unknown>[];
+  doorPhases: Readonly<Record<string, string>>;
+  movement: Readonly<{ direction: string; status: string; walkFrame: number }>;
+  selectionRing: Readonly<{ worldX: number; worldY: number }>;
+  destinationPulse: Record<string, unknown> | null;
+  journalMarkers: readonly Record<string, unknown>[];
+  failureMarker: Record<string, unknown> | null;
+  visibleEffectIds: readonly string[];
+  fallbackEmitterIds: readonly string[];
+}>;
+
+async function rendererParityState(window: BrowserWindow): Promise<RendererParityState> {
+  const label = await window.webContents.executeJavaScript(
+    `document.querySelector('#world-renderer-parity-state')?.getAttribute('aria-label') ?? ''`,
+    true,
+  ) as string;
+  if (!label) throw new Error('Renderer parity state is missing.');
+  return JSON.parse(label) as RendererParityState;
+}
+
+async function waitForRendererParityState(
+  window: BrowserWindow,
+  predicate: (state: RendererParityState) => boolean,
+  timeoutMilliseconds = 12_000,
+): Promise<RendererParityState> {
+  const deadline = Date.now() + timeoutMilliseconds;
+  let last: RendererParityState | undefined;
+  while (Date.now() < deadline) {
+    await waitForRendererPaint(window);
+    last = await rendererParityState(window);
+    if (predicate(last)) return last;
+  }
+  throw new Error(`Renderer parity state timed out. Last: ${JSON.stringify(last)}`);
+}
+
+async function captureRendererParitySmoke(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await mkdir(directory, { recursive: true });
+  await resizeContentAndWait(window, 1_280, 720);
+  await clickZoomButton(window, 1);
+  if (parseWorldStateLabel(await worldStateLabel(window)).speed === 0) await clickAriaButton(window, 'Set 1x time');
+
+  const fixtures: Record<string, unknown>[] = [];
+  const capture = async (id: string): Promise<void> => {
+    await window.webContents.executeJavaScript('window.siWorldFreezeRendererParityFrame?.()', true);
+    await waitForRendererPaint(window);
+    await waitForRendererPaint(window);
+    const screenshot = `${id}-${effectiveRenderer}-1x.png`;
+    const state = await rendererParityState(window);
+    await captureSmokeScreenshot(window, join(directory, screenshot));
+    fixtures.push({ id, screenshot, state });
+  };
+
+  await reachWorldTile(window, { x: 17, y: 25 });
+  await clickAriaButton(window, 'Pause time');
+  sendKey(window, 'F');
+  await waitForRendererPaint(window);
+  await waitForRoofLabel(window, 'Villa roof restored');
+  await capture('villa-exterior-idle');
+
+  await window.webContents.executeJavaScript("window.siWorldOpenRendererMotionFixture?.('door-transition')", true);
+  await waitForRendererParityState(window, ({ doorPhases }) => (
+    Object.values(doorPhases).some((phase) => phase === 'opening')
+  ));
+  await capture('villa-door-transition');
+  await clickAriaButton(window, 'Set 1x time');
+  await reachWorldTile(window, { x: 17, y: 23 });
+  await clickAriaButton(window, 'Pause time');
+  await waitForRoofLabel(window, 'Villa roof hidden');
+  await capture('villa-interior-roof-hidden');
+
+  await window.webContents.executeJavaScript("window.siWorldOpenRendererMotionFixture?.('walk-east-frame-1')", true);
+  await waitForRendererParityState(window, ({ movement }) => (
+    movement.status === 'moving' && movement.direction === 'right' && movement.walkFrame === 1
+  ));
+  await capture('villa-walk-east-frame-1');
+  await clickAriaButton(window, 'Set 1x time');
+  await waitForWorldTile(window, { x: 20, y: 23 });
+
+  const selectionNpcTile = { x: 27, y: 28 };
+  await reachWorldTile(window, { x: selectionNpcTile.x + 1, y: selectionNpcTile.y });
+  await clickAriaButton(window, 'Pause time');
+  await dispatchWorldTileClick(window, selectionNpcTile);
+  await waitForRendererParityState(window, ({ characters, selectionRing }) => {
+    const selectedNpc = characters.find(({ id }) => id === 'generic_resident');
+    return selectedNpc !== undefined && selectionRing.worldX === selectedNpc.worldX + 12 &&
+      selectionRing.worldY === selectedNpc.worldY + 27;
+  });
+  await capture('villa-selected-npc');
+
+  await window.webContents.executeJavaScript('window.siWorldOpenRendererFeedbackFixture?.()', true);
+  await waitForRendererParityState(window, (state) => (
+    state.destinationPulse !== null && state.journalMarkers.length > 0 && state.failureMarker !== null
+  ));
+  await capture('villa-destination-journal-failure');
+
+  let contextLifecycle: Record<string, unknown> | null = null;
+  if (effectiveRenderer === 'threejs-2d') {
+    const before = await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.()', true) as Record<string, unknown>;
+    const supported = await window.webContents.executeJavaScript(`(() => {
+      const canvas = document.querySelector('#threejs-world-canvas canvas');
+      if (!(canvas instanceof HTMLCanvasElement)) return false;
+      const extension = canvas.getContext('webgl2')?.getExtension('WEBGL_lose_context');
+      if (!extension) return false;
+      extension.loseContext();
+      setTimeout(() => extension.restoreContext(), 250);
+      return true;
+    })()`, true) as boolean;
+    if (!supported) throw new Error('Three.js context lifecycle smoke requires WEBGL_lose_context.');
+    await waitForSelector(window, '#world-renderer-recovery-overlay', 4_000);
+    await waitForSelectorMissing(window, '#world-renderer-recovery-overlay', 8_000);
+    await waitForRendererPaint(window);
+    const after = await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.()', true) as Record<string, unknown>;
+    contextLifecycle = { supported, lossOverlayObserved: true, restored: true, before, after };
+  }
+
+  return {
+    schemaVersion: 1,
+    rendererKind: effectiveRenderer,
+    fixtures,
+    contextLifecycle,
+  };
+}
+
+async function captureRendererAllMapsSmoke(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await mkdir(directory, { recursive: true });
+  const devicePixelRatio = await window.webContents.executeJavaScript('window.devicePixelRatio', true) as number;
+  // Stage 3 amendment 2026-08-15: each packaged window owns one DPR and one VFX mode.
+  const vfxMode = smokeVfxMode === 'circle' ? 'circle' : 'procedural';
+  const cases = ALL_MAP_PARITY_CASES.filter((entry) => (
+    entry.devicePixelRatio === devicePixelRatio && entry.vfxMode === vfxMode
+  ));
+  if (cases.length === 0) {
+    throw new Error(`No all-map parity cases are locked for DPR ${devicePixelRatio} in ${vfxMode} mode.`);
+  }
+  if (parseWorldStateLabel(await worldStateLabel(window)).speed !== 0) await clickAriaButton(window, 'Pause time');
+
+  const fixtures: Record<string, unknown>[] = [];
+  for (const entry of cases) {
+    await resizeContentAndWait(window, entry.viewport.width, entry.viewport.height);
+    await clickZoomButton(window, entry.zoom);
+    await window.webContents.executeJavaScript(
+      `window.siWorldOpenVfxFixture?.(${JSON.stringify(entry.mapId)}, ${JSON.stringify(entry.effectId)})`,
+      true,
+    );
+    await waitForVfxEvidence(window, (candidate) => (
+      candidate.mapId === entry.mapId &&
+      Array.isArray(candidate.visibleEmitterIds) &&
+      candidate.visibleEmitterIds.includes(entry.effectId)
+    ));
+    await window.webContents.executeJavaScript('window.siWorldFreezeRendererParityFrame?.()', true);
+    const state = await waitForRendererParityState(window, (candidate) => (
+      candidate.mapId === entry.mapId &&
+      candidate.camera.zoom === entry.zoom &&
+      candidate.devicePixelRatio === entry.devicePixelRatio
+    ));
+    await waitForRendererPaint(window);
+    await waitForRendererPaint(window);
+    const screenshot = `${entry.id}-${effectiveRenderer}.png`;
+    await captureSmokeScreenshot(window, join(directory, screenshot));
+    const rendererEvidence = effectiveRenderer === 'threejs-2d'
+      ? await window.webContents.executeJavaScript('window.siWorldThreeRendererEvidence?.() ?? null', true) as Record<string, unknown> | null
+      : null;
+    if (effectiveRenderer === 'threejs-2d' && !rendererEvidence) {
+      throw new Error(`Three.js renderer evidence is missing for ${entry.id}.`);
+    }
+    fixtures.push({ ...entry, screenshot, state, rendererEvidence });
+  }
+
+  const zoomSampling = devicePixelRatio === 1 && vfxMode === 'procedural'
+    ? await captureRendererZoomSampling(window, join(directory, 'zoom'))
+    : null;
+  return {
+    schemaVersion: 1,
+    rendererKind: effectiveRenderer,
+    devicePixelRatio,
+    vfxMode,
+    fixtures,
+    zoomSampling,
+  };
+}
+
+/**
+ * Stage 3 amendment 2026-08-15: every saved zoom now yields a rendered crop as well as
+ * presentation evidence, so the report can prove pixels instead of texture settings alone.
+ * The crop rect is fixed and identical for both renderers.
+ */
+const ZOOM_SAMPLING_CROP = Object.freeze({ x: 560, y: 280, width: 160, height: 160 });
+
+async function captureRendererZoomSampling(
+  window: BrowserWindow,
+  directory: string,
+): Promise<Record<string, unknown>> {
+  await resizeContentAndWait(window, 1_280, 720);
+  await mkdir(directory, { recursive: true });
+  // Center the camera so the fixed crop holds the player for both renderers.
+  sendKey(window, 'F');
+  await waitForRendererPaint(window);
+  const samples: Record<string, unknown>[] = [];
+  for (let index = 0; index <= 40; index += 1) {
+    const zoom = Math.round((1 + index * 0.05) * 100) / 100;
+    await window.webContents.executeJavaScript(`window.siWorldSetRendererTestZoom?.(${zoom})`, true);
+    await waitForRendererParityState(window, (state) => state.camera.zoom === zoom);
+    const deadline = Date.now() + 4_000;
+    let evidence: Record<string, unknown> | null = null;
+    while (Date.now() < deadline) {
+      await waitForRendererPaint(window);
+      evidence = await window.webContents.executeJavaScript(
+        'window.siWorldThreeRendererEvidence?.() ?? null',
+        true,
+      ) as Record<string, unknown> | null;
+      if (effectiveRenderer !== 'threejs-2d' || evidence?.presentedZoom === zoom) break;
+    }
+    if (effectiveRenderer === 'threejs-2d' && evidence?.presentedZoom !== zoom) {
+      throw new Error(`Three.js did not present saved zoom ${zoom}.`);
+    }
+    const crop = `zoom-${zoom.toFixed(2)}-${effectiveRenderer}.png`;
+    await waitForRendererPaint(window);
+    await captureSmokeScreenshot(window, join(directory, crop), undefined, ZOOM_SAMPLING_CROP);
+    samples.push({
+      zoom,
+      inputStep: Number.isInteger(zoom * 10),
+      savedBoundary: true,
+      crop,
+      ...(smokeRenderer === 'threejs-2d' && evidence ? {
+        presentedZoom: evidence.presentedZoom,
+        atlasSampling: evidence.atlasSampling,
+      } : {}),
+    });
+  }
+  return { schemaVersion: 1, crop: ZOOM_SAMPLING_CROP, samples };
+}
+
 async function startMovementSmokeSampling(window: BrowserWindow): Promise<void> {
   await window.webContents.executeJavaScript(`(() => {
-    if (globalThis.__siWorldMovementSampler?.active) {
+    if (globalThis.__siWorldMovementSampler) {
       throw new Error('Natural-movement sampling is already active.');
     }
-    const sampler = { active: true, samples: [] };
+    const element = document.querySelector('#world-movement-state');
+    if (!(element instanceof HTMLElement)) {
+      throw new Error('Natural-movement smoke evidence is missing.');
+    }
+    const sampler = { samples: [], observer: null };
     globalThis.__siWorldMovementSampler = sampler;
-    const frame = () => {
-      if (!sampler.active) return;
-      const label = document.querySelector('#world-movement-state')?.getAttribute('aria-label') ?? '';
+    const record = (label) => {
       if (label && sampler.samples.length < 900) sampler.samples.push(JSON.parse(label));
-      requestAnimationFrame(frame);
     };
-    requestAnimationFrame(frame);
+    sampler.observer = new MutationObserver((records) => {
+      for (const mutation of records) record(mutation.oldValue ?? '');
+      record(element.getAttribute('aria-label') ?? '');
+    });
+    sampler.observer.observe(element, {
+      attributeFilter: ['aria-label'],
+      attributeOldValue: true,
+      attributes: true,
+    });
+    record(element.getAttribute('aria-label') ?? '');
   })()`, true);
 }
 
@@ -713,7 +1097,7 @@ async function stopMovementSmokeSampling(window: BrowserWindow): Promise<Movemen
   return window.webContents.executeJavaScript(`(() => {
     const sampler = globalThis.__siWorldMovementSampler;
     if (!sampler) throw new Error('Natural-movement sampling was not started.');
-    sampler.active = false;
+    sampler.observer.disconnect();
     delete globalThis.__siWorldMovementSampler;
     return sampler.samples;
   })()`, true) as Promise<MovementSmokeState[]>;
@@ -728,18 +1112,24 @@ async function captureMovementPass(
   await clickZoomButton(window, 1);
   await clickAriaButton(window, 'Set 1x time');
   await waitForWorldState(window, (state) => state.speed === 1, 10_000);
+  const npcMotionFixture = await window.webContents.executeJavaScript(`(() => {
+    if (typeof window.siWorldStartNaturalMovementFixture !== 'function') {
+      throw new Error('Natural-movement NPC fixture is unavailable.');
+    }
+    return window.siWorldStartNaturalMovementFixture();
+  })()`, true) as unknown;
+  if (JSON.stringify(npcMotionFixture) !== JSON.stringify({
+    npcId: 'linda', source: 'fixture', target: { x: 23, y: 28 },
+  })) throw new Error('Natural-movement NPC fixture returned an invalid descriptor.');
+  await waitForRendererPaint(window);
 
   const start = { x: 18, y: 18 };
   const target = { x: 22, y: 22 };
   await startMovementSmokeSampling(window);
-  await clickWorldTile(window, target);
+  await dispatchWorldTileClick(window, target);
   const samples: MovementSmokeSample[] = [];
   const screenshotNames: string[] = [];
   const screenshotBuffers: Buffer[] = [];
-  const firstSegmentPositions = new Set<string>();
-  const playerWalkFrames = new Set<0 | 1>();
-  const npcWalkFrames = new Set<0 | 1>();
-  let curveObserved = false;
 
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
@@ -760,20 +1150,10 @@ async function captureMovementPass(
   }
   const lastRouteSample = await movementSmokeState(window);
   if (lastRouteSample.player.committed.x !== target.x || lastRouteSample.player.committed.y !== target.y) {
-    throw new Error('Natural-movement package pass did not reach the diagonal target.');
+    throw new Error(`Natural-movement package pass did not reach the diagonal target. Last: ${JSON.stringify(lastRouteSample.player)}`);
   }
   const routeSamples = await stopMovementSmokeSampling(window);
-  for (const sample of routeSamples) {
-    samples.push(sample);
-    playerWalkFrames.add(sample.player.walkFrame);
-    for (const npc of Object.values(sample.npcs)) {
-      if (npc.status === 'moving') npcWalkFrames.add(npc.walkFrame);
-    }
-    curveObserved ||= sample.player.curveActive;
-    if (sample.player.committed.x === start.x && sample.player.committed.y === start.y) {
-      firstSegmentPositions.add(`${sample.player.visualFoot.x},${sample.player.visualFoot.y}`);
-    }
-  }
+  samples.push(...routeSamples);
 
   let interruptionObserved = false;
   let rendererFps: number | null = null;
@@ -795,6 +1175,7 @@ async function captureMovementPass(
 
     await dispatchWorldTileClick(window, start);
     await waitForMovementSmokeState(window, (state) => state.player.status === 'moving');
+    await startMovementSmokeSampling(window);
     await dispatchWorldTileClick(window, { x: 24, y: 22 });
     const interrupted = await waitForMovementSmokeState(window, (state) => (
       state.player.status === 'moving' && state.player.target?.x === 24 && state.player.target.y === 22
@@ -807,6 +1188,7 @@ async function captureMovementPass(
     await waitForMovementSmokeState(window, (state) => (
       state.player.status === 'idle' && state.player.committed.x === 24 && state.player.committed.y === 22
     ), 20_000);
+    samples.push(...await stopMovementSmokeSampling(window));
 
     await clickZoomButton(window, 1);
     await dispatchWorldTileClick(window, { x: 40, y: 36 });
@@ -819,20 +1201,27 @@ async function captureMovementPass(
     screenshotNames.push(crowdName);
   }
 
+  const emittedSamples = samples.map((sample) => ({
+    ...sample,
+    npcs: Object.fromEntries(
+      Object.entries(sample.npcs).filter(([, movement]) => movement.status === 'moving'),
+    ),
+  }));
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     mode,
-    samples: samples.map((sample) => ({
-      ...sample,
-      npcs: Object.fromEntries(
-        Object.entries(sample.npcs).filter(([, movement]) => movement.status === 'moving'),
-      ),
-    })),
-    firstSegmentUniquePositions: firstSegmentPositions.size,
-    curveObserved,
+    npcMotionSource: 'fixture',
+    npcMotionNpcId: 'linda',
+    samples: emittedSamples,
+    firstSegmentUniquePositions: new Set(emittedSamples.filter(({ player }) => (
+      player.committed.x === start.x && player.committed.y === start.y
+    )).map(({ player }) => `${player.visualFoot.x},${player.visualFoot.y}`)).size,
+    curveObserved: emittedSamples.some(({ player }) => player.curveActive),
     interruptionObserved,
-    playerWalkFrames: [...playerWalkFrames].sort(),
-    npcWalkFrames: [...npcWalkFrames].sort(),
+    playerWalkFrames: [...new Set(emittedSamples.map(({ player }) => player.walkFrame))].sort(),
+    npcWalkFrames: [...new Set(emittedSamples.flatMap(({ npcs }) => (
+      Object.values(npcs).map(({ walkFrame }) => walkFrame)
+    )))].sort(),
     rendererFps,
     displayRafFps,
     screenshotNames,
@@ -930,7 +1319,9 @@ async function measureRendererFps(window: BrowserWindow, durationMilliseconds = 
 }
 
 async function startResponsiveSmokeGame(window: BrowserWindow): Promise<void> {
-  await waitForSelector(window, '#new-game-flow');
+  await waitForSelector(window, '#new-game-flow, #world-state');
+  const active = await window.webContents.executeJavaScript("Boolean(document.querySelector('#world-state'))", true) as boolean;
+  if (active) return;
   await window.webContents.executeJavaScript(`(() => {
     const input = document.querySelector('[aria-label="Player name"]');
     if (!(input instanceof HTMLInputElement)) throw new Error('Player name input is missing.');
@@ -947,8 +1338,14 @@ async function startResponsiveSmokeGame(window: BrowserWindow): Promise<void> {
 
 async function openLindaConversationForResponsiveSmoke(window: BrowserWindow): Promise<Record<string, unknown>> {
   const lindaTile = parseLindaTile(await npcStateLabel(window));
+  const approachTile = { x: lindaTile.x + 1, y: lindaTile.y };
+  await clickAriaButton(window, 'Set 1x time');
+  await reachWorldTile(window, approachTile);
+  await clickAriaButton(window, 'Pause time');
   await dispatchWorldTileClick(window, lindaTile);
+  await waitForAriaButtonEnabled(window, 'Talk to Linda');
   await clickAriaButton(window, 'Talk to Linda');
+  await waitForSelector(window, '#world-ui-quest-offer-panel, #world-ui-conversation-panel');
   if (await window.webContents.executeJavaScript(`Boolean(document.querySelector('#world-ui-quest-offer-panel'))`, true) as boolean) {
     await clickAriaButton(window, "Accept Linda's request");
     await waitForSelectorMissing(window, '#world-ui-quest-offer-panel');
@@ -1063,8 +1460,7 @@ async function captureResponsiveSmoke(
     clickAlternate = !clickAlternate;
     await clickAriaButton(window, 'Set 1x time');
     await waitForWorldState(window, (state) => state.speed === 1, 10_000);
-    await dispatchWorldTileClick(window, clickedTile);
-    await waitForWorldTile(window, clickedTile, 10_000);
+    await reachWorldTile(window, clickedTile);
     await clickAriaButton(window, 'Pause time');
     await waitForWorldState(window, (state) => state.speed === 0, 10_000);
 
@@ -1095,8 +1491,7 @@ async function captureResponsiveSmoke(
     await clickZoomButton(window, 1);
     await clickAriaButton(window, 'Set 1x time');
     await waitForWorldState(window, (state) => state.speed === 1, 10_000);
-    await dispatchWorldTileClick(window, geometry.roof.exteriorTile);
-    await waitForWorldTile(window, geometry.roof.exteriorTile, 20_000);
+    await reachWorldTile(window, geometry.roof.exteriorTile);
     await clickAriaButton(window, 'Pause time');
     await waitForWorldState(window, (state) => state.speed === 0, 10_000);
     await waitForRoofLabel(window, 'Villa roof restored', 10_000);
@@ -1135,6 +1530,7 @@ async function captureResponsiveSmoke(
   return {
     schemaVersion: 1,
     highDpi: responsiveHighDpiMode,
+    requestedDeviceScaleFactor: responsiveDeviceScaleFactor,
     geometry,
     targets: targetReports,
     fullCastPortraitMatrix,
@@ -1298,7 +1694,10 @@ async function captureSaveMigrationSmoke(
   };
 }
 
-async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number | string>> {
+type WorldSmokeBootstrap = Readonly<{ newGameFlow: boolean; newGameText: string }>;
+let worldSmokeBootstrap: WorldSmokeBootstrap | undefined;
+
+async function beginWorldSmoke(window: BrowserWindow, directory: string): Promise<WorldSmokeBootstrap> {
   const progress = (stage: string): void => {
     process.stdout.write(`SI_WORLD_SMOKE_PROGRESS ${stage}\n`);
   };
@@ -1318,6 +1717,16 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   sendKey(window, 'Enter');
   await waitForSelector(window, '#world-state', 20_000);
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 1');
+  return { newGameFlow, newGameText };
+}
+
+async function captureWorldSmoke(window: BrowserWindow, directory: string): Promise<Record<string, boolean | number | string>> {
+  const progress = (stage: string): void => {
+    process.stdout.write(`SI_WORLD_SMOKE_PROGRESS ${stage}\n`);
+  };
+  const bootstrap = worldSmokeBootstrap ?? await beginWorldSmoke(window, directory);
+  const { newGameFlow, newGameText } = bootstrap;
+  const geometry = await geometryEvidence(window);
   const protagonistLabel = await protagonistStateLabel(window);
   const stableProtagonist = protagonistLabel.includes('Protagonist protagonist') && protagonistLabel.includes('name MISTAKE');
   const allowanceReceipt = protagonistLabel.includes('allowance 800') && protagonistLabel.includes('money 800') &&
@@ -1360,7 +1769,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     Math.abs(resizedCenter.y - responsiveCenterBefore.y) <= 1;
   const responsiveDto = await waitForResponsiveEvidence(window, (evidence) => {
     const content = evidence.content as { width?: number; height?: number } | undefined;
-    return content?.width === 1_440 && content.height === 900;
+    const measuredSurface = evidence.surface as { width?: number; height?: number } | undefined;
+    return content?.width === 1_440 && content.height === 900 &&
+      Math.abs(Number(measuredSurface?.width) - resizedBounds.width) <= 1 &&
+      Math.abs(Number(measuredSurface?.height) - resizedBounds.height) <= 1;
   });
   const coverage = responsiveDto.coverage as { width?: number; height?: number } | undefined;
   const responsiveSurface = Number(coverage?.width) >= 0.9 && Number(coverage?.height) >= 0.85 &&
@@ -1375,19 +1787,18 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickZoomButton(window, 2);
   let bounds = await surfaceBounds(window);
   const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
-  await dispatchWorldTileClick(window, { x: 19, y: 20 });
-  await waitForWorldTile(window, { x: 19, y: 20 }, 10_000);
+  await reachWorldTile(window, { x: 19, y: 20 });
   const movedText = await rendererText(window, '#world-ui-location');
   const movement = movedText.includes('TILE 19,20');
 
   const beforePan = await cameraLabel(window);
   window.webContents.sendInputEvent({ type: 'mouseDown', x: Math.round(center.x), y: Math.round(center.y), button: 'middle', clickCount: 1 });
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 32), y: Math.round(center.y), button: 'middle' });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  await waitForRendererPaint(window);
   window.webContents.sendInputEvent({ type: 'mouseMove', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle' });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
   window.webContents.sendInputEvent({ type: 'mouseUp', x: Math.round(center.x + 96), y: Math.round(center.y), button: 'middle', clickCount: 1 });
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  await waitForRendererPaint(window);
   const afterPan = await cameraLabel(window);
   const beforePanState = parseCameraLabel(beforePan);
   const afterPanState = parseCameraLabel(afterPan);
@@ -1408,18 +1819,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   bounds = await surfaceBounds(window);
   const wheelX = Math.round(bounds.x + bounds.width / 2);
   const wheelY = Math.round(bounds.y + bounds.height / 2);
-  await window.webContents.executeJavaScript(`(() => {
-    const element = document.querySelector('#world-input-surface');
-    if (!(element instanceof HTMLElement)) throw new Error('World input surface is missing.');
-    element.dispatchEvent(new WheelEvent('wheel', {
-      bubbles: true,
-      cancelable: true,
-      clientX: ${wheelX},
-      clientY: ${wheelY},
-      deltaY: -100,
-    }));
-  })()`, true);
-  await new Promise((resolveDelay) => setTimeout(resolveDelay, 180));
+  window.webContents.sendInputEvent({
+    type: 'mouseWheel', x: wheelX, y: wheelY, deltaY: 100, canScroll: false,
+  });
+  await waitForRendererPaint(window);
   const wheelZoom = (await cameraLabel(window)).endsWith('at 2.1x');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 300));
   const presentationAfterWheel = await window.webContents.executeJavaScript(
@@ -1445,11 +1848,13 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const tilePattern = /TILE \d+,\d+/u;
   const uiClickThrough = beforeUi.match(tilePattern)?.[0] === afterUi.match(tilePattern)?.[0];
 
-  await clickWorldTile(window, { x: 15, y: 25 });
-  await waitForWorldTile(window, { x: 15, y: 25 }, 10_000);
+  await reachWorldTile(window, geometry.roof.exteriorTile, {
+    nativeClick: true,
+  });
   await waitForRoofLabel(window, 'Villa roof restored');
   const outsideText = await rendererText(window, '#world-ui-location');
-  const roofRestore = outsideText.includes('TILE 15,25') && await roofLabel(window) === 'Villa roof restored';
+  const roofRestore = outsideText.includes(`TILE ${geometry.roof.exteriorTile.x},${geometry.roof.exteriorTile.y}`) &&
+    await roofLabel(window) === 'Villa roof restored';
   let previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window,
     join(directory, 'world-roof-restored.png'),
@@ -1457,8 +1862,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   );
 
   progress('villa-interior');
-  await clickWorldTile(window, { x: 15, y: 23 });
-  await waitForWorldTile(window, { x: 15, y: 23 }, 10_000);
+  await reachWorldTile(window, { x: 15, y: 23 }, { nativeClick: true });
   await waitForRoofLabel(window, 'Villa roof hidden');
   const roofEntry = (await rendererText(window, '#world-ui-location')).includes('TILE 15,23') &&
     await roofLabel(window) === 'Villa roof hidden';
@@ -1474,8 +1878,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const afterFast = parseWorldStateLabel(await worldStateLabel(window));
   const doubleSpeedClock = afterFast.speed === 2 && afterFast.minute - afterPause.minute >= 2 && afterFast.minute - afterPause.minute <= 4;
 
-  await dispatchWorldTileClick(window, { x: 14, y: 13 });
-  await waitForWorldTile(window, { x: 14, y: 13 });
+  await reachWorldTile(window, { x: 14, y: 13 });
   const bedroomReached = (await rendererText(window, '#world-ui-location')).includes('TILE 14,13');
   await clickAriaButton(window, 'Pause time');
   const beforeNap = parseWorldStateLabel(await worldStateLabel(window));
@@ -1499,14 +1902,13 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const sleepAutosave = (await rendererText(window, '#world-save-status')).includes('SAVED GEN 2');
 
   progress('neighborhood-loop');
-  await clickAriaButton(window, 'Set 1x time');
-  await dispatchWorldTileClick(window, { x: 16, y: 25 });
-  await waitForWorldTile(window, { x: 16, y: 25 });
+  await clickAriaButton(window, 'Set 2x time');
+  await waitForWorldState(window, (state) => state.speed === 2, 10_000);
+  await reachWorldTile(window, { x: 16, y: 25 });
   await clickZoomButton(window, 1);
   await panWorld(window, -500, 0);
   await panWorld(window, -500, 0);
-  await dispatchWorldTileClick(window, { x: 63, y: 24 });
-  await waitForWorldLocation(window, 'Neon Crescent', { x: 0, y: 24 });
+  await reachWorldLocation(window, { x: 63, y: 24 }, 'Neon Crescent', { x: 0, y: 24 });
   const afterTravel = parseWorldStateLabel(await worldStateLabel(window));
   const travel = afterTravel.mapName === 'Neon Crescent' && afterTravel.x === 0 && afterTravel.y === 24;
   await waitForRendererText(window, '#world-save-status', 'SAVED GEN 3');
@@ -1519,8 +1921,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
 
   await panWorld(window, 0, -500);
-  await dispatchWorldTileClick(window, { x: 32, y: 47 });
-  await waitForWorldLocation(window, 'Greywake Harbor', { x: 32, y: 0 });
+  await reachWorldLocation(window, { x: 32, y: 47 }, 'Greywake Harbor', { x: 32, y: 0 });
   const docks = parseWorldStateLabel(await worldStateLabel(window));
   await panWorld(window, 0, -500);
   await panWorld(window, -500, 0);
@@ -1544,8 +1945,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
 
   await panWorld(window, 500, 0);
-  await dispatchWorldTileClick(window, { x: 0, y: 24 });
-  await waitForWorldLocation(window, 'Saffron Bazaar', { x: 63, y: 24 });
+  await reachWorldLocation(window, { x: 0, y: 24 }, 'Saffron Bazaar', { x: 63, y: 24 });
   const commercial = parseWorldStateLabel(await worldStateLabel(window));
   previousWorldBuffer = await captureDistinctSmokeScreenshot(
     window, join(directory, 'world-commercial.png'), [previousWorldBuffer],
@@ -1555,8 +1955,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
 
   await panWorld(window, 500, 500);
-  await dispatchWorldTileClick(window, { x: 32, y: 0 });
-  await waitForWorldLocation(window, 'Sunward Villas', { x: 32, y: 47 });
+  await reachWorldLocation(window, { x: 32, y: 0 }, 'Sunward Villas', { x: 32, y: 47 });
   const loopCompleteState = parseWorldStateLabel(await worldStateLabel(window));
   const allNeighborhoods = commercial.mapName === 'Saffron Bazaar' &&
     loopCompleteState.mapName === 'Sunward Villas' && loopCompleteState.x === 32 && loopCompleteState.y === 47;
@@ -1571,8 +1970,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await panWorld(window, 0, 500);
   const lindaTile = parseLindaTile(await npcStateLabel(window));
   const questOfferApproachTile = { x: lindaTile.x + 1, y: lindaTile.y };
-  await dispatchWorldTileClick(window, questOfferApproachTile);
-  await waitForWorldTile(window, questOfferApproachTile, 10_000);
+  await reachWorldTile(window, questOfferApproachTile);
   await dispatchWorldTileClick(window, lindaTile);
   const talkLabels = await window.webContents.executeJavaScript(
     `Array.from(document.querySelectorAll('[aria-label^="Talk to "]')).map((element) => element.getAttribute('aria-label'))`,
@@ -1583,6 +1981,10 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   }
   await clickAriaButton(window, 'Talk to Linda');
   await waitForRendererText(window, '#world-ui-quest-offer-panel', 'YES · HELP LINDA');
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'MISTAKE');
+  await waitForRendererText(window, '#world-ui-quest-offer-panel', 'NO · NOT NOW');
+  await waitForSelector(window, '#conversation-portrait-protagonist-ready');
+  await waitForSelector(window, '#conversation-portrait-linda-ready');
   const questOfferText = await rendererText(window, '#world-ui-quest-offer-panel');
   const portraitsReady = await window.webContents.executeJavaScript(`Boolean(
     document.querySelector('#conversation-portrait-protagonist-ready') &&
@@ -1683,24 +2085,38 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     const frameTimes = [];
     let feedbackMilliseconds = null;
     let finished = false;
+    let feedbackObserver = null;
+    const recordFeedback = () => {
+      const thinking = Boolean(document.querySelector('[aria-label="NPC is thinking"]'));
+      if (thinking && feedbackMilliseconds === null) {
+        feedbackMilliseconds = Math.max(0, performance.now() - startedAt);
+      }
+      return thinking;
+    };
     const finish = (timedOut) => {
       if (finished) return;
       finished = true;
       clearTimeout(timeout);
+      feedbackObserver?.disconnect();
       const measuredFrames = frameTimes.filter((time) => time >= startedAt + (feedbackMilliseconds ?? 0));
       const duration = measuredFrames.length > 1
         ? measuredFrames[measuredFrames.length - 1] - measuredFrames[0]
         : 0;
       const rendererFps = duration > 0 ? ((measuredFrames.length - 1) * 1000) / duration : 0;
-      resolve({ feedbackMilliseconds, rendererFps, timedOut });
+      resolve({ feedbackMilliseconds, rendererFps, sampledFrames: measuredFrames.length, timedOut });
     };
     const timeout = setTimeout(() => finish(true), 30000);
+    feedbackObserver = new MutationObserver(recordFeedback);
+    feedbackObserver.observe(document.body, { childList: true, subtree: true });
     button.click();
+    recordFeedback();
     const frame = (now) => {
       frameTimes.push(now);
-      const thinking = Boolean(document.querySelector('[aria-label="NPC is thinking"]'));
-      if (thinking && feedbackMilliseconds === null) feedbackMilliseconds = Math.max(0, now - startedAt);
-      if (feedbackMilliseconds !== null && !thinking) {
+      const thinking = recordFeedback();
+      const measuredFrameCount = feedbackMilliseconds === null
+        ? 0
+        : frameTimes.filter((time) => time >= startedAt + feedbackMilliseconds).length;
+      if (feedbackMilliseconds !== null && !thinking && measuredFrameCount >= 2) {
         finish(false);
         return;
       }
@@ -1710,6 +2126,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   })`, true) as Readonly<{
     feedbackMilliseconds: number | null;
     rendererFps: number;
+    sampledFrames: number;
     timedOut: boolean;
   }>;
   const conversationFeedbackMilliseconds = Math.round((generationMetrics.feedbackMilliseconds ?? 99_999) * 100) / 100;
@@ -1768,8 +2185,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickAriaButton(window, 'Close relationships');
   const currentLindaTile = parseLindaTile(await npcStateLabel(window));
   const lindaApproachTile = { x: currentLindaTile.x + 1, y: currentLindaTile.y };
-  await dispatchWorldTileClick(window, lindaApproachTile);
-  await waitForWorldTile(window, lindaApproachTile, 10_000);
+  await reachWorldTile(window, lindaApproachTile);
   await dispatchWorldTileClick(window, currentLindaTile);
   await clickAriaButton(window, 'Open quests');
   await waitForRendererText(window, '#world-ui-journal-panel', 'LINDA · REJECTED');
@@ -1784,8 +2200,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   await clickAriaButton(window, 'Close quests');
   progress('quest');
   const questPreparationPreserved = (await questStateLabel(window)).includes('flags security_report_purchased');
-  await dispatchWorldTileClick(window, { x: 22, y: 28 });
-  await waitForWorldTile(window, { x: 22, y: 28 }, 10_000);
+  await reachWorldTile(window, { x: 22, y: 28 });
   sendKey(window, 'Q');
   await waitForRendererText(window, '#world-ui-journal-panel', 'QUESTS');
   const questShortcut = (await rendererText(window, '#world-ui-journal-panel')).includes('QUEST 01');
@@ -1840,13 +2255,15 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   progress('complete');
   return {
     newGameFlow, stableProtagonist, allowanceReceipt, newGameSave, accessibilityPolicy,
-    responsiveSurface, resizeCamera, uiScaleControls,
+    responsiveSurface, responsiveSurfaceDiagnostic: responsiveSurface ? '' : JSON.stringify(responsiveDto),
+    resizeCamera, uiScaleControls,
     zoomButtons, movement, middlePan, wheelZoom, gradualZoomPersistence, centerKey, cancelKey, uiClickThrough,
     roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
     conversationPause, conversationInputLocked, conversationSocialNavLocked, conversationResponsiveState, promptIdeasContextual, conversationBuffered,
     conversationFeedbackMilliseconds, rendererFpsDuringGeneration,
+    rendererFpsSampledFrames: generationMetrics.sampledFrames,
     conversationFallback, firstFreeTextTurnSource, modelFailureFeedback, audioCaptions, conversationCommitSave,
     structuredInvitation, structuredInvitationSource, relationshipPanel, hiddenFaction, journalInvitation, socialPurchase,
     questOfferDialogue, questOfferPause, questStarted, questPreparationPreserved, questShortcut,
@@ -1854,10 +2271,56 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   };
 }
 
+async function emitWebgl2Probe(window: BrowserWindow): Promise<void> {
+  if (!webgl2ProbeMode || smokeFinished) return;
+  const available = await window.webContents.executeJavaScript(`(() => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('webgl2');
+    context?.getExtension('WEBGL_lose_context')?.loseContext();
+    return context !== null;
+  })()`, true) as boolean;
+  if (!available) throw new Error('Packaged renderer could not create a WebGL 2 context.');
+  smokeFinished = true;
+  process.stdout.write(`SI_WORLD_WEBGL2_PROBE_RESULT ${JSON.stringify({
+    schemaVersion: 1,
+    available,
+    appUrl: window.webContents.getURL(),
+    architecture: process.arch,
+    platform: process.platform,
+  })}\n`);
+  setTimeout(() => app.quit(), 50);
+}
+
 async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindow): Promise<void> {
-  if (!smokeMode || smokeFinished) {
+  if (!smokeMode || smokeFinished || webgl2ProbeMode) {
     return;
   }
+  if (report.phase === 'shell') {
+    if (rendererShellReady) return;
+    rendererShellReady = true;
+    process.stdout.write(`SI_WORLD_RENDERER_SHELL_READY ${JSON.stringify({
+      milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
+    })}\n`);
+    smokePreparationPromise = (async () => {
+      if (saveMigrationSmokeMode || saveReloadSmokeMode || presentationRestartSmokeMode) return;
+      const worldScreenshotDirectory = process.env.SI_WORLD_SMOKE_WORLD_SCREENSHOT_DIR;
+      if (!naturalMovementSmokeMode && !responsiveSmokeMode && !proceduralVfxSmokeMode &&
+          !presentationSeedSmokeMode && worldScreenshotDirectory) {
+        worldSmokeBootstrap = await beginWorldSmoke(window, worldScreenshotDirectory);
+      } else {
+        await startResponsiveSmokeGame(window);
+      }
+    })().catch((error: unknown) => { smokePreparationError = error; });
+    return;
+  }
+  if (!rendererShellReady) throw new Error('World readiness arrived before shell readiness.');
+  // Stage 6: Three.js is the production renderer, so a smoke that requests none expects it.
+  const expectedRenderer = effectiveRenderer;
+  if (report.rendererKind !== expectedRenderer) {
+    throw new Error(`Expected ${expectedRenderer} readiness but received ${report.rendererKind}.`);
+  }
+  await smokePreparationPromise;
+  if (smokePreparationError) throw smokePreparationError;
   smokeFinished = true;
   process.stdout.write(`SI_WORLD_RENDERER_READY ${JSON.stringify({
     milliseconds: Math.round((performance.now() - processStartedAt) * 100) / 100,
@@ -1887,6 +2350,20 @@ async function emitSmokeResult(report: RendererReadyReport, window: BrowserWindo
     }
     const vfxResult = await captureProceduralVfxSmoke(window, vfxDirectory);
     process.stdout.write(`SI_WORLD_PROCEDURAL_VFX_SMOKE_RESULT ${JSON.stringify(vfxResult)}\n`);
+  } else if (rendererAllMapsSmokeMode) {
+    const parityDirectory = process.env.SI_WORLD_RENDERER_PARITY_SCREENSHOT_DIR;
+    if (!parityDirectory || !isAbsolute(parityDirectory)) {
+      throw new Error('All-map renderer smoke screenshot directory must be absolute.');
+    }
+    const parityResult = await captureRendererAllMapsSmoke(window, parityDirectory);
+    process.stdout.write(`SI_WORLD_RENDERER_ALL_MAPS_SMOKE_RESULT ${JSON.stringify(parityResult)}\n`);
+  } else if (rendererParitySmokeMode) {
+    const parityDirectory = process.env.SI_WORLD_RENDERER_PARITY_SCREENSHOT_DIR;
+    if (!parityDirectory || !isAbsolute(parityDirectory)) {
+      throw new Error('Renderer-parity smoke screenshot directory must be absolute.');
+    }
+    const parityResult = await captureRendererParitySmoke(window, parityDirectory);
+    process.stdout.write(`SI_WORLD_RENDERER_PARITY_SMOKE_RESULT ${JSON.stringify(parityResult)}\n`);
   } else if (naturalMovementSmokeMode) {
     const naturalMovementDirectory = process.env.SI_WORLD_NATURAL_MOVEMENT_SCREENSHOT_DIR;
     if (!naturalMovementDirectory || !isAbsolute(naturalMovementDirectory)) {
@@ -1956,8 +2433,11 @@ async function createMainWindow(): Promise<void> {
       additionalArguments: [
         ...(smokeMode ? [
           '--si-world-smoke-mode=1',
+          ...(!naturalMovementSmokeMode ? ['--si-world-freeze-npc-motion=1'] : []),
           ...(responsiveArtMode ? [`--si-world-art-mode=${responsiveArtMode}`] : []),
           ...(smokeVfxMode ? [`--si-world-vfx-mode=${smokeVfxMode}`] : []),
+          ...(smokeRenderer ? [`--si-world-test-renderer=${smokeRenderer}`] : []),
+          ...(smokeToneMapping ? [`--si-world-test-tone-mapping=${smokeToneMapping}`] : []),
         ] : []),
         ...(devHarnessMode ? ['--si-world-dev-harness=1'] : []),
       ],
@@ -1980,7 +2460,7 @@ async function createMainWindow(): Promise<void> {
       appVersion: app.getVersion(),
       electronVersion: process.versions.electron,
       packaged: app.isPackaged,
-      platform: process.platform as 'darwin' | 'linux' | 'win32',
+      platform: runtimePlatform,
     },
     (report) => {
       void emitSmokeResult(report, window).catch((error: unknown) => {
@@ -2032,6 +2512,14 @@ async function createMainWindow(): Promise<void> {
     }
   });
   window.webContents.on('did-finish-load', () => {
+    if (webgl2ProbeMode) {
+      void emitWebgl2Probe(window).catch((error: unknown) => {
+        smokeFinished = true;
+        process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
+        app.exit(1);
+      });
+      return;
+    }
     if (devHarnessMode) {
       void window.webContents.executeJavaScript(`JSON.stringify({
         enabled: window.siWorldDevHarnessMode === true,
@@ -2042,16 +2530,19 @@ async function createMainWindow(): Promise<void> {
     }
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
+      // Stage 6: the production renderer clears the loading shell sooner than Skia did, so a
+      // fixed delay could miss the whole window on a fast runner. Start immediately and let the
+      // capture retry policy handle a frame that has not painted yet.
       setTimeout(() => {
         void captureLoadingSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
           smokeFinished = true;
           process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
           app.exit(1);
         });
-      }, 100);
+      }, 0);
     }
   });
-  await window.loadURL(devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
+  await window.loadURL(webgl2ProbeMode ? WEBGL2_PROBE_URL : devHarnessMode ? `${APP_URL}#/dev` : APP_URL);
 }
 
 app.on('web-contents-created', (_event, contents) => lockWebContents(contents));

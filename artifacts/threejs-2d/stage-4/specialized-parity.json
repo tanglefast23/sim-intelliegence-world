@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "fixtureSet": "threejs-specialized-stage-3",
+  "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+  "mode": "parity",
+  "passed": true,
+  "failures": [],
+  "fixtures": [
+    {
+      "id": "villa-exterior-idle",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-exterior-idle",
+        "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 7257,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.007875,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.350974,
+          "rootMeanSquareChannelDelta": 0.910027,
+          "largeChangedPixelCount": 189,
+          "largeChangedPixelRatio": 0.000205,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 0.399123,
+            "rootMeanSquareChannelDelta": 0.631762,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "player-protagonist",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 2.252719,
+              "candidateContrast": 2.232233,
+              "retainedContrast": 0.990906,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-interior-roof-hidden",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-interior-roof-hidden",
+        "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 8110,
+          "outsideMaskPixelCount": 921130,
+          "changedOutsideMaskRatio": 0.008804,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.357684,
+          "rootMeanSquareChannelDelta": 0.925663,
+          "largeChangedPixelCount": 126,
+          "largeChangedPixelRatio": 0.000137,
+          "maskLocal": {
+            "comparablePixelCount": 470,
+            "meanAbsoluteChannelDelta": 0.874468,
+            "rootMeanSquareChannelDelta": 2.116635,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "npc-generic-resident",
+              "baselineReadablePixels": 470,
+              "candidateReadablePixels": 470,
+              "readableRetention": 1,
+              "baselineContrast": 1.369149,
+              "candidateContrast": 1.360331,
+              "retainedContrast": 0.99356,
+              "maximumChannelDelta": 11
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-door-transition",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-door-transition",
+        "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 8234,
+          "outsideMaskPixelCount": 921444,
+          "changedOutsideMaskRatio": 0.008936,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.358099,
+          "rootMeanSquareChannelDelta": 0.935488,
+          "largeChangedPixelCount": 130,
+          "largeChangedPixelRatio": 0.000141,
+          "maskLocal": {
+            "comparablePixelCount": 156,
+            "meanAbsoluteChannelDelta": 0.350427,
+            "rootMeanSquareChannelDelta": 0.591969,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "active-door-entry-hall-door",
+              "baselineReadablePixels": 156,
+              "candidateReadablePixels": 156,
+              "readableRetention": 1,
+              "baselineContrast": 1.541785,
+              "candidateContrast": 1.52763,
+              "retainedContrast": 0.990819,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-walk-east-frame-1",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-walk-east-frame-1",
+        "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 8165,
+          "outsideMaskPixelCount": 921524,
+          "changedOutsideMaskRatio": 0.00886,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.35676,
+          "rootMeanSquareChannelDelta": 0.901864,
+          "largeChangedPixelCount": 110,
+          "largeChangedPixelRatio": 0.000119,
+          "maskLocal": {
+            "comparablePixelCount": 76,
+            "meanAbsoluteChannelDelta": 0.280702,
+            "rootMeanSquareChannelDelta": 0.529813,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "route-destination-pulse",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 1.62403,
+              "candidateContrast": 1.629845,
+              "retainedContrast": 1.003581,
+              "maximumChannelDelta": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-selected-npc",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-selected-npc",
+        "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 6641,
+          "outsideMaskPixelCount": 921542,
+          "changedOutsideMaskRatio": 0.007206,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.327318,
+          "rootMeanSquareChannelDelta": 0.886074,
+          "largeChangedPixelCount": 184,
+          "largeChangedPixelRatio": 0.0002,
+          "maskLocal": {
+            "comparablePixelCount": 58,
+            "meanAbsoluteChannelDelta": 2.356322,
+            "rootMeanSquareChannelDelta": 3.984164,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "selection-ring",
+              "baselineReadablePixels": 58,
+              "candidateReadablePixels": 58,
+              "readableRetention": 1,
+              "baselineContrast": 3.431547,
+              "candidateContrast": 3.226747,
+              "retainedContrast": 0.940319,
+              "maximumChannelDelta": 8
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "villa-destination-journal-failure",
+      "report": {
+        "schemaVersion": 1,
+        "fixture": "villa-destination-journal-failure",
+        "sourceCommit": "525d04bdfb0695cc8783d43615b78138aeff8c16",
+        "mode": "parity",
+        "rasterComparison": "native",
+        "passed": true,
+        "failures": [],
+        "measurements": {
+          "changedOutsideMaskPixels": 7626,
+          "outsideMaskPixelCount": 921149,
+          "changedOutsideMaskRatio": 0.008279,
+          "comparableFramePixelCount": 921600,
+          "meanAbsoluteChannelDelta": 0.346174,
+          "rootMeanSquareChannelDelta": 0.847524,
+          "largeChangedPixelCount": 46,
+          "largeChangedPixelRatio": 0.00005,
+          "maskLocal": {
+            "comparablePixelCount": 451,
+            "meanAbsoluteChannelDelta": 0.141907,
+            "rootMeanSquareChannelDelta": 0.524352,
+            "largeChangedPixelCount": 0,
+            "largeChangedPixelRatio": 0
+          },
+          "masks": [
+            {
+              "id": "destination-pulse",
+              "baselineReadablePixels": 76,
+              "candidateReadablePixels": 76,
+              "readableRetention": 1,
+              "baselineContrast": 1.364121,
+              "candidateContrast": 1.375369,
+              "retainedContrast": 1.008246,
+              "maximumChannelDelta": 1
+            },
+            {
+              "id": "failure-marker",
+              "baselineReadablePixels": 135,
+              "candidateReadablePixels": 135,
+              "readableRetention": 1,
+              "baselineContrast": 1.698242,
+              "candidateContrast": 1.707361,
+              "retainedContrast": 1.005369,
+              "maximumChannelDelta": 1
+            },
+            {
+              "id": "journal-journal_renderer_parity",
+              "baselineReadablePixels": 239,
+              "candidateReadablePixels": 239,
+              "readableRetention": 1,
+              "baselineContrast": 1.233116,
+              "candidateContrast": 1.22653,
+              "retainedContrast": 0.99466,
+              "maximumChannelDelta": 8
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

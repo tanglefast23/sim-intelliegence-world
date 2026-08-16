@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "stage": 0,
+  "status": "complete",
+  "qualifiedCodeCommit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+  "evidenceCommit": "67f5a072815c582c4cd544ccd6c30a5edb75cc29",
+  "mergeCommit": "ba7017bfeb60aeff6460f15d6534b97a28c148a8",
+  "preservedInitialWorkCommit": "2589b3cfd0bacf4d1bd7cb4936bb3645cd2fc192",
+  "rollbackAuthority": {
+    "kind": "commit-sha",
+    "commit": "8bd348031a77e351af520e8d83ba6f4b1639c7c4",
+    "convenienceTag": "threejs-2d-stage-0-skia-qualified"
+  },
+  "opusAudit": {
+    "status": "passed-after-fixes",
+    "fixes": [
+      "Bound all committed evidence to the exact qualified code SHA.",
+      "Rejected zero-frame FPS samples and recorded the sample count.",
+      "Made every saved zoom use its own capture path and negative proof.",
+      "Applied the platform-shell profile to the ARM64 baseline step.",
+      "Mapped fractional-DPR masks through device-pixel centers.",
+      "Waited for complete quest text and portraits before smoke assertions."
+    ]
+  },
+  "verification": {
+    "local": {
+      "verifyCiBuild": true,
+      "verifyPhase22Packaged": true,
+      "testSuites": 85,
+      "tests": 867,
+      "packageMacArm64": true,
+      "packagedWebgl2": true,
+      "responsiveDprs": [1, 1.25, 1.5, 2],
+      "maximumLoadBaseline": true,
+      "vfxModeMatrix": true,
+      "comparatorSelfTests": true,
+      "zoomSamples": 41
+    },
+    "remote": {
+      "runId": 31871797137,
+      "url": "https://github.com/tanglefast23/sim-intelliegence-world/actions/runs/31871797137",
+      "status": "passed",
+      "jobs": [
+        "package-macos-arm64",
+        "package-macos-x64",
+        "package-macos-x64-functional",
+        "package-windows-x64"
+      ]
+    }
+  },
+  "containment": {
+    "qualifiedCodeInMerge": true,
+    "evidenceCommitInMerge": true,
+    "integrationWorktreeCleanBeforeCloseout": true,
+    "localPhaseWorktreeAndBranchPruned": true,
+    "remotePhaseBranch": "retained-until-main-contains-phase"
+  }
+}

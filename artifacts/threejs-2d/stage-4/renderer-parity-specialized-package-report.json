@@ -1,0 +1,4649 @@
+{
+  "schemaVersion": 1,
+  "testedCommit": "824529f8d9b986675460d90d363d028bb17487a6",
+  "evidenceSource": {
+    "baseCommit": "824529f8d9b986675460d90d363d028bb17487a6",
+    "sourceSha256": "fb53e2947dfe6ac044a2d3873f62b44f6194814ea49e5ad3ab42cae3da31b6d7",
+    "sourcePaths": [
+      "electron/main/index.ts",
+      "scripts/electron/run-renderer-parity-package-smoke.ts",
+      "src/render/ThreeWorldSurface.tsx",
+      "src/render/WorldScene.tsx",
+      "src/render/three/world-renderer.ts"
+    ]
+  },
+  "fixtureIds": [
+    "villa-exterior-idle",
+    "villa-interior-roof-hidden",
+    "villa-door-transition",
+    "villa-walk-east-frame-1",
+    "villa-selected-npc",
+    "villa-destination-journal-failure"
+  ],
+  "passes": {
+    "skia": {
+      "schemaVersion": 1,
+      "rendererKind": "skia",
+      "fixtures": [
+        {
+          "id": "villa-exterior-idle",
+          "screenshot": "villa-exterior-idle-skia-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 484,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": null,
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 548,
+                "worldY": 802,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 17,
+                  "y": 25
+                },
+                "shadowWorldX": 553,
+                "shadowWorldY": 829,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.open-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 851,
+                  "y": 103,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "open-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {
+              "villa-front-door": "open"
+            },
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 560,
+                "y": 829
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 560,
+              "worldY": 829,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": null,
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-door-transition",
+          "screenshot": "villa-door-transition-skia-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": "protagonist-villa-roof",
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.left-1",
+                "worldX": 548,
+                "worldY": 738,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 807,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 17,
+                  "y": 23
+                },
+                "shadowWorldX": 553,
+                "shadowWorldY": 765,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.opening-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 987,
+                  "y": 103,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "opening-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {
+              "entry-hall-door": "opening"
+            },
+            "movement": {
+              "direction": "left",
+              "status": "moving",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 559.5232846493091,
+                "y": 765
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 560,
+              "worldY": 765,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 464,
+              "worldY": 765,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-interior-roof-hidden",
+          "screenshot": "villa-interior-roof-hidden-skia-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": "protagonist-villa-roof",
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.right-1",
+                "worldX": 548,
+                "worldY": 738,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 911,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 17,
+                  "y": 23
+                },
+                "shadowWorldX": 553,
+                "shadowWorldY": 765,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.opening-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 987,
+                  "y": 103,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "opening-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {
+              "entry-hall-door": "closing"
+            },
+            "movement": {
+              "direction": "right",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 560,
+                "y": 765
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 560,
+              "worldY": 765,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 560,
+              "worldY": 765,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-walk-east-frame-1",
+          "screenshot": "villa-walk-east-frame-1-skia-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": "protagonist-villa-roof",
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.right-1",
+                "worldX": 580,
+                "worldY": 738,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 911,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 18,
+                  "y": 23
+                },
+                "shadowWorldX": 585,
+                "shadowWorldY": 765,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "right",
+              "status": "moving",
+              "walkFrame": 1,
+              "visualFoot": {
+                "x": 592,
+                "y": 765
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 592,
+              "worldY": 765,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 656,
+              "worldY": 765,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-selected-npc",
+          "screenshot": "villa-selected-npc-skia-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": null,
+            "characters": [
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 900,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 28,
+                  "y": 28
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 912,
+                "y": 925
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 880,
+              "worldY": 925,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": null,
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-destination-journal-failure",
+          "screenshot": "villa-destination-journal-failure-skia-1x.png",
+          "state": {
+            "camera": {
+              "x": 127,
+              "y": 567,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": null,
+            "characters": [
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 900,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 28,
+                  "y": 28
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 912,
+                "y": 925
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 912,
+              "worldY": 925,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 720,
+              "worldY": 925,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [
+              {
+                "journalEntryId": "journal_renderer_parity",
+                "locationId": "linda_villa",
+                "tile": {
+                  "x": 23,
+                  "y": 28
+                },
+                "darkColor": "#201915",
+                "lightColor": "#f1c65b"
+              }
+            ],
+            "failureMarker": {
+              "id": "failure-marker",
+              "worldX": 784,
+              "worldY": 912,
+              "radiusPixels": 7,
+              "color": "#ef5b43"
+            },
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        }
+      ],
+      "contextLifecycle": null
+    },
+    "threejs2d": {
+      "schemaVersion": 1,
+      "rendererKind": "threejs-2d",
+      "fixtures": [
+        {
+          "id": "villa-exterior-idle",
+          "screenshot": "villa-exterior-idle-threejs-2d-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 484,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": null,
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 548,
+                "worldY": 802,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 17,
+                  "y": 25
+                },
+                "shadowWorldX": 553,
+                "shadowWorldY": 829,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.open-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 851,
+                  "y": 103,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "open-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {
+              "villa-front-door": "open"
+            },
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 560,
+                "y": 829
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 560,
+              "worldY": 829,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": null,
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-door-transition",
+          "screenshot": "villa-door-transition-threejs-2d-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": "protagonist-villa-roof",
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.left-1",
+                "worldX": 548,
+                "worldY": 738,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 807,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 17,
+                  "y": 23
+                },
+                "shadowWorldX": 553,
+                "shadowWorldY": 765,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.opening-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 987,
+                  "y": 103,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "opening-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {
+              "entry-hall-door": "opening"
+            },
+            "movement": {
+              "direction": "left",
+              "status": "moving",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 559.5232846493091,
+                "y": 765
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 560,
+              "worldY": 765,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 464,
+              "worldY": 765,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-interior-roof-hidden",
+          "screenshot": "villa-interior-roof-hidden-threejs-2d-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": "protagonist-villa-roof",
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.right-1",
+                "worldX": 548,
+                "worldY": 738,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 911,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 17,
+                  "y": 23
+                },
+                "shadowWorldX": 553,
+                "shadowWorldY": 765,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.opening-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 987,
+                  "y": 103,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "opening-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {
+              "entry-hall-door": "closing"
+            },
+            "movement": {
+              "direction": "right",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 560,
+                "y": 765
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 560,
+              "worldY": 765,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 560,
+              "worldY": 765,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-walk-east-frame-1",
+          "screenshot": "villa-walk-east-frame-1-threejs-2d-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": "protagonist-villa-roof",
+            "characters": [
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.right-1",
+                "worldX": 580,
+                "worldY": 738,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 911,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 18,
+                  "y": 23
+                },
+                "shadowWorldX": 585,
+                "shadowWorldY": 765,
+                "angleDegrees": 0
+              },
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "right",
+              "status": "moving",
+              "walkFrame": 1,
+              "visualFoot": {
+                "x": 592,
+                "y": 765
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 592,
+              "worldY": 765,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 656,
+              "worldY": 765,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-selected-npc",
+          "screenshot": "villa-selected-npc-threejs-2d-1x.png",
+          "state": {
+            "camera": {
+              "x": 0,
+              "y": 407,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": null,
+            "characters": [
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 900,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 28,
+                  "y": 28
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "bathroom-left-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-left-door",
+                "tile": {
+                  "x": 15,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-right-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 608,
+                "worldY": 352,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-right-door",
+                "tile": {
+                  "x": 19,
+                  "y": 11
+                }
+              },
+              {
+                "id": "bathroom-hall-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 576,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bathroom-hall-door",
+                "tile": {
+                  "x": 18,
+                  "y": 14
+                }
+              },
+              {
+                "id": "bedroom-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 512,
+                "worldY": 448,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "bedroom-door",
+                "tile": {
+                  "x": 16,
+                  "y": 14
+                }
+              },
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 912,
+                "y": 925
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 880,
+              "worldY": 925,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": null,
+            "journalMarkers": [],
+            "failureMarker": null,
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        },
+        {
+          "id": "villa-destination-journal-failure",
+          "screenshot": "villa-destination-journal-failure-threejs-2d-1x.png",
+          "state": {
+            "camera": {
+              "x": 127,
+              "y": 567,
+              "zoom": 1
+            },
+            "viewport": {
+              "width": 1250,
+              "height": 690
+            },
+            "devicePixelRatio": 1,
+            "mapId": "northwest_residential",
+            "mapHash": "9180d1b3",
+            "presentationHash": "fe577d53",
+            "atlasHash": "ebb14d005d38cfce366c5a67e0a3624de702059b68135c2b188584fd214c6bb1",
+            "hiddenRoofGroupId": null,
+            "characters": [
+              {
+                "id": "generic_resident",
+                "sprite": "character.generic-resident.front-1",
+                "worldX": 868,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 723,
+                  "y": 307,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "generic-resident",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "generic-resident",
+                "tile": {
+                  "x": 27,
+                  "y": 28
+                },
+                "shadowWorldX": 873,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "protagonist",
+                "sprite": "character.protagonist.front-1",
+                "worldX": 900,
+                "worldY": 898,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 755,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "protagonist",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "protagonist",
+                "tile": {
+                  "x": 28,
+                  "y": 28
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 925,
+                "angleDegrees": 0
+              },
+              {
+                "id": "linda",
+                "sprite": "character.linda.front-1",
+                "worldX": 900,
+                "worldY": 962,
+                "layer": "character",
+                "pivot": {
+                  "x": 12,
+                  "y": 29
+                },
+                "rotationDegrees": 0,
+                "source": {
+                  "x": 131,
+                  "y": 341,
+                  "width": 24,
+                  "height": 30,
+                  "kind": "world-character",
+                  "category": "world-character",
+                  "visibility": "public",
+                  "sourceId": "linda",
+                  "cellClass": null,
+                  "wallAdjacencyMask": null
+                },
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 40,
+                "visualId": "linda",
+                "tile": {
+                  "x": 28,
+                  "y": 30
+                },
+                "shadowWorldX": 905,
+                "shadowWorldY": 989,
+                "angleDegrees": 0
+              }
+            ],
+            "doors": [
+              {
+                "id": "social-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 608,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "social-door",
+                "tile": {
+                  "x": 15,
+                  "y": 19
+                }
+              },
+              {
+                "id": "entry-hall-door",
+                "sprite": "tile.closed-door-vertical",
+                "worldX": 480,
+                "worldY": 736,
+                "layer": "prop",
+                "source": {
+                  "x": 511,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "entry-hall-door",
+                "tile": {
+                  "x": 15,
+                  "y": 23
+                }
+              },
+              {
+                "id": "villa-front-door",
+                "sprite": "tile.closed-door-horizontal",
+                "worldX": 544,
+                "worldY": 768,
+                "layer": "prop",
+                "source": {
+                  "x": 477,
+                  "y": 1,
+                  "width": 32,
+                  "height": 32,
+                  "kind": "tile",
+                  "category": "wall-door",
+                  "visibility": "public",
+                  "sourceId": "closed-door",
+                  "cellClass": "transparent-part",
+                  "wallAdjacencyMask": null
+                },
+                "pivot": {
+                  "x": 0,
+                  "y": 0
+                },
+                "rotationDegrees": 0,
+                "scale": 1,
+                "color": "#ffffffff",
+                "opacity": 1,
+                "layerValue": 20,
+                "isDoor": true,
+                "objectId": "villa-front-door",
+                "tile": {
+                  "x": 17,
+                  "y": 24
+                }
+              }
+            ],
+            "doorPhases": {},
+            "movement": {
+              "direction": "down",
+              "status": "idle",
+              "walkFrame": 0,
+              "visualFoot": {
+                "x": 912,
+                "y": 925
+              }
+            },
+            "selectionRing": {
+              "id": "selection-ring",
+              "worldX": 912,
+              "worldY": 925,
+              "radiusX": 17,
+              "radiusY": 9,
+              "color": "#ffc45c",
+              "strokeWidth": 2
+            },
+            "destinationPulse": {
+              "id": "destination-pulse",
+              "worldX": 720,
+              "worldY": 925,
+              "opacity": 0.2769230769230769,
+              "radius": 11,
+              "color": "#f5dd9d"
+            },
+            "journalMarkers": [
+              {
+                "journalEntryId": "journal_renderer_parity",
+                "locationId": "linda_villa",
+                "tile": {
+                  "x": 23,
+                  "y": 28
+                },
+                "darkColor": "#201915",
+                "lightColor": "#f1c65b"
+              }
+            ],
+            "failureMarker": {
+              "id": "failure-marker",
+              "worldX": 784,
+              "worldY": 912,
+              "radiusPixels": 7,
+              "color": "#ef5b43"
+            },
+            "visibleEffectIds": [
+              "garden-insects",
+              "patio-fire",
+              "patio-leaves",
+              "patio-palm"
+            ],
+            "fallbackEmitterIds": [],
+            "fallbackEffectIds": []
+          }
+        }
+      ],
+      "contextLifecycle": {
+        "supported": true,
+        "lossOverlayObserved": true,
+        "restored": true,
+        "before": {
+          "geometries": 17,
+          "materials": 4,
+          "textures": 2,
+          "gpu": {
+            "drawCalls": 17,
+            "geometries": 17,
+            "programs": 3,
+            "textures": 2
+          },
+          "rendererKind": "threejs-2d",
+          "webgl2": true,
+          "toneMapping": "none",
+          "explicitSort": true,
+          "legacyColorParity": true,
+          "drawCalls": 13,
+          "atlasDrawCalls": 5,
+          "atlasSize": {
+            "width": 1024,
+            "height": 595
+          },
+          "atlasSampling": {
+            "magFilter": "nearest",
+            "minFilter": "nearest",
+            "generateMipmaps": false,
+            "anisotropy": 1,
+            "wrapS": "clamp-to-edge",
+            "wrapT": "clamp-to-edge"
+          },
+          "presentedZoom": 1,
+          "trianglesByBatch": {
+            "floor-and-ground-detail": 1662,
+            "doors": 6,
+            "door-wear": 396,
+            "contact-shadows-and-thresholds": 1766,
+            "selection-ring": 64,
+            "grounded-props-and-characters": 122,
+            "effects": 28,
+            "walls": 96,
+            "wall-bases": 104,
+            "roofs": 324,
+            "shelter-shade": 0,
+            "district-shadows": 198,
+            "district-light-pools": 288,
+            "atmosphere": 20,
+            "destination-pulse": 0,
+            "journal-markers": 0,
+            "failure-marker": 0
+          }
+        },
+        "after": {
+          "geometries": 17,
+          "materials": 4,
+          "textures": 2,
+          "gpu": {
+            "drawCalls": 17,
+            "geometries": 17,
+            "programs": 3,
+            "textures": 2
+          },
+          "rendererKind": "threejs-2d",
+          "webgl2": true,
+          "toneMapping": "none",
+          "explicitSort": true,
+          "legacyColorParity": true,
+          "drawCalls": 13,
+          "atlasDrawCalls": 5,
+          "atlasSize": {
+            "width": 1024,
+            "height": 595
+          },
+          "atlasSampling": {
+            "magFilter": "nearest",
+            "minFilter": "nearest",
+            "generateMipmaps": false,
+            "anisotropy": 1,
+            "wrapS": "clamp-to-edge",
+            "wrapT": "clamp-to-edge"
+          },
+          "presentedZoom": 1,
+          "trianglesByBatch": {
+            "floor-and-ground-detail": 1662,
+            "doors": 6,
+            "door-wear": 396,
+            "contact-shadows-and-thresholds": 1766,
+            "selection-ring": 64,
+            "grounded-props-and-characters": 122,
+            "effects": 28,
+            "walls": 96,
+            "wall-bases": 104,
+            "roofs": 324,
+            "shelter-shade": 0,
+            "district-shadows": 198,
+            "district-light-pools": 288,
+            "atmosphere": 20,
+            "destination-pulse": 0,
+            "journal-markers": 0,
+            "failure-marker": 0
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Atlas, Canvas, FilterMode, MipmapMode, Skia, rect, useImage } from '@shopify/react-native-skia';
 
 import { ATLAS_INDEX, atlasRectangle, type CharacterId } from '../render/atlas';
+import { AtlasSprite } from '../ui/AtlasSprite';
 import type { ViewportSize } from '../render/camera';
 import { automaticUiScale } from '../render/responsive-layout';
 import { CharacterPortrait } from '../ui/CharacterPortrait';
@@ -19,30 +19,24 @@ type NewGameFlowProps = Readonly<{
   surface: ViewportSize;
 }>;
 
-const atlasImage = require('../../assets/generated/world-atlas.png') as number;
-const NEAREST = { filter: FilterMode.Nearest, mipmap: MipmapMode.None } as const;
 
 function VistaCharacter({
   characterId,
   displayName,
   scale,
 }: Readonly<{ characterId: CharacterId; displayName: string; scale: number }>) {
-  const image = useImage(atlasImage);
   const frame = ATLAS_INDEX.characters[characterId].frames['front-1']!;
   const source = atlasRectangle(frame);
   return (
     <View accessibilityLabel={displayName} style={[styles.vistaCharacter, { height: 30 * scale, width: 24 * scale }]}>
       <View style={[styles.characterShadow, { width: 18 * scale }]} />
-      {image ? (
-        <Canvas style={{ height: 30 * scale, width: 24 * scale }}>
-          <Atlas
-            image={image}
-            sampling={NEAREST}
-            sprites={[rect(source.x, source.y, source.width, source.height)]}
-            transforms={[Skia.RSXform(scale, 0, 0, 0)]}
-          />
-        </Canvas>
-      ) : null}
+      <AtlasSprite
+        height={source.height}
+        scale={scale}
+        width={source.width}
+        x={source.x}
+        y={source.y}
+      />
     </View>
   );
 }

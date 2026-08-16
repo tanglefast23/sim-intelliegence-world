@@ -33,10 +33,47 @@ describe('packaged Electron smoke evidence', () => {
   test('keeps smoke windows hidden, muted, and hidden during capture', () => {
     const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
     expect(main).toContain("app.commandLine.appendSwitch('mute-audio')");
+    expect(main).toContain("app.commandLine.appendSwitch('force-prefers-no-reduced-motion')");
     expect(main).toContain('show: !smokeMode');
     expect(main).toContain('backgroundThrottling: false');
     expect(main).toContain('window.webContents.setAudioMuted(true)');
     expect(main).toContain('capturePage(undefined, { stayHidden: true })');
+  });
+
+  test('runs the packaged WebGL 2 probe before renderer asset readiness', () => {
+    const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
+    const runner = readFileSync(join(process.cwd(), 'scripts/electron/run-package-smoke.ts'), 'utf8');
+    const responsiveSmoke = readFileSync(join(process.cwd(), 'scripts/electron/run-responsive-package-smoke.ts'), 'utf8');
+    expect(main).toContain("window.webContents.on('did-finish-load'");
+    expect(main).toContain('void emitWebgl2Probe(window)');
+    expect(main).toContain('async function reachWorldTile(');
+    expect(main).toContain('async function reachWorldLocation(');
+    expect(main).toContain('const WORLD_ROUTE_ATTEMPT_TIMEOUT_MS = 60_000;');
+    expect(main).toContain('setTimeout(resolveDelay, coalescedResizeDelay() * 2)');
+    expect(main).toContain('Math.abs(Number(measuredSurface?.width) - resizedBounds.width) <= 1');
+    expect(main).toContain("document.querySelector('#world-surface-state')?.getAttribute('aria-label')");
+    expect(main).toContain('window.siWorldMeasureResponsiveEvidence?.() ?? null');
+    expect(main.match(/await window\.webContents\.capturePage\(undefined, \{ stayHidden: true \}\);/gu)).toHaveLength(2);
+    expect(main).toContain("if (!await painted) throw new Error('Hidden renderer did not produce two paint frames.');");
+    expect(main).toContain('while (Date.now() < deadline) {\n    await waitForRendererPaint(window);\n    try {');
+    expect(main).toContain("button: 'middle' });\n  await waitForRendererPaint(window);\n  window.webContents.sendInputEvent({ type: 'mouseMove'");
+    expect(main).toContain("button: 'middle', clickCount: 1 });\n  await waitForRendererPaint(window);\n  const afterPan");
+    expect(main).toContain("type: 'mouseWheel', x: wheelX, y: wheelY, deltaY: 100, canScroll: false");
+    expect(main).toContain("canScroll: false,\n  });\n  await waitForRendererPaint(window);\n  const wheelZoom");
+    expect(main).toContain('options.timeoutMilliseconds ?? WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
+    expect(main).toContain('destinationTile, WORLD_ROUTE_ATTEMPT_TIMEOUT_MS');
+    expect(main.match(/await startMovementSmokeSampling\(window\);/gu)).toHaveLength(2);
+    expect(main.match(/await stopMovementSmokeSampling\(window\)/gu)).toHaveLength(2);
+    expect(main).toContain('attributeOldValue: true');
+    expect(main).toContain('sampler.observer.disconnect()');
+    expect(main).toContain('if (attempt === 3) throw error;');
+    expect(runner).toContain('const FULL_WORLD_SMOKE_TIMEOUT_MS = 1_200_000;');
+    expect(responsiveSmoke).toContain("process.env.SI_WORLD_SMOKE_PROFILE === 'platform-shell'\n  ? 1_200_000\n  : 300_000");
+    expect(main).toContain('webgl2ProbeMode ? WEBGL2_PROBE_URL');
+    expect(runner).toContain('probe.appUrl !== WEBGL2_PROBE_URL');
+    expect(main).toContain('new MutationObserver(recordFeedback)');
+    expect(main).toContain("await waitForRendererText(window, '#world-ui-quest-offer-panel', 'MISTAKE');");
+    expect(main).toContain("await waitForSelector(window, '#conversation-portrait-linda-ready');");
   });
 
   test('uses explicit output roots and rejects immutable historical evidence', () => {
@@ -61,12 +98,13 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => resolveEvidenceOutputRoot([], { required: true }, root)).toThrow('requires --output-root');
   });
 
-  test('passes the high-DPI scale factor on the packaged process command line', () => {
+  test('passes the requested device scale factor on the packaged process command line', () => {
     const responsiveSmoke = readFileSync(
       join(process.cwd(), 'scripts/electron/run-responsive-package-smoke.ts'),
       'utf8',
     );
-    expect(responsiveSmoke).toContain("highDpi ? ['--force-device-scale-factor=2'] : []");
+    expect(responsiveSmoke).toContain('`--force-device-scale-factor=${requestedDeviceScaleFactor}`');
+    expect(responsiveSmoke).toContain("[1, 1.25, 1.5, 2].includes(requestedDeviceScaleFactor)");
   });
 
   test('selects the current platform and architecture from a multi-target output root', () => {
@@ -85,6 +123,28 @@ describe('packaged Electron smoke evidence', () => {
       expect(findPackageArchive(root, 'darwin', 'arm64')).toBe(armArchive);
       expect(findPackageArchive(root, 'darwin', 'x64')).toBe(x64Archive);
     } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
+  test('selects a cross-architecture package for a release smoke', () => {
+    const root = mkdtempSync(join(tmpdir(), 'si-world-package-cross-arch-'));
+    const previousArchitecture = process.env.SI_WORLD_PACKAGE_TARGET_ARCH;
+    try {
+      const executable = join(root, 'SI World-darwin-x64', 'SI World.app', 'Contents', 'MacOS', 'si-world');
+      const archive = join(root, 'SI World-darwin-x64', 'SI World.app', 'Contents', 'Resources', 'app.asar');
+      for (const file of [executable, archive]) {
+        mkdirSync(join(file, '..'), { recursive: true });
+        writeFileSync(file, 'fixture');
+      }
+      process.env.SI_WORLD_PACKAGE_TARGET_ARCH = 'x64';
+      expect(findPackagedExecutable(root, 'darwin')).toBe(executable);
+      expect(findPackageArchive(root, 'darwin')).toBe(archive);
+      process.env.SI_WORLD_PACKAGE_TARGET_ARCH = 'invalid';
+      expect(() => findPackagedExecutable(root, 'darwin')).toThrow('Unsupported packaged architecture');
+    } finally {
+      if (previousArchitecture === undefined) delete process.env.SI_WORLD_PACKAGE_TARGET_ARCH;
+      else process.env.SI_WORLD_PACKAGE_TARGET_ARCH = previousArchitecture;
       rmSync(root, { force: true, recursive: true });
     }
   });
@@ -140,8 +200,8 @@ describe('packaged Electron smoke evidence', () => {
       async () => loading,
       async () => undefined,
       { maximumAttempts: 3 },
-    )).rejects.toThrow('Loading shell is no longer visible');
-    expect(captureAttempts).toBe(1);
+    )).rejects.toThrow('UnknownVizError');
+    expect(captureAttempts).toBe(2);
 
     const loadingChecks = [true, false];
     await expect(captureLoadingSmokeFrame(
@@ -149,14 +209,32 @@ describe('packaged Electron smoke evidence', () => {
       async () => loadingChecks.shift() ?? false,
       async () => undefined,
       { maximumAttempts: 1 },
-    )).rejects.toThrow('Loading shell changed during screenshot capture');
+    )).resolves.toEqual({
+      frame: expect.objectContaining({ isEmpty: expect.any(Function) }),
+      loadingShellObserved: false,
+    });
 
     await expect(captureLoadingSmokeFrame(
       async () => ({ isEmpty: () => false }),
       async () => true,
       async () => undefined,
       { maximumAttempts: 1 },
-    )).resolves.toEqual(expect.objectContaining({ isEmpty: expect.any(Function) }));
+    )).resolves.toEqual({
+      frame: expect.objectContaining({ isEmpty: expect.any(Function) }),
+      loadingShellObserved: true,
+    });
+
+    // Stage 6: the production renderer clears the shell sooner, so a shell that was never on
+    // screen is recorded rather than failed. A capture that fails on its own still throws.
+    await expect(captureLoadingSmokeFrame(
+      async () => ({ isEmpty: () => false }),
+      async () => false,
+      async () => undefined,
+      { maximumAttempts: 1 },
+    )).resolves.toEqual({
+      frame: expect.objectContaining({ isEmpty: expect.any(Function) }),
+      loadingShellObserved: false,
+    });
   });
 
   test('stops retries when the caller deadline expires', async () => {
@@ -177,6 +255,8 @@ describe('packaged Electron smoke evidence', () => {
   });
 
   test('keeps renderer FPS qualification strict while recording hosted shell measurements', () => {
+    const main = readFileSync(join(process.cwd(), 'electron/main/index.ts'), 'utf8');
+    const runner = readFileSync(join(process.cwd(), 'scripts/electron/run-package-smoke.ts'), 'utf8');
     expect(evaluateRendererFps(60)).toEqual(expect.objectContaining({
       profile: 'qualification', thresholdPassed: true, thresholdRequired: true,
     }));
@@ -184,14 +264,21 @@ describe('packaged Electron smoke evidence', () => {
     expect(evaluateRendererFps(19.99, 'platform-shell')).toEqual(expect.objectContaining({
       measuredFps: 19.99, profile: 'platform-shell', thresholdPassed: false, thresholdRequired: false,
     }));
+    expect(() => evaluateRendererFps(0, 'platform-shell')).toThrow('measurement is invalid');
+    expect(() => evaluateRendererFps(0)).toThrow('measurement is invalid');
+    expect(() => evaluateRendererFps(-1, 'platform-shell')).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps('unknown', 'platform-shell')).toThrow('measurement is invalid');
     expect(() => evaluateRendererFps(60, 'weakened')).toThrow('Unknown package smoke profile');
+    expect(main).toContain('measuredFrameCount >= 2');
+    expect(runner).toContain('rendererFpsSampledFrames');
   });
 
   test('accepts one complete renderer readiness report', () => {
     const stdout = [
       'startup',
       `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
+        schemaVersion: 2,
+        phase: 'world',
         appUrl: 'app://game/',
         assetsLoaded: true,
         bridgeKeys: [
@@ -200,15 +287,18 @@ describe('packaged Electron smoke evidence', () => {
         'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
         'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
         ],
-        canvasKitReady: true,
+        webgl2Ready: true,
         nodeAccessBlocked: true,
+        rendererKind: 'threejs-2d',
+        worldFrameReady: true,
       })}`,
     ].join('\n');
 
+    // Stage 7 removed the Skia world variant with CanvasKit itself.
     expect(parseSmokeResult(stdout)).toEqual(
       expect.objectContaining({
         assetsLoaded: true,
-        canvasKitReady: true,
+        webgl2Ready: true,
         nodeAccessBlocked: true,
       }),
     );
@@ -220,6 +310,8 @@ describe('packaged Electron smoke evidence', () => {
       parseSmokeResult(
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'app://game/',
+          schemaVersion: 2,
+          phase: 'world',
           assetsLoaded: true,
           bridgeKeys: [
             'abortConversation', 'beginConversation', 'completeVerbalMissionTurn', 'confirmVerbalMissionGoal',
@@ -227,8 +319,10 @@ describe('packaged Electron smoke evidence', () => {
             'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
             'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
           ],
-          canvasKitReady: false,
+          webgl2Ready: false,
           nodeAccessBlocked: true,
+          rendererKind: 'threejs-2d',
+          worldFrameReady: true,
         })}`,
       ),
     ).toThrow();
@@ -236,6 +330,8 @@ describe('packaged Electron smoke evidence', () => {
       parseSmokeResult(
         `SI_WORLD_SMOKE_RESULT ${JSON.stringify({
           appUrl: 'https://example.com/',
+          schemaVersion: 2,
+          phase: 'world',
           assetsLoaded: true,
           bridgeKeys: [
             'abortConversation', 'beginConversation', 'completeVerbalMissionTurn', 'confirmVerbalMissionGoal',
@@ -243,8 +339,10 @@ describe('packaged Electron smoke evidence', () => {
             'loadPresentationPreferences', 'loadSave', 'migrateSave', 'readVerbalMissionTurn',
             'reportRendererReady', 'requestSave', 'savePresentationPreferences', 'sendConversationTurn',
           ],
-          canvasKitReady: true,
+          webgl2Ready: true,
           nodeAccessBlocked: true,
+          rendererKind: 'threejs-2d',
+          worldFrameReady: true,
         })}`,
       ),
     ).toThrow('untrusted renderer URL');
@@ -257,10 +355,8 @@ describe('packaged Electron smoke evidence', () => {
       '/build/electron/preload/index.js',
       '/build/electron/persistence/save-repository.js',
       '/build/src/domain/state/schema.js',
-      '/dist/canvaskit.wasm',
       '/dist/index.html',
-      '/dist/assets/assets/proof/phase2-atlas.abc123.png',
-      '/dist/assets/assets/proof/phase2-tone.abc123.wav',
+      '/dist/webgl2-probe.html',
       '/dist/assets/assets/generated/world-atlas.abc123.png',
       '/dist/assets/assets/generated/audio/greeting.abc123.wav',
       '/dist/assets/assets/generated/audio/laugh.abc123.wav',
@@ -268,6 +364,7 @@ describe('packaged Electron smoke evidence', () => {
       '/dist/assets/assets/generated/audio/consequence.abc123.wav',
       '/dist/assets/node_modules/@expo-google-fonts/silkscreen/400Regular/Silkscreen_400Regular.abc123.ttf',
       '/node_modules/zod/package.json',
+      '/node_modules/three/package.json',
     ].join('\n');
     expect(() => validatePackageListing(requiredListing)).not.toThrow();
     expect(() => validatePackageListing(requiredListing.replaceAll('/', '\\'))).not.toThrow();
@@ -280,9 +377,6 @@ describe('packaged Electron smoke evidence', () => {
     expect(() => validatePackageListing(
       requiredListing.replace('/build/electron/main/smoke-capture.js\n', ''),
     )).toThrow('missing /build/electron/main/smoke-capture.js');
-    expect(() => validatePackageListing(requiredListing.replace(/\/dist\/assets\/assets\/proof\/phase2-atlas[^\n]+\n/u, ''))).toThrow(
-      'missing required resource',
-    );
   });
 
   test('requires two distinct non-empty PNG screenshots', () => {
