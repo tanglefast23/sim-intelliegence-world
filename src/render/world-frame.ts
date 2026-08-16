@@ -385,6 +385,35 @@ const PROP_SCALE: Readonly<Record<string, number>> = {
  * Returns a NEW object. The static placement lists are deep-frozen and cached, so mutating in
  * place throws in strict mode.
  */
+/**
+ * Handoff technique 4b: the authored character scale from the pixel-villa spike.
+ *
+ * Applied about the PLACEMENT PIVOT, not about the axis-aligned bounds, and the two cannot both be
+ * exact. `addAtlasPlacement` rotates about `(worldX + pivot.x x scale, worldY + pivot.y x scale)`,
+ * and the wobble pivot is {12, 29} on a 24x30 sprite — one pixel above the foot line.
+ *
+ * Pivot-invariance is chosen because keeping the rotation centre correct matters more than a
+ * sub-pixel foot line, and because moving the pivot to {12, 30} would change the shipped wobble and
+ * re-lock its tests. The cost is stated rather than hidden: at 1.22 the foot line drifts
+ * (30 - 29) x 0.22 = 0.22 LOGICAL pixels. In device pixels that is 0.22 x zoom x dpr, so the worst
+ * locked pair — zoom 3 at DPR 2 — is 1.32 device pixels. The budget is world-space and the device
+ * consequence is recorded, not asserted away.
+ */
+export const CHARACTER_SCALE = 1.22;
+
+export function withAuthoredCharacterScale(
+  worldX: number,
+  worldY: number,
+  pivot: WorldPoint,
+): Readonly<{ worldX: number; worldY: number; scale: number }> {
+  // Keep the pivot POINT fixed: worldX + pivot.x === worldX' + pivot.x x scale.
+  return {
+    worldX: worldX - pivot.x * (CHARACTER_SCALE - 1),
+    worldY: worldY - pivot.y * (CHARACTER_SCALE - 1),
+    scale: CHARACTER_SCALE,
+  };
+}
+
 export function withAuthoredPropScale(prop: WorldPropPlacement): WorldPropPlacement {
   const scale = PROP_SCALE[prop.sprite];
   if (scale === undefined) return prop;
@@ -732,14 +761,20 @@ export function buildWorldFrameState(
       reducedMotion,
     }) : reducedMotion ? 0 : pose === 'reaction' ? -4 : pose === 'talk' && poseFrame === 1 ? 2 : 0;
     return {
+      // Technique 4b is applied HERE, in the character mapper, and NOT through the prop shift.
+      // The prop shift is bounds-based; a character must scale about its wobble pivot or the
+      // rotation centre moves with the size.
       ...placement({
         id,
         sprite: presentation.sprite,
-        worldX: foot.x - 12 + leanX,
-        worldY: foot.y - 27 + bounceY,
         layer: 'character',
         pivot: PROTAGONIST_WOBBLE_PIVOT,
         rotationDegrees: angleDegrees,
+        ...withAuthoredCharacterScale(
+          foot.x - 12 + leanX,
+          foot.y - 27 + bounceY,
+          PROTAGONIST_WOBBLE_PIVOT,
+        ),
       }),
       visualId,
       tile: { ...tile },

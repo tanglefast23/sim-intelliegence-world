@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { PNG } from 'pngjs';
 
 import { rendererMask, type AlphaAt, type MaskFrameInput, type RendererMask } from '../../src/render/mask-frame';
+import { CHARACTER_SCALE } from '../../src/render/world-frame';
 
 /**
  * Emit the candidate mask frame for every live fixture, from the run under test.
@@ -95,7 +96,9 @@ for (const entry of collection.fixtures) {
     captureLogical: manifest.viewport,
     devicePixelRatio: fixture.devicePixelRatio,
     zoom: fixture.zoom,
-    scale: 1,
+    // The renderer's own authored character scale. The emitter must draw the silhouette the
+    // renderer actually drew, or the mask stops describing the frame it is measuring.
+    scale: CHARACTER_SCALE,
   };
   inputs.push(input);
 
@@ -124,11 +127,28 @@ for (const entry of collection.fixtures) {
   wired += 1;
 }
 
-if (mismatched.length > 0) {
+/**
+ * The migration check is a one-way ratchet with a declared exception.
+ *
+ * Normally a mask that does not reproduce its predecessor means the EMITTER is wrong, and that
+ * must stop the run: an emitter which quietly changed the footprint would change what every
+ * readable-coverage number in the corpus means.
+ *
+ * But an item whose whole purpose is to move a silhouette — an authored character scale — makes
+ * the masks differ on purpose. That case is allowed only when it is asked for by name, with a
+ * reason, so it can never be the accidental outcome of a bad emitter.
+ */
+const silhouetteChangeIndex = process.argv.indexOf('--silhouette-changed');
+const silhouetteReason = silhouetteChangeIndex >= 0 ? process.argv[silhouetteChangeIndex + 1] : undefined;
+if (mismatched.length > 0 && !silhouetteReason) {
   throw new Error(
-    'The restored emitter does not reproduce the frozen masks, so it would change what every ' +
-    `readable-coverage number means: ${mismatched.join(', ')}.`,
+    'The restored emitter does not reproduce the existing masks, so it would change what every ' +
+    `readable-coverage number means: ${mismatched.join(', ')}. If a silhouette moved on purpose, ` +
+    'pass --silhouette-changed "<reason>".',
   );
+}
+if (mismatched.length > 0) {
+  process.stdout.write(`Silhouette changed on ${mismatched.length} fixtures: ${silhouetteReason}\n`);
 }
 
 writeFileSync(
