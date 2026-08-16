@@ -24,7 +24,8 @@ const RendererEvidenceSchema = z.object({
   atlasDrawCalls: z.number().int().nonnegative().max(12),
   gpu: z.object({
     drawCalls: z.number().int().nonnegative().max(24),
-    geometries: z.number().int().nonnegative().max(17),
+    // Two batches were added since this cap was written: sprite-shadows and lamp-glow.
+    geometries: z.number().int().nonnegative().max(19),
     programs: z.number().int().nonnegative().max(3),
     textures: z.number().int().nonnegative().max(2),
   }).strict(),
