@@ -57,6 +57,9 @@ const COMPOSITE_BATCHES = [
   'selection-ring',
   'grounded-props-and-characters',
   'effects',
+  // Lamp glow lights the room it is in, so it must sit under walls and roofs. Drawn after the
+  // district pools it would paint over a roof, which is what made interior lamps glow through it.
+  'lamp-glow',
   'walls',
   'wall-bases',
   'roofs',
@@ -303,7 +306,17 @@ function generatedGlowTexture(): CanvasTexture {
   canvas.height = 64;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('The generated glow canvas is unavailable.');
-  context.fillStyle = '#ffffff';
+  // A solid disc reads as a flat bright circle once blended additively. Real lamp light falls off
+  // smoothly, so this is a radial gradient that reaches zero at the rim. The curve is weighted so
+  // most of the falloff happens in the outer half, which is what makes it look diffuse rather
+  // than like a disc with a soft edge.
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+  for (const [stop, alpha] of [
+    [0, 1], [0.15, 0.92], [0.3, 0.74], [0.45, 0.52], [0.6, 0.32], [0.75, 0.16], [0.88, 0.05], [1, 0],
+  ] as const) {
+    gradient.addColorStop(stop, `rgba(255, 255, 255, ${alpha})`);
+  }
+  context.fillStyle = gradient;
   context.beginPath();
   // The rim UVs sit on the radius-32 circle, so fill to 32 or every pool fades early.
   context.arc(32, 32, 32, 0, Math.PI * 2);
@@ -399,7 +412,7 @@ export class ThreeWorldRenderer {
       const geometry = new BufferGeometry();
       const material = atlasBatches.has(id)
         ? atlasMaterial
-        : id === 'district-light-pools' ? glowMaterial
+        : id === 'district-light-pools' || id === 'lamp-glow' ? glowMaterial
           : id === 'atmosphere' ? overlayMaterial : primitiveMaterial;
       const mesh = new Mesh(geometry, material);
       mesh.frustumCulled = false;
@@ -682,6 +695,9 @@ export class ThreeWorldRenderer {
         },
       );
     });
+    this.#set('district-light-pools', pools);
+
+    const lampGlow = emptyGeometryData();
     // The spike put its glow ON each lamp sprite, which is what made the room read as lit. The
     // district pools are three fixed points per map and need not sit near the lamps in the room
     // the player is standing in, so lamp props contribute their own glow here.
@@ -694,7 +710,7 @@ export class ThreeWorldRenderer {
       const centerY = prop.worldY + prop.source.height / 2;
       const radius = LAMP_GLOW_RADIUS;
       addQuad(
-        pools,
+        lampGlow,
         [
           [centerX - radius, centerY - radius],
           [centerX + radius, centerY - radius],
@@ -705,7 +721,7 @@ export class ThreeWorldRenderer {
         lighting.lampGlowOpacity,
       );
     });
-    this.#set('district-light-pools', pools);
+    this.#set('lamp-glow', lampGlow);
 
     // Stage 4 owns the atmosphere treatment. The legacy overlay was viewport-relative, so the
     // wash, edge shades, and motes are converted from screen space through the camera.
