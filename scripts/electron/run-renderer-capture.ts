@@ -26,7 +26,8 @@ const RendererEvidenceSchema = z.object({
     drawCalls: z.number().int().nonnegative().max(24),
     // Two batches were added since this cap was written: sprite-shadows and lamp-glow.
     geometries: z.number().int().nonnegative().max(19),
-    programs: z.number().int().nonnegative().max(3),
+    // The additive material omits the tone-mapping include, so it compiles its own program.
+    programs: z.number().int().nonnegative().max(4),
     textures: z.number().int().nonnegative().max(2),
   }).strict(),
   trianglesByBatch: z.record(z.string(), z.number().int().nonnegative()),
