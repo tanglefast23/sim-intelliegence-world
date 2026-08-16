@@ -64,12 +64,13 @@ const COMPOSITE_BATCHES = [
   // real pixel silhouette instead of a generic blob. This is what gives furniture and characters
   // contact with the floor and makes their edges read as sharper.
   'sprite-shadows',
+  // Lamp glow lights the floor, so it sits BELOW the foreground sprites and above the shadows.
+  // Placed after the characters it washed over them and cost the player readable coverage. Walls
+  // and roofs still come later, so a roof occludes the room it covers.
+  'lamp-glow',
   'selection-ring',
   'grounded-props-and-characters',
   'effects',
-  // Lamp glow lights the room it is in, so it must sit under walls and roofs. Drawn after the
-  // district pools it would paint over a roof, which is what made interior lamps glow through it.
-  'lamp-glow',
   'walls',
   'wall-bases',
   'roofs',
