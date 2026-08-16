@@ -39,6 +39,7 @@ import { SelectionMarker } from '../ui/SelectionMarker';
 import { selectedCharacterSummary } from '../ui/selected-character';
 import { sleepCompletionFeedback } from '../ui/sleep-feedback';
 import { WorldInput } from '../ui/WorldInput';
+import { ZoneGateOverlay } from '../ui/ZoneGate';
 import { uiMetrics } from '../ui/ui-metrics';
 import type { CompiledMapV2 } from '../world/maps/compiled-v2';
 import { selectOwnerInteractionApproach } from '../world/maps/compiler';
@@ -57,6 +58,7 @@ import {
   activeNpcTile,
   movementForNpc,
 } from '../world/schedules/active-movement';
+import { portalAtTile, portalZoneTiles } from '../world/transfers/portal-zone';
 import {
   ATLAS_INDEX,
   CHARACTER_IDS,
@@ -113,6 +115,8 @@ import {
 const atlasImage = require('../../assets/generated/world-atlas.png') as number;
 const MAP_PIXELS = { width: 64 * 32, height: 48 * 32 } as const;
 const TILE_SIZE = 32;
+/** How long the player stands on a portal zone before the world jumps to the next neighborhood. */
+const PORTAL_GATE_DELAY_MS = 1_000;
 type GroundedVisual = Readonly<{
   groundY: number;
   id: string;
@@ -284,6 +288,7 @@ export function WorldScene({
   const [poseFrame, setPoseFrame] = useState<0 | 1>(0);
   const [saveStatus, setSaveStatus] = useState(initialSaveStatus);
   const [transitioning, setTransitioning] = useState(false);
+  const [armedPortalId, setArmedPortalId] = useState<string>();
   const [arrivalLock, setArrivalLock] = useState<string>();
   const [worldFeedback, setWorldFeedback] = useState<string | undefined>(initialFeedback);
   const [conversationNpcId, setConversationNpcId] = useState<string | undefined>(initialConversationFixtureId);
@@ -310,6 +315,8 @@ export function WorldScene({
   const previousSurface = useRef(surface);
   const surfaceRef = useRef(surface);
   surfaceRef.current = surface;
+  const runtimeRef = useRef(runtime);
+  runtimeRef.current = runtime;
   const mapId = runtime.worldState.protagonist.worldPosition.mapId as MapId;
   const map = WORLD_MAP_CATALOG[mapId];
   const movementMaterialId = runtime.movement.segment
@@ -701,40 +708,53 @@ export function WorldScene({
     return () => cancelAnimationFrame(animationFrame);
   }, [conversationNpcId, openPanel, questOfferOpen, rendererSuspended, speed, transitioning]);
 
+  // Arms the portal zone the player stands on. The zone stays armed while the player is on it,
+  // so the travel timer below runs once instead of restarting on every world tick.
   useEffect(() => {
     const position = runtime.worldState.protagonist.worldPosition;
-    const key = `${position.mapId}:${position.tileX},${position.tileY}`;
+    const portal = portalAtTile(map, { x: position.tileX, y: position.tileY });
+    const key = portal ? `${position.mapId}:${portal.id}` : undefined;
     if (arrivalLock && arrivalLock !== key) setArrivalLock(undefined);
-    if (rendererSuspended) return;
-    if (!canStartPortalTransition({
+    const ready = portal !== undefined && !rendererSuspended && canStartPortalTransition({
       arrivalLocked: arrivalLock === key,
       transitioning,
-      movementStatus: runtime.movement.status,
       conversationOpen: conversationNpcId !== undefined || questOfferOpen,
       panelOpen: openPanel !== undefined,
-    })) return;
-    const portal = map.source.portals.find(({ tile }) => tile.x === position.tileX && tile.y === position.tileY);
-    if (!portal) return;
-    setTransitioning(true);
-    setWorldFeedback('TRAVELLING…');
-    const destinationBlockers = npcBlockers(runtime.worldState, portal.destinationMapId);
-    void transitionNeighborhood({
-      state: runtime.worldState,
-      catalog: WORLD_MAP_CATALOG,
-      sourcePortalId: portal.id,
-      loadMap: async (destinationMapId) => WORLD_MAP_CATALOG[destinationMapId],
-      destinationBlockers,
-      onPaused: (paused) => setRuntime((current) => ({ ...current, worldState: paused })),
-    }).then((result) => {
-      const tile = { x: result.state.protagonist.worldPosition.tileX, y: result.state.protagonist.worldPosition.tileY };
-      setRuntime({ movement: createMovementState(tile), npcMovements: npcMovementState(result.state), worldState: result.state });
-      setCamera((current) => centerCameraOnTile(tile, current.zoom, surfaceRef.current, MAP_PIXELS));
-      setSelected('protagonist');
-      setArrivalLock(`${result.state.protagonist.worldPosition.mapId}:${tile.x},${tile.y}`);
-      setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
-      if (result.completed) void requestAutosave(result.state, 'travel');
-    }).finally(() => setTransitioning(false));
-  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, rendererSuspended, requestAutosave, runtime.movement.status, runtime.worldState, transitioning]);
+    });
+    setArmedPortalId(ready ? portal?.id : undefined);
+  }, [arrivalLock, conversationNpcId, map, openPanel, questOfferOpen, rendererSuspended, runtime.worldState, transitioning]);
+
+  useEffect(() => {
+    if (armedPortalId === undefined) return undefined;
+    const timer = setTimeout(() => {
+      const state = runtimeRef.current.worldState;
+      const portal = WORLD_MAP_CATALOG[state.protagonist.worldPosition.mapId as MapId].portalById.get(armedPortalId);
+      if (!portal) return;
+      setTransitioning(true);
+      setWorldFeedback('TRAVELLING…');
+      setRuntime((current) => ({ ...current, movement: cancelMovement(current.movement) }));
+      const destinationBlockers = npcBlockers(state, portal.destinationMapId);
+      void transitionNeighborhood({
+        state,
+        catalog: WORLD_MAP_CATALOG,
+        sourcePortalId: portal.id,
+        loadMap: async (destinationMapId) => WORLD_MAP_CATALOG[destinationMapId],
+        destinationBlockers,
+        onPaused: (paused) => setRuntime((current) => ({ ...current, worldState: paused })),
+      }).then((result) => {
+        const tile = { x: result.state.protagonist.worldPosition.tileX, y: result.state.protagonist.worldPosition.tileY };
+        setRuntime({ movement: createMovementState(tile), npcMovements: npcMovementState(result.state), worldState: result.state });
+        setCamera((current) => centerCameraOnTile(tile, current.zoom, surfaceRef.current, MAP_PIXELS));
+        setSelected('protagonist');
+        setDestinationMarker(undefined);
+        const arrivalPortal = portalAtTile(result.map, tile);
+        setArrivalLock(`${result.state.protagonist.worldPosition.mapId}:${arrivalPortal?.id ?? `${tile.x},${tile.y}`}`);
+        setWorldFeedback(result.completed ? (result.feedback ?? 'NEIGHBORHOOD ARRIVED') : `TRAVEL FAILED · ${result.feedback}`);
+        if (result.completed) void requestAutosave(result.state, 'travel');
+      }).finally(() => setTransitioning(false));
+    }, PORTAL_GATE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [armedPortalId, requestAutosave]);
 
   const requestTile = useCallback((target: TilePoint) => {
     setSelected('protagonist');
@@ -1180,6 +1200,27 @@ export function WorldScene({
   const feedbackScreen = worldFrame.failureMarker
     ? worldToScreen(camera, { x: worldFrame.failureMarker.worldX, y: worldFrame.failureMarker.worldY })
     : undefined;
+  const portalZones = useMemo(() => map.source.portals.map((portal) => ({
+    id: portal.id,
+    label: WORLD_MAP_CATALOG[portal.destinationMapId as MapId]?.source.displayName ?? portal.destinationMapId,
+    tiles: portalZoneTiles(map, portal),
+  })), [map]);
+  const zoneGates = portalZones.map((zone) => {
+    const top = Math.min(...zone.tiles.map(({ y }) => y));
+    const centerX = (Math.min(...zone.tiles.map(({ x }) => x)) + Math.max(...zone.tiles.map(({ x }) => x)) + 1) / 2;
+    const anchor = worldToScreen(camera, { x: centerX * TILE_SIZE, y: top * TILE_SIZE });
+    return {
+      id: zone.id,
+      label: zone.label,
+      armed: armedPortalId === zone.id,
+      cells: zone.tiles.map((tile) => {
+        const screen = worldToScreen(camera, { x: tile.x * TILE_SIZE, y: tile.y * TILE_SIZE });
+        return { key: `${tile.x},${tile.y}`, left: screen.x, top: screen.y };
+      }),
+      labelX: anchor.x,
+      labelY: anchor.y - 30,
+    };
+  });
   const currentAreaName = areaName(map, runtime.movement.player);
   const inBedroom = mapId === 'northwest_residential' && currentAreaName === 'BEDROOM';
   const lighting = worldFrame.lighting;
@@ -1224,6 +1265,12 @@ export function WorldScene({
               frame={worldFrame}
               onContextStateChange={handleRendererContextState}
               onReady={onWorldReady}
+            />
+            <ZoneGateOverlay
+              accent={lighting.accent}
+              gates={zoneGates}
+              size={TILE_SIZE * camera.zoom}
+              viewport={surface}
             />
             <SelectionMarker
               color={lighting.accent}
