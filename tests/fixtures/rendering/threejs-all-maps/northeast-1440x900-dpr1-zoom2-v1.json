@@ -27,7 +27,23 @@
   "requiredMaskIds": [
     "player-protagonist-northeast-1440x900-dpr1-zoom2"
   ],
-  "lightSamples": [],
+  "lightSamples": [
+    {
+      "id": "district-light-northeast-1440x900-dpr1-zoom2",
+      "lit": {
+        "x": 524,
+        "y": 446,
+        "width": 6,
+        "height": 6
+      },
+      "unlit": {
+        "x": 46,
+        "y": 278,
+        "width": 6,
+        "height": 6
+      }
+    }
+  ],
   "shadowSamples": [],
   "thresholds": {
     "backgroundRingLogicalPixels": 2,

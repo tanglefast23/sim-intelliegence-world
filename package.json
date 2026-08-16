@@ -69,7 +69,8 @@
     "qualify:renderer:sets": "tsx scripts/qualification/qualify-renderer-sets.ts",
     "capture:rebaseline": "tsx scripts/qualification/rebaseline-renderer-captures.ts",
     "capture:promote": "tsx scripts/qualification/promote-renderer-baseline.ts",
-    "capture:masks": "tsx scripts/qualification/emit-mask-frames.ts"
+    "capture:masks": "tsx scripts/qualification/emit-mask-frames.ts",
+    "capture:lights": "tsx scripts/qualification/author-light-samples.ts"
   },
   "dependencies": {
     "@expo-google-fonts/silkscreen": "0.4.2",
