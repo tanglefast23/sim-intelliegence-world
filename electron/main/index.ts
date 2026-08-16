@@ -1970,6 +1970,14 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
   const followSuspends = followSuspendedLabel.includes('follow suspended') &&
     Math.abs(cameraAfterPanSuspend.x - pannedX) <= 0.02 &&
     Math.abs(cameraAfterPanSuspend.y - cameraBeforePanSuspend.y) <= 0.02;
+  const followSuspendsDiagnostic = followSuspends ? '' : [
+    `label=${JSON.stringify(followSuspendedLabel)}`,
+    `before=${cameraBeforePanSuspend.x},${cameraBeforePanSuspend.y}@${cameraBeforePanSuspend.zoom}`,
+    `after=${cameraAfterPanSuspend.x},${cameraAfterPanSuspend.y}@${cameraAfterPanSuspend.zoom}`,
+    `expectedX=${pannedX}`,
+    `dx=${cameraAfterPanSuspend.x - pannedX}`,
+    `dy=${cameraAfterPanSuspend.y - cameraBeforePanSuspend.y}`,
+  ].join(' ');
 
   const cameraBeforeImpulse = await cameraLabel(window);
   const shakenLabel = await window.webContents.executeJavaScript(`new Promise((resolve) => {
@@ -2422,7 +2430,7 @@ async function captureWorldSmoke(window: BrowserWindow, directory: string): Prom
     responsiveSurface, responsiveSurfaceDiagnostic: responsiveSurface ? '' : JSON.stringify(responsiveDto),
     resizeCamera, uiScaleControls,
     zoomButtons, movement, middlePan, wheelZoom, gradualZoomPersistence, centerKey, cancelKey, uiClickThrough,
-    followCamera, followSuspends, impactShake, cameraDirector,
+    followCamera, followSuspends, followSuspendsDiagnostic, impactShake, cameraDirector,
     roofRestore, roofEntry,
     pausedClock, doubleSpeedClock, nap, overnightSleep, sleepAutosave, travel, travelAutosave,
     closedFerry, allNeighborhoods, allTravelAutosaves,
