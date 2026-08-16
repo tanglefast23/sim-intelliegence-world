@@ -125,6 +125,8 @@ export default function GameSurfaceShell({ assetsLoaded }: GameSurfaceShellProps
           canvasWidth: canvas.width,
           nodeAccessBlocked: hasNoNodeAccess(),
           rendererKind,
+          // worldReady is set by the renderer surface after it presents, so this is measured.
+          worldFramePresented: worldReady,
           webgl2Ready: rendererKind === 'threejs-2d' && canvas.getContext('webgl2') !== null,
         });
         return bridge.reportRendererReady(report);
