@@ -388,28 +388,34 @@ const PROP_SCALE: Readonly<Record<string, number>> = {
 /**
  * Handoff technique 4b: the authored character scale from the pixel-villa spike.
  *
- * Applied about the PLACEMENT PIVOT, not about the axis-aligned bounds, and the two cannot both be
- * exact. `addAtlasPlacement` rotates about `(worldX + pivot.x x scale, worldY + pivot.y x scale)`,
- * and the wobble pivot is {12, 29} on a 24x30 sprite — one pixel above the foot line.
+ * The spike used 1.22. This ships 7/6, and the reason is a hard constraint rather than taste.
  *
- * Pivot-invariance is chosen because keeping the rotation centre correct matters more than a
- * sub-pixel foot line, and because moving the pivot to {12, 30} would change the shipped wobble and
- * re-lock its tests. The cost is stated rather than hidden: at 1.22 the foot line drifts
- * (30 - 29) x 0.22 = 0.22 LOGICAL pixels. In device pixels that is 0.22 x zoom x dpr, so the worst
- * locked pair — zoom 3 at DPR 2 — is 1.32 device pixels. The budget is world-space and the device
- * consequence is recorded, not asserted away.
+ * 24 x 1.22 = 29.28 and 30 x 1.22 = 36.6. A fractional sprite SIZE puts the quad's far edges on
+ * fractional world coordinates no matter where the near edge is anchored, so whole-pixel placement
+ * is broken by the scale itself and no choice of anchor rescues it. 7/6 maps the 24x30 protagonist
+ * to exactly 28x35, which is the nearest ratio to the spike's intent that keeps both edges whole.
+ *
+ * The shifts are whole pixels for the same reason, and they are chosen to make the FOOT exact:
+ *
+ *   worldY - 5 + 30 x 7/6 = worldY + 30   the foot line is invariant, exactly
+ *   worldX - 2 + 12 x 7/6 = worldX + 12   the pivot's x is invariant, exactly
+ *   worldY - 5 + 29 x 7/6 = worldY + 28.833   the pivot's y drifts 0.167 logical pixels
+ *
+ * Something has to give between whole-pixel placement, the foot line and the rotation pivot. The
+ * pivot's y is what gives, by a sixth of a pixel, because it is the only one of the three that is
+ * neither a locked constraint nor visible as a figure standing on a floor.
  */
-export const CHARACTER_SCALE = 1.22;
+export const CHARACTER_SCALE = 7 / 6;
+const CHARACTER_SHIFT_X = 2;
+const CHARACTER_SHIFT_Y = 5;
 
 export function withAuthoredCharacterScale(
   worldX: number,
   worldY: number,
-  pivot: WorldPoint,
 ): Readonly<{ worldX: number; worldY: number; scale: number }> {
-  // Keep the pivot POINT fixed: worldX + pivot.x === worldX' + pivot.x x scale.
   return {
-    worldX: worldX - pivot.x * (CHARACTER_SCALE - 1),
-    worldY: worldY - pivot.y * (CHARACTER_SCALE - 1),
+    worldX: worldX - CHARACTER_SHIFT_X,
+    worldY: worldY - CHARACTER_SHIFT_Y,
     scale: CHARACTER_SCALE,
   };
 }
@@ -770,11 +776,7 @@ export function buildWorldFrameState(
         layer: 'character',
         pivot: PROTAGONIST_WOBBLE_PIVOT,
         rotationDegrees: angleDegrees,
-        ...withAuthoredCharacterScale(
-          foot.x - 12 + leanX,
-          foot.y - 27 + bounceY,
-          PROTAGONIST_WOBBLE_PIVOT,
-        ),
+        ...withAuthoredCharacterScale(foot.x - 12 + leanX, foot.y - 27 + bounceY),
       }),
       visualId,
       tile: { ...tile },

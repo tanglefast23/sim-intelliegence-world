@@ -323,12 +323,14 @@ describe('authoritative world frame', () => {
     const player = frame.characters.find(({ id }) => id === 'protagonist')!;
     const linda = frame.characters.find(({ id }) => id === 'linda')!;
     expect(player.angleDegrees).toBeCloseTo(10.416666, 5);
-    expect(player.worldX).toBe(581);
-    expect(player.worldY).toBe(578);
+    // Technique 4b shifts every character placement by exactly (-2, -5) whole pixels. The
+    // shadow anchors on the foot, so it must NOT move.
+    expect(player.worldX).toBe(579);
+    expect(player.worldY).toBe(573);
     expect(player.shadowWorldX).toBe(586);
     expect(linda.angleDegrees).toBeCloseTo(10.416666, 5);
-    expect(linda.worldX).toBe(741);
-    expect(linda.worldY).toBe(961);
+    expect(linda.worldX).toBe(739);
+    expect(linda.worldY).toBe(956);
     expect(linda.shadowWorldX).toBe(746);
   });
 
@@ -342,8 +344,8 @@ describe('authoritative world frame', () => {
     });
     const player = frame.characters.find(({ id }) => id === 'protagonist')!;
     expect(player.angleDegrees).toBe(0);
-    expect(player.worldX).toBe(572);
-    expect(player.worldY).toBe(579);
+    expect(player.worldX).toBe(570);
+    expect(player.worldY).toBe(574);
     expect(player.shadowWorldX).toBe(577);
   });
 
@@ -357,9 +359,9 @@ describe('authoritative world frame', () => {
     const reduced = buildWorldFrameState(MAP, createInitialState(), {
       linda: { tile: { x: 23, y: 30 }, visualId: 'linda', pose: 'reaction', poseFrame: 1, reducedMotion: true },
     }, 'down', 0).characters.find(({ id }) => id === 'linda')!;
-    expect(reaction).toMatchObject({ angleDegrees: -4, worldY: 959 });
-    expect(talk).toMatchObject({ angleDegrees: 2, worldY: 960 });
-    expect(reduced).toMatchObject({ angleDegrees: 0, worldY: 962 });
+    expect(reaction).toMatchObject({ angleDegrees: -4, worldY: 954 });
+    expect(talk).toMatchObject({ angleDegrees: 2, worldY: 955 });
+    expect(reduced).toMatchObject({ angleDegrees: 0, worldY: 957 });
   });
 
   test('save and reload inside reconstruct the byte-identical first frame', () => {
