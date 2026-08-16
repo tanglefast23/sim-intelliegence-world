@@ -73,10 +73,13 @@ saves are unaffected.
 **Why Three.js.** The projection matrix is ours to shape. Skia's canvas transform
 was applied per draw call.
 
-**Measure.** Pan a fixed route at each supported DPR and zoom. No mask may change
-its readable-pixel set between consecutive frames while the camera is stationary,
-and the per-frame readable-pixel count must not oscillate by more than one pixel
-while panning.
+**Measure.** Capture a stationary camera at each supported DPR and zoom, before
+and after the change, and require the exact readable-pixel-set identity the
+comparator already enforces on native frames. Panning stability is the intent but
+is NOT claimed as evidence: the comparator compares one baseline against one
+candidate of the same fixture and hard-fails when a mask's bounds move, so it
+cannot compare consecutive frames of a pan. Any panning claim would need a new
+measurement family, which section 6 forbids.
 
 ### 5.2 Dithered light pools
 
@@ -91,37 +94,56 @@ palette quantised instead of introducing smooth gradients that fight the art.
 **Why Three.js.** A fragment shader can compute falloff per pixel. Skia would
 have needed a pre-baked gradient texture per pool size.
 
-**Measure.** Lamp centres stay brighter than their recorded unlit regions. Light
-pool draw calls drop from three per pool to one. No banding: along a radial line
-from each pool centre, luminance must decrease monotonically within a tolerance
-of one quantisation step.
+**Measure.** Lamp centres stay brighter than their recorded unlit regions, which
+is exactly what the comparator's light samples already assert. Draw calls are
+unchanged at one: every pool already builds into the single `district-light-pools`
+batch, so there is no draw call to save. The saving is geometry, recorded as a
+drop in that batch's `trianglesByBatch` count from three ellipse fans per pool to
+one quad. Banding is judged by decoded inspection of the native captures, not by a
+comparator gate, because no radial-monotonicity measurement exists.
 
 ### 5.3 Character rim light
 
 **Problem.** Characters read flat against lit floors, especially in interiors.
 
-**Change.** Add an upper-left rim highlight derived from the atlas alpha
-footprint, drawn as a one-texel offset copy of the character quad in the shadow
-batch's slot, tinted by the district accent and masked to texels whose
-upper-left neighbour is transparent.
+**Change.** Add an upper-left rim highlight in a dedicated batch with its own
+atlas-sampling material, inserted directly after
+`grounded-props-and-characters`. It cannot reuse a shadow batch: both shadow
+batches use the untextured primitive material, and their geometry carries
+placeholder UVs, so switching them to atlas sampling would corrupt what they
+already draw. It also cannot copy a character quad, because characters are
+interleaved with props in one geometry. The rim batch therefore rebuilds only the
+character placements, and masks to texels whose upper-left neighbour is
+transparent.
+
+This costs one additional draw call, taking the world from 17 to 18, which stays
+under the ceiling of 24. The atlas must be verified to carry transparent padding
+around every character cell, or the neighbour sample can read an adjacent
+sprite.
 
 **Why Three.js.** The shader can sample the atlas at a neighbouring texel and
 discard interior pixels. Skia had no per-texel access during an atlas draw.
 
-**Measure.** Every character mask must keep at least its current contrast
-retention against its ring, and must gain measurable separation: the rim's
-luminance against the adjacent floor must exceed the floor by at least the
-readable threshold of 1.02.
+**Measure.** Every character mask keeps at least its current contrast retention
+against its ring, which the comparator already gates. Draw calls are recorded at
+18 and atlas draw calls unchanged. The rim's separation from the adjacent floor
+is judged by decoded inspection, not by a gate: the comparator's readable
+threshold applies to mask pixels against their own ring median, not to arbitrary
+adjacent regions.
 
 ### 5.4 Time-of-day grading
 
 **Problem.** District tint is a flat colour multiply. Dawn, day, dusk and night
 differ in hue but not in tonal shape.
 
-**Change.** Apply a small per-period grading curve in the composite: lift shadows
-slightly at dawn, deepen them at night, and cool or warm midtones. Implement as
-three uniforms on the existing overlay material, not as a lookup texture, so
-there is no new asset and no filtering question.
+**Change.** Apply a small per-period grading curve as shared uniforms inside each
+material's fragment shader, before the tone-mapping include. It cannot live on the
+atmosphere batch: that batch is one alpha-blended quad, and fixed-function
+blending can only apply a per-channel affine transform to what is beneath it,
+which cannot lift shadows while separately cooling midtones. Reading composited
+pixels would need a render target, which section 4 forbids. Atmosphere also
+renders beneath the three feedback batches, so grading applied there would miss
+them entirely.
 
 **Why Three.js.** Uniform-driven grading costs nothing per frame. Skia would have
 needed a colour filter per draw.
@@ -137,8 +159,12 @@ photograph rather than a place.
 
 **Change.** Displace tagged ground-detail vertices with a small deterministic
 wave, computed in the vertex shader from the controller-sampled timestamp and the
-tile coordinate. Amplitude is at most one logical pixel, so pixel placement is
-preserved. Reduced motion pins the phase, exactly as the VFX clock already does.
+tile coordinate. The displacement is quantised in the shader to whole
+drawing-buffer pixels, so it is a discrete step rather than a glide. That
+quantisation is the defence of hard constraint 2: a continuous sub-pixel wave
+would sweep vertices through fractional positions and change which texel each
+device pixel samples mid-swing, which is exactly the instability item 5.1 exists
+to remove. Reduced motion pins the phase, as the VFX clock already does.
 
 **Why Three.js.** Vertex displacement is free on the GPU and needs no CPU work
 per tile. Skia would have rebuilt geometry per frame.
@@ -154,6 +180,9 @@ measurement family is introduced.
 
 - Readable coverage, contrast retention, mask identity and the `1.05` baseline
   contrast floor apply unchanged.
+- Where an item's intent cannot be expressed in those terms, it is judged by
+  decoded inspection of the native captures and said so plainly, rather than
+  described as a gate it does not have. Items 5.2 and 5.3 both rely on this.
 - Frames whose layer ownership or shading changes carry `compositingChanged`, so
   they qualify under the raster-neutral RGB family already approved for moved
   layers.
