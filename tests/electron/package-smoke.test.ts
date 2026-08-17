@@ -424,6 +424,13 @@ describe('packaged Electron smoke evidence', () => {
       { requireSameDimensions: false },
     )).not.toThrow();
     expect(() => validateScreenshotBuffers(loading, loading)).toThrow('identical');
+    // A boot fast enough to clear the loading shell before the first frame leaves the loading
+    // capture showing the ready screen. That is recorded, not failed, so the difference rule is
+    // waived — but the PNGs themselves still have to be real.
+    expect(() => validateScreenshotBuffers(loading, loading, { requireDifference: false }))
+      .not.toThrow();
+    expect(() => validateScreenshotBuffers(Buffer.alloc(20), ready, { requireDifference: false }))
+      .toThrow('not a PNG');
   });
 
   test('requires three distinct world zoom PNG screenshots', () => {

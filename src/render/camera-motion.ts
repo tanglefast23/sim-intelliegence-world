@@ -1,9 +1,5 @@
 import { MAX_WORLD_ZOOM, MIN_WORLD_ZOOM } from '../domain/presentation/world-zoom';
-import {
-  MAX_MOVEMENT_FRAME_MS,
-  routeMotionProgress,
-  type WorldPoint,
-} from '../world/movement/motion-clock';
+import { routeMotionProgress, type WorldPoint } from '../world/movement/motion-clock';
 import { stableTupleHash } from '../world/presentation/material-selection';
 import {
   clampCamera,
@@ -240,7 +236,12 @@ export function sampleCameraDirector(
   camera: CameraState,
   input: CameraDirectorInput,
 ): CameraDirectorSample {
-  const deltaMs = clamp(input.deltaMs, 0, MAX_MOVEMENT_FRAME_MS);
+  // Not clamped to MAX_MOVEMENT_FRAME_MS. That clamp exists so grid movement cannot step over a
+  // blocker in one huge frame; the camera has no such hazard — follow is unconditionally stable
+  // exponential smoothing and shot progress is clamped to 0..1. Clamping here made every wall-clock
+  // envelope stretch on a slow renderer: at 2 s per frame the 180 ms impact took three frames, six
+  // real seconds, and the packaged Windows smoke timed out waiting for the shake to reach zero.
+  const deltaMs = Math.max(0, input.deltaMs);
   const seconds = deltaMs / 1_000;
   let nextCamera = camera;
   // Floored, not just clamped: float residue of 1e-17 would read as "still shaking" and keep the

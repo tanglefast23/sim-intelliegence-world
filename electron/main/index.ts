@@ -150,6 +150,24 @@ async function captureSmokeScreenshot(
   return writeSmokeScreenshot(screenshotPath, image);
 }
 
+/**
+ * Waits for `#loading-shell` to mount, up to 400 ms.
+ *
+ * Returns either way. A boot fast enough to clear the shell inside the window is a quicker boot,
+ * not a defect, and `captureLoadingSmokeFrame` already records that case instead of failing.
+ */
+async function waitForLoadingShell(window: BrowserWindow): Promise<void> {
+  const deadline = Date.now() + 400;
+  while (Date.now() < deadline) {
+    const present = await window.webContents.executeJavaScript(
+      `Boolean(document.querySelector('#loading-shell'))`,
+      true,
+    ) as boolean;
+    if (present) return;
+    await waitForSmokeRetry(20);
+  }
+}
+
 async function captureLoadingSmokeScreenshot(window: BrowserWindow, screenshotPath: string): Promise<Buffer> {
   const loadingVisible = (): Promise<boolean> => window.webContents.executeJavaScript(
     `Boolean(document.querySelector('#loading-shell'))`,
@@ -238,6 +256,12 @@ async function waitForCameraMotion(
  * Follow eases, so it keeps travelling for several frames after the hero stops walking. Sampling
  * the camera the instant `reachWorldTile` returns catches it mid-ease, and any later assertion
  * against that sample races the remaining travel.
+ *
+ * Still means UNCHANGED ACROSS TWO RENDERED FRAMES, not unchanged for 80 ms. A hidden window
+ * starves `requestAnimationFrame` unless something forces a frame, so an 80 ms sleep usually
+ * spanned no frame at all and read as settled mid-ease. `waitForRendererPaint` captures the page,
+ * which forces the frames, so the wait drives the clock instead of hoping it ran. On Windows the
+ * missing travel arrived after the sample and landed the camera 1.5 world pixels past the pan.
  */
 async function waitForCameraStill(
   window: BrowserWindow,
@@ -246,7 +270,7 @@ async function waitForCameraStill(
   const deadline = Date.now() + timeoutMilliseconds;
   let previous = await cameraLabel(window);
   while (Date.now() < deadline) {
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 80));
+    await waitForRendererPaint(window);
     const current = await cameraLabel(window);
     if (current === previous) return current;
     previous = current;
@@ -2742,16 +2766,18 @@ async function createMainWindow(): Promise<void> {
     }
     const loadingScreenshotPath = process.env.SI_WORLD_SMOKE_LOADING_SCREENSHOT;
     if (smokeMode && loadingScreenshotPath) {
-      // The loading shell needs a moment to mount, and the resource gate holds it for about
-      // 500 ms in smoke mode. Capturing at zero fired before the shell existed, which made the
-      // tolerant path record the ready frame and produced identical loading and ready evidence.
-      setTimeout(() => {
-        void captureLoadingSmokeScreenshot(window, loadingScreenshotPath).catch((error: unknown) => {
+      // Poll for the shell, do not sleep a fixed 150 ms and hope. The shell needs a moment to
+      // mount, so capturing at zero fired before it existed; but on a fast machine the save check
+      // it waits on finishes inside that 150 ms, so the sleep missed the shell entirely and the
+      // tolerant path recorded the menu, which then matched the ready frame byte for byte. Both
+      // ends are races, so this waits for the thing itself and captures the moment it is there.
+      void waitForLoadingShell(window)
+        .then(() => captureLoadingSmokeScreenshot(window, loadingScreenshotPath))
+        .catch((error: unknown) => {
           smokeFinished = true;
           process.stderr.write(`SI_WORLD_SMOKE_FAILURE ${String(error)}\n`);
           app.exit(1);
         });
-      }, 150);
     }
   });
   await window.loadURL(webgl2ProbeMode ? WEBGL2_PROBE_URL : devHarnessMode ? `${APP_URL}#/dev` : APP_URL);

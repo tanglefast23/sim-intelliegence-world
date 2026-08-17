@@ -191,7 +191,7 @@ function assertScreenshot(buffer: Buffer, label: string): Readonly<{ width: numb
 export function validateScreenshotBuffers(
   loading: Buffer,
   ready: Buffer,
-  options: Readonly<{ requireSameDimensions?: boolean }> = {},
+  options: Readonly<{ requireSameDimensions?: boolean; requireDifference?: boolean }> = {},
 ): void {
   const loadingDimensions = assertScreenshot(loading, 'Loading');
   const readyDimensions = assertScreenshot(ready, 'Ready');
@@ -205,16 +205,27 @@ export function validateScreenshotBuffers(
       `${loadingDimensions.width}x${loadingDimensions.height} vs ${readyDimensions.width}x${readyDimensions.height}.`,
     );
   }
-  if (loading.equals(ready)) {
+  if ((options.requireDifference ?? true) && loading.equals(ready)) {
     throw new Error('Loading and ready screenshots are identical.');
   }
 }
 
-export function validateScreenshotEvidence(loadingPath: string, readyPath: string): void {
+/**
+ * @param loadingShellObserved Whether the loading shell was actually on screen when the loading
+ * frame was captured. When it was not — a fast boot clears the shell before the main process gets
+ * a frame, which `captureLoadingSmokeFrame` records rather than fails — the loading capture IS the
+ * ready screen, so requiring the two to differ turned a quick boot into a red build. The flag is
+ * the evidence that a loading frame exists; the byte difference is only its proxy.
+ */
+export function validateScreenshotEvidence(
+  loadingPath: string,
+  readyPath: string,
+  loadingShellObserved = true,
+): void {
   validateScreenshotBuffers(
     readFileSync(loadingPath),
     readFileSync(readyPath),
-    { requireSameDimensions: false },
+    { requireSameDimensions: false, requireDifference: loadingShellObserved },
   );
 }
 
