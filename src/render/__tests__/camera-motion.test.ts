@@ -118,6 +118,17 @@ describe('impact shake', () => {
     expect(sampleCameraDirector(motion, camera, directorInput({ deltaMs: 45 })).active).toBe(false);
   });
 
+  test('one slow frame spends the whole envelope, so a 0.5 fps renderer does not stretch it', () => {
+    // The packaged Windows smoke runs on a software renderer where a frame can exceed a second.
+    // Clamping the camera delta to the movement ceiling made the 180 ms impact need three of those
+    // frames, so the shake was still ringing seconds later and the smoke timed out on shake 0.00.
+    const camera = centred();
+    const motion = applyImpulse(INITIAL_CAMERA_MOTION, 1, { x: 1, y: 0 });
+    const sample = sampleCameraDirector(motion, camera, directorInput({ deltaMs: 2_000 }));
+    expect(sample.motion.trauma).toBe(0);
+    expect(sample.active).toBe(false);
+  });
+
   test('shake is trauma squared, so escalation is perceptible', () => {
     const traumas = [0.3, 0.6, 0.9].map((trauma) => {
       const motion = applyImpulse(INITIAL_CAMERA_MOTION, trauma);
